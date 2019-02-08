@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from .utils import timing
 
 
 class FNN(object):
@@ -28,6 +29,7 @@ class FNN(object):
         self.x, self.y, self.y_ = None, None, None
         self.build()
 
+    @timing
     def build(self):
         print('Building feed-forward neural network...')
         self.training = tf.placeholder(tf.bool)

@@ -2,8 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import time
-
 import numpy as np
 
 from sciconet import DataFunc, FNN, Interval, Model, saveplot
@@ -35,9 +33,7 @@ def main():
     model.compile(optimizer, lr, batch_size, ntest)
 
     nepoch = 10000
-    t = time.time()
     _, loss, _, res = model.train(nepoch)
-    print('Cost {} s'.format(time.time() - t))
 
     train = np.hstack((mydata.train_x, mydata.train_y))
     saveplot(loss, res, x_dim, y_dim, train=train, issave=True, isplot=True)

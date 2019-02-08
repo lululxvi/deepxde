@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from .utils import timing
 
 
 class Model(object):
@@ -26,6 +27,7 @@ class Model(object):
         self.losses, self.totalloss = None, None
         self.opt, self.train_op = None, None
 
+    @timing
     def compile(self, optimizer, lr, batch_size, ntest, decay=None, loss_weights=None):
         print('Compiling model...')
 
@@ -46,80 +48,7 @@ class Model(object):
                 self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
                     self.totalloss, global_step=global_step)
 
-    def get_optimizer(self, name, lr):
-        return {
-            'sgd': tf.train.GradientDescentOptimizer(lr),
-            'sgdnesterov': tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
-            'adagrad': tf.train.AdagradOptimizer(0.01),
-            'adadelta': tf.train.AdadeltaOptimizer(),
-            'rmsprop': tf.train.RMSPropOptimizer(lr),
-            'adam': tf.train.AdamOptimizer(lr)
-        }[name]
-
-    def get_learningrate(self, lr, decay):
-        if decay is None:
-            return lr, None
-        global_step = tf.Variable(0, trainable=False)
-        return {
-            'inverse time': tf.train.inverse_time_decay(lr, global_step, decay[1], decay[2]),
-            'cosine': tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2])
-        }[decay[0]], global_step
-
-    def get_losses(self, x, y, y_, batch_size, ntest, training):
-        if self.data.target in ['func', 'functional']:
-            l = [tf.losses.mean_squared_error(y_, y)]
-            # l = [tf.reduce_mean(tf.abs(y_ - y) / y_)]
-        elif self.data.target == 'classification':
-            l = [tf.losses.softmax_cross_entropy(y_, y)]
-        elif self.data.target == 'pde':
-            f = self.data.pde(x, y)[self.data.nbc:]
-            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif self.data.target == 'ide':
-            int_mat_train = self.data.get_int_matrix(batch_size, True)
-            int_mat_test = self.data.get_int_matrix(ntest, False)
-            f = tf.cond(training,
-                        lambda: self.data.ide(x, y, int_mat_train),
-                        lambda: self.data.ide(x, y, int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif self.data.target == 'frac':
-            int_mat_train = self.data.get_int_matrix(batch_size, True)
-            int_mat_test = self.data.get_int_matrix(ntest, False)
-            f = tf.cond(training,
-                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
-                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif self.data.target == 'frac time':
-            int_mat_train = self.data.get_int_matrix(batch_size, True)
-            int_mat_test = self.data.get_int_matrix(ntest, False)
-            dy_t = tf.gradients(y, x)[0][self.data.nbc:, -1:]
-            f = tf.cond(training,
-                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_train),
-                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif self.data.target == 'frac inv':
-            int_mat_train = self.data.get_int_matrix(batch_size, True)
-            int_mat_test = self.data.get_int_matrix(ntest, False)
-            f = tf.cond(training,
-                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
-                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif self.data.target == 'frac inv hetero':
-            int_mat_train = self.data.get_int_matrix(batch_size, True)
-            int_mat_test = self.data.get_int_matrix(ntest, False)
-            f = tf.cond(training,
-                        lambda: self.data.frac(x, y, int_mat_train)[self.data.nbc:],
-                        lambda: self.data.frac(x, y, int_mat_test)[self.data.nbc:])
-            l = [tf.losses.mean_squared_error(y_, y),
-                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        else:
-            raise ValueError('target')
-        return tf.convert_to_tensor(l)
-
+    @timing
     def train(self, nepoch, uncertainty=False, errstop=None, print_model=False, callback=None):
         print('Training model...')
 
@@ -200,6 +129,80 @@ class Model(object):
             return model, np.array(testloss), np.hstack((batch_xs, batch_ys, ytrain_pred)), np.hstack((test_xs, test_ys, y_pred))
         else:
             return model, np.array(testloss), np.hstack((test_xs, test_ys, besty, bestystd))
+
+    def get_optimizer(self, name, lr):
+        return {
+            'sgd': tf.train.GradientDescentOptimizer(lr),
+            'sgdnesterov': tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
+            'adagrad': tf.train.AdagradOptimizer(0.01),
+            'adadelta': tf.train.AdadeltaOptimizer(),
+            'rmsprop': tf.train.RMSPropOptimizer(lr),
+            'adam': tf.train.AdamOptimizer(lr)
+        }[name]
+
+    def get_learningrate(self, lr, decay):
+        if decay is None:
+            return lr, None
+        global_step = tf.Variable(0, trainable=False)
+        return {
+            'inverse time': tf.train.inverse_time_decay(lr, global_step, decay[1], decay[2]),
+            'cosine': tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2])
+        }[decay[0]], global_step
+
+    def get_losses(self, x, y, y_, batch_size, ntest, training):
+        if self.data.target in ['func', 'functional']:
+            l = [tf.losses.mean_squared_error(y_, y)]
+            # l = [tf.reduce_mean(tf.abs(y_ - y) / y_)]
+        elif self.data.target == 'classification':
+            l = [tf.losses.softmax_cross_entropy(y_, y)]
+        elif self.data.target == 'pde':
+            f = self.data.pde(x, y)[self.data.nbc:]
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        elif self.data.target == 'ide':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            f = tf.cond(training,
+                        lambda: self.data.ide(x, y, int_mat_train),
+                        lambda: self.data.ide(x, y, int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        elif self.data.target == 'frac':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            f = tf.cond(training,
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        elif self.data.target == 'frac time':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            dy_t = tf.gradients(y, x)[0][self.data.nbc:, -1:]
+            f = tf.cond(training,
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_train),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        elif self.data.target == 'frac inv':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            f = tf.cond(training,
+                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
+                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        elif self.data.target == 'frac inv hetero':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            f = tf.cond(training,
+                        lambda: self.data.frac(x, y, int_mat_train)[self.data.nbc:],
+                        lambda: self.data.frac(x, y, int_mat_test)[self.data.nbc:])
+            l = [tf.losses.mean_squared_error(y_, y),
+                 tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
+        else:
+            raise ValueError('target')
+        return tf.convert_to_tensor(l)
 
     def print_model(self, sess):
         variables_names = [v.name for v in tf.trainable_variables()]
