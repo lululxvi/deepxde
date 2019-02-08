@@ -11,7 +11,7 @@ from SALib.sample import sobol_sequence
 from scipy import stats
 from sklearn import preprocessing
 
-from nnlearn import config
+from . import config
 
 
 class Geometry(object):

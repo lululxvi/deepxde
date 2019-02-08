@@ -3,7 +3,7 @@
 import numpy as np
 import tensorflow as tf
 
-from nnlearn import config
+from . import config
 
 
 def istensor(value):

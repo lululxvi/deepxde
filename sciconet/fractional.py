@@ -8,7 +8,7 @@ import math
 import numpy as np
 import tensorflow as tf
 
-from nnlearn import config
+from . import config
 from . import array_ops
 
 
