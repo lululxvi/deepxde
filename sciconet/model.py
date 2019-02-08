@@ -25,7 +25,7 @@ class Model(object):
         self.batch_size, self.ntest = None, None
 
         self.losses, self.totalloss = None, None
-        self.opt, self.train_op = None, None
+        self.train_op = None
 
     @timing
     def compile(self, optimizer, lr, batch_size, ntest, decay=None, loss_weights=None):
@@ -42,14 +42,14 @@ class Model(object):
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
             if self.optimizer in Model.scipy_opts:
-                self.opt = tf.contrib.opt.ScipyOptimizerInterface(
+                self.train_op = tf.contrib.opt.ScipyOptimizerInterface(
                     self.totalloss, method=self.optimizer, options={'disp': True})
             else:
                 self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
                     self.totalloss, global_step=global_step)
 
     @timing
-    def train(self, nepoch, uncertainty=False, errstop=None, print_model=False, callback=None):
+    def train(self, epochs, uncertainty=False, errstop=None, print_model=False, callback=None):
         print('Training model...')
 
         tfconfig = tf.ConfigProto()
@@ -63,16 +63,16 @@ class Model(object):
         test_xs, test_ys = self.data.test(self.ntest)
         if self.optimizer in Model.scipy_opts:
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
-            self.opt.minimize(sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
+            self.train_op.minimize(sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
             y_pred = sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
             return None, None, None, np.hstack((test_xs, test_ys, y_pred))
 
         minloss, besty, bestystd = np.inf, None, None
-        for i in range(nepoch):
+        for i in range(epochs):
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
             sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
-            if i % 1000 == 0 or i + 1 == nepoch:
+            if i % 1000 == 0 or i + 1 == epochs:
                 if uncertainty:
                     errs, y_preds = [], []
                     for _ in range(1000):
