@@ -33,10 +33,11 @@ def main():
     model.compile(optimizer, lr, batch_size, ntest)
 
     nepoch = 10000
-    _, loss, _, res = model.train(nepoch)
+    losshistory, training_state = model.train(nepoch)
 
     train = np.hstack((mydata.train_x, mydata.train_y))
-    saveplot(loss, res, x_dim, y_dim, train=train, issave=True, isplot=True)
+    saveplot(losshistory, np.hstack((training_state.X_test, training_state.y_test, training_state.best_y)),
+             x_dim, y_dim, train=train, issave=True, isplot=True)
 
 
 if __name__ == '__main__':

@@ -12,6 +12,33 @@ from . import config
 from .utils import timing
 
 
+class TrainingState(object):
+
+    def __init__(self, sess, X_test, y_test):
+        self.epoch, self.step = 0, 0
+        self.sess = sess
+        self.X_test, self.y_test = X_test, y_test
+
+        self.X_train, self.y_train, self.y_train_pred = None, None, None
+        self.y_test_pred = None
+        self.loss_train, self.loss_test = None, None
+
+        # the best results correspond to the min training loss
+        self.best_loss_train, self.best_loss_test = np.inf, np.inf
+        self.best_y, self.best_ystd = None, None
+
+    def update(self, X_train, y_train, y_train_pred, y_test_pred,
+               loss_train, loss_test, y_test_predstd=None):
+        self.X_train, self.y_train, self.y_train_pred = X_train, y_train, y_train_pred
+        self.y_test_pred = y_test_pred
+        self.loss_train, self.loss_test = loss_train, loss_test
+
+        if self.best_loss_train > np.sum(loss_train):
+            self.best_loss_train = np.sum(loss_train)
+            self.best_loss_test = np.sum(loss_test)
+            self.best_y, self.best_ystd = y_test_pred, y_test_predstd
+
+
 class Model(object):
     """model
     """
@@ -62,25 +89,27 @@ class Model(object):
             self.print_model()
 
         if self.optimizer in Model.scipy_opts:
-            training_state = self.train_scipy()
+            losshistory, training_state = self.train_scipy()
         else:
-            training_state = self.train_sgd(epochs, uncertainty=uncertainty, errstop=errstop, callback=callback)
+            losshistory, training_state = self.train_sgd(epochs, uncertainty=uncertainty, errstop=errstop, callback=callback)
 
         if print_model:
             self.print_model()
         self.sess.close()
-        return training_state
+        return losshistory, training_state
 
-    def train_sgd(self, epochs, uncertainty=False, errstop=None, callback=None):
-        testloss = []
+    def train_sgd(self, epochs, uncertainty, errstop, callback):
+        losshistory = []
+
         test_xs, test_ys = self.data.test(self.ntest)
+        training_state = TrainingState(self.sess, test_xs, test_ys)
 
-        minloss, besty, bestystd = np.inf, None, None
         for i in range(epochs):
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
             self.sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
             if i % 1000 == 0 or i + 1 == epochs:
+                y_std = None
                 if uncertainty:
                     errs, y_preds = [], []
                     for _ in range(1000):
@@ -95,6 +124,9 @@ class Model(object):
                     err, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={
                         self.net.training: False, self.net.x: test_xs, self.net.y_: test_ys})
 
+                training_state.update(batch_xs, batch_ys, ytrain_pred, y_pred, err_train, err, y_test_predstd=y_std)
+                training_state.epoch = training_state.step = i
+
                 if self.data.target == 'classification':
                     err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
                 elif self.data.target in ['frac']:
@@ -102,7 +134,7 @@ class Model(object):
                 else:
                     err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
                     # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
-                testloss.append([i] + list(err) + [err_norm])
+                losshistory.append([i] + list(err) + [err_norm])
 
                 if self.data.target == 'frac inv':
                     alpha = self.sess.run(self.data.alpha_train)
@@ -113,27 +145,28 @@ class Model(object):
                 else:
                     print(i, err_train, err, err_norm)
                 if callback is not None:
-                    callback(i, batch_xs, batch_ys, ytrain_pred, test_xs, test_ys, y_pred)
+                    callback(training_state)
                 sys.stdout.flush()
 
-                if np.sum(err) < minloss:
-                    minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
-                    if 'y_std' in locals():
-                        bestystd = y_std
-                    if self.data.target == 'frac inv':
-                        self.data.alpha = alpha
-                    elif self.data.target == 'frac inv hetero':
-                        self.data.alpha1, self.data.alpha2, self.data.c = alphac
+                # if np.sum(err) < minloss:
+                #     minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
+                #     if 'y_std' in locals():
+                #         bestystd = y_std
+                #     if self.data.target == 'frac inv':
+                #         self.data.alpha = alpha
+                #     elif self.data.target == 'frac inv hetero':
+                #         self.data.alpha1, self.data.alpha2, self.data.c = alphac
 
                 if errstop is not None and err_norm < errstop:
                     break
 
-        model = self.sess.run(tf.trainable_variables())
-        if bestystd is None:
-            # return model, np.array(testloss), np.hstack((batch_xs, batch_ys, besty_train)), np.hstack((test_xs, test_ys, besty))
-            return model, np.array(testloss), np.hstack((batch_xs, batch_ys, ytrain_pred)), np.hstack((test_xs, test_ys, y_pred))
-        else:
-            return model, np.array(testloss), np.hstack((test_xs, test_ys, besty, bestystd))
+        # model = self.sess.run(tf.trainable_variables())
+        # if bestystd is None:
+        #     # return model, np.array(testloss), np.hstack((batch_xs, batch_ys, besty_train)), np.hstack((test_xs, test_ys, besty))
+        #     return model, np.array(losshistory), np.hstack((batch_xs, batch_ys, ytrain_pred)), np.hstack((test_xs, test_ys, y_pred))
+        # else:
+        #     return model, np.array(losshistory), np.hstack((test_xs, test_ys, besty, bestystd))
+        return np.array(losshistory), training_state
 
     def train_scipy(self):
         batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
@@ -141,7 +174,12 @@ class Model(object):
 
         test_xs, test_ys = self.data.test(self.ntest)
         y_pred = self.sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
-        return None, None, None, np.hstack((test_xs, test_ys, y_pred))
+
+        training_state = TrainingState(self.sess, test_xs, test_ys)
+        training_state.X_train, training_state.y_train = batch_xs, batch_ys
+        training_state.best_y = y_pred
+
+        return None, training_state
 
     def get_optimizer(self, name, lr):
         return {
