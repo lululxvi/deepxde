@@ -26,16 +26,17 @@ def main():
     initializer = 'Glorot uniform'
     net = FNN(layer_size, activation, initializer)
 
+    model = Model(mydata, net)
+
     optimizer = 'adam'
-    model = Model(mydata, net, optimizer)
-
-    batch_size = 16
     lr = 0.001
-    nepoch = 10000
+    batch_size = 16
     ntest = 100
+    model.compile(optimizer, lr, batch_size, ntest)
 
+    nepoch = 10000
     t = time.time()
-    _, loss, _, res = model.train(batch_size, lr, nepoch, ntest)
+    _, loss, _, res = model.train(nepoch)
     print('Cost {} s'.format(time.time() - t))
 
     train = np.hstack((mydata.train_x, mydata.train_y))

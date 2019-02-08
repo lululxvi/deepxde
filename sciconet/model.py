@@ -1,4 +1,3 @@
-# author: Lu Lu
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -15,11 +14,37 @@ from . import config
 class Model(object):
     """model
     """
+    scipy_opts = ['BFGS', 'L-BFGS-B', 'Nelder-Mead', 'Powell', 'CG', 'Newton-CG']
 
-    def __init__(self, data, net, optimizer):
+    def __init__(self, data, net):
         self.data = data
         self.net = net
+
+        self.optimizer = None
+        self.batch_size, self.ntest = None, None
+
+        self.losses, self.totalloss = None, None
+        self.opt, self.train_op = None, None
+
+    def compile(self, optimizer, lr, batch_size, ntest, decay=None, loss_weights=None):
+        print('Compiling model...')
+
         self.optimizer = optimizer
+        self.batch_size, self.ntest = batch_size, ntest
+
+        self.losses = self.get_losses(self.net.x, self.net.y, self.net.y_, batch_size, ntest, self.net.training)
+        if loss_weights is not None:
+            self.losses *= loss_weights
+        self.totalloss = tf.reduce_sum(self.losses)
+        lr, global_step = self.get_learningrate(lr, decay)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(update_ops):
+            if self.optimizer in Model.scipy_opts:
+                self.opt = tf.contrib.opt.ScipyOptimizerInterface(
+                    self.totalloss, method=self.optimizer, options={'disp': True})
+            else:
+                self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
+                    self.totalloss, global_step=global_step)
 
     def get_optimizer(self, name, lr):
         return {
@@ -40,7 +65,7 @@ class Model(object):
             'cosine': tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2])
         }[decay[0]], global_step
 
-    def loss(self, x, y, y_, batch_size, ntest, training):
+    def get_losses(self, x, y, y_, batch_size, ntest, training):
         if self.data.target in ['func', 'functional']:
             l = [tf.losses.mean_squared_error(y_, y)]
             # l = [tf.reduce_mean(tf.abs(y_ - y) / y_)]
@@ -95,27 +120,8 @@ class Model(object):
             raise ValueError('target')
         return tf.convert_to_tensor(l)
 
-    def train(self, batch_size, lr, nepoch, ntest, uncertainty=False,
-              regularization=None, decay=None, errstop=None, lossweight=None,
-              print_model=False, callback=None):
-        print('Building neural network...')
-        scipy_opts = ['BFGS', 'L-BFGS-B', 'Nelder-Mead', 'Powell', 'CG', 'Newton-CG']
-
-        training, x, y, y_ = self.net.training, self.net.x, self.net.y, self.net.y_
-
-        loss = self.loss(x, y, y_, batch_size, ntest, training)
-        if lossweight is not None:
-            loss *= lossweight
-        totalloss = tf.reduce_sum(loss)
-        lr, global_step = self.get_learningrate(lr, decay)
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        with tf.control_dependencies(update_ops):
-            if self.optimizer in scipy_opts:
-                opt = tf.contrib.opt.ScipyOptimizerInterface(
-                    totalloss, method=self.optimizer, options={'disp': True})
-            else:
-                train = self.get_optimizer(self.optimizer, lr).minimize(
-                    totalloss, global_step=global_step)
+    def train(self, nepoch, uncertainty=False, errstop=None, print_model=False, callback=None):
+        print('Training model...')
 
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
@@ -124,41 +130,40 @@ class Model(object):
         if print_model:
             self.print_model(sess)
 
-        print('Training...')
         testloss = []
-        test_xs, test_ys = self.data.test(ntest)
-        if self.optimizer in scipy_opts:
-            batch_xs, batch_ys = self.data.train_next_batch(batch_size)
-            opt.minimize(sess, feed_dict={training: True, x: batch_xs, y_: batch_ys})
-            y_pred = sess.run(y, feed_dict={training: False, x: test_xs})
+        test_xs, test_ys = self.data.test(self.ntest)
+        if self.optimizer in Model.scipy_opts:
+            batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
+            self.opt.minimize(sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
+            y_pred = sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
             return None, None, None, np.hstack((test_xs, test_ys, y_pred))
 
         minloss, besty, bestystd = np.inf, None, None
         for i in range(nepoch):
-            batch_xs, batch_ys = self.data.train_next_batch(batch_size)
-            sess.run([loss, train], feed_dict={training: True, x: batch_xs, y_: batch_ys})
+            batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
+            sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
             if i % 1000 == 0 or i + 1 == nepoch:
                 if uncertainty:
                     errs, y_preds = [], []
                     for _ in range(1000):
-                        err, y_pred = sess.run([loss, y], feed_dict={training: True, x: test_xs, y_: test_ys})
+                        err, y_pred = sess.run([self.losses, self.net.y], feed_dict={self.net.training: True, self.net.x: test_xs, self.net.y_: test_ys})
                         errs.append(err)
                         y_preds.append(y_pred)
                     err = np.mean(errs, axis=0)
                     y_pred, y_std = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
                 else:
-                    err_train, ytrain_pred = sess.run([loss, y], feed_dict={
-                        training: False, x: batch_xs, y_: batch_ys})
-                    err, y_pred = sess.run([loss, y], feed_dict={
-                        training: False, x: test_xs, y_: test_ys})
+                    err_train, ytrain_pred = sess.run([self.losses, self.net.y], feed_dict={
+                        self.net.training: False, self.net.x: batch_xs, self.net.y_: batch_ys})
+                    err, y_pred = sess.run([self.losses, self.net.y], feed_dict={
+                        self.net.training: False, self.net.x: test_xs, self.net.y_: test_ys})
 
                 if self.data.target == 'classification':
                     err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
                 elif self.data.target in ['frac']:
-                    err_norm = np.linalg.norm(test_ys[self.data.nbc:ntest] - y_pred[self.data.nbc:ntest]) / np.linalg.norm(test_ys[self.data.nbc:ntest])
+                    err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
                 else:
-                    err_norm = np.linalg.norm(test_ys[:ntest] - y_pred[:ntest]) / np.linalg.norm(test_ys[:ntest])
+                    err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
                     # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
                 testloss.append([i] + list(err) + [err_norm])
 
