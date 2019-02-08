@@ -27,7 +27,7 @@ def main():
     net = FNN(layer_size, activation, initializer)
 
     optimizer = 'adam'
-    model = Model(net, optimizer)
+    model = Model(mydata, net, optimizer)
 
     batch_size = 16
     lr = 0.001
@@ -35,7 +35,7 @@ def main():
     ntest = 100
 
     t = time.time()
-    _, loss, _, res = model.train(mydata, batch_size, lr, nepoch, ntest)
+    _, loss, _, res = model.train(batch_size, lr, nepoch, ntest)
     print('Cost {} s'.format(time.time() - t))
 
     train = np.hstack((mydata.train_x, mydata.train_y))

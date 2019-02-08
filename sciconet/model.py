@@ -16,7 +16,8 @@ class Model(object):
     """model
     """
 
-    def __init__(self, net, optimizer):
+    def __init__(self, data, net, optimizer):
+        self.data = data
         self.net = net
         self.optimizer = optimizer
 
@@ -39,62 +40,62 @@ class Model(object):
             'cosine': tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2])
         }[decay[0]], global_step
 
-    def loss(self, data, x, y, y_, batch_size, ntest, training):
-        if data.target in ['func', 'functional']:
+    def loss(self, x, y, y_, batch_size, ntest, training):
+        if self.data.target in ['func', 'functional']:
             l = [tf.losses.mean_squared_error(y_, y)]
             # l = [tf.reduce_mean(tf.abs(y_ - y) / y_)]
-        elif data.target == 'classification':
+        elif self.data.target == 'classification':
             l = [tf.losses.softmax_cross_entropy(y_, y)]
-        elif data.target == 'pde':
-            f = data.pde(x, y)[data.nbc:]
-            l = [tf.losses.mean_squared_error(y_[:data.nbc], y[:data.nbc]),
+        elif self.data.target == 'pde':
+            f = self.data.pde(x, y)[self.data.nbc:]
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif data.target == 'ide':
-            int_mat_train = data.get_int_matrix(batch_size, True)
-            int_mat_test = data.get_int_matrix(ntest, False)
+        elif self.data.target == 'ide':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
             f = tf.cond(training,
-                        lambda: data.ide(x, y, int_mat_train),
-                        lambda: data.ide(x, y, int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:data.nbc], y[:data.nbc]),
+                        lambda: self.data.ide(x, y, int_mat_train),
+                        lambda: self.data.ide(x, y, int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif data.target == 'frac':
-            int_mat_train = data.get_int_matrix(batch_size, True)
-            int_mat_test = data.get_int_matrix(ntest, False)
+        elif self.data.target == 'frac':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
             f = tf.cond(training,
-                        lambda: data.frac(x[data.nbc:], y[data.nbc:], int_mat_train),
-                        lambda: data.frac(x[data.nbc:], y[data.nbc:], int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:data.nbc], y[:data.nbc]),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif data.target == 'frac time':
-            int_mat_train = data.get_int_matrix(batch_size, True)
-            int_mat_test = data.get_int_matrix(ntest, False)
-            dy_t = tf.gradients(y, x)[0][data.nbc:, -1:]
+        elif self.data.target == 'frac time':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
+            dy_t = tf.gradients(y, x)[0][self.data.nbc:, -1:]
             f = tf.cond(training,
-                        lambda: data.frac(x[data.nbc:], y[data.nbc:], dy_t, int_mat_train),
-                        lambda: data.frac(x[data.nbc:], y[data.nbc:], dy_t, int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:data.nbc], y[:data.nbc]),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_train),
+                        lambda: self.data.frac(x[self.data.nbc:], y[self.data.nbc:], dy_t, int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif data.target == 'frac inv':
-            int_mat_train = data.get_int_matrix(batch_size, True)
-            int_mat_test = data.get_int_matrix(ntest, False)
+        elif self.data.target == 'frac inv':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
             f = tf.cond(training,
-                        lambda: data.frac(data.alpha_train, x[data.nbc:], y[data.nbc:], int_mat_train),
-                        lambda: data.frac(data.alpha_train, x[data.nbc:], y[data.nbc:], int_mat_test))
-            l = [tf.losses.mean_squared_error(y_[:data.nbc], y[:data.nbc]),
+                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_train),
+                        lambda: self.data.frac(self.data.alpha_train, x[self.data.nbc:], y[self.data.nbc:], int_mat_test))
+            l = [tf.losses.mean_squared_error(y_[:self.data.nbc], y[:self.data.nbc]),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
-        elif data.target == 'frac inv hetero':
-            int_mat_train = data.get_int_matrix(batch_size, True)
-            int_mat_test = data.get_int_matrix(ntest, False)
+        elif self.data.target == 'frac inv hetero':
+            int_mat_train = self.data.get_int_matrix(batch_size, True)
+            int_mat_test = self.data.get_int_matrix(ntest, False)
             f = tf.cond(training,
-                        lambda: data.frac(x, y, int_mat_train)[data.nbc:],
-                        lambda: data.frac(x, y, int_mat_test)[data.nbc:])
+                        lambda: self.data.frac(x, y, int_mat_train)[self.data.nbc:],
+                        lambda: self.data.frac(x, y, int_mat_test)[self.data.nbc:])
             l = [tf.losses.mean_squared_error(y_, y),
                  tf.losses.mean_squared_error(tf.zeros(tf.shape(f)), f)]
         else:
             raise ValueError('target')
         return tf.convert_to_tensor(l)
 
-    def train(self, data, batch_size, lr, nepoch, ntest, uncertainty=False,
+    def train(self, batch_size, lr, nepoch, ntest, uncertainty=False,
               regularization=None, decay=None, errstop=None, lossweight=None,
               print_model=False, callback=None):
         print('Building neural network...')
@@ -102,7 +103,7 @@ class Model(object):
 
         training, x, y, y_ = self.net.training, self.net.x, self.net.y, self.net.y_
 
-        loss = self.loss(data, x, y, y_, batch_size, ntest, training)
+        loss = self.loss(x, y, y_, batch_size, ntest, training)
         if lossweight is not None:
             loss *= lossweight
         totalloss = tf.reduce_sum(loss)
@@ -125,16 +126,16 @@ class Model(object):
 
         print('Training...')
         testloss = []
-        test_xs, test_ys = data.test(ntest)
+        test_xs, test_ys = self.data.test(ntest)
         if self.optimizer in scipy_opts:
-            batch_xs, batch_ys = data.train_next_batch(batch_size)
+            batch_xs, batch_ys = self.data.train_next_batch(batch_size)
             opt.minimize(sess, feed_dict={training: True, x: batch_xs, y_: batch_ys})
             y_pred = sess.run(y, feed_dict={training: False, x: test_xs})
             return None, None, None, np.hstack((test_xs, test_ys, y_pred))
 
         minloss, besty, bestystd = np.inf, None, None
         for i in range(nepoch):
-            batch_xs, batch_ys = data.train_next_batch(batch_size)
+            batch_xs, batch_ys = self.data.train_next_batch(batch_size)
             sess.run([loss, train], feed_dict={training: True, x: batch_xs, y_: batch_ys})
 
             if i % 1000 == 0 or i + 1 == nepoch:
@@ -152,20 +153,20 @@ class Model(object):
                     err, y_pred = sess.run([loss, y], feed_dict={
                         training: False, x: test_xs, y_: test_ys})
 
-                if data.target == 'classification':
+                if self.data.target == 'classification':
                     err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
-                elif data.target in ['frac']:
-                    err_norm = np.linalg.norm(test_ys[data.nbc:ntest] - y_pred[data.nbc:ntest]) / np.linalg.norm(test_ys[data.nbc:ntest])
+                elif self.data.target in ['frac']:
+                    err_norm = np.linalg.norm(test_ys[self.data.nbc:ntest] - y_pred[self.data.nbc:ntest]) / np.linalg.norm(test_ys[self.data.nbc:ntest])
                 else:
                     err_norm = np.linalg.norm(test_ys[:ntest] - y_pred[:ntest]) / np.linalg.norm(test_ys[:ntest])
                     # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
                 testloss.append([i] + list(err) + [err_norm])
 
-                if data.target == 'frac inv':
-                    alpha = sess.run(data.alpha_train)
+                if self.data.target == 'frac inv':
+                    alpha = sess.run(self.data.alpha_train)
                     print(i, err, err_norm, alpha)
-                elif data.target == 'frac inv hetero':
-                    alphac = sess.run([data.alpha_train1, data.alpha_train2, data.c_train])
+                elif self.data.target == 'frac inv hetero':
+                    alphac = sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
                     print(i, err, err_norm, alphac)
                 else:
                     print(i, err_train, err, err_norm)
@@ -177,10 +178,10 @@ class Model(object):
                     minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
                     if 'y_std' in locals():
                         bestystd = y_std
-                    if data.target == 'frac inv':
-                        data.alpha = alpha
-                    elif data.target == 'frac inv hetero':
-                        data.alpha1, data.alpha2, data.c = alphac
+                    if self.data.target == 'frac inv':
+                        self.data.alpha = alpha
+                    elif self.data.target == 'frac inv hetero':
+                        self.data.alpha1, self.data.alpha2, self.data.c = alphac
 
                 if errstop is not None and err_norm < errstop:
                     break
