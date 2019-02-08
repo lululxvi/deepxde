@@ -27,6 +27,8 @@ class Model(object):
         self.losses, self.totalloss = None, None
         self.train_op = None
 
+        self.sess = None
+
     @timing
     def compile(self, optimizer, lr, batch_size, ntest, decay=None, loss_weights=None):
         print('Compiling model...')
@@ -49,42 +51,48 @@ class Model(object):
                     self.totalloss, global_step=global_step)
 
     @timing
-    def train(self, epochs, uncertainty=False, errstop=None, print_model=False, callback=None):
+    def train(self, epochs, uncertainty=False, errstop=None, callback=None, print_model=False):
         print('Training model...')
 
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
-        sess = tf.Session(config=tfconfig)
-        sess.run(tf.global_variables_initializer())
+        self.sess = tf.Session(config=tfconfig)
+        self.sess.run(tf.global_variables_initializer())
         if print_model:
-            self.print_model(sess)
+            self.print_model()
 
+        if self.optimizer in Model.scipy_opts:
+            training_state = self.train_scipy()
+        else:
+            training_state = self.train_sgd(epochs, uncertainty=uncertainty, errstop=errstop, callback=callback)
+
+        if print_model:
+            self.print_model()
+        self.sess.close()
+        return training_state
+
+    def train_sgd(self, epochs, uncertainty=False, errstop=None, callback=None):
         testloss = []
         test_xs, test_ys = self.data.test(self.ntest)
-        if self.optimizer in Model.scipy_opts:
-            batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
-            self.train_op.minimize(sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
-            y_pred = sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
-            return None, None, None, np.hstack((test_xs, test_ys, y_pred))
 
         minloss, besty, bestystd = np.inf, None, None
         for i in range(epochs):
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
-            sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
+            self.sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
             if i % 1000 == 0 or i + 1 == epochs:
                 if uncertainty:
                     errs, y_preds = [], []
                     for _ in range(1000):
-                        err, y_pred = sess.run([self.losses, self.net.y], feed_dict={self.net.training: True, self.net.x: test_xs, self.net.y_: test_ys})
+                        err, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={self.net.training: True, self.net.x: test_xs, self.net.y_: test_ys})
                         errs.append(err)
                         y_preds.append(y_pred)
                     err = np.mean(errs, axis=0)
                     y_pred, y_std = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
                 else:
-                    err_train, ytrain_pred = sess.run([self.losses, self.net.y], feed_dict={
+                    err_train, ytrain_pred = self.sess.run([self.losses, self.net.y], feed_dict={
                         self.net.training: False, self.net.x: batch_xs, self.net.y_: batch_ys})
-                    err, y_pred = sess.run([self.losses, self.net.y], feed_dict={
+                    err, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={
                         self.net.training: False, self.net.x: test_xs, self.net.y_: test_ys})
 
                 if self.data.target == 'classification':
@@ -97,10 +105,10 @@ class Model(object):
                 testloss.append([i] + list(err) + [err_norm])
 
                 if self.data.target == 'frac inv':
-                    alpha = sess.run(self.data.alpha_train)
+                    alpha = self.sess.run(self.data.alpha_train)
                     print(i, err, err_norm, alpha)
                 elif self.data.target == 'frac inv hetero':
-                    alphac = sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
+                    alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
                     print(i, err, err_norm, alphac)
                 else:
                     print(i, err_train, err, err_norm)
@@ -120,15 +128,20 @@ class Model(object):
                 if errstop is not None and err_norm < errstop:
                     break
 
-        if print_model:
-            self.print_model(sess)
-        model = sess.run(tf.trainable_variables())
-        sess.close()
+        model = self.sess.run(tf.trainable_variables())
         if bestystd is None:
             # return model, np.array(testloss), np.hstack((batch_xs, batch_ys, besty_train)), np.hstack((test_xs, test_ys, besty))
             return model, np.array(testloss), np.hstack((batch_xs, batch_ys, ytrain_pred)), np.hstack((test_xs, test_ys, y_pred))
         else:
             return model, np.array(testloss), np.hstack((test_xs, test_ys, besty, bestystd))
+
+    def train_scipy(self):
+        batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
+        self.train_op.minimize(self.sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
+
+        test_xs, test_ys = self.data.test(self.ntest)
+        y_pred = self.sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
+        return None, None, None, np.hstack((test_xs, test_ys, y_pred))
 
     def get_optimizer(self, name, lr):
         return {
@@ -204,9 +217,9 @@ class Model(object):
             raise ValueError('target')
         return tf.convert_to_tensor(l)
 
-    def print_model(self, sess):
+    def print_model(self):
         variables_names = [v.name for v in tf.trainable_variables()]
-        values = sess.run(variables_names)
+        values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
