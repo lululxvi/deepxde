@@ -159,38 +159,12 @@ class Model(object):
 
         training_state.update(batch_xs, batch_ys, ytrain_pred, y_pred, loss_train, loss, y_test_predstd=y_std)
 
-        # if self.data.target == 'classification':
-        #     err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
-        # elif self.data.target in ['frac']:
-        #     err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
-        # else:
-        #     err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
-            # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
-        
         metrics = [m(test_ys, y_pred) for m in self.metrics]
         losshistory.append([i] + list(loss) + metrics)
         print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (i, loss_train, loss, metrics))
-
-        # if self.data.target == 'frac inv':
-        #     alpha = self.sess.run(self.data.alpha_train)
-        #     print(i, loss, err_norm, alpha)
-        # elif self.data.target == 'frac inv hetero':
-        #     alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
-        #     print(i, loss, err_norm, alphac)
-        # else:
-        #     print(i, loss_train, loss, err_norm)
         if callback is not None:
             callback(training_state)
         sys.stdout.flush()
-
-        # if np.sum(err) < minloss:
-        #     minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
-        #     if 'y_std' in locals():
-        #         bestystd = y_std
-        #     if self.data.target == 'frac inv':
-        #         self.data.alpha = alpha
-        #     elif self.data.target == 'frac inv hetero':
-        #         self.data.alpha1, self.data.alpha2, self.data.c = alphac
 
     def get_optimizer(self, name, lr):
         return {
