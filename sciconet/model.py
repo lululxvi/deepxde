@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from .callbacks import CallbackList
 from .metrics import get_metrics
 from .utils import timing
 
@@ -82,7 +83,7 @@ class Model(object):
         self.metrics = get_metrics(metrics)
 
     @timing
-    def train(self, epochs, uncertainty=False, errstop=None, callback=None, print_model=False):
+    def train(self, epochs, uncertainty=False, errstop=None, callbacks=None, print_model=False):
         print('Training model...')
 
         tfconfig = tf.ConfigProto()
@@ -95,20 +96,26 @@ class Model(object):
         if self.optimizer in Model.scipy_opts:
             losshistory, training_state = self.train_scipy()
         else:
-            losshistory, training_state = self.train_sgd(epochs, uncertainty=uncertainty, errstop=errstop, callback=callback)
+            losshistory, training_state = self.train_sgd(epochs, uncertainty, errstop, callbacks)
 
         if print_model:
             self.print_model()
         self.sess.close()
         return losshistory, training_state
 
-    def train_sgd(self, epochs, uncertainty, errstop, callback):
+    def train_sgd(self, epochs, uncertainty, errstop, callbacks):
         losshistory = []
+        callbacks = CallbackList(callbacks=callbacks)
 
         test_xs, test_ys = self.data.test(self.ntest)
         training_state = TrainingState(self.sess, test_xs, test_ys)
 
+        callbacks.on_train_begin(training_state)
+
         for i in range(epochs):
+            callbacks.on_epoch_begin(training_state)
+            callbacks.on_batch_begin(training_state)
+
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
             self.sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
@@ -116,17 +123,16 @@ class Model(object):
             training_state.step += i
 
             if i % 1000 == 0 or i + 1 == epochs:
-                self.test(i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty, callback)
+                self.test(i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty)
 
                 # if errstop is not None and err_norm < errstop:
                 #     break
             
-        # model = self.sess.run(tf.trainable_variables())
-        # if bestystd is None:
-        #     # return model, np.array(testloss), np.hstack((batch_xs, batch_ys, besty_train)), np.hstack((test_xs, test_ys, besty))
-        #     return model, np.array(losshistory), np.hstack((batch_xs, batch_ys, ytrain_pred)), np.hstack((test_xs, test_ys, y_pred))
-        # else:
-        #     return model, np.array(losshistory), np.hstack((test_xs, test_ys, besty, bestystd))
+            callbacks.on_batch_end(training_state)
+            callbacks.on_epoch_end(training_state)
+
+        callbacks.on_train_end(training_state)
+
         return np.array(losshistory), training_state
 
     def train_scipy(self):
@@ -142,7 +148,7 @@ class Model(object):
 
         return None, training_state
 
-    def test(self, i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty, callback):
+    def test(self, i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty):
         loss, y_pred, y_std = None, None, None
         if uncertainty:
             losses, y_preds = [], []
@@ -163,8 +169,6 @@ class Model(object):
         metrics = [m(test_ys, y_pred) for m in self.metrics]
         losshistory.append([i] + list(loss) + metrics)
         print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (i, loss_train, loss, metrics))
-        if callback is not None:
-            callback(training_state)
         sys.stdout.flush()
 
     def get_optimizer(self, name, lr):
