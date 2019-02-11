@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from .metrics import get_metrics
 from .utils import timing
 
 
@@ -78,7 +79,7 @@ class Model(object):
                 self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
                     self.totalloss, global_step=global_step)
 
-        self.metrics = metrics
+        self.metrics = get_metrics(metrics)
 
     @timing
     def train(self, epochs, uncertainty=False, errstop=None, callback=None, print_model=False):

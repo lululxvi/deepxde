@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from sciconet import DataFunc, FNN, Interval, Model, saveplot, metrics
+from sciconet import DataFunc, FNN, Interval, Model, saveplot
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
     lr = 0.001
     batch_size = 16
     ntest = 100
-    model.compile(optimizer, lr, batch_size, ntest, metrics=[metrics.l2_relative_error])
+    model.compile(optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
 
     nepoch = 10000
     losshistory, training_state = model.train(nepoch)

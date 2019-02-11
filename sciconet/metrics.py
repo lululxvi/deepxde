@@ -15,3 +15,19 @@ def l2_relative_error(y_true, y_pred):
 
 def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs(y_true - y_pred) / y_true)
+
+
+def get_metrics(names):
+    metric_identifier = {
+        'accuracy': accuracy,
+        'l2 relative error': l2_relative_error,
+        'MAPE': mean_absolute_percentage_error
+    }
+
+    metrics = []
+    for name in names:
+        if isinstance(name, str):
+            metrics.append(metric_identifier[name])
+        else:
+            metrics.append(name)
+    return metrics
