@@ -108,58 +108,15 @@ class Model(object):
             batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
             self.sess.run([self.losses, self.train_op], feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
+            training_state.epoch += 1
+            training_state.step += i
+
             if i % 1000 == 0 or i + 1 == epochs:
-                y_std = None
-                if uncertainty:
-                    errs, y_preds = [], []
-                    for _ in range(1000):
-                        err, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={self.net.training: True, self.net.x: test_xs, self.net.y_: test_ys})
-                        errs.append(err)
-                        y_preds.append(y_pred)
-                    err = np.mean(errs, axis=0)
-                    y_pred, y_std = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
-                else:
-                    err_train, ytrain_pred = self.sess.run([self.losses, self.net.y], feed_dict={
-                        self.net.training: False, self.net.x: batch_xs, self.net.y_: batch_ys})
-                    err, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={
-                        self.net.training: False, self.net.x: test_xs, self.net.y_: test_ys})
+                self.test(i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty, callback)
 
-                training_state.update(batch_xs, batch_ys, ytrain_pred, y_pred, err_train, err, y_test_predstd=y_std)
-                training_state.epoch = training_state.step = i
-
-                if self.data.target == 'classification':
-                    err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
-                elif self.data.target in ['frac']:
-                    err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
-                else:
-                    err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
-                    # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
-                losshistory.append([i] + list(err) + [err_norm])
-
-                if self.data.target == 'frac inv':
-                    alpha = self.sess.run(self.data.alpha_train)
-                    print(i, err, err_norm, alpha)
-                elif self.data.target == 'frac inv hetero':
-                    alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
-                    print(i, err, err_norm, alphac)
-                else:
-                    print(i, err_train, err, err_norm)
-                if callback is not None:
-                    callback(training_state)
-                sys.stdout.flush()
-
-                # if np.sum(err) < minloss:
-                #     minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
-                #     if 'y_std' in locals():
-                #         bestystd = y_std
-                #     if self.data.target == 'frac inv':
-                #         self.data.alpha = alpha
-                #     elif self.data.target == 'frac inv hetero':
-                #         self.data.alpha1, self.data.alpha2, self.data.c = alphac
-
-                if errstop is not None and err_norm < errstop:
-                    break
-
+                # if errstop is not None and err_norm < errstop:
+                #     break
+            
         # model = self.sess.run(tf.trainable_variables())
         # if bestystd is None:
         #     # return model, np.array(testloss), np.hstack((batch_xs, batch_ys, besty_train)), np.hstack((test_xs, test_ys, besty))
@@ -180,6 +137,54 @@ class Model(object):
         training_state.best_y = y_pred
 
         return None, training_state
+
+    def test(self, i, batch_xs, batch_ys, test_xs, test_ys, training_state, losshistory, uncertainty, callback):
+        loss, y_pred, y_std = None, None, None
+        if uncertainty:
+            losses, y_preds = [], []
+            for _ in range(1000):
+                loss, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={self.net.training: True, self.net.x: test_xs, self.net.y_: test_ys})
+                losses.append(loss)
+                y_preds.append(y_pred)
+            loss = np.mean(losses, axis=0)
+            y_pred, y_std = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
+        else:
+            loss_train, ytrain_pred = self.sess.run([self.losses, self.net.y], feed_dict={
+                self.net.training: False, self.net.x: batch_xs, self.net.y_: batch_ys})
+            loss, y_pred = self.sess.run([self.losses, self.net.y], feed_dict={
+                self.net.training: False, self.net.x: test_xs, self.net.y_: test_ys})
+
+        training_state.update(batch_xs, batch_ys, ytrain_pred, y_pred, loss_train, loss, y_test_predstd=y_std)
+
+        if self.data.target == 'classification':
+            err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
+        elif self.data.target in ['frac']:
+            err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
+        else:
+            err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
+            # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
+        losshistory.append([i] + list(loss) + [err_norm])
+
+        if self.data.target == 'frac inv':
+            alpha = self.sess.run(self.data.alpha_train)
+            print(i, loss, err_norm, alpha)
+        elif self.data.target == 'frac inv hetero':
+            alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
+            print(i, loss, err_norm, alphac)
+        else:
+            print(i, loss_train, loss, err_norm)
+        if callback is not None:
+            callback(training_state)
+        sys.stdout.flush()
+
+        # if np.sum(err) < minloss:
+        #     minloss, besty, besty_train = np.sum(err), y_pred, ytrain_pred
+        #     if 'y_std' in locals():
+        #         bestystd = y_std
+        #     if self.data.target == 'frac inv':
+        #         self.data.alpha = alpha
+        #     elif self.data.target == 'frac inv hetero':
+        #         self.data.alpha1, self.data.alpha2, self.data.c = alphac
 
     def get_optimizer(self, name, lr):
         return {
