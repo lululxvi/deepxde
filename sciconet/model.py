@@ -53,11 +53,12 @@ class Model(object):
 
         self.losses, self.totalloss = None, None
         self.train_op = None
+        self.metrics = None
 
         self.sess = None
 
     @timing
-    def compile(self, optimizer, lr, batch_size, ntest, decay=None, loss_weights=None):
+    def compile(self, optimizer, lr, batch_size, ntest, metrics=None, decay=None, loss_weights=None):
         print('Compiling model...')
 
         self.optimizer = optimizer
@@ -76,6 +77,8 @@ class Model(object):
             else:
                 self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
                     self.totalloss, global_step=global_step)
+
+        self.metrics = metrics
 
     @timing
     def train(self, epochs, uncertainty=False, errstop=None, callback=None, print_model=False):
@@ -156,23 +159,26 @@ class Model(object):
 
         training_state.update(batch_xs, batch_ys, ytrain_pred, y_pred, loss_train, loss, y_test_predstd=y_std)
 
-        if self.data.target == 'classification':
-            err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
-        elif self.data.target in ['frac']:
-            err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
-        else:
-            err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
+        # if self.data.target == 'classification':
+        #     err_norm = np.mean(np.equal(np.argmax(y_pred, 1), np.argmax(test_ys, 1)))
+        # elif self.data.target in ['frac']:
+        #     err_norm = np.linalg.norm(test_ys[self.data.nbc:self.ntest] - y_pred[self.data.nbc:self.ntest]) / np.linalg.norm(test_ys[self.data.nbc:self.ntest])
+        # else:
+        #     err_norm = np.linalg.norm(test_ys[:self.ntest] - y_pred[:self.ntest]) / np.linalg.norm(test_ys[:self.ntest])
             # err_norm = np.mean(np.abs(test_ys[:ntest] - y_pred[:ntest]) / test_ys[:ntest])
-        losshistory.append([i] + list(loss) + [err_norm])
+        
+        metrics = [m(test_ys, y_pred) for m in self.metrics]
+        losshistory.append([i] + list(loss) + metrics)
+        print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (i, loss_train, loss, metrics))
 
-        if self.data.target == 'frac inv':
-            alpha = self.sess.run(self.data.alpha_train)
-            print(i, loss, err_norm, alpha)
-        elif self.data.target == 'frac inv hetero':
-            alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
-            print(i, loss, err_norm, alphac)
-        else:
-            print(i, loss_train, loss, err_norm)
+        # if self.data.target == 'frac inv':
+        #     alpha = self.sess.run(self.data.alpha_train)
+        #     print(i, loss, err_norm, alpha)
+        # elif self.data.target == 'frac inv hetero':
+        #     alphac = self.sess.run([self.data.alpha_train1, self.data.alpha_train2, self.data.c_train])
+        #     print(i, loss, err_norm, alphac)
+        # else:
+        #     print(i, loss_train, loss, err_norm)
         if callback is not None:
             callback(training_state)
         sys.stdout.flush()
