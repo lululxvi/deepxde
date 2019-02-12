@@ -14,7 +14,7 @@ from .metrics import get_metrics
 from .utils import timing
 
 
-class TrainingState(object):
+class TrainState(object):
 
     def __init__(self):
         self.epoch, self.step = 0, 0
@@ -26,10 +26,12 @@ class TrainingState(object):
 
         self.y_pred_train, self.y_pred_test, self.y_std_test = None, None, None
         self.loss_train, self.loss_test = None, None
+        self.metrics_test = None
 
         # the best results correspond to the min train loss
         self.best_loss_train, self.best_loss_test = np.inf, np.inf
         self.best_y, self.best_ystd = None, None
+        self.best_metrics = None
 
     def update_tfsession(self, sess):
         self.sess = sess
@@ -45,6 +47,7 @@ class TrainingState(object):
             self.best_loss_train = np.sum(self.loss_train)
             self.best_loss_test = np.sum(self.loss_test)
             self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
+            self.best_metrics = self.metrics_test
 
 
 class Model(object):
@@ -64,7 +67,7 @@ class Model(object):
         self.metrics = None
 
         self.sess = None
-        self.training_state = TrainingState()
+        self.train_state = TrainState()
 
     @timing
     def compile(self, optimizer, lr, batch_size, ntest, metrics=None, decay=None, loss_weights=None):
@@ -91,7 +94,7 @@ class Model(object):
         self.metrics = get_metrics(metrics)
 
     @timing
-    def train(self, epochs, uncertainty=False, errstop=None, callbacks=None, print_model=False):
+    def train(self, epochs, validation_every=1000, uncertainty=False, errstop=None, callbacks=None, print_model=False):
         print('Training model...')
 
         self.open_tfsession()
@@ -102,52 +105,57 @@ class Model(object):
         if self.optimizer in Model.scipy_opts:
             losshistory = self.train_scipy()
         else:
-            losshistory = self.train_sgd(epochs, uncertainty, errstop, callbacks)
+            losshistory = self.train_sgd(epochs, validation_every, uncertainty, errstop, callbacks)
         if print_model:
             self.print_model()
 
         self.close_tfsession()
-        return losshistory, self.training_state
+        return losshistory, self.train_state
 
     def open_tfsession(self):
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
-        self.training_state.update_tfsession(self.sess)
+        self.train_state.update_tfsession(self.sess)
 
     def close_tfsession(self):
         self.sess.close()
 
-    def train_sgd(self, epochs, uncertainty, errstop, callbacks):
+    def train_sgd(self, epochs, validation_every, uncertainty, errstop, callbacks):
         losshistory = []
         callbacks = CallbackList(callbacks=callbacks)
 
-        self.training_state.update_data_test(*self.data.test(self.ntest))
+        self.train_state.update_data_test(*self.data.test(self.ntest))
 
-        callbacks.on_train_begin(self.training_state)
+        callbacks.on_train_begin(self.train_state)
 
         for i in range(epochs):
-            callbacks.on_epoch_begin(self.training_state)
-            callbacks.on_batch_begin(self.training_state)
+            callbacks.on_epoch_begin(self.train_state)
+            callbacks.on_batch_begin(self.train_state)
 
-            self.training_state.update_data_train(*self.data.train_next_batch(self.batch_size))
+            self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
             self.sess.run(
                 [self.losses, self.train_op],
-                feed_dict={self.net.training: True, self.net.x: self.training_state.X_train, self.net.y_: self.training_state.y_train})
+                feed_dict={self.net.training: True, self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
 
-            self.training_state.epoch += 1
-            self.training_state.step += 1
+            self.train_state.epoch += 1
+            self.train_state.step += 1
 
-            if i % 1000 == 0 or i + 1 == epochs:
-                self.test(i, losshistory, uncertainty)
+            if i % validation_every == 0 or i + 1 == epochs:
+                self.test(uncertainty)
+
+                losshistory.append([i] + list(self.train_state.loss_test) + self.train_state.metrics_test)
+                print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (
+                    i, self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test))
+                sys.stdout.flush()
 
                 # if errstop is not None and err_norm < errstop:
                 #     break
 
-            callbacks.on_batch_end(self.training_state)
-            callbacks.on_epoch_end(self.training_state)
+            callbacks.on_batch_end(self.train_state)
+            callbacks.on_epoch_end(self.train_state)
 
-        callbacks.on_train_end(self.training_state)
+        callbacks.on_train_end(self.train_state)
 
         return np.array(losshistory)
 
@@ -158,38 +166,34 @@ class Model(object):
         test_xs, test_ys = self.data.test(self.ntest)
         y_pred = self.sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
 
-        self.training_state.update_data_train(batch_xs, batch_ys)
-        self.training_state.update_data_test(test_xs, test_ys)
-        self.training_state.best_y = y_pred
+        self.train_state.update_data_train(batch_xs, batch_ys)
+        self.train_state.update_data_test(test_xs, test_ys)
+        self.train_state.best_y = y_pred
 
         return None
 
-    def test(self, i, losshistory, uncertainty):
-        self.training_state.loss_train, self.training_state.y_pred_train = self.sess.run(
+    def test(self, uncertainty):
+        self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.y],
-            feed_dict={self.net.training: False, self.net.x: self.training_state.X_train, self.net.y_: self.training_state.y_train})
+            feed_dict={self.net.training: False, self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
 
         if uncertainty:
             losses, y_preds = [], []
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.y],
-                    feed_dict={self.net.training: True, self.net.x: self.training_state.X_test, self.net.y_: self.training_state.y_test})
+                    feed_dict={self.net.training: True, self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
-            self.training_state.loss_test = np.mean(losses, axis=0)
-            self.training_state.y_pred_test, self.training_state.y_std_test = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
+            self.train_state.loss_test = np.mean(losses, axis=0)
+            self.train_state.y_pred_test, self.train_state.y_std_test = np.mean(y_preds, axis=0), np.std(y_preds, axis=0)
         else:
-            self.training_state.loss_test, self.training_state.y_pred_test = self.sess.run(
+            self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.y],
-                feed_dict={self.net.training: False, self.net.x: self.training_state.X_test, self.net.y_: self.training_state.y_test})
+                feed_dict={self.net.training: False, self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
 
-        self.training_state.update_best()
-
-        metrics = [m(self.training_state.y_test, self.training_state.y_pred_test) for m in self.metrics]
-        losshistory.append([i] + list(self.training_state.loss_test) + metrics)
-        print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (i, self.training_state.loss_train, self.training_state.loss_test, metrics))
-        sys.stdout.flush()
+        self.train_state.metrics_test = [m(self.train_state.y_test, self.train_state.y_pred_test) for m in self.metrics]
+        self.train_state.update_best()
 
     def get_optimizer(self, name, lr):
         return {
