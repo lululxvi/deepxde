@@ -22,8 +22,8 @@ class Func(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, model):
-        return [losses.get('MSE')(model.net.y_, model.net.y)]
+    def losses(self, y_true, y_pred, model):
+        return [losses.get('MSE')(y_true, y_pred)]
 
     def train_next_batch(self, batch_size, *args, **kwargs):
         if self.online:

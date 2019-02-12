@@ -67,7 +67,7 @@ class Model(object):
         self.batch_size, self.ntest = batch_size, ntest
 
         # self.losses = self.get_losses(self.net.x, self.net.y, self.net.y_, batch_size, ntest, self.net.training)
-        self.losses = tf.convert_to_tensor(self.data.losses(self))
+        self.losses = tf.convert_to_tensor(self.data.losses(self.net.y_, self.net.y, self))
         if loss_weights is not None:
             self.losses *= loss_weights
         self.totalloss = tf.reduce_sum(self.losses)
