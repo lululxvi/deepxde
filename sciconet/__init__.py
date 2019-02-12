@@ -1,4 +1,4 @@
-from data import *
+import data
 from fnn import FNN
 from fractional import Discretization
 from geometry import *

@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import numpy as np
 
-from sciconet import DataFunc, FNN, Interval, Model, saveplot
+import sciconet as scn
+from sciconet import FNN, Interval, Model, saveplot
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
 
     x_dim, y_dim = 1, 1
     geom = Interval(-1, 1)
-    mydata = DataFunc(func, geom)
+    mydata = scn.data.Func(geom, func)
 
     layer_size = [x_dim] + [20] * 3 + [y_dim]
     activation = 'tanh'

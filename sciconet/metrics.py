@@ -14,7 +14,7 @@ def l2_relative_error(y_true, y_pred):
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
-    return np.mean(np.abs(y_true - y_pred) / y_true)
+    return 100 * np.mean(np.abs(y_true - y_pred) / y_true)
 
 
 def get_metrics(names):
