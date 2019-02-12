@@ -11,7 +11,7 @@ import tensorflow as tf
 from SALib.sample import sobol_sequence
 from sklearn import preprocessing
 
-from . import config
+from nnlearn import config
 from .fractional import Fractional, FractionalTime
 from .utils import runifnone
 
