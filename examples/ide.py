@@ -1,14 +1,11 @@
-# author: Lu Lu
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import time
-
 import numpy as np
 import tensorflow as tf
 
-from nnlearn import DataIDE, FNN, Interval, saveplot
+import sciconet as scn
 
 
 def main():
@@ -27,30 +24,32 @@ def main():
         """
         return np.sin(2 * np.pi * x)
 
-    x_dim, y_dim = 1, 1
-    geom = Interval(0, 1)
-    quad_deg = 16
+    geom = scn.geometry.Interval(0, 1)
 
+    nbc = 2
+    quad_deg = 16
+    data = scn.data.IDE(geom, ide, func, nbc, quad_deg)
+
+    x_dim, y_dim = 1, 1
     layer_size = [x_dim] + [20] * 3 + [y_dim]
     activation = 'tanh'
     initializer = 'Glorot uniform'
+    net = scn.FNN(layer_size, activation, initializer)
+
+    model = scn.Model(data, net)
+
     optimizer = 'adam'
-    batch_normalization = None
-    nbc, ninside = 2, 14
     lr = 0.001
-    nepoch = 100000
+    batch_size = 16
     ntest = 128
+    model.compile(optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
 
-    mydata = DataIDE(ide, func, geom, nbc, quad_deg)
-    mynn = FNN(layer_size, activation, initializer, optimizer,
-               batch_normalization=batch_normalization)
-    t = time.time()
-    _, loss, res = mynn.train(mydata, nbc + ninside, lr, nepoch, ntest)
-    print('Cost {} s'.format(time.time() - t))
+    epochs = 10000
+    losshistory, training_state = model.train(epochs)
 
-    res = res[:ntest]
-    res = res[res[:, 0].argsort()]
-    saveplot(loss, res, x_dim, y_dim, issave=True, isplot=True)
+    train = np.hstack((data.train_x, data.train_y))
+    scn.saveplot(losshistory, np.hstack((training_state.X_test, training_state.y_test, training_state.best_y)),
+                 x_dim, y_dim, train=train, issave=True, isplot=True)
 
 
 if __name__ == '__main__':
