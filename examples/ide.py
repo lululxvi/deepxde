@@ -26,7 +26,7 @@ def main():
 
     geom = scn.geometry.Interval(0, 1)
 
-    nbc = 2
+    nbc = 1
     quad_deg = 16
     data = scn.data.IDE(geom, ide, func, nbc, quad_deg)
 

@@ -17,7 +17,6 @@ class IDE(Data):
     """
 
     def __init__(self, geom, ide, func, nbc, quad_deg):
-        assert nbc == 2
         self.geom = geom
         self.ide = ide
         self.func = func
@@ -71,7 +70,6 @@ class IDE(Data):
             return (self.quad_x + 1) * x / 2
 
         x = self.geom.uniform_points(size, True)
-        x = np.roll(x, 1)
         quad_x = np.hstack(map(lambda xi: get_quad_points(xi[0]), x))
         x = np.vstack((x, quad_x[:, None]))
         return x, self.func(x)
