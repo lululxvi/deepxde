@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
+from . import activations
 from .. import config
 from ..utils import timing
 
@@ -19,7 +20,7 @@ class FNN(object):
     def __init__(self, layer_size, activation, kernel_initializer,
                  regularization=None, dropout=None, batch_normalization=None):
         self.layer_size = layer_size
-        self.activation = self.get_activation(activation)
+        self.activation = activations.get(activation)
         self.kernel_initializer = self.get_kernel_initializer(kernel_initializer)
         self.regularizer = self.get_regularizer(regularization)
         self.dropout = dropout
@@ -42,16 +43,6 @@ class FNN(object):
         self.y = self.add_layer(y, self.layer_size[-1], True, self.training)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
-
-    def get_activation(self, name):
-        return {
-            'elu': tf.nn.elu,
-            'relu': tf.nn.relu,
-            'selu': tf.nn.selu,
-            'sigmoid': tf.nn.sigmoid,
-            'sin': tf.sin,
-            'tanh': tf.nn.tanh
-        }[name]
 
     def get_kernel_initializer(self, name):
         return {
