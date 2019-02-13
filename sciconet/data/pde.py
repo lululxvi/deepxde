@@ -19,13 +19,15 @@ class PDE(Data):
         self.pde = pde
         self.func = func
         self.nbc = nbc
-        self.anchors = anchors or []
+        self.anchors = anchors
 
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, model):
-        n = self.nbc + len(self.anchors)
+        n = self.nbc
+        if self.anchors is not None:
+            n += len(self.anchors)
         f = self.pde(model.net.x, y_pred)[n:]
         return [losses.get('MSE')(y_true[:n], y_pred[:n]),
                 losses.get('MSE')(tf.zeros(tf.shape(f)), f)]
@@ -35,7 +37,7 @@ class PDE(Data):
         self.train_x = self.geom.uniform_points(batch_size, True)
         if self.nbc > 0:
             self.train_x = np.vstack((self.geom.uniform_boundary_points(self.nbc), self.train_x))
-        if self.anchors:
+        if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
