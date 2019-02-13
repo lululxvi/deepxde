@@ -8,8 +8,8 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from . import config
-from .utils import timing
+from .. import config
+from ..utils import timing
 
 
 class FNN(object):

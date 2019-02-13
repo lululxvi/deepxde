@@ -59,7 +59,7 @@ def main():
     layer_size = [x_dim] + [50] * 3 + [y_dim]
     activation = 'tanh'
     initializer = 'Glorot uniform'
-    net = scn.FNN(layer_size, activation, initializer)
+    net = scn.maps.FNN(layer_size, activation, initializer)
 
     model = scn.Model(data, net)
 
