@@ -68,6 +68,7 @@ class Model(object):
 
         self.sess = None
         self.train_state = TrainState()
+        self.losshistory = []
 
     @timing
     def compile(self, optimizer, lr, batch_size, ntest, metrics=None, decay=None, loss_weights=None):
@@ -102,14 +103,14 @@ class Model(object):
         if print_model:
             self.print_model()
         if self.optimizer in Model.scipy_opts:
-            losshistory = self.train_scipy(uncertainty)
+            self.train_scipy(uncertainty)
         else:
-            losshistory = self.train_sgd(epochs, validation_every, uncertainty, errstop, callbacks)
+            self.train_sgd(epochs, validation_every, uncertainty, errstop, callbacks)
         if print_model:
             self.print_model()
 
         self.close_tfsession()
-        return np.array(losshistory), self.train_state
+        return np.array(self.losshistory), self.train_state
 
     def open_tfsession(self):
         tfconfig = tf.ConfigProto()
@@ -121,7 +122,6 @@ class Model(object):
         self.sess.close()
 
     def train_sgd(self, epochs, validation_every, uncertainty, errstop, callbacks):
-        losshistory = []
         callbacks = CallbackList(callbacks=callbacks)
 
         self.train_state.update_data_test(*self.data.test(self.ntest))
@@ -145,7 +145,7 @@ class Model(object):
             if i % validation_every == 0 or i + 1 == epochs:
                 self.test(uncertainty)
 
-                losshistory.append([i] + list(self.train_state.loss_test) + self.train_state.metrics_test)
+                self.losshistory.append([i] + list(self.train_state.loss_test) + self.train_state.metrics_test)
                 print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (
                       i, self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test))
                 sys.stdout.flush()
@@ -158,8 +158,6 @@ class Model(object):
 
         callbacks.on_train_end(self.train_state)
 
-        return losshistory
-
     def train_scipy(self, uncertainty):
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
@@ -170,13 +168,10 @@ class Model(object):
 
         self.train_state.update_data_test(*self.data.test(self.ntest))
         self.test(uncertainty)
-        losshistory = []
-        losshistory.append([0] + list(self.train_state.loss_test) + self.train_state.metrics_test)
+        self.losshistory.append([0] + list(self.train_state.loss_test) + self.train_state.metrics_test)
         print('loss: %s, val_loss: %s, val_metric: %s' % (
               self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test))
         sys.stdout.flush()
-
-        return losshistory
 
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
