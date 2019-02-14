@@ -31,7 +31,7 @@ class IDE(Data):
     def losses(self, y_true, y_pred, model):
         int_mat_train = self.get_int_matrix(model.batch_size, True)
         int_mat_test = self.get_int_matrix(model.ntest, False)
-        f = tf.cond(tf.equal(tf.shape(y_pred)[0], np.shape(int_mat_train)[-1]),
+        f = tf.cond(tf.equal(model.net.data_id, 0),
                     lambda: self.ide(model.net.x, y_pred, int_mat_train),
                     lambda: self.ide(model.net.x, y_pred, int_mat_test))
         return [losses.get('MSE')(y_true[:self.nbc], y_pred[:self.nbc]),

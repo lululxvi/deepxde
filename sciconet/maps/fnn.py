@@ -27,6 +27,7 @@ class FNN(object):
         self.batch_normalization = batch_normalization
 
         self.training, self.dropout = None, None
+        self.data_id = None  # 0: train data, 1: test data
         self.x, self.y, self.y_ = None, None, None
         self.build()
 
@@ -35,6 +36,7 @@ class FNN(object):
         print('Building feed-forward neural network...')
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
+        self.data_id = tf.placeholder(tf.uint8)
         self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
         y = self.x
         for i in range(len(self.layer_size) - 2):
