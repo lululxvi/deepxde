@@ -135,7 +135,9 @@ class Model(object):
             self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
             self.sess.run(
                 [self.losses, self.train_op],
-                feed_dict={self.net.training: True, self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
+                feed_dict={
+                    self.net.training: True, self.net.dropout: True,
+                    self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -160,10 +162,14 @@ class Model(object):
 
     def train_scipy(self):
         batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
-        self.train_op.minimize(self.sess, feed_dict={self.net.training: True, self.net.x: batch_xs, self.net.y_: batch_ys})
+        self.train_op.minimize(
+            self.sess,
+            feed_dict={self.net.training: True, self.net.dropout: True, self.net.x: batch_xs, self.net.y_: batch_ys})
 
         test_xs, test_ys = self.data.test(self.ntest)
-        y_pred = self.sess.run(self.net.y, feed_dict={self.net.training: False, self.net.x: test_xs})
+        y_pred = self.sess.run(
+            self.net.y,
+            feed_dict={self.net.training: False, self.net.dropout: False, self.net.x: test_xs})
 
         self.train_state.update_data_train(batch_xs, batch_ys)
         self.train_state.update_data_test(test_xs, test_ys)
@@ -174,14 +180,18 @@ class Model(object):
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.y],
-            feed_dict={self.net.training: False, self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
+            feed_dict={
+                self.net.training: False, self.net.dropout: False,
+                self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
 
         if uncertainty:
             losses, y_preds = [], []
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.y],
-                    feed_dict={self.net.training: True, self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
+                    feed_dict={
+                        self.net.training: False, self.net.dropout: True,
+                        self.net.x:self.train_state.X_test, self.net.y_: self.train_state.y_test})
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
             self.train_state.loss_test = np.mean(losses, axis=0)
@@ -189,7 +199,9 @@ class Model(object):
         else:
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.y],
-                feed_dict={self.net.training: False, self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
+                feed_dict={
+                    self.net.training: False, self.net.dropout: False,
+                    self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
 
         self.train_state.metrics_test = [m(self.train_state.y_test, self.train_state.y_pred_test) for m in self.metrics]
         self.train_state.update_best()

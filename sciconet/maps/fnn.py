@@ -26,7 +26,7 @@ class FNN(object):
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
 
-        self.training = None
+        self.training, self.dropout = None, None
         self.x, self.y, self.y_ = None, None, None
         self.build()
 
@@ -34,12 +34,13 @@ class FNN(object):
     def build(self):
         print('Building feed-forward neural network...')
         self.training = tf.placeholder(tf.bool)
+        self.dropout = tf.placeholder(tf.bool)
         self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
         y = self.x
         for i in range(len(self.layer_size) - 2):
             y = self.add_layer(y, self.layer_size[i + 1], False, self.training)
             if self.dropout_rate > 0:
-                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.training)
+                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
         self.y = self.add_layer(y, self.layer_size[-1], True, self.training)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
