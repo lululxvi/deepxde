@@ -161,22 +161,20 @@ class Model(object):
         return np.array(losshistory)
 
     def train_scipy(self):
-        batch_xs, batch_ys = self.data.train_next_batch(self.batch_size)
+        self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
             feed_dict={
                 self.net.training: True, self.net.dropout: True, self.net.data_id: 0,
-                self.net.x: batch_xs, self.net.y_: batch_ys})
+                self.net.x: self.train_state.X_train, self.net.y_: self.train_state.y_train})
 
-        test_xs, test_ys = self.data.test(self.ntest)
+        self.train_state.update_data_test(*self.data.test(self.ntest))
         y_pred = self.sess.run(
             self.net.y,
             feed_dict={
                 self.net.training: False, self.net.dropout: False, self.net.data_id: 1,
-                self.net.x: test_xs})
+                self.net.x: self.train_state.X_test})
 
-        self.train_state.update_data_train(batch_xs, batch_ys)
-        self.train_state.update_data_test(test_xs, test_ys)
         self.train_state.best_y = y_pred
 
         return None
@@ -195,7 +193,7 @@ class Model(object):
                     [self.losses, self.net.y],
                     feed_dict={
                         self.net.training: False, self.net.dropout: True, self.net.data_id: 1,
-                        self.net.x:self.train_state.X_test, self.net.y_: self.train_state.y_test})
+                        self.net.x: self.train_state.X_test, self.net.y_: self.train_state.y_test})
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
             self.train_state.loss_test = np.mean(losses, axis=0)
