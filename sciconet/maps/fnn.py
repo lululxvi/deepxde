@@ -18,12 +18,12 @@ class FNN(object):
     """
 
     def __init__(self, layer_size, activation, kernel_initializer,
-                 regularization=None, dropout=None, batch_normalization=None):
+                 regularization=None, dropout_rate=0, batch_normalization=None):
         self.layer_size = layer_size
         self.activation = activations.get(activation)
         self.kernel_initializer = self.get_kernel_initializer(kernel_initializer)
         self.regularizer = self.get_regularizer(regularization)
-        self.dropout = dropout
+        self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
 
         self.training = None
@@ -38,8 +38,8 @@ class FNN(object):
         y = self.x
         for i in range(len(self.layer_size) - 2):
             y = self.add_layer(y, self.layer_size[i + 1], False, self.training)
-            if self.dropout is not None:
-                y = tf.layers.dropout(y, rate=self.dropout, training=self.training)
+            if self.dropout_rate > 0:
+                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.training)
         self.y = self.add_layer(y, self.layer_size[-1], True, self.training)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
