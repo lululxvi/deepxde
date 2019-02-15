@@ -19,10 +19,10 @@ def main():
     data = scn.data.Func(geom, func)
 
     x_dim, y_dim = 1, 1
-    layer_size = [x_dim] + [20] * 3 + [y_dim]
     activation = 'tanh'
     initializer = 'Glorot uniform'
-    net = scn.maps.FNN(layer_size, activation, initializer)
+    net = scn.maps.FNN([x_dim] + [20] * 3 + [y_dim], activation, initializer)
+    # net = scn.maps.ResNet(x_dim, y_dim, 20, 1, activation, initializer)
 
     model = scn.Model(data, net)
 
