@@ -29,10 +29,9 @@ def main():
     model.compile(optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
 
     epochs = 50000
-    losshistory, training_state = model.train(epochs)
+    losshistory, train_state = model.train(epochs)
 
-    scn.saveplot(losshistory, np.hstack((training_state.X_test, training_state.y_test, training_state.best_y)),
-                 x_dim, y_dim, issave=True, isplot=True)
+    scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 
 if __name__ == '__main__':

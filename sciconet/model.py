@@ -5,6 +5,7 @@ from __future__ import print_function
 import math
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
@@ -49,6 +50,76 @@ class TrainState(object):
             self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
             self.best_metrics = self.metrics_test
 
+    def savetxt(self, fname_train, fname_test):
+        train = np.hstack((self.X_train, self.y_train))
+        np.savetxt(fname_train, train, header='x, y')
+
+        test = np.hstack((self.X_test, self.y_test, self.best_y))
+        if self.best_ystd is not None:
+            test = np.hstack((test, self.best_ystd))
+        np.savetxt(fname_test, test, header='x, y_true, y_pred, y_std')
+
+    def plot(self):
+        y_dim = self.y_train.shape[1]
+
+        plt.figure()
+        for i in range(y_dim):
+            plt.plot(self.X_train[:, 0], self.y_train[:, i], 'ok', label='Train')
+            plt.plot(self.X_test[:, 0], self.y_test[:, i], '-k', label='True')
+            plt.plot(self.X_test[:, 0], self.best_y[:, i], '--r', label='Prediction')
+            if self.best_ystd is not None:
+                plt.plot(self.X_test[:, 0], self.best_y[:, i]+self.best_ystd[:, i], '-b')
+                plt.plot(self.X_test[:, 0], self.best_y[:, i]-self.best_ystd[:, i], '-b')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.legend()
+
+        if self.best_ystd is not None:
+            plt.figure()
+            for i in range(y_dim):
+                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], '-')
+            plt.xlabel('x')
+            plt.ylabel('std(y)')
+
+
+class LossHistory(object):
+
+    def __init__(self):
+        self.steps = []
+        self.loss_train = []
+        self.loss_test = []
+        self.metrics_test = []
+        self.loss_weights = 1
+
+    def update_loss_weights(self, loss_weights):
+        self.loss_weights = loss_weights
+
+    def add(self, step, loss_train, loss_test, metrics_test):
+        self.steps.append(step)
+        self.loss_train.append(loss_train)
+        self.loss_test.append(loss_test)
+        self.metrics_test.append(metrics_test)
+
+    def savetxt(self, fname):
+        loss = np.hstack((
+            np.array(self.steps)[:, None],
+            np.array(self.loss_train),
+            np.array(self.loss_test),
+            np.array(self.metrics_test)))
+        np.savetxt(fname, loss, header='step, loss_train, loss_test, metrics_test')
+
+    def plot(self):
+        loss_train = np.sum(np.array(self.loss_train) * self.loss_weights, axis=1)
+        loss_test = np.sum(np.array(self.loss_test) * self.loss_weights, axis=1)
+
+        plt.figure()
+        plt.semilogy(self.steps, loss_train, label='Train loss')
+        plt.semilogy(self.steps, loss_test, label='Test loss')
+        for i in range(len(self.metrics_test[0])):
+            plt.semilogy(self.steps, np.array(self.metrics_test)[:, i], label='Test metric')
+        plt.xlabel('# Steps')
+        plt.legend()
+
 
 class Model(object):
     """model
@@ -68,7 +139,7 @@ class Model(object):
 
         self.sess = None
         self.train_state = TrainState()
-        self.losshistory = []
+        self.losshistory = LossHistory()
 
     @timing
     def compile(self, optimizer, lr, batch_size, ntest, metrics=None, decay=None, loss_weights=None):
@@ -80,6 +151,7 @@ class Model(object):
         self.losses = tf.convert_to_tensor(self.data.losses(self.net.y_, self.net.y, self))
         if loss_weights is not None:
             self.losses *= loss_weights
+            self.losshistory.update_loss_weights(loss_weights)
         self.totalloss = tf.reduce_sum(self.losses)
         lr, global_step = self.get_learningrate(lr, decay)
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -110,7 +182,7 @@ class Model(object):
             self.print_model()
 
         self.close_tfsession()
-        return np.array(self.losshistory), self.train_state
+        return self.losshistory, self.train_state
 
     def open_tfsession(self):
         tfconfig = tf.ConfigProto()
@@ -145,7 +217,7 @@ class Model(object):
             if i % validation_every == 0 or i + 1 == epochs:
                 self.test(uncertainty)
 
-                self.losshistory.append([i] + list(self.train_state.loss_test) + self.train_state.metrics_test)
+                self.losshistory.add(i, self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test)
                 print('Epoch: %d, loss: %s, val_loss: %s, val_metric: %s' % (
                       i, self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test))
                 sys.stdout.flush()
@@ -168,7 +240,7 @@ class Model(object):
 
         self.train_state.update_data_test(*self.data.test(self.ntest))
         self.test(uncertainty)
-        self.losshistory.append([0] + list(self.train_state.loss_test) + self.train_state.metrics_test)
+        self.losshistory.add(1, self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test)
         print('loss: %s, val_loss: %s, val_metric: %s' % (
               self.train_state.loss_train, self.train_state.loss_test, self.train_state.metrics_test))
         sys.stdout.flush()
