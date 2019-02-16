@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import activations
+from . import regularizers
 from .. import config
 from ..utils import timing
 
@@ -22,7 +23,7 @@ class FNN(object):
         self.layer_size = layer_size
         self.activation = activations.get(activation)
         self.kernel_initializer = self.get_kernel_initializer(kernel_initializer)
-        self.regularizer = self.get_regularizer(regularization)
+        self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
 
@@ -55,15 +56,6 @@ class FNN(object):
             'Glorot uniform': tf.glorot_uniform_initializer(),
             'Orthogonal': tf.orthogonal_initializer()
         }[name]
-
-    def get_regularizer(self, regularization):
-        if regularization is None:
-            return None
-        name, scales = regularization[0], regularization[1:]
-        return tf.contrib.layers.l1_regularizer(scales[0]) if name == 'l1' else \
-            tf.contrib.layers.l2_regularizer(scales[0]) if name == 'l2' else \
-            tf.contrib.layers.l1_l2_regularizer(scales[0], scales[1]) if name == 'l1+l2' else \
-            None
 
     def dense(self, inputs, units, activation=None, use_bias=True,
               kernel_initializer=None, bias_initializer=tf.zeros_initializer(),

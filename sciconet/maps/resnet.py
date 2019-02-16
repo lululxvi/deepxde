@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import activations
+from . import regularizers
 from .. import config
 from ..utils import timing
 
@@ -26,7 +27,7 @@ class ResNet(object):
         self.num_blocks = num_blocks
         self.activation = activations.get(activation)
         self.kernel_initializer = self.get_kernel_initializer(kernel_initializer)
-        self.regularizer = self.get_regularizer(regularization)
+        self.regularizer = regularizers.get(regularization)        
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
 
@@ -45,7 +46,7 @@ class ResNet(object):
         
         y = self.x
         y = self.add_layer(y, self.num_neurons, False, self.training)
-        for i in range(self.num_blocks):
+        for _ in range(self.num_blocks):
             y = self.residual_block(y)
         self.y = self.add_layer(y, self.output_size, True, self.training)
 
@@ -79,15 +80,6 @@ class ResNet(object):
             'Glorot uniform': tf.glorot_uniform_initializer(),
             'Orthogonal': tf.orthogonal_initializer()
         }[name]
-
-    def get_regularizer(self, regularization):
-        if regularization is None:
-            return None
-        name, scales = regularization[0], regularization[1:]
-        return tf.contrib.layers.l1_regularizer(scales[0]) if name == 'l1' else \
-            tf.contrib.layers.l2_regularizer(scales[0]) if name == 'l2' else \
-            tf.contrib.layers.l1_l2_regularizer(scales[0], scales[1]) if name == 'l1+l2' else \
-            None
 
     def dense(self, inputs, units, activation=None, use_bias=True,
               kernel_initializer=None, bias_initializer=tf.zeros_initializer(),
