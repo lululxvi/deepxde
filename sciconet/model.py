@@ -10,8 +10,8 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from . import metrics as metrics_module
 from .callbacks import CallbackList
-from .metrics import get_metrics
 from .utils import timing
 
 
@@ -163,7 +163,7 @@ class Model(object):
                 self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
                     self.totalloss, global_step=global_step)
 
-        self.metrics = get_metrics(metrics)
+        self.metrics = [metrics_module.get(m) for m in metrics]
 
     @timing
     def train(self, epochs, validation_every=1000, uncertainty=False, errstop=None, callbacks=None, print_model=False):
