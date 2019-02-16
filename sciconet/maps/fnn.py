@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import activations
+from . import initializers
 from . import regularizers
 from .. import config
 from ..utils import timing
@@ -22,7 +23,7 @@ class FNN(object):
                  regularization=None, dropout_rate=0, batch_normalization=None):
         self.layer_size = layer_size
         self.activation = activations.get(activation)
-        self.kernel_initializer = self.get_kernel_initializer(kernel_initializer)
+        self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
@@ -47,15 +48,6 @@ class FNN(object):
         self.y = self.add_layer(y, self.layer_size[-1], True, self.training)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
-
-    def get_kernel_initializer(self, name):
-        return {
-            'He normal': tf.variance_scaling_initializer(scale=2.0),
-            'LeCun normal': tf.variance_scaling_initializer(),
-            'Glorot normal': tf.glorot_normal_initializer(),
-            'Glorot uniform': tf.glorot_uniform_initializer(),
-            'Orthogonal': tf.orthogonal_initializer()
-        }[name]
 
     def dense(self, inputs, units, activation=None, use_bias=True,
               kernel_initializer=None, bias_initializer=tf.zeros_initializer(),
