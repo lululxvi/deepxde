@@ -25,7 +25,8 @@ class DataSet(Data):
             self.test_x, self.test_y = X_test, y_test
         elif fname_train is not None:
             train_data = np.loadtxt(fname_train)
-            self.train_x, self.train_y = train_data[:, col_x], train_data[:, col_y]
+            self.train_x = train_data[:, col_x]
+            self.train_y = train_data[:, col_y]
             test_data = np.loadtxt(fname_test)
             self.test_x, self.test_y = test_data[:, col_x], test_data[:, col_y]
         else:
@@ -45,9 +46,11 @@ class DataSet(Data):
 
     def _standardize(self):
         def standardize_one(X1, X2):
-            scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
+            scaler = preprocessing.StandardScaler(
+                with_mean=True, with_std=True)
             X1 = scaler.fit_transform(X1)
             X2 = scaler.transform(X2)
             return scaler, X1, X2
 
-        self.scaler_x, self.train_x, self.test_x = standardize_one(self.train_x, self.test_x)
+        self.scaler_x, self.train_x, self.test_x = standardize_one(
+            self.train_x, self.test_x)

@@ -6,7 +6,8 @@ import numpy as np
 
 
 def accuracy(y_true, y_pred):
-    return np.mean(np.equal(np.argmax(y_pred, axis=-1), np.argmax(y_true, axis=-1)))
+    return np.mean(
+        np.equal(np.argmax(y_pred, axis=-1), np.argmax(y_true, axis=-1)))
 
 
 def l2_relative_error(y_true, y_pred):

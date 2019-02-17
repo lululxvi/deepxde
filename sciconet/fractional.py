@@ -14,6 +14,7 @@ from . import array_ops
 
 class Discretization(object):
     """Space discretization scheme parameters"""
+
     def __init__(self, dim, meshtype, resolution, nanchor):
         self.dim = dim
         self.meshtype, self.resolution = meshtype, resolution
@@ -25,8 +26,8 @@ class Discretization(object):
         if self.meshtype not in ['static', 'dynamic']:
             raise ValueError('Wrong meshtype %s' % self.meshtype)
         if self.dim >= 2 and self.meshtype == 'static':
-            raise ValueError('Do not support meshtype static for dimension %d'
-                             % self.dim)
+            raise ValueError(
+                'Do not support meshtype static for dimension %d' % self.dim)
         if self.dim != len(self.resolution):
             raise ValueError('Resolution %s does not math dimension %d.' %
                              (self.resolution, self.dim))
@@ -59,7 +60,8 @@ class Fractional(object):
         h = 1 / self.disc.resolution[-1]
         min_h = self.geom.mindist2boundary(self.x0)
         if min_h < h:
-            print('Warning: mesh step size %f is larger than the boundary distance %f.'
+            print(
+                'Warning: mesh step size %f is larger than the boundary distance %f.'
                 % (h, min_h))
 
     def _init_weights(self):
@@ -67,7 +69,7 @@ class Fractional(object):
             self.dynamic_dist2npts(self.geom.diam) + 1
         w = [1]
         for j in range(1, n):
-            w.append(w[-1] * (j-1-self.alpha) / j)
+            w.append(w[-1] * (j - 1 - self.alpha) / j)
         return array_ops.convert_to_array(w)
 
     def get_x(self):
@@ -104,11 +106,13 @@ class Fractional(object):
             dirns, dirn_w = [], []
             for i in range(self.disc.resolution[0]):
                 for j in range(self.disc.resolution[1]):
-                    dirns.append([np.sin(thetas[i]) * np.cos(phis[j]),
-                                  np.sin(thetas[i]) * np.sin(phis[j]),
-                                  np.cos(thetas[i])])
-                    dirn_w.append(gauss_w[i]*gauss_w[j]*np.sin(thetas[i]))
-            dirn_w = np.pi**2/2 * np.array(dirn_w)
+                    dirns.append([
+                        np.sin(thetas[i]) * np.cos(phis[j]),
+                        np.sin(thetas[i]) * np.sin(phis[j]),
+                        np.cos(thetas[i])
+                    ])
+                    dirn_w.append(gauss_w[i] * gauss_w[j] * np.sin(thetas[i]))
+            dirn_w = np.pi**2 / 2 * np.array(dirn_w)
         x, self.w = [], []
         for x0i in self.x0:
             xi = map(
@@ -132,7 +136,7 @@ class Fractional(object):
         return np.vstack([self.x0] + x)
 
     def modify_first_order(self, x, w):
-        x = np.vstack(([2*x[0] - x[1]], x[:-1]))
+        x = np.vstack(([2 * x[0] - x[1]], x[:-1]))
         if not self.geom.in_domain(x[0]):
             return x[1:], w[1:]
         return x, w
@@ -144,7 +148,7 @@ class Fractional(object):
         w = beta * w0 + (1 - beta) * w1
         if x is None:
             return w
-        x = np.vstack(([2*x[0] - x[1]], x))
+        x = np.vstack(([2 * x[0] - x[1]], x))
         if not self.geom.in_domain(x[0]):
             return x[1:], w[1:]
         return x, w
@@ -154,26 +158,29 @@ class Fractional(object):
         w1 = np.hstack((w, [config.real(np)(0)]))
         w2 = np.hstack(([config.real(np)(0)] * 2, w[:-1]))
         beta = 1 - self.alpha / 2
-        w = (-6*beta**2+11*beta+1)/6*w0 + (11-6*beta)*(1-beta)/12*w1 + (6*beta+1)*(beta-1)/12*w2
+        w = (-6 * beta**2 + 11 * beta + 1) / 6 * w0 + (11 - 6 * beta) * (
+            1 - beta) / 12 * w1 + (6 * beta + 1) * (beta - 1) / 12 * w2
         if x is None:
             return w
-        x = np.vstack(([2*x[0] - x[1]], x))
+        x = np.vstack(([2 * x[0] - x[1]], x))
         if not self.geom.in_domain(x[0]):
             return x[1:], w[1:]
         return x, w
 
     def get_weight(self, n):
-        return self._w_init[:n+1]
+        return self._w_init[:n + 1]
 
     def get_matrix_static(self):
         if not array_ops.istensor(self.alpha):
-            int_mat = np.zeros((self.disc.resolution[0], self.disc.resolution[0]),
-                               dtype=config.real(np))
+            int_mat = np.zeros(
+                (self.disc.resolution[0], self.disc.resolution[0]),
+                dtype=config.real(np))
             h = self.geom.diam / (self.disc.resolution[0] - 1)
             for i in range(1, self.disc.resolution[0] - 1):
                 # first order
-                int_mat[i, 1:i+2] = np.flipud(self.get_weight(i))
-                int_mat[i, i-1:-1] += self.get_weight(self.disc.resolution[0]-1-i)
+                int_mat[i, 1:i + 2] = np.flipud(self.get_weight(i))
+                int_mat[i, i - 1:-1] += self.get_weight(
+                    self.disc.resolution[0] - 1 - i)
                 # second order
                 # int_mat[i, 0:i+2] = np.flipud(self.modify_second_order(w=self.get_weight(i)))
                 # int_mat[i, i-1:] += self.modify_second_order(w=self.get_weight(self.disc.resolution[0]-1-i))
@@ -185,21 +192,33 @@ class Fractional(object):
         for i in range(1, self.disc.resolution[0] - 1):
             if True:
                 # shifted
-                row = tf.concat([tf.zeros(1, dtype=config.real(tf)),
-                                 tf.reverse(self.get_weight(i), [0]),
-                                 tf.zeros(self.disc.resolution[0]-i-2, dtype=config.real(tf))], 0)
-                row += tf.concat([tf.zeros(i - 1, dtype=config.real(tf)),
-                                  self.get_weight(self.disc.resolution[0]-1-i),
-                                  tf.zeros(1, dtype=config.real(tf))], 0)
+                row = tf.concat([
+                    tf.zeros(1, dtype=config.real(tf)),
+                    tf.reverse(self.get_weight(i), [0]),
+                    tf.zeros(
+                        self.disc.resolution[0] - i - 2, dtype=config.real(tf))
+                    ], 0)
+                row += tf.concat([
+                    tf.zeros(i - 1, dtype=config.real(tf)),
+                    self.get_weight(self.disc.resolution[0] - 1 - i),
+                    tf.zeros(1, dtype=config.real(tf))
+                    ], 0)
             else:
                 # not shifted
-                row = tf.concat([tf.reverse(self.get_weight(i), [0]),
-                                 tf.zeros(self.disc.resolution[0] - i - 1)], 0)
-                row += tf.concat([tf.zeros(i),
-                                  self.get_weight(self.disc.resolution[0] - 1 - i)], 0)
+                row = tf.concat([
+                    tf.reverse(self.get_weight(i), [0]),
+                    tf.zeros(self.disc.resolution[0] - i - 1)
+                    ], 0)
+                row += tf.concat([
+                    tf.zeros(i),
+                    self.get_weight(self.disc.resolution[0] - 1 - i)
+                    ], 0)
             row = tf.expand_dims(row, 0)
             int_mat = tf.concat([int_mat, row], 0)
-        int_mat = tf.concat([int_mat, tf.zeros([1, self.disc.resolution[0]], dtype=config.real(tf))], 0)
+        int_mat = tf.concat([
+            int_mat,
+            tf.zeros([1, self.disc.resolution[0]], dtype=config.real(tf))
+            ], 0)
         h = self.geom.diam / (self.disc.resolution[0] - 1)
         return h**(-self.alpha) * int_mat
 
@@ -223,7 +242,7 @@ class Fractional(object):
                            dtype=config.real(np))
         beg = self.x0.shape[0]
         for i in range(self.x0.shape[0]):
-            int_mat[i, beg: beg+self.w[i].size] = self.w[i]
+            int_mat[i, beg:beg + self.w[i].size] = self.w[i]
             beg += self.w[i].size
         return int_mat
 
@@ -263,29 +282,30 @@ class FractionalTime(object):
         x = np.roll(x, 1)[:, 0]
         dt = (self.tmax - self.tmin) / (self.nt - 1)
         d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1))
-        d[0: self.disc.resolution[0], 0] = x
-        d[0: self.disc.resolution[0], 1] = self.tmin
+        d[0:self.disc.resolution[0], 0] = x
+        d[0:self.disc.resolution[0], 1] = self.tmin
         beg = self.disc.resolution[0]
         for i in range(1, self.nt):
-            d[beg: beg+2, 0] = x[:2]
-            d[beg: beg+2, 1] = self.tmin + i * dt
+            d[beg:beg + 2, 0] = x[:2]
+            d[beg:beg + 2, 1] = self.tmin + i * dt
             beg += 2
         for i in range(1, self.nt):
-            d[beg: beg+self.disc.resolution[0]-2, 0] = x[2:]
-            d[beg: beg+self.disc.resolution[0]-2, 1] = self.tmin + i * dt
+            d[beg:beg + self.disc.resolution[0] - 2, 0] = x[2:]
+            d[beg:beg + self.disc.resolution[0] - 2, 1] = self.tmin + i * dt
             beg += self.disc.resolution[0] - 2
         return d
 
     def get_x_dynamic(self):
-        self.fracx = Fractional(self.alpha, self.geom, self.disc, self.x0[:, :-1])
+        self.fracx = Fractional(self.alpha, self.geom, self.disc,
+                                self.x0[:, :-1])
         xx = self.fracx.get_x()
-        x = np.empty((len(xx), self.geom.dim+1))
+        x = np.empty((len(xx), self.geom.dim + 1))
         x[:len(self.x0)] = self.x0
         beg = len(self.x0)
         for i in range(len(self.x0)):
-            tmp = xx[self.fracx.xindex_start[i]:self.fracx.xindex_start[i+1]]
-            x[beg: beg+len(tmp), :1] = tmp
-            x[beg: beg+len(tmp), -1] = self.x0[i, -1]
+            tmp = xx[self.fracx.xindex_start[i]:self.fracx.xindex_start[i + 1]]
+            x[beg:beg + len(tmp), :1] = tmp
+            x[beg:beg + len(tmp), -1] = self.x0[i, -1]
             beg += len(tmp)
         return x
 

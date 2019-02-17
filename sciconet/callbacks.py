@@ -5,6 +5,7 @@ from __future__ import print_function
 
 class Callback(object):
     """ Callback base class. """
+
     def __init__(self):
         pass
 

@@ -36,7 +36,8 @@ class PDE(Data):
     def train_next_batch(self, batch_size, *args, **kwargs):
         self.train_x = self.geom.uniform_points(batch_size, True)
         if self.nbc > 0:
-            self.train_x = np.vstack((self.geom.uniform_boundary_points(self.nbc), self.train_x))
+            self.train_x = np.vstack(
+                (self.geom.uniform_boundary_points(self.nbc), self.train_x))
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
         self.train_y = self.func(self.train_x)

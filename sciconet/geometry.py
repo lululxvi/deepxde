@@ -77,10 +77,11 @@ class Interval(Geometry):
 
     def uniform_points(self, n, boundary):
         if boundary:
-            return np.linspace(self.l, self.r, num=n,
-                               dtype=config.real(np))[:, None]
-        return np.linspace(self.l, self.r, num=n+1, endpoint=False,
-                           dtype=config.real(np))[1:, None]
+            return np.linspace(
+                self.l, self.r, num=n, dtype=config.real(np))[:, None]
+        return np.linspace(
+            self.l, self.r, num=n + 1, endpoint=False,
+            dtype=config.real(np))[1:, None]
 
     def random_points(self, n, random):
         if random == 'pseudo':
@@ -110,18 +111,19 @@ class Interval(Geometry):
                   points (not including x)
         shift: the number of shift
         """
+
         def background_points_left():
             dx = x[0] - self.l
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] - np.arange(-shift, n-shift+1) * h
+            pts = x[0] - np.arange(-shift, n - shift + 1) * h
             return pts[:, None]
 
         def background_points_right():
             dx = self.r - x[0]
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] + np.arange(-shift, n-shift+1) * h
+            pts = x[0] + np.arange(-shift, n - shift + 1) * h
             return pts[:, None]
 
         return background_points_left() if dirn < 0 else \
@@ -170,7 +172,7 @@ class Disk(Geometry):
         return self.radius * (np.sqrt(r) * np.vstack((x, y))).T + self.center
 
     def uniform_boundary_points(self, n):
-        theta = np.linspace(0, 2*np.pi, num=n, endpoint=False)
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
         X = np.vstack((np.cos(theta), np.sin(theta))).T
         return self.radius * X + self.center
 
@@ -179,7 +181,7 @@ class Disk(Geometry):
             u = np.random.rand(n, 1)
         elif random == 'sobol':
             u = sobol_sequence.sample(n, 1)
-        theta = 2*np.pi * u
+        theta = 2 * np.pi * u
         X = np.hstack((np.cos(theta), np.sin(theta)))
         return self.radius * X + self.center
 
@@ -188,7 +190,7 @@ class Disk(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n-shift+1)[:, None] * h * dirn
+        pts = x - np.arange(-shift, n - shift + 1)[:, None] * h * dirn
         return pts
 
 
@@ -218,14 +220,14 @@ class Hypercube(Geometry):
             "Hypercube.mindist2boundary to be implemented")
 
     def uniform_points(self, n, boundary):
-        n1 = int(np.ceil(n ** (1 / self.dim)))
+        n1 = int(np.ceil(n**(1 / self.dim)))
         xi = []
         for i in range(self.dim):
             if boundary:
                 xi.append(np.linspace(self.xmin[i], self.xmax[i], num=n1))
             else:
-                xi.append(np.linspace(
-                    self.xmin[i], self.xmax[i], num=n1+1, endpoint=False)[1:])
+                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=n1 + 1,
+                                      endpoint=False)[1:])
         x = np.array(list(itertools.product(*xi)))
         if n != len(x):
             print('Warning: {} points required, but {} points sampled.'.format(
@@ -254,7 +256,8 @@ class Hypercube(Geometry):
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
-        super(Hypersphere, self).__init__('Hypersphere', len(center), 2*radius)
+        super(Hypersphere, self).__init__('Hypersphere', len(center),
+                                          2 * radius)
         self.center, self.radius = center, radius
 
         self._r2 = radius**2
@@ -293,7 +296,7 @@ class Hypersphere(Geometry):
             U, X = rng[:, 0:1], rng[:, 1:]
             X = stats.norm.ppf(X)
         X = preprocessing.normalize(X)
-        X = U**(1/self.dim) * X
+        X = U**(1 / self.dim) * X
         return self.radius * X + self.center
 
     def uniform_boundary_points(self, n):
@@ -316,5 +319,5 @@ class Hypersphere(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n-shift+1)[:, None] * h * dirn
+        pts = x - np.arange(-shift, n - shift + 1)[:, None] * h * dirn
         return pts

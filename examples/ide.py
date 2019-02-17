@@ -42,7 +42,8 @@ def main():
     lr = 0.001
     batch_size = 16
     ntest = 128
-    model.compile(optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
+    model.compile(
+        optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)

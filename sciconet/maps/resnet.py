@@ -15,15 +15,21 @@ class ResNet(object):
     """Residual neural network
     """
 
-    def __init__(self, input_size, output_size, num_neurons, num_blocks,
-                 activation, kernel_initializer, regularization=None):
+    def __init__(self,
+                 input_size,
+                 output_size,
+                 num_neurons,
+                 num_blocks,
+                 activation,
+                 kernel_initializer,
+                 regularization=None):
         self.input_size = input_size
         self.output_size = output_size
         self.num_neurons = num_neurons
         self.num_blocks = num_blocks
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
-        self.regularizer = regularizers.get(regularization)        
+        self.regularizer = regularizers.get(regularization)
 
         self.training, self.dropout = None, None
         self.data_id = None  # 0: train data, 1: test data
@@ -37,17 +43,20 @@ class ResNet(object):
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)
         self.x = tf.placeholder(config.real(tf), [None, self.input_size])
-        
-        y = self.dense(self.x, self.num_neurons, activation=self.activation)        
+
+        y = self.dense(self.x, self.num_neurons, activation=self.activation)
         for _ in range(self.num_blocks):
             y = self.residual_block(y)
-        self.y = self.dense(y, self.output_size)                
+        self.y = self.dense(y, self.output_size)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.output_size])
 
     def dense(self, inputs, units, activation=None, use_bias=True):
         return tf.layers.dense(
-            inputs, units, activation=activation, use_bias=use_bias,
+            inputs,
+            units,
+            activation=activation,
+            use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=self.regularizer,
             bias_regularizer=self.regularizer)

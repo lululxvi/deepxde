@@ -13,12 +13,15 @@ def runifnone(*attr):
             if len(filter(lambda i: i is None, x)) > 0:
                 return func(self, *args, **kwargs)
             return x if len(x) > 1 else x[0]
+
         return wrapper
+
     return decorator
 
 
 def timing(f):
     """decorator for measuring the execution time of methods"""
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         ts = time.time()
@@ -26,4 +29,5 @@ def timing(f):
         te = time.time()
         print('%r took %f s' % (f.__name__, te - ts))
         return result
+
     return wrapper

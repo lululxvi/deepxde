@@ -12,7 +12,11 @@ import sciconet as scn
 def main():
     fname_train = 'examples/dataset.train'
     fname_test = 'examples/dataset.test'
-    data = scn.data.DataSet(fname_train=fname_train, fname_test=fname_test, col_x=(0,), col_y=(1,))
+    data = scn.data.DataSet(
+        fname_train=fname_train,
+        fname_test=fname_test,
+        col_x=(0, ),
+        col_y=(1, ))
 
     x_dim, y_dim = 1, 1
     layer_size = [x_dim] + [50] * 3 + [y_dim]
@@ -26,7 +30,8 @@ def main():
     lr = 0.001
     batch_size = 0
     ntest = 0
-    model.compile(optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
+    model.compile(
+        optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
 
     epochs = 50000
     losshistory, train_state = model.train(epochs)
