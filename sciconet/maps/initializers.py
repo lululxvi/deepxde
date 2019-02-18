@@ -8,7 +8,11 @@ import tensorflow as tf
 def get(identifier):
     identifiers = {
         "He normal": tf.variance_scaling_initializer(scale=2.0),
+        "He uniform": tf.variance_scaling_initializer(
+            scale=2.0, distribution="uniform"
+        ),
         "LeCun normal": tf.variance_scaling_initializer(),
+        "LeCun uniform": tf.variance_scaling_initializer(distribution="uniform"),
         "Glorot normal": tf.glorot_normal_initializer(),
         "Glorot uniform": tf.glorot_uniform_initializer(),
         "Orthogonal": tf.orthogonal_initializer(),
