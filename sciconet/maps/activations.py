@@ -14,15 +14,16 @@ def get(identifier):
         return linear
     if isinstance(identifier, str):
         return {
-            'elu': tf.nn.elu,
-            'relu': tf.nn.relu,
-            'selu': tf.nn.selu,
-            'sigmoid': tf.nn.sigmoid,
-            'sin': tf.sin,
-            'tanh': tf.nn.tanh
+            "elu": tf.nn.elu,
+            "relu": tf.nn.relu,
+            "selu": tf.nn.selu,
+            "sigmoid": tf.nn.sigmoid,
+            "sin": tf.sin,
+            "tanh": tf.nn.tanh,
         }[identifier]
     elif callable(identifier):
         return identifier
     else:
-        raise ValueError('Could not interpret '
-                         'activation function identifier:', identifier)
+        raise ValueError(
+            "Could not interpret activation function identifier:", identifier
+        )

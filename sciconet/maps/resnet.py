@@ -15,14 +15,16 @@ class ResNet(object):
     """Residual neural network
     """
 
-    def __init__(self,
-                 input_size,
-                 output_size,
-                 num_neurons,
-                 num_blocks,
-                 activation,
-                 kernel_initializer,
-                 regularization=None):
+    def __init__(
+        self,
+        input_size,
+        output_size,
+        num_neurons,
+        num_blocks,
+        activation,
+        kernel_initializer,
+        regularization=None,
+    ):
         self.input_size = input_size
         self.output_size = output_size
         self.num_neurons = num_neurons
@@ -38,7 +40,7 @@ class ResNet(object):
 
     @timing
     def build(self):
-        print('Building residual neural network...')
+        print("Building residual neural network...")
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)
@@ -59,7 +61,8 @@ class ResNet(object):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=self.regularizer,
-            bias_regularizer=self.regularizer)
+            bias_regularizer=self.regularizer,
+        )
 
     def residual_block(self, inputs):
         """A residual block in ResNet.

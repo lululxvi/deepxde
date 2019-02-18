@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
@@ -27,7 +28,7 @@ def timing(f):
         ts = time.time()
         result = f(*args, **kwargs)
         te = time.time()
-        print('%r took %f s' % (f.__name__, te - ts))
+        print("%r took %f s" % (f.__name__, te - ts))
         return result
 
     return wrapper

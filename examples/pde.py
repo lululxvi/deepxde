@@ -15,8 +15,9 @@ def get_diffusion_bcs(nx, nt):
     bcs = np.hstack((x, np.zeros((nx, 1))))
 
     t = np.linspace(0, 1, num=nt)[:, None]
-    ics = np.vstack((np.hstack((np.full((nt, 1), -1), t)),
-                     np.hstack((np.full((nt, 1), 1), t))))
+    ics = np.vstack(
+        (np.hstack((np.full((nt, 1), -1), t)), np.hstack((np.full((nt, 1), 1), t)))
+    )
     return np.vstack((bcs, ics))
 
 
@@ -25,7 +26,7 @@ def main():
         # Poisson's equation
         dy_x = tf.gradients(y, x)[0]
         dy_xx = tf.gradients(dy_x, x)[0]
-        return -dy_xx - np.pi**2 * tf.sin(np.pi * x)
+        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
         # Diffusion equation
         # dy_x = tf.gradients(y, x)[0]
         # dy_x, dy_t = dy_x[:, 0], dy_x[:, 1]
@@ -56,18 +57,17 @@ def main():
     # data = scn.data.PDE(geom, pde, func, nbc, anchors=anchors)
 
     layer_size = [x_dim] + [50] * 3 + [y_dim]
-    activation = 'tanh'
-    initializer = 'Glorot uniform'
+    activation = "tanh"
+    initializer = "Glorot uniform"
     net = scn.maps.FNN(layer_size, activation, initializer)
 
     model = scn.Model(data, net)
 
-    optimizer = 'adam'
+    optimizer = "adam"
     lr = 0.001
     batch_size = 16
     ntest = 100
-    model.compile(
-        optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
+    model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)
@@ -75,5 +75,5 @@ def main():
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

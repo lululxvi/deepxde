@@ -19,19 +19,18 @@ def main():
     data = scn.data.Func(geom, func)
 
     x_dim, y_dim = 1, 1
-    activation = 'tanh'
-    initializer = 'Glorot uniform'
+    activation = "tanh"
+    initializer = "Glorot uniform"
     net = scn.maps.FNN([x_dim] + [20] * 3 + [y_dim], activation, initializer)
     # net = scn.maps.ResNet(x_dim, y_dim, 20, 1, activation, initializer)
 
     model = scn.Model(data, net)
 
-    optimizer = 'adam'
+    optimizer = "adam"
     lr = 0.001
     batch_size = 16
     ntest = 100
-    model.compile(
-        optimizer, lr, batch_size, ntest, metrics=['l2 relative error'])
+    model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)
@@ -39,5 +38,5 @@ def main():
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

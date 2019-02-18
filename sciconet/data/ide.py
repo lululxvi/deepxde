@@ -31,18 +31,22 @@ class IDE(Data):
     def losses(self, y_true, y_pred, model):
         int_mat_train = self.get_int_matrix(model.batch_size, True)
         int_mat_test = self.get_int_matrix(model.ntest, False)
-        f = tf.cond(tf.equal(model.net.data_id, 0),
-                    lambda: self.ide(model.net.x, y_pred, int_mat_train),
-                    lambda: self.ide(model.net.x, y_pred, int_mat_test))
-        return [losses.get('MSE')(y_true[:self.nbc], y_pred[:self.nbc]),
-                losses.get('MSE')(tf.zeros(tf.shape(f)), f)]
+        f = tf.cond(
+            tf.equal(model.net.data_id, 0),
+            lambda: self.ide(model.net.x, y_pred, int_mat_train),
+            lambda: self.ide(model.net.x, y_pred, int_mat_test),
+        )
+        return [
+            losses.get("MSE")(y_true[: self.nbc], y_pred[: self.nbc]),
+            losses.get("MSE")(tf.zeros(tf.shape(f)), f),
+        ]
 
-    @runifnone('train_x', 'train_y')
+    @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
         self.train_x, self.train_y = self.gen_data(batch_size)
         return self.train_x, self.train_y
 
-    @runifnone('test_x', 'test_y')
+    @runifnone("test_x", "test_y")
     def test(self, n, *args, **kwargs):
         self.test_x, self.test_y = self.gen_data(n)
         return self.test_x, self.test_y
@@ -61,8 +65,9 @@ class IDE(Data):
             x = self.test_x
         int_mat = np.zeros((size, x.size), dtype=config.real(np))
         for i in range(size):
-            int_mat[i, size+self.quad_deg*i: size + self.quad_deg*(i+1)] = \
-                get_quad_weights(x[i, 0])
+            int_mat[
+                i, size + self.quad_deg * i : size + self.quad_deg * (i + 1)
+            ] = get_quad_weights(x[i, 0])
         return int_mat
 
     def gen_data(self, size):

@@ -6,17 +6,23 @@ import numpy as np
 
 
 def saveplot(losshistory, train_state, issave=True, isplot=True):
-    print('Best training: loss: %s, val_loss: %s, val_metric: %s' %
-          (train_state.best_loss_train, train_state.best_loss_test,
-           train_state.best_metrics))
+    print(
+        "Best training: loss: %s, val_loss: %s, val_metric: %s"
+        % (
+            train_state.best_loss_train,
+            train_state.best_loss_test,
+            train_state.best_metrics,
+        )
+    )
 
     if train_state.best_ystd is not None:
-        print('Uncertainty:')
-        print('  l2:', np.linalg.norm(train_state.best_ystd))
-        print('  l_infinity:',
-              np.linalg.norm(train_state.best_ystd, ord=np.inf))
-        print('  max uncertainty location:',
-              train_state.X_test[np.argmax(train_state.best_ystd)])
+        print("Uncertainty:")
+        print("  l2:", np.linalg.norm(train_state.best_ystd))
+        print("  l_infinity:", np.linalg.norm(train_state.best_ystd, ord=np.inf))
+        print(
+            "  max uncertainty location:",
+            train_state.X_test[np.argmax(train_state.best_ystd)],
+        )
 
     if isplot:
         losshistory.plot()
@@ -24,5 +30,5 @@ def saveplot(losshistory, train_state, issave=True, isplot=True):
         plt.show()
 
     if issave:
-        losshistory.savetxt('loss.dat')
-        train_state.savetxt('train.dat', 'test.dat')
+        losshistory.savetxt("loss.dat")
+        train_state.savetxt("train.dat", "test.dat")

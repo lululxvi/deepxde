@@ -13,8 +13,17 @@ from ..utils import runifnone
 class DataSet(Data):
     """Fitting Data set."""
 
-    def __init__(self, X_train=None, y_train=None, X_test=None, y_test=None,
-                 fname_train=None, fname_test=None, col_x=None, col_y=None):
+    def __init__(
+        self,
+        X_train=None,
+        y_train=None,
+        X_test=None,
+        y_test=None,
+        fname_train=None,
+        fname_test=None,
+        col_x=None,
+        col_y=None,
+    ):
         """
         # Arguments
             col_x: List of integers
@@ -30,13 +39,13 @@ class DataSet(Data):
             test_data = np.loadtxt(fname_test)
             self.test_x, self.test_y = test_data[:, col_x], test_data[:, col_y]
         else:
-            raise ValueError('No training data.')
+            raise ValueError("No training data.")
 
         self.scaler_x = None
         self._standardize()
 
     def losses(self, y_true, y_pred, model):
-        return [losses.get('MSE')(y_true, y_pred)]
+        return [losses.get("MSE")(y_true, y_pred)]
 
     def train_next_batch(self, batch_size, *args, **kwargs):
         return self.train_x, self.train_y
@@ -46,11 +55,11 @@ class DataSet(Data):
 
     def _standardize(self):
         def standardize_one(X1, X2):
-            scaler = preprocessing.StandardScaler(
-                with_mean=True, with_std=True)
+            scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
             X1 = scaler.fit_transform(X1)
             X2 = scaler.transform(X2)
             return scaler, X1, X2
 
         self.scaler_x, self.train_x, self.test_x = standardize_one(
-            self.train_x, self.test_x)
+            self.train_x, self.test_x
+        )

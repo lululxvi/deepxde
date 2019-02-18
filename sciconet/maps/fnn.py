@@ -17,13 +17,15 @@ class FNN(object):
     """feed-forward neural networks
     """
 
-    def __init__(self,
-                 layer_size,
-                 activation,
-                 kernel_initializer,
-                 regularization=None,
-                 dropout_rate=0,
-                 batch_normalization=None):
+    def __init__(
+        self,
+        layer_size,
+        activation,
+        kernel_initializer,
+        regularization=None,
+        dropout_rate=0,
+        batch_normalization=None,
+    ):
         self.layer_size = layer_size
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
@@ -38,7 +40,7 @@ class FNN(object):
 
     @timing
     def build(self):
-        print('Building feed-forward neural network...')
+        print("Building feed-forward neural network...")
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)
@@ -47,17 +49,15 @@ class FNN(object):
         y = self.x
         for i in range(len(self.layer_size) - 2):
             if self.batch_normalization is None:
-                y = self.dense(
-                    y, self.layer_size[i + 1], activation=self.activation)
-            elif self.batch_normalization == 'before':
+                y = self.dense(y, self.layer_size[i + 1], activation=self.activation)
+            elif self.batch_normalization == "before":
                 y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
-            elif self.batch_normalization == 'after':
+            elif self.batch_normalization == "after":
                 y = self.dense_batchnorm_v2(y, self.layer_size[i + 1])
             else:
-                raise ValueError('batch_normalization')
+                raise ValueError("batch_normalization")
             if self.dropout_rate > 0:
-                y = tf.layers.dropout(
-                    y, rate=self.dropout_rate, training=self.dropout)
+                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
         self.y = self.dense(y, self.layer_size[-1])
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
@@ -70,13 +70,13 @@ class FNN(object):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=self.regularizer,
-            bias_regularizer=self.regularizer)
+            bias_regularizer=self.regularizer,
+        )
 
     def dense_weightnorm(self, inputs, units, activation=None, use_bias=True):
         shape = inputs.get_shape().as_list()
         fan_in = shape[1]
-        W = tf.Variable(
-            tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
+        W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
         g = tf.Variable(tf.ones(units))
         W = tf.nn.l2_normalize(W, axis=0) * g
         y = tf.matmul(inputs, W)

@@ -24,13 +24,12 @@ def uniformly_continuous_delta(X, Y, eps):
         n = len(Y)
         k = 1
         while True:
-            if np.any(np.linalg.norm(Y[:n - k] - Y[k:], ord=np.inf, axis=1)
-                      >= eps):
+            if np.any(np.linalg.norm(Y[: n - k] - Y[k:], ord=np.inf, axis=1) >= eps):
                 return (k - 0.5) * dx
             k += 1
     else:
-        dX = scipy.spatial.distance.pdist(X, 'euclidean')
-        dY = scipy.spatial.distance.pdist(Y, 'chebyshev')
+        dX = scipy.spatial.distance.pdist(X, "euclidean")
+        dY = scipy.spatial.distance.pdist(Y, "chebyshev")
         delta = np.min(dX)
         dx = delta / 2
         while True:
