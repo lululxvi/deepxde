@@ -44,8 +44,8 @@ class DataSet(Data):
         self.scaler_x = None
         self._standardize()
 
-    def losses(self, y_true, y_pred, model):
-        return [losses.get("MSE")(y_true, y_pred)]
+    def losses(self, y_true, y_pred, loss, model):
+        return [losses.get(loss)(y_true, y_pred)]
 
     def train_next_batch(self, batch_size, *args, **kwargs):
         return self.train_x, self.train_y

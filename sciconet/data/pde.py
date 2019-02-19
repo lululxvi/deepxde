@@ -24,14 +24,14 @@ class PDE(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, y_true, y_pred, model):
+    def losses(self, y_true, y_pred, loss, model):
         n = self.nbc
         if self.anchors is not None:
             n += len(self.anchors)
         f = self.pde(model.net.x, y_pred)[n:]
         return [
-            losses.get("MSE")(y_true[:n], y_pred[:n]),
-            losses.get("MSE")(tf.zeros(tf.shape(f)), f),
+            losses.get(loss)(y_true[:n], y_pred[:n]),
+            losses.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
     @runifnone("train_x", "train_y")

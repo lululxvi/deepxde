@@ -28,7 +28,7 @@ class IDE(Data):
 
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)
 
-    def losses(self, y_true, y_pred, model):
+    def losses(self, y_true, y_pred, loss, model):
         int_mat_train = self.get_int_matrix(model.batch_size, True)
         int_mat_test = self.get_int_matrix(model.ntest, False)
         f = tf.cond(
@@ -37,8 +37,8 @@ class IDE(Data):
             lambda: self.ide(model.net.x, y_pred, int_mat_test),
         )
         return [
-            losses.get("MSE")(y_true[: self.nbc], y_pred[: self.nbc]),
-            losses.get("MSE")(tf.zeros(tf.shape(f)), f),
+            losses.get(loss)(y_true[: self.nbc], y_pred[: self.nbc]),
+            losses.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
     @runifnone("train_x", "train_y")

@@ -129,7 +129,7 @@ class LossHistory(object):
 
 
 class Model(object):
-    """model
+    """Model
     """
 
     scipy_opts = ["BFGS", "L-BFGS-B", "Nelder-Mead", "Powell", "CG", "Newton-CG"]
@@ -156,6 +156,7 @@ class Model(object):
         lr,
         batch_size,
         ntest,
+        loss="MSE",
         metrics=None,
         decay=None,
         loss_weights=None,
@@ -166,7 +167,7 @@ class Model(object):
         self.batch_size, self.ntest = batch_size, ntest
 
         self.losses = tf.convert_to_tensor(
-            self.data.losses(self.net.y_, self.net.y, self)
+            self.data.losses(self.net.y_, self.net.y, loss, self)
         )
         if loss_weights is not None:
             self.losses *= loss_weights
