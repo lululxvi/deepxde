@@ -17,14 +17,14 @@ SciCoNet supports
 
 - four domain geometries: interval, disk, hyercube and hypersphere;
 - two types of neural networks: fully connected neural network, and residual neural network;
-- many different loss, metrics, optimizers, learning rate schedules, initializations, regularization, etc.;
+- many different losses, metrics, optimizers, learning rate schedules, initializations, regularizations, etc.;
 - useful techniques, such as dropout and batch normalization;
 - callbacks to monitor the internal states and statistics of the model during training.
 
 SciCoNet is built with four main modules, including
 
 - domain geometry,
-- data, i.e., the type of problems,
+- data, i.e., the type of problems and constraints,
 - map, i.e., the function space,
 - model, which trains the map to match the data and constraints,
 
