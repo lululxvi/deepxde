@@ -17,7 +17,7 @@ SciCoNet supports
 
 - four domain geometries: interval, disk, hyercube and hypersphere;
 - two types of neural networks: fully connected neural network, and residual neural network;
-- differnt loss, metrics, optimizers, learning rate schedules, initializations, regularization, etc.;
+- many different loss, metrics, optimizers, learning rate schedules, initializations, regularization, etc.;
 - useful techniques, such as dropout and batch normalization;
 - callbacks to monitor the internal states and statistics of the model during training.
 
