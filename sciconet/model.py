@@ -68,10 +68,15 @@ class TrainState(object):
             plt.plot(self.X_test[:, 0], self.best_y[:, i], "--r", label="Prediction")
             if self.best_ystd is not None:
                 plt.plot(
-                    self.X_test[:, 0], self.best_y[:, i] + self.best_ystd[:, i], "-b"
+                    self.X_test[:, 0],
+                    self.best_y[:, i] + 2 * self.best_ystd[:, i],
+                    "-b",
+                    label="95% CI",
                 )
                 plt.plot(
-                    self.X_test[:, 0], self.best_y[:, i] - self.best_ystd[:, i], "-b"
+                    self.X_test[:, 0],
+                    self.best_y[:, i] - 2 * self.best_ystd[:, i],
+                    "-b",
                 )
         plt.xlabel("x")
         plt.ylabel("y")
