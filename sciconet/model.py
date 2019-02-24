@@ -80,7 +80,14 @@ class TrainState(object):
         if self.best_ystd is not None:
             plt.figure()
             for i in range(y_dim):
-                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], "-")
+                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], "-b")
+                plt.plot(
+                    self.X_train[:, 0],
+                    np.interp(
+                        self.X_train[:, 0], self.X_test[:, 0], self.best_ystd[:, i]
+                    ),
+                    "ok",
+                )
             plt.xlabel("x")
             plt.ylabel("std(y)")
 
