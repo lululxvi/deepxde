@@ -15,6 +15,7 @@ SciCoNet is extensible to solve other problems in scientific computing.
 
 SciCoNet supports
 
+- uncertainty quantification using dropout; 
 - four domain geometries: interval, disk, hyercube and hypersphere;
 - two types of neural networks: fully connected neural network, and residual neural network;
 - many different losses, metrics, optimizers, learning rate schedules, initializations, regularizations, etc.;
