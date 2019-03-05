@@ -179,7 +179,7 @@ class Model(object):
         self.batch_size, self.ntest = batch_size, ntest
 
         self.losses = tf.convert_to_tensor(
-            self.data.losses(self.net.y_, self.net.y, loss, self)
+            self.data.losses(self.net.get_targets(), self.net.get_outputs(), loss, self)
         )
         if loss_weights is not None:
             self.losses *= loss_weights
@@ -255,8 +255,8 @@ class Model(object):
                     self.net.training: True,
                     self.net.dropout: True,
                     self.net.data_id: 0,
-                    self.net.x: self.train_state.X_train,
-                    self.net.y_: self.train_state.y_train,
+                    self.net.get_inputs(): self.train_state.X_train,
+                    self.net.get_targets(): self.train_state.y_train,
                 },
             )
 
@@ -299,8 +299,8 @@ class Model(object):
                 self.net.training: True,
                 self.net.dropout: True,
                 self.net.data_id: 0,
-                self.net.x: self.train_state.X_train,
-                self.net.y_: self.train_state.y_train,
+                self.net.get_inputs(): self.train_state.X_train,
+                self.net.get_targets(): self.train_state.y_train,
             },
         )
 
@@ -324,13 +324,13 @@ class Model(object):
 
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
-            [self.losses, self.net.y],
+            [self.losses, self.net.get_outputs()],
             feed_dict={
                 self.net.training: False,
                 self.net.dropout: False,
                 self.net.data_id: 0,
-                self.net.x: self.train_state.X_train,
-                self.net.y_: self.train_state.y_train,
+                self.net.get_inputs(): self.train_state.X_train,
+                self.net.get_targets(): self.train_state.y_train,
             },
         )
 
@@ -338,13 +338,13 @@ class Model(object):
             losses, y_preds = [], []
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
-                    [self.losses, self.net.y],
+                    [self.losses, self.net.get_outputs()],
                     feed_dict={
                         self.net.training: False,
                         self.net.dropout: True,
                         self.net.data_id: 1,
-                        self.net.x: self.train_state.X_test,
-                        self.net.y_: self.train_state.y_test,
+                        self.net.get_inputs(): self.train_state.X_test,
+                        self.net.get_targets(): self.train_state.y_test,
                     },
                 )
                 losses.append(loss_one)
@@ -354,13 +354,13 @@ class Model(object):
             self.train_state.y_std_test = np.std(y_preds, axis=0)
         else:
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
-                [self.losses, self.net.y],
+                [self.losses, self.net.get_outputs()],
                 feed_dict={
                     self.net.training: False,
                     self.net.dropout: False,
                     self.net.data_id: 1,
-                    self.net.x: self.train_state.X_test,
-                    self.net.y_: self.train_state.y_test,
+                    self.net.get_inputs(): self.train_state.X_test,
+                    self.net.get_targets(): self.train_state.y_test,
                 },
             )
 

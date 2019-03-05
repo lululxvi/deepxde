@@ -38,6 +38,15 @@ class ResNet(object):
         self.x, self.y, self.y_ = None, None, None
         self.build()
 
+    def get_inputs(self):
+        return self.x
+
+    def get_outputs(self):
+        return self.y
+
+    def get_targets(self):
+        return self.y_
+
     @timing
     def build(self):
         print("Building residual neural network...")
