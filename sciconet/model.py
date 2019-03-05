@@ -126,13 +126,9 @@ class Model(object):
             )
             self.sess.run(
                 [self.losses, self.train_op],
-                feed_dict={
-                    self.net.training: True,
-                    self.net.dropout: True,
-                    self.net.data_id: 0,
-                    self.net.inputs: self.train_state.X_train,
-                    self.net.targets: self.train_state.y_train,
-                },
+                feed_dict=self.get_feed_dict(
+                    True, True, 0, self.train_state.X_train, self.train_state.y_train
+                ),
             )
 
             self.train_state.epoch += 1
@@ -170,13 +166,9 @@ class Model(object):
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
-            feed_dict={
-                self.net.training: True,
-                self.net.dropout: True,
-                self.net.data_id: 0,
-                self.net.inputs: self.train_state.X_train,
-                self.net.targets: self.train_state.y_train,
-            },
+            feed_dict=self.get_feed_dict(
+                True, True, 0, self.train_state.X_train, self.train_state.y_train
+            ),
         )
 
         self.train_state.update_data_test(*self.data.test(self.ntest))
@@ -200,13 +192,9 @@ class Model(object):
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.outputs],
-            feed_dict={
-                self.net.training: False,
-                self.net.dropout: False,
-                self.net.data_id: 0,
-                self.net.inputs: self.train_state.X_train,
-                self.net.targets: self.train_state.y_train,
-            },
+            feed_dict=self.get_feed_dict(
+                False, False, 0, self.train_state.X_train, self.train_state.y_train
+            ),
         )
 
         if uncertainty:
@@ -214,13 +202,9 @@ class Model(object):
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.outputs],
-                    feed_dict={
-                        self.net.training: False,
-                        self.net.dropout: True,
-                        self.net.data_id: 1,
-                        self.net.inputs: self.train_state.X_test,
-                        self.net.targets: self.train_state.y_test,
-                    },
+                    feed_dict=self.get_feed_dict(
+                        False, True, 1, self.train_state.X_test, self.train_state.y_test
+                    ),
                 )
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
@@ -230,13 +214,9 @@ class Model(object):
         else:
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.outputs],
-                feed_dict={
-                    self.net.training: False,
-                    self.net.dropout: False,
-                    self.net.data_id: 1,
-                    self.net.inputs: self.train_state.X_test,
-                    self.net.targets: self.train_state.y_test,
-                },
+                feed_dict=self.get_feed_dict(
+                    False, False, 1, self.train_state.X_test, self.train_state.y_test
+                ),
             )
 
         self.train_state.metrics_test = [
@@ -244,6 +224,15 @@ class Model(object):
             for m in self.metrics
         ]
         self.train_state.update_best()
+
+    def get_feed_dict(self, training, dropout, data_id, inputs, targets):
+        return {
+            self.net.training: training,
+            self.net.dropout: dropout,
+            self.net.data_id: data_id,
+            self.net.inputs: inputs,
+            self.net.targets: targets,
+        }
 
     def get_optimizer(self, name, lr):
         return {
