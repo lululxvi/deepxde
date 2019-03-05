@@ -38,13 +38,16 @@ class ResNet(object):
         self.x, self.y, self.y_ = None, None, None
         self.build()
 
-    def get_inputs(self):
+    @property
+    def inputs(self):
         return self.x
 
-    def get_outputs(self):
+    @property
+    def outputs(self):
         return self.y
 
-    def get_targets(self):
+    @property
+    def targets(self):
         return self.y_
 
     @timing
