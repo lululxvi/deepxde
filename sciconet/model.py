@@ -15,131 +15,6 @@ from .callbacks import CallbackList
 from .utils import timing
 
 
-class TrainState(object):
-    def __init__(self):
-        self.epoch, self.step = 0, 0
-
-        self.sess = None
-
-        self.X_train, self.y_train = None, None
-        self.X_test, self.y_test = None, None
-
-        self.y_pred_train, self.y_pred_test, self.y_std_test = None, None, None
-        self.loss_train, self.loss_test = None, None
-        self.metrics_test = None
-
-        # the best results correspond to the min train loss
-        self.best_loss_train, self.best_loss_test = np.inf, np.inf
-        self.best_y, self.best_ystd = None, None
-        self.best_metrics = None
-
-    def update_tfsession(self, sess):
-        self.sess = sess
-
-    def update_data_train(self, X_train, y_train):
-        self.X_train, self.y_train = X_train, y_train
-
-    def update_data_test(self, X_test, y_test):
-        self.X_test, self.y_test = X_test, y_test
-
-    def update_best(self):
-        if self.best_loss_train > np.sum(self.loss_train):
-            self.best_loss_train = np.sum(self.loss_train)
-            self.best_loss_test = np.sum(self.loss_test)
-            self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
-            self.best_metrics = self.metrics_test
-
-    def savetxt(self, fname_train, fname_test):
-        train = np.hstack((self.X_train, self.y_train))
-        np.savetxt(fname_train, train, header="x, y")
-
-        test = np.hstack((self.X_test, self.y_test, self.best_y))
-        if self.best_ystd is not None:
-            test = np.hstack((test, self.best_ystd))
-        np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
-
-    def plot(self):
-        y_dim = self.y_train.shape[1]
-
-        plt.figure()
-        for i in range(y_dim):
-            plt.plot(self.X_train[:, 0], self.y_train[:, i], "ok", label="Train")
-            plt.plot(self.X_test[:, 0], self.y_test[:, i], "-k", label="True")
-            plt.plot(self.X_test[:, 0], self.best_y[:, i], "--r", label="Prediction")
-            if self.best_ystd is not None:
-                plt.plot(
-                    self.X_test[:, 0],
-                    self.best_y[:, i] + 2 * self.best_ystd[:, i],
-                    "-b",
-                    label="95% CI",
-                )
-                plt.plot(
-                    self.X_test[:, 0],
-                    self.best_y[:, i] - 2 * self.best_ystd[:, i],
-                    "-b",
-                )
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.legend()
-
-        if self.best_ystd is not None:
-            plt.figure()
-            for i in range(y_dim):
-                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], "-b")
-                plt.plot(
-                    self.X_train[:, 0],
-                    np.interp(
-                        self.X_train[:, 0], self.X_test[:, 0], self.best_ystd[:, i]
-                    ),
-                    "ok",
-                )
-            plt.xlabel("x")
-            plt.ylabel("std(y)")
-
-
-class LossHistory(object):
-    def __init__(self):
-        self.steps = []
-        self.loss_train = []
-        self.loss_test = []
-        self.metrics_test = []
-        self.loss_weights = 1
-
-    def update_loss_weights(self, loss_weights):
-        self.loss_weights = loss_weights
-
-    def add(self, step, loss_train, loss_test, metrics_test):
-        self.steps.append(step)
-        self.loss_train.append(loss_train)
-        self.loss_test.append(loss_test)
-        self.metrics_test.append(metrics_test)
-
-    def savetxt(self, fname):
-        loss = np.hstack(
-            (
-                np.array(self.steps)[:, None],
-                np.array(self.loss_train),
-                np.array(self.loss_test),
-                np.array(self.metrics_test),
-            )
-        )
-        np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
-
-    def plot(self):
-        loss_train = np.sum(np.array(self.loss_train) * self.loss_weights, axis=1)
-        loss_test = np.sum(np.array(self.loss_test) * self.loss_weights, axis=1)
-
-        plt.figure()
-        plt.semilogy(self.steps, loss_train, label="Train loss")
-        plt.semilogy(self.steps, loss_test, label="Test loss")
-        for i in range(len(self.metrics_test[0])):
-            plt.semilogy(
-                self.steps, np.array(self.metrics_test)[:, i], label="Test metric"
-            )
-        plt.xlabel("# Steps")
-        plt.legend()
-
-
 class Model(object):
     """Model
     """
@@ -402,3 +277,128 @@ class Model(object):
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
+
+
+class TrainState(object):
+    def __init__(self):
+        self.epoch, self.step = 0, 0
+
+        self.sess = None
+
+        self.X_train, self.y_train = None, None
+        self.X_test, self.y_test = None, None
+
+        self.y_pred_train, self.y_pred_test, self.y_std_test = None, None, None
+        self.loss_train, self.loss_test = None, None
+        self.metrics_test = None
+
+        # the best results correspond to the min train loss
+        self.best_loss_train, self.best_loss_test = np.inf, np.inf
+        self.best_y, self.best_ystd = None, None
+        self.best_metrics = None
+
+    def update_tfsession(self, sess):
+        self.sess = sess
+
+    def update_data_train(self, X_train, y_train):
+        self.X_train, self.y_train = X_train, y_train
+
+    def update_data_test(self, X_test, y_test):
+        self.X_test, self.y_test = X_test, y_test
+
+    def update_best(self):
+        if self.best_loss_train > np.sum(self.loss_train):
+            self.best_loss_train = np.sum(self.loss_train)
+            self.best_loss_test = np.sum(self.loss_test)
+            self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
+            self.best_metrics = self.metrics_test
+
+    def savetxt(self, fname_train, fname_test):
+        train = np.hstack((self.X_train, self.y_train))
+        np.savetxt(fname_train, train, header="x, y")
+
+        test = np.hstack((self.X_test, self.y_test, self.best_y))
+        if self.best_ystd is not None:
+            test = np.hstack((test, self.best_ystd))
+        np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
+
+    def plot(self):
+        y_dim = self.y_train.shape[1]
+
+        plt.figure()
+        for i in range(y_dim):
+            plt.plot(self.X_train[:, 0], self.y_train[:, i], "ok", label="Train")
+            plt.plot(self.X_test[:, 0], self.y_test[:, i], "-k", label="True")
+            plt.plot(self.X_test[:, 0], self.best_y[:, i], "--r", label="Prediction")
+            if self.best_ystd is not None:
+                plt.plot(
+                    self.X_test[:, 0],
+                    self.best_y[:, i] + 2 * self.best_ystd[:, i],
+                    "-b",
+                    label="95% CI",
+                )
+                plt.plot(
+                    self.X_test[:, 0],
+                    self.best_y[:, i] - 2 * self.best_ystd[:, i],
+                    "-b",
+                )
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.legend()
+
+        if self.best_ystd is not None:
+            plt.figure()
+            for i in range(y_dim):
+                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], "-b")
+                plt.plot(
+                    self.X_train[:, 0],
+                    np.interp(
+                        self.X_train[:, 0], self.X_test[:, 0], self.best_ystd[:, i]
+                    ),
+                    "ok",
+                )
+            plt.xlabel("x")
+            plt.ylabel("std(y)")
+
+
+class LossHistory(object):
+    def __init__(self):
+        self.steps = []
+        self.loss_train = []
+        self.loss_test = []
+        self.metrics_test = []
+        self.loss_weights = 1
+
+    def update_loss_weights(self, loss_weights):
+        self.loss_weights = loss_weights
+
+    def add(self, step, loss_train, loss_test, metrics_test):
+        self.steps.append(step)
+        self.loss_train.append(loss_train)
+        self.loss_test.append(loss_test)
+        self.metrics_test.append(metrics_test)
+
+    def savetxt(self, fname):
+        loss = np.hstack(
+            (
+                np.array(self.steps)[:, None],
+                np.array(self.loss_train),
+                np.array(self.loss_test),
+                np.array(self.metrics_test),
+            )
+        )
+        np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
+
+    def plot(self):
+        loss_train = np.sum(np.array(self.loss_train) * self.loss_weights, axis=1)
+        loss_test = np.sum(np.array(self.loss_test) * self.loss_weights, axis=1)
+
+        plt.figure()
+        plt.semilogy(self.steps, loss_train, label="Train loss")
+        plt.semilogy(self.steps, loss_test, label="Test loss")
+        for i in range(len(self.metrics_test[0])):
+            plt.semilogy(
+                self.steps, np.array(self.metrics_test)[:, i], label="Test metric"
+            )
+        plt.xlabel("# Steps")
+        plt.legend()
