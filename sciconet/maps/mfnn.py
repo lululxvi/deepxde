@@ -82,21 +82,38 @@ class MfNN(object):
                 y,
                 self.layer_size_hi[i],
                 activation=self.activation,
+                initializer=initializers.get("Zeros"),
                 regularizer=self.regularizer,
             )
-        y_hi_nl = self.dense(y, self.layer_size_hi[-1], regularizer=self.regularizer)
+        y_hi_nl = self.dense(
+            y,
+            self.layer_size_hi[-1],
+            use_bias=False,
+            initializer=initializers.get("Zeros"),
+            regularizer=self.regularizer,
+        )
         # Linear + nonlinear
-        self.y_hi = y_hi_l + y_hi_nl
+        self.y_hi = self.y_lo + y_hi_l + y_hi_nl
 
         self.target_lo = tf.placeholder(config.real(tf), [None, self.layer_size_lo[-1]])
         self.target_hi = tf.placeholder(config.real(tf), [None, self.layer_size_hi[-1]])
 
-    def dense(self, inputs, units, activation=None, regularizer=None):
+    def dense(
+        self,
+        inputs,
+        units,
+        activation=None,
+        use_bias=True,
+        initializer=None,
+        regularizer=None,
+    ):
+        initializer = initializer or self.kernel_initializer
         return tf.layers.dense(
             inputs,
             units,
             activation=activation,
-            kernel_initializer=self.kernel_initializer,
+            use_bias=use_bias,
+            kernel_initializer=initializer,
             kernel_regularizer=regularizer,
             bias_regularizer=regularizer,
         )
