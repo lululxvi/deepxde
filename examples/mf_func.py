@@ -15,6 +15,12 @@ def main():
     def func_hi(x):
         return (6 * x - 2) ** 2 * np.sin(12 * x - 4)
 
+    # def func_lo(x):
+    #     return np.sin(8 * np.pi * x)
+
+    # def func_hi(x):
+    #     return (x - 2 ** 0.5) * func_lo(x) ** 2
+
     geom = scn.geometry.Interval(0, 1)
     data = scn.data.MfFunc(geom, func_lo, func_hi, 5)
 
@@ -24,7 +30,7 @@ def main():
     regularization = ["l2", 0.01]
     net = scn.maps.MfNN(
         [x_dim] + [20] * 4 + [y_dim],
-        [10, y_dim],
+        [10] * 1 + [y_dim],
         activation,
         initializer,
         regularization=regularization,
@@ -38,7 +44,7 @@ def main():
     ntest = 1000
     model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
 
-    epochs = 100000
+    epochs = 80000
     losshistory, train_state = model.train(epochs)
 
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
