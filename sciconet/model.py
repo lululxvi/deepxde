@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import math
 import sys
 
 import matplotlib.pyplot as plt
@@ -125,7 +124,7 @@ class Model(object):
                 *self.data.train_next_batch(self.batch_size)
             )
             self.sess.run(
-                [self.losses, self.train_op],
+                self.train_op,
                 feed_dict=self.get_feed_dict(
                     True, True, 0, self.train_state.X_train, self.train_state.y_train
                 ),
@@ -198,6 +197,7 @@ class Model(object):
         )
 
         if uncertainty:
+            # TODO: support multi outputs
             losses, y_preds = [], []
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
@@ -219,20 +219,31 @@ class Model(object):
                 ),
             )
 
-        self.train_state.metrics_test = [
-            m(self.train_state.y_test, self.train_state.y_pred_test)
-            for m in self.metrics
-        ]
+        if isinstance(self.net.targets, list):
+            self.train_state.metrics_test = [
+                m(self.train_state.y_test[i], self.train_state.y_pred_test[i])
+                for m in self.metrics
+                for i in range(len(self.net.targets))
+            ]
+        else:
+            self.train_state.metrics_test = [
+                m(self.train_state.y_test, self.train_state.y_pred_test)
+                for m in self.metrics
+            ]
         self.train_state.update_best()
 
     def get_feed_dict(self, training, dropout, data_id, inputs, targets):
-        return {
+        feed_dict = {
             self.net.training: training,
             self.net.dropout: dropout,
             self.net.data_id: data_id,
             self.net.inputs: inputs,
-            self.net.targets: targets,
         }
+        if isinstance(self.net.targets, list):
+            feed_dict.update(dict(zip(self.net.targets, targets)))
+        else:
+            feed_dict.update({self.net.targets: targets})
+        return feed_dict
 
     def get_optimizer(self, name, lr):
         return {
@@ -274,14 +285,17 @@ class TrainState(object):
 
         self.sess = None
 
+        # Data
         self.X_train, self.y_train = None, None
         self.X_test, self.y_test = None, None
 
-        self.y_pred_train, self.y_pred_test, self.y_std_test = None, None, None
+        # Results of current step
+        self.y_pred_train = None
         self.loss_train, self.loss_test = None, None
+        self.y_pred_test, self.y_std_test = None, None
         self.metrics_test = None
 
-        # the best results correspond to the min train loss
+        # The best results correspond to the min train loss
         self.best_loss_train, self.best_loss_test = np.inf, np.inf
         self.best_y, self.best_ystd = None, None
         self.best_metrics = None
@@ -303,51 +317,58 @@ class TrainState(object):
             self.best_metrics = self.metrics_test
 
     def savetxt(self, fname_train, fname_test):
-        train = np.hstack((self.X_train, self.y_train))
+        y_train = self.merge_values(self.y_train)
+        y_test = self.merge_values(self.y_test)
+        best_y = self.merge_values(self.best_y)
+        best_ystd = self.merge_values(self.best_ystd)
+
+        train = np.hstack((self.X_train, y_train))
         np.savetxt(fname_train, train, header="x, y")
 
-        test = np.hstack((self.X_test, self.y_test, self.best_y))
-        if self.best_ystd is not None:
-            test = np.hstack((test, self.best_ystd))
+        test = np.hstack((self.X_test, y_test, best_y))
+        if best_ystd is not None:
+            test = np.hstack((test, best_ystd))
         np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
 
     def plot(self):
-        y_dim = self.y_train.shape[1]
+        y_train = self.merge_values(self.y_train)
+        y_test = self.merge_values(self.y_test)
+        best_y = self.merge_values(self.best_y)
+        best_ystd = self.merge_values(self.best_ystd)
+
+        y_dim = y_train.shape[1]
 
         plt.figure()
         for i in range(y_dim):
-            plt.plot(self.X_train[:, 0], self.y_train[:, i], "ok", label="Train")
-            plt.plot(self.X_test[:, 0], self.y_test[:, i], "-k", label="True")
-            plt.plot(self.X_test[:, 0], self.best_y[:, i], "--r", label="Prediction")
-            if self.best_ystd is not None:
+            plt.plot(self.X_train[:, 0], y_train[:, i], "ok", label="Train")
+            plt.plot(self.X_test[:, 0], y_test[:, i], "-k", label="True")
+            plt.plot(self.X_test[:, 0], best_y[:, i], "--r", label="Prediction")
+            if best_ystd is not None:
                 plt.plot(
                     self.X_test[:, 0],
-                    self.best_y[:, i] + 2 * self.best_ystd[:, i],
+                    best_y[:, i] + 2 * best_ystd[:, i],
                     "-b",
                     label="95% CI",
                 )
-                plt.plot(
-                    self.X_test[:, 0],
-                    self.best_y[:, i] - 2 * self.best_ystd[:, i],
-                    "-b",
-                )
+                plt.plot(self.X_test[:, 0], best_y[:, i] - 2 * best_ystd[:, i], "-b")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
 
-        if self.best_ystd is not None:
+        if best_ystd is not None:
             plt.figure()
             for i in range(y_dim):
-                plt.plot(self.X_test[:, 0], self.best_ystd[:, i], "-b")
+                plt.plot(self.X_test[:, 0], best_ystd[:, i], "-b")
                 plt.plot(
                     self.X_train[:, 0],
-                    np.interp(
-                        self.X_train[:, 0], self.X_test[:, 0], self.best_ystd[:, i]
-                    ),
+                    np.interp(self.X_train[:, 0], self.X_test[:, 0], best_ystd[:, i]),
                     "ok",
                 )
             plt.xlabel("x")
             plt.ylabel("std(y)")
+
+    def merge_values(self, values):
+        return np.hstack(values) if isinstance(values, list) else values
 
 
 class LossHistory(object):
