@@ -7,6 +7,7 @@ import tensorflow as tf
 
 def get(identifier):
     identifiers = {
+        "Zeros": tf.zeros_initializer(),
         "He normal": tf.variance_scaling_initializer(scale=2.0),
         "He uniform": tf.variance_scaling_initializer(
             scale=2.0, distribution="uniform"
