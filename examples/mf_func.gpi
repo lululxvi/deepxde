@@ -1,0 +1,10 @@
+set term pdfcairo lw 1.5 size 8cm,6cm
+set output 'mf_func.pdf'
+
+set key top center
+p 'train_lo.dat' u 1:2 w p pt 5 ps 0.3 lc 'blue' notitle, \
+  'train_hi.dat' u 1:3 w p pt 7 ps 0.3 lc 'red' notitle, \
+  'test.dat' u 1:2 w l lc 'blue' title 'Low fidelity', \
+  '' u 1:3 w l lc 'red' title 'High fidelity', \
+  '' u 1:4 w l dt 2 lc 'blue' notitle, \
+  '' u 1:5 w l dt 2 lc 'red' notitle
