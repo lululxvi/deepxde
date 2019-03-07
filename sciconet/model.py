@@ -52,13 +52,15 @@ class Model(object):
         self.optimizer = optimizer
         self.batch_size, self.ntest = batch_size, ntest
 
-        self.losses = tf.convert_to_tensor(
-            self.data.losses(self.net.targets, self.net.outputs, loss, self)
-        )
+        self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
+        if self.net.regularizer is not None:
+            self.losses.append(tf.losses.get_regularization_loss())
+        self.losses = tf.convert_to_tensor(self.losses)
         if loss_weights is not None:
             self.losses *= loss_weights
             self.losshistory.update_loss_weights(loss_weights)
         self.totalloss = tf.reduce_sum(self.losses)
+
         lr, global_step = self.get_learningrate(lr, decay)
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
