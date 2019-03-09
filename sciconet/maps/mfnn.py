@@ -103,5 +103,4 @@ class MfNN(object):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=regularizer,
-            bias_regularizer=regularizer,
         )

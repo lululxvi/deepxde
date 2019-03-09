@@ -73,7 +73,6 @@ class ResNet(object):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=self.regularizer,
-            bias_regularizer=self.regularizer,
         )
 
     def residual_block(self, inputs):
