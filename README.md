@@ -4,8 +4,8 @@ SciCoNet (**Sci**entific **Co**mputing Neural **Net**works) is a deep learning l
 
 Use SciCoNet if you need a deep learning library that
 
-- approximate functions from a dataset with/without constraints,
-- approximate functions from multi-fidelity data,
+- approximates functions from a dataset with/without constraints,
+- approximates functions from multi-fidelity data,
 - solves partial differential equations (PDEs),
 - solves integro-differential equations (IDEs),
 - solves fractional partial differential equations (fPDEs).
