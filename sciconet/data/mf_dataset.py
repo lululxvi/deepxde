@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import tensorflow as tf
 from sklearn import preprocessing
 
 from .data import Data
@@ -57,7 +58,9 @@ class MfDataSet(Data):
         self._standardize()
 
     def losses(self, targets, outputs, loss, model):
-        n = len(self.X_lo_train)
+        n = tf.cond(
+            tf.equal(model.net.data_id, 0), lambda: len(self.X_lo_train), lambda: 0
+        )
         loss_lo = losses.get(loss)(targets[0][:n], outputs[0][:n])
         loss_hi = losses.get(loss)(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
