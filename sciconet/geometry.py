@@ -81,6 +81,18 @@ class Interval(Geometry):
             self.l, self.r, num=n + 1, endpoint=False, dtype=config.real(np)
         )[1:, None]
 
+    def log_uniform_points(self, n, boundary):
+        eps = 0 if self.l > 0 else np.finfo(config.real(np)).eps
+        l = np.log(self.l + eps)
+        r = np.log(self.r + eps)
+        if boundary:
+            x = np.linspace(l, r, num=n, dtype=config.real(np))[:, None]
+        else:
+            x = np.linspace(l, r, num=n + 1, endpoint=False, dtype=config.real(np))[
+                1:, None
+            ]
+        return np.exp(x) - eps
+
     def random_points(self, n, random):
         if random == "pseudo":
             x = np.random.rand(n, 1)
