@@ -14,11 +14,12 @@ class FuncConstraint(Data):
     """Function approximation with constraints.
     """
 
-    def __init__(self, geom, constraint, func, anchors):
+    def __init__(self, geom, constraint, func, anchors, dist_train="uniform"):
         self.geom = geom
         self.constraint = constraint
         self.func = func
         self.anchors = anchors
+        self.dist_train = dist_train
 
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
@@ -45,7 +46,12 @@ class FuncConstraint(Data):
 
     @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
-        self.train_x = self.geom.uniform_points(batch_size, False)
+        if self.dist_train == "log uniform":
+            self.train_x = self.geom.log_uniform_points(batch_size, False)
+        elif self.dist_train == "random":
+            self.train_x = self.geom.random_points(batch_size, "sobol")
+        else:
+            self.train_x = self.geom.uniform_points(batch_size, False)
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
         self.train_y = self.func(self.train_x)
