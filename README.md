@@ -1,4 +1,4 @@
-# SciCoNet
+# SciCoNet ℒ
 
 SciCoNet (**Sci**entific **Co**mputing Neural **Net**works) is a deep learning library designed for scientific computing on top of [TensorFlow](https://www.tensorflow.org/).
 
@@ -42,6 +42,10 @@ and thus is highly-configurable. It is easy to add new functions to each modules
 - [scikit-learn](https://scikit-learn.org)
 - [SciPy](https://www.scipy.org/)
 - [TensorFlow](https://www.tensorflow.org/)
+
+## Why this logo, ℒ?
+
+The art of scientific computing with deep learning is to design Loss ℒ.
 
 ## License
 
