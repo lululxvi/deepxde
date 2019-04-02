@@ -5,4 +5,4 @@ from . import geometry
 from . import maps
 from .model import Model
 from .postprocessing import saveplot
-from .utils import process
+from .utils import apply

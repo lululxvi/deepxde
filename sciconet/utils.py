@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import time
 from functools import wraps
-from multiprocessing import Process
+from multiprocessing import Pool
 
 
 def runifnone(*attr):
@@ -35,11 +35,18 @@ def timing(f):
     return wrapper
 
 
-def process(target, args):
+def apply(func, args=None, kwds=None):
     """Clear Tensorflow GPU memory after model execution.
 
     Reference: https://stackoverflow.com/questions/39758094/clearing-tensorflow-gpu-memory-after-model-execution
     """
-    p = Process(target=target, args=args)
-    p.start()
-    p.join()
+    with Pool(1) as p:
+        if args is None and kwds is None:
+            r = p.apply(func)
+        elif kwds is None:
+            r = p.apply(func, args=args)
+        elif args is None:
+            r = p.apply(func, kwds=kwds)
+        else:
+            r = p.apply(func, args=args, kwds=kwds)
+    return r
