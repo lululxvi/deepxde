@@ -73,6 +73,7 @@ class Model(object):
                     self.totalloss, global_step=global_step
                 )
 
+        metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
     @timing
