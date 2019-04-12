@@ -341,6 +341,7 @@ class TrainState(object):
 
         y_dim = y_train.shape[1]
 
+        # Regression plot
         plt.figure()
         for i in range(y_dim):
             plt.plot(self.X_train[:, 0], y_train[:, i], "ok", label="Train")
@@ -357,6 +358,14 @@ class TrainState(object):
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
+
+        # Residual plot
+        plt.figure()
+        residual = y_test[:, 0] - best_y[:, 0]
+        plt.plot(best_y[:, 0], residual, "o", zorder=1)
+        plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
+        plt.xlabel("Predicted")
+        plt.ylabel("Residual = Observed - Predicted")
 
         if best_ystd is not None:
             plt.figure()
