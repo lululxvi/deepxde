@@ -240,8 +240,11 @@ class Model(object):
             self.net.training: training,
             self.net.dropout: dropout,
             self.net.data_id: data_id,
-            self.net.inputs: inputs,
         }
+        if isinstance(self.net.inputs, list):
+            feed_dict.update(dict(zip(self.net.inputs, inputs)))
+        else:
+            feed_dict.update({self.net.inputs: inputs})
         if isinstance(self.net.targets, list):
             feed_dict.update(dict(zip(self.net.targets, targets)))
         else:
@@ -320,21 +323,25 @@ class TrainState(object):
             self.best_metrics = self.metrics_test
 
     def savetxt(self, fname_train, fname_test):
+        X_train = self.merge_values(self.X_train)
         y_train = self.merge_values(self.y_train)
+        X_test = self.merge_values(self.X_test)
         y_test = self.merge_values(self.y_test)
         best_y = self.merge_values(self.best_y)
         best_ystd = self.merge_values(self.best_ystd)
 
-        train = np.hstack((self.X_train, y_train))
+        train = np.hstack((X_train, y_train))
         np.savetxt(fname_train, train, header="x, y")
 
-        test = np.hstack((self.X_test, y_test, best_y))
+        test = np.hstack((X_test, y_test, best_y))
         if best_ystd is not None:
             test = np.hstack((test, best_ystd))
         np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
 
     def plot(self):
+        X_train = self.merge_values(self.X_train)
         y_train = self.merge_values(self.y_train)
+        X_test = self.merge_values(self.X_test)
         y_test = self.merge_values(self.y_test)
         best_y = self.merge_values(self.best_y)
         best_ystd = self.merge_values(self.best_ystd)
@@ -344,17 +351,17 @@ class TrainState(object):
         # Regression plot
         plt.figure()
         for i in range(y_dim):
-            plt.plot(self.X_train[:, 0], y_train[:, i], "ok", label="Train")
-            plt.plot(self.X_test[:, 0], y_test[:, i], "-k", label="True")
-            plt.plot(self.X_test[:, 0], best_y[:, i], "--r", label="Prediction")
+            plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
+            plt.plot(X_test[:, 0], y_test[:, i], "-k", label="True")
+            plt.plot(X_test[:, 0], best_y[:, i], "--r", label="Prediction")
             if best_ystd is not None:
                 plt.plot(
-                    self.X_test[:, 0],
+                    X_test[:, 0],
                     best_y[:, i] + 2 * best_ystd[:, i],
                     "-b",
                     label="95% CI",
                 )
-                plt.plot(self.X_test[:, 0], best_y[:, i] - 2 * best_ystd[:, i], "-b")
+                plt.plot(X_test[:, 0], best_y[:, i] - 2 * best_ystd[:, i], "-b")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
@@ -370,10 +377,10 @@ class TrainState(object):
         if best_ystd is not None:
             plt.figure()
             for i in range(y_dim):
-                plt.plot(self.X_test[:, 0], best_ystd[:, i], "-b")
+                plt.plot(X_test[:, 0], best_ystd[:, i], "-b")
                 plt.plot(
-                    self.X_train[:, 0],
-                    np.interp(self.X_train[:, 0], self.X_test[:, 0], best_ystd[:, i]),
+                    X_train[:, 0],
+                    np.interp(X_train[:, 0], X_test[:, 0], best_ystd[:, i]),
                     "ok",
                 )
             plt.xlabel("x")
