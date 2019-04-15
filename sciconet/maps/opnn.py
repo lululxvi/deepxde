@@ -69,8 +69,8 @@ class OpNN(object):
         W = tf.Variable(
             tf.truncated_normal(
                 [
-                    self.layer_size_func[0],
                     self.layer_size_func[2],
+                    self.layer_size_func[0],
                     self.layer_size_func[1],
                 ],
                 stddev=math.sqrt(1 / self.layer_size_func[0]),
@@ -78,14 +78,14 @@ class OpNN(object):
             )
         )
         b = tf.Variable(tf.zeros([self.layer_size_func[2], self.layer_size_func[1]]))
-        y_func = self.activation(tf.einsum("ai,ibk->abk", self.X_func, W) + b)
+        y_func = self.activation(tf.einsum("bi,nij->bnj", self.X_func, W) + b)
         W = tf.Variable(
             tf.truncated_normal(
                 [self.layer_size_func[2], self.layer_size_func[1]],
                 stddev=math.sqrt(1 / self.layer_size_func[1]),
             )
         )
-        y_func = tf.einsum("abi,bi->ab", y_func, W)
+        y_func = tf.einsum("bni,ni->bn", y_func, W)
 
         # Location NN
         y_loc = self.X_loc
