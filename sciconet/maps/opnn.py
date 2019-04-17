@@ -29,6 +29,9 @@ class OpNN(object):
         self.layer_size_loc = layer_size_location
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
+        self.kernel_initializer_stacked = initializers.get(
+            kernel_initializer + "stacked"
+        )
         self.regularizer = regularizers.get(regularization)
 
         self.training = None
@@ -67,22 +70,19 @@ class OpNN(object):
             len(self.layer_size_func) == 3
         ), "Only support function neural network of ONE hidden layer."
         W = tf.Variable(
-            tf.truncated_normal(
+            self.kernel_initializer_stacked(
                 [
                     self.layer_size_func[2],
                     self.layer_size_func[0],
                     self.layer_size_func[1],
-                ],
-                stddev=math.sqrt(1 / self.layer_size_func[0]),
-                dtype=config.real(tf),
+                ]
             )
         )
         b = tf.Variable(tf.zeros([self.layer_size_func[2], self.layer_size_func[1]]))
         y_func = self.activation(tf.einsum("bi,nij->bnj", self.X_func, W) + b)
         W = tf.Variable(
-            tf.truncated_normal(
-                [self.layer_size_func[2], self.layer_size_func[1]],
-                stddev=math.sqrt(1 / self.layer_size_func[1]),
+            self.kernel_initializer_stacked(
+                [self.layer_size_func[2], self.layer_size_func[1]]
             )
         )
         y_func = tf.einsum("bni,ni->bn", y_func, W)
