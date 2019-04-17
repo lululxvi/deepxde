@@ -2,8 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import math
-
 import tensorflow as tf
 
 from . import activations
@@ -80,13 +78,7 @@ class OpNN(object):
             self.layer_size_func[-1],
             self.activation,
         )
-
-        W = tf.Variable(
-            self.kernel_initializer_stacked(
-                [self.layer_size_func[2], self.layer_size_func[1]]
-            )
-        )
-        y_func = tf.einsum("bni,ni->bn", y_func, W)
+        y_func = self.stacked_dense(y_func, 1, self.layer_size_func[-1], use_bias=False)
 
         # Location NN
         y_loc = self.X_loc
@@ -123,14 +115,29 @@ class OpNN(object):
             else:
                 3D tensor with shape: `(batch_size, stack_size, input_dim)`.
         Output shape:
-            3D tensor with shape: `(batch_size, stack_size, units)`.
+            if outputs is the NN output, i.e., units = 1:
+                3D tensor with shape: `(batch_size, stack_size)`.
+            else:
+                3D tensor with shape: `(batch_size, stack_size, units)`.
         """
         shape = inputs.get_shape().as_list()
         input_dim = shape[-1]
-        W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim, units]))
-        outputs = tf.einsum("bi,nij->bnj", inputs, W)
+        if units == 1:
+            # NN output layer
+            W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim]))
+            outputs = tf.einsum("bni,ni->bn", inputs, W)
+        else:
+            # NN input layer
+            W = tf.Variable(
+                self.kernel_initializer_stacked([stack_size, input_dim, units])
+            )
+            outputs = tf.einsum("bi,nij->bnj", inputs, W)
         if use_bias:
-            b = tf.Variable(tf.zeros([stack_size, units]))
+            if units == 1:
+                # NN output layer
+                b = tf.Variable(tf.zeros(stack_size))
+            else:
+                b = tf.Variable(tf.zeros([stack_size, units]))
             outputs += b
         if activation is not None:
             return activation(outputs)
