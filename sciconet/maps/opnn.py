@@ -25,6 +25,11 @@ class OpNN(object):
         kernel_initializer,
         regularization=None,
     ):
+        if layer_size_function[-1] != layer_size_location[-1]:
+            raise ValueError(
+                "Output sizes of function NN and location NN do not match."
+            )
+
         self.layer_size_func = layer_size_function
         self.layer_size_loc = layer_size_location
         self.activation = activations.get(activation)
@@ -69,17 +74,13 @@ class OpNN(object):
         assert (
             len(self.layer_size_func) == 3
         ), "Only support function neural network of ONE hidden layer."
-        W = tf.Variable(
-            self.kernel_initializer_stacked(
-                [
-                    self.layer_size_func[2],
-                    self.layer_size_func[0],
-                    self.layer_size_func[1],
-                ]
-            )
+        y_func = self.stacked_dense(
+            self.X_func,
+            self.layer_size_func[1],
+            self.layer_size_func[-1],
+            self.activation,
         )
-        b = tf.Variable(tf.zeros([self.layer_size_func[2], self.layer_size_func[1]]))
-        y_func = self.activation(tf.einsum("bi,nij->bnj", self.X_func, W) + b)
+
         W = tf.Variable(
             self.kernel_initializer_stacked(
                 [self.layer_size_func[2], self.layer_size_func[1]]
@@ -112,3 +113,25 @@ class OpNN(object):
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=regularizer,
         )
+
+    def stacked_dense(self, inputs, units, stack_size, activation=None, use_bias=True):
+        """Stacked densely-connected NN layer.
+
+        Input shape:
+            if inputs is the NN input:
+                2D tensor with shape: `(batch_size, input_dim)`.
+            else:
+                3D tensor with shape: `(batch_size, stack_size, input_dim)`.
+        Output shape:
+            3D tensor with shape: `(batch_size, stack_size, units)`.
+        """
+        shape = inputs.get_shape().as_list()
+        input_dim = shape[-1]
+        W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim, units]))
+        outputs = tf.einsum("bi,nij->bnj", inputs, W)
+        if use_bias:
+            b = tf.Variable(tf.zeros([stack_size, units]))
+            outputs += b
+        if activation is not None:
+            return activation(outputs)
+        return outputs
