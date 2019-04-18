@@ -69,16 +69,13 @@ class OpNN(object):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
 
         # Function NN
-        assert (
-            len(self.layer_size_func) == 3
-        ), "Only support function neural network of ONE hidden layer."
-        y_func = self.stacked_dense(
-            self.X_func,
-            self.layer_size_func[1],
-            self.layer_size_func[-1],
-            self.activation,
-        )
-        y_func = self.stacked_dense(y_func, 1, self.layer_size_func[-1], use_bias=False)
+        stack_size = self.layer_size_func[-1]
+        y_func = self.X_func
+        for i in range(1, len(self.layer_size_func) - 1):
+            y_func = self.stacked_dense(
+                y_func, self.layer_size_func[i], stack_size, self.activation
+            )
+        y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=False)
 
         # Location NN
         y_loc = self.X_loc
@@ -122,16 +119,21 @@ class OpNN(object):
         """
         shape = inputs.get_shape().as_list()
         input_dim = shape[-1]
-        if units == 1:
-            # NN output layer
-            W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim]))
-            outputs = tf.einsum("bni,ni->bn", inputs, W)
-        else:
+        if len(shape) == 2:
             # NN input layer
             W = tf.Variable(
                 self.kernel_initializer_stacked([stack_size, input_dim, units])
             )
             outputs = tf.einsum("bi,nij->bnj", inputs, W)
+        elif units == 1:
+            # NN output layer
+            W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim]))
+            outputs = tf.einsum("bni,ni->bn", inputs, W)
+        else:
+            W = tf.Variable(
+                self.kernel_initializer_stacked([stack_size, input_dim, units])
+            )
+            outputs = tf.einsum("bni,nij->bnj", inputs, W)
         if use_bias:
             if units == 1:
                 # NN output layer
