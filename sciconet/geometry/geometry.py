@@ -1,4 +1,3 @@
-# author: Lu Lu
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -11,7 +10,7 @@ from SALib.sample import sobol_sequence
 from scipy import stats
 from sklearn import preprocessing
 
-from . import config
+from .. import config
 
 
 class Geometry(object):
