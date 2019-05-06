@@ -6,9 +6,9 @@ import sciconet as scn
 
 
 def main():
-    fname_lo_train = "examples/mf_lo_train.dat"
-    fname_hi_train = "examples/mf_hi_train.dat"
-    fname_hi_test = "examples/mf_hi_test.dat"
+    fname_lo_train = "examples/dataset/mf_lo_train.dat"
+    fname_hi_train = "examples/dataset/mf_hi_train.dat"
+    fname_hi_test = "examples/dataset/mf_hi_test.dat"
 
     data = scn.data.MfDataSet(
         fname_lo_train=fname_lo_train,

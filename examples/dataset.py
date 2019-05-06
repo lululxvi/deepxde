@@ -6,8 +6,8 @@ import sciconet as scn
 
 
 def main():
-    fname_train = "examples/dataset.train"
-    fname_test = "examples/dataset.test"
+    fname_train = "examples/dataset/dataset.train"
+    fname_test = "examples/dataset/dataset.test"
     data = scn.data.DataSet(
         fname_train=fname_train, fname_test=fname_test, col_x=(0,), col_y=(1,)
     )
