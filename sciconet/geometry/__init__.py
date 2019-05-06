@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from .geometry import Interval
-from .geometry import Disk
-from .geometry import Hypercube
-from .geometry import Hypersphere
+from .geometry_1d import Interval
+from .geometry_2d import Disk
+from .geometry_nd import Hypercube
+from .geometry_nd import Hypersphere
