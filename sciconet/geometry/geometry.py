@@ -4,8 +4,6 @@ from __future__ import print_function
 
 import abc
 
-import numpy as np
-
 
 class Geometry(object):
     def __init__(self, idstr, dim, diam):
@@ -15,36 +13,50 @@ class Geometry(object):
 
     @abc.abstractmethod
     def in_domain(self, x):
-        return False
+        raise NotImplementedError("{}.in_domain to be implemented".format(self.idstr))
 
     @abc.abstractmethod
     def on_boundary(self, x):
-        return False
+        raise NotImplementedError("{}.on_boundary to be implemented".format(self.idstr))
 
     @abc.abstractmethod
     def distance2boundary(self, x, dirn):
-        return 0
+        raise NotImplementedError(
+            "{}.distance2boundary to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def mindist2boundary(self, x):
-        return 0
+        raise NotImplementedError(
+            "{}.mindist2boundary to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def uniform_points(self, n, boundary):
-        return np.array([])
+        raise NotImplementedError(
+            "{}.uniform_points to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def random_points(self, n, random):
-        return np.array([])
+        raise NotImplementedError(
+            "{}.random_points to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def uniform_boundary_points(self, n):
-        return np.array([])
+        raise NotImplementedError(
+            "{}.uniform_boundary_points to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def random_boundary_points(self, n, random):
-        return np.array([])
+        raise NotImplementedError(
+            "{}.random_boundary_points to be implemented".format(self.idstr)
+        )
 
     @abc.abstractmethod
     def background_points(self, x, dirn, dist2npt, shift):
-        return np.array([])
+        raise NotImplementedError(
+            "{}.background_points to be implemented".format(self.idstr)
+        )

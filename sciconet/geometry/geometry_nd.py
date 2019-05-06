@@ -24,18 +24,6 @@ class Hypercube(Geometry):
             "Hypercube", len(xmin), np.linalg.norm(self.xmax - self.xmin)
         )
 
-    def in_domain(self, x):
-        raise NotImplementedError("Hypercube.in_domain to be implemented")
-
-    def on_boundary(self, x):
-        raise NotImplementedError("Hypercube.on_boundary to be implemented")
-
-    def distance2boundary(self, x, dirn):
-        raise NotImplementedError("Hypercube.distance2boundary to be implemented")
-
-    def mindist2boundary(self, x):
-        raise NotImplementedError("Hypercube.mindist2boundary to be implemented")
-
     def uniform_points(self, n, boundary):
         n1 = int(np.ceil(n ** (1 / self.dim)))
         xi = []
@@ -61,15 +49,6 @@ class Hypercube(Geometry):
         elif random == "sobol":
             x = sobol_sequence.sample(n + 1, self.dim)[1:]
         return (self.xmax - self.xmin) * x + self.xmin
-
-    def uniform_boundary_points(self, n):
-        raise NotImplementedError("Hypercube.uniform_boundary_points to be implemented")
-
-    def random_boundary_points(self, n, random):
-        raise NotImplementedError("Hypercube.random_boundary_points to be implemented")
-
-    def background_points(self, x, dirn, dist2npt, shift):
-        raise NotImplementedError("Hypercube.background_points to be implemented")
 
 
 class Hypersphere(Geometry):
@@ -98,9 +77,6 @@ class Hypersphere(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
-    def uniform_points(self, n, boundary):
-        raise NotImplementedError("Hypersphere.uniform_points to be implemented")
-
     def random_points(self, n, random):
         """https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         """
@@ -114,11 +90,6 @@ class Hypersphere(Geometry):
         X = preprocessing.normalize(X)
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
-
-    def uniform_boundary_points(self, n):
-        raise NotImplementedError(
-            "Hypersphere.uniform_boundary_points to be implemented"
-        )
 
     def random_boundary_points(self, n, random):
         """http://mathworld.wolfram.com/HyperspherePointPicking.html

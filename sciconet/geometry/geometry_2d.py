@@ -34,9 +34,6 @@ class Disk(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
-    def uniform_points(self, n, boundary):
-        raise NotImplementedError("disk.uniform_points to be implemented")
-
     def random_points(self, n, random):
         """http://mathworld.wolfram.com/DiskPointPicking.html
         """
