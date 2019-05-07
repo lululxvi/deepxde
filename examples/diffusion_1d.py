@@ -38,7 +38,7 @@ def main():
         """
         return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
-    geom = scn.geometry.Hypercube([-1, 0], [1, 1])
+    geom = scn.geometry.Rectangle([-1, 0], [1, 1])
     anchors = get_diffusion_bcs(10, 10)
     data = scn.data.PDE(geom, pde, func, 0, anchors=anchors)
 
