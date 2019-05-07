@@ -8,17 +8,6 @@ import tensorflow as tf
 import sciconet as scn
 
 
-def get_diffusion_bcs(nx, nt):
-    x = np.linspace(-1, 1, num=nx)[:, None]
-    bcs = np.hstack((x, np.zeros((nx, 1))))
-
-    t = np.linspace(0, 1, num=nt)[:, None]
-    ics = np.vstack(
-        (np.hstack((np.full((nt, 1), -1), t)), np.hstack((np.full((nt, 1), 1), t)))
-    )
-    return np.vstack((bcs, ics))
-
-
 def main():
     def pde(x, y):
         dy_x = tf.gradients(y, x)[0]
@@ -38,9 +27,10 @@ def main():
         """
         return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
-    geom = scn.geometry.Rectangle([-1, 0], [1, 1])
-    anchors = get_diffusion_bcs(10, 10)
-    data = scn.data.PDE(geom, pde, func, 0, anchors=anchors)
+    geom = scn.geometry.Interval(-1, 1)
+    timedomain = scn.geometry.TimeDomain(0, 1)
+    nbc, nic, nt = 2, 8, 10
+    data = scn.data.TimePDE(geom, timedomain, pde, func, nbc, nic, nt)
 
     layer_size = [2] + [50] * 3 + [1]
     activation = "tanh"
@@ -51,7 +41,7 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    batch_size = 36
+    batch_size = 40
     ntest = 10000
     model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
 

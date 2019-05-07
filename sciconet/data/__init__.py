@@ -8,3 +8,4 @@ from .mf_dataset import MfDataSet
 from .mf_func import MfFunc
 from .op_dataset import OpDataSet
 from .pde import PDE
+from .pde import TimePDE
