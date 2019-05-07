@@ -10,7 +10,7 @@ from .geometry import Geometry
 
 class Disk(Geometry):
     def __init__(self, center, radius):
-        super(Disk, self).__init__("Disk", 2, 2 * radius)
+        super(Disk, self).__init__(2, 2 * radius)
         self.center, self.radius = center, radius
 
         self._r2 = radius ** 2

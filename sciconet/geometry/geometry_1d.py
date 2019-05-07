@@ -11,7 +11,7 @@ from .. import config
 
 class Interval(Geometry):
     def __init__(self, l, r):
-        super(Interval, self).__init__("Interval", 1, r - l)
+        super(Interval, self).__init__(1, r - l)
         self.l, self.r = l, r
 
     def in_domain(self, x):

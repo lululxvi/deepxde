@@ -6,10 +6,10 @@ import abc
 
 
 class Geometry(object):
-    def __init__(self, idstr, dim, diam):
-        self.idstr = idstr
+    def __init__(self, dim, diam):
         self.dim = dim
         self.diam = diam
+        self.idstr = type(self).__name__
 
     @abc.abstractmethod
     def in_domain(self, x):

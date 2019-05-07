@@ -21,7 +21,7 @@ class Hypercube(Geometry):
 
         self.xmin, self.xmax = np.array(xmin), np.array(xmax)
         super(Hypercube, self).__init__(
-            "Hypercube", len(xmin), np.linalg.norm(self.xmax - self.xmin)
+            len(xmin), np.linalg.norm(self.xmax - self.xmin)
         )
 
     def uniform_points(self, n, boundary):
@@ -53,7 +53,7 @@ class Hypercube(Geometry):
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
-        super(Hypersphere, self).__init__("Hypersphere", len(center), 2 * radius)
+        super(Hypersphere, self).__init__(len(center), 2 * radius)
         self.center, self.radius = center, radius
 
         self._r2 = radius ** 2
