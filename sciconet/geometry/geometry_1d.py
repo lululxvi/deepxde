@@ -45,7 +45,7 @@ class Interval(Geometry):
             ]
         return np.exp(x) - eps
 
-    def random_points(self, n, random):
+    def random_points(self, n, random="pseudo"):
         if random == "pseudo":
             x = np.random.rand(n, 1)
         elif random == "sobol":
@@ -59,7 +59,7 @@ class Interval(Geometry):
             return np.array(([[self.l], [self.r]]))
         raise ValueError("Invalid boundary point number %d" % n)
 
-    def random_boundary_points(self, n, random=None):
+    def random_boundary_points(self, n, random="pseudo"):
         if n == 1:
             return np.array([np.random.choice([self.l, self.r], 1)])
         if n == 2:

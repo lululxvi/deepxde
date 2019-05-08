@@ -38,7 +38,7 @@ class Geometry(object):
         )
 
     @abc.abstractmethod
-    def random_points(self, n, random):
+    def random_points(self, n, random="pseudo"):
         raise NotImplementedError(
             "{}.random_points to be implemented".format(self.idstr)
         )
@@ -50,7 +50,7 @@ class Geometry(object):
         )
 
     @abc.abstractmethod
-    def random_boundary_points(self, n, random):
+    def random_boundary_points(self, n, random="pseudo"):
         raise NotImplementedError(
             "{}.random_boundary_points to be implemented".format(self.idstr)
         )

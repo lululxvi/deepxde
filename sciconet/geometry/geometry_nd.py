@@ -43,7 +43,7 @@ class Hypercube(Geometry):
             )
         return x
 
-    def random_points(self, n, random):
+    def random_points(self, n, random="pseudo"):
         if random == "pseudo":
             x = np.random.rand(n, self.dim)
         elif random == "sobol":
@@ -77,7 +77,7 @@ class Hypersphere(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
-    def random_points(self, n, random):
+    def random_points(self, n, random="pseudo"):
         """https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         """
         if random == "pseudo":
@@ -91,7 +91,7 @@ class Hypersphere(Geometry):
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
 
-    def random_boundary_points(self, n, random):
+    def random_boundary_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/HyperspherePointPicking.html
         """
         if random == "pseudo":

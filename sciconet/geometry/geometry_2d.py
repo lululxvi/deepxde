@@ -35,7 +35,7 @@ class Disk(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
-    def random_points(self, n, random):
+    def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html
         """
         if random == "pseudo":
@@ -51,7 +51,7 @@ class Disk(Geometry):
         X = np.vstack((np.cos(theta), np.sin(theta))).T
         return self.radius * X + self.center
 
-    def random_boundary_points(self, n, random):
+    def random_boundary_points(self, n, random="pseudo"):
         if random == "pseudo":
             u = np.random.rand(n, 1)
         elif random == "sobol":
