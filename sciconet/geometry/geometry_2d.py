@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 from SALib.sample import sobol_sequence
+from scipy import spatial
 
 from .geometry import Geometry
 from .geometry_nd import Hypercube
@@ -252,3 +253,131 @@ class Triangle(Geometry):
             else:
                 x.append((l - self.l12 - self.l23) * self.n31 + self.x3)
         return np.vstack((x_corner, x))
+
+
+class Polygon(Geometry):
+    """Simple polygon.
+
+    Args:
+        vertices: Clockwise or counterclockwise.
+    """
+
+    def __init__(self, vertices):
+        self.vertices = np.array(vertices)
+        self.diagonals = spatial.distance.squareform(
+            spatial.distance.pdist(self.vertices)
+        )
+        super(Polygon, self).__init__(2, np.max(self.diagonals))
+        self.nvertices = len(self.vertices)
+        self.perimeter = np.sum(
+            [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
+        )
+        self.bbox = np.array(
+            [np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)]
+        )
+
+    def in_domain(self, x):
+        def wn_PnPoly(P, V):
+            """Winding number algorithm.
+            https://en.wikipedia.org/wiki/Point_in_polygon
+            http://geomalgorithms.com/a03-_inclusion.html
+
+            Args:
+                P: A point.
+                V: Vertex points of a polygon.
+
+            Returns:
+                wn: Winding number (=0 only if P is outside polygon)
+            """
+            wn = 0  # Winding number counter
+
+            # Repeat the first vertex at end
+            # Loop through all edges of the polygon
+            for i in range(-1, self.nvertices - 1):  # Edge from V[i] to V[i+1]
+                if V[i, 1] <= P[1]:  # Start y <= P[1]
+                    if V[i + 1, 1] > P[1]:  # An upward crossing
+                        if is_left(V[i], V[i + 1], P) > 0:  # P left of edge
+                            wn += 1  # Have a valid up intersect
+                else:  # Start y > P[1] (no test needed)
+                    if V[i + 1, 1] <= P[1]:  # A downward crossing
+                        if is_left(V[i], V[i + 1], P) < 0:  # P right of edge
+                            wn -= 1  # Have a valid down intersect
+            return wn
+
+        return wn_PnPoly(x, self.vertices) != 0
+
+    def random_points(self, n, random="pseudo"):
+        x = []
+        vbbox = self.bbox[1] - self.bbox[0]
+        while len(x) < n:
+            x_new = np.random.rand(2) * vbbox + self.bbox[0]
+            if self.in_domain(x_new):
+                x.append(x_new)
+        return np.array(x)
+
+    def uniform_boundary_points(self, n):
+        density = n / self.perimeter
+        x = []
+        for i in range(-1, self.nvertices - 1):
+            x.append(
+                np.linspace(
+                    0,
+                    1,
+                    num=int(np.ceil(density * self.diagonals[i, i + 1])),
+                    endpoint=False,
+                )[:, None]
+                * (self.vertices[i + 1] - self.vertices[i])
+                + self.vertices[i]
+            )
+        x = np.vstack(x)
+        if n != len(x):
+            print(
+                "Warning: {} points required, but {} points sampled.".format(n, len(x))
+            )
+        return x
+
+    def random_boundary_points(self, n, random="pseudo"):
+        n -= self.nvertices
+        if n <= 0:
+            return self.vertices
+
+        if random == "sobol":
+            u = np.ravel(sobol_sequence.sample(n + self.nvertices, 1))[1:]
+            l = 0
+            for i in range(0, self.nvertices - 1):
+                l += self.diagonals[i, i + 1]
+                u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
+            u = u[:n, None]
+        else:
+            u = np.random.rand(n, 1)
+        u *= self.perimeter
+        u.sort(axis=0)
+
+        x = []
+        i = -1
+        l0 = 0
+        l1 = l0 + self.diagonals[i, i + 1]
+        v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
+        for l in u:
+            if l > l1:
+                i += 1
+                l0, l1 = l1, l1 + self.diagonals[i, i + 1]
+                v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
+            x.append((l - l0) * v + self.vertices[i])
+        return np.vstack((self.vertices, x))
+
+
+def is_left(P0, P1, P2):
+    """Test if a point is Left|On|Right of an infinite line.
+    See: the January 2001 Algorithm "Area of 2D and 3D Triangles and Polygons".
+
+    Args:
+        P0, P1: Two points in the line.
+        P2: The point to be tested.
+
+    Returns:
+        >0 if P2 left of the line through P0 and P1.
+        =0 if P2 on the line.
+        <0 if P2 right of the line.
+    """
+    return (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1])
