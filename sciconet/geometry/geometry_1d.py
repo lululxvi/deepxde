@@ -18,7 +18,7 @@ class Interval(Geometry):
         return self.l <= x[0] <= self.r
 
     def on_boundary(self, x):
-        return x[0] == self.l or x[0] == self.r
+        return np.any(np.isclose(x, [self.l, self.r]))
 
     def distance2boundary(self, x, dirn):
         return x[0] - self.l if dirn < 0 else self.r - x[0]
