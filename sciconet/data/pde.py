@@ -29,10 +29,12 @@ class PDE(Data):
         n = self.nbc
         if self.anchors is not None:
             n += len(self.anchors)
-        f = self.pde(model.net.x, y_pred)[n:]
-        return [
-            losses.get(loss)(y_true[:n], y_pred[:n]),
-            losses.get(loss)(tf.zeros(tf.shape(f)), f),
+        f = self.pde(model.net.x, y_pred)
+        if not isinstance(f, list):
+            f = [f]
+        f = [fi[n:] for fi in f]
+        return [losses.get(loss)(y_true[:n], y_pred[:n])] + [
+            losses.get(loss)(tf.zeros(tf.shape(fi)), fi) for fi in f
         ]
 
     @runifnone("train_x", "train_y")
