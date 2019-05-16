@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from . import config
 from . import metrics as metrics_module
+from . import train as train_module
 from .callbacks import CallbackList
 from .utils import timing
 
@@ -17,8 +18,6 @@ from .utils import timing
 class Model(object):
     """Model
     """
-
-    scipy_opts = ["BFGS", "L-BFGS-B", "Nelder-Mead", "Powell", "CG", "Newton-CG"]
 
     def __init__(self, data, net):
         self.data = data
@@ -61,17 +60,9 @@ class Model(object):
             self.losshistory.update_loss_weights(loss_weights)
         self.totalloss = tf.reduce_sum(self.losses)
 
-        lr, global_step = self.get_learningrate(lr, decay)
-        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        with tf.control_dependencies(update_ops):
-            if self.optimizer in Model.scipy_opts:
-                self.train_op = tf.contrib.opt.ScipyOptimizerInterface(
-                    self.totalloss, method=self.optimizer, options={"disp": True}
-                )
-            else:
-                self.train_op = self.get_optimizer(self.optimizer, lr).minimize(
-                    self.totalloss, global_step=global_step
-                )
+        self.train_op = train_module.get_train_op(
+            self.totalloss, self.optimizer, lr=lr, decay=decay
+        )
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
@@ -93,7 +84,7 @@ class Model(object):
 
         if print_model:
             self.print_model()
-        if self.optimizer in Model.scipy_opts:
+        if train_module.is_scipy_opts(self.optimizer):
             self.train_scipy(uncertainty)
         else:
             self.train_sgd(epochs, validation_every, uncertainty, errstop, callbacks)
@@ -250,32 +241,6 @@ class Model(object):
         else:
             feed_dict.update({self.net.targets: targets})
         return feed_dict
-
-    def get_optimizer(self, name, lr):
-        return {
-            "sgd": tf.train.GradientDescentOptimizer(lr),
-            "sgdnesterov": tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True),
-            "adagrad": tf.train.AdagradOptimizer(0.01),
-            "adadelta": tf.train.AdadeltaOptimizer(),
-            "rmsprop": tf.train.RMSPropOptimizer(lr),
-            "adam": tf.train.AdamOptimizer(lr),
-        }[name]
-
-    def get_learningrate(self, lr, decay):
-        if decay is None:
-            return lr, None
-        global_step = tf.Variable(0, trainable=False)
-        return (
-            {
-                "inverse time": tf.train.inverse_time_decay(
-                    lr, global_step, decay[1], decay[2]
-                ),
-                "cosine": tf.train.cosine_decay(
-                    lr, global_step, decay[1], alpha=decay[2]
-                ),
-            }[decay[0]],
-            global_step,
-        )
 
     def print_model(self):
         variables_names = [v.name for v in tf.trainable_variables()]
