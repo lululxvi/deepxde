@@ -32,6 +32,12 @@ class Geometry(object):
         )
 
     @abc.abstractmethod
+    def boundary_normal(self, x):
+        raise NotImplementedError(
+            "{}.boundary_normal to be implemented".format(self.idstr)
+        )
+
+    @abc.abstractmethod
     def uniform_points(self, n, boundary):
         raise NotImplementedError(
             "{}.uniform_points to be implemented".format(self.idstr)

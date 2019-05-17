@@ -29,6 +29,7 @@ class PDE(Data):
 
     def losses(self, y_true, y_pred, loss_type, model):
         self.train_next_batch(model.batch_size)
+        self.test(model.ntest)
         bcs_start = np.cumsum([0] + self.num_bcs)
         loss_f = losses_module.get(loss_type)
 
@@ -42,11 +43,11 @@ class PDE(Data):
             loss.append(
                 loss_f(
                     tf.zeros((self.num_bcs[i], 1)),
-                    self.bcs[i].error(
-                        self.train_x[bcs_start[i] : bcs_start[i + 1]],
-                        model.net.x[bcs_start[i] : bcs_start[i + 1]],
-                        y_pred[bcs_start[i] : bcs_start[i + 1]],
-                    ),
+                    tf.cond(
+                        tf.equal(model.net.data_id, 0),
+                        lambda: self.bcs[i].error(self.train_x, model.net.x, y_pred),
+                        lambda: self.bcs[i].error(self.test_x, model.net.x, y_pred),
+                    )[bcs_start[i] : bcs_start[i + 1]],
                 )
             )
         return loss
@@ -61,7 +62,7 @@ class PDE(Data):
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
 
-        x_bcs = [bc.filter(self.geom, self.train_x) for bc in self.bcs]
+        x_bcs = [bc.filter(self.train_x) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
 
         self.train_x = np.vstack(x_bcs + [self.train_x])

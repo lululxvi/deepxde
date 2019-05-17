@@ -26,6 +26,13 @@ class Interval(Geometry):
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
+    def boundary_normal(self, x):
+        if np.isclose(x[0], self.l):
+            return np.array([-1])
+        if np.isclose(x[0], self.r):
+            return np.array([1])
+        return np.array([0])
+
     def uniform_points(self, n, boundary):
         if boundary:
             return np.linspace(self.l, self.r, num=n, dtype=config.real(np))[:, None]
@@ -54,9 +61,9 @@ class Interval(Geometry):
 
     def uniform_boundary_points(self, n):
         if n == 1:
-            return np.array([[self.l]])
+            return np.array([[self.l]]).astype(config.real(np))
         if n == 2:
-            return np.array(([[self.l], [self.r]]))
+            return np.array(([[self.l], [self.r]])).astype(config.real(np))
         raise ValueError("Invalid boundary point number %d" % n)
 
     def random_boundary_points(self, n, random="pseudo"):
