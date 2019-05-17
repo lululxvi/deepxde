@@ -19,6 +19,9 @@ def main():
         dy2_x = tf.gradients(y2, x)[0]
         return [dy1_x - y2, dy2_x + y1]
 
+    def boundary(x, on_boundary):
+        return on_boundary and np.isclose(x[0], 0)
+
     def func(x):
         """
         y1 = sin(x)
@@ -27,10 +30,11 @@ def main():
         return np.hstack((np.sin(x), np.cos(x)))
 
     geom = scn.geometry.Interval(0, 10)
-    data = scn.data.PDE(geom, ode_system, func, 0, anchors=[[0]])
+    bc1 = scn.DirichletBC(lambda X: np.sin(X), boundary, component=0)
+    bc2 = scn.DirichletBC(lambda X: np.cos(X), boundary, component=1)
+    data = scn.data.PDE(geom, ode_system, [bc1, bc2], func, 2)
 
-    x_dim, y_dim = 1, 2
-    layer_size = [x_dim] + [50] * 3 + [y_dim]
+    layer_size = [1] + [50] * 3 + [2]
     activation = "tanh"
     initializer = "Glorot uniform"
     net = scn.maps.FNN(layer_size, activation, initializer)

@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from .data import Data
-from .. import losses
+from .. import losses as losses_module
 from ..geometry import GeometryXTime
 from ..utils import runifnone
 
@@ -15,37 +15,56 @@ class PDE(Data):
     """PDE solver.
     """
 
-    def __init__(self, geom, pde, func, nbc, anchors=None):
+    def __init__(self, geom, pde, bcs, func, num_boundary, anchors=None):
         self.geom = geom
         self.pde = pde
+        self.bcs = bcs if isinstance(bcs, list) else [bcs]
         self.func = func
-        self.nbc = nbc
+        self.num_boundary = num_boundary
         self.anchors = anchors
 
+        self.num_bcs = None
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, y_true, y_pred, loss, model):
-        n = self.nbc
-        if self.anchors is not None:
-            n += len(self.anchors)
+    def losses(self, y_true, y_pred, loss_type, model):
+        self.train_next_batch(model.batch_size)
+        bcs_start = np.cumsum([0] + self.num_bcs)
+        loss_f = losses_module.get(loss_type)
+
         f = self.pde(model.net.x, y_pred)
         if not isinstance(f, list):
             f = [f]
-        f = [fi[n:] for fi in f]
-        return [losses.get(loss)(y_true[:n], y_pred[:n])] + [
-            losses.get(loss)(tf.zeros(tf.shape(fi)), fi) for fi in f
-        ]
+        f = [fi[bcs_start[-1] :] for fi in f]
+        loss = [loss_f(tf.zeros(tf.shape(fi)), fi) for fi in f]
+
+        for i in range(len(self.bcs)):
+            loss.append(
+                loss_f(
+                    tf.zeros((self.num_bcs[i], 1)),
+                    self.bcs[i].error(
+                        self.train_x[bcs_start[i] : bcs_start[i + 1]],
+                        model.net.x[bcs_start[i] : bcs_start[i + 1]],
+                        y_pred[bcs_start[i] : bcs_start[i + 1]],
+                    ),
+                )
+            )
+        return loss
 
     @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
-        self.train_x = self.geom.uniform_points(batch_size, True)
-        if self.nbc > 0:
+        self.train_x = self.geom.uniform_points(batch_size, False)
+        if self.num_boundary > 0:
             self.train_x = np.vstack(
-                (self.geom.uniform_boundary_points(self.nbc), self.train_x)
+                (self.geom.uniform_boundary_points(self.num_boundary), self.train_x)
             )
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
+
+        x_bcs = [bc.filter(self.geom, self.train_x) for bc in self.bcs]
+        self.num_bcs = list(map(len, x_bcs))
+
+        self.train_x = np.vstack(x_bcs + [self.train_x])
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
@@ -83,8 +102,8 @@ class TimePDE(Data):
             n += len(self.anchors)
         f = self.pde(model.net.x, y_pred)[n:]
         return [
-            losses.get(loss)(y_true[:n], y_pred[:n]),
-            losses.get(loss)(tf.zeros(tf.shape(f)), f),
+            losses_module.get(loss)(y_true[:n], y_pred[:n]),
+            losses_module.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
     @runifnone("train_x", "train_y")

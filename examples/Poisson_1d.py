@@ -14,19 +14,18 @@ def main():
         dy_xx = tf.gradients(dy_x, x)[0]
         return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
 
+    def boundary(x, on_boundary):
+        return on_boundary
+
     def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
         return np.sin(np.pi * x)
 
-    x_dim, y_dim = 1, 1
     geom = scn.geometry.Interval(-1, 1)
+    bc = scn.DirichletBC(func, boundary)
     nbc = 2
-    data = scn.data.PDE(geom, pde, func, nbc)
+    data = scn.data.PDE(geom, pde, bc, func, nbc)
 
-    layer_size = [x_dim] + [50] * 3 + [y_dim]
+    layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
     net = scn.maps.FNN(layer_size, activation, initializer)
