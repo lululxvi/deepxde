@@ -12,18 +12,21 @@ def main():
     def pde(x, y):
         dy_x = tf.gradients(y, x)[0]
         dy_xx = tf.gradients(dy_x, x)[0]
-        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+        return dy_xx - 2
 
-    def boundary(x, on_boundary):
-        return on_boundary
+    def boundary_l(x, on_boundary):
+        return on_boundary and np.isclose(x[0], -1)
+
+    def boundary_r(x, on_boundary):
+        return on_boundary and np.isclose(x[0], 1)
 
     def func(x):
-        return np.sin(np.pi * x)
+        return (x + 1)**2
 
     geom = scn.geometry.Interval(-1, 1)
-    bc = scn.DirichletBC(geom, func, boundary)
-    nbc = 2
-    data = scn.data.PDE(geom, pde, bc, func, nbc)
+    bc_l = scn.DirichletBC(geom, func, boundary_l)
+    bc_r = scn.RobinBC(geom, lambda X, y: y, boundary_r)
+    data = scn.data.PDE(geom, pde, [bc_l, bc_r], func, 2)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
