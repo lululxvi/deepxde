@@ -22,6 +22,11 @@ class BC(object):
     def filter(self, X):
         return np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
 
+    def normal_derivative(self, X, inputs, outputs):
+        dydx = tf.gradients(outputs[:, self.component : self.component + 1], inputs)[0]
+        n = np.array(list(map(self.geom.boundary_normal, X)))
+        return tf.reduce_sum(dydx * n, axis=1, keepdims=True)
+
     def error(self, X, inputs, outputs):
         raise NotImplementedError(
             "{}.error to be implemented".format(type(self).__name__)
@@ -47,6 +52,15 @@ class NeumannBC(BC):
         super(NeumannBC, self).__init__(geom, func, on_boundary, component)
 
     def error(self, X, inputs, outputs):
-        dydx = tf.gradients(outputs[:, self.component : self.component + 1], inputs)[0]
-        n = np.array(list(map(self.geom.boundary_normal, X)))
-        return tf.reduce_sum(dydx * n, axis=1, keepdims=True) - self.func(X)
+        return self.normal_derivative(X, inputs, outputs) - self.func(X)
+
+
+class RobinBC(BC):
+    """Robin boundary conditions: dy/dn(x) = func(x, y).
+    """
+
+    def __init__(self, geom, func, on_boundary, component=0):
+        super(RobinBC, self).__init__(geom, func, on_boundary, component)
+
+    def error(self, X, inputs, outputs):
+        return self.normal_derivative(X, inputs, outputs) - self.func(X, outputs)
