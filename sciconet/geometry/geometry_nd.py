@@ -50,6 +50,14 @@ class Hypercube(Geometry):
             x = sobol_sequence.sample(n + 1, self.dim)[1:]
         return (self.xmax - self.xmin) * x + self.xmin
 
+    def periodic_point(self, x, component):
+        y = np.copy(x)
+        if np.isclose(y[component], self.xmin[component]):
+            y[component] += self.xmax[component] - self.xmin[component]
+        elif np.isclose(y[component], self.xmax[component]):
+            y[component] -= self.xmax[component] - self.xmin[component]
+        return y
+
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):

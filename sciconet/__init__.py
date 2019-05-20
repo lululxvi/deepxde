@@ -5,6 +5,7 @@ from . import geometry
 from . import maps
 from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
+from .boundary_conditions import PeriodicBC
 from .boundary_conditions import RobinBC
 from .model import Model
 from .postprocessing import saveplot

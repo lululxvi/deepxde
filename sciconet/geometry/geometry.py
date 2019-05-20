@@ -62,6 +62,12 @@ class Geometry(object):
         )
 
     @abc.abstractmethod
+    def periodic_point(self, x, component):
+        raise NotImplementedError(
+            "{}.periodic_point to be implemented".format(self.idstr)
+        )
+
+    @abc.abstractmethod
     def background_points(self, x, dirn, dist2npt, shift):
         raise NotImplementedError(
             "{}.background_points to be implemented".format(self.idstr)

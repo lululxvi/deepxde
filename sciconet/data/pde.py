@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from .data import Data
+from .. import boundary_conditions
 from .. import losses as losses_module
 from ..geometry import GeometryXTime
 from ..utils import runifnone
@@ -40,8 +41,25 @@ class PDE(Data):
         loss = [loss_f(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
         for i in range(len(self.bcs)):
-            loss.append(
-                loss_f(
+            if isinstance(self.bcs[i], boundary_conditions.PeriodicBC):
+                loss_one = loss_f(
+                    tf.zeros((self.num_bcs[i] // 2, 1)),
+                    tf.cond(
+                        tf.equal(model.net.data_id, 0),
+                        lambda: self.bcs[i].error(
+                            self.train_x[bcs_start[i] : bcs_start[i + 1]],
+                            model.net.x[bcs_start[i] : bcs_start[i + 1]],
+                            y_pred[bcs_start[i] : bcs_start[i + 1]],
+                        ),
+                        lambda: self.bcs[i].error(
+                            self.test_x[bcs_start[i] : bcs_start[i + 1]],
+                            model.net.x[bcs_start[i] : bcs_start[i + 1]],
+                            y_pred[bcs_start[i] : bcs_start[i + 1]],
+                        ),
+                    ),
+                )
+            else:
+                loss_one = loss_f(
                     tf.zeros((self.num_bcs[i], 1)),
                     tf.cond(
                         tf.equal(model.net.data_id, 0),
@@ -49,7 +67,7 @@ class PDE(Data):
                         lambda: self.bcs[i].error(self.test_x, model.net.x, y_pred),
                     )[bcs_start[i] : bcs_start[i + 1]],
                 )
-            )
+            loss.append(loss_one)
         return loss
 
     @runifnone("train_x", "train_y")

@@ -73,6 +73,13 @@ class Interval(Geometry):
             return np.array(([[self.l], [self.r]]))
         raise ValueError("Invalid boundary point number %d" % n)
 
+    def periodic_point(self, x, component=0):
+        if np.isclose(x[0], self.l):
+            return np.array([self.r])
+        if np.isclose(x[0], self.r):
+            return np.array([self.l])
+        return x
+
     def background_points(self, x, dirn, dist2npt, shift):
         """
         dirn: -1 --> left, 1 --> right, 0 --> both direction
