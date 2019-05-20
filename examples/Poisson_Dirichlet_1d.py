@@ -22,7 +22,7 @@ def main():
 
     geom = scn.geometry.Interval(-1, 1)
     bc = scn.DirichletBC(geom, func, boundary)
-    data = scn.data.PDE(geom, pde, bc, func, 2)
+    data = scn.data.PDE(geom, pde, bc, func, 16, 2)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
@@ -33,9 +33,8 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    batch_size = 16
     ntest = 100
-    model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
+    model.compile(optimizer, lr, ntest, metrics=["l2 relative error"])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)

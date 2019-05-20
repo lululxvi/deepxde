@@ -11,9 +11,10 @@ class Func(Data):
     """Function approximation.
     """
 
-    def __init__(self, geom, func, dist_train="uniform", online=False):
+    def __init__(self, geom, func, num_train, dist_train="uniform", online=False):
         self.geom = geom
         self.func = func
+        self.num_train = num_train
         self.dist_train = dist_train
         self.online = online
 
@@ -29,9 +30,9 @@ class Func(Data):
             self.train_y = self.func(self.train_x)
         elif self.train_x is None:
             if self.dist_train == "uniform":
-                self.train_x = self.geom.uniform_points(batch_size, True)
+                self.train_x = self.geom.uniform_points(self.num_train, True)
             else:
-                self.train_x = self.geom.random_points(batch_size, "sobol")
+                self.train_x = self.geom.random_points(self.num_train, "sobol")
             self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 

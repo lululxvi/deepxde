@@ -16,11 +16,12 @@ class PDE(Data):
     """PDE solver.
     """
 
-    def __init__(self, geom, pde, bcs, func, num_boundary, anchors=None):
+    def __init__(self, geom, pde, bcs, func, num_domain, num_boundary, anchors=None):
         self.geom = geom
         self.pde = pde
         self.bcs = bcs if isinstance(bcs, list) else [bcs]
         self.func = func
+        self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.anchors = anchors
 
@@ -29,7 +30,7 @@ class PDE(Data):
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, loss_type, model):
-        self.train_next_batch(model.batch_size)
+        self.train_next_batch(self.num_domain)
         self.test(model.ntest)
         bcs_start = np.cumsum([0] + self.num_bcs)
         loss_f = losses_module.get(loss_type)
@@ -72,7 +73,7 @@ class PDE(Data):
 
     @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
-        self.train_x = self.geom.uniform_points(batch_size, False)
+        self.train_x = self.geom.uniform_points(self.num_domain, False)
         if self.num_boundary > 0:
             self.train_x = np.vstack(
                 (self.geom.uniform_boundary_points(self.num_boundary), self.train_x)
@@ -98,15 +99,19 @@ class TimePDE(Data):
     """Time-dependent PDE solver.
 
     Args:
+        num_domain: Number of f training points.
         nbc: Number of boundary condition points on the geometry boundary.
         nic: Number of initial condition points inside the geometry.
         nt: Number of time points.
     """
 
-    def __init__(self, geom, timedomain, pde, func, nbc, nic, nt, anchors=None):
+    def __init__(
+        self, geom, timedomain, pde, func, num_domain, nbc, nic, nt, anchors=None
+    ):
         self.geomtime = GeometryXTime(geom, timedomain)
         self.pde = pde
         self.func = func
+        self.num_domain = num_domain
         self.nbc = nbc
         self.nic = nic
         self.nt = nt
@@ -127,11 +132,7 @@ class TimePDE(Data):
 
     @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
-        """
-        Args:
-            batch_size: Number of f training points.
-        """
-        self.train_x = self.geomtime.random_points(batch_size)
+        self.train_x = self.geomtime.random_points(self.num_domain)
         if self.nbc > 0:
             self.train_x = np.vstack(
                 (self.geomtime.uniform_boundary_points(self.nbc, self.nt), self.train_x)

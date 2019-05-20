@@ -16,10 +16,11 @@ class IDE(Data):
     The current version only supports the 1D problem with initial condition at x = 0.
     """
 
-    def __init__(self, geom, ide, func, nbc, quad_deg):
+    def __init__(self, geom, ide, func, num_train, nbc, quad_deg):
         self.geom = geom
         self.ide = ide
         self.func = func
+        self.num_train = num_train
         self.nbc = nbc
         self.quad_deg = quad_deg
 
@@ -29,7 +30,7 @@ class IDE(Data):
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)
 
     def losses(self, y_true, y_pred, loss, model):
-        int_mat_train = self.get_int_matrix(model.batch_size, True)
+        int_mat_train = self.get_int_matrix(self.num_train, True)
         int_mat_test = self.get_int_matrix(model.ntest, False)
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
@@ -43,7 +44,7 @@ class IDE(Data):
 
     @runifnone("train_x", "train_y")
     def train_next_batch(self, batch_size, *args, **kwargs):
-        self.train_x, self.train_y = self.gen_data(batch_size)
+        self.train_x, self.train_y = self.gen_data(self.num_train)
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")

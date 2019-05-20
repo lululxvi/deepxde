@@ -12,10 +12,11 @@ class MfFunc(Data):
     """Multifidelity function approximation.
     """
 
-    def __init__(self, geom, func_lo, func_hi, num_hi, dist_train="uniform"):
+    def __init__(self, geom, func_lo, func_hi, num_lo, num_hi, dist_train="uniform"):
         self.geom = geom
         self.func_lo = func_lo
         self.func_hi = func_hi
+        self.num_lo = num_lo
         self.num_hi = num_hi
         self.dist_train = dist_train
 
@@ -27,12 +28,8 @@ class MfFunc(Data):
         self.y_hi_test = None
 
     def losses(self, targets, outputs, loss, model):
-        loss_lo = losses.get(loss)(
-            targets[0][: model.batch_size], outputs[0][: model.batch_size]
-        )
-        loss_hi = losses.get(loss)(
-            targets[1][model.batch_size :], outputs[1][model.batch_size :]
-        )
+        loss_lo = losses.get(loss)(targets[0][: self.num_lo], outputs[0][: self.num_lo])
+        loss_hi = losses.get(loss)(targets[1][self.num_lo :], outputs[1][self.num_lo :])
         return [loss_lo, loss_hi]
 
     def train_next_batch(self, batch_size, *args, **kwargs):
@@ -42,14 +39,14 @@ class MfFunc(Data):
         if self.dist_train == "uniform":
             self.X_train = np.vstack(
                 (
-                    self.geom.uniform_points(batch_size, True),
+                    self.geom.uniform_points(self.num_lo, True),
                     self.geom.uniform_points(self.num_hi, True),
                 )
             )
         else:
             self.X_train = np.vstack(
                 (
-                    self.geom.random_points(batch_size, "sobol"),
+                    self.geom.random_points(self.num_lo, "sobol"),
                     self.geom.random_points(self.num_hi, "sobol"),
                 )
             )

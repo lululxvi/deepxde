@@ -16,7 +16,8 @@ def main():
         return x * np.sin(5 * x)
 
     geom = scn.geometry.Interval(-1, 1)
-    data = scn.data.Func(geom, func)
+    num_train = 16
+    data = scn.data.Func(geom, func, num_train)
 
     x_dim, y_dim = 1, 1
     activation = "tanh"
@@ -28,9 +29,8 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    batch_size = 16
     ntest = 100
-    model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
+    model.compile(optimizer, lr, ntest, metrics=["l2 relative error"])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)

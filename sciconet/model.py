@@ -39,7 +39,6 @@ class Model(object):
         self,
         optimizer,
         lr,
-        batch_size,
         ntest,
         loss="MSE",
         metrics=None,
@@ -49,7 +48,7 @@ class Model(object):
         print("Compiling model...")
 
         self.optimizer = optimizer
-        self.batch_size, self.ntest = batch_size, ntest
+        self.ntest = ntest
 
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
         if self.net.regularizer is not None:
@@ -71,6 +70,7 @@ class Model(object):
     def train(
         self,
         epochs,
+        batch_size=None,
         validation_every=1000,
         uncertainty=False,
         errstop=None,
@@ -78,6 +78,8 @@ class Model(object):
         print_model=False,
     ):
         print("Training model...")
+
+        self.batch_size = batch_size
 
         self.open_tfsession()
         self.sess.run(tf.global_variables_initializer())

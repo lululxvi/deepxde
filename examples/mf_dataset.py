@@ -34,13 +34,7 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    model.compile(
-        optimizer,
-        lr,
-        len(data.X_lo_train),
-        len(data.X_hi_test),
-        metrics=["l2 relative error"],
-    )
+    model.compile(optimizer, lr, len(data.X_hi_test), metrics=["l2 relative error"])
 
     epochs = 80000
     losshistory, train_state = model.train(epochs)

@@ -26,9 +26,10 @@ def main():
 
     geom = scn.geometry.Interval(0, 1)
 
+    num_train = 16
     nbc = 1
     quad_deg = 16
-    data = scn.data.IDE(geom, ide, func, nbc, quad_deg)
+    data = scn.data.IDE(geom, ide, func, num_train, nbc, quad_deg)
 
     x_dim, y_dim = 1, 1
     layer_size = [x_dim] + [20] * 3 + [y_dim]
@@ -40,9 +41,8 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    batch_size = 16
     ntest = 128
-    model.compile(optimizer, lr, batch_size, ntest, metrics=["l2 relative error"])
+    model.compile(optimizer, lr, ntest, metrics=["l2 relative error"])
 
     epochs = 10000
     losshistory, train_state = model.train(epochs)
