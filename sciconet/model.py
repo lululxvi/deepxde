@@ -73,7 +73,6 @@ class Model(object):
         batch_size=None,
         validation_every=1000,
         uncertainty=False,
-        errstop=None,
         callbacks=None,
         print_model=False,
     ):
@@ -89,7 +88,7 @@ class Model(object):
         if train_module.is_scipy_opts(self.optimizer):
             self.train_scipy(uncertainty)
         else:
-            self.train_sgd(epochs, validation_every, uncertainty, errstop, callbacks)
+            self.train_sgd(epochs, validation_every, uncertainty, callbacks)
         if print_model:
             self.print_model()
 
@@ -105,7 +104,7 @@ class Model(object):
     def close_tfsession(self):
         self.sess.close()
 
-    def train_sgd(self, epochs, validation_every, uncertainty, errstop, callbacks):
+    def train_sgd(self, epochs, validation_every, uncertainty, callbacks):
         callbacks = CallbackList(callbacks=callbacks)
 
         self.train_state.update_data_test(*self.data.test(self.ntest))
@@ -148,9 +147,6 @@ class Model(object):
                     )
                 )
                 sys.stdout.flush()
-
-                # if errstop is not None and err_norm < errstop:
-                #     break
 
             callbacks.on_batch_end(self.train_state)
             callbacks.on_epoch_end(self.train_state)
