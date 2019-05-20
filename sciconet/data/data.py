@@ -17,9 +17,9 @@ class Data(object):
         return None
 
     @abc.abstractmethod
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         return None
 
     @abc.abstractmethod
-    def test(self, *args, **kwargs):
+    def test(self):
         return None

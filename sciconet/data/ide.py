@@ -44,12 +44,12 @@ class IDE(Data):
         ]
 
     @runifnone("train_x", "train_y")
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         self.train_x, self.train_y = self.gen_data(self.num_train)
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, *args, **kwargs):
+    def test(self):
         self.test_x, self.test_y = self.gen_data(self.num_test)
         return self.test_x, self.test_y
 
@@ -58,12 +58,10 @@ class IDE(Data):
             return self.quad_w * x / 2
 
         if training:
-            if self.train_x is None:
-                self.train_next_batch(size)
+            self.train_next_batch(None)
             x = self.train_x
         else:
-            if self.test_x is None:
-                self.test(size)
+            self.test()
             x = self.test_x
         int_mat = np.zeros((size, x.size), dtype=config.real(np))
         for i in range(size):

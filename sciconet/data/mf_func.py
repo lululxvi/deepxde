@@ -35,7 +35,7 @@ class MfFunc(Data):
         loss_hi = losses.get(loss)(targets[1][self.num_lo :], outputs[1][self.num_lo :])
         return [loss_lo, loss_hi]
 
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         if self.X_train is not None:
             return self.X_train, [self.y_lo_train, self.y_hi_train]
 
@@ -57,7 +57,7 @@ class MfFunc(Data):
         self.y_hi_train = self.func_hi(self.X_train)
         return self.X_train, [self.y_lo_train, self.y_hi_train]
 
-    def test(self, *args, **kwargs):
+    def test(self):
         if self.X_test is not None:
             return self.X_test, [self.y_lo_test, self.y_hi_test]
 

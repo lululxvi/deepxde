@@ -47,10 +47,10 @@ class OpDataSet(Data):
     def losses(self, y_true, y_pred, loss, model):
         return [losses.get(loss)(y_true, y_pred)]
 
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         return [self.train_x[:, :-1], self.train_x[:, -1:]], self.train_y
 
-    def test(self, *args, **kwargs):
+    def test(self):
         return [self.test_x[:, :-1], self.test_x[:, -1:]], self.test_y
 
     def _standardize(self):

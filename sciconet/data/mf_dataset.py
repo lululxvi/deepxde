@@ -65,7 +65,7 @@ class MfDataSet(Data):
         loss_hi = losses.get(loss)(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         if self.X_train is not None:
             return self.X_train, [self.y_lo_train, self.y_hi_train]
 
@@ -76,7 +76,7 @@ class MfDataSet(Data):
         )
         return self.X_train, [self.y_lo_train, self.y_hi_train]
 
-    def test(self, *args, **kwargs):
+    def test(self):
         return self.X_hi_test, [self.y_hi_test, self.y_hi_test]
 
     def _standardize(self):

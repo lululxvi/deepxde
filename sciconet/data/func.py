@@ -27,7 +27,7 @@ class Func(Data):
     def losses(self, y_true, y_pred, loss, model):
         return [losses.get(loss)(y_true, y_pred)]
 
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         if self.online:
             self.train_x = self.geom.random_points(batch_size, "pseudo")
             self.train_y = self.func(self.train_x)
@@ -40,7 +40,7 @@ class Func(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, *args, **kwargs):
+    def test(self):
         self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y

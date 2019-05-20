@@ -29,10 +29,8 @@ class FuncConstraint(Data):
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, loss, model):
-        if self.train_x is None:
-            self.train_next_batch(self.num_train)
-        if self.test_x is None:
-            self.test(self.num_test)
+        self.train_next_batch(None)
+        self.test()
 
         n = 0
         if self.anchors is not None:
@@ -49,7 +47,7 @@ class FuncConstraint(Data):
         ]
 
     @runifnone("train_x", "train_y")
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         if self.dist_train == "log uniform":
             self.train_x = self.geom.log_uniform_points(self.num_train, False)
         elif self.dist_train == "random":
@@ -62,7 +60,7 @@ class FuncConstraint(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, *args, **kwargs):
+    def test(self):
         self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y

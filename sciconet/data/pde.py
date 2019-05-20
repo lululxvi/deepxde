@@ -33,8 +33,8 @@ class PDE(Data):
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, loss_type, model):
-        self.train_next_batch(self.num_domain)
-        self.test(self.num_test)
+        self.train_next_batch(None)
+        self.test()
         bcs_start = np.cumsum([0] + self.num_bcs)
         loss_f = losses_module.get(loss_type)
 
@@ -75,7 +75,7 @@ class PDE(Data):
         return loss
 
     @runifnone("train_x", "train_y")
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         self.train_x = self.geom.uniform_points(self.num_domain, False)
         if self.num_boundary > 0:
             self.train_x = np.vstack(
@@ -92,7 +92,7 @@ class PDE(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, *args, **kwargs):
+    def test(self):
         self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
@@ -145,7 +145,7 @@ class TimePDE(Data):
         ]
 
     @runifnone("train_x", "train_y")
-    def train_next_batch(self, batch_size, *args, **kwargs):
+    def train_next_batch(self, batch_size):
         self.train_x = self.geomtime.random_points(self.num_domain)
         if self.nbc > 0:
             self.train_x = np.vstack(
@@ -161,7 +161,7 @@ class TimePDE(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, *args, **kwargs):
+    def test(self):
         self.test_x = self.geomtime.random_points(self.num_test)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
