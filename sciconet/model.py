@@ -24,7 +24,7 @@ class Model(object):
         self.net = net
 
         self.optimizer = None
-        self.batch_size, self.ntest = None, None
+        self.batch_size = None
 
         self.losses, self.totalloss = None, None
         self.train_op = None
@@ -36,19 +36,11 @@ class Model(object):
 
     @timing
     def compile(
-        self,
-        optimizer,
-        lr,
-        ntest,
-        loss="MSE",
-        metrics=None,
-        decay=None,
-        loss_weights=None,
+        self, optimizer, lr, loss="MSE", metrics=None, decay=None, loss_weights=None
     ):
         print("Compiling model...")
 
         self.optimizer = optimizer
-        self.ntest = ntest
 
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
         if self.net.regularizer is not None:
@@ -107,7 +99,7 @@ class Model(object):
     def train_sgd(self, epochs, validation_every, uncertainty, callbacks):
         callbacks = CallbackList(callbacks=callbacks)
 
-        self.train_state.update_data_test(*self.data.test(self.ntest))
+        self.train_state.update_data_test(*self.data.test())
 
         callbacks.on_train_begin(self.train_state)
 
@@ -162,7 +154,7 @@ class Model(object):
             ),
         )
 
-        self.train_state.update_data_test(*self.data.test(self.ntest))
+        self.train_state.update_data_test(*self.data.test())
         self.test(uncertainty)
         self.losshistory.add(
             1,

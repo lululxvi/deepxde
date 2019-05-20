@@ -22,8 +22,7 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    ntest = 0
-    model.compile(optimizer, lr, ntest, metrics=["l2 relative error"])
+    model.compile(optimizer, lr, metrics=["l2 relative error"])
 
     epochs = 50000
     losshistory, train_state = model.train(epochs)

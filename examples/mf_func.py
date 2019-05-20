@@ -16,7 +16,8 @@ def main():
         return (6 * x - 2) ** 2 * np.sin(12 * x - 4)
 
     geom = scn.geometry.Interval(0, 1)
-    data = scn.data.MfFunc(geom, func_lo, func_hi, 51, 5)
+    num_test = 1000
+    data = scn.data.MfFunc(geom, func_lo, func_hi, 51, 5, num_test)
 
     x_dim, y_dim = 1, 1
     activation = "tanh"
@@ -34,8 +35,7 @@ def main():
 
     optimizer = "adam"
     lr = 0.001
-    ntest = 1000
-    model.compile(optimizer, lr, ntest, metrics=["l2 relative error"])
+    model.compile(optimizer, lr, metrics=["l2 relative error"])
 
     epochs = 80000
     losshistory, train_state = model.train(epochs)

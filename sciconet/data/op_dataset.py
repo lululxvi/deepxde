@@ -50,7 +50,7 @@ class OpDataSet(Data):
     def train_next_batch(self, batch_size, *args, **kwargs):
         return [self.train_x[:, :-1], self.train_x[:, -1:]], self.train_y
 
-    def test(self, n, *args, **kwargs):
+    def test(self, *args, **kwargs):
         return [self.test_x[:, :-1], self.test_x[:, -1:]], self.test_y
 
     def _standardize(self):

@@ -16,12 +16,13 @@ class IDE(Data):
     The current version only supports the 1D problem with initial condition at x = 0.
     """
 
-    def __init__(self, geom, ide, func, num_train, nbc, quad_deg):
+    def __init__(self, geom, ide, func, num_train, nbc, num_test, quad_deg):
         self.geom = geom
         self.ide = ide
         self.func = func
         self.num_train = num_train
         self.nbc = nbc
+        self.num_test = num_test
         self.quad_deg = quad_deg
 
         self.train_x, self.train_y = None, None
@@ -31,7 +32,7 @@ class IDE(Data):
 
     def losses(self, y_true, y_pred, loss, model):
         int_mat_train = self.get_int_matrix(self.num_train, True)
-        int_mat_test = self.get_int_matrix(model.ntest, False)
+        int_mat_test = self.get_int_matrix(self.num_test, False)
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
             lambda: self.ide(model.net.x, y_pred, int_mat_train),
@@ -48,8 +49,8 @@ class IDE(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, n, *args, **kwargs):
-        self.test_x, self.test_y = self.gen_data(n)
+    def test(self, *args, **kwargs):
+        self.test_x, self.test_y = self.gen_data(self.num_test)
         return self.test_x, self.test_y
 
     def get_int_matrix(self, size, training):

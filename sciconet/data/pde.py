@@ -16,13 +16,16 @@ class PDE(Data):
     """PDE solver.
     """
 
-    def __init__(self, geom, pde, bcs, func, num_domain, num_boundary, anchors=None):
+    def __init__(
+        self, geom, pde, bcs, func, num_domain, num_boundary, num_test, anchors=None
+    ):
         self.geom = geom
         self.pde = pde
         self.bcs = bcs if isinstance(bcs, list) else [bcs]
         self.func = func
         self.num_domain = num_domain
         self.num_boundary = num_boundary
+        self.num_test = num_test
         self.anchors = anchors
 
         self.num_bcs = None
@@ -31,7 +34,7 @@ class PDE(Data):
 
     def losses(self, y_true, y_pred, loss_type, model):
         self.train_next_batch(self.num_domain)
-        self.test(model.ntest)
+        self.test(self.num_test)
         bcs_start = np.cumsum([0] + self.num_bcs)
         loss_f = losses_module.get(loss_type)
 
@@ -89,8 +92,8 @@ class PDE(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, n, *args, **kwargs):
-        self.test_x = self.geom.uniform_points(n, True)
+    def test(self, *args, **kwargs):
+        self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
 
@@ -106,7 +109,17 @@ class TimePDE(Data):
     """
 
     def __init__(
-        self, geom, timedomain, pde, func, num_domain, nbc, nic, nt, anchors=None
+        self,
+        geom,
+        timedomain,
+        pde,
+        func,
+        num_domain,
+        nbc,
+        nic,
+        nt,
+        num_test,
+        anchors=None,
     ):
         self.geomtime = GeometryXTime(geom, timedomain)
         self.pde = pde
@@ -115,6 +128,7 @@ class TimePDE(Data):
         self.nbc = nbc
         self.nic = nic
         self.nt = nt
+        self.num_test = num_test
         self.anchors = anchors
 
         self.train_x, self.train_y = None, None
@@ -147,7 +161,7 @@ class TimePDE(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, n, *args, **kwargs):
-        self.test_x = self.geomtime.random_points(n)
+    def test(self, *args, **kwargs):
+        self.test_x = self.geomtime.random_points(self.num_test)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y

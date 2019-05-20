@@ -11,10 +11,13 @@ class Func(Data):
     """Function approximation.
     """
 
-    def __init__(self, geom, func, num_train, dist_train="uniform", online=False):
+    def __init__(
+        self, geom, func, num_train, num_test, dist_train="uniform", online=False
+    ):
         self.geom = geom
         self.func = func
         self.num_train = num_train
+        self.num_test = num_test
         self.dist_train = dist_train
         self.online = online
 
@@ -37,7 +40,7 @@ class Func(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, n, *args, **kwargs):
-        self.test_x = self.geom.uniform_points(n, True)
+    def test(self, *args, **kwargs):
+        self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y

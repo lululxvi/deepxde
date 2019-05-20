@@ -21,5 +21,5 @@ class Data(object):
         return None
 
     @abc.abstractmethod
-    def test(self, n, *args, **kwargs):
+    def test(self, *args, **kwargs):
         return None

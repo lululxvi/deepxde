@@ -12,12 +12,15 @@ class MfFunc(Data):
     """Multifidelity function approximation.
     """
 
-    def __init__(self, geom, func_lo, func_hi, num_lo, num_hi, dist_train="uniform"):
+    def __init__(
+        self, geom, func_lo, func_hi, num_lo, num_hi, num_test, dist_train="uniform"
+    ):
         self.geom = geom
         self.func_lo = func_lo
         self.func_hi = func_hi
         self.num_lo = num_lo
         self.num_hi = num_hi
+        self.num_test = num_test
         self.dist_train = dist_train
 
         self.X_train = None
@@ -54,11 +57,11 @@ class MfFunc(Data):
         self.y_hi_train = self.func_hi(self.X_train)
         return self.X_train, [self.y_lo_train, self.y_hi_train]
 
-    def test(self, n, *args, **kwargs):
+    def test(self, *args, **kwargs):
         if self.X_test is not None:
             return self.X_test, [self.y_lo_test, self.y_hi_test]
 
-        self.X_test = self.geom.uniform_points(n, True)
+        self.X_test = self.geom.uniform_points(self.num_test, True)
         self.y_lo_test = self.func_lo(self.X_test)
         self.y_hi_test = self.func_hi(self.X_test)
         return self.X_test, [self.y_lo_test, self.y_hi_test]

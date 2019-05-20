@@ -15,13 +15,14 @@ class FuncConstraint(Data):
     """
 
     def __init__(
-        self, geom, constraint, func, num_train, anchors, dist_train="uniform"
+        self, geom, constraint, func, num_train, anchors, num_test, dist_train="uniform"
     ):
         self.geom = geom
         self.constraint = constraint
         self.func = func
         self.num_train = num_train
         self.anchors = anchors
+        self.num_test = num_test
         self.dist_train = dist_train
 
         self.train_x, self.train_y = None, None
@@ -31,7 +32,7 @@ class FuncConstraint(Data):
         if self.train_x is None:
             self.train_next_batch(self.num_train)
         if self.test_x is None:
-            self.test(model.ntest)
+            self.test(self.num_test)
 
         n = 0
         if self.anchors is not None:
@@ -61,7 +62,7 @@ class FuncConstraint(Data):
         return self.train_x, self.train_y
 
     @runifnone("test_x", "test_y")
-    def test(self, n, *args, **kwargs):
-        self.test_x = self.geom.uniform_points(n, True)
+    def test(self, *args, **kwargs):
+        self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y

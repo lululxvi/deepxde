@@ -50,7 +50,7 @@ class DataSet(Data):
     def train_next_batch(self, batch_size, *args, **kwargs):
         return self.train_x, self.train_y
 
-    def test(self, n, *args, **kwargs):
+    def test(self, *args, **kwargs):
         return self.test_x, self.test_y
 
     def _standardize(self):

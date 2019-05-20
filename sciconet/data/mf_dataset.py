@@ -76,7 +76,7 @@ class MfDataSet(Data):
         )
         return self.X_train, [self.y_lo_train, self.y_hi_train]
 
-    def test(self, n, *args, **kwargs):
+    def test(self, *args, **kwargs):
         return self.X_hi_test, [self.y_hi_test, self.y_hi_test]
 
     def _standardize(self):
