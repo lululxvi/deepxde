@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from .data import Data
 from .. import losses
-from ..utils import runifnone
+from ..utils import run_if_any_none
 
 
 class Func(Data):
@@ -39,7 +39,7 @@ class Func(Data):
             self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
-    @runifnone("test_x", "test_y")
+    @run_if_any_none("test_x", "test_y")
     def test(self):
         self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)

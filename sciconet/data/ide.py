@@ -8,7 +8,7 @@ import tensorflow as tf
 from .data import Data
 from .. import config
 from .. import losses
-from ..utils import runifnone
+from ..utils import run_if_any_none
 
 
 class IDE(Data):
@@ -43,12 +43,12 @@ class IDE(Data):
             losses.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
-    @runifnone("train_x", "train_y")
+    @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size):
         self.train_x, self.train_y = self.gen_data(self.num_train)
         return self.train_x, self.train_y
 
-    @runifnone("test_x", "test_y")
+    @run_if_any_none("test_x", "test_y")
     def test(self):
         self.test_x, self.test_y = self.gen_data(self.num_test)
         return self.test_x, self.test_y

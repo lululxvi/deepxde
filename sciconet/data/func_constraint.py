@@ -7,7 +7,7 @@ import tensorflow as tf
 
 from .data import Data
 from .. import losses
-from ..utils import runifnone
+from ..utils import run_if_any_none
 
 
 class FuncConstraint(Data):
@@ -46,7 +46,7 @@ class FuncConstraint(Data):
             losses.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
-    @runifnone("train_x", "train_y")
+    @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size):
         if self.dist_train == "log uniform":
             self.train_x = self.geom.log_uniform_points(self.num_train, False)
@@ -59,7 +59,7 @@ class FuncConstraint(Data):
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
-    @runifnone("test_x", "test_y")
+    @run_if_any_none("test_x", "test_y")
     def test(self):
         self.test_x = self.geom.uniform_points(self.num_test, True)
         self.test_y = self.func(self.test_x)

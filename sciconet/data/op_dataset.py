@@ -7,7 +7,6 @@ from sklearn import preprocessing
 
 from .data import Data
 from .. import losses
-from ..utils import runifnone
 
 
 class OpDataSet(Data):
