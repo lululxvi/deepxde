@@ -7,7 +7,6 @@ import tensorflow as tf
 
 from .data import Data
 from .helper import zero_function
-from .. import boundary_conditions
 from .. import losses as losses_module
 from ..geometry import GeometryXTime
 from ..utils import run_if_any_none
@@ -57,34 +56,16 @@ class PDE(Data):
         f = [fi[bcs_start[-1] :] for fi in f]
         loss = [loss_f(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
-        for i in range(len(self.bcs)):
-            if isinstance(self.bcs[i], boundary_conditions.PeriodicBC):
-                loss_one = loss_f(
-                    tf.zeros((self.num_bcs[i] // 2, 1)),
-                    tf.cond(
-                        tf.equal(model.net.data_id, 0),
-                        lambda: self.bcs[i].error(
-                            self.train_x[bcs_start[i] : bcs_start[i + 1]],
-                            model.net.x[bcs_start[i] : bcs_start[i + 1]],
-                            y_pred[bcs_start[i] : bcs_start[i + 1]],
-                        ),
-                        lambda: self.bcs[i].error(
-                            self.test_x[bcs_start[i] : bcs_start[i + 1]],
-                            model.net.x[bcs_start[i] : bcs_start[i + 1]],
-                            y_pred[bcs_start[i] : bcs_start[i + 1]],
-                        ),
-                    ),
-                )
-            else:
-                loss_one = loss_f(
-                    tf.zeros((self.num_bcs[i], 1)),
-                    tf.cond(
-                        tf.equal(model.net.data_id, 0),
-                        lambda: self.bcs[i].error(self.train_x, model.net.x, y_pred),
-                        lambda: self.bcs[i].error(self.test_x, model.net.x, y_pred),
-                    )[bcs_start[i] : bcs_start[i + 1]],
-                )
-            loss.append(loss_one)
+        for i, bc in enumerate(self.bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            error = (
+                tf.cond(
+                    tf.equal(model.net.data_id, 0),
+                    lambda: bc.error(self.train_x, model.net.x, y_pred, beg, end),
+                    lambda: bc.error(self.test_x, model.net.x, y_pred, beg, end),
+                ),
+            )
+            loss.append(loss_f(tf.zeros(tf.shape(error)), error))
         return loss
 
     @run_if_any_none("train_x", "train_y")
@@ -97,7 +78,7 @@ class PDE(Data):
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
 
-        x_bcs = [bc.filter(self.train_x) for bc in self.bcs]
+        x_bcs = [bc.bc_points(self.train_x) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
 
         self.train_x = np.vstack(x_bcs + [self.train_x])

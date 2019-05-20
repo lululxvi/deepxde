@@ -14,21 +14,24 @@ class BC(object):
         component: The output component satisfying this BC.
     """
 
-    def __init__(self, geom, func, on_boundary, component):
+    def __init__(self, geom, on_boundary, component):
         self.geom = geom
-        self.func = func
         self.on_boundary = on_boundary
         self.component = component
 
     def filter(self, X):
         return np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
 
-    def normal_derivative(self, X, inputs, outputs):
-        dydx = tf.gradients(outputs[:, self.component : self.component + 1], inputs)[0]
-        n = np.array(list(map(self.geom.boundary_normal, X)))
+    def bc_points(self, X):
+        return self.filter(X)
+
+    def normal_derivative(self, X, inputs, outputs, beg, end):
+        outputs = outputs[:, self.component : self.component + 1]
+        dydx = tf.gradients(outputs, inputs)[0][beg:end]
+        n = np.array(list(map(self.geom.boundary_normal, X[beg:end])))
         return tf.reduce_sum(dydx * n, axis=1, keepdims=True)
 
-    def error(self, X, inputs, outputs):
+    def error(self, X, inputs, outputs, beg, end):
         raise NotImplementedError(
             "{}.error to be implemented".format(type(self).__name__)
         )
@@ -39,10 +42,13 @@ class DirichletBC(BC):
     """
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(DirichletBC, self).__init__(geom, func, on_boundary, component)
+        super(DirichletBC, self).__init__(geom, on_boundary, component)
+        self.func = func
 
-    def error(self, X, inputs, outputs):
-        return outputs[:, self.component : self.component + 1] - self.func(X)
+    def error(self, X, inputs, outputs, beg, end):
+        return outputs[beg:end, self.component : self.component + 1] - self.func(
+            X[beg:end]
+        )
 
 
 class NeumannBC(BC):
@@ -50,10 +56,13 @@ class NeumannBC(BC):
     """
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(NeumannBC, self).__init__(geom, func, on_boundary, component)
+        super(NeumannBC, self).__init__(geom, on_boundary, component)
+        self.func = func
 
-    def error(self, X, inputs, outputs):
-        return self.normal_derivative(X, inputs, outputs) - self.func(X)
+    def error(self, X, inputs, outputs, beg, end):
+        return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
+            X[beg:end]
+        )
 
 
 class RobinBC(BC):
@@ -61,10 +70,13 @@ class RobinBC(BC):
     """
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(RobinBC, self).__init__(geom, func, on_boundary, component)
+        super(RobinBC, self).__init__(geom, on_boundary, component)
+        self.func = func
 
-    def error(self, X, inputs, outputs):
-        return self.normal_derivative(X, inputs, outputs) - self.func(X, outputs)
+    def error(self, X, inputs, outputs, beg, end):
+        return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
+            X[beg:end], outputs[beg:end]
+        )
 
 
 class PeriodicBC(BC):
@@ -72,16 +84,15 @@ class PeriodicBC(BC):
     """
 
     def __init__(self, geom, component_x, on_boundary, component=0):
-        super(PeriodicBC, self).__init__(geom, None, on_boundary, component)
+        super(PeriodicBC, self).__init__(geom, on_boundary, component)
         self.component_x = component_x
 
-    def filter(self, X):
-        X1 = np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
-        # auxiliary_points
+    def bc_points(self, X):
+        X1 = self.filter(X)
         X2 = np.array([self.geom.periodic_point(x, self.component_x) for x in X1])
         return np.vstack((X1, X2))
 
-    def error(self, X, inputs, outputs):
-        outputs = outputs[:, self.component : self.component + 1]
+    def error(self, X, inputs, outputs, beg, end):
+        outputs = outputs[beg:end, self.component : self.component + 1]
         outputs = tf.reshape(outputs, [-1, 2])
         return outputs[:, 0:1] - outputs[:, 1:]
