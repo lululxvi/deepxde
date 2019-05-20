@@ -22,8 +22,7 @@ def main():
 
     geom = scn.geometry.Interval(-1, 1)
     bc = scn.DirichletBC(geom, func, boundary)
-    num_test = 100
-    data = scn.data.PDE(geom, pde, bc, func, 16, 2, num_test)
+    data = scn.data.PDE(geom, 1, pde, bc, 16, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"

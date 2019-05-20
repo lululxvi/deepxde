@@ -32,8 +32,7 @@ def main():
     geom = scn.geometry.Interval(0, 10)
     bc1 = scn.DirichletBC(geom, lambda X: np.sin(X), boundary, component=0)
     bc2 = scn.DirichletBC(geom, lambda X: np.cos(X), boundary, component=1)
-    num_test = 100
-    data = scn.data.PDE(geom, ode_system, [bc1, bc2], func, 35, 2, num_test)
+    data = scn.data.PDE(geom, 2, ode_system, [bc1, bc2], 35, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [2]
     activation = "tanh"

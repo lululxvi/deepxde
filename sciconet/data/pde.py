@@ -6,10 +6,11 @@ import numpy as np
 import tensorflow as tf
 
 from .data import Data
+from .helper import zero_function
 from .. import boundary_conditions
 from .. import losses as losses_module
 from ..geometry import GeometryXTime
-from ..utils import runifnone
+from ..utils import run_if_any_none
 
 
 class PDE(Data):
@@ -17,16 +18,28 @@ class PDE(Data):
     """
 
     def __init__(
-        self, geom, pde, bcs, func, num_domain, num_boundary, num_test, anchors=None
+        self,
+        geom,
+        num_outputs,
+        pde,
+        bcs,
+        num_domain,
+        num_boundary,
+        anchors=None,
+        func=None,
+        num_test=None,
     ):
         self.geom = geom
+        self.num_outputs = num_outputs
         self.pde = pde
         self.bcs = bcs if isinstance(bcs, list) else [bcs]
-        self.func = func
+
         self.num_domain = num_domain
         self.num_boundary = num_boundary
-        self.num_test = num_test
         self.anchors = anchors
+
+        self.func = func if func is not None else zero_function(self.num_outputs)
+        self.num_test = num_test
 
         self.num_bcs = None
         self.train_x, self.train_y = None, None
@@ -74,7 +87,7 @@ class PDE(Data):
             loss.append(loss_one)
         return loss
 
-    @runifnone("train_x", "train_y")
+    @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size):
         self.train_x = self.geom.uniform_points(self.num_domain, False)
         if self.num_boundary > 0:
@@ -91,10 +104,14 @@ class PDE(Data):
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
-    @runifnone("test_x", "test_y")
+    @run_if_any_none("test_x", "test_y")
     def test(self):
-        self.test_x = self.geom.uniform_points(self.num_test, True)
-        self.test_y = self.func(self.test_x)
+        if self.num_test is None:
+            self.test_x = self.train_x
+            self.test_y = self.train_y
+        else:
+            self.test_x = self.geom.uniform_points(self.num_test, True)
+            self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
 
 
@@ -144,7 +161,7 @@ class TimePDE(Data):
             losses_module.get(loss)(tf.zeros(tf.shape(f)), f),
         ]
 
-    @runifnone("train_x", "train_y")
+    @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size):
         self.train_x = self.geomtime.random_points(self.num_domain)
         if self.nbc > 0:
@@ -160,7 +177,7 @@ class TimePDE(Data):
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
-    @runifnone("test_x", "test_y")
+    @run_if_any_none("test_x", "test_y")
     def test(self):
         self.test_x = self.geomtime.random_points(self.num_test)
         self.test_y = self.func(self.test_x)
