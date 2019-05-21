@@ -257,6 +257,7 @@ class TrainState(object):
         self.metrics_test = None
 
         # The best results correspond to the min train loss
+        self.best_step = 0
         self.best_loss_train, self.best_loss_test = np.inf, np.inf
         self.best_y, self.best_ystd = None, None
         self.best_metrics = None
@@ -272,77 +273,23 @@ class TrainState(object):
 
     def update_best(self):
         if self.best_loss_train > np.sum(self.loss_train):
+            self.best_step = self.step
             self.best_loss_train = np.sum(self.loss_train)
             self.best_loss_test = np.sum(self.loss_test)
             self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
             self.best_metrics = self.metrics_test
 
-    def savetxt(self, fname_train, fname_test):
-        X_train = self.merge_values(self.X_train)
-        y_train = self.merge_values(self.y_train)
-        X_test = self.merge_values(self.X_test)
-        y_test = self.merge_values(self.y_test)
-        best_y = self.merge_values(self.best_y)
-        best_ystd = self.merge_values(self.best_ystd)
+    def packed_data(self):
+        def merge_values(values):
+            return np.hstack(values) if isinstance(values, list) else values
 
-        train = np.hstack((X_train, y_train))
-        np.savetxt(fname_train, train, header="x, y")
-
-        test = np.hstack((X_test, y_test, best_y))
-        if best_ystd is not None:
-            test = np.hstack((test, best_ystd))
-        np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
-
-    def plot(self):
-        X_train = self.merge_values(self.X_train)
-        y_train = self.merge_values(self.y_train)
-        X_test = self.merge_values(self.X_test)
-        y_test = self.merge_values(self.y_test)
-        best_y = self.merge_values(self.best_y)
-        best_ystd = self.merge_values(self.best_ystd)
-
-        y_dim = y_train.shape[1]
-
-        # Regression plot
-        plt.figure()
-        for i in range(y_dim):
-            plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
-            plt.plot(X_test[:, 0], y_test[:, i], "-k", label="True")
-            plt.plot(X_test[:, 0], best_y[:, i], "--r", label="Prediction")
-            if best_ystd is not None:
-                plt.plot(
-                    X_test[:, 0],
-                    best_y[:, i] + 2 * best_ystd[:, i],
-                    "-b",
-                    label="95% CI",
-                )
-                plt.plot(X_test[:, 0], best_y[:, i] - 2 * best_ystd[:, i], "-b")
-        plt.xlabel("x")
-        plt.ylabel("y")
-        plt.legend()
-
-        # Residual plot
-        plt.figure()
-        residual = y_test[:, 0] - best_y[:, 0]
-        plt.plot(best_y[:, 0], residual, "o", zorder=1)
-        plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
-        plt.xlabel("Predicted")
-        plt.ylabel("Residual = Observed - Predicted")
-
-        if best_ystd is not None:
-            plt.figure()
-            for i in range(y_dim):
-                plt.plot(X_test[:, 0], best_ystd[:, i], "-b")
-                plt.plot(
-                    X_train[:, 0],
-                    np.interp(X_train[:, 0], X_test[:, 0], best_ystd[:, i]),
-                    "ok",
-                )
-            plt.xlabel("x")
-            plt.ylabel("std(y)")
-
-    def merge_values(self, values):
-        return np.hstack(values) if isinstance(values, list) else values
+        X_train = merge_values(self.X_train)
+        y_train = merge_values(self.y_train)
+        X_test = merge_values(self.X_test)
+        y_test = merge_values(self.y_test)
+        best_y = merge_values(self.best_y)
+        best_ystd = merge_values(self.best_ystd)
+        return X_train, y_train, X_test, y_test, best_y, best_ystd
 
 
 class LossHistory(object):
@@ -361,28 +308,3 @@ class LossHistory(object):
         self.loss_train.append(loss_train)
         self.loss_test.append(loss_test)
         self.metrics_test.append(metrics_test)
-
-    def savetxt(self, fname):
-        loss = np.hstack(
-            (
-                np.array(self.steps)[:, None],
-                np.array(self.loss_train),
-                np.array(self.loss_test),
-                np.array(self.metrics_test),
-            )
-        )
-        np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
-
-    def plot(self):
-        loss_train = np.sum(np.array(self.loss_train) * self.loss_weights, axis=1)
-        loss_test = np.sum(np.array(self.loss_test) * self.loss_weights, axis=1)
-
-        plt.figure()
-        plt.semilogy(self.steps, loss_train, label="Train loss")
-        plt.semilogy(self.steps, loss_test, label="Test loss")
-        for i in range(len(self.metrics_test[0])):
-            plt.semilogy(
-                self.steps, np.array(self.metrics_test)[:, i], label="Test metric"
-            )
-        plt.xlabel("# Steps")
-        plt.legend()
