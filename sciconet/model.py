@@ -12,7 +12,7 @@ from . import config
 from . import metrics as metrics_module
 from . import train as train_module
 from .callbacks import CallbackList
-from .utils import timing
+from .utils import guarantee_initialized_variables, timing
 
 
 class Model(object):
@@ -34,6 +34,7 @@ class Model(object):
         self.sess = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
+        self.callbacks = None
 
         self.open_tfsession()
 
@@ -42,7 +43,13 @@ class Model(object):
 
     @timing
     def compile(
-        self, optimizer, lr, loss="MSE", metrics=None, decay=None, loss_weights=None
+        self,
+        optimizer,
+        lr=None,
+        loss="MSE",
+        metrics=None,
+        decay=None,
+        loss_weights=None,
     ):
         """Configures the model for training.
         """
@@ -69,7 +76,7 @@ class Model(object):
     @timing
     def train(
         self,
-        epochs,
+        epochs=None,
         batch_size=None,
         validation_every=1000,
         uncertainty=False,
@@ -77,19 +84,28 @@ class Model(object):
         print_model=False,
     ):
         self.batch_size = batch_size
+        self.callbacks = CallbackList(callbacks=callbacks)
 
         if self.train_state.step == 0:
             print("Initializing variables...")
             self.sess.run(tf.global_variables_initializer())
+        else:
+            guarantee_initialized_variables(self.sess)
         if print_model:
             self.print_model()
 
-        self.train_state.update_data_test(*self.data.test())
         print("Training model...")
+        self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
+        self.train_state.update_data_test(*self.data.test())
+        self.test(uncertainty)
+        self.callbacks.on_train_begin(self.train_state)
         if train_module.is_scipy_opts(self.optimizer):
             self.train_scipy(uncertainty)
         else:
-            self.train_sgd(epochs, validation_every, uncertainty, callbacks)
+            if epochs is None:
+                raise ValueError("No epochs for {}.".format(self.optimizer))
+            self.train_sgd(epochs, validation_every, uncertainty)
+        self.callbacks.on_train_end(self.train_state)
 
         if print_model:
             self.print_model()
@@ -104,13 +120,10 @@ class Model(object):
     def close_tfsession(self):
         self.sess.close()
 
-    def train_sgd(self, epochs, validation_every, uncertainty, callbacks):
-        callbacks = CallbackList(callbacks=callbacks)
-        callbacks.on_train_begin(self.train_state)
-
+    def train_sgd(self, epochs, validation_every, uncertainty):
         for i in range(epochs):
-            callbacks.on_epoch_begin(self.train_state)
-            callbacks.on_batch_begin(self.train_state)
+            self.callbacks.on_epoch_begin(self.train_state)
+            self.callbacks.on_batch_begin(self.train_state)
 
             self.train_state.update_data_train(
                 *self.data.train_next_batch(self.batch_size)
@@ -124,13 +137,11 @@ class Model(object):
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            if i % validation_every == 0 or i + 1 == epochs:
+            if self.train_state.step % validation_every == 0 or i + 1 == epochs:
                 self.test(uncertainty)
-                self.update_losshistory()
 
-            callbacks.on_batch_end(self.train_state)
-            callbacks.on_epoch_end(self.train_state)
-        callbacks.on_train_end(self.train_state)
+            self.callbacks.on_batch_end(self.train_state)
+            self.callbacks.on_epoch_end(self.train_state)
 
     def train_scipy(self, uncertainty):
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
@@ -143,7 +154,6 @@ class Model(object):
         self.train_state.epoch += 1
         self.train_state.step += 1
         self.test(uncertainty)
-        self.update_losshistory()
 
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
@@ -187,9 +197,8 @@ class Model(object):
                 m(self.train_state.y_test, self.train_state.y_pred_test)
                 for m in self.metrics
             ]
-        self.train_state.update_best()
 
-    def update_losshistory(self):
+        self.train_state.update_best()
         self.losshistory.add(
             self.train_state.step,
             self.train_state.loss_train,
