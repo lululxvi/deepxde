@@ -16,7 +16,7 @@ from .utils import timing
 
 
 class Model(object):
-    """Model
+    """The `Model` class trains a `Network` on a `Data`.
     """
 
     def __init__(self, data, net):
@@ -26,7 +26,8 @@ class Model(object):
         self.optimizer = None
         self.batch_size = None
 
-        self.losses, self.totalloss = None, None
+        self.losses = None
+        self.totalloss = None
         self.train_op = None
         self.metrics = None
 
@@ -34,10 +35,17 @@ class Model(object):
         self.train_state = TrainState()
         self.losshistory = LossHistory()
 
+        self.open_tfsession()
+
+    def close(self):
+        self.close_tfsession()
+
     @timing
     def compile(
         self, optimizer, lr, loss="MSE", metrics=None, decay=None, loss_weights=None
     ):
+        """Configures the model for training.
+        """
         print("Compiling model...")
 
         self.optimizer = optimizer
@@ -68,23 +76,23 @@ class Model(object):
         callbacks=None,
         print_model=False,
     ):
-        print("Training model...")
-
         self.batch_size = batch_size
 
-        self.open_tfsession()
-        self.sess.run(tf.global_variables_initializer())
-
+        if self.train_state.step == 0:
+            print("Initializing variables...")
+            self.sess.run(tf.global_variables_initializer())
         if print_model:
             self.print_model()
+
+        self.train_state.update_data_test(*self.data.test())
+        print("Training model...")
         if train_module.is_scipy_opts(self.optimizer):
             self.train_scipy(uncertainty)
         else:
             self.train_sgd(epochs, validation_every, uncertainty, callbacks)
+
         if print_model:
             self.print_model()
-
-        self.close_tfsession()
         return self.losshistory, self.train_state
 
     def open_tfsession(self):
@@ -98,9 +106,6 @@ class Model(object):
 
     def train_sgd(self, epochs, validation_every, uncertainty, callbacks):
         callbacks = CallbackList(callbacks=callbacks)
-
-        self.train_state.update_data_test(*self.data.test())
-
         callbacks.on_train_begin(self.train_state)
 
         for i in range(epochs):
@@ -119,30 +124,12 @@ class Model(object):
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-
             if i % validation_every == 0 or i + 1 == epochs:
                 self.test(uncertainty)
-
-                self.losshistory.add(
-                    i,
-                    self.train_state.loss_train,
-                    self.train_state.loss_test,
-                    self.train_state.metrics_test,
-                )
-                print(
-                    "Epoch: %d, loss: %s, val_loss: %s, val_metric: %s"
-                    % (
-                        i,
-                        self.train_state.loss_train,
-                        self.train_state.loss_test,
-                        self.train_state.metrics_test,
-                    )
-                )
-                sys.stdout.flush()
+                self.update_losshistory()
 
             callbacks.on_batch_end(self.train_state)
             callbacks.on_epoch_end(self.train_state)
-
         callbacks.on_train_end(self.train_state)
 
     def train_scipy(self, uncertainty):
@@ -153,24 +140,10 @@ class Model(object):
                 True, True, 0, self.train_state.X_train, self.train_state.y_train
             ),
         )
-
-        self.train_state.update_data_test(*self.data.test())
+        self.train_state.epoch += 1
+        self.train_state.step += 1
         self.test(uncertainty)
-        self.losshistory.add(
-            1,
-            self.train_state.loss_train,
-            self.train_state.loss_test,
-            self.train_state.metrics_test,
-        )
-        print(
-            "loss: %s, val_loss: %s, val_metric: %s"
-            % (
-                self.train_state.loss_train,
-                self.train_state.loss_test,
-                self.train_state.metrics_test,
-            )
-        )
-        sys.stdout.flush()
+        self.update_losshistory()
 
     def test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
@@ -215,6 +188,24 @@ class Model(object):
                 for m in self.metrics
             ]
         self.train_state.update_best()
+
+    def update_losshistory(self):
+        self.losshistory.add(
+            self.train_state.step,
+            self.train_state.loss_train,
+            self.train_state.loss_test,
+            self.train_state.metrics_test,
+        )
+        print(
+            "Step: %d, loss: %s, val_loss: %s, val_metric: %s"
+            % (
+                self.train_state.step,
+                self.train_state.loss_train,
+                self.train_state.loss_test,
+                self.train_state.metrics_test,
+            )
+        )
+        sys.stdout.flush()
 
     def get_feed_dict(self, training, dropout, data_id, inputs, targets):
         feed_dict = {
