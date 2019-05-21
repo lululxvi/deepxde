@@ -70,15 +70,9 @@ class PDE(Data):
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size):
-        self.train_x = self.geom.uniform_points(self.num_domain, False)
-        if self.num_boundary > 0:
-            self.train_x = np.vstack(
-                (self.geom.uniform_boundary_points(self.num_boundary), self.train_x)
-            )
-        if self.anchors is not None:
-            self.train_x = np.vstack((self.anchors, self.train_x))
+        self.train_x = self.train_points()
 
-        x_bcs = [bc.bc_points(self.train_x) for bc in self.bcs]
+        x_bcs = [bc.collocation_points(self.train_x) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
 
         self.train_x = np.vstack(x_bcs + [self.train_x])
@@ -91,75 +85,66 @@ class PDE(Data):
             self.test_x = self.train_x
             self.test_y = self.train_y
         else:
-            self.test_x = self.geom.uniform_points(self.num_test, True)
+            self.test_x = self.test_points()
             self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
 
+    def train_points(self):
+        X = self.geom.uniform_points(self.num_domain, False)
+        if self.num_boundary > 0:
+            X = np.vstack((self.geom.uniform_boundary_points(self.num_boundary), X))
+        if self.anchors is not None:
+            X = np.vstack((self.anchors, X))
+        return X
 
-class TimePDE(Data):
+    def test_points(self):
+        return self.geom.uniform_points(self.num_test, True)
+
+
+class TimePDE(PDE):
     """Time-dependent PDE solver.
 
     Args:
         num_domain: Number of f training points.
-        nbc: Number of boundary condition points on the geometry boundary.
-        nic: Number of initial condition points inside the geometry.
-        nt: Number of time points.
+        num_boundary: Number of boundary condition points on the geometry boundary.
+        num_initial: Number of initial condition points.
     """
 
     def __init__(
         self,
-        geom,
-        timedomain,
+        geomtime,
+        num_outputs,
         pde,
-        func,
+        ic_bcs,
         num_domain,
-        nbc,
-        nic,
-        nt,
-        num_test,
+        num_boundary,
+        num_initial,
         anchors=None,
+        func=None,
+        num_test=None,
     ):
-        self.geomtime = GeometryXTime(geom, timedomain)
-        self.pde = pde
-        self.func = func
-        self.num_domain = num_domain
-        self.nbc = nbc
-        self.nic = nic
-        self.nt = nt
-        self.num_test = num_test
-        self.anchors = anchors
+        super(TimePDE, self).__init__(
+            geomtime,
+            num_outputs,
+            pde,
+            ic_bcs,
+            num_domain,
+            num_boundary,
+            anchors=anchors,
+            func=func,
+            num_test=num_test,
+        )
+        self.num_initial = num_initial
 
-        self.train_x, self.train_y = None, None
-        self.test_x, self.test_y = None, None
-
-    def losses(self, y_true, y_pred, loss, model):
-        n = self.nbc * self.nt + self.nic
+    def train_points(self):
+        X = self.geom.random_points(self.num_domain)
+        if self.num_boundary > 0:
+            X = np.vstack((self.geom.random_boundary_points(self.num_boundary), X))
+        if self.num_initial > 0:
+            X = np.vstack((self.geom.random_initial_points(self.num_initial), X))
         if self.anchors is not None:
-            n += len(self.anchors)
-        f = self.pde(model.net.x, y_pred)[n:]
-        return [
-            losses_module.get(loss)(y_true[:n], y_pred[:n]),
-            losses_module.get(loss)(tf.zeros(tf.shape(f)), f),
-        ]
+            X = np.vstack((self.anchors, X))
+        return X
 
-    @run_if_any_none("train_x", "train_y")
-    def train_next_batch(self, batch_size):
-        self.train_x = self.geomtime.random_points(self.num_domain)
-        if self.nbc > 0:
-            self.train_x = np.vstack(
-                (self.geomtime.uniform_boundary_points(self.nbc, self.nt), self.train_x)
-            )
-        if self.nic > 0:
-            self.train_x = np.vstack(
-                (self.geomtime.uniform_initial_points(self.nic), self.train_x)
-            )
-        if self.anchors is not None:
-            self.train_x = np.vstack((self.anchors, self.train_x))
-        self.train_y = self.func(self.train_x)
-        return self.train_x, self.train_y
-
-    @run_if_any_none("test_x", "test_y")
-    def test(self):
-        self.test_x = self.geomtime.random_points(self.num_test)
-        self.test_y = self.func(self.test_x)
-        return self.test_x, self.test_y
+    def test_points(self):
+        return self.geom.random_points(self.num_test)

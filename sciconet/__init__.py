@@ -7,6 +7,7 @@ from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
 from .boundary_conditions import PeriodicBC
 from .boundary_conditions import RobinBC
+from .initial_condition import IC
 from .model import Model
 from .postprocessing import saveplot
 from .utils import apply

@@ -22,7 +22,7 @@ class BC(object):
     def filter(self, X):
         return np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
 
-    def bc_points(self, X):
+    def collocation_points(self, X):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
@@ -87,7 +87,7 @@ class PeriodicBC(BC):
         super(PeriodicBC, self).__init__(geom, on_boundary, component)
         self.component_x = component_x
 
-    def bc_points(self, X):
+    def collocation_points(self, X):
         X1 = self.filter(X)
         X2 = np.array([self.geom.periodic_point(x, self.component_x) for x in X1])
         return np.vstack((X1, X2))

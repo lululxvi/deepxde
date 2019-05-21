@@ -21,18 +21,25 @@ def main():
         )
 
     def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
         return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
     geom = scn.geometry.Interval(-1, 1)
     timedomain = scn.geometry.TimeDomain(0, 1)
-    num_domain, nbc, nic, nt = 40, 2, 8, 10
-    num_test = 10000
+    geomtime = scn.geometry.GeometryXTime(geom, timedomain)
+
+    bc = scn.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+    ic = scn.IC(geomtime, func, lambda _, on_initial: on_initial)
+    num_domain, num_boundary, num_initial = 40, 20, 10
     data = scn.data.TimePDE(
-        geom, timedomain, pde, func, num_domain, nbc, nic, nt, num_test
+        geomtime,
+        1,
+        pde,
+        [bc, ic],
+        num_domain,
+        num_boundary,
+        num_initial,
+        func=func,
+        num_test=10000,
     )
 
     layer_size = [2] + [50] * 3 + [1]
