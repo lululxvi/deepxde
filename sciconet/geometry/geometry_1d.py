@@ -62,16 +62,14 @@ class Interval(Geometry):
     def uniform_boundary_points(self, n):
         if n == 1:
             return np.array([[self.l]]).astype(config.real(np))
-        if n == 2:
-            return np.array(([[self.l], [self.r]])).astype(config.real(np))
-        raise ValueError("Invalid boundary point number %d" % n)
+        xl = np.full((n // 2, 1), self.l).astype(config.real(np))
+        xr = np.full((n - n // 2, 1), self.r).astype(config.real(np))
+        return np.vstack((xl, xr))
 
     def random_boundary_points(self, n, random="pseudo"):
-        if n == 1:
-            return np.array([np.random.choice([self.l, self.r], 1)])
         if n == 2:
-            return np.array(([[self.l], [self.r]]))
-        raise ValueError("Invalid boundary point number %d" % n)
+            return np.array([[self.l], [self.r]])
+        return np.random.choice([self.l, self.r], n)[:, None]
 
     def periodic_point(self, x, component=0):
         if np.isclose(x[0], self.l):
