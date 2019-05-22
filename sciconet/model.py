@@ -86,6 +86,8 @@ class Model(object):
         model_save_path=None,
         print_model=False,
     ):
+        """Trains the model for a fixed number of epochs (iterations on a dataset).
+        """
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
 
@@ -114,9 +116,29 @@ class Model(object):
         if print_model:
             self.print_model()
         if model_save_path is not None:
-            print("Saving model to {}-{} ...".format(model_save_path, self.train_state.step))
-            self.saver.save(self.sess, model_save_path, global_step=self.train_state.step)
+            print(
+                "Saving model to {}-{} ...".format(
+                    model_save_path, self.train_state.step
+                )
+            )
+            self.saver.save(
+                self.sess, model_save_path, global_step=self.train_state.step
+            )
         return self.losshistory, self.train_state
+
+    def evaluate(self, x, y):
+        """Returns the loss values & metrics values for the model in test mode.
+        """
+        raise NotImplementedError(
+            "Model.evaluate to be implemented. Alternatively, use Model.predict."
+        )
+
+    def predict(self, x):
+        """Generates output predictions for the input samples.
+        """
+        return self.sess.run(
+            self.net.outputs, feed_dict=self.get_feed_dict(False, False, 0, x, None)
+        )
 
     def open_tfsession(self):
         tfconfig = tf.ConfigProto()
@@ -234,6 +256,8 @@ class Model(object):
             feed_dict.update(dict(zip(self.net.inputs, inputs)))
         else:
             feed_dict.update({self.net.inputs: inputs})
+        if targets is None:
+            return feed_dict
         if isinstance(self.net.targets, list):
             feed_dict.update(dict(zip(self.net.targets, targets)))
         else:
