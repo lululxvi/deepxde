@@ -27,7 +27,7 @@ class Func(Data):
     def losses(self, y_true, y_pred, loss, model):
         return [losses.get(loss)(y_true, y_pred)]
 
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         if self.online:
             self.train_x = self.geom.random_points(batch_size, "pseudo")
             self.train_y = self.func(self.train_x)

@@ -13,7 +13,7 @@ from ..utils import run_if_any_none
 
 
 class PDE(Data):
-    """PDE solver.
+    """ODE or time-independent PDE solver.
     """
 
     def __init__(
@@ -43,10 +43,10 @@ class PDE(Data):
         self.num_bcs = None
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
+        self.train_next_batch()
+        self.test()
 
     def losses(self, y_true, y_pred, loss_type, model):
-        self.train_next_batch(None)
-        self.test()
         bcs_start = np.cumsum([0] + self.num_bcs)
         loss_f = losses_module.get(loss_type)
 
@@ -69,13 +69,9 @@ class PDE(Data):
         return loss
 
     @run_if_any_none("train_x", "train_y")
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         self.train_x = self.train_points()
-
-        x_bcs = [bc.collocation_points(self.train_x) for bc in self.bcs]
-        self.num_bcs = list(map(len, x_bcs))
-
-        self.train_x = np.vstack(x_bcs + [self.train_x])
+        self.train_x = np.vstack((self.bc_points(), self.train_x))
         self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 
@@ -89,6 +85,15 @@ class PDE(Data):
             self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
 
+    def add_anchors(self, anchors):
+        if self.anchors is None:
+            self.anchors = anchors
+        else:
+            self.anchors = np.vstack((anchors, self.anchors))
+        self.train_x = np.vstack((anchors, self.train_x[sum(self.num_bcs) :]))
+        self.train_x = np.vstack((self.bc_points(), self.train_x))
+        self.train_y = self.func(self.train_x)
+
     def train_points(self):
         X = self.geom.uniform_points(self.num_domain, False)
         if self.num_boundary > 0:
@@ -96,6 +101,11 @@ class PDE(Data):
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
         return X
+
+    def bc_points(self):
+        x_bcs = [bc.collocation_points(self.train_x) for bc in self.bcs]
+        self.num_bcs = list(map(len, x_bcs))
+        return np.vstack(x_bcs)
 
     def test_points(self):
         return self.geom.uniform_points(self.num_test, True)

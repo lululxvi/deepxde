@@ -46,7 +46,7 @@ class OpDataSet(Data):
     def losses(self, y_true, y_pred, loss, model):
         return [losses.get(loss)(y_true, y_pred)]
 
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         return [self.train_x[:, :-1], self.train_x[:, -1:]], self.train_y
 
     def test(self):

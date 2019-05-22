@@ -65,7 +65,7 @@ class MfDataSet(Data):
         loss_hi = losses.get(loss)(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         if self.X_train is not None:
             return self.X_train, [self.y_lo_train, self.y_hi_train]
 

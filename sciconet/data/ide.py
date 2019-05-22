@@ -44,7 +44,7 @@ class IDE(Data):
         ]
 
     @run_if_any_none("train_x", "train_y")
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         self.train_x, self.train_y = self.gen_data(self.num_train)
         return self.train_x, self.train_y
 
@@ -58,7 +58,7 @@ class IDE(Data):
             return self.quad_w * x / 2
 
         if training:
-            self.train_next_batch(None)
+            self.train_next_batch()
             x = self.train_x
         else:
             self.test()

@@ -29,7 +29,7 @@ class FuncConstraint(Data):
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, loss, model):
-        self.train_next_batch(None)
+        self.train_next_batch()
         self.test()
 
         n = 0
@@ -47,7 +47,7 @@ class FuncConstraint(Data):
         ]
 
     @run_if_any_none("train_x", "train_y")
-    def train_next_batch(self, batch_size):
+    def train_next_batch(self, batch_size=None):
         if self.dist_train == "log uniform":
             self.train_x = self.geom.log_uniform_points(self.num_train, False)
         elif self.dist_train == "random":
