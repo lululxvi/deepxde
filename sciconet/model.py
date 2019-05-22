@@ -127,19 +127,24 @@ class Model(object):
             )
         return self.losshistory, self.train_state
 
-    def evaluate(self, x, y):
+    def evaluate(self, x, y, callbacks=None):
         """Returns the loss values & metrics values for the model in test mode.
         """
         raise NotImplementedError(
             "Model.evaluate to be implemented. Alternatively, use Model.predict."
         )
 
-    def predict(self, x):
+    def predict(self, x, callbacks=None):
         """Generates output predictions for the input samples.
         """
-        return self.sess.run(
-            self.net.outputs, feed_dict=self._get_feed_dict(False, False, 0, x, None)
+        self.callbacks = CallbackList(callbacks=callbacks)
+        self.callbacks.set_model(self)
+        self.callbacks.on_predict_begin()
+        y = self.sess.run(
+            self.net.outputs, feed_dict=self._get_feed_dict(False, False, 2, x, None)
         )
+        self.callbacks.on_predict_end()
+        return y
 
     def _open_tfsession(self):
         tfconfig = tf.ConfigProto()
