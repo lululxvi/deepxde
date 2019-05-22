@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from . import callbacks
 from . import data
 from . import geometry
 from . import maps
