@@ -31,12 +31,10 @@ def main():
 
     model = scn.Model(data, net)
 
-    optimizer = "adam"
-    lr = 0.001
-    model.compile(optimizer, lr, metrics=["l2 relative error"])
-
-    epochs = 10000
-    losshistory, train_state = model.train(epochs)
+    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+    losshistory, train_state = model.train(
+        epochs=10000, model_save_path="./model/model.ckpt"
+    )
 
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 

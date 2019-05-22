@@ -32,6 +32,7 @@ class Model(object):
         self.metrics = None
 
         self.sess = None
+        self.saver = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.callbacks = None
@@ -81,6 +82,8 @@ class Model(object):
         validation_every=1000,
         uncertainty=False,
         callbacks=None,
+        model_restore_path=None,
+        model_save_path=None,
         print_model=False,
     ):
         self.batch_size = batch_size
@@ -91,8 +94,9 @@ class Model(object):
             self.sess.run(tf.global_variables_initializer())
         else:
             guarantee_initialized_variables(self.sess)
-        if print_model:
-            self.print_model()
+        if model_restore_path is not None:
+            print("Restoring model from {} ...".format(model_restore_path))
+            self.saver.restore(self.sess, model_restore_path)
 
         print("Training model...")
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
@@ -109,12 +113,16 @@ class Model(object):
 
         if print_model:
             self.print_model()
+        if model_save_path is not None:
+            print("Saving model to {}-{} ...".format(model_save_path, self.train_state.step))
+            self.saver.save(self.sess, model_save_path, global_step=self.train_state.step)
         return self.losshistory, self.train_state
 
     def open_tfsession(self):
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
+        self.saver = tf.train.Saver()
         self.train_state.update_tfsession(self.sess)
 
     def close_tfsession(self):
