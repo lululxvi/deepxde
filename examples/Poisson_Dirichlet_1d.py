@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
@@ -37,6 +38,16 @@ def main():
     )
 
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
+
+    # Plot PDE residue
+    x = geom.uniform_points(1000, True)
+    f = scn.callbacks.OperatorPredictor(x, pde)
+    model.predict(x, callbacks=[f])
+    plt.figure()
+    plt.plot(x, f.get_value())
+    plt.xlabel("x")
+    plt.ylabel("PDE residue")
+    plt.show()
 
 
 if __name__ == "__main__":
