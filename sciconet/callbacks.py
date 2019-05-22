@@ -4,64 +4,92 @@ from __future__ import print_function
 
 
 class Callback(object):
-    """ Callback base class. """
+    """Callback base class.
+
+    Properties:
+        model: instance of `Model`.
+            Reference of the model being trained.
+    """
 
     def __init__(self):
-        pass
+        self.model = None
 
-    def on_epoch_begin(self, training_state):
+    def set_model(self, model):
+        self.model = model
+
+    def on_epoch_begin(self):
         """Called at the beginning of every epoch."""
-        pass
 
-    def on_epoch_end(self, training_state):
+    def on_epoch_end(self):
         """Called at the end of every epoch."""
-        pass
 
-    def on_batch_begin(self, training_state):
+    def on_batch_begin(self):
         """Called at the beginning of every batch."""
-        pass
 
-    def on_batch_end(self, training_state):
+    def on_batch_end(self):
         """Called at the end of every batch."""
-        pass
 
-    def on_train_begin(self, training_state):
+    def on_train_begin(self):
         """Called at the beginning of model training."""
-        pass
 
-    def on_train_end(self, training_state):
+    def on_train_end(self):
         """Called at the end of model training."""
-        pass
+
+    def on_predict_begin(self):
+        """Called at the beginning of prediction."""
+
+    def on_predict_end(self):
+        """Called at the end of prediction."""
 
 
 class CallbackList(Callback):
+    """Container abstracting a list of callbacks.
+    
+    Args:
+        callbacks: List of `Callback` instances.
+    """
+
     def __init__(self, callbacks=None):
         callbacks = callbacks or []
         self.callbacks = [c for c in callbacks]
+        self.model = None
 
-    def on_epoch_begin(self, training_state):
+    def set_model(self, model):
+        self.model = model
         for callback in self.callbacks:
-            callback.on_epoch_begin(training_state)
+            callback.set_model(model)
 
-    def on_epoch_end(self, training_state):
+    def on_epoch_begin(self):
         for callback in self.callbacks:
-            callback.on_epoch_end(training_state)
+            callback.on_epoch_begin()
 
-    def on_batch_begin(self, training_state):
+    def on_epoch_end(self):
         for callback in self.callbacks:
-            callback.on_batch_begin(training_state)
+            callback.on_epoch_end()
 
-    def on_batch_end(self, training_state):
+    def on_batch_begin(self):
         for callback in self.callbacks:
-            callback.on_batch_end(training_state)
+            callback.on_batch_begin()
 
-    def on_train_begin(self, training_state):
+    def on_batch_end(self):
         for callback in self.callbacks:
-            callback.on_train_begin(training_state)
+            callback.on_batch_end()
 
-    def on_train_end(self, training_state):
+    def on_train_begin(self):
         for callback in self.callbacks:
-            callback.on_train_end(training_state)
+            callback.on_train_begin()
+
+    def on_train_end(self):
+        for callback in self.callbacks:
+            callback.on_train_end()
+
+    def on_predict_begin(self):
+        for callback in self.callbacks:
+            callback.on_predict_begin()
+
+    def on_predict_end(self):
+        for callback in self.callbacks:
+            callback.on_predict_end()
 
     def append(self, callback):
         if not isinstance(callback, Callback):

@@ -37,10 +37,10 @@ class Model(object):
         self.losshistory = LossHistory()
         self.callbacks = None
 
-        self.open_tfsession()
+        self._open_tfsession()
 
     def close(self):
-        self.close_tfsession()
+        self._close_tfsession()
 
     @timing
     def compile(
@@ -90,6 +90,7 @@ class Model(object):
         """
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
+        self.callbacks.set_model(self)
 
         if self.train_state.step == 0:
             print("Initializing variables...")
@@ -103,18 +104,18 @@ class Model(object):
         print("Training model...")
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.update_data_test(*self.data.test())
-        self.test(uncertainty)
-        self.callbacks.on_train_begin(self.train_state)
+        self._test(uncertainty)
+        self.callbacks.on_train_begin()
         if train_module.is_scipy_opts(self.optimizer):
-            self.train_scipy(uncertainty)
+            self._train_scipy(uncertainty)
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.optimizer))
-            self.train_sgd(epochs, validation_every, uncertainty)
-        self.callbacks.on_train_end(self.train_state)
+            self._train_sgd(epochs, validation_every, uncertainty)
+        self.callbacks.on_train_end()
 
         if print_model:
-            self.print_model()
+            self._print_model()
         if model_save_path is not None:
             print(
                 "Saving model to {}-{} ...".format(
@@ -137,30 +138,30 @@ class Model(object):
         """Generates output predictions for the input samples.
         """
         return self.sess.run(
-            self.net.outputs, feed_dict=self.get_feed_dict(False, False, 0, x, None)
+            self.net.outputs, feed_dict=self._get_feed_dict(False, False, 0, x, None)
         )
 
-    def open_tfsession(self):
+    def _open_tfsession(self):
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
         self.saver = tf.train.Saver()
         self.train_state.update_tfsession(self.sess)
 
-    def close_tfsession(self):
+    def _close_tfsession(self):
         self.sess.close()
 
-    def train_sgd(self, epochs, validation_every, uncertainty):
+    def _train_sgd(self, epochs, validation_every, uncertainty):
         for i in range(epochs):
-            self.callbacks.on_epoch_begin(self.train_state)
-            self.callbacks.on_batch_begin(self.train_state)
+            self.callbacks.on_epoch_begin()
+            self.callbacks.on_batch_begin()
 
             self.train_state.update_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
             self.sess.run(
                 self.train_op,
-                feed_dict=self.get_feed_dict(
+                feed_dict=self._get_feed_dict(
                     True, True, 0, self.train_state.X_train, self.train_state.y_train
                 ),
             )
@@ -168,27 +169,27 @@ class Model(object):
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % validation_every == 0 or i + 1 == epochs:
-                self.test(uncertainty)
+                self._test(uncertainty)
 
-            self.callbacks.on_batch_end(self.train_state)
-            self.callbacks.on_epoch_end(self.train_state)
+            self.callbacks.on_batch_end()
+            self.callbacks.on_epoch_end()
 
-    def train_scipy(self, uncertainty):
+    def _train_scipy(self, uncertainty):
         self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
-            feed_dict=self.get_feed_dict(
+            feed_dict=self._get_feed_dict(
                 True, True, 0, self.train_state.X_train, self.train_state.y_train
             ),
         )
         self.train_state.epoch += 1
         self.train_state.step += 1
-        self.test(uncertainty)
+        self._test(uncertainty)
 
-    def test(self, uncertainty):
+    def _test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.outputs],
-            feed_dict=self.get_feed_dict(
+            feed_dict=self._get_feed_dict(
                 False, False, 0, self.train_state.X_train, self.train_state.y_train
             ),
         )
@@ -199,7 +200,7 @@ class Model(object):
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.outputs],
-                    feed_dict=self.get_feed_dict(
+                    feed_dict=self._get_feed_dict(
                         False, True, 1, self.train_state.X_test, self.train_state.y_test
                     ),
                 )
@@ -211,7 +212,7 @@ class Model(object):
         else:
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.outputs],
-                feed_dict=self.get_feed_dict(
+                feed_dict=self._get_feed_dict(
                     False, False, 1, self.train_state.X_test, self.train_state.y_test
                 ),
             )
@@ -246,7 +247,7 @@ class Model(object):
         )
         sys.stdout.flush()
 
-    def get_feed_dict(self, training, dropout, data_id, inputs, targets):
+    def _get_feed_dict(self, training, dropout, data_id, inputs, targets):
         feed_dict = {
             self.net.training: training,
             self.net.dropout: dropout,
@@ -264,7 +265,7 @@ class Model(object):
             feed_dict.update({self.net.targets: targets})
         return feed_dict
 
-    def print_model(self):
+    def _print_model(self):
         variables_names = [v.name for v in tf.trainable_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
