@@ -133,6 +133,7 @@ class TimePDE(PDE):
         func=None,
         num_test=None,
     ):
+        self.num_initial = num_initial
         super(TimePDE, self).__init__(
             geomtime,
             num_outputs,
@@ -144,7 +145,6 @@ class TimePDE(PDE):
             func=func,
             num_test=num_test,
         )
-        self.num_initial = num_initial
 
     def train_points(self):
         X = self.geom.random_points(self.num_domain)
@@ -157,4 +157,4 @@ class TimePDE(PDE):
         return X
 
     def test_points(self):
-        return self.geom.random_points(self.num_test)
+        return self.geom.uniform_points(self.num_test)
