@@ -38,7 +38,7 @@ class Geometry(object):
         )
 
     @abc.abstractmethod
-    def uniform_points(self, n, boundary):
+    def uniform_points(self, n, boundary=True):
         raise NotImplementedError(
             "{}.uniform_points to be implemented".format(self.idstr)
         )

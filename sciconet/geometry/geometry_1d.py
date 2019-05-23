@@ -33,14 +33,14 @@ class Interval(Geometry):
             return np.array([1])
         return np.array([0])
 
-    def uniform_points(self, n, boundary):
+    def uniform_points(self, n, boundary=True):
         if boundary:
             return np.linspace(self.l, self.r, num=n, dtype=config.real(np))[:, None]
         return np.linspace(
             self.l, self.r, num=n + 1, endpoint=False, dtype=config.real(np)
         )[1:, None]
 
-    def log_uniform_points(self, n, boundary):
+    def log_uniform_points(self, n, boundary=True):
         eps = 0 if self.l > 0 else np.finfo(config.real(np)).eps
         l = np.log(self.l + eps)
         r = np.log(self.r + eps)

@@ -24,7 +24,7 @@ class Hypercube(Geometry):
             len(xmin), np.linalg.norm(self.xmax - self.xmin)
         )
 
-    def uniform_points(self, n, boundary):
+    def uniform_points(self, n, boundary=True):
         n1 = int(np.ceil(n ** (1 / self.dim)))
         xi = []
         for i in range(self.dim):
