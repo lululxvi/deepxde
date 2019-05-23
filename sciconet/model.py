@@ -95,7 +95,6 @@ class Model(object):
         self.callbacks.set_model(self)
         if disregard_previous_best:
             self.train_state.disregard_best()
-        display.training_display.clear()
 
         if self.train_state.step == 0:
             print("\nInitializing variables...")
@@ -119,6 +118,7 @@ class Model(object):
             self._train_sgd(epochs, validation_every, uncertainty)
         self.callbacks.on_train_end()
 
+        display.training_display.summary(self.train_state)
         if print_model:
             self._print_model()
         if model_save_path is not None:

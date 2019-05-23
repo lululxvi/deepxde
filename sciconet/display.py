@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import sys
 
+import numpy as np
+
 
 class TrainingDisplay:
     """Display training progress."""
@@ -12,9 +14,6 @@ class TrainingDisplay:
         self.len_train = None
         self.len_test = None
         self.len_metric = None
-        self.is_header_print = False
-
-    def clear(self):
         self.is_header_print = False
 
     def print_one(self, s1, s2, s3, s4):
@@ -49,19 +48,27 @@ class TrainingDisplay:
             list_to_str(train_state.metrics_test),
         )
 
+    def summary(self, train_state):
+        print("\nBest model at step {:d}:".format(train_state.best_step))
+        print("  train loss: {:.2e}".format(train_state.best_loss_train))
+        print("  test loss: {:.2e}".format(train_state.best_loss_test))
+        print("  test metric: {:s}".format(list_to_str(train_state.best_metrics)))
+        if train_state.best_ystd is not None:
+            print("  Uncertainty:")
+            print("    l2: {:g}".format(np.linalg.norm(train_state.best_ystd)))
+            print(
+                "    l_infinity: {:g}".format(
+                    np.linalg.norm(train_state.best_ystd, ord=np.inf)
+                )
+            )
+            print(
+                "    max uncertainty location:",
+                train_state.X_test[np.argmax(train_state.best_ystd)],
+            )
+        self.is_header_print = False
+
 
 training_display = TrainingDisplay()
-
-
-def display_best(train_state):
-    print(
-        "\nBest model at step {:d} with train loss {:.2e}, test loss {:.2e}, test metric {:s}".format(
-            train_state.best_step,
-            train_state.best_loss_train,
-            train_state.best_loss_test,
-            list_to_str(train_state.best_metrics),
-        )
-    )
 
 
 def list_to_str(nums):

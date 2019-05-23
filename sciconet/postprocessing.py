@@ -5,21 +5,8 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 
-from . import display
-
 
 def saveplot(losshistory, train_state, issave=True, isplot=True):
-    display.display_best(train_state)
-
-    if train_state.best_ystd is not None:
-        print("Uncertainty:")
-        print("  l2:", np.linalg.norm(train_state.best_ystd))
-        print("  l_infinity:", np.linalg.norm(train_state.best_ystd, ord=np.inf))
-        print(
-            "  max uncertainty location:",
-            train_state.X_test[np.argmax(train_state.best_ystd)],
-        )
-
     if isplot:
         plot_loss_history(losshistory)
         plot_best_state(train_state)
