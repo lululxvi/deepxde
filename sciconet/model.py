@@ -81,6 +81,7 @@ class Model(object):
         batch_size=None,
         validation_every=1000,
         uncertainty=False,
+        disregard_previous_best=False,
         callbacks=None,
         model_restore_path=None,
         model_save_path=None,
@@ -91,6 +92,8 @@ class Model(object):
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
+        if disregard_previous_best:
+            self.train_state.disregard_best()
 
         if self.train_state.step == 0:
             print("Initializing variables...")
@@ -102,8 +105,8 @@ class Model(object):
             self.saver.restore(self.sess, model_restore_path)
 
         print("Training model...")
-        self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
-        self.train_state.update_data_test(*self.data.test())
+        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
+        self.train_state.set_data_test(*self.data.test())
         self._test(uncertainty)
         self.callbacks.on_train_begin()
         if train_module.is_scipy_opts(self.optimizer):
@@ -151,7 +154,7 @@ class Model(object):
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
         self.saver = tf.train.Saver()
-        self.train_state.update_tfsession(self.sess)
+        self.train_state.set_tfsession(self.sess)
 
     def _close_tfsession(self):
         self.sess.close()
@@ -161,7 +164,7 @@ class Model(object):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
-            self.train_state.update_data_train(
+            self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
             self.sess.run(
@@ -180,7 +183,7 @@ class Model(object):
             self.callbacks.on_epoch_end()
 
     def _train_scipy(self, uncertainty):
-        self.train_state.update_data_train(*self.data.train_next_batch(self.batch_size))
+        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
             feed_dict=self._get_feed_dict(
@@ -235,7 +238,7 @@ class Model(object):
             ]
 
         self.train_state.update_best()
-        self.losshistory.add(
+        self.losshistory.append(
             self.train_state.step,
             self.train_state.loss_train,
             self.train_state.loss_test,
@@ -300,13 +303,13 @@ class TrainState(object):
         self.best_y, self.best_ystd = None, None
         self.best_metrics = None
 
-    def update_tfsession(self, sess):
+    def set_tfsession(self, sess):
         self.sess = sess
 
-    def update_data_train(self, X_train, y_train):
+    def set_data_train(self, X_train, y_train):
         self.X_train, self.y_train = X_train, y_train
 
-    def update_data_test(self, X_test, y_test):
+    def set_data_test(self, X_test, y_test):
         self.X_test, self.y_test = X_test, y_test
 
     def update_best(self):
@@ -316,6 +319,9 @@ class TrainState(object):
             self.best_loss_test = np.sum(self.loss_test)
             self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
             self.best_metrics = self.metrics_test
+
+    def disregard_best(self):
+        self.best_loss_train = np.inf
 
     def packed_data(self):
         def merge_values(values):
@@ -338,10 +344,10 @@ class LossHistory(object):
         self.metrics_test = []
         self.loss_weights = 1
 
-    def update_loss_weights(self, loss_weights):
+    def set_loss_weights(self, loss_weights):
         self.loss_weights = loss_weights
 
-    def add(self, step, loss_train, loss_test, metrics_test):
+    def append(self, step, loss_train, loss_test, metrics_test):
         self.steps.append(step)
         self.loss_train.append(loss_train)
         self.loss_test.append(loss_test)
