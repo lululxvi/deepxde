@@ -120,14 +120,7 @@ class Model(object):
         if print_model:
             self._print_model()
         if model_save_path is not None:
-            print(
-                "Saving model to {}-{} ...".format(
-                    model_save_path, self.train_state.step
-                )
-            )
-            self.saver.save(
-                self.sess, model_save_path, global_step=self.train_state.step
-            )
+            self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
     def evaluate(self, x, y, callbacks=None):
@@ -153,7 +146,7 @@ class Model(object):
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
-        self.saver = tf.train.Saver()
+        self.saver = tf.train.Saver(max_to_keep=None)
         self.train_state.set_tfsession(self.sess)
 
     def _close_tfsession(self):
@@ -279,6 +272,15 @@ class Model(object):
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
+
+    def save(self, save_path, verbose=0):
+        if verbose > 0:
+            print(
+                "Epoch {}: saving model to {}-{} ...".format(
+                    self.train_state.epoch, save_path, self.train_state.epoch
+                )
+            )
+        self.saver.save(self.sess, save_path, global_step=self.train_state.epoch)
 
 
 class TrainState(object):

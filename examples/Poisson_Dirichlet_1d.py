@@ -31,11 +31,12 @@ def main():
     net = scn.maps.FNN(layer_size, activation, initializer)
 
     model = scn.Model(data, net)
-
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(
-        epochs=10000, model_save_path="./model/model.ckpt"
+
+    checkpointer = scn.callbacks.ModelCheckpoint(
+        "./model/model.ckpt", verbose=1, save_better_only=True
     )
+    losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer])
 
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 

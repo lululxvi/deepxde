@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 
 
@@ -102,6 +103,54 @@ class CallbackList(Callback):
         if not isinstance(callback, Callback):
             raise Exception(str(callback) + " is an invalid Callback object")
         self.callbacks.append(callback)
+
+
+class ModelCheckpoint(Callback):
+    """Save the model after every epoch.
+
+    Args:
+        filepath: string, path to save the model file.
+        verbose: verbosity mode, 0 or 1.
+        save_better_only: if `save_better_only=True`,
+            only save a better model according to the quantity monitored.
+            Model is only checked at validation step according to validation_every.
+        period: Interval (number of epochs) between checkpoints.
+    """
+
+    def __init__(self, filepath, verbose=0, save_better_only=False, period=1):
+        super(ModelCheckpoint, self).__init__()
+        self.filepath = filepath
+        self.verbose = verbose
+        self.save_better_only = save_better_only
+        self.period = period
+
+        self.monitor = "train loss"
+        self.monitor_op = np.less
+        self.epochs_since_last_save = 0
+        self.best = np.Inf
+
+    def on_epoch_end(self):
+        self.epochs_since_last_save += 1
+        if self.epochs_since_last_save < self.period:
+            return
+        self.epochs_since_last_save = 0
+        if self.save_better_only:
+            current = self.model.train_state.best_loss_train
+            if self.monitor_op(current, self.best):
+                if self.verbose > 0:
+                    print(
+                        "Epoch {epoch}: {} improved from {} to {}, saving model to {}-{epoch} ...".format(
+                            self.monitor,
+                            self.best,
+                            current,
+                            self.filepath,
+                            epoch=self.model.train_state.epoch,
+                        )
+                    )
+                self.best = current
+                self.model.save(self.filepath, verbose=0)
+        else:
+            self.model.save(self.filepath, verbose=self.verbose)
 
 
 class OperatorPredictor(Callback):
