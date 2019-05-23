@@ -139,7 +139,7 @@ class ModelCheckpoint(Callback):
             if self.monitor_op(current, self.best):
                 if self.verbose > 0:
                     print(
-                        "Epoch {epoch}: {} improved from {} to {}, saving model to {}-{epoch} ...".format(
+                        "\nEpoch {epoch}: {} improved from {:.2e} to {:.2e}, saving model to {}-{epoch} ...".format(
                             self.monitor,
                             self.best,
                             current,

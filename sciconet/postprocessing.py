@@ -5,17 +5,11 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 
+from . import display
+
 
 def saveplot(losshistory, train_state, issave=True, isplot=True):
-    print(
-        "Best training in step %d: loss: %s, val_loss: %s, val_metric: %s"
-        % (
-            train_state.best_step,
-            train_state.best_loss_train,
-            train_state.best_loss_test,
-            train_state.best_metrics,
-        )
-    )
+    display.display_best(train_state)
 
     if train_state.best_ystd is not None:
         print("Uncertainty:")

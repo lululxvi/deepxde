@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from . import config
+from . import display
 from . import metrics as metrics_module
 from . import train as train_module
 from .callbacks import CallbackList
@@ -54,7 +55,7 @@ class Model(object):
     ):
         """Configures the model for training.
         """
-        print("Compiling model...")
+        print("\nCompiling model...")
 
         self.optimizer = optimizer
 
@@ -94,17 +95,18 @@ class Model(object):
         self.callbacks.set_model(self)
         if disregard_previous_best:
             self.train_state.disregard_best()
+        display.training_display.clear()
 
         if self.train_state.step == 0:
-            print("Initializing variables...")
+            print("\nInitializing variables...")
             self.sess.run(tf.global_variables_initializer())
         else:
             guarantee_initialized_variables(self.sess)
         if model_restore_path is not None:
-            print("Restoring model from {} ...".format(model_restore_path))
+            print("\nRestoring model from {} ...".format(model_restore_path))
             self.saver.restore(self.sess, model_restore_path)
 
-        print("Training model...")
+        print("\nTraining model...")
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
         self._test(uncertainty)
@@ -237,16 +239,7 @@ class Model(object):
             self.train_state.loss_test,
             self.train_state.metrics_test,
         )
-        print(
-            "Step: %d, loss: %s, val_loss: %s, val_metric: %s"
-            % (
-                self.train_state.step,
-                self.train_state.loss_train,
-                self.train_state.loss_test,
-                self.train_state.metrics_test,
-            )
-        )
-        sys.stdout.flush()
+        display.training_display(self.train_state)
 
     def _get_feed_dict(self, training, dropout, data_id, inputs, targets):
         feed_dict = {
