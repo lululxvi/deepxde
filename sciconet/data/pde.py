@@ -147,11 +147,11 @@ class TimePDE(PDE):
         )
 
     def train_points(self):
-        X = self.geom.random_points(self.num_domain)
+        X = self.geom.uniform_points(self.num_domain, boundary=False)
         if self.num_boundary > 0:
-            X = np.vstack((self.geom.random_boundary_points(self.num_boundary), X))
+            X = np.vstack((self.geom.uniform_boundary_points(self.num_boundary), X))
         if self.num_initial > 0:
-            X = np.vstack((self.geom.random_initial_points(self.num_initial), X))
+            X = np.vstack((self.geom.uniform_initial_points(self.num_initial), X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
         return X

@@ -7,6 +7,7 @@ import itertools
 import numpy as np
 
 from .geometry_1d import Interval
+from .. import config
 
 
 class TimeDomain(Interval):
@@ -50,7 +51,16 @@ class GeometryXTime(object):
         )
         nt = int(np.ceil(n / nx))
         x = self.geometry.uniform_points(nx, boundary=boundary)
-        t = self.timedomain.uniform_points(nt, boundary=boundary)
+        if boundary:
+            t = self.timedomain.uniform_points(nt, boundary=True)
+        else:
+            t = np.linspace(
+                self.timedomain.t1,
+                self.timedomain.t0,
+                num=nt,
+                endpoint=False,
+                dtype=config.real(np),
+            )[:, None]
         xt = []
         for ti in t:
             xt.append(np.hstack((x, np.full([nx, 1], ti[0]))))
@@ -63,20 +73,49 @@ class GeometryXTime(object):
 
     def random_points(self, n, random="pseudo"):
         x = self.geometry.random_points(n, random=random)
-        t = self.timedomain.random_points(n, random=random)
+        t = self.timedomain.random_points(n, random="pseudo")
         return np.hstack((x, t))
 
-    # def uniform_boundary_points(self, nx, nt):
-    #     x = self.geometry.uniform_boundary_points(nx)
-    #     t = self.timedomain.uniform_points(nt, True)
-    #     xt = []
-    #     for ti in t:
-    #         xt.append(np.hstack((x, np.full([nx, 1], ti[0]))))
-    #     return np.vstack(xt)
+    def uniform_boundary_points(self, n):
+        """Uniform boundary points on the spatio-temporal domain.
+
+        Geometry surface area ~ bbox
+        Time surface area ~ diam
+        """
+        if self.geometry.dim == 1:
+            nx = 2
+        else:
+            s = 2 * sum(
+                map(
+                    lambda l: l[0] * l[1],
+                    itertools.combinations(
+                        self.geometry.bbox[1] - self.geometry.bbox[0], 2
+                    ),
+                )
+            )
+            nx = int((n * s / self.timedomain.diam) ** 0.5)
+        nt = int(np.ceil(n / nx))
+        x = self.geometry.uniform_boundary_points(nx)
+        t = np.linspace(
+            self.timedomain.t1,
+            self.timedomain.t0,
+            num=nt,
+            endpoint=False,
+            dtype=config.real(np),
+        )
+        xt = []
+        for ti in t:
+            xt.append(np.hstack((x, np.full([nx, 1], ti))))
+        xt = np.vstack(xt)
+        if n != len(xt):
+            print(
+                "Warning: {} points required, but {} points sampled.".format(n, len(xt))
+            )
+        return xt
 
     def random_boundary_points(self, n, random="pseudo"):
         x = self.geometry.random_boundary_points(n, random=random)
-        t = self.timedomain.random_points(n, random=random)
+        t = self.timedomain.random_points(n, random="pseudo")
         return np.hstack((x, t))
 
     def uniform_initial_points(self, n):
