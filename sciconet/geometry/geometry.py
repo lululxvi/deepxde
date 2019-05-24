@@ -81,10 +81,26 @@ class Geometry(object):
             "{}.background_points to be implemented".format(self.idstr)
         )
 
-    def __add__(self, other):
+    def union(self, other):
         """CSG Union."""
         return csg.CSGUnion(self, other)
+
+    def __or__(self, other):
+        """CSG Union."""
+        return csg.CSGUnion(self, other)
+
+    def difference(self, other):
+        """CSG Difference."""
+        return csg.CSGDifference(self, other)
 
     def __sub__(self, other):
         """CSG Difference."""
         return csg.CSGDifference(self, other)
+
+    def intersection(self, other):
+        """CSG Intersection."""
+        return csg.CSGIntersection(self, other)
+
+    def __and__(self, other):
+        """CSG Intersection."""
+        return csg.CSGIntersection(self, other)
