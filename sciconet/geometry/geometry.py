@@ -8,8 +8,9 @@ from . import csg
 
 
 class Geometry(object):
-    def __init__(self, dim, diam):
+    def __init__(self, dim, bbox, diam):
         self.dim = dim
+        self.bbox = bbox
         self.diam = diam
         self.idstr = type(self).__name__
 

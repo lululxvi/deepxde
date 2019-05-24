@@ -17,7 +17,14 @@ class CSGUnion(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGUnion, self).__init__(geom1.dim, geom1.diam + geom2.diam)
+        super(CSGUnion, self).__init__(
+            geom1.dim,
+            (
+                np.minimum(geom1.bbox[0], geom2.bbox[0]),
+                np.maximum(geom1.bbox[1], geom2.bbox[1]),
+            ),
+            geom1.diam + geom2.diam,
+        )
         self.geom1 = geom1
         self.geom2 = geom2
 
@@ -37,22 +44,14 @@ class CSGUnion(geometry.Geometry):
         return np.zeros(self.dim)
 
     def random_points(self, n, random="pseudo"):
-        # TODO: Use bounding box to ensure uniform random
-        x = np.array(
-            [
-                x
-                for x in self.geom1.random_points(n, random=random)
-                if not self.geom2.inside(x)
-            ]
-        )
-        x = np.vstack((x, self.geom2.random_points(n, random=random)))
-        if n != len(x):
-            print(
-                "Warning: {} points required, but {} points sampled. Uniform random is not guaranteed.".format(
-                    n, len(x)
-                )
+        x = []
+        while len(x) < n:
+            tmp = (
+                np.random.rand(n, self.dim) * (self.bbox[1] - self.bbox[0])
+                + self.bbox[0]
             )
-        return x
+            x += filter(self.inside, tmp)
+        return np.array(x[:n])
 
     def random_boundary_points(self, n, random="pseudo"):
         x = [
@@ -95,7 +94,7 @@ class CSGDifference(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGDifference, self).__init__(geom1.dim, geom1.diam)
+        super(CSGDifference, self).__init__(geom1.dim, geom1.bbox, geom1.diam)
         self.geom1 = geom1
         self.geom2 = geom2
 
@@ -161,7 +160,14 @@ class CSGIntersection(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGIntersection, self).__init__(geom1.dim, min(geom1.diam, geom2.diam))
+        super(CSGIntersection, self).__init__(
+            geom1.dim,
+            (
+                np.maximum(geom1.bbox[0], geom2.bbox[0]),
+                np.minimum(geom1.bbox[1], geom2.bbox[1]),
+            ),
+            min(geom1.diam, geom2.diam),
+        )
         self.geom1 = geom1
         self.geom2 = geom2
 

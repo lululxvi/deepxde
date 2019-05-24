@@ -12,8 +12,10 @@ from .geometry_nd import Hypercube
 
 class Disk(Geometry):
     def __init__(self, center, radius):
-        super(Disk, self).__init__(2, 2 * radius)
         self.center, self.radius = np.array(center), radius
+        super(Disk, self).__init__(
+            2, (self.center - radius, self.center + radius), 2 * radius
+        )
 
         self._r2 = radius ** 2
 
@@ -179,6 +181,7 @@ class Triangle(Geometry):
         self.perimeter = self.l12 + self.l23 + self.l31
         super(Triangle, self).__init__(
             2,
+            (np.minimum(x1, np.minimum(x2, x3)), np.maximum(x1, np.maximum(x2, x3))),
             self.l12
             * self.l23
             * self.l31
@@ -275,7 +278,11 @@ class Polygon(Geometry):
         self.diagonals = spatial.distance.squareform(
             spatial.distance.pdist(self.vertices)
         )
-        super(Polygon, self).__init__(2, np.max(self.diagonals))
+        super(Polygon, self).__init__(
+            2,
+            (np.amin(self.vertices, axis=0), np.amax(self.vertices, axis=0)),
+            np.max(self.diagonals),
+        )
         self.nvertices = len(self.vertices)
         self.perimeter = np.sum(
             [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
