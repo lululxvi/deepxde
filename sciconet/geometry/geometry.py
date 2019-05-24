@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import abc
 
+import numpy as np
+
 from . import csg
 
 
@@ -11,7 +13,7 @@ class Geometry(object):
     def __init__(self, dim, bbox, diam):
         self.dim = dim
         self.bbox = bbox
-        self.diam = diam
+        self.diam = min(diam, np.linalg.norm(bbox[1] - bbox[0]))
         self.idstr = type(self).__name__
 
     @abc.abstractmethod

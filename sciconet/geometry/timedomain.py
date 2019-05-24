@@ -37,11 +37,16 @@ class GeometryXTime(object):
     def uniform_points(self, n, boundary=True):
         """Uniform points on the spatio-temporal domain.
 
-        Geometry volume ~ diam ^ dim
+        Geometry volume ~ bbox
         Time volume ~ diam
         """
         nx = int(
-            (n * self.geometry.diam ** self.geometry.dim / self.timedomain.diam) ** 0.5
+            (
+                n
+                * np.prod(self.geometry.bbox[1] - self.geometry.bbox[0])
+                / self.timedomain.diam
+            )
+            ** 0.5
         )
         nt = int(np.ceil(n / nx))
         x = self.geometry.uniform_points(nx, boundary=boundary)
