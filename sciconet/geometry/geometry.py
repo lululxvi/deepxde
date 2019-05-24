@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import abc
 
+from . import csg
+
 
 class Geometry(object):
     def __init__(self, dim, diam):
@@ -12,8 +14,8 @@ class Geometry(object):
         self.idstr = type(self).__name__
 
     @abc.abstractmethod
-    def in_domain(self, x):
-        raise NotImplementedError("{}.in_domain to be implemented".format(self.idstr))
+    def inside(self, x):
+        raise NotImplementedError("{}.inside to be implemented".format(self.idstr))
 
     @abc.abstractmethod
     def on_boundary(self, x):
@@ -39,9 +41,12 @@ class Geometry(object):
 
     @abc.abstractmethod
     def uniform_points(self, n, boundary=True):
-        raise NotImplementedError(
-            "{}.uniform_points to be implemented".format(self.idstr)
+        print(
+            "Warning: {}.uniform_points not implemented. Use random_points instead.".format(
+                self.idstr
+            )
         )
+        return self.random_points(n)
 
     @abc.abstractmethod
     def random_points(self, n, random="pseudo"):
@@ -51,9 +56,12 @@ class Geometry(object):
 
     @abc.abstractmethod
     def uniform_boundary_points(self, n):
-        raise NotImplementedError(
-            "{}.uniform_boundary_points to be implemented".format(self.idstr)
+        print(
+            "Warning: {}.uniform_boundary_points not implemented. Use random_boundary_points instead.".format(
+                self.idstr
+            )
         )
+        return self.random_boundary_points(n)
 
     @abc.abstractmethod
     def random_boundary_points(self, n, random="pseudo"):
@@ -72,3 +80,7 @@ class Geometry(object):
         raise NotImplementedError(
             "{}.background_points to be implemented".format(self.idstr)
         )
+
+    def __sub__(self, other):
+        """CSG Difference."""
+        return csg.CSGDifference(self, other)

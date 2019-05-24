@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from .csg import CSGDifference
 from .geometry_1d import Interval
 from .geometry_2d import Disk
 from .geometry_2d import Polygon
