@@ -66,6 +66,9 @@ class Disk(Geometry):
         X = np.hstack((np.cos(theta), np.sin(theta)))
         return self.radius * X + self.center
 
+    def periodic_point(self, x, component):
+        return x
+
     def background_points(self, x, dirn, dist2npt, shift):
         dirn = dirn / np.linalg.norm(dirn)
         dx = self.distance2boundary_unitdirn(x, -dirn)
