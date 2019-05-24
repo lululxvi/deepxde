@@ -155,7 +155,7 @@ class Fractional(object):
 
     def modify_first_order(self, x, w):
         x = np.vstack(([2 * x[0] - x[1]], x[:-1]))
-        if not self.geom.in_domain(x[0]):
+        if not self.geom.inside(x[0]):
             return x[1:], w[1:]
         return x, w
 
@@ -167,7 +167,7 @@ class Fractional(object):
         if x is None:
             return w
         x = np.vstack(([2 * x[0] - x[1]], x))
-        if not self.geom.in_domain(x[0]):
+        if not self.geom.inside(x[0]):
             return x[1:], w[1:]
         return x, w
 
@@ -184,7 +184,7 @@ class Fractional(object):
         if x is None:
             return w
         x = np.vstack(([2 * x[0] - x[1]], x))
-        if not self.geom.in_domain(x[0]):
+        if not self.geom.inside(x[0]):
             return x[1:], w[1:]
         return x, w
 

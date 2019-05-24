@@ -14,7 +14,7 @@ class Interval(Geometry):
         super(Interval, self).__init__(1, r - l)
         self.l, self.r = l, r
 
-    def in_domain(self, x):
+    def inside(self, x):
         return self.l <= x[0] <= self.r
 
     def on_boundary(self, x):

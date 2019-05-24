@@ -24,6 +24,25 @@ class Hypercube(Geometry):
             len(xmin), np.linalg.norm(self.xmax - self.xmin)
         )
 
+    def inside(self, x):
+        return np.all(x >= self.xmin) and np.all(x <= self.xmax)
+
+    def on_boundary(self, x):
+        return self.inside(x) and (
+            np.any(np.isclose(x, self.xmin)) or np.any(np.isclose(x, self.xmax))
+        )
+
+    def boundary_normal(self, x):
+        n = np.zeros(self.dim)
+        for i, xi in enumerate(x):
+            if np.isclose(xi, self.xmin[i]):
+                n[i] = -1
+                break
+            if np.isclose(xi, self.xmax[i]):
+                n[i] = 1
+                break
+        return n
+
     def uniform_points(self, n, boundary=True):
         n1 = int(np.ceil(n ** (1 / self.dim)))
         xi = []
@@ -66,7 +85,7 @@ class Hypersphere(Geometry):
 
         self._r2 = radius ** 2
 
-    def in_domain(self, x):
+    def inside(self, x):
         return np.linalg.norm(x - self.center) <= self.radius
 
     def on_boundary(self, x):

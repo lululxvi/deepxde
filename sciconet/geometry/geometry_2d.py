@@ -13,11 +13,11 @@ from .geometry_nd import Hypercube
 class Disk(Geometry):
     def __init__(self, center, radius):
         super(Disk, self).__init__(2, 2 * radius)
-        self.center, self.radius = center, radius
+        self.center, self.radius = np.array(center), radius
 
         self._r2 = radius ** 2
 
-    def in_domain(self, x):
+    def inside(self, x):
         return np.linalg.norm(x - self.center) <= self.radius
 
     def on_boundary(self, x):
@@ -35,6 +35,11 @@ class Disk(Geometry):
 
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
+
+    def boundary_normal(self, x):
+        n = x - self.center
+        l = np.linalg.norm(n)
+        return n / l if np.isclose(l, self.radius) else np.zeros(self.dim)
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html
@@ -276,7 +281,7 @@ class Polygon(Geometry):
             [np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)]
         )
 
-    def in_domain(self, x):
+    def inside(self, x):
         def wn_PnPoly(P, V):
             """Winding number algorithm.
             https://en.wikipedia.org/wiki/Point_in_polygon
@@ -311,7 +316,7 @@ class Polygon(Geometry):
         vbbox = self.bbox[1] - self.bbox[0]
         while len(x) < n:
             x_new = np.random.rand(2) * vbbox + self.bbox[0]
-            if self.in_domain(x_new):
+            if self.inside(x_new):
                 x.append(x_new)
         return np.array(x)
 
