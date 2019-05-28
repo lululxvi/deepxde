@@ -74,6 +74,9 @@ class FNN(object):
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
 
+    def outputs_modify(self, modify):
+        self.y = modify(self.inputs, self.outputs)
+
     def dense(self, inputs, units, activation=None, use_bias=True):
         return tf.layers.dense(
             inputs,
