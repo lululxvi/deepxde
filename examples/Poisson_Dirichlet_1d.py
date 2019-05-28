@@ -36,7 +36,10 @@ def main():
     checkpointer = scn.callbacks.ModelCheckpoint(
         "./model/model.ckpt", verbose=1, save_better_only=True
     )
-    losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer])
+    movie = scn.callbacks.MovieDumper(
+        "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
+    )
+    losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
 
     scn.saveplot(losshistory, train_state, issave=True, isplot=True)
 

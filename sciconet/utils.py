@@ -6,7 +6,10 @@ import time
 from functools import wraps
 from multiprocessing import Pool
 
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
+from matplotlib import animation
 
 
 def run_if_all_none(*attr):
@@ -87,3 +90,40 @@ def guarantee_initialized_variables(session, var_list=None):
     ]
     session.run(tf.variables_initializer(uninitialized_variables))
     return uninitialized_variables
+
+
+def save_animation(filename, xdata, ydata, y_reference=None, logy=False):
+    apply(
+        _save_animation,
+        args=(filename, xdata, ydata),
+        kwds={"y_reference": y_reference, "logy": logy},
+    )
+
+
+def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
+    """The animation figure window cannot be closed automatically.
+    https://stackoverflow.com/questions/43776528/python-animation-figure-window-cannot-be-closed-automatically
+    """
+    fig, ax = plt.subplots()
+    if y_reference is not None:
+        plt.plot(xdata, y_reference, "k-")
+    ln, = plt.plot([], [], "r-o")
+
+    def init():
+        ax.set_xlim(np.min(xdata), np.max(xdata))
+        if logy:
+            ax.set_yscale("log")
+            ax.set_ylim(max(1e-4, np.min(ydata)), np.max(ydata))
+        else:
+            ax.set_ylim(np.min(ydata), np.max(ydata))
+        return (ln,)
+
+    def update(frame):
+        ln.set_data(xdata, ydata[frame])
+        return (ln,)
+
+    ani = animation.FuncAnimation(
+        fig, update, frames=len(ydata), init_func=init, blit=True
+    )
+    ani.save(filename, writer="imagemagick", fps=30)
+    plt.close()
