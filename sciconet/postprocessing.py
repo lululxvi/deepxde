@@ -77,6 +77,7 @@ def plot_best_state(train_state):
     plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
     plt.xlabel("Predicted")
     plt.ylabel("Residual = Observed - Predicted")
+    plt.tight_layout()
 
     if best_ystd is not None:
         plt.figure()
