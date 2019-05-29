@@ -52,7 +52,7 @@ class FNN(object):
 
     @timing
     def build(self):
-        print("Building feed-forward neural network...")
+        print("\nBuilding feed-forward neural network...")
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)
