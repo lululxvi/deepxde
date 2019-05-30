@@ -24,6 +24,7 @@ class GeometryXTime(object):
     def __init__(self, geometry, timedomain):
         self.geometry = geometry
         self.timedomain = timedomain
+        self.dim = geometry.dim + timedomain.dim
 
     def on_boundary(self, x):
         return self.geometry.on_boundary(x[:-1])

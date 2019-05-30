@@ -20,7 +20,8 @@ class BC(object):
         self.component = component
 
     def filter(self, X):
-        return np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
+        X = np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
+        return X if len(X) > 0 else np.empty((0, self.geom.dim))
 
     def collocation_points(self, X):
         return self.filter(X)

@@ -22,8 +22,9 @@ class PDE(Data):
         num_outputs,
         pde,
         bcs,
-        num_domain,
-        num_boundary,
+        num_domain=0,
+        num_boundary=0,
+        train_distribution="random",
         anchors=None,
         func=None,
         num_test=None,
@@ -35,9 +36,10 @@ class PDE(Data):
 
         self.num_domain = num_domain
         self.num_boundary = num_boundary
+        self.train_distribution = train_distribution
         self.anchors = anchors
 
-        self.func = func if func is not None else zero_function(self.num_outputs)
+        self.func = func or zero_function(self.num_outputs)
         self.num_test = num_test
 
         self.num_bcs = None
@@ -95,9 +97,20 @@ class PDE(Data):
         self.train_y = self.func(self.train_x)
 
     def train_points(self):
-        X = self.geom.uniform_points(self.num_domain, False)
+        X = np.empty((0, self.geom.dim))
+        if self.num_domain > 0:
+            if self.train_distribution == "uniform":
+                X = self.geom.uniform_points(self.num_domain, boundary=False)
+            else:
+                X = self.geom.random_points(self.num_domain, random="sobol")
         if self.num_boundary > 0:
-            X = np.vstack((self.geom.uniform_boundary_points(self.num_boundary), X))
+            if self.train_distribution == "uniform":
+                tmp = self.geom.uniform_boundary_points(self.num_boundary)
+            else:
+                tmp = self.geom.random_boundary_points(
+                    self.num_boundary, random="sobol"
+                )
+            X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
         return X
@@ -126,9 +139,10 @@ class TimePDE(PDE):
         num_outputs,
         pde,
         ic_bcs,
-        num_domain,
-        num_boundary,
-        num_initial,
+        num_domain=0,
+        num_boundary=0,
+        num_initial=0,
+        train_distribution="random",
         anchors=None,
         func=None,
         num_test=None,
@@ -141,17 +155,33 @@ class TimePDE(PDE):
             ic_bcs,
             num_domain,
             num_boundary,
+            train_distribution=train_distribution,
             anchors=anchors,
             func=func,
             num_test=num_test,
         )
 
     def train_points(self):
-        X = self.geom.uniform_points(self.num_domain, boundary=False)
+        X = np.empty((0, self.geom.dim))
+        if self.num_domain > 0:
+            if self.train_distribution == "uniform":
+                X = self.geom.uniform_points(self.num_domain, boundary=False)
+            else:
+                X = self.geom.random_points(self.num_domain, random="sobol")
         if self.num_boundary > 0:
-            X = np.vstack((self.geom.uniform_boundary_points(self.num_boundary), X))
+            if self.train_distribution == "uniform":
+                tmp = self.geom.uniform_boundary_points(self.num_boundary)
+            else:
+                tmp = self.geom.random_boundary_points(
+                    self.num_boundary, random="sobol"
+                )
+            X = np.vstack((tmp, X))
         if self.num_initial > 0:
-            X = np.vstack((self.geom.uniform_initial_points(self.num_initial), X))
+            if self.train_distribution == "uniform":
+                tmp = self.geom.uniform_initial_points(self.num_initial)
+            else:
+                tmp = self.geom.random_initial_points(self.num_initial, random="sobol")
+            X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
         return X
