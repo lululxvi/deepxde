@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 
 
@@ -15,7 +16,18 @@ def get_train_op(loss, optimizer, lr=None, decay=None):
         if lr is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         return tf.contrib.opt.ScipyOptimizerInterface(
-            loss, method=optimizer, options={"disp": True}
+            loss,
+            method=optimizer,
+            options={
+                "disp": True,
+                "maxcor": 50,
+                "ftol": np.finfo(float).eps,
+                "gtol": 1e-5,
+                "eps": 1e-8,
+                "maxfun": 15000,
+                "maxiter": 15000,
+                "maxls": 50,
+            },
         )
 
     if lr is None:
