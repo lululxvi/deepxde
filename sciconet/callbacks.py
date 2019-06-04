@@ -155,6 +155,28 @@ class ModelCheckpoint(Callback):
             self.model.save(self.filepath, verbose=self.verbose)
 
 
+class VariableValue(Callback):
+    """Get the variable values.
+    """
+
+    def __init__(self, var_list, period=1):
+        super(VariableValue, self).__init__()
+        self.var_list = var_list
+        self.period = period
+        self.value = None
+        self.epochs_since_last = 0
+
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.period:
+            self.epochs_since_last = 0
+            self.value = self.model.sess.run(self.var_list)
+            print("    Variable:", self.value)
+
+    def get_value(self):
+        return self.value
+
+
 class OperatorPredictor(Callback):
     """Generates operator values for the input samples.
     
