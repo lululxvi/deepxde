@@ -5,6 +5,7 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
+from .helper import one_function
 from .pde import PDE
 from .. import config
 from .. import losses as losses_module
@@ -14,6 +15,9 @@ from ..utils import run_if_any_none
 class IDE(PDE):
     """IDE solver.
     The current version only supports 1D problems with initial condition at x = 0.
+
+    Args:
+        kernel: (x, s) --> R
     """
 
     def __init__(
@@ -22,6 +26,7 @@ class IDE(PDE):
         ide,
         bcs,
         quad_deg,
+        kernel=None,
         num_domain=0,
         num_boundary=0,
         train_distribution="random",
@@ -29,6 +34,7 @@ class IDE(PDE):
         func=None,
         num_test=None,
     ):
+        self.kernel = kernel or one_function(1)
         self.quad_deg = quad_deg
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)
 
@@ -113,14 +119,16 @@ class IDE(PDE):
             size = self.num_domain + self.num_boundary
             if self.anchors is not None:
                 size += len(self.anchors)
-            x = self.train_x
+            X = self.train_x
         else:
             size = self.num_test
-            x = self.test_x
+            X = self.test_x
         num_bc = sum(self.num_bcs)
-        int_mat = np.zeros((size + num_bc, x.size), dtype=config.real(np))
+        int_mat = np.zeros((size + num_bc, X.size), dtype=config.real(np))
         for i in range(size):
+            x = X[i + num_bc, 0]
             beg = size + num_bc + self.quad_deg * i
             end = beg + self.quad_deg
-            int_mat[i + num_bc, beg:end] = get_quad_weights(x[i + num_bc, 0])
+            K = np.ravel(self.kernel(np.full((self.quad_deg, 1), x), X[beg:end]))
+            int_mat[i + num_bc, beg:end] = get_quad_weights(x) * K
         return int_mat
