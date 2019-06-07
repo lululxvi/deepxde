@@ -65,7 +65,7 @@ class Model(object):
         self.losses = tf.convert_to_tensor(self.losses)
         if loss_weights is not None:
             self.losses *= loss_weights
-            self.losshistory.update_loss_weights(loss_weights)
+            self.losshistory.set_loss_weights(loss_weights)
         self.totalloss = tf.reduce_sum(self.losses)
 
         self.train_op = train_module.get_train_op(
