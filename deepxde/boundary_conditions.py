@@ -97,3 +97,25 @@ class PeriodicBC(BC):
         outputs = outputs[beg:end, self.component : self.component + 1]
         outputs = tf.reshape(outputs, [-1, 2])
         return outputs[:, 0:1] - outputs[:, 1:]
+
+
+class PointSet(object):
+    """A set of points.
+    """
+
+    def __init__(self, points):
+        self.points = np.array(points)
+
+    def inside(self, x):
+        return np.any(np.all(np.isclose(x, self.points), axis=1))
+
+    def values_to_func(self, values):
+        zero = np.zeros(len(values[0]))
+
+        def func(x):
+            if not self.inside(x):
+                return zero
+            idx = np.argwhere(np.all(np.isclose(x, self.points), axis=1))[0, 0]
+            return values[idx]
+
+        return lambda X: np.array(list(map(func, X)))

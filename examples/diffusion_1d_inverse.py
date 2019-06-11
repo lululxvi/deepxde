@@ -33,7 +33,10 @@ def main():
     ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
 
     observe_x = np.vstack((np.linspace(-1, 1, num=10), np.full((10), 1))).T
-    observe_y = dde.DirichletBC(geomtime, func, lambda x, _: np.isclose(x[1], 1))
+    ptset = dde.bc.PointSet(observe_x)
+    observe_y = dde.DirichletBC(
+        geomtime, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
+    )
 
     data = dde.data.TimePDE(
         geomtime,
