@@ -321,6 +321,14 @@ class Polygon(Geometry):
 
         return wn_PnPoly(x, self.vertices) != 0
 
+    def on_boundary(self, x):
+        for i in range(-1, self.nvertices - 1):
+            l1 = np.linalg.norm(self.vertices[i] - x)
+            l2 = np.linalg.norm(self.vertices[i + 1] - x)
+            if np.isclose(l1 + l2, self.diagonals[i, i + 1]):
+                return True
+        return False
+
     def random_points(self, n, random="pseudo"):
         x = []
         vbbox = self.bbox[1] - self.bbox[0]
