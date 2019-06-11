@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 
-import sciconet as scn
+import deepxde as dde
 
 
 def main():
@@ -15,18 +15,17 @@ def main():
         """
         return x * np.sin(5 * x)
 
-    geom = scn.geometry.Interval(-1, 1)
+    geom = dde.geometry.Interval(-1, 1)
     num_train = 10
     num_test = 1000
-    data = scn.data.Func(geom, func, num_train, num_test)
+    data = dde.data.Func(geom, func, num_train, num_test)
 
-    x_dim, y_dim = 1, 1
-    layer_size = [x_dim] + [50] * 3 + [y_dim]
+    layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
     regularization = ["l2", 1e-5]
     dropout_rate = 0.01
-    net = scn.maps.FNN(
+    net = dde.maps.FNN(
         layer_size,
         activation,
         initializer,
@@ -34,16 +33,11 @@ def main():
         dropout_rate=dropout_rate,
     )
 
-    model = scn.Model(data, net)
+    model = dde.Model(data, net)
+    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+    losshistory, train_state = model.train(epochs=30000, uncertainty=True)
 
-    optimizer = "adam"
-    lr = 0.001
-    model.compile(optimizer, lr, metrics=["l2 relative error"])
-
-    epochs = 30000
-    losshistory, train_state = model.train(epochs, uncertainty=True)
-
-    scn.saveplot(losshistory, train_state, issave=True, isplot=True)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-import sciconet as scn
+import deepxde as dde
 
 
 def main():
@@ -28,27 +28,27 @@ def main():
         """
         return np.sin(2 * np.pi * x)
 
-    geom = scn.geometry.Interval(0, 1)
-    bc = scn.DirichletBC(geom, func, boundary)
+    geom = dde.geometry.Interval(0, 1)
+    bc = dde.DirichletBC(geom, func, boundary)
 
     quad_deg = 16
-    data = scn.data.IDE(
+    data = dde.data.IDE(
         geom, ide, bc, quad_deg, num_domain=16, num_boundary=2, func=func
     )
 
     layer_size = [1] + [20] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = scn.maps.FNN(layer_size, activation, initializer)
+    net = dde.maps.FNN(layer_size, activation, initializer)
 
-    model = scn.Model(data, net)
+    model = dde.Model(data, net)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
     losshistory, train_state = model.train(epochs=10000)
 
     X = geom.uniform_points(100, True)
     y_true = func(X)
     y_pred = model.predict(X)
-    print("L2 relative error:", scn.metrics.l2_relative_error(y_true, y_pred))
+    print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
     plt.figure()
     plt.plot(X, y_true, "-")

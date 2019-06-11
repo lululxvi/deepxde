@@ -1,29 +1,29 @@
-# SciCoNet ℒ
+# DeepXDE ℒ
 
-SciCoNet (**Sci**entific **Co**mputing Neural **Net**works) is a deep learning library designed for scientific computing on top of [TensorFlow](https://www.tensorflow.org/).
+DeepXDE is a deep learning library designed for differential equations on top of [TensorFlow](https://www.tensorflow.org/).
 
-Use SciCoNet if you need a deep learning library that
+Use DeepXDE if you need a deep learning library that
 
-- approximates functions from a dataset with/without constraints,
-- approximates functions from multi-fidelity data,
 - solves partial differential equations (PDEs),
 - solves integro-differential equations (IDEs),
-- solves fractional partial differential equations (fPDEs).
+- solves fractional partial differential equations (fPDEs),
+- approximates functions from a dataset with/without constraints,
+- approximates functions from multi-fidelity data.
 
-SciCoNet is extensible to solve other problems in scientific computing.
+DeepXDE is extensible to solve other problems in scientific computing.
 
 ## Features
 
-SciCoNet supports
+DeepXDE supports
 
-- uncertainty quantification using dropout; 
+- uncertainty quantification using dropout;
 - four domain geometries: interval, disk, hyercube and hypersphere;
 - two types of neural networks: fully connected neural network, and residual neural network;
 - many different losses, metrics, optimizers, learning rate schedules, initializations, regularizations, etc.;
 - useful techniques, such as dropout and batch normalization;
 - callbacks to monitor the internal states and statistics of the model during training.
 
-SciCoNet is built with four main modules, including
+DeepXDE is built with four main modules, including
 
 - domain geometry,
 - data, i.e., the type of problems and constraints,

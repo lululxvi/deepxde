@@ -5,7 +5,7 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-import sciconet as scn
+import deepxde as dde
 
 
 def main():
@@ -23,26 +23,21 @@ def main():
     def func(x):
         return (x + 1) ** 2
 
-    geom = scn.geometry.Interval(-1, 1)
-    bc_l = scn.DirichletBC(geom, func, boundary_l)
-    bc_r = scn.NeumannBC(geom, lambda X: 2 * (X + 1), boundary_r)
-    data = scn.data.PDE(geom, 1, pde, [bc_l, bc_r], 16, 2, func=func, num_test=100)
+    geom = dde.geometry.Interval(-1, 1)
+    bc_l = dde.DirichletBC(geom, func, boundary_l)
+    bc_r = dde.NeumannBC(geom, lambda X: 2 * (X + 1), boundary_r)
+    data = dde.data.PDE(geom, 1, pde, [bc_l, bc_r], 16, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = scn.maps.FNN(layer_size, activation, initializer)
+    net = dde.maps.FNN(layer_size, activation, initializer)
 
-    model = scn.Model(data, net)
+    model = dde.Model(data, net)
+    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+    losshistory, train_state = model.train(epochs=10000)
 
-    optimizer = "adam"
-    lr = 0.001
-    model.compile(optimizer, lr, metrics=["l2 relative error"])
-
-    epochs = 10000
-    losshistory, train_state = model.train(epochs)
-
-    scn.saveplot(losshistory, train_state, issave=True, isplot=True)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 
 if __name__ == "__main__":

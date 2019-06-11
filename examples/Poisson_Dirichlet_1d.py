@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-import sciconet as scn
+import deepxde as dde
 
 
 def main():
@@ -21,31 +21,31 @@ def main():
     def func(x):
         return np.sin(np.pi * x)
 
-    geom = scn.geometry.Interval(-1, 1)
-    bc = scn.DirichletBC(geom, func, boundary)
-    data = scn.data.PDE(geom, 1, pde, bc, 16, 2, func=func, num_test=100)
+    geom = dde.geometry.Interval(-1, 1)
+    bc = dde.DirichletBC(geom, func, boundary)
+    data = dde.data.PDE(geom, 1, pde, bc, 16, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = scn.maps.FNN(layer_size, activation, initializer)
+    net = dde.maps.FNN(layer_size, activation, initializer)
 
-    model = scn.Model(data, net)
+    model = dde.Model(data, net)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
-    checkpointer = scn.callbacks.ModelCheckpoint(
+    checkpointer = dde.callbacks.ModelCheckpoint(
         "./model/model.ckpt", verbose=1, save_better_only=True
     )
-    movie = scn.callbacks.MovieDumper(
+    movie = dde.callbacks.MovieDumper(
         "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
     )
     losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
 
-    scn.saveplot(losshistory, train_state, issave=True, isplot=True)
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
     # Plot PDE residue
     x = geom.uniform_points(1000, True)
-    f = scn.callbacks.OperatorPredictor(x, pde)
+    f = dde.callbacks.OperatorPredictor(x, pde)
     model.predict(x, callbacks=[f])
     plt.figure()
     plt.plot(x, f.get_value())
