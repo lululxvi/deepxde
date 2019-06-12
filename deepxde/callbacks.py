@@ -155,6 +155,62 @@ class ModelCheckpoint(Callback):
             self.model.save(self.filepath, verbose=self.verbose)
 
 
+class EarlyStopping(Callback):
+    """Stop training when a monitored quantity (training loss) has stopped improving.
+    Only checked at validation step according to validation_every.
+
+    Args:
+        min_delta: minimum change in the monitored quantity
+            to qualify as an improvement, i.e. an absolute
+            change of less than min_delta, will count as no
+            improvement.
+        patience: number of epochs with no improvement
+            after which training will be stopped.
+        baseline: Baseline value for the monitored quantity to reach.
+            Training will stop if the model doesn't show improvement
+            over the baseline.
+    """
+
+    def __init__(self, min_delta=0, patience=0, baseline=None):
+        super(EarlyStopping, self).__init__()
+
+        self.baseline = baseline
+        self.patience = patience
+        self.min_delta = min_delta
+        self.wait = 0
+        self.stopped_epoch = 0
+
+        self.monitor_op = np.less
+        self.min_delta *= -1
+
+    def on_train_begin(self):
+        # Allow instances to be re-used
+        self.wait = 0
+        self.stopped_epoch = 0
+        if self.baseline is not None:
+            self.best = self.baseline
+        else:
+            self.best = np.Inf if self.monitor_op == np.less else -np.Inf
+
+    def on_epoch_end(self):
+        current = self.get_monitor_value()
+        if self.monitor_op(current - self.min_delta, self.best):
+            self.best = current
+            self.wait = 0
+        else:
+            self.wait += 1
+            if self.wait >= self.patience:
+                self.stopped_epoch = self.model.train_state.epoch
+                self.model.stop_training = True
+
+    def on_train_end(self):
+        if self.stopped_epoch > 0:
+            print("Epoch {}: early stopping".format(self.stopped_epoch))
+
+    def get_monitor_value(self):
+        return sum(self.model.train_state.loss_train)
+
+
 class VariableValue(Callback):
     """Get the variable values.
     """

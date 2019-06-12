@@ -36,6 +36,7 @@ class Model(object):
         self.saver = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
+        self.stop_training = False
         self.callbacks = None
 
         self._open_tfsession()
@@ -183,6 +184,9 @@ class Model(object):
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
+
+            if self.stop_training:
+                break
 
     def _train_scipy(self, uncertainty):
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
