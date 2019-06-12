@@ -37,9 +37,9 @@ class TrainingDisplay:
 
     def __call__(self, train_state):
         if not self.is_header_print:
-            self.len_train = len(train_state.loss_train) * 8 + 8
-            self.len_test = len(train_state.loss_test) * 8 + 8
-            self.len_metric = len(train_state.metrics_test) * 8 + 8
+            self.len_train = len(train_state.loss_train) * 10 + 4
+            self.len_test = len(train_state.loss_test) * 10 + 4
+            self.len_metric = len(train_state.metrics_test) * 10 + 4
             self.header()
         self.print_one(
             str(train_state.step),
