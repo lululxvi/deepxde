@@ -7,11 +7,12 @@ import tensorflow as tf
 from . import activations
 from . import initializers
 from . import regularizers
+from .map import Map
 from .. import config
 from ..utils import timing
 
 
-class ResNet(object):
+class ResNet(Map):
     """Residual neural network
     """
 
@@ -33,10 +34,7 @@ class ResNet(object):
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
 
-        self.training, self.dropout = None, None
-        self.data_id = None  # 0: train data, 1: test data
-        self.x, self.y, self.y_ = None, None, None
-        self.build()
+        super(ResNet, self).__init__()
 
     @property
     def inputs(self):
@@ -53,9 +51,6 @@ class ResNet(object):
     @timing
     def build(self):
         print("Building residual neural network...")
-        self.training = tf.placeholder(tf.bool)
-        self.dropout = tf.placeholder(tf.bool)
-        self.data_id = tf.placeholder(tf.uint8)
         self.x = tf.placeholder(config.real(tf), [None, self.input_size])
 
         y = self.dense(self.x, self.num_neurons, activation=self.activation)

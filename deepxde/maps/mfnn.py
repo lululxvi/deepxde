@@ -7,11 +7,12 @@ import tensorflow as tf
 from . import activations
 from . import initializers
 from . import regularizers
+from .map import Map
 from .. import config
 from ..utils import timing
 
 
-class MfNN(object):
+class MfNN(Map):
     """Multifidelity neural networks
     """
 
@@ -31,16 +32,7 @@ class MfNN(object):
         self.regularizer = regularizers.get(regularization)
         self.residue = residue
 
-        self.training = None
-        self.dropout = None
-        self.data_id = None
-        self.X = None
-        self.y_lo = None
-        self.y_hi = None
-        self.target_lo = None
-        self.target_hi = None
-
-        self.build()
+        super(MfNN, self).__init__()
 
     @property
     def inputs(self):
@@ -57,9 +49,6 @@ class MfNN(object):
     @timing
     def build(self):
         print("Building multifidelity neural network...")
-        self.training = tf.placeholder(tf.bool)
-        self.dropout = tf.placeholder(tf.bool)
-        self.data_id = tf.placeholder(tf.uint8)
         self.X = tf.placeholder(config.real(tf), [None, self.layer_size_lo[0]])
 
         # Low fidelity

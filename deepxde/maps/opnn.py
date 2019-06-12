@@ -7,11 +7,12 @@ import tensorflow as tf
 from . import activations
 from . import initializers
 from . import regularizers
+from .map import Map
 from .. import config
 from ..utils import timing
 
 
-class OpNN(object):
+class OpNN(Map):
     """Operator neural networks
     """
 
@@ -37,15 +38,7 @@ class OpNN(object):
         )
         self.regularizer = regularizers.get(regularization)
 
-        self.training = None
-        self.dropout = None
-        self.data_id = None
-        self.X_func = None
-        self.X_loc = None
-        self.y = None
-        self.target = None
-
-        self.build()
+        super(OpNN, self).__init__()
 
     @property
     def inputs(self):
@@ -62,9 +55,6 @@ class OpNN(object):
     @timing
     def build(self):
         print("Building operator neural network...")
-        self.training = tf.placeholder(tf.bool)
-        self.dropout = tf.placeholder(tf.bool)
-        self.data_id = tf.placeholder(tf.uint8)
         self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
 
