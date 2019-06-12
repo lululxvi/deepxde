@@ -39,16 +39,17 @@ def main():
     movie = dde.callbacks.MovieDumper(
         "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
     )
-    losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
+    losshistory, train_state = model.train(
+        epochs=10000, callbacks=[checkpointer, movie]
+    )
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
     # Plot PDE residue
     x = geom.uniform_points(1000, True)
-    f = dde.callbacks.OperatorPredictor(x, pde)
-    model.predict(x, callbacks=[f])
+    y = model.predict(x, operator=pde)
     plt.figure()
-    plt.plot(x, f.get_value())
+    plt.plot(x, y)
     plt.xlabel("x")
     plt.ylabel("PDE residue")
     plt.show()

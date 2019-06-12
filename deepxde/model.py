@@ -132,15 +132,22 @@ class Model(object):
             "Model.evaluate to be implemented. Alternatively, use Model.predict."
         )
 
-    def predict(self, x, callbacks=None):
+    def predict(self, x, operator=None, callbacks=None):
         """Generates output predictions for the input samples.
         """
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
-        y = self.sess.run(
-            self.net.outputs, feed_dict=self._get_feed_dict(False, False, 2, x, None)
-        )
+        if operator is None:
+            y = self.sess.run(
+                self.net.outputs,
+                feed_dict=self._get_feed_dict(False, False, 2, x, None),
+            )
+        else:
+            y = self.sess.run(
+                operator(self.net.inputs, self.net.outputs),
+                feed_dict=self._get_feed_dict(False, False, 2, x, None),
+            )
         self.callbacks.on_predict_end()
         return y
 
