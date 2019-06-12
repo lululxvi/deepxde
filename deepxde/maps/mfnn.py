@@ -22,12 +22,14 @@ class MfNN(object):
         activation,
         kernel_initializer,
         regularization=None,
+        residue=False,
     ):
         self.layer_size_lo = layer_size_low_fidelity
         self.layer_size_hi = layer_size_high_fidelity
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
+        self.residue = residue
 
         self.training = None
         self.dropout = None
@@ -88,9 +90,16 @@ class MfNN(object):
             y, self.layer_size_hi[-1], use_bias=False, regularizer=self.regularizer
         )
         # Linear + nonlinear
-        alpha = tf.Variable(0, dtype=config.real(tf))
-        alpha = activations.get("tanh")(alpha)
-        self.y_hi = y_hi_l + alpha * y_hi_nl
+        if not self.residue:
+            alpha = tf.Variable(0, dtype=config.real(tf))
+            alpha = activations.get("tanh")(alpha)
+            self.y_hi = y_hi_l + alpha * y_hi_nl
+        else:
+            alpha1 = tf.Variable(0, dtype=config.real(tf))
+            alpha1 = activations.get("tanh")(alpha1)
+            alpha2 = tf.Variable(0, dtype=config.real(tf))
+            alpha2 = activations.get("tanh")(alpha2)
+            self.y_hi = self.y_lo + 0.1 * (alpha1 * y_hi_l + alpha2 * y_hi_nl)
 
         self.target_lo = tf.placeholder(config.real(tf), [None, self.layer_size_lo[-1]])
         self.target_hi = tf.placeholder(config.real(tf), [None, self.layer_size_hi[-1]])
