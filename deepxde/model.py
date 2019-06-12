@@ -107,6 +107,7 @@ class Model(object):
             self.saver.restore(self.sess, model_restore_path)
 
         print("\nTraining model...")
+        self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
         self._test(uncertainty)
