@@ -17,7 +17,7 @@ def main():
 
     geom = dde.geometry.Interval(0, 1)
     num_test = 1000
-    data = dde.data.MfFunc(geom, func_lo, func_hi, 51, 5, num_test)
+    data = dde.data.MfFunc(geom, func_lo, func_hi, 100, 6, num_test)
 
     activation = "tanh"
     initializer = "Glorot uniform"

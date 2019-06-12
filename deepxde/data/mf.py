@@ -7,7 +7,64 @@ import tensorflow as tf
 from sklearn import preprocessing
 
 from .data import Data
-from .. import losses
+from .. import losses as losses_module
+from ..utils import run_if_any_none
+
+
+class MfFunc(Data):
+    """Multifidelity function approximation.
+    """
+
+    def __init__(
+        self, geom, func_lo, func_hi, num_lo, num_hi, num_test, dist_train="uniform"
+    ):
+        self.geom = geom
+        self.func_lo = func_lo
+        self.func_hi = func_hi
+        self.num_lo = num_lo
+        self.num_hi = num_hi
+        self.num_test = num_test
+        self.dist_train = dist_train
+
+        self.X_train = None
+        self.y_train = None
+        self.X_test = None
+        self.y_test = None
+
+    def losses(self, targets, outputs, loss_type, model):
+        loss_f = losses_module.get(loss_type)
+        loss_lo = loss_f(targets[0][: self.num_lo], outputs[0][: self.num_lo])
+        loss_hi = loss_f(targets[1][self.num_lo :], outputs[1][self.num_lo :])
+        return [loss_lo, loss_hi]
+
+    @run_if_any_none("X_train", "y_train")
+    def train_next_batch(self, batch_size=None):
+        if self.dist_train == "uniform":
+            self.X_train = np.vstack(
+                (
+                    self.geom.uniform_points(self.num_lo, True),
+                    self.geom.uniform_points(self.num_hi, True),
+                )
+            )
+        else:
+            self.X_train = np.vstack(
+                (
+                    self.geom.random_points(self.num_lo, "sobol"),
+                    self.geom.random_points(self.num_hi, "sobol"),
+                )
+            )
+        y_lo_train = self.func_lo(self.X_train)
+        y_hi_train = self.func_hi(self.X_train)
+        self.y_train = [y_lo_train, y_hi_train]
+        return self.X_train, self.y_train
+
+    @run_if_any_none("X_test", "y_test")
+    def test(self):
+        self.X_test = self.geom.uniform_points(self.num_test, True)
+        y_lo_test = self.func_lo(self.X_test)
+        y_hi_test = self.func_hi(self.X_test)
+        self.y_test = [y_lo_test, y_hi_test]
+        return self.X_test, self.y_test
 
 
 class MfDataSet(Data):
@@ -54,27 +111,28 @@ class MfDataSet(Data):
             raise ValueError("No training data.")
 
         self.X_train = None
+        self.y_train = None
         self.scaler_x = None
         self._standardize()
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_type, model):
+        loss_f = losses_module.get(loss_type)
         n = tf.cond(
             tf.equal(model.net.data_id, 0), lambda: len(self.X_lo_train), lambda: 0
         )
-        loss_lo = losses.get(loss)(targets[0][:n], outputs[0][:n])
-        loss_hi = losses.get(loss)(targets[1][n:], outputs[1][n:])
+        loss_lo = loss_f(targets[0][:n], outputs[0][:n])
+        loss_hi = loss_f(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
+    @run_if_any_none("X_train", "y_train")
     def train_next_batch(self, batch_size=None):
-        if self.X_train is not None:
-            return self.X_train, [self.y_lo_train, self.y_hi_train]
-
         self.X_train = np.vstack((self.X_lo_train, self.X_hi_train))
         self.y_lo_train, self.y_hi_train = (
             np.vstack((self.y_lo_train, np.zeros_like(self.y_hi_train))),
             np.vstack((np.zeros_like(self.y_lo_train), self.y_hi_train)),
         )
-        return self.X_train, [self.y_lo_train, self.y_hi_train]
+        self.y_train = [self.y_lo_train, self.y_hi_train]
+        return self.X_train, self.y_train
 
     def test(self):
         return self.X_hi_test, [self.y_hi_test, self.y_hi_test]
