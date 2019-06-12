@@ -81,7 +81,7 @@ class Model(object):
         self,
         epochs=None,
         batch_size=None,
-        validation_every=1000,
+        display_every=1000,
         uncertainty=False,
         disregard_previous_best=False,
         callbacks=None,
@@ -113,11 +113,11 @@ class Model(object):
         self._test(uncertainty)
         self.callbacks.on_train_begin()
         if train_module.is_scipy_opts(self.optimizer):
-            self._train_scipy(uncertainty)
+            self._train_scipy(display_every, uncertainty)
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.optimizer))
-            self._train_sgd(epochs, validation_every, uncertainty)
+            self._train_sgd(epochs, display_every, uncertainty)
         self.callbacks.on_train_end()
 
         display.training_display.summary(self.train_state)
@@ -163,7 +163,7 @@ class Model(object):
     def _close_tfsession(self):
         self.sess.close()
 
-    def _train_sgd(self, epochs, validation_every, uncertainty):
+    def _train_sgd(self, epochs, display_every, uncertainty):
         for i in range(epochs):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -180,7 +180,7 @@ class Model(object):
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            if self.train_state.step % validation_every == 0 or i + 1 == epochs:
+            if self.train_state.step % display_every == 0 or i + 1 == epochs:
                 self._test(uncertainty)
 
             self.callbacks.on_batch_end()
@@ -189,16 +189,28 @@ class Model(object):
             if self.stop_training:
                 break
 
-    def _train_scipy(self, uncertainty):
+    def _train_scipy(self, display_every, uncertainty):
+        def loss_callback(loss_train):
+            self.train_state.epoch += 1
+            self.train_state.step += 1
+            self.train_state.loss_train = loss_train
+            self.train_state.loss_test = None
+            self.train_state.metrics_test = None
+            self.losshistory.append(
+                self.train_state.step, self.train_state.loss_train, None, None
+            )
+            if self.train_state.step % display_every == 0:
+                display.training_display(self.train_state)
+
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
             feed_dict=self._get_feed_dict(
                 True, True, 0, self.train_state.X_train, self.train_state.y_train
             ),
+            fetches=[self.losses],
+            loss_callback=loss_callback,
         )
-        self.train_state.epoch += 1
-        self.train_state.step += 1
         self._test(uncertainty)
 
     def _test(self, uncertainty):
@@ -357,5 +369,9 @@ class LossHistory(object):
     def append(self, step, loss_train, loss_test, metrics_test):
         self.steps.append(step)
         self.loss_train.append(loss_train)
+        if loss_test is None:
+            loss_test = self.loss_test[-1]
+        if metrics_test is None:
+            metrics_test = self.metrics_test[-1]
         self.loss_test.append(loss_test)
         self.metrics_test.append(metrics_test)

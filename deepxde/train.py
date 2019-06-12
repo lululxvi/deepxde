@@ -19,7 +19,7 @@ def get_train_op(loss, optimizer, lr=None, decay=None):
             loss,
             method=optimizer,
             options={
-                "disp": True,
+                "disp": None,
                 "maxcor": 50,
                 "ftol": np.finfo(float).eps,
                 "gtol": 1e-5,

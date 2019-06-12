@@ -72,4 +72,6 @@ training_display = TrainingDisplay()
 
 
 def list_to_str(nums):
+    if nums is None:
+        return ""
     return "[{:s}]".format(", ".join(["{:.2e}".format(x) for x in nums]))
