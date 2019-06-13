@@ -15,7 +15,7 @@ setup(
     author="Lu Lu",
     author_email="lululxvi@gmail.com",
     url="https://github.com/lululxvi/deepxde",
-    download_url="https://github.com/lululxvi/deepxde/tarball/0.1.0",
+    download_url="https://github.com/lululxvi/deepxde/tarball/v0.1.0",
     license="Apache 2.0",
     install_requires=["matplotlib", "numpy", "salib", "scikit-learn", "scipy"],
     classifiers=[
