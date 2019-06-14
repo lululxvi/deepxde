@@ -6,8 +6,6 @@ import abc
 
 import numpy as np
 
-from . import csg
-
 
 class Geometry(object):
     def __init__(self, dim, bbox, diam):
@@ -86,24 +84,36 @@ class Geometry(object):
 
     def union(self, other):
         """CSG Union."""
+        from . import csg
+
         return csg.CSGUnion(self, other)
 
     def __or__(self, other):
         """CSG Union."""
+        from . import csg
+
         return csg.CSGUnion(self, other)
 
     def difference(self, other):
         """CSG Difference."""
+        from . import csg
+
         return csg.CSGDifference(self, other)
 
     def __sub__(self, other):
         """CSG Difference."""
+        from . import csg
+
         return csg.CSGDifference(self, other)
 
     def intersection(self, other):
         """CSG Intersection."""
+        from . import csg
+
         return csg.CSGIntersection(self, other)
 
     def __and__(self, other):
         """CSG Intersection."""
+        from . import csg
+
         return csg.CSGIntersection(self, other)
