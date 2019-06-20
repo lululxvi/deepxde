@@ -37,16 +37,22 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 DeepXDE requires [TensorFlow](https://www.tensorflow.org/install/) to be installed.
 Then, you can install DeepXDE itself.
 
-- Install the stable version:
+- Install the stable version with `pip`:
 
 ```
-pip install deepxde
+$ pip install deepxde
+```
+
+- Install the stable version with `conda`:
+
+```
+$ conda install -c conda-forge deepxde
 ```
 
 - For developers, you should clone the folder to your local machine and put it along with your project scripts.
 
 ```
-git clone https://github.com/lululxvi/deepxde.git
+$ git clone https://github.com/lululxvi/deepxde.git
 ```
 
 - Dependencies
