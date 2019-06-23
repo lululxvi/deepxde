@@ -47,9 +47,12 @@ class DirichletBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end):
-        return outputs[beg:end, self.component : self.component + 1] - self.func(
-            X[beg:end]
-        )
+        values = self.func(X[beg:end])
+        if values.shape[1] != 1:
+            raise RuntimeError(
+                "DirichletBC should output 1D values. Use argument 'component' for different components."
+            )
+        return outputs[beg:end, self.component : self.component + 1] - values
 
 
 class NeumannBC(BC):
