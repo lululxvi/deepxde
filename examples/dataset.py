@@ -6,8 +6,8 @@ import deepxde as dde
 
 
 def main():
-    fname_train = "examples/dataset/dataset.train"
-    fname_test = "examples/dataset/dataset.test"
+    fname_train = "dataset/dataset.train"
+    fname_test = "dataset/dataset.test"
     data = dde.data.DataSet(
         fname_train=fname_train, fname_test=fname_test, col_x=(0,), col_y=(1,)
     )
