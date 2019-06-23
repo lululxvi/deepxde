@@ -8,6 +8,9 @@ import tensorflow as tf
 
 class Real(object):
     def __init__(self, precision):
+        self.set_precision(precision)
+
+    def set_precision(self, precision):
         self.precision = precision
         self.reals = {
             32: {np: np.float32, tf: tf.float32},
@@ -16,3 +19,11 @@ class Real(object):
 
     def __call__(self, package):
         return self.reals[package]
+
+    def set_float32(self):
+        print("Set float to float32")
+        self.set_precision(32)
+
+    def set_float64(self):
+        print("Set float to float64")
+        self.set_precision(64)
