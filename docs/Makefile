@@ -3,8 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-# SPHINXBUILD   = sphinx-build
-SPHINXBUILD   = /opt/anaconda3/bin/sphinx-build
+SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = DeepXDE
 SOURCEDIR     = .
 BUILDDIR      = _build
