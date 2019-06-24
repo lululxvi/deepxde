@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
@@ -26,9 +26,7 @@ install:
   - source activate test-environment
 
   - conda install -c conda-forge matplotlib numpy salib scikit-learn scipy tensorflow
-  - python setup.py install
 
 # command to run tests
 script:  
   - python -c "import deepxde"
- 
