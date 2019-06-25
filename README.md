@@ -20,6 +20,8 @@ Use DeepXDE if you need a deep learning library that
 
 DeepXDE is extensible to solve other problems in scientific computing.
 
+**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/)
+
 ## Features
 
 DeepXDE supports
