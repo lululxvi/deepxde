@@ -13,7 +13,7 @@ from ..utils import timing
 
 
 class ResNet(Map):
-    """Residual neural network
+    """Residual neural network.
     """
 
     def __init__(

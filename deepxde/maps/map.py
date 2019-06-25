@@ -22,15 +22,15 @@ class Map(object):
 
     @property
     def inputs(self):
-        """Return the mapping inputs."""
+        """Mapping inputs."""
 
     @property
     def outputs(self):
-        """Return the mapping outputs."""
+        """Mapping outputs."""
 
     @property
     def targets(self):
-        """Return the targets of the mapping outputs."""
+        """Targets of the mapping outputs."""
 
     @timing
     def build(self):

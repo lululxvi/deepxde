@@ -15,7 +15,7 @@ from ..utils import timing
 
 
 class FNN(Map):
-    """feed-forward neural networks
+    """Feed-forward neural networks.
     """
 
     def __init__(

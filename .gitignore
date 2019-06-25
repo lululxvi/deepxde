@@ -1,3 +1,6 @@
 # Byte-compiled / optimized / DLL files
 *.pyc
 __pycache__/
+
+# Sphinx documentation
+docs/_build/

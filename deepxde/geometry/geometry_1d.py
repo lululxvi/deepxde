@@ -80,10 +80,11 @@ class Interval(Geometry):
 
     def background_points(self, x, dirn, dist2npt, shift):
         """
-        dirn: -1 --> left, 1 --> right, 0 --> both direction
-        dist2npt: a function which converts distance to the number of extra
-                  points (not including x)
-        shift: the number of shift
+        Args:
+            dirn: -1 (left), or 1 (right), or 0 (both direction).
+            dist2npt: A function which converts distance to the number of extra
+                points (not including x).
+            shift: The number of shift.
         """
 
         def background_points_left():

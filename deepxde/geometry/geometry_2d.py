@@ -81,12 +81,13 @@ class Disk(Geometry):
 
 
 class Rectangle(Hypercube):
+    """
+    Args:
+        xmin: Coordinate of bottom left corner.
+        xmax: Coordinate of top right corner.
+    """
+
     def __init__(self, xmin, xmax):
-        """
-        Args:
-            xmin: Coordinate of bottom left corner.
-            xmax: Coordinate of top right corner.
-        """
         super(Rectangle, self).__init__(xmin, xmax)
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
 
@@ -196,12 +197,16 @@ class Triangle(Geometry):
 
     def random_points(self, n, random="pseudo"):
         """There are two methods for triangle point picking.
+
         Method 1 (used here):
-            https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle
+
+        - https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle
+
         Method 2:
-            http://mathworld.wolfram.com/TrianglePointPicking.html
-            https://hbfs.wordpress.com/2010/10/05/random-points-in-a-triangle-generating-random-sequences-ii/
-            https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
+
+        - http://mathworld.wolfram.com/TrianglePointPicking.html
+        - https://hbfs.wordpress.com/2010/10/05/random-points-in-a-triangle-generating-random-sequences-ii/
+        - https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
         """
         sqrt_r1 = np.sqrt(np.random.rand(n, 1))
         r2 = np.random.rand(n, 1)
@@ -302,7 +307,7 @@ class Polygon(Geometry):
                 V: Vertex points of a polygon.
 
             Returns:
-                wn: Winding number (=0 only if P is outside polygon)
+                wn: Winding number (=0 only if P is outside polygon).
             """
             wn = 0  # Winding number counter
 
@@ -395,12 +400,11 @@ def is_left(P0, P1, P2):
     See: the January 2001 Algorithm "Area of 2D and 3D Triangles and Polygons".
 
     Args:
-        P0, P1: Two points in the line.
+        P0: One point in the line.
+        P1: One point in the line.
         P2: The point to be tested.
 
     Returns:
-        >0 if P2 left of the line through P0 and P1.
-        =0 if P2 on the line.
-        <0 if P2 right of the line.
+        >0 if P2 left of the line through P0 and P1, =0 if P2 on the line, <0 if P2 right of the line.
     """
     return (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1])

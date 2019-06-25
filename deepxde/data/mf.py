@@ -67,6 +67,10 @@ class MfFunc(Data):
 
 class MfDataSet(Data):
     """Multifidelity function approximation from data set.
+
+    Args:
+        col_x: List of integers.
+        col_y: List of integers.
     """
 
     def __init__(
@@ -83,11 +87,6 @@ class MfDataSet(Data):
         col_x=None,
         col_y=None,
     ):
-        """
-        # Arguments
-            col_x: List of integers
-            col_y: List of integers.
-        """
         if X_lo_train is not None:
             self.X_lo_train = X_lo_train
             self.X_hi_train = X_hi_train

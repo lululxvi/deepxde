@@ -13,7 +13,7 @@ from ..utils import timing
 
 
 class MfNN(Map):
-    """Multifidelity neural networks
+    """Multifidelity neural networks.
     """
 
     def __init__(

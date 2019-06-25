@@ -12,7 +12,7 @@ from . import array_ops
 
 
 class Discretization(object):
-    """Space discretization scheme parameters"""
+    """Space discretization scheme parameters."""
 
     def __init__(self, dim, meshtype, resolution, nanchor):
         self.dim = dim
@@ -36,14 +36,11 @@ class Discretization(object):
 
 
 class Fractional(object):
-    """fractional derivative
+    """Fractional derivative.
 
-    static:
-        n: number of points
-        x0: None
-    dynamic:
-        n: resolution lambda
-        x0: not boundary points
+    Args:
+        x0: If ``disc.meshtype = static``, then x0 should be None;
+            if ``disc.meshtype = 'dynamic'``, then x0 are non-boundary points.
     """
 
     def __init__(self, alpha, geom, disc, x0):
@@ -70,6 +67,9 @@ class Fractional(object):
             )
 
     def _init_weights(self):
+        """If ``disc.meshtype = 'static'``, then n is number of points;
+        if ``disc.meshtype = 'dynamic'``, then n is resolution lambda.
+        """
         n = (
             self.disc.resolution[0]
             if self.disc.meshtype == "static"
@@ -280,16 +280,17 @@ class Fractional(object):
 
 
 class FractionalTime(object):
-    """fractional derivative with time
+    """Fractional derivative with time
 
-    static:
-        nx: number of x points
-        nt: number of t points
-        x0: None
-    dynamic:
-        nx: resolution lambda
-        nt: None
-        x0: not boundary points
+    Args:
+        nt: If ``disc.meshtype = static``, then nt is the number of t points;
+            if ``disc.meshtype = 'dynamic'``, then nt is None.
+        x0: If ``disc.meshtype = static``, then x0 should be None;
+            if ``disc.meshtype = 'dynamic'``, then x0 are non-boundary points.
+
+    Attributes:
+        nx: If ``disc.meshtype = static``, then nx is the number of x points;
+            if ``disc.meshtype = dynamic``, then nx is the resolution lambda.
     """
 
     def __init__(self, alpha, geom, tmin, tmax, disc, nt, x0):

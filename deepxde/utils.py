@@ -41,7 +41,7 @@ def run_if_any_none(*attr):
 
 
 def timing(f):
-    """decorator for measuring the execution time of methods"""
+    """Decorator for measuring the execution time of methods."""
 
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -57,7 +57,9 @@ def timing(f):
 def apply(func, args=None, kwds=None):
     """Clear Tensorflow GPU memory after model execution.
 
-    Reference: https://stackoverflow.com/questions/39758094/clearing-tensorflow-gpu-memory-after-model-execution
+    References:
+
+        - https://stackoverflow.com/questions/39758094/clearing-tensorflow-gpu-memory-after-model-execution
     """
     with Pool(1) as p:
         if args is None and kwds is None:
@@ -73,6 +75,7 @@ def apply(func, args=None, kwds=None):
 
 def guarantee_initialized_variables(session, var_list=None):
     """Guarantee that all the specified variables are initialized.
+
     If a variable is already initialized, leave it alone. Otherwise, initialize it.
     If no variables are specified, checks all variables in the default graph.
 
@@ -80,8 +83,9 @@ def guarantee_initialized_variables(session, var_list=None):
         var_list: List of Variable objects.
 
     References:
-        https://stackoverflow.com/questions/35164529/in-tensorflow-is-there-any-way-to-just-initialize-uninitialised-variables
-        https://www.programcreek.com/python/example/90525/tensorflow.report_uninitialized_variables
+
+        - https://stackoverflow.com/questions/35164529/in-tensorflow-is-there-any-way-to-just-initialize-uninitialised-variables
+        - https://www.programcreek.com/python/example/90525/tensorflow.report_uninitialized_variables
     """
     name_to_var = {v.op.name: v for v in tf.global_variables() + tf.local_variables()}
     uninitialized_variables = [
@@ -102,7 +106,10 @@ def save_animation(filename, xdata, ydata, y_reference=None, logy=False):
 
 def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
     """The animation figure window cannot be closed automatically.
-    https://stackoverflow.com/questions/43776528/python-animation-figure-window-cannot-be-closed-automatically
+
+    References:
+
+        - https://stackoverflow.com/questions/43776528/python-animation-figure-window-cannot-be-closed-automatically
     """
     fig, ax = plt.subplots()
     if y_reference is not None:

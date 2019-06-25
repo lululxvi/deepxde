@@ -14,7 +14,7 @@ from .utils import guarantee_initialized_variables, timing
 
 
 class Model(object):
-    """The `Model` class trains a `Network` on a `Data`.
+    """The ``Model`` class trains a ``Network`` on a ``Data``.
     """
 
     def __init__(self, data, net):

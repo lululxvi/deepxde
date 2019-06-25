@@ -15,6 +15,7 @@ class VarianceScalingStacked(object):
     distribution with a mean of zero and a standard deviation (after truncation,
     if used) `stddev = sqrt(scale / n)`
     where n is:
+
         - number of input units in the weight tensor, if mode = "fan_in"
         - number of output units, if mode = "fan_out"
         - average of the numbers of input and output units, if mode = "fan_avg"

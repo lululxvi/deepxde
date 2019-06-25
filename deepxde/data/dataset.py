@@ -9,7 +9,12 @@ from .data import Data
 
 
 class DataSet(Data):
-    """Fitting Data set."""
+    """Fitting Data set.
+    
+    Args:
+        col_x: List of integers.
+        col_y: List of integers.
+    """
 
     def __init__(
         self,
@@ -22,11 +27,6 @@ class DataSet(Data):
         col_x=None,
         col_y=None,
     ):
-        """
-        # Arguments
-            col_x: List of integers
-            col_y: List of integers.
-        """
         if X_train is not None:
             self.train_x, self.train_y = X_train, y_train
             self.test_x, self.test_y = X_test, y_test

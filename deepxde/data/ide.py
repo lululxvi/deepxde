@@ -16,7 +16,7 @@ class IDE(PDE):
     The current version only supports 1D problems with initial condition at x = 0.
 
     Args:
-        kernel: (x, s) --> R
+        kernel: (x, s) --> R.
     """
 
     def __init__(

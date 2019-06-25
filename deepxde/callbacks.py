@@ -11,9 +11,8 @@ from .utils import save_animation
 class Callback(object):
     """Callback base class.
 
-    Properties:
-        model: instance of `Model`.
-            Reference of the model being trained.
+    Attributes:
+        model: instance of ``Model``. Reference of the model being trained.
     """
 
     def __init__(self):
@@ -56,7 +55,7 @@ class CallbackList(Callback):
     """Container abstracting a list of callbacks.
 
     Args:
-        callbacks: List of `Callback` instances.
+        callbacks: List of ``Callback`` instances.
     """
 
     def __init__(self, callbacks=None):
@@ -111,11 +110,10 @@ class ModelCheckpoint(Callback):
     """Save the model after every epoch.
 
     Args:
-        filepath: string, path to save the model file.
-        verbose: verbosity mode, 0 or 1.
-        save_better_only: if `save_better_only=True`,
-            only save a better model according to the quantity monitored.
-            Model is only checked at validation step according to validation_every.
+        filepath (string): Path to save the model file.
+        verbose: Verbosity mode, 0 or 1.
+        save_better_only: If True, only save a better model according to the quantity monitored.
+            Model is only checked at validation step according to ``display_every`` in ``Model.train``.
         period: Interval (number of epochs) between checkpoints.
     """
 
@@ -157,14 +155,14 @@ class ModelCheckpoint(Callback):
 
 class EarlyStopping(Callback):
     """Stop training when a monitored quantity (training loss) has stopped improving.
-    Only checked at validation step according to validation_every.
+    Only checked at validation step according to ``display_every`` in ``Model.train``.
 
     Args:
-        min_delta: minimum change in the monitored quantity
+        min_delta: Minimum change in the monitored quantity
             to qualify as an improvement, i.e. an absolute
             change of less than min_delta, will count as no
             improvement.
-        patience: number of epochs with no improvement
+        patience: Number of epochs with no improvement
             after which training will be stopped.
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
@@ -281,7 +279,7 @@ class MovieDumper(Callback):
     """Dump a movie to show the training progress of the function along a line.
 
     Args:
-        spectrum: if `spectrum=True`, dump the spectrum of the Fourier transform.
+        spectrum: If True, dump the spectrum of the Fourier transform.
     """
 
     def __init__(

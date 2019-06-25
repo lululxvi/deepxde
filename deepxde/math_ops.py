@@ -17,8 +17,10 @@ def softmax(X):
 
 
 def uniformly_continuous_delta(X, Y, eps):
-    """Compute the supremum of delta in uniformly continuous
-    X: N x d, equispaced points
+    """Compute the supremum of delta in uniformly continuous.
+
+    Args:
+        X: N x d, equispaced points.
     """
     if X.shape[1] == 1:
         # 1d equispaced points

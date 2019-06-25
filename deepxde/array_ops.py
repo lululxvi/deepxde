@@ -1,4 +1,4 @@
-"""operations which handle numpy and tensorflow automatically"""
+"""Operations which handle numpy and tensorflow automatically."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -23,7 +23,7 @@ def shape(value):
 
 
 def convert_to_array(value):
-    """convert a list to numpy array or tensorflow tensor"""
+    """Convert a list to numpy array or tensorflow tensor."""
     if istensorlist(value):
         return tf.convert_to_tensor(value, dtype=config.real(tf))
     value = np.array(value)

@@ -13,7 +13,7 @@ from ..utils import timing
 
 
 class OpNN(Map):
-    """Operator neural networks
+    """Operator neural networks.
     """
 
     def __init__(
@@ -96,16 +96,16 @@ class OpNN(Map):
     def stacked_dense(self, inputs, units, stack_size, activation=None, use_bias=True):
         """Stacked densely-connected NN layer.
 
-        Input shape:
-            if inputs is the NN input:
-                2D tensor with shape: `(batch_size, input_dim)`.
-            else:
-                3D tensor with shape: `(batch_size, stack_size, input_dim)`.
-        Output shape:
-            if outputs is the NN output, i.e., units = 1:
-                3D tensor with shape: `(batch_size, stack_size)`.
-            else:
-                3D tensor with shape: `(batch_size, stack_size, units)`.
+        Args:
+            inputs: If inputs is the NN input, then it is a 2D tensor with shape: `(batch_size, input_dim)`;
+                otherwise, it is 3D tensor with shape: `(batch_size, stack_size, input_dim)`.
+
+        Returns:
+            tensor: outputs.
+            
+            If outputs is the NN output, i.e., units = 1,
+            2D tensor with shape: `(batch_size, stack_size)`;
+            otherwise, 3D tensor with shape: `(batch_size, stack_size, units)`.
         """
         shape = inputs.get_shape().as_list()
         input_dim = shape[-1]
