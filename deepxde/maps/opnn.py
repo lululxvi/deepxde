@@ -102,7 +102,7 @@ class OpNN(Map):
 
         Returns:
             tensor: outputs.
-            
+
             If outputs is the NN output, i.e., units = 1,
             2D tensor with shape: `(batch_size, stack_size)`;
             otherwise, 3D tensor with shape: `(batch_size, stack_size, units)`.

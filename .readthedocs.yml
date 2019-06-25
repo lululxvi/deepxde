@@ -1,0 +1,19 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+version: 2
+
+sphinx:
+  configuration: docs/conf.py
+
+build:
+  image: latest
+
+formats:
+  - epub
+  - pdf
+
+python:
+  version: 3.7
+  install:
+    - requirements: requirements.txt

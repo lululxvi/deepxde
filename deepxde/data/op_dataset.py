@@ -10,7 +10,7 @@ from .data import Data
 
 class OpDataSet(Data):
     """Fitting operator data set.
-    
+
     Args:
         col_x: List of integers.
         col_y: List of integers.

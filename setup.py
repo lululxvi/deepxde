@@ -3,9 +3,11 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-with io.open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+with io.open("README.md", "r", encoding="utf-8") as f:
+    long_description = f.read()
 
+with open("requirements.txt", "r") as f:
+    install_requires = [x.strip() for x in f.readlines()]
 
 setup(
     name="DeepXDE",
@@ -18,14 +20,7 @@ setup(
     url="https://github.com/lululxvi/deepxde",
     download_url="https://github.com/lululxvi/deepxde/tarball/v0.1.1",
     license="Apache-2.0",
-    install_requires=[
-        "matplotlib",
-        "numpy",
-        "salib",
-        "scikit-learn",
-        "scipy",
-        "tensorflow",
-    ],
+    install_requires=install_requires,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

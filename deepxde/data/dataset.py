@@ -10,7 +10,7 @@ from .data import Data
 
 class DataSet(Data):
     """Fitting Data set.
-    
+
     Args:
         col_x: List of integers.
         col_y: List of integers.
