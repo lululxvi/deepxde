@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 from .data import Data
-from .. import losses
 from ..utils import run_if_any_none
 
 
@@ -25,7 +24,7 @@ class Func(Data):
         self.test_x, self.test_y = None, None
 
     def losses(self, y_true, y_pred, loss, model):
-        return [losses.get(loss)(y_true, y_pred)]
+        return [loss(y_true, y_pred)]
 
     def train_next_batch(self, batch_size=None):
         if self.online:

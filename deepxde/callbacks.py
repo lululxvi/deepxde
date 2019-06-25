@@ -279,7 +279,7 @@ class FirstDerivative(OperatorPredictor):
 
 class MovieDumper(Callback):
     """Dump a movie to show the training progress of the function along a line.
-    
+
     Args:
         spectrum: if `spectrum=True`, dump the spectrum of the Fourier transform.
     """

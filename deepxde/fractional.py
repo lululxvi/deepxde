@@ -1,4 +1,3 @@
-# author: Lu Lu
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -48,9 +47,10 @@ class Fractional(object):
     """
 
     def __init__(self, alpha, geom, disc, x0):
-        assert (disc.meshtype == "static" and x0 is None) or (
-            disc.meshtype == "dynamic" and x0 is not None
-        ), "Wrong inputs."
+        if (disc.meshtype == "static" and x0 is not None) or (
+            disc.meshtype == "dynamic" and x0 is None
+        ):
+            raise ValueError("disc.meshtype and x0 do not match")
 
         self.alpha, self.geom = alpha, geom
         self.disc, self.x0 = disc, x0
@@ -102,7 +102,8 @@ class Fractional(object):
         return int(math.ceil(self.disc.resolution[-1] * dx))
 
     def get_x_dynamic(self):
-        assert not any(map(self.geom.on_boundary, self.x0)), "Boundary points exist."
+        if any(map(self.geom.on_boundary, self.x0)):
+            raise ValueError("x0 contains boundary points")
         if self.geom.dim == 1:
             dirns, dirn_w = [-1, 1], [1, 1]
         elif self.geom.dim == 2:
@@ -254,7 +255,8 @@ class Fractional(object):
         return h ** (-self.alpha) * int_mat
 
     def get_matrix_dynamic(self, sparse):
-        assert self.x is not None, "Get dynamic points first."
+        if self.x is None:
+            raise AssertionError("No dynamic points")
 
         if sparse:
             print("Generating sparse fractional matrix...")

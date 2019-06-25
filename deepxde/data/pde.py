@@ -7,8 +7,6 @@ import tensorflow as tf
 
 from .data import Data
 from .helper import zero_function
-from .. import losses as losses_module
-from ..geometry import GeometryXTime
 from ..utils import run_if_any_none
 
 
@@ -48,15 +46,14 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, y_true, y_pred, loss_type, model):
+    def losses(self, y_true, y_pred, loss, model):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        loss_f = losses_module.get(loss_type)
 
         f = self.pde(model.net.x, y_pred)
         if not isinstance(f, list):
             f = [f]
         f = [fi[bcs_start[-1] :] for fi in f]
-        loss = [loss_f(tf.zeros(tf.shape(fi)), fi) for fi in f]
+        losses = [loss(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
@@ -67,8 +64,8 @@ class PDE(Data):
                     lambda: bc.error(self.test_x, model.net.x, y_pred, beg, end),
                 ),
             )
-            loss.append(loss_f(tf.zeros(tf.shape(error)), error))
-        return loss
+            losses.append(loss(tf.zeros(tf.shape(error)), error))
+        return losses
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

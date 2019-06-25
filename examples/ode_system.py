@@ -30,8 +30,8 @@ def main():
         return np.hstack((np.sin(x), np.cos(x)))
 
     geom = dde.geometry.Interval(0, 10)
-    bc1 = dde.DirichletBC(geom, lambda X: np.sin(X), boundary, component=0)
-    bc2 = dde.DirichletBC(geom, lambda X: np.cos(X), boundary, component=1)
+    bc1 = dde.DirichletBC(geom, np.sin, boundary, component=0)
+    bc2 = dde.DirichletBC(geom, np.cos, boundary, component=1)
     data = dde.data.PDE(geom, 2, ode_system, [bc1, bc2], 35, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [2]

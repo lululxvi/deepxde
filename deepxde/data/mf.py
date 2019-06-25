@@ -7,7 +7,6 @@ import tensorflow as tf
 from sklearn import preprocessing
 
 from .data import Data
-from .. import losses as losses_module
 from ..utils import run_if_any_none
 
 
@@ -31,10 +30,9 @@ class MfFunc(Data):
         self.X_test = None
         self.y_test = None
 
-    def losses(self, targets, outputs, loss_type, model):
-        loss_f = losses_module.get(loss_type)
-        loss_lo = loss_f(targets[0][: self.num_lo], outputs[0][: self.num_lo])
-        loss_hi = loss_f(targets[1][self.num_lo :], outputs[1][self.num_lo :])
+    def losses(self, targets, outputs, loss, model):
+        loss_lo = loss(targets[0][: self.num_lo], outputs[0][: self.num_lo])
+        loss_hi = loss(targets[1][self.num_lo :], outputs[1][self.num_lo :])
         return [loss_lo, loss_hi]
 
     @run_if_any_none("X_train", "y_train")
@@ -115,13 +113,12 @@ class MfDataSet(Data):
         self.scaler_x = None
         self._standardize()
 
-    def losses(self, targets, outputs, loss_type, model):
-        loss_f = losses_module.get(loss_type)
+    def losses(self, targets, outputs, loss, model):
         n = tf.cond(
             tf.equal(model.net.data_id, 0), lambda: len(self.X_lo_train), lambda: 0
         )
-        loss_lo = loss_f(targets[0][:n], outputs[0][:n])
-        loss_hi = loss_f(targets[1][n:], outputs[1][n:])
+        loss_lo = loss(targets[0][:n], outputs[0][:n])
+        loss_hi = loss(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
     @run_if_any_none("X_train", "y_train")

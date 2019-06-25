@@ -6,7 +6,6 @@ import numpy as np
 from sklearn import preprocessing
 
 from .data import Data
-from .. import losses
 
 
 class OpDataSet(Data):
@@ -44,7 +43,7 @@ class OpDataSet(Data):
         self._standardize()
 
     def losses(self, y_true, y_pred, loss, model):
-        return [losses.get(loss)(y_true, y_pred)]
+        return [loss(y_true, y_pred)]
 
     def train_next_batch(self, batch_size=None):
         return [self.train_x[:, :-1], self.train_x[:, -1:]], self.train_y

@@ -8,7 +8,6 @@ import tensorflow as tf
 from .helper import one_function
 from .pde import PDE
 from .. import config
-from .. import losses as losses_module
 from ..utils import run_if_any_none
 
 
@@ -54,9 +53,8 @@ class IDE(PDE):
             num_test=num_test,
         )
 
-    def losses(self, y_true, y_pred, loss_type, model):
+    def losses(self, y_true, y_pred, loss, model):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        loss_f = losses_module.get(loss_type)
 
         int_mat_train = self.get_int_matrix(True)
         int_mat_test = self.get_int_matrix(False)
@@ -68,7 +66,7 @@ class IDE(PDE):
         if not isinstance(f, list):
             f = [f]
         f = [fi[bcs_start[-1] :] for fi in f]
-        loss = [loss_f(tf.zeros(tf.shape(fi)), fi) for fi in f]
+        losses = [loss(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
@@ -79,8 +77,8 @@ class IDE(PDE):
                     lambda: bc.error(self.test_x, model.net.x, y_pred, beg, end),
                 ),
             )
-            loss.append(loss_f(tf.zeros(tf.shape(error)), error))
-        return loss
+            losses.append(loss(tf.zeros(tf.shape(error)), error))
+        return losses
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

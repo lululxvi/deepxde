@@ -2,14 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
-
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-from . import config
 from . import display
+from . import losses as losses_module
 from . import metrics as metrics_module
 from . import train as train_module
 from .callbacks import CallbackList
@@ -60,6 +57,7 @@ class Model(object):
 
         self.optimizer = optimizer
 
+        loss = losses_module.get(loss)
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
         if self.net.regularizer is not None:
             self.losses.append(tf.losses.get_regularization_loss())

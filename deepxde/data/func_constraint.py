@@ -6,7 +6,6 @@ import numpy as np
 import tensorflow as tf
 
 from .data import Data
-from .. import losses
 from ..utils import run_if_any_none
 
 
@@ -41,10 +40,7 @@ class FuncConstraint(Data):
             lambda: self.constraint(model.net.x, y_pred, self.train_x),
             lambda: self.constraint(model.net.x, y_pred, self.test_x),
         )
-        return [
-            losses.get(loss)(y_true[:n], y_pred[:n]),
-            losses.get(loss)(tf.zeros(tf.shape(f)), f),
-        ]
+        return [loss(y_true[:n], y_pred[:n]), loss(tf.zeros(tf.shape(f)), f)]
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

@@ -52,7 +52,7 @@ def main():
 
     model = dde.Model(data, net)
     model.compile("L-BFGS-B", metrics=["l2 relative error"])
-    losshistory, train_state = model.train()
+    model.train()
 
     X = geom.uniform_points(100)
     y_true = func(X)

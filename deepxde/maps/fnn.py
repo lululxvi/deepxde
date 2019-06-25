@@ -82,7 +82,8 @@ class FNN(Map):
             kernel_regularizer=self.regularizer,
         )
 
-    def dense_weightnorm(self, inputs, units, activation=None, use_bias=True):
+    @staticmethod
+    def dense_weightnorm(inputs, units, activation=None, use_bias=True):
         shape = inputs.get_shape().as_list()
         fan_in = shape[1]
         W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
