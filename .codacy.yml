@@ -4,3 +4,6 @@ engines:
     enabled: true
     exclude_paths:
       - 'examples/**'
+exclude_paths:
+  - 'README.md'
+  - 'docs/**'
