@@ -53,15 +53,15 @@ class IDE(PDE):
             num_test=num_test,
         )
 
-    def losses(self, y_true, y_pred, loss, model):
+    def losses(self, targets, outputs, loss, model):
         bcs_start = np.cumsum([0] + self.num_bcs)
 
         int_mat_train = self.get_int_matrix(True)
         int_mat_test = self.get_int_matrix(False)
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
-            lambda: self.pde(model.net.x, y_pred, int_mat_train),
-            lambda: self.pde(model.net.x, y_pred, int_mat_test),
+            lambda: self.pde(model.net.x, outputs, int_mat_train),
+            lambda: self.pde(model.net.x, outputs, int_mat_test),
         )
         if not isinstance(f, list):
             f = [f]
@@ -73,8 +73,8 @@ class IDE(PDE):
             error = (
                 tf.cond(
                     tf.equal(model.net.data_id, 0),
-                    lambda: bc.error(self.train_x, model.net.x, y_pred, beg, end),
-                    lambda: bc.error(self.test_x, model.net.x, y_pred, beg, end),
+                    lambda: bc.error(self.train_x, model.net.x, outputs, beg, end),
+                    lambda: bc.error(self.test_x, model.net.x, outputs, beg, end),
                 ),
             )
             losses.append(loss(tf.zeros(tf.shape(error)), error))

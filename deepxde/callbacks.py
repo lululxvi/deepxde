@@ -54,7 +54,7 @@ class Callback(object):
 
 class CallbackList(Callback):
     """Container abstracting a list of callbacks.
-    
+
     Args:
         callbacks: List of `Callback` instances.
     """
@@ -235,7 +235,7 @@ class VariableValue(Callback):
 
 class OperatorPredictor(Callback):
     """Generates operator values for the input samples.
-    
+
     Args:
         x: The input data.
         op: The operator with inputs (x, y).
@@ -263,7 +263,7 @@ class OperatorPredictor(Callback):
 
 class FirstDerivative(OperatorPredictor):
     """Generates the first order derivative of the outputs with respect to the inputs.
-    
+
     Args:
         x: The input data.
     """

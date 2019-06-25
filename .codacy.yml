@@ -1,0 +1,6 @@
+---
+engines:
+  duplication:
+    enabled: true
+    exclude_paths:
+      - 'examples/**'

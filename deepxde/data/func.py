@@ -23,8 +23,8 @@ class Func(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, y_true, y_pred, loss, model):
-        return [loss(y_true, y_pred)]
+    def losses(self, targets, outputs, loss, model):
+        return [loss(targets, outputs)]
 
     def train_next_batch(self, batch_size=None):
         if self.online:

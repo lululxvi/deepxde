@@ -12,7 +12,7 @@ class Data(object):
         pass
 
     @abc.abstractmethod
-    def losses(self, y_true, y_pred, loss, model):
+    def losses(self, targets, outputs, loss, model):
         """Return a list of losses, i.e., constraints."""
         return None
 

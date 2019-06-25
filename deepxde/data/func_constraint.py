@@ -27,7 +27,7 @@ class FuncConstraint(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, y_true, y_pred, loss, model):
+    def losses(self, targets, outputs, loss, model):
         self.train_next_batch()
         self.test()
 
@@ -37,10 +37,10 @@ class FuncConstraint(Data):
 
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
-            lambda: self.constraint(model.net.x, y_pred, self.train_x),
-            lambda: self.constraint(model.net.x, y_pred, self.test_x),
+            lambda: self.constraint(model.net.x, outputs, self.train_x),
+            lambda: self.constraint(model.net.x, outputs, self.test_x),
         )
-        return [loss(y_true[:n], y_pred[:n]), loss(tf.zeros(tf.shape(f)), f)]
+        return [loss(targets[:n], outputs[:n]), loss(tf.zeros(tf.shape(f)), f)]
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

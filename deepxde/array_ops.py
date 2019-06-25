@@ -18,8 +18,8 @@ def istensorlist(values):
     return any(map(istensor, values))
 
 
-def shape(input):
-    return input.get_shape() if istensor(input) else input.shape
+def shape(value):
+    return value.get_shape() if istensor(value) else value.shape
 
 
 def convert_to_array(value):

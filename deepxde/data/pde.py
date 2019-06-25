@@ -46,10 +46,10 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, y_true, y_pred, loss, model):
+    def losses(self, targets, outputs, loss, model):
         bcs_start = np.cumsum([0] + self.num_bcs)
 
-        f = self.pde(model.net.x, y_pred)
+        f = self.pde(model.net.x, outputs)
         if not isinstance(f, list):
             f = [f]
         f = [fi[bcs_start[-1] :] for fi in f]
@@ -60,8 +60,8 @@ class PDE(Data):
             error = (
                 tf.cond(
                     tf.equal(model.net.data_id, 0),
-                    lambda: bc.error(self.train_x, model.net.x, y_pred, beg, end),
-                    lambda: bc.error(self.test_x, model.net.x, y_pred, beg, end),
+                    lambda: bc.error(self.train_x, model.net.x, outputs, beg, end),
+                    lambda: bc.error(self.test_x, model.net.x, outputs, beg, end),
                 ),
             )
             losses.append(loss(tf.zeros(tf.shape(error)), error))
