@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
+
 import numpy as np
 import tensorflow as tf
 
@@ -211,23 +213,38 @@ class EarlyStopping(Callback):
 
 class VariableValue(Callback):
     """Get the variable values.
+
+    Args:
+        var_list: A `TensorFlow Variable <https://www.tensorflow.org/api_docs/python/tf/Variable>`_
+            or a list of TensorFlow Variable.
+        period (int): Interval (number of epochs) between checking values.
+        filename (string): Output the values to the file `filename`.
+            The file is kept open to allow instances to be re-used.
+            If ``None``, output to the screen.
     """
 
-    def __init__(self, var_list, period=1):
+    def __init__(self, var_list, period=1, filename=None):
         super(VariableValue, self).__init__()
         self.var_list = var_list
         self.period = period
+
+        self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
         self.epochs_since_last = 0
+
+    def on_train_begin(self):
+        self.value = self.model.sess.run(self.var_list)
+        print(self.model.train_state.epoch, self.value, file=self.file)
 
     def on_epoch_end(self):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.value = self.model.sess.run(self.var_list)
-            print("    Variable:", self.value)
+            print(self.model.train_state.epoch, self.value, file=self.file)
 
     def get_value(self):
+        """Return the variable values."""
         return self.value
 
 
