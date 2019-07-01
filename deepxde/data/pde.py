@@ -79,8 +79,8 @@ class PDE(Data):
     @run_if_any_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x
-            self.test_y = self.train_y
+            self.test_x = self.train_x[sum(self.num_bcs) :]
+            self.test_y = self.train_y[sum(self.num_bcs) :]
         else:
             self.test_x = self.test_points()
             self.test_y = self.func(self.test_x)
