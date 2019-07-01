@@ -7,6 +7,7 @@ import tensorflow as tf
 
 from .data import Data
 from .helper import zero_function
+from .. import config
 from ..utils import run_if_any_none
 
 
@@ -47,25 +48,26 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model):
-        bcs_start = np.cumsum([0] + self.num_bcs)
-
         f = self.pde(model.net.x, outputs)
         if not isinstance(f, list):
             f = [f]
-        f = [fi[bcs_start[-1] :] for fi in f]
-        losses = [loss(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
-        for i, bc in enumerate(self.bcs):
-            beg, end = bcs_start[i], bcs_start[i + 1]
-            error = (
-                tf.cond(
-                    tf.equal(model.net.data_id, 0),
-                    lambda: bc.error(self.train_x, model.net.x, outputs, beg, end),
-                    lambda: bc.error(self.test_x, model.net.x, outputs, beg, end),
-                ),
-            )
-            losses.append(loss(tf.zeros(tf.shape(error)), error))
-        return losses
+        def losses_train():
+            bcs_start = np.cumsum([0] + self.num_bcs)
+            error_f = [fi[bcs_start[-1] :] for fi in f]
+            losses = [loss(tf.zeros(tf.shape(error)), error) for error in error_f]
+            for i, bc in enumerate(self.bcs):
+                beg, end = bcs_start[i], bcs_start[i + 1]
+                error = bc.error(self.train_x, model.net.x, outputs, beg, end)
+                losses.append(loss(tf.zeros(tf.shape(error)), error))
+            return losses
+
+        def losses_test():
+            return [loss(tf.zeros(tf.shape(fi)), fi) for fi in f] + [
+                tf.constant(0, dtype=config.real(tf)) for _ in self.bcs
+            ]
+
+        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
