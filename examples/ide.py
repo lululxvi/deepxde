@@ -32,9 +32,7 @@ def main():
     bc = dde.DirichletBC(geom, func, boundary)
 
     quad_deg = 16
-    data = dde.data.IDE(
-        geom, ide, bc, quad_deg, num_domain=16, num_boundary=2, func=func
-    )
+    data = dde.data.IDE(geom, ide, bc, quad_deg, num_domain=16, num_boundary=2)
 
     layer_size = [1] + [20] * 3 + [1]
     activation = "tanh"
@@ -42,7 +40,7 @@ def main():
     net = dde.maps.FNN(layer_size, activation, initializer)
 
     model = dde.Model(data, net)
-    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+    model.compile("adam", lr=0.001)
     model.train(epochs=10000)
 
     X = geom.uniform_points(100, True)

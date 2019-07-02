@@ -11,8 +11,6 @@ import deepxde as dde
 
 def main():
     def ide(x, y, int_mat):
-        """int_0^x y(t)dt
-        """
         rhs = tf.matmul(int_mat, y)
         lhs1 = tf.gradients(y, x)[0]
         return (lhs1 + y)[: tf.size(rhs)] - rhs
@@ -24,10 +22,6 @@ def main():
         return on_boundary and np.isclose(x[0], 0)
 
     def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
         return np.exp(-x) * np.cosh(x)
 
     geom = dde.geometry.Interval(0, 5)
@@ -51,7 +45,7 @@ def main():
     net = dde.maps.FNN(layer_size, activation, initializer)
 
     model = dde.Model(data, net)
-    model.compile("L-BFGS-B", metrics=["l2 relative error"])
+    model.compile("L-BFGS-B")
     model.train()
 
     X = geom.uniform_points(100)
