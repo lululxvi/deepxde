@@ -13,10 +13,11 @@ from ..utils import run_if_any_none
 
 class IDE(PDE):
     """IDE solver.
-    The current version only supports 1D problems with initial condition at x = 0.
+
+    The current version only supports 1D problems with the integral int_0^x K(x, t) y(t) dt.
 
     Args:
-        kernel: (x, s) --> R.
+        kernel: (x, t) --> R.
     """
 
     def __init__(
@@ -54,31 +55,31 @@ class IDE(PDE):
         )
 
     def losses(self, targets, outputs, loss, model):
-        bcs_start = np.cumsum([0] + self.num_bcs)
+        def losses_train():
+            bcs_start = np.cumsum([0] + self.num_bcs)
+            int_mat = self.get_int_matrix(True)
+            f = self.pde(model.net.x, outputs, int_mat)
+            if not isinstance(f, list):
+                f = [f]
+            f = [fi[bcs_start[-1] :] for fi in f]
+            losses = [loss(tf.zeros(tf.shape(fi)), fi) for fi in f]
 
-        int_mat_train = self.get_int_matrix(True)
-        int_mat_test = self.get_int_matrix(False)
-        f = tf.cond(
-            tf.equal(model.net.data_id, 0),
-            lambda: self.pde(model.net.x, outputs, int_mat_train),
-            lambda: self.pde(model.net.x, outputs, int_mat_test),
-        )
-        if not isinstance(f, list):
-            f = [f]
-        f = [fi[bcs_start[-1] :] for fi in f]
-        losses = [loss(tf.zeros(tf.shape(fi)), fi) for fi in f]
+            for i, bc in enumerate(self.bcs):
+                beg, end = bcs_start[i], bcs_start[i + 1]
+                error = bc.error(self.train_x, model.net.x, outputs, beg, end)
+                losses.append(loss(tf.zeros(tf.shape(error)), error))
+            return losses
 
-        for i, bc in enumerate(self.bcs):
-            beg, end = bcs_start[i], bcs_start[i + 1]
-            error = (
-                tf.cond(
-                    tf.equal(model.net.data_id, 0),
-                    lambda: bc.error(self.train_x, model.net.x, outputs, beg, end),
-                    lambda: bc.error(self.test_x, model.net.x, outputs, beg, end),
-                ),
-            )
-            losses.append(loss(tf.zeros(tf.shape(error)), error))
-        return losses
+        def losses_test():
+            int_mat = self.get_int_matrix(False)
+            f = self.pde(model.net.x, outputs, int_mat)
+            if not isinstance(f, list):
+                f = [f]
+            return [loss(tf.zeros(tf.shape(fi)), fi) for fi in f] + [
+                tf.constant(0, dtype=config.real(tf)) for _ in self.bcs
+            ]
+
+        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
@@ -92,14 +93,12 @@ class IDE(PDE):
     @run_if_any_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x
-            self.test_y = self.train_y
+            self.test_x = self.train_x[sum(self.num_bcs) :]
+            self.test_y = self.train_y[sum(self.num_bcs) :]
         else:
             self.test_x = self.test_points()
             x_quad = self.quad_points(self.test_x)
-            self.test_x = np.vstack(
-                (self.train_x[: sum(self.num_bcs)], self.test_x, x_quad)
-            )
+            self.test_x = np.vstack((self.test_x, x_quad))
             self.test_y = self.func(self.test_x)
         return self.test_x, self.test_y
 
@@ -113,19 +112,23 @@ class IDE(PDE):
         def get_quad_weights(x):
             return self.quad_w * x / 2
 
-        if training or self.num_test is None:
-            size = self.num_domain + self.num_boundary
-            if self.anchors is not None:
-                size += len(self.anchors)
+        if training:
+            num_bc = sum(self.num_bcs)
             X = self.train_x
         else:
-            size = self.num_test
+            num_bc = 0
             X = self.test_x
-        num_bc = sum(self.num_bcs)
-        int_mat = np.zeros((size + num_bc, X.size), dtype=config.real(np))
-        for i in range(size):
+        if training or self.num_test is None:
+            num_f = self.num_domain + self.num_boundary
+            if self.anchors is not None:
+                num_f += len(self.anchors)
+        else:
+            num_f = self.num_test
+
+        int_mat = np.zeros((num_bc + num_f, X.size), dtype=config.real(np))
+        for i in range(num_f):
             x = X[i + num_bc, 0]
-            beg = size + num_bc + self.quad_deg * i
+            beg = num_f + num_bc + self.quad_deg * i
             end = beg + self.quad_deg
             K = np.ravel(self.kernel(np.full((self.quad_deg, 1), x), X[beg:end]))
             int_mat[i + num_bc, beg:end] = get_quad_weights(x) * K
