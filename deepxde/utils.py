@@ -48,7 +48,7 @@ def timing(f):
         ts = time.time()
         result = f(*args, **kwargs)
         te = time.time()
-        print("%r took %f s" % (f.__name__, te - ts))
+        print("%r took %f s\n" % (f.__name__, te - ts))
         return result
 
     return wrapper

@@ -49,7 +49,7 @@ class TrainingDisplay:
         )
 
     def summary(self, train_state):
-        print("\nBest model at step {:d}:".format(train_state.best_step))
+        print("Best model at step {:d}:".format(train_state.best_step))
         print("  train loss: {:.2e}".format(train_state.best_loss_train))
         print("  test loss: {:.2e}".format(train_state.best_loss_test))
         print("  test metric: {:s}".format(list_to_str(train_state.best_metrics)))
@@ -65,6 +65,7 @@ class TrainingDisplay:
                 "    max uncertainty location:",
                 train_state.X_test[np.argmax(train_state.best_ystd)],
             )
+        print("")
         self.is_header_print = False
 
 

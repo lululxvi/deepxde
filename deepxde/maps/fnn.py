@@ -50,7 +50,7 @@ class FNN(Map):
 
     @timing
     def build(self):
-        print("\nBuilding feed-forward neural network...")
+        print("Building feed-forward neural network...")
         self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
 
         y = self.x

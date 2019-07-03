@@ -53,7 +53,7 @@ class Model(object):
     ):
         """Configures the model for training.
         """
-        print("\nCompiling model...")
+        print("Compiling model...")
 
         self.optimizer = optimizer
 
@@ -96,15 +96,15 @@ class Model(object):
             self.train_state.disregard_best()
 
         if self.train_state.step == 0:
-            print("\nInitializing variables...")
+            print("Initializing variables...")
             self.sess.run(tf.global_variables_initializer())
         else:
             guarantee_initialized_variables(self.sess)
         if model_restore_path is not None:
-            print("\nRestoring model from {} ...".format(model_restore_path))
+            print("Restoring model from {} ...".format(model_restore_path))
             self.saver.restore(self.sess, model_restore_path)
 
-        print("\nTraining model...")
+        print("Training model...\n")
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
@@ -118,6 +118,7 @@ class Model(object):
             self._train_sgd(epochs, display_every, uncertainty)
         self.callbacks.on_train_end()
 
+        print("")
         display.training_display.summary(self.train_state)
         if print_model:
             self._print_model()
