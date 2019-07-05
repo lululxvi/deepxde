@@ -133,9 +133,11 @@ class Model(object):
             "Model.evaluate to be implemented. Alternatively, use Model.predict."
         )
 
+    @timing
     def predict(self, x, operator=None, callbacks=None):
         """Generates output predictions for the input samples.
         """
+        print("Predicting...")
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import sys
 import time
 from functools import wraps
 from multiprocessing import Pool
@@ -49,6 +50,7 @@ def timing(f):
         result = f(*args, **kwargs)
         te = time.time()
         print("%r took %f s\n" % (f.__name__, te - ts))
+        sys.stdout.flush()
         return result
 
     return wrapper
