@@ -245,7 +245,7 @@ class Model(object):
                 ),
             )
 
-        if isinstance(self.net.targets, list):
+        if isinstance(self.net.targets, (list, tuple)):
             self.train_state.metrics_test = [
                 m(self.train_state.y_test[i], self.train_state.y_pred_test[i])
                 for m in self.metrics
@@ -272,13 +272,13 @@ class Model(object):
             self.net.dropout: dropout,
             self.net.data_id: data_id,
         }
-        if isinstance(self.net.inputs, list):
+        if isinstance(self.net.inputs, (list, tuple)):
             feed_dict.update(dict(zip(self.net.inputs, inputs)))
         else:
             feed_dict.update({self.net.inputs: inputs})
         if targets is None:
             return feed_dict
-        if isinstance(self.net.targets, list):
+        if isinstance(self.net.targets, (list, tuple)):
             feed_dict.update(dict(zip(self.net.targets, targets)))
         else:
             feed_dict.update({self.net.targets: targets})
@@ -345,7 +345,7 @@ class TrainState(object):
 
     def packed_data(self):
         def merge_values(values):
-            return np.hstack(values) if isinstance(values, list) else values
+            return np.hstack(values) if isinstance(values, (list, tuple)) else values
 
         X_train = merge_values(self.X_train)
         y_train = merge_values(self.y_train)

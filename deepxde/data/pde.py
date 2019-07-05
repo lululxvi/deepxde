@@ -31,7 +31,7 @@ class PDE(Data):
         self.geom = geom
         self.num_outputs = num_outputs
         self.pde = pde
-        self.bcs = bcs if isinstance(bcs, list) else [bcs]
+        self.bcs = bcs if isinstance(bcs, (list, tuple)) else [bcs]
 
         self.num_domain = num_domain
         self.num_boundary = num_boundary
@@ -49,7 +49,7 @@ class PDE(Data):
 
     def losses(self, targets, outputs, loss, model):
         f = self.pde(model.net.x, outputs)
-        if not isinstance(f, list):
+        if not isinstance(f, (list, tuple)):
             f = [f]
 
         def losses_train():
