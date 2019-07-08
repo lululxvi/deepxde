@@ -46,10 +46,13 @@ class OpDataSet(Data):
         return [loss(targets, outputs)]
 
     def train_next_batch(self, batch_size=None):
-        return [self.train_x[:, :-1], self.train_x[:, -1:]], self.train_y
+        return self.train_x, self.train_y
 
     def test(self):
-        return [self.test_x[:, :-1], self.test_x[:, -1:]], self.test_y
+        return self.test_x, self.test_y
+
+    def transform_inputs(self, x):
+        return list(map(lambda scaler, xi: scaler.transform(xi), self.scaler_x, x))
 
     def _standardize(self):
         def standardize_one(X1, X2):
@@ -58,6 +61,6 @@ class OpDataSet(Data):
             X2 = scaler.transform(X2)
             return scaler, X1, X2
 
-        self.scaler_x, self.train_x, self.test_x = standardize_one(
-            self.train_x, self.test_x
+        self.scaler_x, self.train_x, self.test_x = zip(
+            *map(standardize_one, self.train_x, self.test_x)
         )
