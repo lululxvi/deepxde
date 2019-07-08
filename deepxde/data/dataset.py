@@ -51,6 +51,9 @@ class DataSet(Data):
     def test(self):
         return self.test_x, self.test_y
 
+    def transform_inputs(self, x):
+        return self.scaler_x.transform(x)
+
     def _standardize(self):
         def standardize_one(X1, X2):
             scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
