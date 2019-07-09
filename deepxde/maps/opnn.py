@@ -23,6 +23,7 @@ class OpNN(Map):
         activation,
         kernel_initializer,
         regularization=None,
+        use_bias=True,
     ):
         if layer_size_function[-1] != layer_size_location[-1]:
             raise ValueError(
@@ -37,6 +38,7 @@ class OpNN(Map):
             kernel_initializer + "stacked"
         )
         self.regularizer = regularizers.get(regularization)
+        self.use_bias = use_bias
 
         super(OpNN, self).__init__()
 
@@ -65,7 +67,7 @@ class OpNN(Map):
             y_func = self.stacked_dense(
                 y_func, self.layer_size_func[i], stack_size, self.activation
             )
-        y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=False)
+        y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=self.use_bias)
 
         # Location NN
         y_loc = self.X_loc
@@ -80,6 +82,10 @@ class OpNN(Map):
         # Dot product
         self.y = tf.einsum("bi,bi->b", y_func, y_loc)
         self.y = tf.expand_dims(self.y, axis=1)
+        # Add bias
+        if self.use_bias:
+            b = tf.Variable(tf.zeros(1))
+            self.y += b
 
         self.target = tf.placeholder(config.real(tf), [None, 1])
 
