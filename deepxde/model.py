@@ -294,11 +294,16 @@ class Model(object):
     def save(self, save_path, verbose=0):
         if verbose > 0:
             print(
-                "Epoch {}: saving model to {}-{} ...".format(
+                "Epoch {}: saving model to {}-{} ...\n".format(
                     self.train_state.epoch, save_path, self.train_state.epoch
                 )
             )
         self.saver.save(self.sess, save_path, global_step=self.train_state.epoch)
+
+    def restore(self, save_path, verbose=0):
+        if verbose > 0:
+            print("Restoring model from {} ...\n".format(save_path))
+        self.saver.restore(self.sess, save_path)
 
 
 class TrainState(object):
