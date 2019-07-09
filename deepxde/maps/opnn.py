@@ -24,6 +24,7 @@ class OpNN(Map):
         kernel_initializer,
         regularization=None,
         use_bias=True,
+        stacked=False,
     ):
         if layer_size_function[-1] != layer_size_location[-1]:
             raise ValueError(
@@ -39,6 +40,7 @@ class OpNN(Map):
         )
         self.regularizer = regularizers.get(regularization)
         self.use_bias = use_bias
+        self.stacked = stacked
 
         super(OpNN, self).__init__()
 
@@ -61,13 +63,27 @@ class OpNN(Map):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
 
         # Function NN
-        stack_size = self.layer_size_func[-1]
         y_func = self.X_func
-        for i in range(1, len(self.layer_size_func) - 1):
-            y_func = self.stacked_dense(
-                y_func, self.layer_size_func[i], stack_size, self.activation
+        if self.stacked:
+            # Stacked
+            stack_size = self.layer_size_func[-1]
+            for i in range(1, len(self.layer_size_func) - 1):
+                y_func = self.stacked_dense(
+                    y_func, self.layer_size_func[i], stack_size, self.activation
+                )
+            y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=self.use_bias)
+        else:
+            # Unstacked
+            for i in range(1, len(self.layer_size_func) - 1):
+                y_func = self.dense(
+                    y_func,
+                    self.layer_size_func[i],
+                    activation=self.activation,
+                    regularizer=self.regularizer,
+                )
+            y_func = self.dense(
+                y_func, self.layer_size_func[-1], use_bias=self.use_bias
             )
-        y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=self.use_bias)
 
         # Location NN
         y_loc = self.X_loc
