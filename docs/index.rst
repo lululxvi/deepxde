@@ -13,28 +13,29 @@ Use DeepXDE if you need a deep learning library that
 - approximates functions from a dataset with/without constraints,
 - approximates functions from multi-fidelity data.
 
-DeepXDE is extensible to solve other problems in scientific computing.
+DeepXDE is extensible to solve other problems in Scientific Machine Learning.
+
+**DeepXDE Paper**: `arXiv <https://arxiv.org/abs/1907.04502>`_
 
 Features
 --------
 
 DeepXDE supports
 
-- complex domain geometries without tyranny mesh generation. The basic geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) by operations: union, difference, and intersection;
+- complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection;
 - multi-physics, i.e., coupled PDEs;
 - 4 types of boundary conditions: Dirichlet, Neumann, Robin, and periodic;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
-- residue-based adaptive training points;
+- residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
-- four domain geometries: interval, disk, hyercube and hypersphere;
 - two types of neural networks: fully connected neural network, and residual neural network;
 - many different losses, metrics, optimizers, learning rate schedules, initializations, regularizations, etc.;
 - useful techniques, such as dropout and batch normalization;
 - callbacks to monitor the internal states and statistics of the model during training;
-- compact and nice code, very close to the mathematical formulation.
+- enables the user code to be compact, resembling closely the mathematical formulation.
 
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable.
-It is easy to add new functions to each modules to satisfy new requirements.
+It is easy to customize DeepXDE to meet new demands.
 
 User guide
 ------------
