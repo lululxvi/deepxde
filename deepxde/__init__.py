@@ -7,6 +7,7 @@ from . import geometry
 from . import maps
 from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
+from .boundary_conditions import OperatorBC
 from .boundary_conditions import PeriodicBC
 from .boundary_conditions import RobinBC
 from .initial_condition import IC

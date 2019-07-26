@@ -102,6 +102,26 @@ class PeriodicBC(BC):
         return outputs[:, 0:1] - outputs[:, 1:]
 
 
+class OperatorBC(BC):
+    """General operator boundary conditions: func(inputs, outputs, X) = 0.
+
+    Args:
+        geom: ``Geometry``.
+        func: A function takes arguments (`inputs`, `outputs`, `X`)
+            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+            `inputs` and `outputs` are the network input and output tensors, respectively;
+            `X` are the values of the `inputs`.
+        on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
+    """
+
+    def __init__(self, geom, func, on_boundary):
+        super(OperatorBC, self).__init__(geom, on_boundary, 0)
+        self.func = func
+
+    def error(self, X, inputs, outputs, beg, end):
+        return self.func(inputs, outputs, X)[beg:end]
+
+
 class PointSet(object):
     """A set of points.
     """
