@@ -148,9 +148,9 @@ class Rectangle(Hypercube):
             u = np.ravel(sobol_sequence.sample(n + 4, 1))[2:]
             u = u[np.logical_not(np.isclose(u, l1 / self.perimeter))]
             u = u[np.logical_not(np.isclose(u, l3 / self.perimeter))]
-            u = u[:n, None]
+            u = u[:n]
         else:
-            u = np.random.rand(n, 1)
+            u = np.random.rand(n)
         u *= self.perimeter
         x = []
         for l in u:
@@ -256,9 +256,9 @@ class Triangle(Geometry):
             u = np.ravel(sobol_sequence.sample(n + 3, 1))[1:]
             u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
             u = u[np.logical_not(np.isclose(u, (self.l12 + self.l23) / self.perimeter))]
-            u = u[:n, None]
+            u = u[:n]
         else:
-            u = np.random.rand(n, 1)
+            u = np.random.rand(n)
         u *= self.perimeter
         x = []
         for l in u:
@@ -375,11 +375,11 @@ class Polygon(Geometry):
             for i in range(0, self.nvertices - 1):
                 l += self.diagonals[i, i + 1]
                 u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
-            u = u[:n, None]
+            u = u[:n]
         else:
-            u = np.random.rand(n, 1)
+            u = np.random.rand(n)
         u *= self.perimeter
-        u.sort(axis=0)
+        u.sort()
 
         x = []
         i = -1
