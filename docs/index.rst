@@ -24,7 +24,7 @@ DeepXDE supports
 
 - complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection;
 - multi-physics, i.e., coupled PDEs;
-- 4 types of boundary conditions: Dirichlet, Neumann, Robin, and periodic;
+- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
 - residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
