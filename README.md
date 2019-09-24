@@ -9,7 +9,6 @@
 [![Conda Downloads](https://anaconda.org/conda-forge/deepxde/badges/downloads.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-
 DeepXDE is a deep learning library for solving differential equations on top of [TensorFlow](https://www.tensorflow.org/).
 
 Use DeepXDE if you need a deep learning library that
@@ -33,7 +32,7 @@ DeepXDE supports
 
 - complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection;
 - multi-physics, i.e., coupled PDEs;
-- 4 types of boundary conditions: Dirichlet, Neumann, Robin, and periodic;
+- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
 - residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
