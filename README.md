@@ -6,7 +6,7 @@
 [![PyPI Version](https://badge.fury.io/py/DeepXDE.svg)](https://badge.fury.io/py/DeepXDE)
 [![PyPI Downloads](https://pepy.tech/badge/deepxde)](https://pepy.tech/project/deepxde)
 [![Conda Version](https://anaconda.org/conda-forge/deepxde/badges/version.svg)](https://anaconda.org/conda-forge/deepxde)
-[![Conda Downloads](https://anaconda.org/conda-forge/deepxde/badges/downloads.svg)](https://anaconda.org/conda-forge/deepxde)
+[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
 DeepXDE is a deep learning library for solving differential equations on top of [TensorFlow](https://www.tensorflow.org/).
