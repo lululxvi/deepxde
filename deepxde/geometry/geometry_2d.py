@@ -90,6 +90,7 @@ class Rectangle(Hypercube):
     def __init__(self, xmin, xmax):
         super(Rectangle, self).__init__(xmin, xmax)
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
+        self.area = np.prod(self.xmax - self.xmin)
 
     def uniform_boundary_points(self, n):
         nx, ny = np.ceil(n / self.perimeter * (self.xmax - self.xmin)).astype(int)
