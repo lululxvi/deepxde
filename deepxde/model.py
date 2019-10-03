@@ -14,7 +14,11 @@ from .utils import guarantee_initialized_variables, timing
 
 
 class Model(object):
-    """The ``Model`` class trains a ``Network`` on a ``Data``.
+    """The ``Model`` class trains a ``Map`` on a ``Data``.
+
+    Args:
+        data: ``deepxde.data.Data`` instance.
+        net: ``deepxde.maps.Map`` instance.
     """
 
     def __init__(self, data, net):
@@ -52,6 +56,17 @@ class Model(object):
         loss_weights=None,
     ):
         """Configures the model for training.
+
+        Args:
+            optimizer: String. Name of optimizer.
+            lr: A Tensor or a floating point value. The learning rate.
+            loss: String (name of objective function) or objective function.
+            metrics: List of metrics to be evaluated by the model during training.
+            decay: String. Name of decay to the initial learning rate.
+            loss_weights: A list specifying scalar coefficients (Python floats)
+                to weight the loss contributions. The loss value that will be minimized by the model
+                will then be the weighted sum of all individual losses,
+                weighted by the loss_weights coefficients.
         """
         print("Compiling model...")
 
@@ -88,6 +103,20 @@ class Model(object):
         print_model=False,
     ):
         """Trains the model for a fixed number of epochs (iterations on a dataset).
+
+        Args:
+            epochs: Integer. Number of epochs to train the model.
+            batch_size: Integer or ``None``. Not fully supported yet.
+            display_every: Integer. Print the loss and metrics every this steps.
+            uncertainty: Boolean. If ``True``, use Monte-Carlo Dropout to estimate uncertainty.
+            disregard_previous_best: If ``True``, disregard the previous saved best model.
+            callbacks: List of ``deepxde.callbacks.Callback`` instances.
+                List of callbacks to apply during training.
+            model_restore_path: String. Path where parameters were previously saved.
+                See `tf.train.Saver.restore <https://www.tensorflow.org/versions/r1.14/api_docs/python/tf/train/Saver#restore>`_.
+            model_save_path: String. Prefix of filenames created for the checkpoint.
+                See `tf.train.Saver.save <https://www.tensorflow.org/versions/r1.14/api_docs/python/tf/train/Saver#save>`_.
+            print_model: If ``True``, print the values of all variables.
         """
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
