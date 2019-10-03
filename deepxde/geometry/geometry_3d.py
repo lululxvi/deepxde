@@ -39,7 +39,7 @@ class Cuboid(Hypercube):
         if n <= 0:
             return x_corner
 
-        pts = []
+        pts = [x_corner]
         density = n / self.area
         rect = Rectangle(self.xmin[:-1], self.xmax[:-1])
         for z in [self.xmin[-1], self.xmax[-1]]:
@@ -53,7 +53,7 @@ class Cuboid(Hypercube):
         for x in [self.xmin[0], self.xmax[0]]:
             u = rect.random_points(int(np.ceil(density * rect.area)), random=random)
             pts.append(np.hstack((np.full((len(u), 1), x), u)))
-        return np.vstack((x_corner, *pts))
+        return np.vstack(pts)
 
     def uniform_boundary_points(self, n):
         h = (self.area / n) ** 0.5
