@@ -11,11 +11,16 @@ Use DeepXDE if you need a deep learning library that
 - solves fractional partial differential equations (fPDEs),
 - solves inverse problems for differential equations,
 - approximates functions from a dataset with/without constraints,
-- approximates functions from multi-fidelity data.
+- approximates functions from multi-fidelity data,
+- approximates operators.
 
 DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
-**DeepXDE Paper**: `arXiv <https://arxiv.org/abs/1907.04502>`_
+**Papers**
+
+- DeepXDE: `arXiv <https://arxiv.org/abs/1907.04502>`_
+- Multi-fidelity neural network: `arXiv <https://arxiv.org/abs/1903.00104>`_
+- Deep operator network (DeepONet): `arXiv <https://arxiv.org/abs/1910.03193>`_
 
 Features
 --------
