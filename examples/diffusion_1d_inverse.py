@@ -13,13 +13,13 @@ def main():
 
     def pde(x, y):
         dy_x = tf.gradients(y, x)[0]
-        dy_x, dy_t = dy_x[:, 0], dy_x[:, 1]
-        dy_xx = tf.gradients(dy_x, x)[0][:, 0]
+        dy_x, dy_t = dy_x[:, 0:1], dy_x[:, 1:]
+        dy_xx = tf.gradients(dy_x, x)[0][:, 0:1]
         return (
             dy_t
             - C * dy_xx
-            + tf.exp(-x[:, 1])
-            * (tf.sin(np.pi * x[:, 0]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0]))
+            + tf.exp(-x[:, 1:])
+            * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
         )
 
     def func(x):

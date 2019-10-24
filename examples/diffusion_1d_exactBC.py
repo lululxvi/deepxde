@@ -11,13 +11,13 @@ import deepxde as dde
 def main():
     def pde(x, y):
         dy_x = tf.gradients(y, x)[0]
-        dy_x, dy_t = dy_x[:, 0], dy_x[:, 1]
-        dy_xx = tf.gradients(dy_x, x)[0][:, 0]
+        dy_x, dy_t = dy_x[:, 0:1], dy_x[:, 1:]
+        dy_xx = tf.gradients(dy_x, x)[0][:, 0:1]
         return (
             dy_t
             - dy_xx
-            + tf.exp(-x[:, 1])
-            * (tf.sin(np.pi * x[:, 0]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0]))
+            + tf.exp(-x[:, 1:])
+            * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
         )
 
     def func(x):
@@ -30,13 +30,7 @@ def main():
     bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
     ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
     data = dde.data.TimePDE(
-        geomtime,
-        1,
-        pde,
-        [bc, ic],
-        num_domain=40,
-        func=func,
-        num_test=10000,
+        geomtime, 1, pde, [bc, ic], num_domain=40, func=func, num_test=10000
     )
 
     layer_size = [2] + [32] * 3 + [1]
