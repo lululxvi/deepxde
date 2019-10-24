@@ -98,6 +98,15 @@ If you use DeepXDE for academic research, you are encouraged to cite the followi
 
 The art of Scientific Machine Learning with deep learning is to design Loss ℒ.
 
+## Contributing to DeepXDE
+
+First off, thanks for taking the time to contribute!
+
+- **Reporting bugs.** To report a bug, simply open an issue in the GitHub "Issues" section.
+- **Suggesting enhancements.** To submit an enhancement suggestion for DeepXDE, including completely new features and minor improvements to existing functionality, let us know by opening an issue.
+- **Pull requests.** If you made improvements to DeepXDE, fixed a bug, or had a new example, feel free to send us a pull-request.
+- **Questions.** To get help on how to use DeepXDE or its functionalities, you can as well open an issue.
+
 ## License
 
 Apache license 2.0
