@@ -7,3 +7,4 @@ engines:
 exclude_paths:
   - 'README.md'
   - 'docs/**'
+  - '**/__init__.py'
