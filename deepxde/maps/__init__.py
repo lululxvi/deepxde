@@ -4,3 +4,6 @@ from .fnn import FNN
 from .mfnn import MfNN
 from .opnn import OpNN
 from .resnet import ResNet
+
+
+__all__ = ["FNN", "MfNN", "OpNN", "ResNet"]

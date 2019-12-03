@@ -14,3 +14,21 @@ from .geometry_nd import Hypercube
 from .geometry_nd import Hypersphere
 from .timedomain import GeometryXTime
 from .timedomain import TimeDomain
+
+
+__all__ = [
+    "CSGDifference",
+    "CSGIntersection",
+    "CSGUnion",
+    "Interval",
+    "Disk",
+    "Polygon",
+    "Rectangle",
+    "Triangle",
+    "Cuboid",
+    "Sphere",
+    "Hypercube",
+    "Hypersphere",
+    "GeometryXTime",
+    "TimeDomain",
+]

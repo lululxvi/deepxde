@@ -14,3 +14,21 @@ from .initial_condition import IC
 from .model import Model
 from .postprocessing import saveplot
 from .utils import apply
+
+
+__all__ = [
+    "bc",
+    "callbacks",
+    "data",
+    "geometry",
+    "maps",
+    "DirichletBC",
+    "NeumannBC",
+    "OperatorBC",
+    "PeriodicBC",
+    "RobinBC",
+    "IC",
+    "Model",
+    "saveplot",
+    "apply",
+]
