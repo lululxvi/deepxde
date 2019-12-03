@@ -35,9 +35,10 @@ class OpNN(Map):
         self.layer_size_loc = layer_size_location
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
-        self.kernel_initializer_stacked = initializers.get(
-            kernel_initializer + "stacked"
-        )
+        if stacked:
+            self.kernel_initializer_stacked = initializers.get(
+                kernel_initializer + "stacked"
+            )
         self.regularizer = regularizers.get(regularization)
         self.use_bias = use_bias
         self.stacked = stacked
