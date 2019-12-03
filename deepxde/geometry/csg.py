@@ -117,9 +117,9 @@ class CSGDifference(geometry.Geometry):
         x = []
         while len(x) < n:
             x += [
-                x
-                for x in self.geom1.random_points(n, random=random)
-                if not self.geom2.inside(x)
+                i
+                for i in self.geom1.random_points(n, random=random)
+                if not self.geom2.inside(i)
             ]
         return np.array(x[:n])
 
@@ -200,14 +200,14 @@ class CSGIntersection(geometry.Geometry):
         x = []
         while len(x) < n:
             x += [
-                x
-                for x in self.geom1.random_boundary_points(n, random=random)
-                if self.geom2.inside(x)
+                i
+                for i in self.geom1.random_boundary_points(n, random=random)
+                if self.geom2.inside(i)
             ]
             x += [
-                x
-                for x in self.geom2.random_boundary_points(n, random=random)
-                if self.geom1.inside(x)
+                i
+                for i in self.geom2.random_boundary_points(n, random=random)
+                if self.geom1.inside(i)
             ]
         if n != len(x):
             print(
