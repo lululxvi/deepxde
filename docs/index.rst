@@ -18,9 +18,17 @@ DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
 **Papers**
 
-- DeepXDE: `arXiv <https://arxiv.org/abs/1907.04502>`_
-- Multi-fidelity neural network: `arXiv <https://arxiv.org/abs/1903.00104>`_
-- Deep operator network (DeepONet): `arXiv <https://arxiv.org/abs/1910.03193>`_
+- Algorithms & examples
+
+  - Solving PDEs and IDEs: `arXiv <https://arxiv.org/abs/1907.04502>`_
+  - Solving fPDEs: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
+  - Solving stochastic PDEs: `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
+  - Multi-fidelity neural network: `arXiv <https://arxiv.org/abs/1903.00104>`_
+  - DeepONet to learn nonlinear operators: `arXiv <https://arxiv.org/abs/1910.03193>`_
+
+- Applications
+
+  - Inverse problems in nano-optics and metamaterials: `arXiv <https://arxiv.org/abs/1912.01085>`_
 
 Features
 --------
