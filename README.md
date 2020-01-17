@@ -29,7 +29,7 @@ DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
 - Algorithms & examples
 
-    - Solving PDEs and IDEs: [arXiv](https://arxiv.org/abs/1907.04502)
+    - Solving PDEs and IDEs: [arXiv](https://arxiv.org/abs/1907.04502), [slides](https://lululxvi.github.io/files/talks/2020PIML.pdf)
     - Solving fPDEs: [SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)
     - Solving stochastic PDEs: [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)
     - Multi-fidelity neural network: [arXiv](https://arxiv.org/abs/1903.00104)
