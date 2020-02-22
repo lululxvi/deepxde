@@ -102,6 +102,8 @@ html_static_path = ["_static"]
 #
 # html_sidebars = {}
 
+# Exclude imports
+autodoc_mock_imports = ["tensorflow"]
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
