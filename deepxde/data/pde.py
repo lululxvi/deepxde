@@ -48,7 +48,7 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model):
-        f = self.pde(model.net.x, outputs)
+        f = self.pde(model.net.inputs, outputs)
         if not isinstance(f, (list, tuple)):
             f = [f]
 
@@ -58,7 +58,7 @@ class PDE(Data):
             losses = [loss(tf.zeros(tf.shape(error)), error) for error in error_f]
             for i, bc in enumerate(self.bcs):
                 beg, end = bcs_start[i], bcs_start[i + 1]
-                error = bc.error(self.train_x, model.net.x, outputs, beg, end)
+                error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
                 losses.append(loss(tf.zeros(tf.shape(error)), error))
             return losses
 

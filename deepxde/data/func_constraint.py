@@ -37,8 +37,8 @@ class FuncConstraint(Data):
 
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
-            lambda: self.constraint(model.net.x, outputs, self.train_x),
-            lambda: self.constraint(model.net.x, outputs, self.test_x),
+            lambda: self.constraint(model.net.inputs, outputs, self.train_x),
+            lambda: self.constraint(model.net.inputs, outputs, self.test_x),
         )
         return [loss(targets[:n], outputs[:n]), loss(tf.zeros(tf.shape(f)), f)]
 
