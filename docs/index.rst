@@ -16,11 +16,13 @@ Use DeepXDE if you need a deep learning library that
 
 DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
+**Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `full paper <https://arxiv.org/abs/1907.04502>`_, `slides <https://lululxvi.github.io/files/talks/2020PIML.pdf>`_
+
 **Papers**
 
 - Algorithms & examples
 
-  - DeepXDE, solving PDEs and IDEs: `short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `full paper <https://arxiv.org/abs/1907.04502>`_, `slides <https://lululxvi.github.io/files/talks/2020PIML.pdf>`_
+  - Solving PDEs and IDEs: `short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `full paper <https://arxiv.org/abs/1907.04502>`_, `slides <https://lululxvi.github.io/files/talks/2020PIML.pdf>`_
   - Solving fPDEs: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
   - Solving stochastic PDEs: `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
   - Multi-fidelity neural network: `arXiv <https://arxiv.org/abs/1903.00104>`_
