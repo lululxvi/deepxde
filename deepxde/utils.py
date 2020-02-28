@@ -75,6 +75,15 @@ def apply(func, args=None, kwds=None):
     return r
 
 
+def make_dict(keys, values):
+    """Convert two lists or two variables into a dictionary."""
+    if isinstance(keys, (list, tuple)):
+        if len(keys) != len(values):
+            raise ValueError("keys and values have different length.")
+        return dict(zip(keys, values))
+    return {keys: values}
+
+
 def guarantee_initialized_variables(session, var_list=None):
     """Guarantee that all the specified variables are initialized.
 
@@ -116,7 +125,7 @@ def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
     fig, ax = plt.subplots()
     if y_reference is not None:
         plt.plot(xdata, y_reference, "k-")
-    ln, = plt.plot([], [], "r-o")
+    (ln,) = plt.plot([], [], "r-o")
 
     def init():
         ax.set_xlim(np.min(xdata), np.max(xdata))

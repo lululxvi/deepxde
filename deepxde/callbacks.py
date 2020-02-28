@@ -268,8 +268,7 @@ class OperatorPredictor(Callback):
 
     def on_predict_end(self):
         self.value = self.model.sess.run(
-            self.tf_op,
-            feed_dict=self.model._get_feed_dict(False, False, 2, self.x, None),
+            self.tf_op, feed_dict=self.model.net.feed_dict(False, False, 2, self.x),
         )
 
     def get_value(self):
@@ -326,7 +325,7 @@ class MovieDumper(Callback):
 
     def init(self):
         self.tf_op = self.model.net.outputs[:, self.component]
-        self.feed_dict = self.model._get_feed_dict(False, False, 2, self.x, None)
+        self.feed_dict = self.model.net.feed_dict(False, False, 2, self.x)
 
     def on_train_begin(self):
         self.y.append(self.model.sess.run(self.tf_op, feed_dict=self.feed_dict))

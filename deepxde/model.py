@@ -172,13 +172,12 @@ class Model(object):
         self.callbacks.on_predict_begin()
         if operator is None:
             y = self.sess.run(
-                self.net.outputs,
-                feed_dict=self._get_feed_dict(False, False, 2, x, None),
+                self.net.outputs, feed_dict=self.net.feed_dict(False, False, 2, x),
             )
         else:
             y = self.sess.run(
                 operator(self.net.inputs, self.net.outputs),
-                feed_dict=self._get_feed_dict(False, False, 2, x, None),
+                feed_dict=self.net.feed_dict(False, False, 2, x),
             )
         self.callbacks.on_predict_end()
         return y
@@ -203,7 +202,7 @@ class Model(object):
             )
             self.sess.run(
                 self.train_op,
-                feed_dict=self._get_feed_dict(
+                feed_dict=self.net.feed_dict(
                     True, True, 0, self.train_state.X_train, self.train_state.y_train
                 ),
             )
@@ -235,7 +234,7 @@ class Model(object):
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_op.minimize(
             self.sess,
-            feed_dict=self._get_feed_dict(
+            feed_dict=self.net.feed_dict(
                 True, True, 0, self.train_state.X_train, self.train_state.y_train
             ),
             fetches=[self.losses],
@@ -246,7 +245,7 @@ class Model(object):
     def _test(self, uncertainty):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.outputs],
-            feed_dict=self._get_feed_dict(
+            feed_dict=self.net.feed_dict(
                 False, False, 0, self.train_state.X_train, self.train_state.y_train
             ),
         )
@@ -257,7 +256,7 @@ class Model(object):
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.outputs],
-                    feed_dict=self._get_feed_dict(
+                    feed_dict=self.net.feed_dict(
                         False, True, 1, self.train_state.X_test, self.train_state.y_test
                     ),
                 )
@@ -269,7 +268,7 @@ class Model(object):
         else:
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.outputs],
-                feed_dict=self._get_feed_dict(
+                feed_dict=self.net.feed_dict(
                     False, False, 1, self.train_state.X_test, self.train_state.y_test
                 ),
             )
@@ -294,24 +293,6 @@ class Model(object):
             self.train_state.metrics_test,
         )
         display.training_display(self.train_state)
-
-    def _get_feed_dict(self, training, dropout, data_id, inputs, targets):
-        feed_dict = {
-            self.net.training: training,
-            self.net.dropout: dropout,
-            self.net.data_id: data_id,
-        }
-        if isinstance(self.net.inputs, (list, tuple)):
-            feed_dict.update(dict(zip(self.net.inputs, inputs)))
-        else:
-            feed_dict.update({self.net.inputs: inputs})
-        if targets is None:
-            return feed_dict
-        if isinstance(self.net.targets, (list, tuple)):
-            feed_dict.update(dict(zip(self.net.targets, targets)))
-        else:
-            feed_dict.update({self.net.targets: targets})
-        return feed_dict
 
     def _print_model(self):
         variables_names = [v.name for v in tf.trainable_variables()]
