@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow as tf
 
 from . import activations
@@ -43,11 +44,20 @@ class OpNN(Map):
         self.use_bias = use_bias
         self.stacked = stacked
 
+        self._inputs = None
+        self._X_func_default = None
         super(OpNN, self).__init__()
 
     @property
     def inputs(self):
-        return [self.X_func, self.X_loc]
+        return self._inputs
+
+    @inputs.setter
+    def inputs(self, value):
+        if value[1] is not None:
+            raise ValueError("OpNN does not support setting location input.")
+        self._X_func_default = value[0]
+        self._inputs = self.X_loc
 
     @property
     def outputs(self):
@@ -57,11 +67,18 @@ class OpNN(Map):
     def targets(self):
         return self.target
 
+    def _feed_dict_inputs(self, inputs):
+        if not isinstance(inputs, (list, tuple)):
+            n = len(inputs)
+            inputs = [np.tile(self._X_func_default, (n, 1)), inputs]
+        return dict(zip([self.X_func, self.X_loc], inputs))
+
     @timing
     def build(self):
         print("Building operator neural network...")
         self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
+        self._inputs = [self.X_func, self.X_loc]
 
         # Function NN
         y_func = self.X_func
