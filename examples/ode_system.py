@@ -19,8 +19,8 @@ def main():
         dy2_x = tf.gradients(y2, x)[0]
         return [dy1_x - y2, dy2_x + y1]
 
-    def boundary(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 0)
+    def boundary(_, on_initial):
+        return on_initial
 
     def func(x):
         """
@@ -29,10 +29,10 @@ def main():
         """
         return np.hstack((np.sin(x), np.cos(x)))
 
-    geom = dde.geometry.Interval(0, 10)
-    bc1 = dde.DirichletBC(geom, np.sin, boundary, component=0)
-    bc2 = dde.DirichletBC(geom, np.cos, boundary, component=1)
-    data = dde.data.PDE(geom, 2, ode_system, [bc1, bc2], 35, 2, func=func, num_test=100)
+    geom = dde.geometry.TimeDomain(0, 10)
+    ic1 = dde.IC(geom, np.sin, boundary, component=0)
+    ic2 = dde.IC(geom, np.cos, boundary, component=1)
+    data = dde.data.PDE(geom, 2, ode_system, [ic1, ic2], 35, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [2]
     activation = "tanh"

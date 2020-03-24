@@ -18,9 +18,6 @@ def main():
         rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
         return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
 
-    def boundary(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 0)
-
     def func(x):
         """
         x: array_like, N x D_in
@@ -28,11 +25,11 @@ def main():
         """
         return np.sin(2 * np.pi * x)
 
-    geom = dde.geometry.Interval(0, 1)
-    bc = dde.DirichletBC(geom, func, boundary)
+    geom = dde.geometry.TimeDomain(0, 1)
+    ic = dde.IC(geom, func, lambda _, on_initial: on_initial)
 
     quad_deg = 16
-    data = dde.data.IDE(geom, ide, bc, quad_deg, num_domain=16, num_boundary=2)
+    data = dde.data.IDE(geom, ide, ic, quad_deg, num_domain=16, num_boundary=2)
 
     layer_size = [1] + [20] * 3 + [1]
     activation = "tanh"

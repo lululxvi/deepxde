@@ -34,15 +34,15 @@ def main():
             dy3_x - y1 * y2 + C3 * y3,
         ]
 
-    def boundary(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 0)
+    def boundary(_, on_initial):
+        return on_initial
 
-    geom = dde.geometry.Interval(0, 3)
+    geom = dde.geometry.TimeDomain(0, 3)
 
     # Initial conditions
-    ic1 = dde.DirichletBC(geom, lambda X: -8 * np.ones(X.shape), boundary, component=0)
-    ic2 = dde.DirichletBC(geom, lambda X: 7 * np.ones(X.shape), boundary, component=1)
-    ic3 = dde.DirichletBC(geom, lambda X: 27 * np.ones(X.shape), boundary, component=2)
+    ic1 = dde.IC(geom, lambda X: -8 * np.ones(X.shape), boundary, component=0)
+    ic2 = dde.IC(geom, lambda X: 7 * np.ones(X.shape), boundary, component=1)
+    ic3 = dde.IC(geom, lambda X: 27 * np.ones(X.shape), boundary, component=2)
 
     # Get the train data
     observe_t, ob_y = gen_traindata()
