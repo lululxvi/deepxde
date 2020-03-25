@@ -87,19 +87,19 @@ class IDE(PDE):
         x_bc = self.bc_points()
         x_quad = self.quad_points(self.train_x)
         self.train_x = np.vstack((x_bc, self.train_x, x_quad))
-        self.train_y = self.func(self.train_x)
+        self.train_y = self.func(self.train_x) if self.func else None
         return self.train_x, self.train_y
 
     @run_if_any_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x[sum(self.num_bcs) :]
-            self.test_y = self.train_y[sum(self.num_bcs) :]
+            self.test_y = self.train_y[sum(self.num_bcs) :] if self.train_y else None
         else:
             self.test_x = self.test_points()
             x_quad = self.quad_points(self.test_x)
             self.test_x = np.vstack((self.test_x, x_quad))
-            self.test_y = self.func(self.test_x)
+            self.test_y = self.func(self.test_x) if self.func else None
         return self.test_x, self.test_y
 
     def quad_points(self, X):

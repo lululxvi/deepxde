@@ -172,7 +172,7 @@ class Model(object):
         self.callbacks.on_predict_begin()
         if operator is None:
             y = self.sess.run(
-                self.net.outputs, feed_dict=self.net.feed_dict(False, False, 2, x),
+                self.net.outputs, feed_dict=self.net.feed_dict(False, False, 2, x)
             )
         else:
             y = self.sess.run(
@@ -360,6 +360,8 @@ class TrainState(object):
 
     def packed_data(self):
         def merge_values(values):
+            if values is None:
+                return None
             return np.hstack(values) if isinstance(values, (list, tuple)) else values
 
         X_train = merge_values(self.X_train)

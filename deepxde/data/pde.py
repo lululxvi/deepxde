@@ -6,7 +6,6 @@ import numpy as np
 import tensorflow as tf
 
 from .data import Data
-from .helper import zero_function
 from .. import config
 from ..utils import run_if_any_none
 
@@ -38,7 +37,7 @@ class PDE(Data):
         self.train_distribution = train_distribution
         self.anchors = anchors
 
-        self.func = func or zero_function(self.num_outputs)
+        self.func = func
         self.num_test = num_test
 
         self.num_bcs = None
@@ -73,17 +72,17 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x = self.train_points()
         self.train_x = np.vstack((self.bc_points(), self.train_x))
-        self.train_y = self.func(self.train_x)
+        self.train_y = self.func(self.train_x) if self.func else None
         return self.train_x, self.train_y
 
     @run_if_any_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x[sum(self.num_bcs) :]
-            self.test_y = self.train_y[sum(self.num_bcs) :]
+            self.test_y = self.train_y[sum(self.num_bcs) :] if self.train_y else None
         else:
             self.test_x = self.test_points()
-            self.test_y = self.func(self.test_x)
+            self.test_y = self.func(self.test_x) if self.func else None
         return self.test_x, self.test_y
 
     def add_anchors(self, anchors):
@@ -93,7 +92,7 @@ class PDE(Data):
             self.anchors = np.vstack((anchors, self.anchors))
         self.train_x = np.vstack((anchors, self.train_x[sum(self.num_bcs) :]))
         self.train_x = np.vstack((self.bc_points(), self.train_x))
-        self.train_y = self.func(self.train_x)
+        self.train_y = self.func(self.train_x) if self.func else None
 
     def train_points(self):
         X = np.empty((0, self.geom.dim))
