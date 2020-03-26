@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def saveplot(losshistory, train_state, issave=True, isplot=True):
@@ -57,21 +58,32 @@ def plot_best_state(train_state):
     y_dim = best_y.shape[1]
 
     # Regression plot
-    plt.figure()
-    idx = np.argsort(X_test[:, 0])
-    X = X_test[idx, 0]
-    for i in range(y_dim):
-        if y_train is not None:
-            plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
-        if y_test is not None:
-            plt.plot(X, y_test[idx, i], "-k", label="True")
-        plt.plot(X, best_y[idx, i], "--r", label="Prediction")
-        if best_ystd is not None:
-            plt.plot(X, best_y[idx, i] + 2 * best_ystd[idx, i], "-b", label="95% CI")
-            plt.plot(X, best_y[idx, i] - 2 * best_ystd[idx, i], "-b")
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend()
+    if X_test.shape[1] == 1:
+        idx = np.argsort(X_test[:, 0])
+        X = X_test[idx, 0]
+        plt.figure()
+        for i in range(y_dim):
+            if y_train is not None:
+                plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
+            if y_test is not None:
+                plt.plot(X, y_test[idx, i], "-k", label="True")
+            plt.plot(X, best_y[idx, i], "--r", label="Prediction")
+            if best_ystd is not None:
+                plt.plot(
+                    X, best_y[idx, i] + 2 * best_ystd[idx, i], "-b", label="95% CI"
+                )
+                plt.plot(X, best_y[idx, i] - 2 * best_ystd[idx, i], "-b")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.legend()
+    elif X_test.shape[1] == 2:
+        for i in range(y_dim):
+            plt.figure()
+            ax = plt.axes(projection="3d")
+            ax.plot3D(X_test[:, 0], X_test[:, 1], best_y[:, i], ".")
+            ax.set_xlabel("$x_1$")
+            ax.set_ylabel("$x_2$")
+            ax.set_zlabel("$y_{}$".format(i + 1))
 
     # Residual plot
     if y_test is not None:
