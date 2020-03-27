@@ -96,10 +96,10 @@ If you use DeepXDE for academic research, you are encouraged to cite the followi
 
 ```
 @article{lu2019deepxde,
-    author  = {Lu, Lu and Meng, Xuhui and Mao, Zhiping and Karniadakis, George E.},
-    title   = {{DeepXDE}: A deep learning library for solving differential equations},
-    journal = {arXiv preprint arXiv:1907.04502},
-    year    = {2019}
+  author  = {Lu, Lu and Meng, Xuhui and Mao, Zhiping and Karniadakis, George E.},
+  title   = {{DeepXDE}: A deep learning library for solving differential equations},
+  journal = {arXiv preprint arXiv:1907.04502},
+  year    = {2019}
 }
 ```
 
@@ -118,4 +118,4 @@ First off, thanks for taking the time to contribute!
 
 ## License
 
-Apache license 2.0
+[Apache license 2.0](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
