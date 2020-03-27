@@ -79,7 +79,7 @@ def plot_best_state(train_state):
     elif X_test.shape[1] == 2:
         for i in range(y_dim):
             plt.figure()
-            ax = plt.axes(projection="3d")
+            ax = plt.axes(projection=Axes3D.name)
             ax.plot3D(X_test[:, 0], X_test[:, 1], best_y[:, i], ".")
             ax.set_xlabel("$x_1$")
             ax.set_ylabel("$x_2$")
