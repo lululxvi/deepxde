@@ -52,6 +52,7 @@ class GeometryXTime(object):
         )
         nt = int(np.ceil(n / nx))
         x = self.geometry.uniform_points(nx, boundary=boundary)
+        nx = len(x)
         if boundary:
             t = self.timedomain.uniform_points(nt, boundary=True)
         else:
@@ -97,6 +98,7 @@ class GeometryXTime(object):
             nx = int((n * s / self.timedomain.diam) ** 0.5)
         nt = int(np.ceil(n / nx))
         x = self.geometry.uniform_boundary_points(nx)
+        nx = len(x)
         t = np.linspace(
             self.timedomain.t1,
             self.timedomain.t0,
