@@ -8,7 +8,7 @@ import tensorflow as tf
 from .helper import one_function
 from .pde import PDE
 from .. import config
-from ..utils import run_if_any_none
+from ..utils import run_if_all_none
 
 
 class IDE(PDE):
@@ -81,7 +81,7 @@ class IDE(PDE):
 
         return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
-    @run_if_any_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
         self.train_x = self.train_points()
         x_bc = self.bc_points()
@@ -90,7 +90,7 @@ class IDE(PDE):
         self.train_y = self.func(self.train_x) if self.func else None
         return self.train_x, self.train_y
 
-    @run_if_any_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x[sum(self.num_bcs) :]
