@@ -9,6 +9,8 @@ from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
 from .boundary_conditions import OperatorBC
 from .boundary_conditions import PeriodicBC
+from .boundary_conditions import PeriodicBC2
+from .boundary_conditions import PeriodicBC3
 from .boundary_conditions import RobinBC
 from .initial_condition import IC
 from .model import Model
@@ -26,6 +28,8 @@ __all__ = [
     "NeumannBC",
     "OperatorBC",
     "PeriodicBC",
+    "PeriodicBC2",
+    "PeriodicBC3",
     "RobinBC",
     "IC",
     "Model",
