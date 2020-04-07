@@ -32,12 +32,12 @@ DeepXDE is extensible to solve other problems in Scientific Machine Learning.
     - Solving PDEs and IDEs: [Extended abstract](http://ceur-ws.org/Vol-2587/article_14.pdf), [Short paper](https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf), [Full paper](https://arxiv.org/abs/1907.04502)
     - Solving fPDEs: [SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)
     - Solving stochastic PDEs: [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)
-    - Multi-fidelity neural network: [PNAS](https://www.pnas.org/content/early/2020/03/13/1922210117.short), [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119307260)
+    - Multi-fidelity neural network: [PNAS](https://www.pnas.org/content/117/13/7052), [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119307260)
     - DeepONet to learn nonlinear operators: [arXiv](https://arxiv.org/abs/1910.03193)
 
 - Applications
 
-    - Inverse problems in nano-optics and metamaterials: [arXiv](https://arxiv.org/abs/1912.01085)
+    - Inverse problems in nano-optics and metamaterials: [Opt. Express](https://www.osapublishing.org/oe/abstract.cfm?uri=oe-28-8-11618)
 
 ## Features
 
