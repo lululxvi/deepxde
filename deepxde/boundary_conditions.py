@@ -87,9 +87,14 @@ class PeriodicBC(BC):
     """Periodic boundary conditions on component_x.
     """
 
-    def __init__(self, geom, component_x, on_boundary, component=0):
+    def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
         super(PeriodicBC, self).__init__(geom, on_boundary, component)
         self.component_x = component_x
+        self.derivative_order = derivative_order
+        if derivative_order > 1:
+            raise NotImplementedError(
+                "PeriodicBC only supports derivative_order 0 or 1."
+            )
 
     def collocation_points(self, X):
         X1 = self.filter(X)
@@ -97,9 +102,17 @@ class PeriodicBC(BC):
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end):
-        outputs = outputs[beg:end, self.component : self.component + 1]
-        outputs = tf.reshape(outputs, [-1, 2])
-        return outputs[:, 0:1] - outputs[:, 1:]
+        mid = beg + (end - beg) // 2
+        if self.derivative_order == 0:
+            yleft = outputs[beg:mid, self.component : self.component + 1]
+            yright = outputs[mid:end, self.component : self.component + 1]
+        else:
+            dydx = tf.gradients(
+                outputs[:, self.component : self.component + 1], inputs
+            )[0]
+            yleft = dydx[beg:mid, self.component_x : self.component_x + 1]
+            yright = dydx[mid:end, self.component_x : self.component_x + 1]
+        return yleft - yright
 
 
 class OperatorBC(BC):
