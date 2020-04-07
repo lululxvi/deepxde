@@ -93,7 +93,7 @@ class PeriodicBC(BC):
         self.derivative_order = derivative_order
         if derivative_order > 1:
             raise NotImplementedError(
-                "PeriodicBC only support derivative_order 0 or 1."
+                "PeriodicBC only supports derivative_order 0 or 1."
             )
 
     def collocation_points(self, X):
@@ -102,7 +102,7 @@ class PeriodicBC(BC):
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end):
-        mid = beg + int((end - beg) / 2)
+        mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
             yleft = outputs[beg:mid, self.component : self.component + 1]
             yright = outputs[mid:end, self.component : self.component + 1]
