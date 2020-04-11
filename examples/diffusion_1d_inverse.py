@@ -46,7 +46,7 @@ def main():
         num_boundary=20,
         num_initial=10,
         anchors=observe_x,
-        func=func,
+        solution=func,
         num_test=10000,
     )
 

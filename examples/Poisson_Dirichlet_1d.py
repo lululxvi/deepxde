@@ -23,7 +23,7 @@ def main():
 
     geom = dde.geometry.Interval(-1, 1)
     bc = dde.DirichletBC(geom, func, boundary)
-    data = dde.data.PDE(geom, pde, bc, 16, 2, func=func, num_test=100)
+    data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"

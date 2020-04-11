@@ -22,7 +22,7 @@ class IDE(PDE):
 
     def __init__(
         self,
-        geom,
+        geometry,
         ide,
         bcs,
         quad_deg,
@@ -31,7 +31,7 @@ class IDE(PDE):
         num_boundary=0,
         train_distribution="random",
         anchors=None,
-        func=None,
+        solution=None,
         num_test=None,
     ):
         self.kernel = kernel or one_function(1)
@@ -42,14 +42,14 @@ class IDE(PDE):
         self.test_x, self.test_y = None, None
 
         super(IDE, self).__init__(
-            geom,
+            geometry,
             ide,
             bcs,
             num_domain=num_domain,
             num_boundary=num_boundary,
             train_distribution=train_distribution,
             anchors=anchors,
-            func=func,
+            solution=solution,
             num_test=num_test,
         )
 
@@ -90,7 +90,7 @@ class IDE(PDE):
         x_bc = self.bc_points()
         x_quad = self.quad_points(self.train_x)
         self.train_x = np.vstack((x_bc, self.train_x, x_quad))
-        self.train_y = self.func(self.train_x) if self.func else None
+        self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
@@ -102,7 +102,7 @@ class IDE(PDE):
             self.test_x = self.test_points()
             x_quad = self.quad_points(self.test_x)
             self.test_x = np.vstack((self.test_x, x_quad))
-            self.test_y = self.func(self.test_x) if self.func else None
+            self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
     def quad_points(self, X):

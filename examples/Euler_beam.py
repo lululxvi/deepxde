@@ -43,7 +43,7 @@ def main():
         [bc1, bc2, bc3, bc4],
         num_domain=10,
         num_boundary=2,
-        func=func,
+        solution=func,
         num_test=100,
     )
     layer_size = [1] + [20] * 3 + [1]

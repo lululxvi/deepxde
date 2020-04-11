@@ -16,17 +16,17 @@ class PDE(Data):
 
     def __init__(
         self,
-        geom,
+        geometry,
         pde,
         bcs,
         num_domain=0,
         num_boundary=0,
         train_distribution="random",
         anchors=None,
-        func=None,
+        solution=None,
         num_test=None,
     ):
-        self.geom = geom
+        self.geom = geometry
         self.pde = pde
         self.bcs = bcs if isinstance(bcs, (list, tuple)) else [bcs]
 
@@ -35,7 +35,7 @@ class PDE(Data):
         self.train_distribution = train_distribution
         self.anchors = anchors
 
-        self.func = func
+        self.soln = solution
         self.num_test = num_test
 
         self.num_bcs = None
@@ -75,7 +75,7 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x = self.train_points()
         self.train_x = np.vstack((self.bc_points(), self.train_x))
-        self.train_y = self.func(self.train_x) if self.func else None
+        self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
@@ -85,7 +85,7 @@ class PDE(Data):
             self.test_y = self.train_y[sum(self.num_bcs) :] if self.train_y else None
         else:
             self.test_x = self.test_points()
-            self.test_y = self.func(self.test_x) if self.func else None
+            self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
     def add_anchors(self, anchors):
@@ -95,7 +95,7 @@ class PDE(Data):
             self.anchors = np.vstack((anchors, self.anchors))
         self.train_x = np.vstack((anchors, self.train_x[sum(self.num_bcs) :]))
         self.train_x = np.vstack((self.bc_points(), self.train_x))
-        self.train_y = self.func(self.train_x) if self.func else None
+        self.train_y = self.soln(self.train_x) if self.soln else None
 
     def train_points(self):
         X = np.empty((0, self.geom.dim))
@@ -136,7 +136,7 @@ class TimePDE(PDE):
 
     def __init__(
         self,
-        geomtime,
+        geometryxtime,
         pde,
         ic_bcs,
         num_domain=0,
@@ -144,19 +144,19 @@ class TimePDE(PDE):
         num_initial=0,
         train_distribution="random",
         anchors=None,
-        func=None,
+        solution=None,
         num_test=None,
     ):
         self.num_initial = num_initial
         super(TimePDE, self).__init__(
-            geomtime,
+            geometryxtime,
             pde,
             ic_bcs,
             num_domain,
             num_boundary,
             train_distribution=train_distribution,
             anchors=anchors,
-            func=func,
+            solution=solution,
             num_test=num_test,
         )
 

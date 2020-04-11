@@ -36,7 +36,7 @@ def main():
         num_domain=40,
         num_boundary=20,
         num_initial=10,
-        func=func,
+        solution=func,
         num_test=10000,
     )
 
