@@ -36,7 +36,7 @@ def main():
     )
 
     data = dde.data.TimePDE(
-        geomtime, 1, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160
+        geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160
     )
     net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
     model = dde.Model(data, net)

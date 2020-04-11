@@ -26,7 +26,7 @@ def main():
     geom = dde.geometry.Interval(-1, 1)
     bc_l = dde.DirichletBC(geom, func, boundary_l)
     bc_r = dde.RobinBC(geom, lambda X, y: y, boundary_r)
-    data = dde.data.PDE(geom, 1, pde, [bc_l, bc_r], 16, 2, func=func, num_test=100)
+    data = dde.data.PDE(geom, pde, [bc_l, bc_r], 16, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"

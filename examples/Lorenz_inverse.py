@@ -60,7 +60,6 @@ def main():
 
     data = dde.data.PDE(
         geom,
-        3,
         Lorenz_system,
         [ic1, ic2, ic3, observe_y0, observe_y1, observe_y2],
         num_domain=400,

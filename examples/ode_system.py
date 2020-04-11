@@ -32,7 +32,7 @@ def main():
     geom = dde.geometry.TimeDomain(0, 10)
     ic1 = dde.IC(geom, np.sin, boundary, component=0)
     ic2 = dde.IC(geom, np.cos, boundary, component=1)
-    data = dde.data.PDE(geom, 2, ode_system, [ic1, ic2], 35, 2, func=func, num_test=100)
+    data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, func=func, num_test=100)
 
     layer_size = [1] + [50] * 3 + [2]
     activation = "tanh"

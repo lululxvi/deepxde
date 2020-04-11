@@ -39,7 +39,6 @@ def main():
 
     data = dde.data.PDE(
         geom,
-        1,
         pde,
         [bc1, bc2, bc3, bc4],
         num_domain=10,

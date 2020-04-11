@@ -17,7 +17,6 @@ class PDE(Data):
     def __init__(
         self,
         geom,
-        num_outputs,
         pde,
         bcs,
         num_domain=0,
@@ -28,7 +27,6 @@ class PDE(Data):
         num_test=None,
     ):
         self.geom = geom
-        self.num_outputs = num_outputs
         self.pde = pde
         self.bcs = bcs if isinstance(bcs, (list, tuple)) else [bcs]
 
@@ -139,7 +137,6 @@ class TimePDE(PDE):
     def __init__(
         self,
         geomtime,
-        num_outputs,
         pde,
         ic_bcs,
         num_domain=0,
@@ -153,7 +150,6 @@ class TimePDE(PDE):
         self.num_initial = num_initial
         super(TimePDE, self).__init__(
             geomtime,
-            num_outputs,
             pde,
             ic_bcs,
             num_domain,

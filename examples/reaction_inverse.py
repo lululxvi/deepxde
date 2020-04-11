@@ -65,7 +65,6 @@ def main():
 
     data = dde.data.TimePDE(
         geomtime,
-        2,
         pde,
         [bc_a, bc_b, ic1, ic2, observe_y1, observe_y2],
         num_domain=2000,

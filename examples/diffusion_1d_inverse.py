@@ -40,7 +40,6 @@ def main():
 
     data = dde.data.TimePDE(
         geomtime,
-        1,
         pde,
         [bc, ic, observe_y],
         num_domain=40,

@@ -31,7 +31,6 @@ def main():
     ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
     data = dde.data.TimePDE(
         geomtime,
-        1,
         pde,
         [bc, ic],
         num_domain=40,

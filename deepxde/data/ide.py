@@ -43,7 +43,6 @@ class IDE(PDE):
 
         super(IDE, self).__init__(
             geom,
-            1,
             ide,
             bcs,
             num_domain=num_domain,
