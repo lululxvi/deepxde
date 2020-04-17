@@ -6,13 +6,12 @@ on top of `TensorFlow <https://www.tensorflow.org/>`_.
 
 Use DeepXDE if you need a deep learning library that
 
-- solves partial differential equations (PDEs),
-- solves integro-differential equations (IDEs),
-- solves fractional partial differential equations (fPDEs),
-- solves inverse problems for differential equations,
-- approximates functions from a dataset with/without constraints,
-- approximates functions from multi-fidelity data,
-- approximates operators.
+- solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
+- solves forward and inverse integro-differential equations (IDEs) via PINN,
+- solves forward and inverse fractional partial differential equations (fPDEs) via fractional PINN (fPINN),
+- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
+- approximates nonlinear operators via deep operator network (DeepONet),
+- approximates functions from a dataset with/without constraints.
 
 DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
@@ -22,11 +21,11 @@ DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
 - Algorithms & examples
 
-  - Solving PDEs and IDEs: `Extended abstract <http://ceur-ws.org/Vol-2587/article_14.pdf>`_, `Short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `Full paper <https://arxiv.org/abs/1907.04502>`_
-  - Solving fPDEs: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
-  - Solving stochastic PDEs: `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
-  - Multi-fidelity neural network: `PNAS <https://www.pnas.org/content/117/13/7052>`_, `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119307260>`_
-  - DeepONet to learn nonlinear operators: `arXiv <https://arxiv.org/abs/1910.03193>`_
+  - Solving PDEs and IDEs via PINN: `Extended abstract <http://ceur-ws.org/Vol-2587/article_14.pdf>`_, `Short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `Full paper <https://arxiv.org/abs/1907.04502>`_
+  - Solving fPDEs via fPINN: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
+  - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
+  - Learning from multi-fidelity data via MFNN: `PNAS <https://www.pnas.org/content/117/13/7052>`_, `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119307260>`_
+  - Learning nonlinear operators via DeepONet: `arXiv <https://arxiv.org/abs/1910.03193>`_
 
 - Applications
 
