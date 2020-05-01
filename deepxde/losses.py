@@ -15,12 +15,8 @@ def mean_squared_error(y_true, y_pred):
     return tf.reduce_mean(tf.math.square(y_true - y_pred))
 
 
-def mean_absolute_percentage_error(y_true, y_pred):
-    return 100 * tf.reduce_mean(tf.abs(y_true - y_pred) / y_true)
-
-
-def softmax_cross_entropy(y_true, y_pred):
-    return tf.losses.softmax_cross_entropy(y_true, y_pred)
+mean_absolute_percentage_error = tf.keras.losses.MeanAbsolutePercentageError()
+softmax_cross_entropy = tf.losses.softmax_cross_entropy
 
 
 def get(identifier):
