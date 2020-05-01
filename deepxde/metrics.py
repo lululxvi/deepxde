@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import numpy as np
 
+from . import config
+
 
 def accuracy(y_true, y_pred):
     return np.mean(np.equal(np.argmax(y_pred, axis=-1), np.argmax(y_true, axis=-1)))
@@ -13,12 +15,18 @@ def l2_relative_error(y_true, y_pred):
     return np.linalg.norm(y_true - y_pred) / np.linalg.norm(y_true)
 
 
+def _absolute_percentage_error(y_true, y_pred):
+    return 100 * np.abs(
+        (y_true - y_pred) / np.clip(np.abs(y_true), np.finfo(config.real(np)).eps, None)
+    )
+
+
 def mean_absolute_percentage_error(y_true, y_pred):
-    return 100 * np.mean(np.abs(y_true - y_pred) / y_true)
+    return np.mean(_absolute_percentage_error(y_true, y_pred))
 
 
 def absolute_percentage_error_std(y_true, y_pred):
-    return 100 * np.std(np.abs(y_true - y_pred) / y_true)
+    return np.std(_absolute_percentage_error(y_true, y_pred))
 
 
 def get(identifier):
