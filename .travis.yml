@@ -28,7 +28,7 @@ install:
   - conda activate test-environment
 
   - conda install -c conda-forge salib
-  - conda install -c tensorflow==1.14.0
+  - conda install tensorflow==1.14.0
 
 # command to run tests
 script:
