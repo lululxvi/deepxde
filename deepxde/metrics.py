@@ -25,6 +25,10 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(_absolute_percentage_error(y_true, y_pred))
 
 
+def max_absolute_percentage_error(y_true, y_pred):
+    return np.amax(_absolute_percentage_error(y_true, y_pred))
+
+
 def absolute_percentage_error_std(y_true, y_pred):
     return np.std(_absolute_percentage_error(y_true, y_pred))
 
@@ -34,6 +38,7 @@ def get(identifier):
         "accuracy": accuracy,
         "l2 relative error": l2_relative_error,
         "MAPE": mean_absolute_percentage_error,
+        "max APE": max_absolute_percentage_error,
         "APE SD": absolute_percentage_error_std,
     }
 
