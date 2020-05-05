@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+from ..backend import tf
 
 
 def get(identifier):
@@ -10,11 +10,11 @@ def get(identifier):
         return None
     name, scales = identifier[0], identifier[1:]
     return (
-        tf.contrib.layers.l1_regularizer(scales[0])
+        tf.keras.regularizers.l1(l=scales[0])
         if name == "l1"
-        else tf.contrib.layers.l2_regularizer(scales[0])
+        else tf.keras.regularizers.l2(l=scales[0])
         if name == "l2"
-        else tf.contrib.layers.l1_l2_regularizer(scales[0], scales[1])
+        else tf.keras.regularizers.l1_l2(l1=scales[0], l2=scales[1])
         if name == "l1+l2"
         else None
     )

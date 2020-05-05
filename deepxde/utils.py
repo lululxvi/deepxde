@@ -9,8 +9,9 @@ from multiprocessing import Pool
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from matplotlib import animation
+
+from .backend import tf
 
 
 def run_if_all_none(*attr):

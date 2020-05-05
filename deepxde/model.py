@@ -3,12 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 
 from . import display
 from . import losses as losses_module
 from . import metrics as metrics_module
 from . import train as train_module
+from .backend import tf
 from .callbacks import CallbackList
 from .utils import guarantee_initialized_variables, timing
 

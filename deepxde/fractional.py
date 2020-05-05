@@ -5,10 +5,10 @@ from __future__ import print_function
 import math
 
 import numpy as np
-import tensorflow as tf
 
 from . import config
 from . import array_ops
+from .backend import tf
 
 
 class Discretization(object):

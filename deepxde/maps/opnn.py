@@ -3,13 +3,13 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 
 from . import activations
 from . import initializers
 from . import regularizers
 from .map import Map
 from .. import config
+from ..backend import tf
 from ..utils import timing
 
 

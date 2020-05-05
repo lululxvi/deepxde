@@ -21,6 +21,14 @@ deepxde.array\_ops module
     :undoc-members:
     :show-inheritance:
 
+deepxde.backend module
+----------------------
+
+.. automodule:: deepxde.backend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 deepxde.boundary\_conditions module
 -----------------------------------
 

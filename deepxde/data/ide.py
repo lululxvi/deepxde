@@ -3,11 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 
 from .helper import one_function
 from .pde import PDE
 from .. import config
+from ..backend import tf
 from ..utils import run_if_all_none
 
 

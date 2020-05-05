@@ -3,10 +3,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
 from sklearn import preprocessing
 
 from .data import Data
+from ..backend import tf
 from ..utils import run_if_any_none
 
 

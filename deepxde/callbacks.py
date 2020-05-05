@@ -5,8 +5,8 @@ from __future__ import print_function
 import sys
 
 import numpy as np
-import tensorflow as tf
 
+from .backend import tf
 from .utils import save_animation
 
 
@@ -268,7 +268,7 @@ class OperatorPredictor(Callback):
 
     def on_predict_end(self):
         self.value = self.model.sess.run(
-            self.tf_op, feed_dict=self.model.net.feed_dict(False, False, 2, self.x),
+            self.tf_op, feed_dict=self.model.net.feed_dict(False, False, 2, self.x)
         )
 
     def get_value(self):

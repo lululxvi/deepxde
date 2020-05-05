@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from . import backend
 from . import boundary_conditions as bc
 from . import callbacks
 from . import data
@@ -17,6 +18,7 @@ from .utils import apply
 
 
 __all__ = [
+    "backend",
     "bc",
     "callbacks",
     "data",
