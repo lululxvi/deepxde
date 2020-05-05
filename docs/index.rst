@@ -1,10 +1,7 @@
 DeepXDE
 ===================================
 
-`DeepXDE <https://github.com/lululxvi/deepxde>`_ is a deep learning library for solving differential equations
-on top of `TensorFlow <https://www.tensorflow.org/>`_.
-
-Use DeepXDE if you need a deep learning library that
+DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow.org/>`_. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
@@ -12,8 +9,6 @@ Use DeepXDE if you need a deep learning library that
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates nonlinear operators via deep operator network (DeepONet),
 - approximates functions from a dataset with/without constraints.
-
-DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
 **Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `Extended abstract <http://ceur-ws.org/Vol-2587/article_14.pdf>`_, `Short paper <https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf>`_, `Full paper <https://arxiv.org/abs/1907.04502>`_, `Slides <https://lululxvi.github.io/files/talks/2020AAAI.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_
 
@@ -48,8 +43,7 @@ DeepXDE supports
 - callbacks to monitor the internal states and statistics of the model during training;
 - enables the user code to be compact, resembling closely the mathematical formulation.
 
-All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable.
-It is easy to customize DeepXDE to meet new demands.
+All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
 
 User guide
 ------------
@@ -58,12 +52,12 @@ User guide
   :maxdepth: 2
 
   user/installation
+  user/cite_deepxde
 
 API reference
 -------------
 
-If you are looking for information on a specific function, class or
-method, this part of the documentation is for you.
+If you are looking for information on a specific function, class or method, this part of the documentation is for you.
 
 .. toctree::
   :maxdepth: 2

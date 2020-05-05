@@ -1,4 +1,4 @@
-# DeepXDE ℒ
+# DeepXDE
 
 [![Build Status](https://travis-ci.org/lululxvi/deepxde.svg?branch=master)](https://travis-ci.org/lululxvi/deepxde)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
@@ -9,9 +9,7 @@
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-DeepXDE is a deep learning library for solving differential equations on top of [TensorFlow](https://www.tensorflow.org/).
-
-Use DeepXDE if you need a deep learning library that
+DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow.org/). Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
@@ -19,8 +17,6 @@ Use DeepXDE if you need a deep learning library that
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates nonlinear operators via deep operator network (DeepONet),
 - approximates functions from a dataset with/without constraints.
-
-DeepXDE is extensible to solve other problems in Scientific Machine Learning.
 
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [Extended abstract](http://ceur-ws.org/Vol-2587/article_14.pdf), [Short paper](https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf), [Full paper](https://arxiv.org/abs/1907.04502), [Slides](https://lululxvi.github.io/files/talks/2020AAAI.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
 
@@ -58,10 +54,9 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed.
-Both TensorFlow 1 and TensorFlow 2 can be used as the DeepXDE backend, but TensorFlow 1 is recommended:
+DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed. Both TensorFlow 1 and TensorFlow 2 can be used as the DeepXDE backend, but TensorFlow 1 is recommended:
 
-- My tests show that TensorFlow 2 is 2x~3x slower than TensorFlow 1;
+- In my tests TensorFlow 2 is 2x~3x slower than TensorFlow 1;
 - Currently L-BFGS optimizer is not supported in DeepXDE yet when using TensorFlow 2.
 
 Then, you can install DeepXDE itself. If you use TensorFlow 2, you need to install DeepXDE by cloning the folder.
@@ -105,10 +100,6 @@ If you use DeepXDE for academic research, you are encouraged to cite the followi
   year    = {2019}
 }
 ```
-
-## Why this logo, ℒ?
-
-The art of Scientific Machine Learning with deep learning is to design Loss ℒ.
 
 ## Contributing to DeepXDE
 
