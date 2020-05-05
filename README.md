@@ -58,9 +58,13 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires [TensorFlow 1](https://www.tensorflow.org/) to be installed.
-(Sorry, but DeepXDE does not support TensorFlow 2 yet.)
-Then, you can install DeepXDE itself.
+DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed.
+Both TensorFlow 1 and TensorFlow 2 can be used as the DeepXDE backend, but TensorFlow 1 is recommended:
+
+- My tests show that TensorFlow 2 is 2x~3x slower than TensorFlow 1;
+- Currently L-BFGS optimizer is not supported in DeepXDE yet when using TensorFlow 2.
+
+Then, you can install DeepXDE itself. If you use TensorFlow 2, you need to install DeepXDE by cloning the folder.
 
 - Install the stable version with `pip`:
 
