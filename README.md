@@ -88,6 +88,10 @@ $ git clone https://github.com/lululxvi/deepxde.git
   - [SciPy](https://www.scipy.org/)
   - [TensorFlow](https://www.tensorflow.org/)
 
+## Explore more
+
+- [Questions & Answers](https://deepxde.readthedocs.io/en/latest/user/questions_answers.html)
+
 ## Cite DeepXDE
 
 If you use DeepXDE for academic research, you are encouraged to cite the following paper:
