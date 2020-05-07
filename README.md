@@ -59,7 +59,7 @@ DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed. Both
 - In my tests TensorFlow 2 is 2x~3x slower than TensorFlow 1;
 - Currently L-BFGS optimizer is not supported in DeepXDE yet when using TensorFlow 2.
 
-Then, you can install DeepXDE itself. If you use TensorFlow 2, you need to install DeepXDE by cloning the folder.
+Then, you can install DeepXDE itself. If you use TensorFlow 2, you need to install DeepXDE by cloning the folder. If you use Python 2, you need to install DeepXDE using `pip`.
 
 - Install the stable version with `pip`:
 
@@ -86,7 +86,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
   - [SALib](http://salib.github.io/SALib/)
   - [scikit-learn](https://scikit-learn.org)
   - [SciPy](https://www.scipy.org/)
-  - [TensorFlow](https://www.tensorflow.org/)
+  - [TensorFlow](https://www.tensorflow.org/)>=1.14.0
 
 ## Explore more
 
