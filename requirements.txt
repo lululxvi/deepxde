@@ -3,4 +3,4 @@ numpy
 salib
 scikit-learn
 scipy
-tensorflow
+tensorflow>=1.14.0
