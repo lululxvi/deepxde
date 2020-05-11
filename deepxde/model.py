@@ -62,7 +62,9 @@ class Model(object):
             lr: A Tensor or a floating point value. The learning rate.
             loss: String (name of objective function) or objective function.
             metrics: List of metrics to be evaluated by the model during training.
-            decay: String. Name of decay to the initial learning rate.
+            decay: Tuple. Name and parameters of decay to the initial learning rate. One of the following options:
+                - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
+                - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
             loss_weights: A list specifying scalar coefficients (Python floats)
                 to weight the loss contributions. The loss value that will be minimized by the model
                 will then be the weighted sum of all individual losses,
