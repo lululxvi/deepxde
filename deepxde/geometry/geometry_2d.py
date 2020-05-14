@@ -165,6 +165,18 @@ class Rectangle(Hypercube):
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return np.vstack((x_corner, x))
 
+    @staticmethod
+    def is_valid(vertices):
+        """Check if the geometry is a Rectangle.
+        """
+        return (
+            len(vertices) == 4
+            and np.isclose(np.prod(vertices[1] - vertices[0]), 0)
+            and np.isclose(np.prod(vertices[2] - vertices[1]), 0)
+            and np.isclose(np.prod(vertices[3] - vertices[2]), 0)
+            and np.isclose(np.prod(vertices[0] - vertices[3]), 0)
+        )
+
 
 class Triangle(Geometry):
     def __init__(self, x1, x2, x3):
@@ -281,6 +293,11 @@ class Polygon(Geometry):
 
     def __init__(self, vertices):
         self.vertices = np.array(vertices)
+        if len(vertices) == 3:
+            raise ValueError("The polygon is a triangle. Use Triangle instead.")
+        if Rectangle.is_valid(self.vertices):
+            raise ValueError("The polygon is a rectangle. Use Rectangle instead.")
+
         self.diagonals = spatial.distance.squareform(
             spatial.distance.pdist(self.vertices)
         )
@@ -409,3 +426,18 @@ def is_left(P0, P1, P2):
         >0 if P2 left of the line through P0 and P1, =0 if P2 on the line, <0 if P2 right of the line.
     """
     return (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1])
+
+
+def is_rectangle(vertices):
+    """Check if the geometry is a rectangle.
+    https://stackoverflow.com/questions/2303278/find-if-4-points-on-a-plane-form-a-rectangle/2304031
+
+    1. Find the center of mass of corner points: cx=(x1+x2+x3+x4)/4, cy=(y1+y2+y3+y4)/4
+    2. Test if square of distances from center of mass to all 4 corners are equal
+    """
+    if len(vertices) == 4:
+        return True
+
+    c = np.mean(vertices, axis=0)
+    d = np.sum((vertices - c) ** 2, axis=1)
+    return np.allclose(d, np.full(4, d[0]))
