@@ -33,6 +33,8 @@ class FNN(Map):
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
 
+        self._modify = None
+
         super(FNN, self).__init__()
 
     @property
@@ -66,10 +68,14 @@ class FNN(Map):
                 y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
         self.y = self.dense(y, self.layer_size[-1])
 
+        if self._modify is not None:
+            self.y = self._modify(self.x, self.y)
+
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+        self.built = True
 
     def outputs_modify(self, modify):
-        self.y = modify(self.inputs, self.outputs)
+        self._modify = modify
 
     def dense(self, inputs, units, activation=None, use_bias=True):
         return tf.layers.dense(

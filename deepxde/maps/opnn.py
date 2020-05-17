@@ -122,6 +122,7 @@ class OpNN(Map):
             self.y += b
 
         self.target = tf.placeholder(config.real(tf), [None, 1])
+        self.built = True
 
     def dense(self, inputs, units, activation=None, use_bias=True, regularizer=None):
         return tf.layers.dense(

@@ -58,6 +58,7 @@ class ResNet(Map):
         self.y = self.dense(y, self.output_size)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.output_size])
+        self.built = True
 
     def dense(self, inputs, units, activation=None, use_bias=True):
         return tf.layers.dense(

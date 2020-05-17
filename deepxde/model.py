@@ -40,8 +40,6 @@ class Model(object):
         self.stop_training = False
         self.callbacks = None
 
-        self._open_tfsession()
-
     def close(self):
         self._close_tfsession()
 
@@ -73,6 +71,10 @@ class Model(object):
                 weighted by the loss_weights coefficients.
         """
         print("Compiling model...")
+
+        if not self.net.built:
+            self.net.build()
+        self._open_tfsession()
 
         self.optimizer = optimizer
 
@@ -187,6 +189,8 @@ class Model(object):
         return y
 
     def _open_tfsession(self):
+        if self.sess is not None:
+            return
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)

@@ -17,7 +17,16 @@ class Map(object):
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)  # 0: train data, 1: test data
 
-        self.build()
+        # The property will be set upon call of self.build()
+        self._built = False
+
+    @property
+    def built(self):
+        return self._built
+
+    @built.setter
+    def built(self, value):
+        self._built = value
 
     @property
     def inputs(self):
@@ -52,3 +61,4 @@ class Map(object):
     @timing
     def build(self):
         """Construct the mapping."""
+        self.built = True

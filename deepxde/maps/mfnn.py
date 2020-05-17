@@ -106,6 +106,7 @@ class MfNN(Map):
 
         self.target_lo = tf.placeholder(config.real(tf), [None, self.layer_size_lo[-1]])
         self.target_hi = tf.placeholder(config.real(tf), [None, self.layer_size_hi[-1]])
+        self.built = True
 
     def dense(
         self,
