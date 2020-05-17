@@ -3,7 +3,7 @@ Installation
 
 DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Both TensorFlow 1 and TensorFlow 2 can be used as the DeepXDE backend, but TensorFlow 1 is recommended, because in my tests TensorFlow 2 is 2x~3x slower than TensorFlow 1.
 
-Then, you can install DeepXDE itself. If you use TensorFlow 2, you need to install DeepXDE by cloning the folder.  If you use Python 2, you need to install DeepXDE using ``pip``.
+Then, you can install DeepXDE itself. If you use Python 2, you need to install DeepXDE using ``pip``.
 
 - Install the stable version with ``pip``::
 

@@ -61,6 +61,14 @@ deepxde.display module
     :undoc-members:
     :show-inheritance:
 
+deepxde.external\_optimizer module
+----------------------------------
+
+.. automodule:: deepxde.external_optimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 deepxde.fractional module
 -------------------------
 
