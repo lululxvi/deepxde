@@ -57,7 +57,7 @@ class Interval(Geometry):
             x = np.random.rand(n, 1)
         elif random == "sobol":
             x = sobol_sequence.sample(n + 1, 1)[1:]
-        return self.diam * x + self.l
+        return (self.diam * x + self.l).astype(config.real(np))
 
     def uniform_boundary_points(self, n):
         if n == 1:
@@ -68,8 +68,8 @@ class Interval(Geometry):
 
     def random_boundary_points(self, n, random="pseudo"):
         if n == 2:
-            return np.array([[self.l], [self.r]])
-        return np.random.choice([self.l, self.r], n)[:, None]
+            return np.array([[self.l], [self.r]]).astype(config.real(np))
+        return np.random.choice([self.l, self.r], n)[:, None].astype(config.real(np))
 
     def periodic_point(self, x, component=0):
         if np.isclose(x[0], self.l):
