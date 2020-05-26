@@ -8,13 +8,13 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 - | **Q**: What is the expected output of DeepXDE?
   | **A**: `#4`_, `#9`_, `#17`_
 - | **Q**: How can I define a new geometry?
-  | **A**: `#32`_
+  | **A**: `#32`_, `#38`_
 - | **Q**: How can I implement new ODEs/PDEs?
   | **A**: `#12`_, `#13`_, `#21`_, `#22`_
 - | **Q**: More details, explanations, and implementations about initial conditions.
   | **A**: `#19`_
 - | **Q**: More details, explanations, and implementations about boundary conditions.
-  | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_
+  | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_, `#38`_
 - | **Q**: By default, initial/boundary conditions are enforced in DeepXDE as soft constraints. How can I enforce them as hard constraints?
   | **A**: `#36`_
 - | **Q**: How DeepXDE choose the training points? How can I use some specific training points?
@@ -25,6 +25,8 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
   | **A**: `#10`_, `#18`_
 - | **Q**: By default, DeepXDE uses ``float32``. How can I use ``float64``?
   | **A**: `#28`_
+- | **Q**: More details about DeepXDE source code, and want to modify DeepXDE.
+  | **A**: `#35`_
 
 .. _#2: https://github.com/lululxvi/deepxde/issues/2
 .. _#3: https://github.com/lululxvi/deepxde/issues/3
@@ -46,9 +48,10 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 .. _#28: https://github.com/lululxvi/deepxde/issues/28
 .. _#32: https://github.com/lululxvi/deepxde/issues/32
 .. _#33: https://github.com/lululxvi/deepxde/issues/33
+.. _#35: https://github.com/lululxvi/deepxde/issues/35
 .. _#36: https://github.com/lululxvi/deepxde/issues/36
+.. _#38: https://github.com/lululxvi/deepxde/issues/38
 
 .. _#7: https://github.com/lululxvi/deepxde/issues/7
 .. _#31: https://github.com/lululxvi/deepxde/issues/31
 .. _#34: https://github.com/lululxvi/deepxde/issues/34
-.. _#35: https://github.com/lululxvi/deepxde/issues/35
