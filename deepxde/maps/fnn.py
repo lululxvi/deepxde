@@ -26,6 +26,7 @@ class FNN(Map):
         dropout_rate=0,
         batch_normalization=None,
     ):
+        super(FNN, self).__init__()
         self.layer_size = layer_size
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
@@ -34,8 +35,6 @@ class FNN(Map):
         self.batch_normalization = batch_normalization
 
         self._modify = None
-
-        super(FNN, self).__init__()
 
     @property
     def inputs(self):

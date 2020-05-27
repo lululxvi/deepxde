@@ -10,12 +10,11 @@ class Map(object):
     """Map base class."""
 
     def __init__(self):
-        if not hasattr(self, "regularizer"):
-            self.regularizer = None
-
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)  # 0: train data, 1: test data
+
+        self.regularizer = None
 
         # The property will be set upon call of self.build()
         self._built = False

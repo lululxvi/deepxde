@@ -27,6 +27,7 @@ class OpNN(Map):
         use_bias=True,
         stacked=False,
     ):
+        super(OpNN, self).__init__()
         if layer_size_function[-1] != layer_size_location[-1]:
             raise ValueError(
                 "Output sizes of function NN and location NN do not match."
@@ -46,7 +47,6 @@ class OpNN(Map):
 
         self._inputs = None
         self._X_func_default = None
-        super(OpNN, self).__init__()
 
     @property
     def inputs(self):

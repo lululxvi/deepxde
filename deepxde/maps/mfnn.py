@@ -26,6 +26,7 @@ class MfNN(Map):
         trainable_low_fidelity=True,
         trainable_high_fidelity=True,
     ):
+        super(MfNN, self).__init__()
         self.layer_size_lo = layer_size_low_fidelity
         self.layer_size_hi = layer_size_high_fidelity
         self.activation = activations.get(activation)
@@ -34,8 +35,6 @@ class MfNN(Map):
         self.residue = residue
         self.trainable_lo = trainable_low_fidelity
         self.trainable_hi = trainable_high_fidelity
-
-        super(MfNN, self).__init__()
 
     @property
     def inputs(self):

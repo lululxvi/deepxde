@@ -25,6 +25,7 @@ class ResNet(Map):
         kernel_initializer,
         regularization=None,
     ):
+        super(ResNet, self).__init__()
         self.input_size = input_size
         self.output_size = output_size
         self.num_neurons = num_neurons
@@ -32,8 +33,6 @@ class ResNet(Map):
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
-
-        super(ResNet, self).__init__()
 
     @property
     def inputs(self):
