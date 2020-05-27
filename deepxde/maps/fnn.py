@@ -52,6 +52,8 @@ class FNN(Map):
         self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
 
         y = self.x
+        if self._input_transform is not None:
+            y = self._input_transform(y)
         for i in range(len(self.layer_size) - 2):
             if self.batch_normalization is None:
                 y = self.dense(y, self.layer_size[i + 1], activation=self.activation)
@@ -64,7 +66,6 @@ class FNN(Map):
             if self.dropout_rate > 0:
                 y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
         self.y = self.dense(y, self.layer_size[-1])
-
         if self._output_transform is not None:
             self.y = self._output_transform(self.x, self.y)
 

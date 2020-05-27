@@ -19,6 +19,7 @@ class Map(object):
         # The property will be set upon call of self.build()
         self._built = False
 
+        self._input_transform = None
         self._output_transform = None
 
     @property
@@ -58,6 +59,12 @@ class Map(object):
 
     def _feed_dict_targets(self, targets):
         return make_dict(self.targets, targets)
+
+    def apply_feature_transform(self, transform):
+        """Compute the features by appling a transform to the network inputs, i.e.,
+        features = transform(inputs). Then, outputs = network(features).
+        """
+        self._input_transform = transform
 
     def apply_output_transform(self, transform):
         """Apply a transform to the network outputs, i.e.,

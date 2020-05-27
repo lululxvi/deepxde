@@ -51,7 +51,10 @@ class ResNet(Map):
         print("Building residual neural network...")
         self.x = tf.placeholder(config.real(tf), [None, self.input_size])
 
-        y = self.dense(self.x, self.num_neurons, activation=self.activation)
+        y = self.x
+        if self._input_transform is not None:
+            y = self._input_transform(y)
+        y = self.dense(y, self.num_neurons, activation=self.activation)
         for _ in range(self.num_blocks):
             y = self.residual_block(y)
         self.y = self.dense(y, self.output_size)
