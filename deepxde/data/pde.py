@@ -82,7 +82,9 @@ class PDE(Data):
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x[sum(self.num_bcs) :]
-            self.test_y = self.train_y[sum(self.num_bcs) :] if self.train_y else None
+            self.test_y = (
+                self.train_y[sum(self.num_bcs) :] if self.train_y is not None else None
+            )
         else:
             self.test_x = self.test_points()
             self.test_y = self.soln(self.test_x) if self.soln else None
