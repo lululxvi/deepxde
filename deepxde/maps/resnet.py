@@ -56,6 +56,9 @@ class ResNet(Map):
             y = self.residual_block(y)
         self.y = self.dense(y, self.output_size)
 
+        if self._output_transform is not None:
+            self.y = self._output_transform(self.x, self.y)
+
         self.y_ = tf.placeholder(config.real(tf), [None, self.output_size])
         self.built = True
 

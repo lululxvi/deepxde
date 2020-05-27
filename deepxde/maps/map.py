@@ -19,6 +19,8 @@ class Map(object):
         # The property will be set upon call of self.build()
         self._built = False
 
+        self._output_transform = None
+
     @property
     def built(self):
         return self._built
@@ -56,6 +58,12 @@ class Map(object):
 
     def _feed_dict_targets(self, targets):
         return make_dict(self.targets, targets)
+
+    def apply_output_transform(self, transform):
+        """Apply a transform to the network outputs, i.e.,
+        outputs = transform(inputs, outputs).
+        """
+        self._output_transform = transform
 
     @timing
     def build(self):

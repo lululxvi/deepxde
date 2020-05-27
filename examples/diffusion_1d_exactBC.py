@@ -44,7 +44,7 @@ def main():
     activation = "tanh"
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
-    net.outputs_modify(
+    net.apply_output_transform(
         lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
     )
 
