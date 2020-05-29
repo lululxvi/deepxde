@@ -87,6 +87,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
 
 ## Explore more
 
+- [Examples](https://github.com/lululxvi/deepxde/tree/master/examples)
 - [Questions & Answers](https://deepxde.readthedocs.io/en/latest/user/questions_answers.html)
 
 ## Cite DeepXDE
