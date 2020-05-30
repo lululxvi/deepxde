@@ -119,9 +119,9 @@ class Model(object):
             callbacks: List of ``deepxde.callbacks.Callback`` instances.
                 List of callbacks to apply during training.
             model_restore_path: String. Path where parameters were previously saved.
-                See `tf.train.Saver.restore <https://www.tensorflow.org/versions/r1.14/api_docs/python/tf/train/Saver#restore>`_.
+                See `` save_path `` in `tf.train.Saver.restore <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#restore>`_.
             model_save_path: String. Prefix of filenames created for the checkpoint.
-                See `tf.train.Saver.save <https://www.tensorflow.org/versions/r1.14/api_docs/python/tf/train/Saver#save>`_.
+                See ``save_path`` in `tf.train.Saver.save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#save>`_.
             print_model: If ``True``, print the values of all variables.
         """
         self.batch_size = batch_size
