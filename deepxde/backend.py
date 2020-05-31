@@ -26,10 +26,11 @@ def backend():
         tuple: A ``tuple`` of the name and version of the backend DeepXDE is currently using.
 
     Examples:
-    ```python
+
+    .. code-block:: python
+
         >>> dde.backend.backend()
         ("tensorflow", 1.14.0)
-    ```
     """
     return _BACKEND, _VERSION
 

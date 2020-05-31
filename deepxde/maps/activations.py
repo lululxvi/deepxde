@@ -12,14 +12,17 @@ def linear(x):
 
 def layer_wise_locally_adaptive(activation, n=1):
     """Layer-wise locally adaptive activation functions (L-LAAF).
-    Jagtap et al., arXiv preprint arXiv:1909.12228, 2019.
 
     Examples:
-    To define a L-LAAF ReLU with the scaling factor ``n = 10``
-    ```python
+
+    To define a L-LAAF ReLU with the scaling factor ``n = 10``:
+
+    .. code-block:: python
+
         n = 10
         activation = f"LAAF-{n} relu"  # "LAAF-10 relu"
-    ```
+
+    References: `Jagtap et al., 2019 <https://arxiv.org/abs/1909.12228>`_.
     """
     a = tf.Variable(1 / n, dtype=config.real(tf))
     return lambda x: activation(n * a * x)
