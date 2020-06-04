@@ -138,9 +138,9 @@ class Rectangle(Hypercube):
                 [self.xmin[0], self.xmax[1]],
             )
         )
+        if n <= 4:
+            return x_corner[np.random.choice(4, size=n, replace=False)]
         n -= 4
-        if n <= 0:
-            return x_corner
 
         l1 = self.xmax[0] - self.xmin[0]
         l2 = l1 + self.xmax[1] - self.xmin[1]
@@ -261,9 +261,9 @@ class Triangle(Geometry):
 
     def random_boundary_points(self, n, random="pseudo"):
         x_corner = np.vstack((self.x1, self.x2, self.x3))
+        if n <= 3:
+            return x_corner[np.random.choice(3, size=n, replace=False)]
         n -= 3
-        if n <= 0:
-            return x_corner
 
         if random == "sobol":
             u = np.ravel(sobol_sequence.sample(n + 3, 1))[1:]
@@ -383,9 +383,11 @@ class Polygon(Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
+        if n <= self.nvertices:
+            return self.vertices[
+                np.random.choice(len(self.vertices), size=n, replace=False)
+            ]
         n -= self.nvertices
-        if n <= 0:
-            return self.vertices
 
         if random == "sobol":
             u = np.ravel(sobol_sequence.sample(n + self.nvertices, 1))[1:]

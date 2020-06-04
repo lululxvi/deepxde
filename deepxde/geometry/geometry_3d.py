@@ -35,9 +35,9 @@ class Cuboid(Hypercube):
                 [self.xmax[0], self.xmin[1], self.xmax[2]],
             )
         )
+        if n <= 8:
+            return x_corner[np.random.choice(8, size=n, replace=False)]
         n -= 8
-        if n <= 0:
-            return x_corner
 
         pts = [x_corner]
         density = n / self.area

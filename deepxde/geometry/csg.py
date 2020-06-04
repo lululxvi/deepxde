@@ -54,23 +54,19 @@ class CSGUnion(geometry.Geometry):
         return np.array(x[:n])
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = [
-            i
-            for i in self.geom1.random_boundary_points(n, random=random)
-            if not self.geom2.inside(i)
-        ]
-        x += [
-            i
-            for i in self.geom2.random_boundary_points(n, random=random)
-            if not self.geom1.inside(i)
-        ]
-        if n != len(x):
-            print(
-                "Warning: {} points required, but {} points sampled. Uniform random is not guaranteed.".format(
-                    n, len(x)
-                )
-            )
-        return np.array(x)
+        x = []
+        while len(x) < n:
+            x += [
+                i
+                for i in self.geom1.random_boundary_points(n, random=random)
+                if not self.geom2.inside(i)
+            ]
+            x += [
+                i
+                for i in self.geom2.random_boundary_points(n, random=random)
+                if not self.geom1.inside(i)
+            ]
+        return np.random.permutation(x)[:n]
 
     def periodic_point(self, x, component):
         if self.geom1.on_boundary(x) and not self.geom2.inside(x):
@@ -124,23 +120,19 @@ class CSGDifference(geometry.Geometry):
         return np.array(x[:n])
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = [
-            i
-            for i in self.geom1.random_boundary_points(n, random=random)
-            if not self.geom2.inside(i)
-        ]
-        x += [
-            i
-            for i in self.geom2.random_boundary_points(n, random=random)
-            if self.geom1.inside(i)
-        ]
-        if n != len(x):
-            print(
-                "Warning: {} points required, but {} points sampled. Uniform random is not guaranteed.".format(
-                    n, len(x)
-                )
-            )
-        return np.array(x)
+        x = []
+        while len(x) < n:
+            x += [
+                i
+                for i in self.geom1.random_boundary_points(n, random=random)
+                if not self.geom2.inside(i)
+            ]
+            x += [
+                i
+                for i in self.geom2.random_boundary_points(n, random=random)
+                if self.geom1.inside(i)
+            ]
+        return np.random.permutation(x)[:n]
 
     def periodic_point(self, x, component):
         if self.geom1.on_boundary(x) and not self.geom2.inside(x):
@@ -209,13 +201,7 @@ class CSGIntersection(geometry.Geometry):
                 for i in self.geom2.random_boundary_points(n, random=random)
                 if self.geom1.inside(i)
             ]
-        if n != len(x):
-            print(
-                "Warning: {} points required, but {} points sampled. Uniform random is not guaranteed.".format(
-                    n, len(x)
-                )
-            )
-        return np.array(x)
+        return np.random.permutation(x)[:n]
 
     def periodic_point(self, x, component):
         if self.geom1.on_boundary(x) and self.geom2.inside(x):
