@@ -15,12 +15,16 @@ def mean_squared_error(y_true, y_pred):
     return tf.reduce_mean(tf.math.square(y_true - y_pred))
 
 
+mean_absolute_error = tf.keras.losses.MeanAbsoluteError()
 mean_absolute_percentage_error = tf.keras.losses.MeanAbsolutePercentageError()
 softmax_cross_entropy = tf.losses.softmax_cross_entropy
 
 
 def get(identifier):
     loss_identifier = {
+        "mean absolute error": mean_absolute_error,
+        "MAE": mean_absolute_error,
+        "mae": mean_absolute_error,
         "mean squared error": mean_squared_error,
         "MSE": mean_squared_error,
         "mse": mean_squared_error,
