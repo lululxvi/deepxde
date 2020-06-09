@@ -9,7 +9,11 @@ def main():
     fname_train = "dataset/dataset.train"
     fname_test = "dataset/dataset.test"
     data = dde.data.DataSet(
-        fname_train=fname_train, fname_test=fname_test, col_x=(0,), col_y=(1,)
+        fname_train=fname_train,
+        fname_test=fname_test,
+        col_x=(0,),
+        col_y=(1,),
+        standardize=True,
     )
 
     layer_size = [1] + [50] * 3 + [1]

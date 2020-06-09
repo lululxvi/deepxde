@@ -26,6 +26,7 @@ class DataSet(Data):
         fname_test=None,
         col_x=None,
         col_y=None,
+        standardize=False,
     ):
         if X_train is not None:
             self.train_x, self.train_y = X_train, y_train
@@ -40,7 +41,8 @@ class DataSet(Data):
             raise ValueError("No training data.")
 
         self.scaler_x = None
-        self._standardize()
+        if standardize:
+            self._standardize()
 
     def losses(self, targets, outputs, loss, model):
         return [loss(targets, outputs)]
@@ -52,6 +54,8 @@ class DataSet(Data):
         return self.test_x, self.test_y
 
     def transform_inputs(self, x):
+        if self.scaler_x is None:
+            return x
         return self.scaler_x.transform(x)
 
     def _standardize(self):
