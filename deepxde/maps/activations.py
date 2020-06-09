@@ -10,6 +10,10 @@ def linear(x):
     return x
 
 
+def swish(x):
+    return x * tf.math.sigmoid(x)
+
+
 def layer_wise_locally_adaptive(activation, n=1):
     """Layer-wise locally adaptive activation functions (L-LAAF).
 
@@ -42,6 +46,7 @@ def get(identifier):
             "selu": tf.nn.selu,
             "sigmoid": tf.nn.sigmoid,
             "sin": tf.sin,
+            "swish": swish,
             "tanh": tf.nn.tanh,
         }[identifier]
     elif callable(identifier):
