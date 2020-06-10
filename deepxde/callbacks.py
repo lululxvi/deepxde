@@ -7,7 +7,7 @@ import sys
 import numpy as np
 
 from .backend import tf
-from .utils import save_animation
+from .utils import list_to_str, save_animation
 
 
 class Callback(object):
@@ -241,7 +241,8 @@ class VariableValue(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.value = self.model.sess.run(self.var_list)
-            print(self.model.train_state.epoch, self.value, file=self.file)
+            print(self.model.train_state.epoch, list_to_str(self.value), file=self.file)
+            self.file.flush()
 
     def get_value(self):
         """Return the variable values."""
