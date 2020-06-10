@@ -6,6 +6,8 @@ import sys
 
 import numpy as np
 
+from .utils import list_to_str
+
 
 class TrainingDisplay:
     """Display training progress."""
@@ -70,9 +72,3 @@ class TrainingDisplay:
 
 
 training_display = TrainingDisplay()
-
-
-def list_to_str(nums):
-    if nums is None:
-        return ""
-    return "[{:s}]".format(", ".join(["{:.2e}".format(x) for x in nums]))
