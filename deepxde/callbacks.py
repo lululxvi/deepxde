@@ -221,12 +221,14 @@ class VariableValue(Callback):
         filename (string): Output the values to the file `filename`.
             The file is kept open to allow instances to be re-used.
             If ``None``, output to the screen.
+        precision (int): The precision of variables to display.
     """
 
-    def __init__(self, var_list, period=1, filename=None):
+    def __init__(self, var_list, period=1, filename=None, precision=2):
         super(VariableValue, self).__init__()
         self.var_list = var_list
         self.period = period
+        self.precision = precision
 
         self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
@@ -241,7 +243,11 @@ class VariableValue(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.value = self.model.sess.run(self.var_list)
-            print(self.model.train_state.epoch, list_to_str(self.value), file=self.file)
+            print(
+                self.model.train_state.epoch,
+                list_to_str(self.value, precision=self.precision),
+                file=self.file,
+            )
             self.file.flush()
 
     def get_value(self):

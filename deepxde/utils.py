@@ -148,7 +148,7 @@ def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
     plt.close()
 
 
-def list_to_str(nums):
+def list_to_str(nums, precision=2):
     if nums is None:
         return ""
-    return "[{:s}]".format(", ".join(["{:.2e}".format(x) for x in nums]))
+    return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
