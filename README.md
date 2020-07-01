@@ -18,7 +18,7 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 - approximates nonlinear operators via deep operator network (DeepONet),
 - approximates functions from a dataset with/without constraints.
 
-**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [Extended abstract](http://ceur-ws.org/Vol-2587/article_14.pdf), [Short paper](https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf), [Full paper](https://arxiv.org/abs/1907.04502), [Slides](https://lululxvi.github.io/files/talks/2020AAAI.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
+**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [Extended abstract](http://ceur-ws.org/Vol-2587/article_14.pdf), [Short paper](https://ml4physicalsciences.github.io/files/NeurIPS_ML4PS_2019_2.pdf), [Full paper](https://arxiv.org/abs/1907.04502), [Slides](https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
 
 **Papers**
 
