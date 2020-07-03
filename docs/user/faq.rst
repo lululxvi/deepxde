@@ -1,7 +1,7 @@
-Questions & Answers
-===================
+DeepXDE FAQ
+===========
 
-If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following Q&A list. To get further help, you can open an issue in the GitHub "Issues" section.
+If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following list of frequently asked DeepXDE questions. To get further help, you can open an issue in the GitHub "Issues" section.
 
 - | **Q**: DeepXDE failed to run.
   | **A**: `#2`_, `#3`_, `#5`_
