@@ -26,6 +26,8 @@ class OpNN(Map):
         regularization=None,
         use_bias=True,
         stacked=False,
+        trainable_branch=True,
+        trainable_trunk=True,
     ):
         super(OpNN, self).__init__()
         if layer_size_function[-1] != layer_size_location[-1]:
@@ -44,6 +46,8 @@ class OpNN(Map):
         self.regularizer = regularizers.get(regularization)
         self.use_bias = use_bias
         self.stacked = stacked
+        self.trainable_branch = trainable_branch
+        self.trainable_trunk = trainable_trunk
 
         self._inputs = None
         self._X_func_default = None
@@ -80,16 +84,26 @@ class OpNN(Map):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        # Function NN
+        # Branch net to encode the input function
         y_func = self.X_func
         if self.stacked:
             # Stacked
             stack_size = self.layer_size_func[-1]
             for i in range(1, len(self.layer_size_func) - 1):
                 y_func = self.stacked_dense(
-                    y_func, self.layer_size_func[i], stack_size, self.activation
+                    y_func,
+                    self.layer_size_func[i],
+                    stack_size,
+                    activation=self.activation,
+                    trainable=self.trainable_branch,
                 )
-            y_func = self.stacked_dense(y_func, 1, stack_size, use_bias=self.use_bias)
+            y_func = self.stacked_dense(
+                y_func,
+                1,
+                stack_size,
+                use_bias=self.use_bias,
+                trainable=self.trainable_branch,
+            )
         else:
             # Unstacked
             for i in range(1, len(self.layer_size_func) - 1):
@@ -98,12 +112,16 @@ class OpNN(Map):
                     self.layer_size_func[i],
                     activation=self.activation,
                     regularizer=self.regularizer,
+                    trainable=self.trainable_branch,
                 )
             y_func = self.dense(
-                y_func, self.layer_size_func[-1], use_bias=self.use_bias
+                y_func,
+                self.layer_size_func[-1],
+                use_bias=self.use_bias,
+                trainable=self.trainable_branch,
             )
 
-        # Location NN
+        # Trunk net to encode the domain of the output function
         y_loc = self.X_loc
         for i in range(1, len(self.layer_size_loc)):
             y_loc = self.dense(
@@ -111,6 +129,7 @@ class OpNN(Map):
                 self.layer_size_loc[i],
                 activation=self.activation,
                 regularizer=self.regularizer,
+                trainable=self.trainable_trunk,
             )
 
         # Dot product
@@ -124,7 +143,15 @@ class OpNN(Map):
         self.target = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
-    def dense(self, inputs, units, activation=None, use_bias=True, regularizer=None):
+    def dense(
+        self,
+        inputs,
+        units,
+        activation=None,
+        use_bias=True,
+        regularizer=None,
+        trainable=True,
+    ):
         return tf.layers.dense(
             inputs,
             units,
@@ -132,9 +159,12 @@ class OpNN(Map):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=regularizer,
+            trainable=trainable,
         )
 
-    def stacked_dense(self, inputs, units, stack_size, activation=None, use_bias=True):
+    def stacked_dense(
+        self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
+    ):
         """Stacked densely-connected NN layer.
 
         Args:
@@ -153,24 +183,29 @@ class OpNN(Map):
         if len(shape) == 2:
             # NN input layer
             W = tf.Variable(
-                self.kernel_initializer_stacked([stack_size, input_dim, units])
+                self.kernel_initializer_stacked([stack_size, input_dim, units]),
+                trainable=trainable,
             )
             outputs = tf.einsum("bi,nij->bnj", inputs, W)
         elif units == 1:
             # NN output layer
-            W = tf.Variable(self.kernel_initializer_stacked([stack_size, input_dim]))
+            W = tf.Variable(
+                self.kernel_initializer_stacked([stack_size, input_dim]),
+                trainable=trainable,
+            )
             outputs = tf.einsum("bni,ni->bn", inputs, W)
         else:
             W = tf.Variable(
-                self.kernel_initializer_stacked([stack_size, input_dim, units])
+                self.kernel_initializer_stacked([stack_size, input_dim, units]),
+                trainable=trainable,
             )
             outputs = tf.einsum("bni,nij->bnj", inputs, W)
         if use_bias:
             if units == 1:
                 # NN output layer
-                b = tf.Variable(tf.zeros(stack_size))
+                b = tf.Variable(tf.zeros(stack_size), trainable=trainable)
             else:
-                b = tf.Variable(tf.zeros([stack_size, units]))
+                b = tf.Variable(tf.zeros([stack_size, units]), trainable=trainable)
             outputs += b
         if activation is not None:
             return activation(outputs)
