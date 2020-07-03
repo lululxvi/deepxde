@@ -53,7 +53,7 @@ User guide
   :maxdepth: 2
 
   user/installation
-  user/questions_answers
+  user/faq
   user/cite_deepxde
 
 API reference
