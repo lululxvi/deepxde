@@ -19,8 +19,8 @@ class OpNN(Map):
 
     def __init__(
         self,
-        layer_size_function,
-        layer_size_location,
+        layer_size_branch,
+        layer_size_trunk,
         activation,
         kernel_initializer,
         regularization=None,
@@ -30,13 +30,11 @@ class OpNN(Map):
         trainable_trunk=True,
     ):
         super(OpNN, self).__init__()
-        if layer_size_function[-1] != layer_size_location[-1]:
-            raise ValueError(
-                "Output sizes of function NN and location NN do not match."
-            )
+        if layer_size_branch[-1] != layer_size_trunk[-1]:
+            raise ValueError("Output sizes of branch net and trunk net do not match.")
 
-        self.layer_size_func = layer_size_function
-        self.layer_size_loc = layer_size_location
+        self.layer_size_func = layer_size_branch
+        self.layer_size_loc = layer_size_trunk
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         if stacked:
@@ -59,7 +57,7 @@ class OpNN(Map):
     @inputs.setter
     def inputs(self, value):
         if value[1] is not None:
-            raise ValueError("OpNN does not support setting location input.")
+            raise ValueError("OpNN does not support setting trunk net input.")
         self._X_func_default = value[0]
         self._inputs = self.X_loc
 
