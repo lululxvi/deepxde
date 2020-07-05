@@ -32,6 +32,9 @@ class OpNN(Map):
         super(OpNN, self).__init__()
         if layer_size_branch[-1] != layer_size_trunk[-1]:
             raise ValueError("Output sizes of branch net and trunk net do not match.")
+        if isinstance(trainable_trunk, (list, tuple)):
+            if len(trainable_trunk) != len(layer_size_trunk) - 1:
+                raise ValueError("trainable_trunk does not match layer_size_trunk.")
 
         self.layer_size_func = layer_size_branch
         self.layer_size_loc = layer_size_trunk
@@ -127,7 +130,9 @@ class OpNN(Map):
                 self.layer_size_loc[i],
                 activation=self.activation,
                 regularizer=self.regularizer,
-                trainable=self.trainable_trunk,
+                trainable=self.trainable_trunk[i - 1]
+                if isinstance(self.trainable_trunk, (list, tuple))
+                else self.trainable_trunk,
             )
 
         # Dot product
