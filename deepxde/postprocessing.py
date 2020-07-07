@@ -19,12 +19,8 @@ def saveplot(losshistory, train_state, issave=True, isplot=True):
 
 
 def plot_loss_history(losshistory):
-    loss_train = np.sum(
-        np.array(losshistory.loss_train) * losshistory.loss_weights, axis=1
-    )
-    loss_test = np.sum(
-        np.array(losshistory.loss_test) * losshistory.loss_weights, axis=1
-    )
+    loss_train = np.sum(losshistory.loss_train, axis=1)
+    loss_test = np.sum(losshistory.loss_test, axis=1)
 
     plt.figure()
     plt.semilogy(losshistory.steps, loss_train, label="Train loss")
