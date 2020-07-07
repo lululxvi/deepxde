@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numbers
+
 import numpy as np
 
 from .backend import tf
@@ -49,7 +51,7 @@ class DirichletBC(BC):
 
     def error(self, X, inputs, outputs, beg, end):
         values = self.func(X[beg:end])
-        if values.shape[1] != 1:
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
                 "DirichletBC should output 1D values. Use argument 'component' for different components."
             )
