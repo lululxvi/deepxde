@@ -45,11 +45,11 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model):
-        f = self.pde(model.net.inputs, outputs)
-        if not isinstance(f, (list, tuple)):
-            f = [f]
-
         def losses_train():
+            f = self.pde(model.net.inputs, outputs, X=self.train_x)
+            if not isinstance(f, (list, tuple)):
+                f = [f]
+
             bcs_start = np.cumsum([0] + self.num_bcs)
             error_f = [fi[bcs_start[-1] :] for fi in f]
             losses = [
@@ -65,6 +65,9 @@ class PDE(Data):
             return losses
 
         def losses_test():
+            f = self.pde(model.net.inputs, outputs, X=self.test_x)
+            if not isinstance(f, (list, tuple)):
+                f = [f]
             return [
                 loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
             ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
