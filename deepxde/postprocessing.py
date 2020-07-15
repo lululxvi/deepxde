@@ -8,14 +8,14 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def saveplot(losshistory, train_state, issave=True, isplot=True):
+    if issave:
+        save_loss_history(losshistory, "loss.dat")
+        save_best_state(train_state, "train.dat", "test.dat")
+
     if isplot:
         plot_loss_history(losshistory)
         plot_best_state(train_state)
         plt.show()
-
-    if issave:
-        save_loss_history(losshistory, "loss.dat")
-        save_best_state(train_state, "train.dat", "test.dat")
 
 
 def plot_loss_history(losshistory):
