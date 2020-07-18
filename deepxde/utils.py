@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import inspect
 import sys
 import time
 from functools import wraps
@@ -152,3 +153,16 @@ def list_to_str(nums, precision=2):
     if nums is None:
         return ""
     return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
+
+
+def get_num_args(func):
+    """Get the number of arguments of a Python function.
+
+    References:
+
+        - https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function
+    """
+    if sys.version_info[0] == 2:
+        return len(inspect.getargspec(func).args)
+    sig = inspect.signature(func)
+    return len(sig.parameters)
