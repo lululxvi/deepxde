@@ -32,8 +32,9 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 
 - Applications
 
-  - Inverse problems in nano-optics and metamaterials: [Opt. Express](https://www.osapublishing.org/oe/abstract.cfm?uri=oe-28-8-11618)
+  - Nano-optics and metamaterials: [Opt. Express](https://www.osapublishing.org/oe/abstract.cfm?uri=oe-28-8-11618)
   - Mechanics: [Preprints](https://www.preprints.org/manuscript/202006.0258)
+  - Systems biology: [bioRxiv](https://doi.org/10.1101/865063)
 
 ## Features
 
