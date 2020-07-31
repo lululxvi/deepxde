@@ -30,12 +30,6 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
   - Learning from multi-fidelity data via MFNN: [PNAS](https://www.pnas.org/content/117/13/7052), [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119307260)
   - Learning nonlinear operators via DeepONet: [arXiv](https://arxiv.org/abs/1910.03193)
 
-- Applications
-
-  - Nano-optics and metamaterials: [Opt. Express](https://www.osapublishing.org/oe/abstract.cfm?uri=oe-28-8-11618)
-  - Mechanics: [Preprints](https://www.preprints.org/manuscript/202006.0258)
-  - Systems biology: [bioRxiv](https://doi.org/10.1101/865063)
-
 ## Features
 
 DeepXDE supports
@@ -91,6 +85,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
 
 - [Examples](https://github.com/lululxvi/deepxde/tree/master/examples)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
+- [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
 
 ## Cite DeepXDE
 
