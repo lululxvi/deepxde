@@ -27,10 +27,10 @@ class PFNN(FNN):
 
         Args:
             layer_size: Accept nested list. The general structure of the list define the architecture of the neural
-                network (how the layers are connected). If layer_size[i] is int, it represent one layer shared by all the
-                outputs; if layer_size[i] is list, it represent len(layer_size[i]) sub-layers, each of which exclusively
-                used by one output. Note that len(layer_size[i]) should equal to the number of outputs. Every number
-                specify the number of neurons of that layer.
+                network (how the layers are connected). If layer_size[i] is int, it represent one layer shared by all
+                the outputs; if layer_size[i] is list, it represent len(layer_size[i]) sub-layers, each of which
+                exclusively used by one output. Note that len(layer_size[i]) should equal to the number of outputs.
+                Every number specify the number of neurons of that layer.
             activation:
             kernel_initializer:
             regularization:
@@ -74,7 +74,8 @@ class PFNN(FNN):
             if type(self.layer_size[i_layer + 1]) is list:
                 if type(y) is list:
                     # e.g. [8, 8, 8] -> [16, 16, 16]
-                    assert len(self.layer_size[i_layer + 1]) == len(self.layer_size[i_layer])
+                    if not (len(self.layer_size[i_layer + 1]) == len(self.layer_size[i_layer])):
+                        raise ValueError("number of sub-layers should be the same when feed-forwarding")
                     y = [
                         layer_map(y[i_net], self.layer_size[i_layer + 1][i_net], self)
                         for i_net in range(len(self.layer_size[i_layer + 1]))
