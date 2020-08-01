@@ -10,6 +10,8 @@ from ..utils import timing
 
 class PFNN(FNN):
     """Parallel Feed-forward neural networks.
+
+    Feed-forward neural networks that support independent "branches" or sub-network inside the network.
     """
 
     def __init__(
@@ -21,6 +23,20 @@ class PFNN(FNN):
             dropout_rate=0,
             batch_normalization=None,
     ):
+        """
+
+        Args:
+            layer_size: Accept nested list. The general structure of the list define the architecture of the neural
+                network (how the layers are connected). If layer_size[i] is int, it represent one layer shared by all the
+                outputs; if layer_size[i] is list, it represent len(layer_size[i]) sub-layers, each of which exclusively
+                used by one output. Note that len(layer_size[i]) should equal to the number of outputs. Every number
+                specify the number of neurons of that layer.
+            activation:
+            kernel_initializer:
+            regularization:
+            dropout_rate:
+            batch_normalization:
+        """
         super(PFNN, self).__init__(
             layer_size,
             activation,
