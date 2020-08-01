@@ -2,18 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import math
-
-from . import activations
-from . import initializers
-from . import regularizers
-from .map import Map
+from .fnn import FNN
 from .. import config
 from ..backend import tf
 from ..utils import timing
 
 
-class PFNN(Map):
+class PFNN(FNN):
     """Parallel Feed-forward neural networks.
     """
 
@@ -26,25 +21,14 @@ class PFNN(Map):
             dropout_rate=0,
             batch_normalization=None,
     ):
-        super(PFNN, self).__init__()
-        self.layer_size = layer_size
-        self.activation = activations.get(activation)
-        self.kernel_initializer = initializers.get(kernel_initializer)
-        self.regularizer = regularizers.get(regularization)
-        self.dropout_rate = dropout_rate
-        self.batch_normalization = batch_normalization
-
-    @property
-    def inputs(self):
-        return self.x
-
-    @property
-    def outputs(self):
-        return self.y
-
-    @property
-    def targets(self):
-        return self.y_
+        super(PFNN, self).__init__(
+            layer_size,
+            activation,
+            kernel_initializer,
+            regularization,
+            dropout_rate,
+            batch_normalization,
+        )
 
     @timing
     def build(self):
@@ -101,39 +85,3 @@ class PFNN(Map):
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
         self.built = True
-
-    def dense(self, inputs, units, activation=None, use_bias=True):
-        return tf.layers.dense(
-            inputs,
-            units,
-            activation=activation,
-            use_bias=use_bias,
-            kernel_initializer=self.kernel_initializer,
-            kernel_regularizer=self.regularizer,
-        )
-
-    @staticmethod
-    def dense_weightnorm(inputs, units, activation=None, use_bias=True):
-        shape = inputs.get_shape().as_list()
-        fan_in = shape[1]
-        W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
-        g = tf.Variable(tf.ones(units))
-        W = tf.nn.l2_normalize(W, axis=0) * g
-        y = tf.matmul(inputs, W)
-        if use_bias:
-            b = tf.Variable(tf.zeros(units))
-            y += b
-        if activation is not None:
-            return activation(y)
-        return y
-
-    def dense_batchnorm_v1(self, inputs, units):
-        # FC - BN - activation
-        y = self.dense(inputs, units, use_bias=False)
-        y = tf.layers.batch_normalization(y, training=self.training)
-        return self.activation(y)
-
-    def dense_batchnorm_v2(self, inputs, units):
-        # FC - activation - BN
-        y = self.dense(inputs, units, activation=self.activation)
-        return tf.layers.batch_normalization(y, training=self.training)
