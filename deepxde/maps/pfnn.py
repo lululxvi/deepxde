@@ -70,8 +70,8 @@ class PFNN(FNN):
             y = self._input_transform(y)
         # hidden layers
         for i_layer in range(len(self.layer_size) - 2):
-            if type(self.layer_size[i_layer + 1]) is list:
-                if type(y) is list:
+            if isinstance(self.layer_size[i_layer + 1], list):
+                if isinstance(y, list):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
                     if not (
                         len(self.layer_size[i_layer + 1])
@@ -94,7 +94,7 @@ class PFNN(FNN):
                 # e.g. 64 -> 64
                 y = layer_map(y, self.layer_size[i_layer + 1], self)
         # output layers
-        if type(y) is list:
+        if isinstance(y, list):
             # e.g. [3, 3, 3] -> [3]
             y = [self.dense(y[i_net], 1) for i_net in range(len(y))]
             self.y = tf.concat(y, axis=1)
