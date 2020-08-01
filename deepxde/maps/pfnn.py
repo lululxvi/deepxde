@@ -15,13 +15,13 @@ class PFNN(FNN):
     """
 
     def __init__(
-            self,
-            layer_size,
-            activation,
-            kernel_initializer,
-            regularization=None,
-            dropout_rate=0,
-            batch_normalization=None,
+        self,
+        layer_size,
+        activation,
+        kernel_initializer,
+        regularization=None,
+        dropout_rate=0,
+        batch_normalization=None,
     ):
         """
 
@@ -48,7 +48,6 @@ class PFNN(FNN):
 
     @timing
     def build(self):
-
         def layer_map(_y, layer_size, net):
             if net.batch_normalization is None:
                 _y = net.dense(_y, layer_size, activation=net.activation)
@@ -74,8 +73,13 @@ class PFNN(FNN):
             if type(self.layer_size[i_layer + 1]) is list:
                 if type(y) is list:
                     # e.g. [8, 8, 8] -> [16, 16, 16]
-                    if not (len(self.layer_size[i_layer + 1]) == len(self.layer_size[i_layer])):
-                        raise ValueError("number of sub-layers should be the same when feed-forwarding")
+                    if not (
+                        len(self.layer_size[i_layer + 1])
+                        == len(self.layer_size[i_layer])
+                    ):
+                        raise ValueError(
+                            "number of sub-layers should be the same when feed-forwarding"
+                        )
                     y = [
                         layer_map(y[i_net], self.layer_size[i_layer + 1][i_net], self)
                         for i_net in range(len(self.layer_size[i_layer + 1]))
