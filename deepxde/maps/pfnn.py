@@ -11,6 +11,13 @@ from ..utils import timing
 class PFNN(FNN):
     """Parallel Feed-forward neural networks.
 
+    Args:
+    layer_size: A nested list to define the architecture of the neural network (how the layers are connected).
+        If `layer_size[i]` is int, it represent one layer shared by all the outputs;
+        if `layer_size[i]` is list, it represent `len(layer_size[i])` sub-layers, each of which exclusively used by one output.
+        Note that `len(layer_size[i])` should equal to the number of outputs.
+        Every number specify the number of neurons of that layer.
+
     Feed-forward neural networks that support independent "branches" or sub-network inside the network.
     """
 
@@ -23,20 +30,6 @@ class PFNN(FNN):
         dropout_rate=0,
         batch_normalization=None,
     ):
-        """
-
-        Args:
-            layer_size: Accept nested list. The general structure of the list define the architecture of the neural
-                network (how the layers are connected). If layer_size[i] is int, it represent one layer shared by all
-                the outputs; if layer_size[i] is list, it represent len(layer_size[i]) sub-layers, each of which
-                exclusively used by one output. Note that len(layer_size[i]) should equal to the number of outputs.
-                Every number specify the number of neurons of that layer.
-            activation:
-            kernel_initializer:
-            regularization:
-            dropout_rate:
-            batch_normalization:
-        """
         super(PFNN, self).__init__(
             layer_size,
             activation,
@@ -59,7 +52,6 @@ class PFNN(FNN):
                 raise ValueError("batch_normalization")
             if net.dropout_rate > 0:
                 _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.dropout)
-
             return _y
 
         print("Building feed-forward neural network...")
@@ -70,15 +62,15 @@ class PFNN(FNN):
             y = self._input_transform(y)
         # hidden layers
         for i_layer in range(len(self.layer_size) - 2):
-            if isinstance(self.layer_size[i_layer + 1], list):
-                if isinstance(y, list):
+            if isinstance(self.layer_size[i_layer + 1], (list, tuple)):
+                if isinstance(y, (list, tuple)):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
                     if not (
                         len(self.layer_size[i_layer + 1])
                         == len(self.layer_size[i_layer])
                     ):
                         raise ValueError(
-                            "number of sub-layers should be the same when feed-forwarding"
+                            "Number of sub-layers should be the same when feed-forwarding"
                         )
                     y = [
                         layer_map(y[i_net], self.layer_size[i_layer + 1][i_net], self)
@@ -94,7 +86,7 @@ class PFNN(FNN):
                 # e.g. 64 -> 64
                 y = layer_map(y, self.layer_size[i_layer + 1], self)
         # output layers
-        if isinstance(y, list):
+        if isinstance(y, (list, tuple)):
             # e.g. [3, 3, 3] -> [3]
             y = [self.dense(y[i_net], 1) for i_net in range(len(y))]
             self.y = tf.concat(y, axis=1)
