@@ -382,3 +382,21 @@ class MovieDumper(Callback):
                 save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
+
+
+class SampleUpdater(Callback):
+    """Update training sample every `update_every` epochs
+
+    Args:
+        update_every: Integer. Number of epochs between two consecutive update of the training sample.
+    """
+
+    def __init__(self, update_every: int):
+        super(SampleUpdater, self).__init__()
+        self.update_every = update_every
+
+    def on_epoch_begin(self):
+        if self.model.train_state.epoch % self.update_every == 0:
+            print(f"epoch = {self.model.train_state.epoch}, update train_x, train_y")
+            self.model.data.train_x = None
+            self.model.data.train_y = None
