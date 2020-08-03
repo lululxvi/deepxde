@@ -11,14 +11,15 @@ from ..utils import timing
 class PFNN(FNN):
     """Parallel Feed-forward neural networks.
 
-    Args:
-    layer_size: A nested list to define the architecture of the neural network (how the layers are connected).
-        If `layer_size[i]` is int, it represent one layer shared by all the outputs;
-        if `layer_size[i]` is list, it represent `len(layer_size[i])` sub-layers, each of which exclusively used by one output.
-        Note that `len(layer_size[i])` should equal to the number of outputs.
-        Every number specify the number of neurons of that layer.
-
     Feed-forward neural networks that support independent "branches" or sub-network inside the network.
+
+    Args:
+        layer_size: A nested list to define the architecture of the neural network (how the layers are connected).
+            If `layer_size[i]` is int, it represent one layer shared by all the outputs;
+            if `layer_size[i]` is list, it represent `len(layer_size[i])` sub-layers, each of which exclusively used by one output.
+            Note that `len(layer_size[i])` should equal to the number of outputs.
+            Every number specify the number of neurons of that layer.
+
     """
 
     def __init__(
