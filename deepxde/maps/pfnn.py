@@ -86,7 +86,11 @@ class PFNN(FNN):
                 y = layer_map(y, self.layer_size[i_layer + 1], self)
         # output layers
         if isinstance(y, (list, tuple)):
-            # e.g. [3, 3, 3] -> [3]
+            # e.g. [3, 3, 3] -> 3
+            if len(self.layer_size[-2]) != self.layer_size[-1]:
+                raise ValueError(
+                    "Number of sub-layers should be the same as number of outputs"
+                )
             y = [self.dense(y[i_net], 1) for i_net in range(len(y))]
             self.y = tf.concat(y, axis=1)
         else:
