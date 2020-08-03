@@ -6,4 +6,5 @@ from .opnn import OpNN
 from .pfnn import PFNN
 from .resnet import ResNet
 
+
 __all__ = ["FNN", "MfNN", "OpNN", "PFNN", "ResNet"]

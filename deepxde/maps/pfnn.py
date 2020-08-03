@@ -19,7 +19,6 @@ class PFNN(FNN):
             if `layer_size[i]` is list, it represent `len(layer_size[i])` sub-layers, each of which exclusively used by one output.
             Note that `len(layer_size[i])` should equal to the number of outputs.
             Every number specify the number of neurons of that layer.
-
     """
 
     def __init__(
@@ -66,9 +65,8 @@ class PFNN(FNN):
             if isinstance(self.layer_size[i_layer + 1], (list, tuple)):
                 if isinstance(y, (list, tuple)):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
-                    if not (
-                        len(self.layer_size[i_layer + 1])
-                        == len(self.layer_size[i_layer])
+                    if len(self.layer_size[i_layer + 1]) != len(
+                        self.layer_size[i_layer]
                     ):
                         raise ValueError(
                             "Number of sub-layers should be the same when feed-forwarding"
