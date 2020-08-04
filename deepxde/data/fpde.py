@@ -14,8 +14,7 @@ from ..utils import run_if_all_none
 
 
 class Discretization(object):
-    """Space discretization scheme parameters.
-    """
+    """Space discretization scheme parameters."""
 
     def __init__(self, dim, meshtype, resolution, nanchor):
         self.dim = dim
@@ -121,19 +120,16 @@ class FPDE(Data):
 class Fractional(object):
     """Fractional derivative.
 
-    static:
-        n: number of points
-        x0: None
-    dynamic:
-        n: resolution lambda
-        x0: not boundary points
+    Args:
+        x0: If ``disc.meshtype = static``, then x0 should be None;
+            if ``disc.meshtype = 'dynamic'``, then x0 are non-boundary points.
     """
 
     def __init__(self, alpha, geom, disc, x0):
         if (disc.meshtype == "static" and x0 is not None) or (
             disc.meshtype == "dynamic" and x0 is None
         ):
-            raise ValueError("Wrong inputs.")
+            raise ValueError("disc.meshtype and x0 do not match.")
 
         self.alpha, self.geom = alpha, geom
         self.disc, self.x0 = disc, x0
@@ -153,6 +149,9 @@ class Fractional(object):
             )
 
     def _init_weights(self):
+        """If ``disc.meshtype = 'static'``, then n is number of points;
+        if ``disc.meshtype = 'dynamic'``, then n is resolution lambda.
+        """
         n = (
             self.disc.resolution[0]
             if self.disc.meshtype == "static"
@@ -186,7 +185,7 @@ class Fractional(object):
 
     def get_x_dynamic(self):
         if any(map(self.geom.on_boundary, self.x0)):
-            raise ValueError("Boundary points exist.")
+            raise ValueError("x0 contains boundary points.")
         if self.geom.dim == 1:
             dirns, dirn_w = [-1, 1], [1, 1]
         elif self.geom.dim == 2:
@@ -274,7 +273,7 @@ class Fractional(object):
         if x is None:
             return w
         x = np.vstack(([2 * x[0] - x[1]], x))
-        if not self.geom.in_domain(x[0]):
+        if not self.geom.inside(x[0]):
             return x[1:], w[1:]
         return x, w
 
@@ -345,7 +344,7 @@ class Fractional(object):
 
     def get_matrix_dynamic(self, sparse):
         if self.x is None:
-            raise ValueError("Get dynamic points first.")
+            raise AssertionError("No dynamic points")
 
         if sparse:
             print("Generating sparse fractional matrix...")
@@ -366,3 +365,90 @@ class Fractional(object):
             int_mat[i, beg : beg + self.w[i].size] = self.w[i]
             beg += self.w[i].size
         return int_mat
+
+
+class FractionalTime(object):
+    """Fractional derivative with time.
+
+    Args:
+        nt: If ``disc.meshtype = static``, then nt is the number of t points;
+            if ``disc.meshtype = 'dynamic'``, then nt is None.
+        x0: If ``disc.meshtype = static``, then x0 should be None;
+            if ``disc.meshtype = 'dynamic'``, then x0 are non-boundary points.
+
+    Attributes:
+        nx: If ``disc.meshtype = static``, then nx is the number of x points;
+            if ``disc.meshtype = dynamic``, then nx is the resolution lambda.
+    """
+
+    def __init__(self, alpha, geom, tmin, tmax, disc, nt, x0):
+        self.alpha = alpha
+        self.geom, self.tmin, self.tmax = geom, tmin, tmax
+        self.disc, self.nt, self.x0 = disc, nt, x0
+
+        self.x, self.fracx = None, None
+
+    def get_x(self):
+        self.x = (
+            self.get_x_static()
+            if self.disc.meshtype == "static"
+            else self.get_x_dynamic()
+        )
+        return self.x
+
+    def get_matrix(self, sparse=False):
+        return (
+            self.get_matrix_static()
+            if self.disc.meshtype == "static"
+            else self.get_matrix_dynamic(sparse)
+        )
+
+    def get_x_static(self):
+        # Points are reordered: boundary --> inside
+        x = self.geom.uniform_points(self.disc.resolution[0], True)
+        x = np.roll(x, 1)[:, 0]
+        dt = (self.tmax - self.tmin) / (self.nt - 1)
+        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1))
+        d[0 : self.disc.resolution[0], 0] = x
+        d[0 : self.disc.resolution[0], 1] = self.tmin
+        beg = self.disc.resolution[0]
+        for i in range(1, self.nt):
+            d[beg : beg + 2, 0] = x[:2]
+            d[beg : beg + 2, 1] = self.tmin + i * dt
+            beg += 2
+        for i in range(1, self.nt):
+            d[beg : beg + self.disc.resolution[0] - 2, 0] = x[2:]
+            d[beg : beg + self.disc.resolution[0] - 2, 1] = self.tmin + i * dt
+            beg += self.disc.resolution[0] - 2
+        return d
+
+    def get_x_dynamic(self):
+        self.fracx = Fractional(self.alpha, self.geom, self.disc, self.x0[:, :-1])
+        xx = self.fracx.get_x()
+        x = np.empty((len(xx), self.geom.dim + 1))
+        x[: len(self.x0)] = self.x0
+        beg = len(self.x0)
+        for i in range(len(self.x0)):
+            tmp = xx[self.fracx.xindex_start[i] : self.fracx.xindex_start[i + 1]]
+            x[beg : beg + len(tmp), :1] = tmp
+            x[beg : beg + len(tmp), -1] = self.x0[i, -1]
+            beg += len(tmp)
+        return x
+
+    def get_matrix_static(self):
+        print("Warning: assume zero boundary condition.")
+        n = (self.disc.resolution[0] - 2) * (self.nt - 1)
+        int_mat = np.zeros((n, n), dtype=config.real(np))
+        self.fracx = Fractional(self.alpha, self.geom, self.disc, None)
+        int_mat_one = self.fracx.get_matrix()
+        beg = 0
+        for _ in range(self.nt - 1):
+            int_mat[
+                beg : beg + self.disc.resolution[0] - 2,
+                beg : beg + self.disc.resolution[0] - 2,
+            ] = int_mat_one[1:-1, 1:-1]
+            beg += self.disc.resolution[0] - 2
+        return int_mat
+
+    def get_matrix_dynamic(self, sparse):
+        return self.fracx.get_matrix(sparse)
