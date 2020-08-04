@@ -43,8 +43,8 @@ class FPDE(Data):
     """
 
     def __init__(self, frac, alpha, func, geom, disc, batch_size=0, ntest=None):
-        if disc.meshtype == "static":
-            assert geom.idstr == "Interval", "Only Interval supports static mesh."
+        if disc.meshtype == "static" and geom.idstr != "Interval":
+            raise ValueError("Only Interval supports static mesh.")
 
         self.frac, self.alpha, self.func, self.geom = frac, alpha, func, geom
         self.disc = disc
@@ -130,9 +130,10 @@ class Fractional(object):
     """
 
     def __init__(self, alpha, geom, disc, x0):
-        assert (disc.meshtype == "static" and x0 is None) or (
-            disc.meshtype == "dynamic" and x0 is not None
-        ), "Wrong inputs."
+        if (disc.meshtype == "static" and x0 is not None) or (
+            disc.meshtype == "dynamic" and x0 is None
+        ):
+            raise ValueError("Wrong inputs.")
 
         self.alpha, self.geom = alpha, geom
         self.disc, self.x0 = disc, x0
@@ -184,7 +185,8 @@ class Fractional(object):
         return int(math.ceil(self.disc.resolution[-1] * dx))
 
     def get_x_dynamic(self):
-        assert not any(map(self.geom.on_boundary, self.x0)), "Boundary points exist."
+        if any(map(self.geom.on_boundary, self.x0)):
+            raise ValueError("Boundary points exist.")
         if self.geom.dim == 1:
             dirns, dirn_w = [-1, 1], [1, 1]
         elif self.geom.dim == 2:
@@ -342,7 +344,8 @@ class Fractional(object):
         return h ** (-self.alpha) * int_mat
 
     def get_matrix_dynamic(self, sparse):
-        assert self.x is not None, "Get dynamic points first."
+        if self.x is None:
+            raise ValueError("Get dynamic points first.")
 
         if sparse:
             print("Generating sparse fractional matrix...")
