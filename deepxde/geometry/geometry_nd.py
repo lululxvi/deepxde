@@ -126,7 +126,8 @@ class Hypersphere(Geometry):
         if random == "pseudo":
             X = np.random.normal(size=(n, self.dim))
         elif random == "sobol":
-            U = sobol_sequence.sample(n + 1, self.dim)[1:]
+            # Remove the first point [0, 0, ...] and the second point [0.5, 0.5, ...]
+            U = sobol_sequence.sample(n + 2, self.dim)[2:]
             X = stats.norm.ppf(U)
         X = preprocessing.normalize(X)
         return self.radius * X + self.center
