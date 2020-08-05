@@ -5,6 +5,7 @@ from __future__ import print_function
 import math
 
 import numpy as np
+from SALib.sample import sobol_sequence
 
 from .data import Data
 from .. import array_ops
@@ -114,6 +115,89 @@ class FPDE(Data):
         if self.disc.meshtype == "static":
             int_mat = np.roll(int_mat, int_mat.shape[1] - 1, axis=1)
             int_mat = int_mat[1:-1]
+        return int_mat
+
+
+class TimeFPDE(Data):
+    """Time-dependent fractional PDE solver.
+    """
+
+    def __init__(
+        self, frac, alpha, func, geom, t_min, t_max, disc, batch_size=0, ntest=None
+    ):
+        self.frac, self.alpha, self.func, self.geom = frac, alpha, func, geom
+        self.t_min, self.t_max = t_min, t_max
+        self.disc = disc
+
+        self.batch_size = batch_size
+        self.ntest = ntest
+
+        self.train_x, self.train_y, self.frac_train = None, None, None
+        self.test_x, self.test_y, self.frac_test = None, None, None
+        self.nt, self.nbc = None, None
+
+    def losses(self, targets, outputs, loss, model):
+        int_mat_train = self.get_int_matrix(True)
+        int_mat_test = self.get_int_matrix(False)
+        dy_t = tf.gradients(outputs, model.net.inputs)[0][self.nbc :, -1:]
+        f = tf.cond(
+            tf.equal(model.net.data_id, 0),
+            lambda: self.frac(
+                model.net.inputs[self.nbc :], outputs[self.nbc :], dy_t, int_mat_train
+            ),
+            lambda: self.frac(
+                model.net.inputs[self.nbc :], outputs[self.nbc :], dy_t, int_mat_test
+            ),
+        )
+        if self.nbc > 0:
+            return [
+                loss(targets[: self.nbc], outputs[: self.nbc]),
+                loss(tf.zeros(tf.shape(f)), f),
+            ]
+        return [loss(tf.zeros(tf.shape(f)), f)]
+
+    @run_if_all_none("train_x", "train_y")
+    def train_next_batch(self, batch_size=None):
+        self.train_x, self.train_y, self.frac_train = self.get_x(self.batch_size)
+        return self.train_x, self.train_y
+
+    @run_if_all_none("test_x", "test_y")
+    def test(self):
+        self.test_x, self.test_y, self.frac_test = self.get_x(self.ntest)
+        return self.test_x, self.test_y
+
+    def get_x(self, size):
+        if self.disc.meshtype == "static":
+            self.nt = int(round(size / self.disc.resolution[0]))
+            self.nbc = self.disc.resolution[0] + 2 * self.nt - 2
+            discreteop = FractionalTime(
+                self.alpha, self.geom, self.t_min, self.t_max, self.disc, self.nt, None
+            )
+            x = discreteop.get_x()
+        elif self.disc.meshtype == "dynamic":
+            self.nbc = 0
+            # x = np.random.rand(size, 2)
+            x = sobol_sequence.sample(size + 1, 2)[1:]
+            x = x * [self.geom.diam, self.t_max - self.t_min] - [
+                self.geom.l,
+                self.t_min,
+            ]
+            discreteop = FractionalTime(
+                self.alpha, self.geom, self.t_min, self.t_max, self.disc, None, x
+            )
+            x = discreteop.get_x()
+        y = self.func(x)
+        return x, y, discreteop
+
+    def get_int_matrix(self, training):
+        if training:
+            if self.train_x is None:
+                self.train_next_batch()
+            int_mat = self.frac_train.get_matrix(True)
+        else:
+            if self.test_x is None:
+                self.test()
+            int_mat = self.frac_test.get_matrix(True)
         return int_mat
 
 
