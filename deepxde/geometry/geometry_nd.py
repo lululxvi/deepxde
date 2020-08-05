@@ -113,7 +113,8 @@ class Hypersphere(Geometry):
             U = np.random.rand(n, 1)
             X = np.random.normal(size=(n, self.dim))
         elif random == "sobol":
-            rng = sobol_sequence.sample(n + 1, self.dim + 1)[1:]
+            # Remove the first point [0, 0, ...] and the second point [0.5, 0.5, ...]
+            rng = sobol_sequence.sample(n + 2, self.dim + 1)[2:]
             U, X = rng[:, 0:1], rng[:, 1:]
             X = stats.norm.ppf(X)
         X = preprocessing.normalize(X)
