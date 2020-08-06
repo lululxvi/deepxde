@@ -40,3 +40,7 @@ def hstack(tup):
         else:
             tup[0] = np.array([], dtype=config.real(np))
     return tf.concat(tup, 0) if istensor(tup[0]) else np.hstack(tup)
+
+
+def roll(a, shift, axis):
+    return tf.roll(a, shift, axis) if istensor(a) else np.roll(a, shift, axis=axis)
