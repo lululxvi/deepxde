@@ -52,13 +52,14 @@ class FPDE(Data):
         self.batch_size = batch_size
         self.ntest = ntest
 
+        self.inverse = array_ops.istensor(alpha)
         self.nbc = disc.nanchor
         self.train_x, self.train_y, self.frac_train = None, None, None
         self.test_x, self.test_y, self.frac_test = None, None, None
 
     def losses(self, targets, outputs, loss, model):
-        int_mat_train = self.get_int_matrix(self.batch_size, True)
-        int_mat_test = self.get_int_matrix(self.ntest, False)
+        int_mat_train = self.get_int_matrix(True)
+        int_mat_test = self.get_int_matrix(False)
         f = tf.cond(
             tf.equal(model.net.data_id, 0),
             lambda: self.frac(
@@ -90,102 +91,19 @@ class FPDE(Data):
                 raise ValueError("Mesh resolution does not match batch size.")
             discreteop = Fractional(self.alpha, self.geom, self.disc, None)
             x = discreteop.get_x()
-            x = np.roll(x, len(x) - 1)
+            x = np.roll(x, -1)
         elif self.disc.meshtype == "dynamic":
-            # x = self.geom.random_points(size-self.disc.nanchor, 'sobol')
-            x = self.geom.uniform_points(size - self.disc.nanchor, False)
+            x = self.geom.random_points(size - self.disc.nanchor, "sobol")
+            # x = self.geom.uniform_points(size - self.disc.nanchor, False)
             discreteop = Fractional(self.alpha, self.geom, self.disc, x)
             x = discreteop.get_x()
         if self.disc.nanchor > 0:
-            x = np.vstack(
-                (self.geom.random_boundary_points(self.disc.nanchor, "sobol"), x)
-            )
-        y = self.func(x)
-        return x, y, discreteop
-
-    def get_int_matrix(self, size, training):
-        if training:
-            if self.train_x is None:
-                self.train_next_batch()
-            int_mat = self.frac_train.get_matrix(True)
-        else:
-            if self.test_x is None:
-                self.test()
-            int_mat = self.frac_test.get_matrix(True)
-        if self.disc.meshtype == "static":
-            int_mat = np.roll(int_mat, int_mat.shape[1] - 1, axis=1)
-            int_mat = int_mat[1:-1]
-        return int_mat
-
-
-class FPDEInverse(Data):
-    """Fractional PDE inverse problem solver.
-    """
-
-    def __init__(self, frac, func, geom, disc, batch_size=0, ntest=None):
-        if disc.meshtype == "static" and geom.idstr != "Interval":
-            raise ValueError("Only Interval supports static mesh.")
-
-        self.frac, self.func, self.geom = frac, func, geom
-        self.disc = disc
-
-        self.batch_size = batch_size
-        self.ntest = ntest
-
-        self.nbc = disc.nanchor
-        self.train_x, self.train_y, self.frac_train = None, None, None
-        self.test_x, self.test_y, self.frac_test = None, None, None
-
-        self.alpha = 1.5
-        self.alpha_train = tf.Variable(self.alpha, dtype=config.real(tf))
-
-    def losses(self, targets, outputs, loss, model):
-        int_mat_train = self.get_int_matrix(True)
-        int_mat_test = self.get_int_matrix(False)
-        f = tf.cond(
-            tf.equal(model.net.data_id, 0),
-            lambda: self.frac(
-                self.alpha_train,
-                model.net.inputs[self.nbc :],
-                outputs[self.nbc :],
-                int_mat_train,
-            ),
-            lambda: self.frac(
-                self.alpha_train,
-                model.net.inputs[self.nbc :],
-                outputs[self.nbc :],
-                int_mat_test,
-            ),
-        )
-        l = [
-            loss(targets[: self.nbc], outputs[: self.nbc]),
-            loss(tf.zeros(tf.shape(f)), f),
-        ]
-        return l
-
-    @run_if_all_none("train_x", "train_y")
-    def train_next_batch(self, batch_size=None):
-        self.train_x, self.train_y, self.frac_train = self.get_x(self.batch_size)
-        return self.train_x, self.train_y
-
-    @run_if_all_none("test_x", "test_y")
-    def test(self):
-        self.test_x, self.test_y, self.frac_test = self.get_x(self.ntest)
-        return self.test_x, self.test_y
-
-    def get_x(self, size):
-        if self.disc.meshtype == "static":
-            if size != self.disc.resolution[0] - 2 + self.disc.nanchor:
-                raise ValueError("Mesh resolution does not match batch size.")
-            discreteop = Fractional(self.alpha_train, self.geom, self.disc, None)
-            x = discreteop.get_x()
-            x = np.roll(x, len(x) - 1)
-        elif self.disc.meshtype == "dynamic":
-            x = self.geom.random_points(size - self.disc.nanchor, "sobol")
-            discreteop = Fractional(self.alpha_train, self.geom, self.disc, x)
-            x = discreteop.get_x()
-        if self.disc.nanchor > 0:
-            x = np.vstack((self.geom.random_points(self.disc.nanchor, "sobol"), x))
+            if not self.inverse:
+                x = np.vstack(
+                    (self.geom.random_boundary_points(self.disc.nanchor, "sobol"), x)
+                )
+            else:
+                x = np.vstack((self.geom.random_points(self.disc.nanchor, "sobol"), x))
         y = self.func(x)
         return x, y, discreteop
 
@@ -199,7 +117,7 @@ class FPDEInverse(Data):
                 self.test()
             int_mat = self.frac_test.get_matrix(True)
         if self.disc.meshtype == "static":
-            int_mat = tf.manip.roll(int_mat, self.disc.resolution[0] - 1, 1)
+            int_mat = array_ops.roll(int_mat, -1, 1)
             int_mat = int_mat[1:-1]
         return int_mat
 

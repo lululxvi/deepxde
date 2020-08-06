@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from .dataset import DataSet
 from .fpde import FPDE
-from .fpde import FPDEInverse
 from .fpde import TimeFPDE
 from .func import Func
 from .func_constraint import FuncConstraint
@@ -17,7 +16,6 @@ from .pde import TimePDE
 __all__ = [
     "DataSet",
     "FPDE",
-    "FPDEInverse",
     "Func",
     "FuncConstraint",
     "IDE",

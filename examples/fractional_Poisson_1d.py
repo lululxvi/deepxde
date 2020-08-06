@@ -13,7 +13,7 @@ def main():
     alpha = 1.5
 
     def fpde(x, y, int_mat):
-        """(-Delta)^(alpha/2) u(x) = f(x)
+        """(D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)
         """
         if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
             int_mat = tf.SparseTensor(*int_mat)
@@ -37,11 +37,11 @@ def main():
     geom = dde.geometry.Interval(0, 1)
 
     # Static auxiliary points
-    # disc = dde.data.fpde.Discretization(1, 'static', [128], 2)
-    # data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=128, ntest=128)
+    disc = dde.data.fpde.Discretization(1, "static", [128], 2)
+    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=128, ntest=128)
     # Dynamic auxiliary points
-    disc = dde.data.fpde.Discretization(1, "dynamic", [500], 2)
-    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=16, ntest=100)
+    # disc = dde.data.fpde.Discretization(1, "dynamic", [500], 2)
+    # data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=16, ntest=100)
 
     net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(lambda x, y: x * (1 - x) * y)

@@ -11,8 +11,9 @@ from deepxde.backend import tf
 
 def main():
     alpha0 = 1.8
+    alpha = tf.Variable(1.5)
 
-    def fpde(alpha, x, y, int_mat):
+    def fpde(x, y, int_mat):
         """\int_theta D_theta^alpha u(x)
         """
         if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
@@ -26,9 +27,7 @@ def main():
         )
         x = x[: tf.size(lhs)]
         rhs = (
-            2 ** alpha0
-            * gamma(2 + alpha0 / 2)
-            * gamma(1 + alpha0 / 2)
+            2 ** alpha0 * gamma(2 + alpha0 / 2) * gamma(1 + alpha0 / 2)
             * (1 - (1 + alpha0 / 2) * tf.reduce_sum(x ** 2, axis=1))
         )
         return lhs - rhs
@@ -39,7 +38,7 @@ def main():
     geom = dde.geometry.Disk([0, 0], 1)
 
     disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100], 32)
-    data = dde.data.FPDEInverse(fpde, func, geom, disc, batch_size=64, ntest=64)
+    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=64, ntest=64)
 
     net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(
@@ -48,7 +47,7 @@ def main():
 
     model = dde.Model(data, net)
     model.compile("adam", lr=1e-3, loss_weights=[100, 1])
-    variable = dde.callbacks.VariableValue(data.alpha_train, period=1000)
+    variable = dde.callbacks.VariableValue(alpha, period=1000)
     losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
