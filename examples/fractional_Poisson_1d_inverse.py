@@ -30,19 +30,35 @@ def main():
 
     geom = dde.geometry.Interval(-1, 1)
 
+    observe_x = np.linspace(-1, 1, num=20)[:, None]
+    ptset = dde.bc.PointSet(observe_x)
+    observe_y = dde.DirichletBC(
+        geom, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
+    )
+
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, "static", [22], 20)
-    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=40, ntest=40)
+    # disc = dde.data.fpde.Discretization(1, "static", [101], None)
+    # data = dde.data.FPDE(geom, fpde, alpha, observe_y, disc, num_domain=99, anchors=observe_x, solution=func)
     # Dynamic auxiliary points
-    # disc = dde.data.fpde.Discretization(1, "dynamic", [100], 20)
-    # data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=40, ntest=40)
+    disc = dde.data.fpde.Discretization(1, "dynamic", [100], None)
+    data = dde.data.FPDE(
+        geom,
+        fpde,
+        alpha,
+        observe_y,
+        disc,
+        num_domain=40,
+        anchors=observe_x,
+        solution=func,
+        num_test=100,
+    )
 
     net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(lambda x, y: (1 - x ** 2) * y)
 
     model = dde.Model(data, net)
 
-    model.compile("adam", lr=1e-3, loss_weights=[100, 1])
+    model.compile("adam", lr=1e-3, loss_weights=[1, 100])
     variable = dde.callbacks.VariableValue(alpha, period=1000)
     losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)

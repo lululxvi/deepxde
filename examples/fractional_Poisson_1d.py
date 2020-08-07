@@ -35,13 +35,14 @@ def main():
         return x ** 3 * (1 - x) ** 3
 
     geom = dde.geometry.Interval(0, 1)
+    bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, "static", [128], 2)
-    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=128, ntest=128)
+    # disc = dde.data.fpde.Discretization(1, "static", [101], None)
+    # data = dde.data.FPDE(geom, fpde, alpha, bc, disc, num_domain=99, num_boundary=2, solution=func)
     # Dynamic auxiliary points
-    # disc = dde.data.fpde.Discretization(1, "dynamic", [500], 2)
-    # data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=16, ntest=100)
+    disc = dde.data.fpde.Discretization(1, "dynamic", [100], None)
+    data = dde.data.FPDE(geom, fpde, alpha, bc, disc, num_domain=20, num_boundary=2, solution=func, num_test=100)
 
     net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(lambda x, y: x * (1 - x) * y)

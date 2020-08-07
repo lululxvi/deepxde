@@ -37,8 +37,23 @@ def main():
 
     geom = dde.geometry.Disk([0, 0], 1)
 
-    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100], 32)
-    data = dde.data.FPDE(fpde, alpha, func, geom, disc, batch_size=64, ntest=64)
+    observe_x = geom.random_points(30)
+    ptset = dde.bc.PointSet(observe_x)
+    observe_y = dde.DirichletBC(
+        geom, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
+    )
+
+    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100], None)
+    data = dde.data.FPDE(
+        geom,
+        fpde,
+        alpha,
+        observe_y,
+        disc,
+        num_domain=64,
+        anchors=observe_x,
+        solution=func,
+    )
 
     net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(
@@ -46,7 +61,7 @@ def main():
     )
 
     model = dde.Model(data, net)
-    model.compile("adam", lr=1e-3, loss_weights=[100, 1])
+    model.compile("adam", lr=1e-3, loss_weights=[1, 100])
     variable = dde.callbacks.VariableValue(alpha, period=1000)
     losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)

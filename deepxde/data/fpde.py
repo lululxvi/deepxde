@@ -8,6 +8,7 @@ import numpy as np
 from SALib.sample import sobol_sequence
 
 from .data import Data
+from .pde import PDE
 from .. import array_ops
 from .. import config
 from ..backend import tf
@@ -38,87 +39,143 @@ class Discretization(object):
             )
 
 
-class FPDE(Data):
+class FPDE(PDE):
     """Fractional PDE solver.
+
+    D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
+    (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
+    where C(alpha, D) = gamma((1-alpha)/2) * gamma((D+alpha)/2) / (2 pi^((D+1)/2)),
+    D_theta^alpha is the Riemann-Liouville directional fractional derivative,
+    and theta is the differentiation direction vector.
+    The solution u(x) is assumed to be identically zero in the boundary and exterior of the domain.
+    When D = 1, C(alpha, D) = 1 / (2 cos(alpha * pi / 2)).
+
+    This solver does not consider C(alpha, D) in the fractional Laplacian,
+    and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
+    D_theta^alpha is approximated by Grunwald-Letnikov formula.
     """
 
-    def __init__(self, frac, alpha, func, geom, disc, batch_size=0, ntest=None):
-        if disc.meshtype == "static" and geom.idstr != "Interval":
-            raise ValueError("Only Interval supports static mesh.")
+    def __init__(
+        self,
+        geometry,
+        fpde,
+        alpha,
+        bcs,
+        disc,
+        num_domain=0,
+        num_boundary=0,
+        train_distribution="random",
+        anchors=None,
+        solution=None,
+        num_test=None,
+    ):
+        if disc.meshtype == "static":
+            if geometry.idstr != "Interval":
+                raise ValueError("Only Interval supports static mesh.")
+            if num_domain + 2 != disc.resolution[0]:
+                raise ValueError(
+                    "Mesh resolution does not match the number of points inside the domain."
+                )
+            if num_test is not None:
+                raise ValueError("Cannot use test points in static mesh.")
 
-        self.frac, self.alpha, self.func, self.geom = frac, alpha, func, geom
+        self.alpha = alpha
         self.disc = disc
+        self.frac_train, self.frac_test = None, None
 
-        self.batch_size = batch_size
-        self.ntest = ntest
-
-        self.inverse = array_ops.istensor(alpha)
-        self.nbc = disc.nanchor
-        self.train_x, self.train_y, self.frac_train = None, None, None
-        self.test_x, self.test_y, self.frac_test = None, None, None
+        super(FPDE, self).__init__(
+            geometry,
+            fpde,
+            bcs,
+            num_domain=num_domain,
+            num_boundary=num_boundary,
+            train_distribution=train_distribution,
+            anchors=anchors,
+            solution=solution,
+            num_test=num_test,
+        )
 
     def losses(self, targets, outputs, loss, model):
-        int_mat_train = self.get_int_matrix(True)
-        int_mat_test = self.get_int_matrix(False)
-        f = tf.cond(
-            tf.equal(model.net.data_id, 0),
-            lambda: self.frac(
-                model.net.inputs[self.nbc :], outputs[self.nbc :], int_mat_train
-            ),
-            lambda: self.frac(
-                model.net.inputs[self.nbc :], outputs[self.nbc :], int_mat_test
-            ),
-        )
-        l = [
-            loss(targets[: self.nbc], outputs[: self.nbc]),
-            loss(tf.zeros(tf.shape(f)), f),
-        ]
-        return l
+        def losses_train():
+            bcs_start = np.cumsum([0] + self.num_bcs)
+            int_mat = self.get_int_matrix(True)
+            f = self.pde(model.net.inputs, outputs, int_mat)
+            if not isinstance(f, (list, tuple)):
+                f = [f]
+            f = [fi[bcs_start[-1] :] for fi in f]
+            losses = [
+                loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+            ]
+
+            for i, bc in enumerate(self.bcs):
+                beg, end = bcs_start[i], bcs_start[i + 1]
+                error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
+                losses.append(
+                    loss(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+                )
+            return losses
+
+        def losses_test():
+            int_mat = self.get_int_matrix(False)
+            f = self.pde(model.net.inputs, outputs, int_mat)
+            if not isinstance(f, (list, tuple)):
+                f = [f]
+            return [
+                loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+            ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
+
+        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        self.train_x, self.train_y, self.frac_train = self.get_x(self.batch_size)
+        if self.disc.meshtype == "static":
+            self.frac_train = Fractional(self.alpha, self.geom, self.disc, None)
+            X = self.frac_train.get_x()
+            # FPDE is only applied to the domain points.
+            # Boundary points are auxiliary points, and appended in the end.
+            X = np.roll(X, -1)
+            self.train_x = X
+            if self.anchors is not None:
+                self.train_x = np.vstack((self.anchors, self.train_x))
+            x_bc = self.bc_points()
+        elif self.disc.meshtype == "dynamic":
+            self.train_x = self.train_points()
+            x_bc = self.bc_points()
+            # FPDE is only applied to the domain points.
+            x_f = self.train_x[[not self.geom.on_boundary(x) for x in self.train_x]]
+            self.frac_train = Fractional(self.alpha, self.geom, self.disc, x_f)
+            X = self.frac_train.get_x()
+
+        self.train_x = np.vstack((x_bc, X))
+        self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
     def test(self):
-        self.test_x, self.test_y, self.frac_test = self.get_x(self.ntest)
+        if self.num_test is None:
+            self.test_x = self.train_x[sum(self.num_bcs) :]
+            self.frac_test = self.frac_train
+        else:
+            self.test_x = self.test_points()
+            x_f = self.test_x[[not self.geom.on_boundary(x) for x in self.test_x]]
+            self.frac_test = Fractional(self.alpha, self.geom, self.disc, x_f)
+            self.test_x = self.frac_test.get_x()
+        self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
-
-    def get_x(self, size):
-        if self.disc.meshtype == "static":
-            if size != self.disc.resolution[0] - 2 + self.disc.nanchor:
-                raise ValueError("Mesh resolution does not match batch size.")
-            discreteop = Fractional(self.alpha, self.geom, self.disc, None)
-            x = discreteop.get_x()
-            x = np.roll(x, -1)
-        elif self.disc.meshtype == "dynamic":
-            x = self.geom.random_points(size - self.disc.nanchor, "sobol")
-            # x = self.geom.uniform_points(size - self.disc.nanchor, False)
-            discreteop = Fractional(self.alpha, self.geom, self.disc, x)
-            x = discreteop.get_x()
-        if self.disc.nanchor > 0:
-            if not self.inverse:
-                x = np.vstack(
-                    (self.geom.random_boundary_points(self.disc.nanchor, "sobol"), x)
-                )
-            else:
-                x = np.vstack((self.geom.random_points(self.disc.nanchor, "sobol"), x))
-        y = self.func(x)
-        return x, y, discreteop
 
     def get_int_matrix(self, training):
         if training:
-            if self.train_x is None:
-                self.train_next_batch()
-            int_mat = self.frac_train.get_matrix(True)
+            int_mat = self.frac_train.get_matrix(sparse=True)
+            num_bc = sum(self.num_bcs)
         else:
-            if self.test_x is None:
-                self.test()
-            int_mat = self.frac_test.get_matrix(True)
+            int_mat = self.frac_test.get_matrix(sparse=True)
+            num_bc = 0
+
         if self.disc.meshtype == "static":
             int_mat = array_ops.roll(int_mat, -1, 1)
             int_mat = int_mat[1:-1]
+
+        int_mat = array_ops.zero_padding(int_mat, ((num_bc, 0), (num_bc, 0)))
         return int_mat
 
 
