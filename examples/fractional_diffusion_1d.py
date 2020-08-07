@@ -38,13 +38,15 @@ def main():
     t_min, t_max = 0, 1
 
     # Static auxiliary points
-    # disc = dde.data.fpde.Discretization(1, 'static', [50], 0)
-    # data = dde.data.TimeFPDE(fpde, alpha, func, geom, t_min, t_max, disc, batch_size=400, ntest=400)
-    # Dynamic auxiliary points
-    disc = dde.data.fpde.Discretization(1, "dynamic", [100], 0)
+    disc = dde.data.fpde.Discretization(1, 'static', [50])
     data = dde.data.TimeFPDE(
-        fpde, alpha, func, geom, t_min, t_max, disc, batch_size=200, ntest=500
+        fpde, alpha, func, geom, t_min, t_max, disc, batch_size=400, ntest=400
     )
+    # Dynamic auxiliary points
+    # disc = dde.data.fpde.Discretization(1, "dynamic", [100])
+    # data = dde.data.TimeFPDE(
+    #     fpde, alpha, func, geom, t_min, t_max, disc, batch_size=200, ntest=500
+    # )
 
     net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(

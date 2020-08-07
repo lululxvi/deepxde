@@ -24,9 +24,7 @@ def main():
         lhs *= gamma((1 - alpha) / 2) * gamma((2 + alpha) / 2) / (2 * np.pi ** 1.5)
         x = x[: tf.size(lhs)]
         rhs = (
-            2 ** alpha
-            * gamma(2 + alpha / 2)
-            * gamma(1 + alpha / 2)
+            2 ** alpha * gamma(2 + alpha / 2) * gamma(1 + alpha / 2)
             * (1 - (1 + alpha / 2) * tf.reduce_sum(x ** 2, axis=1))
         )
         return lhs - rhs
@@ -39,7 +37,7 @@ def main():
     geom = dde.geometry.Disk([0, 0], 1)
     bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
-    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100], None)
+    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100])
     data = dde.data.FPDE(
         geom, fpde, alpha, bc, disc, num_domain=100, num_boundary=1, solution=func
     )

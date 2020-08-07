@@ -43,7 +43,7 @@ def main():
         geom, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
     )
 
-    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100], None)
+    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100])
     data = dde.data.FPDE(
         geom,
         fpde,

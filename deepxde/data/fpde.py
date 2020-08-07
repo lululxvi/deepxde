@@ -18,10 +18,9 @@ from ..utils import run_if_all_none
 class Discretization(object):
     """Space discretization scheme parameters."""
 
-    def __init__(self, dim, meshtype, resolution, nanchor):
+    def __init__(self, dim, meshtype, resolution):
         self.dim = dim
         self.meshtype, self.resolution = meshtype, resolution
-        self.nanchor = nanchor
 
         self._check()
 
