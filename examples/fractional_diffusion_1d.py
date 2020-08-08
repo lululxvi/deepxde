@@ -12,7 +12,7 @@ from deepxde.backend import tf
 def main():
     alpha = 1.8
 
-    def fpde(x, y, dy_t, int_mat):
+    def fpde(x, y, int_mat):
         """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)
         """
         if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
@@ -20,6 +20,7 @@ def main():
             lhs = -tf.sparse_tensor_dense_matmul(int_mat, y)
         else:
             lhs = -tf.matmul(int_mat, y)
+        dy_t = tf.gradients(y, x)[0][:, 1:2]
         x, t = x[:, :-1], x[:, -1:]
         rhs = -dy_t - tf.exp(-t) * (
             x ** 3 * (1 - x) ** 3
@@ -35,17 +36,30 @@ def main():
         return np.exp(-t) * x ** 3 * (1 - x) ** 3
 
     geom = dde.geometry.Interval(0, 1)
-    t_min, t_max = 0, 1
+    timedomain = dde.geometry.TimeDomain(0, 1)
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+    bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+    ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
 
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, 'static', [50])
+    disc = dde.data.fpde.Discretization(1, "static", [52])
     data = dde.data.TimeFPDE(
-        fpde, alpha, func, geom, t_min, t_max, disc, batch_size=400, ntest=400
+        geomtime, fpde, alpha, [bc, ic], disc, num_domain=400, solution=func
     )
     # Dynamic auxiliary points
     # disc = dde.data.fpde.Discretization(1, "dynamic", [100])
     # data = dde.data.TimeFPDE(
-    #     fpde, alpha, func, geom, t_min, t_max, disc, batch_size=200, ntest=500
+    #     geomtime,
+    #     fpde,
+    #     alpha,
+    #     [bc, ic],
+    #     disc,
+    #     num_domain=20,
+    #     num_boundary=1,
+    #     num_initial=1,
+    #     solution=func,
+    #     num_test=50,
     # )
 
     net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
@@ -59,8 +73,6 @@ def main():
     losshistory, train_state = model.train(epochs=10000)
     dde.saveplot(losshistory, train_state, issave=False, isplot=True)
 
-    timedomain = dde.geometry.TimeDomain(0, 1)
-    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
     X = geomtime.random_points(1000)
     y_true = func(X)
     y_pred = model.predict(X)
