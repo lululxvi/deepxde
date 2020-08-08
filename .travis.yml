@@ -5,6 +5,7 @@ python:
   - "2.7"
   - "3.6"
   - "3.7"
+  - "3.8"
 install:
   # code below is taken from https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
   - sudo apt-get update
@@ -28,7 +29,7 @@ install:
   - conda activate test-environment
 
   - conda install -c conda-forge salib
-  - conda install tensorflow==1.14.0
+  - conda install tensorflow
 
 # command to run tests
 script:
