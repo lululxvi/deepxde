@@ -43,18 +43,16 @@ def main():
     ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
 
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, "static", [52])
     data = dde.data.TimeFPDE(
-        geomtime, fpde, alpha, [bc, ic], disc, num_domain=400, solution=func
+        geomtime, fpde, alpha, [bc, ic], [52], meshtype="static", num_domain=400, solution=func
     )
     # Dynamic auxiliary points
-    # disc = dde.data.fpde.Discretization(1, "dynamic", [100])
     # data = dde.data.TimeFPDE(
     #     geomtime,
     #     fpde,
     #     alpha,
     #     [bc, ic],
-    #     disc,
+    #     [100],
     #     num_domain=20,
     #     num_boundary=1,
     #     num_initial=1,

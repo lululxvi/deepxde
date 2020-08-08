@@ -38,14 +38,10 @@ def main():
     bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, "static", [101])
-    data = dde.data.FPDE(
-        geom, fpde, alpha, bc, disc, num_domain=99, num_boundary=2, solution=func
-    )
+    data = dde.data.FPDE(geom, fpde, alpha, bc, [101], meshtype="static", solution=func)
     # Dynamic auxiliary points
-    # disc = dde.data.fpde.Discretization(1, "dynamic", [100])
     # data = dde.data.FPDE(
-    #     geom, fpde, alpha, bc, disc, num_domain=20, num_boundary=2, solution=func, num_test=100
+    #     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test=100
     # )
 
     net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")

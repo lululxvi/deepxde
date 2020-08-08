@@ -37,9 +37,8 @@ def main():
     geom = dde.geometry.Disk([0, 0], 1)
     bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
-    disc = dde.data.fpde.Discretization(2, "dynamic", [8, 100])
     data = dde.data.FPDE(
-        geom, fpde, alpha, bc, disc, num_domain=100, num_boundary=1, solution=func
+        geom, fpde, alpha, bc, [8, 100], num_domain=100, num_boundary=1, solution=func
     )
 
     net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")

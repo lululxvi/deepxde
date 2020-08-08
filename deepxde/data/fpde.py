@@ -13,13 +13,23 @@ from ..backend import tf
 from ..utils import run_if_all_none
 
 
-class Discretization(object):
-    """Space discretization scheme parameters."""
+class Scheme(object):
+    """Fractional Laplacian discretization.
 
-    def __init__(self, dim, meshtype, resolution):
-        self.dim = dim
-        self.meshtype, self.resolution = meshtype, resolution
+    Discretize fractional Laplacian uisng quadrature rule for the integral with respect to the directions
+    and Grunwald-Letnikov (GL) formula for the Riemann-Liouville directional fractional derivative.
 
+    Args:
+        meshtype (string): "static" or "dynamic".
+        resolution: A list of integer. The first number is the number of quadrature points in the first direction, ...,
+            and the last number is the GL parameter.
+    """
+
+    def __init__(self, meshtype, resolution):
+        self.meshtype = meshtype
+        self.resolution = resolution
+
+        self.dim = len(resolution)
         self._check()
 
     def _check(self):
@@ -28,11 +38,6 @@ class Discretization(object):
         if self.dim >= 2 and self.meshtype == "static":
             raise ValueError(
                 "Do not support meshtype static for dimension %d" % self.dim
-            )
-        if self.dim != len(self.resolution):
-            raise ValueError(
-                "Resolution %s does not math dimension %d."
-                % (self.resolution, self.dim)
             )
 
 
@@ -58,7 +63,8 @@ class FPDE(PDE):
         fpde,
         alpha,
         bcs,
-        disc,
+        resolution,
+        meshtype="dynamic",
         num_domain=0,
         num_boundary=0,
         train_distribution="random",
@@ -67,7 +73,7 @@ class FPDE(PDE):
         num_test=None,
     ):
         self.alpha = alpha
-        self.disc = disc
+        self.disc = Scheme(meshtype, resolution)
         self.frac_train, self.frac_test = None, None
 
         super(FPDE, self).__init__(
@@ -118,10 +124,6 @@ class FPDE(PDE):
         if self.disc.meshtype == "static":
             if self.geom.idstr != "Interval":
                 raise ValueError("Only Interval supports static mesh.")
-            if self.num_domain + 2 != self.disc.resolution[0]:
-                raise ValueError(
-                    "Mesh resolution does not match the number of points inside the domain."
-                )
 
             self.frac_train = Fractional(self.alpha, self.geom, self.disc, None)
             X = self.frac_train.get_x()
@@ -198,7 +200,8 @@ class TimeFPDE(FPDE):
         fpde,
         alpha,
         ic_bcs,
-        disc,
+        resolution,
+        meshtype="dynamic",
         num_domain=0,
         num_boundary=0,
         num_initial=0,
@@ -213,7 +216,8 @@ class TimeFPDE(FPDE):
             fpde,
             alpha,
             ic_bcs,
-            disc,
+            resolution,
+            meshtype=meshtype,
             num_domain=num_domain,
             num_boundary=num_boundary,
             train_distribution=train_distribution,

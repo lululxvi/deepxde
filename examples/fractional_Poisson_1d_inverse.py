@@ -37,30 +37,29 @@ def main():
     )
 
     # Static auxiliary points
-    disc = dde.data.fpde.Discretization(1, "static", [101])
-    data = dde.data.FPDE(
-        geom,
-        fpde,
-        alpha,
-        observe_y,
-        disc,
-        num_domain=99,
-        anchors=observe_x,
-        solution=func,
-    )
-    # Dynamic auxiliary points
-    # disc = dde.data.fpde.Discretization(1, "dynamic", [100])
     # data = dde.data.FPDE(
     #     geom,
     #     fpde,
     #     alpha,
     #     observe_y,
-    #     disc,
-    #     num_domain=20,
+    #     [101],
+    #     meshtype="static",
     #     anchors=observe_x,
     #     solution=func,
-    #     num_test=100,
     # )
+    # Dynamic auxiliary points
+    data = dde.data.FPDE(
+        geom,
+        fpde,
+        alpha,
+        observe_y,
+        [100],
+        meshtype="dynamic",
+        num_domain=20,
+        anchors=observe_x,
+        solution=func,
+        num_test=100,
+    )
 
     net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
     net.apply_output_transform(lambda x, y: (1 - x ** 2) * y)
