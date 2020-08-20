@@ -208,6 +208,14 @@ class Triangle(Geometry):
             ** 0.5,
         )
 
+    def on_boundary(self, x):
+        l1 = np.linalg.norm(x - self.x1)
+        l2 = np.linalg.norm(x - self.x2)
+        l3 = np.linalg.norm(x - self.x3)
+        return np.any(
+            np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0)
+        )
+
     def random_points(self, n, random="pseudo"):
         """There are two methods for triangle point picking.
 
