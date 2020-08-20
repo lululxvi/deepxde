@@ -43,12 +43,14 @@ class GeometryXTime(object):
         Time volume ~ diam.
         """
         nx = int(
-            (
-                n
-                * np.prod(self.geometry.bbox[1] - self.geometry.bbox[0])
-                / self.timedomain.diam
+            np.ceil(
+                (
+                    n
+                    * np.prod(self.geometry.bbox[1] - self.geometry.bbox[0])
+                    / self.timedomain.diam
+                )
+                ** 0.5
             )
-            ** 0.5
         )
         nt = int(np.ceil(n / nx))
         x = self.geometry.uniform_points(nx, boundary=boundary)
