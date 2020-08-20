@@ -27,13 +27,12 @@ def main():
         return on_boundary and np.isclose(x[0], 1)
 
     def func(x):
-        return -x ** 4 / 24 + x ** 3 / 6 - x ** 2 / 4
+        return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
 
     geom = dde.geometry.Interval(0, 1)
 
-    zero_func = lambda x: np.zeros((len(x), 1))
-    bc1 = dde.DirichletBC(geom, zero_func, boundary_l)
-    bc2 = dde.NeumannBC(geom, zero_func, boundary_l)
+    bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)
+    bc2 = dde.NeumannBC(geom, lambda x: 0, boundary_l)
     bc3 = dde.OperatorBC(geom, lambda x, y, _: ddy(x, y), boundary_r)
     bc4 = dde.OperatorBC(geom, lambda x, y, _: dddy(x, y), boundary_r)
 

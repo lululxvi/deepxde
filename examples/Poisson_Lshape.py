@@ -19,11 +19,8 @@ def main():
     def boundary(_, on_boundary):
         return on_boundary
 
-    def func(x):
-        return np.zeros([len(x), 1])
-
     geom = dde.geometry.Polygon([[0, 0], [1, 0], [1, -1], [-1, -1], [-1, 1], [0, 1]])
-    bc = dde.DirichletBC(geom, func, boundary)
+    bc = dde.DirichletBC(geom, lambda x: 0, boundary)
 
     data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test=1500)
     net = dde.maps.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
