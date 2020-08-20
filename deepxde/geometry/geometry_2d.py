@@ -181,11 +181,17 @@ class Rectangle(Hypercube):
 class Triangle(Geometry):
     """Triangle.
 
-    The order of vertices can be in a clockwise or counter-clockwise direction.
-    The vertices will be re-ordered in counter-clockwise (right hand rule).
+    The order of vertices can be in a clockwise or counterclockwise direction.
+    The vertices will be re-ordered in counterclockwise (right hand rule).
     """
 
     def __init__(self, x1, x2, x3):
+        self.area = polygon_signed_area([x1, x2, x3])
+        # Clockwise
+        if self.area < 0:
+            self.area = -self.area
+            x2, x3 = x3, x2
+
         self.x1 = np.array(x1)
         self.x2 = np.array(x2)
         self.x3 = np.array(x3)
@@ -447,6 +453,17 @@ class Polygon(Geometry):
                 v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
             x.append((l - l0) * v + self.vertices[i])
         return np.vstack((self.vertices, x))
+
+
+def polygon_signed_area(vertices):
+    """The (signed) area of a simple polygon.
+
+    Shoelace formula: https://en.wikipedia.org/wiki/Shoelace_formula
+    """
+    x, y = zip(*vertices)
+    x = np.array(list(x) + [x[0]])
+    y = np.array(list(y) + [y[0]])
+    return 0.5 * (np.sum(x[:-1] * y[1:]) - np.sum(x[1:] * y[:-1]))
 
 
 def clockwise_rotation_90(v):
