@@ -179,10 +179,17 @@ class Rectangle(Hypercube):
 
 
 class Triangle(Geometry):
+    """Triangle.
+
+    The order of vertices can be in a clockwise or counter-clockwise direction.
+    The vertices will be re-ordered in counter-clockwise (right hand rule).
+    """
+
     def __init__(self, x1, x2, x3):
         self.x1 = np.array(x1)
         self.x2 = np.array(x2)
         self.x3 = np.array(x3)
+
         self.v12 = self.x2 - self.x1
         self.v23 = self.x3 - self.x2
         self.v31 = self.x1 - self.x3
@@ -192,7 +199,11 @@ class Triangle(Geometry):
         self.n12 = self.v12 / self.l12
         self.n23 = self.v23 / self.l23
         self.n31 = self.v31 / self.l31
+        self.n12_normal = clockwise_rotation_90(self.n12)
+        self.n23_normal = clockwise_rotation_90(self.n23)
+        self.n31_normal = clockwise_rotation_90(self.n31)
         self.perimeter = self.l12 + self.l23 + self.l31
+
         super(Triangle, self).__init__(
             2,
             (np.minimum(x1, np.minimum(x2, x3)), np.maximum(x1, np.maximum(x2, x3))),
@@ -215,6 +226,21 @@ class Triangle(Geometry):
         return np.any(
             np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0)
         )
+
+    def boundary_normal(self, x):
+        l1 = np.linalg.norm(x - self.x1)
+        l2 = np.linalg.norm(x - self.x2)
+        if np.isclose(l1 + l2, self.l12):
+            return self.n12_normal
+
+        l3 = np.linalg.norm(x - self.x3)
+        if np.isclose(l2 + l3, self.l23):
+            return self.n23_normal
+
+        if np.isclose(l3 + l1, self.l31):
+            return self.n31_normal
+
+        return np.array([0, 0])
 
     def random_points(self, n, random="pseudo"):
         """There are two methods for triangle point picking.
@@ -421,6 +447,12 @@ class Polygon(Geometry):
                 v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
             x.append((l - l0) * v + self.vertices[i])
         return np.vstack((self.vertices, x))
+
+
+def clockwise_rotation_90(v):
+    """Rotate a vector of 90 degrees clockwise about the origin.
+    """
+    return np.array([v[1], -v[0]])
 
 
 def is_left(P0, P1, P2):
