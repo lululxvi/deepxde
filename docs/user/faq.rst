@@ -37,6 +37,8 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
   | **A**: `#28`_
 - | **Q**: More details about DeepXDE source code, and want to modify DeepXDE, e.g., to use multiple GPUs and mini batch.
   | **A**: `#35`_, `#39`_, `#66`_, `#68`_, `#69`_, `#91`_, `#99`_
+- | **Q**: Examples collected from users.
+  | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_
 - | **Q**: Questions about multi-fidelity neutral networks.
   | **A**: `#94`_
 
