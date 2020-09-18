@@ -15,6 +15,13 @@ from ..utils import timing
 
 class OpNN(Map):
     """Operator neural networks.
+
+    Args:
+        activation: If `activation` is a ``string``, then the same activation is used in both trunk and branch nets.
+            If `activation` is a ``dict``, then the trunk net uses the activation `activation["trunk"]`,
+            and the branch net uses `activation["branch"]`.
+        trainable_branch (bool)
+        trainable_trunk: Boolean or a list of booleans.
     """
 
     def __init__(
@@ -38,7 +45,11 @@ class OpNN(Map):
 
         self.layer_size_func = layer_size_branch
         self.layer_size_loc = layer_size_trunk
-        self.activation = activations.get(activation)
+        if isinstance(activation, dict):
+            self.activation_branch = activations.get(activation["branch"])
+            self.activation_trunk = activations.get(activation["trunk"])
+        else:
+            self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         if stacked:
             self.kernel_initializer_stacked = initializers.get(
@@ -95,7 +106,7 @@ class OpNN(Map):
                     y_func,
                     self.layer_size_func[i],
                     stack_size,
-                    activation=self.activation,
+                    activation=self.activation_branch,
                     trainable=self.trainable_branch,
                 )
             y_func = self.stacked_dense(
@@ -111,7 +122,7 @@ class OpNN(Map):
                 y_func = self.dense(
                     y_func,
                     self.layer_size_func[i],
-                    activation=self.activation,
+                    activation=self.activation_branch,
                     regularizer=self.regularizer,
                     trainable=self.trainable_branch,
                 )
@@ -128,7 +139,7 @@ class OpNN(Map):
             y_loc = self.dense(
                 y_loc,
                 self.layer_size_loc[i],
-                activation=self.activation,
+                activation=self.activation_trunk,
                 regularizer=self.regularizer,
                 trainable=self.trainable_trunk[i - 1]
                 if isinstance(self.trainable_trunk, (list, tuple))
