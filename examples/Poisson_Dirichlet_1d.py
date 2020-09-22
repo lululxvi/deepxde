@@ -34,7 +34,7 @@ def main():
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
     checkpointer = dde.callbacks.ModelCheckpoint(
-        "./model/model.ckpt", verbose=1, save_better_only=True
+        "model/model.ckpt", verbose=1, save_better_only=True
     )
     movie = dde.callbacks.MovieDumper(
         "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
@@ -45,13 +45,14 @@ def main():
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
-    # Plot PDE residue
+    # Plot PDE residual
+    model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
     x = geom.uniform_points(1000, True)
     y = model.predict(x, operator=pde)
     plt.figure()
     plt.plot(x, y)
     plt.xlabel("x")
-    plt.ylabel("PDE residue")
+    plt.ylabel("PDE residual")
     plt.show()
 
 
