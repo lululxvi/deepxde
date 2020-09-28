@@ -80,6 +80,8 @@ class Model(object):
 
         loss = losses_module.get(loss)
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
+        if not isinstance(self.losses, list):
+            self.losses = [self.losses]
         if self.net.regularizer is not None:
             self.losses.append(tf.losses.get_regularization_loss())
         self.losses = tf.convert_to_tensor(self.losses)
