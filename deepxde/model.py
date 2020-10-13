@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from collections import OrderedDict
+
 import numpy as np
 
 from . import display
@@ -303,6 +305,16 @@ class Model(object):
             self.train_state.metrics_test,
         )
         display.training_display(self.train_state)
+
+    def state_dict(self):
+        """Returns a dictionary containing all variables.
+        """
+        destination = OrderedDict()
+        variables_names = [v.name for v in tf.trainable_variables()]
+        values = self.sess.run(variables_names)
+        for k, v in zip(variables_names, values):
+            destination[k] = v
+        return destination
 
     def _print_model(self):
         variables_names = [v.name for v in tf.trainable_variables()]
