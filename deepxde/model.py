@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pickle
 from collections import OrderedDict
 
 import numpy as np
@@ -310,27 +311,40 @@ class Model(object):
         """Returns a dictionary containing all variables.
         """
         destination = OrderedDict()
-        variables_names = [v.name for v in tf.trainable_variables()]
+        variables_names = [v.name for v in tf.global_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
             destination[k] = v
         return destination
 
-    def _print_model(self):
+    def print_model(self):
+        """Prints all trainable variables.
+        """
         variables_names = [v.name for v in tf.trainable_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
 
-    def save(self, save_path, verbose=0):
+    def save(self, save_path, protocol="tf.train.Saver", verbose=0):
+        """Saves all variables to a disk file.
+
+        Args:
+            protocol (string): If `protocol` is "tf.train.Saver", save using `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                If `protocol` is "pickle", save using the Python pickle module.
+                Only "tf.train.Saver" protocol supports ``restore()``.
+        """
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {}-{} ...\n".format(
                     self.train_state.epoch, save_path, self.train_state.epoch
                 )
             )
-        self.saver.save(self.sess, save_path, global_step=self.train_state.epoch)
+        if protocol == "tf.train.Saver":
+            self.saver.save(self.sess, save_path, global_step=self.train_state.epoch)
+        elif protocol == "pickle":
+            with open("{}-{}.pkl".format(save_path, self.train_state.epoch), "wb") as f:
+                pickle.dump(self.state_dict(), f)
 
     def restore(self, save_path, verbose=0):
         if verbose > 0:
