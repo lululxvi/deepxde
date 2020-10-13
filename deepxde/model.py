@@ -161,7 +161,7 @@ class Model(object):
         print("")
         display.training_display.summary(self.train_state)
         if print_model:
-            self._print_model()
+            self.print_model()
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
