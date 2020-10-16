@@ -186,28 +186,13 @@ class TimePDE(PDE):
         )
 
     def train_points(self):
-        X = np.empty((0, self.geom.dim))
-        if self.num_domain > 0:
-            if self.train_distribution == "uniform":
-                X = self.geom.uniform_points(self.num_domain, boundary=False)
-            else:
-                X = self.geom.random_points(self.num_domain, random="sobol")
-        if self.num_boundary > 0:
-            if self.train_distribution == "uniform":
-                tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            else:
-                tmp = self.geom.random_boundary_points(
-                    self.num_boundary, random="sobol"
-                )
-            X = np.vstack((tmp, X))
+        X = super(TimePDE, self).train_points()
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
             else:
                 tmp = self.geom.random_initial_points(self.num_initial, random="sobol")
             X = np.vstack((tmp, X))
-        if self.anchors is not None:
-            X = np.vstack((self.anchors, X))
         return X
 
     def test_points(self):
