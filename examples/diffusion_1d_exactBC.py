@@ -27,15 +27,11 @@ def main():
     timedomain = dde.geometry.TimeDomain(0, 1)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-    bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-    ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
     data = dde.data.TimePDE(
         geomtime,
         pde,
-        [bc, ic],
+        [],
         num_domain=40,
-        num_boundary=1,
-        num_initial=1,
         solution=func,
         num_test=10000,
     )
