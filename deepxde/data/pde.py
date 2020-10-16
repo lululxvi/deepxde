@@ -194,6 +194,3 @@ class TimePDE(PDE):
                 tmp = self.geom.random_initial_points(self.num_initial, random="sobol")
             X = np.vstack((tmp, X))
         return X
-
-    def test_points(self):
-        return self.geom.uniform_points(self.num_test)
