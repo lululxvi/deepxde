@@ -29,7 +29,7 @@ class PDE(Data):
         bcs,
         num_domain=0,
         num_boundary=0,
-        train_distribution="random",
+        train_distribution="sobol",
         anchors=None,
         solution=None,
         num_test=None,
@@ -127,14 +127,30 @@ class PDE(Data):
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
                 X = self.geom.uniform_points(self.num_domain, boundary=False)
-            else:
+            elif self.train_distribution == "pseudo":
+                X = self.geom.random_points(self.num_domain)
+            elif self.train_distribution == "sobol":
                 X = self.geom.random_points(self.num_domain, random="sobol")
+            else:
+                raise ValueError(
+                    "self.train_distribution == {}, available choices: (uniform|pseudo|sobol)".format(
+                        self.train_distribution
+                    )
+                )
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            else:
+            elif self.train_distribution == "pseudo":
+                tmp = self.geom.random_boundary_points(self.num_boundary)
+            elif self.train_distribution == "sobol":
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random="sobol"
+                )
+            else:
+                raise ValueError(
+                    "self.train_distribution == {}, available choices: (uniform|pseudo|sobol)".format(
+                        self.train_distribution
+                    )
                 )
             X = np.vstack((tmp, X))
         if self.anchors is not None:
@@ -167,7 +183,7 @@ class TimePDE(PDE):
         num_domain=0,
         num_boundary=0,
         num_initial=0,
-        train_distribution="random",
+        train_distribution="sobol",
         anchors=None,
         solution=None,
         num_test=None,
@@ -190,7 +206,15 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-            else:
+            elif self.train_distribution == "pseudo":
+                tmp = self.geom.random_initial_points(self.num_initial)
+            elif self.train_distribution == "sobol":
                 tmp = self.geom.random_initial_points(self.num_initial, random="sobol")
+            else:
+                raise ValueError(
+                    "self.train_distribution == {}, available choices: (uniform|pseudo|sobol)".format(
+                        self.train_distribution
+                    )
+                )
             X = np.vstack((tmp, X))
         return X
