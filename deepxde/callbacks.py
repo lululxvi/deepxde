@@ -396,7 +396,8 @@ class SampleUpdater(Callback):
         self.update_every = update_every
 
     def on_epoch_begin(self):
-        if self.model.train_state.epoch % self.update_every == 0:
+        epoch = self.model.train_state.epoch
+        if epoch > 0 and epoch % self.update_every == 0:
             print(f"epoch = {self.model.train_state.epoch}, update train_x, train_y")
             self.model.data.train_x = None
             self.model.data.train_y = None
