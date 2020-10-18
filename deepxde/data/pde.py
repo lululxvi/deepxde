@@ -12,6 +12,14 @@ from ..utils import get_num_args, run_if_all_none
 
 class PDE(Data):
     """ODE or time-independent PDE solver.
+
+    Attributes:
+        train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
+            and do not have duplication.
+        train_x: A Numpy array of the residual points fed into the network for training.
+            `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
+        num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
+        test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
     """
 
     def __init__(
@@ -38,8 +46,9 @@ class PDE(Data):
         self.soln = solution
         self.num_test = num_test
 
-        self.num_bcs = None
+        self.train_x_all = None
         self.train_x, self.train_y = None, None
+        self.num_bcs = None
         self.test_x, self.test_y = None, None
         self.train_next_batch()
         self.test()
@@ -86,21 +95,20 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        self.train_x = self.train_points()
-        self.train_x = np.vstack((self.bc_points(), self.train_x))
+        self.train_x_all = self.train_points()
+        self.train_x = self.bc_points()
+        if self.pde is not None:
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x[sum(self.num_bcs) :]
-            self.test_y = (
-                self.train_y[sum(self.num_bcs) :] if self.train_y is not None else None
-            )
+            self.test_x = self.train_x_all
         else:
             self.test_x = self.test_points()
-            self.test_y = self.soln(self.test_x) if self.soln else None
+        self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
     def add_anchors(self, anchors):
@@ -108,8 +116,10 @@ class PDE(Data):
             self.anchors = anchors
         else:
             self.anchors = np.vstack((anchors, self.anchors))
-        self.train_x = np.vstack((anchors, self.train_x[sum(self.num_bcs) :]))
-        self.train_x = np.vstack((self.bc_points(), self.train_x))
+        self.train_x_all = np.vstack((anchors, self.train_x_all))
+        self.train_x = self.bc_points()
+        if self.pde is not None:
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
 
     def train_points(self):
@@ -132,9 +142,9 @@ class PDE(Data):
         return X
 
     def bc_points(self):
-        x_bcs = [bc.collocation_points(self.train_x) for bc in self.bcs]
+        x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
-        return np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x.shape[-1]])
+        return np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
 
     def test_points(self):
         return self.geom.uniform_points(self.num_test, True)

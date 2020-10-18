@@ -38,9 +38,6 @@ class IDE(PDE):
         self.quad_deg = quad_deg
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)
 
-        self.train_x, self.train_y = None, None
-        self.test_x, self.test_y = None, None
-
         super(IDE, self).__init__(
             geometry,
             ide,
@@ -86,25 +83,22 @@ class IDE(PDE):
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        self.train_x = self.train_points()
+        self.train_x_all = self.train_points()
         x_bc = self.bc_points()
-        x_quad = self.quad_points(self.train_x)
-        self.train_x = np.vstack((x_bc, self.train_x, x_quad))
+        x_quad = self.quad_points(self.train_x_all)
+        self.train_x = np.vstack((x_bc, self.train_x_all, x_quad))
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x[sum(self.num_bcs) :]
-            self.test_y = (
-                self.train_y[sum(self.num_bcs) :] if self.train_y is not None else None
-            )
+            self.test_x = self.train_x_all
         else:
             self.test_x = self.test_points()
-            x_quad = self.quad_points(self.test_x)
-            self.test_x = np.vstack((self.test_x, x_quad))
-            self.test_y = self.soln(self.test_x) if self.soln else None
+        x_quad = self.quad_points(self.test_x)
+        self.test_x = np.vstack((self.test_x, x_quad))
+        self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
     def quad_points(self, X):
@@ -124,9 +118,7 @@ class IDE(PDE):
             num_bc = 0
             X = self.test_x
         if training or self.num_test is None:
-            num_f = self.num_domain + self.num_boundary
-            if self.anchors is not None:
-                num_f += len(self.anchors)
+            num_f = len(self.train_x_all)
         else:
             num_f = self.num_test
 
