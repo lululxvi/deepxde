@@ -48,7 +48,7 @@ def main():
 
     model = dde.Model(data, net)
 
-    for i in range(5):
+    for _ in range(5):
         model.compile("adam", lr=0.001, metrics=["l2 relative error"])
         model.train(epochs=2000)
         print("epoch = {}, update train_x, train_y".format(model.train_state.epoch))
