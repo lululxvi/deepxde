@@ -45,15 +45,15 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model):
-        f = None
-        if get_num_args(self.pde) == 2:
+        f = []
+        if self.pde is not None and get_num_args(self.pde) == 2:
             f = self.pde(model.net.inputs, outputs)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
         def losses_train():
             f_train = f
-            if get_num_args(self.pde) == 3:
+            if self.pde is not None and get_num_args(self.pde) == 3:
                 f_train = self.pde(model.net.inputs, outputs, self.train_x)
                 if not isinstance(f_train, (list, tuple)):
                     f_train = [f_train]
@@ -74,7 +74,7 @@ class PDE(Data):
 
         def losses_test():
             f_test = f
-            if get_num_args(self.pde) == 3:
+            if self.pde is not None and get_num_args(self.pde) == 3:
                 f_test = self.pde(model.net.inputs, outputs, self.test_x)
                 if not isinstance(f_test, (list, tuple)):
                     f_test = [f_test]
