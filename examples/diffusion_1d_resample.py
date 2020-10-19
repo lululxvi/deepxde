@@ -36,9 +36,9 @@ def main():
         num_domain=40,
         num_boundary=20,
         num_initial=10,
+        train_distribution="pseudo",
         solution=func,
         num_test=10000,
-        train_distribution="pseudo",
     )
 
     layer_size = [2] + [32] * 3 + [1]
@@ -51,10 +51,8 @@ def main():
     for _ in range(5):
         model.compile("adam", lr=0.001, metrics=["l2 relative error"])
         model.train(epochs=2000)
-        print("epoch = {}, update train_x, train_y".format(model.train_state.epoch))
-        model.data.train_x = None
-        model.data.train_y = None
-        data.train_next_batch()
+        print("epoch = {}, resample train points...".format(model.train_state.epoch))
+        data.resample_train_points()
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
     losshistory, train_state = model.train(epochs=2000)
 

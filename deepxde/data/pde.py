@@ -13,9 +13,22 @@ from ..utils import get_num_args, run_if_all_none
 class PDE(Data):
     """ODE or time-independent PDE solver.
 
+    Args:
+        geometry: Instance of ``Geometry``.
+        pde: A global PDE or a list of PDEs. ``None`` if no global PDE.
+        bcs: A boundary condition or a list of boundary conditions. ``[]`` if no boundary condition.
+        num_domain (int): The number of training residual points sampled inside the domain.
+        num_boundary (int): The number of training residual points sampled on the boundary.
+        train_distribution (string): The distribution to sample training residual points. One of the following:
+            "uniform" (equispaced grid), "pseudo" (pseudorandom) or "sobol" (Sobol sequence).
+        anchors: A Numpy array of training residual points, in addition to the `num_domain` and `num_boundary` sampled
+            points.
+        solution: The reference solution.
+        num_test: The number of residual points for testing the PDE residual.
+
     Attributes:
         train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
-            and do not have duplication.
+            and does not have duplication.
         train_x: A Numpy array of the residual points fed into the network for training.
             `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
@@ -50,6 +63,7 @@ class PDE(Data):
         self.train_x, self.train_y = None, None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
+
         self._check()
         self.train_next_batch()
         self.test()
@@ -120,7 +134,19 @@ class PDE(Data):
         self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
+    def resample_train_points(self):
+        """Resample the training residual points.
+        
+        Warning: After resampling, need to call ``Model.compile()`` to update the loss.
+        """
+        self.train_x, self.train_y = None, None
+        self.train_next_batch()
+
     def add_anchors(self, anchors):
+        """Add new anchors into the training residual points.
+
+        Warning: After adding anchors, need to call ``Model.compile()`` to update the loss.
+        """
         if self.anchors is None:
             self.anchors = anchors
         else:
