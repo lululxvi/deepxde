@@ -136,7 +136,7 @@ class PDE(Data):
 
     def resample_train_points(self):
         """Resample the training residual points.
-        
+
         Warning: After resampling, need to call ``Model.compile()`` to update the loss.
         """
         self.train_x, self.train_y = None, None
