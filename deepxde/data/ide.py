@@ -29,7 +29,7 @@ class IDE(PDE):
         kernel=None,
         num_domain=0,
         num_boundary=0,
-        train_distribution="random",
+        train_distribution="sobol",
         anchors=None,
         solution=None,
         num_test=None,

@@ -29,7 +29,7 @@ class PDE(Data):
         bcs,
         num_domain=0,
         num_boundary=0,
-        train_distribution="random",
+        train_distribution="sobol",
         anchors=None,
         solution=None,
         num_test=None,
@@ -50,8 +50,17 @@ class PDE(Data):
         self.train_x, self.train_y = None, None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
+        self._check()
         self.train_next_batch()
         self.test()
+
+    def _check(self):
+        if self.train_distribution not in ["uniform", "pseudo", "sobol"]:
+            raise ValueError(
+                "self.train_distribution == {}. Available choices: {{'uniform'|'pseudo'|'sobol'}}.".format(
+                    self.train_distribution
+                )
+            )
 
     def losses(self, targets, outputs, loss, model):
         f = []
@@ -127,14 +136,16 @@ class PDE(Data):
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
                 X = self.geom.uniform_points(self.num_domain, boundary=False)
-            else:
-                X = self.geom.random_points(self.num_domain, random="sobol")
+            elif self.train_distribution in ["pseudo", "sobol"]:
+                X = self.geom.random_points(
+                    self.num_domain, random=self.train_distribution
+                )
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            else:
+            elif self.train_distribution in ["pseudo", "sobol"]:
                 tmp = self.geom.random_boundary_points(
-                    self.num_boundary, random="sobol"
+                    self.num_boundary, random=self.train_distribution
                 )
             X = np.vstack((tmp, X))
         if self.anchors is not None:
@@ -167,7 +178,7 @@ class TimePDE(PDE):
         num_domain=0,
         num_boundary=0,
         num_initial=0,
-        train_distribution="random",
+        train_distribution="sobol",
         anchors=None,
         solution=None,
         num_test=None,
@@ -186,29 +197,13 @@ class TimePDE(PDE):
         )
 
     def train_points(self):
-        X = np.empty((0, self.geom.dim))
-        if self.num_domain > 0:
-            if self.train_distribution == "uniform":
-                X = self.geom.uniform_points(self.num_domain, boundary=False)
-            else:
-                X = self.geom.random_points(self.num_domain, random="sobol")
-        if self.num_boundary > 0:
-            if self.train_distribution == "uniform":
-                tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            else:
-                tmp = self.geom.random_boundary_points(
-                    self.num_boundary, random="sobol"
-                )
-            X = np.vstack((tmp, X))
+        X = super(TimePDE, self).train_points()
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-            else:
-                tmp = self.geom.random_initial_points(self.num_initial, random="sobol")
+            elif self.train_distribution in ["pseudo", "sobol"]:
+                tmp = self.geom.random_initial_points(
+                    self.num_initial, random=self.train_distribution
+                )
             X = np.vstack((tmp, X))
-        if self.anchors is not None:
-            X = np.vstack((self.anchors, X))
         return X
-
-    def test_points(self):
-        return self.geom.uniform_points(self.num_test)
