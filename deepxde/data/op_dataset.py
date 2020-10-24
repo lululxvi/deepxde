@@ -6,6 +6,7 @@ import numpy as np
 from sklearn import preprocessing
 
 from .data import Data
+from .sampler import BatchSampler
 
 
 class OpDataSet(Data):
@@ -32,6 +33,7 @@ class OpDataSet(Data):
             self.train_x, self.train_y = X_train, y_train
             self.test_x, self.test_y = X_test, y_test
         elif fname_train is not None:
+            # Bug to be fixed: x should be a tuple
             train_data = np.loadtxt(fname_train)
             self.train_x = train_data[:, col_x]
             self.train_y = train_data[:, col_y]
@@ -44,11 +46,19 @@ class OpDataSet(Data):
         if standardize:
             self._standardize()
 
+        self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
+
     def losses(self, targets, outputs, loss, model):
         return [loss(targets, outputs)]
 
     def train_next_batch(self, batch_size=None):
-        return self.train_x, self.train_y
+        if batch_size is None:
+            return self.train_x, self.train_y
+        indices = self.train_sampler.get_next(batch_size)
+        return (
+            (self.train_x[0][indices], self.train_x[1][indices]),
+            self.train_y[indices],
+        )
 
     def test(self):
         return self.test_x, self.test_y
