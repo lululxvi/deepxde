@@ -84,6 +84,14 @@ deepxde.data.pde module
    :undoc-members:
    :show-inheritance:
 
+deepxde.data.sampler module
+---------------------------
+
+.. automodule:: deepxde.data.sampler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------
