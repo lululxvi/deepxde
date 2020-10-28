@@ -138,5 +138,5 @@ class GeometryXTime(object):
         return np.hstack((x, np.full([n, 1], t)))
 
     def periodic_point(self, x, component):
-        xp = self.geometry.periodic_point(x[:-1])
+        xp = self.geometry.periodic_point(x[:-1], component)
         return np.append(xp, x[-1])
