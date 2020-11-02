@@ -76,6 +76,7 @@ deepxde.gradients module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members:
 
 deepxde.initial\_condition module
 ---------------------------------
