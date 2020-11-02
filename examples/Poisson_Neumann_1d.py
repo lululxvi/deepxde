@@ -5,13 +5,12 @@ from __future__ import print_function
 import numpy as np
 
 import deepxde as dde
-from deepxde.backend import tf
 
 
 def main():
     def pde(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        dy_xx = tf.gradients(dy_x, x)[0]
+        H = dde.grad.Hessian(y, x)
+        dy_xx = H()
         return dy_xx - 2
 
     def boundary_l(x, on_boundary):

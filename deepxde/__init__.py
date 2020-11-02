@@ -5,6 +5,7 @@ from . import boundary_conditions as bc
 from . import callbacks
 from . import data
 from . import geometry
+from . import gradients as grad
 from . import maps
 from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
@@ -23,6 +24,7 @@ __all__ = [
     "callbacks",
     "data",
     "geometry",
+    "grad",
     "maps",
     "DirichletBC",
     "NeumannBC",

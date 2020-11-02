@@ -69,6 +69,14 @@ deepxde.external\_optimizer module
    :undoc-members:
    :show-inheritance:
 
+deepxde.gradients module
+------------------------
+
+.. automodule:: deepxde.gradients
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.initial\_condition module
 ---------------------------------
 
