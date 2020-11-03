@@ -149,7 +149,7 @@ def hessian(y, xs, component=None, i=0, j=0, grad_y=None):
         i (int):
         j (int):
         grad_y: The gradient of `y` w.r.t. `xs`. Provide `grad_y` if known to avoid duplicate computation. `grad_y` can
-            be computed from ``Jacobian``. Even if you do not provide `grad_y`, there is no duplicate computation if
+            be computed from ``jacobian``. Even if you do not provide `grad_y`, there is no duplicate computation if
             you use ``jacobian`` to compute first-order derivatives.
 
     Returns:
