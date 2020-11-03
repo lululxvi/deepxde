@@ -9,8 +9,7 @@ import deepxde as dde
 
 def main():
     def pde(x, y):
-        H = dde.grad.Hessian(y, x)
-        dy_xx = H()
+        dy_xx = dde.grad.hessian(y, x)
         return dy_xx - 2
 
     def boundary_l(x, on_boundary):

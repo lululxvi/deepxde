@@ -10,10 +10,8 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
-        J = dde.grad.Jacobian(y, x)
-        dy_t = J(j=1)
-        H = dde.grad.Hessian(y, x, grad_y=J())
-        dy_xx = H(j=0)
+        dy_t = dde.grad.jacobian(y, x, j=1)
+        dy_xx = dde.grad.hessian(y, x, j=0)
         return (
             dy_t
             - dy_xx
