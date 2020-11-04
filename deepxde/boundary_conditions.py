@@ -6,6 +6,7 @@ import numbers
 
 import numpy as np
 
+from . import gradients as grad
 from .backend import tf
 
 
@@ -30,8 +31,7 @@ class BC(object):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
-        outputs = outputs[:, self.component : self.component + 1]
-        dydx = tf.gradients(outputs, inputs)[0][beg:end]
+        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = np.array(list(map(self.geom.boundary_normal, X[beg:end])))
         return tf.reduce_sum(dydx * n, axis=1, keepdims=True)
 
@@ -110,11 +110,9 @@ class PeriodicBC(BC):
             yleft = outputs[beg:mid, self.component : self.component + 1]
             yright = outputs[mid:end, self.component : self.component + 1]
         else:
-            dydx = tf.gradients(
-                outputs[:, self.component : self.component + 1], inputs
-            )[0]
-            yleft = dydx[beg:mid, self.component_x : self.component_x + 1]
-            yright = dydx[mid:end, self.component_x : self.component_x + 1]
+            dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
+            yleft = dydx[beg:mid]
+            yright = dydx[mid:end]
         return yleft - yright
 
 

@@ -6,7 +6,7 @@ import sys
 
 import numpy as np
 
-from .backend import tf
+from . import gradients as grad
 from .utils import list_to_str, save_animation
 
 
@@ -291,9 +291,7 @@ class FirstDerivative(OperatorPredictor):
 
     def __init__(self, x, component_x=0, component_y=0):
         def first_derivative(x, y):
-            return tf.gradients(y[:, component_y : component_y + 1], x)[0][
-                :, component_x : component_x + 1
-            ]
+            return grad.jacobian(y, x, i=component_y, j=component_x)
 
         super(FirstDerivative, self).__init__(x, first_derivative)
 
