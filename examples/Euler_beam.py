@@ -10,8 +10,7 @@ from deepxde.backend import tf
 
 def main():
     def ddy(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        return tf.gradients(dy_x, x)[0]
+        return dde.grad.hessian(y, x)
 
     def dddy(x, y):
         return tf.gradients(ddy(x, y), x)[0]
