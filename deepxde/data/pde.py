@@ -82,6 +82,11 @@ class PDE(Data):
             f = self.pde(model.net.inputs, outputs)
             if not isinstance(f, (list, tuple)):
                 f = [f]
+        # Always build the gradients in the PDE here, so that we can reuse all the gradients in dde.grad. If we build
+        # the gradients in losses_train(), then error occurs when we use these gradients in losses_test() during
+        # sess.run(), because one branch in tf.cond() cannot use the Tensors created in the other branch.
+        if self.pde is not None and get_num_args(self.pde) == 3:
+            self.pde(model.net.inputs, outputs, self.train_x)
 
         def losses_train():
             f_train = f
