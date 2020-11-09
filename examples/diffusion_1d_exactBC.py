@@ -10,9 +10,9 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        dy_x, dy_t = dy_x[:, 0:1], dy_x[:, 1:]
-        dy_xx = tf.gradients(dy_x, x)[0][:, 0:1]
+        dy_x = dde.grad.jacobian(y, x, i=0, j=0)
+        dy_t = dde.grad.jacobian(y, x, i=0, j=1)
+        dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         return (
             dy_t
             - dy_xx
@@ -28,12 +28,7 @@ def main():
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
     data = dde.data.TimePDE(
-        geomtime,
-        pde,
-        [],
-        num_domain=40,
-        solution=func,
-        num_test=10000,
+        geomtime, pde, [], num_domain=40, solution=func, num_test=10000,
     )
 
     layer_size = [2] + [32] * 3 + [1]

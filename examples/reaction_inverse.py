@@ -25,12 +25,12 @@ def main():
 
     def pde(x, y):
         ca, cb = y[:, 0:1], y[:, 1:2]
-        ca_x = tf.gradients(ca, x)[0]
-        dca_x, dca_t = ca_x[:, 0:1], ca_x[:, 1:2]
-        dca_xx = tf.gradients(dca_x, x)[0][:, 0:1]
-        cb_x = tf.gradients(cb, x)[0]
-        dcb_x, dcb_t = cb_x[:, 0:1], cb_x[:, 1:2]
-        dcb_xx = tf.gradients(dcb_x, x)[0][:, 0:1]
+        dca_x = dde.grad.jacobian(y, x, i=0, j=0)
+        dca_t = dde.grad.jacobian(y, x, i=0, j=1)
+        dca_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
+        dcb_x = dde.grad.jacobian(y, x, i=1, j=0)
+        dcb_t = dde.grad.jacobian(y, x, i=1, j=1)
+        dcb_xx = dde.grad.hessian(y, x, component=1, i=0, j=0)
         eq_a = dca_t - 1e-3 * D * dca_xx + kf * ca * cb ** 2
         eq_b = dcb_t - 1e-3 * D * dcb_xx + 2 * kf * ca * cb ** 2
         return [eq_a, eq_b]

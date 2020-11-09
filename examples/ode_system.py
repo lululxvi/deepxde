@@ -5,7 +5,6 @@ from __future__ import print_function
 import numpy as np
 
 import deepxde as dde
-from deepxde.backend import tf
 
 
 def main():
@@ -15,8 +14,8 @@ def main():
         dy2/dx = -y1
         """
         y1, y2 = y[:, 0:1], y[:, 1:]
-        dy1_x = tf.gradients(y1, x)[0]
-        dy2_x = tf.gradients(y2, x)[0]
+        dy1_x = dde.grad.jacobian(y, x, i=0)
+        dy2_x = dde.grad.jacobian(y, x, i=1)
         return [dy1_x - y2, dy2_x + y1]
 
     def boundary(_, on_initial):

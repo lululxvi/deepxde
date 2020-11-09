@@ -3,15 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 import deepxde as dde
-from deepxde.backend import tf
 
 
 def main():
     def pde(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        dy_x, dy_y = dy_x[:, 0:1], dy_x[:, 1:]
-        dy_xx = tf.gradients(dy_x, x)[0][:, 0:1]
-        dy_yy = tf.gradients(dy_y, x)[0][:, 1:]
+        dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+        dy_yy = dde.grad.hessian(y, x, i=1, j=1)
         return -dy_xx - dy_yy - 1
 
     def boundary(_, on_boundary):

@@ -25,9 +25,9 @@ def main():
         dy3/dx = y1 * y2 - 8/3 * y3
         """
         y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
-        dy1_x = tf.gradients(y1, x)[0]
-        dy2_x = tf.gradients(y2, x)[0]
-        dy3_x = tf.gradients(y3, x)[0]
+        dy1_x = dde.grad.jacobian(y, x, i=0)
+        dy2_x = dde.grad.jacobian(y, x, i=1)
+        dy3_x = dde.grad.jacobian(y, x, i=2)
         return [
             dy1_x - C1 * (y2 - y1),
             dy2_x - y1 * (C2 - y3) + y2,

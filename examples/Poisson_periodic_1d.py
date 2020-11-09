@@ -10,8 +10,7 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        dy_xx = tf.gradients(dy_x, x)[0]
+        dy_xx = dde.grad.hessian(y, x)
         return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
 
     def boundary_l(x, on_boundary):

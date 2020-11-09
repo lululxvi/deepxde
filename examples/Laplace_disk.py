@@ -10,10 +10,10 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
-        dy_x = tf.gradients(y, x)[0]
-        dy_r, dy_theta = dy_x[:, 0:1], dy_x[:, 1:2]
-        dy_rr = tf.gradients(dy_r, x)[0][:, 0:1]
-        dy_thetatheta = tf.gradients(dy_theta, x)[0][:, 1:2]
+        dy_r = dde.grad.jacobian(y, x, i=0, j=0)
+        dy_theta = dde.grad.jacobian(y, x, i=0, j=1)
+        dy_rr = dde.grad.hessian(y, x, i=0, j=0)
+        dy_thetatheta = dde.grad.hessian(y, x, i=1, j=1)
         return x[:, 0:1] * dy_r + x[:, 0:1] ** 2 * dy_rr + dy_thetatheta
 
     def solution(x):
