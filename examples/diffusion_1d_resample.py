@@ -10,7 +10,6 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
-        dy_x = dde.grad.jacobian(y, x, i=0, j=0)
         dy_t = dde.grad.jacobian(y, x, i=0, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         return (
