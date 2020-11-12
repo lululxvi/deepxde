@@ -13,7 +13,7 @@ from . import metrics as metrics_module
 from . import train as train_module
 from .backend import tf
 from .callbacks import CallbackList
-from .utils import guarantee_initialized_variables, timing
+from .utils import get_num_args, guarantee_initialized_variables, timing
 
 
 class Model(object):
@@ -186,10 +186,11 @@ class Model(object):
                 self.net.outputs, feed_dict=self.net.feed_dict(False, False, 2, x)
             )
         else:
-            y = self.sess.run(
-                operator(self.net.inputs, self.net.outputs),
-                feed_dict=self.net.feed_dict(False, False, 2, x),
-            )
+            if get_num_args(operator) == 2:
+                op = operator(self.net.inputs, self.net.outputs)
+            elif get_num_args(operator) == 3:
+                op = operator(self.net.inputs, self.net.outputs, x)
+            y = self.sess.run(op, feed_dict=self.net.feed_dict(False, False, 2, x),)
         self.callbacks.on_predict_end()
         return y
 
