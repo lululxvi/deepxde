@@ -35,6 +35,7 @@ def main():
     checkpointer = dde.callbacks.ModelCheckpoint(
         "model/model.ckpt", verbose=1, save_better_only=True
     )
+    # ImageMagick (https://imagemagick.org/) is required to generate the movie.
     movie = dde.callbacks.MovieDumper(
         "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
     )
