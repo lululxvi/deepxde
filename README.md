@@ -75,7 +75,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
   - [SALib](http://salib.github.io/SALib/)
   - [scikit-learn](https://scikit-learn.org)
   - [SciPy](https://www.scipy.org/)
-  - [TensorFlow](https://www.tensorflow.org/)>=1.15.0
+  - [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 
 ## Explore more
 
