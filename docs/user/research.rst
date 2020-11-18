@@ -16,5 +16,6 @@ PINN
 DeepONet
 --------
 
+- Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://arxiv.org/abs/2011.03349>`_. *arXiv preprint arXiv:2011.03349*, 2020.
 - S. Cai, Z. Wang, L. Lu, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://arxiv.org/abs/2009.12935>`_. *arXiv preprint arXiv:2009.12935*, 2020.
 - L. Lu, P. Jin, & G. E. Karniadakis. `DeepONet: Learning nonlinear operators for identifying differential equations based on the universal approximation theorem of operators <https://arxiv.org/abs/1910.03193>`_. *arXiv preprint arXiv:1910.03193*, 2019.
