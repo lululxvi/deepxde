@@ -20,9 +20,11 @@ class Hypercube(Geometry):
             raise ValueError("xmin >= xmax")
 
         self.xmin, self.xmax = np.array(xmin), np.array(xmax)
+        self.side_length = self.xmax - self.xmin
         super(Hypercube, self).__init__(
-            len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.xmax - self.xmin)
+            len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.side_length)
         )
+        self.volume = np.prod(self.side_length)
 
     def inside(self, x):
         return np.all(x >= self.xmin) and np.all(x <= self.xmax)
@@ -44,14 +46,15 @@ class Hypercube(Geometry):
         return n
 
     def uniform_points(self, n, boundary=True):
-        n1 = int(np.ceil(n ** (1 / self.dim)))
+        dx = (self.volume / n) ** (1 / self.dim)
         xi = []
         for i in range(self.dim):
+            ni = int(np.ceil(self.side_length[i] / dx))
             if boundary:
-                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=n1))
+                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=ni))
             else:
                 xi.append(
-                    np.linspace(self.xmin[i], self.xmax[i], num=n1 + 1, endpoint=False)[
+                    np.linspace(self.xmin[i], self.xmax[i], num=ni + 1, endpoint=False)[
                         1:
                     ]
                 )
