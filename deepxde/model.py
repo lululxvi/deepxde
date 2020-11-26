@@ -236,13 +236,13 @@ class Model(object):
         def loss_callback(loss_train):
             self.train_state.epoch += 1
             self.train_state.step += 1
-            self.train_state.loss_train = loss_train
-            self.train_state.loss_test = None
-            self.train_state.metrics_test = None
-            self.losshistory.append(
-                self.train_state.step, self.train_state.loss_train, None, None
-            )
             if self.train_state.step % display_every == 0:
+                self.train_state.loss_train = loss_train
+                self.train_state.loss_test = None
+                self.train_state.metrics_test = None
+                self.losshistory.append(
+                    self.train_state.step, self.train_state.loss_train, None, None
+                )
                 display.training_display(self.train_state)
 
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
