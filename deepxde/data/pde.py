@@ -53,6 +53,12 @@ class PDE(Data):
 
         self.num_domain = num_domain
         self.num_boundary = num_boundary
+        if train_distribution not in ["uniform", "pseudo", "sobol"]:
+            raise ValueError(
+                "train_distribution == {}. Available choices: {{'uniform'|'pseudo'|'sobol'}}.".format(
+                    train_distribution
+                )
+            )
         self.train_distribution = train_distribution
         self.anchors = anchors
 
@@ -64,32 +70,34 @@ class PDE(Data):
         self.num_bcs = None
         self.test_x, self.test_y = None, None
 
-        self._check()
         self.train_next_batch()
         self.test()
 
-    def _check(self):
-        if self.train_distribution not in ["uniform", "pseudo", "sobol"]:
-            raise ValueError(
-                "self.train_distribution == {}. Available choices: {{'uniform'|'pseudo'|'sobol'}}.".format(
-                    self.train_distribution
-                )
-            )
-
     def losses(self, targets, outputs, loss, model):
         f = []
-        if self.pde is not None and get_num_args(self.pde) == 2:
-            f = self.pde(model.net.inputs, outputs)
-            if not isinstance(f, (list, tuple)):
-                f = [f]
         # Always build the gradients in the PDE here, so that we can reuse all the gradients in dde.grad. If we build
         # the gradients in losses_train(), then error occurs when we use these gradients in losses_test() during
         # sess.run(), because one branch in tf.cond() cannot use the Tensors created in the other branch.
-        if self.pde is not None and get_num_args(self.pde) == 3:
-            self.pde(model.net.inputs, outputs, self.train_x)
+        if self.pde is not None:
+            if get_num_args(self.pde) == 2:
+                f = self.pde(model.net.inputs, outputs)
+            elif get_num_args(self.pde) == 3:
+                f = self.pde(model.net.inputs, outputs, self.train_x)
+            if not isinstance(f, (list, tuple)):
+                f = [f]
+
+        if not isinstance(loss, (list, tuple)):
+            loss = [loss] * (len(f) + len(self.bcs))
+        elif len(loss) != len(f) + len(self.bcs):
+            raise ValueError(
+                "There are {} errors, but only {} losses.".format(
+                    len(f) + len(self.bcs), len(loss)
+                )
+            )
 
         def losses_train():
             f_train = f
+            # The following code seems redundant, but if removed, error occurs in losses_test()
             if self.pde is not None and get_num_args(self.pde) == 3:
                 f_train = self.pde(model.net.inputs, outputs, self.train_x)
                 if not isinstance(f_train, (list, tuple)):
@@ -98,14 +106,16 @@ class PDE(Data):
             bcs_start = np.cumsum([0] + self.num_bcs)
             error_f = [fi[bcs_start[-1] :] for fi in f_train]
             losses = [
-                loss(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
-                for error in error_f
+                loss[i](tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+                for i, error in enumerate(error_f)
             ]
             for i, bc in enumerate(self.bcs):
                 beg, end = bcs_start[i], bcs_start[i + 1]
                 error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
                 losses.append(
-                    loss(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+                    loss[len(error_f) + i](
+                        tf.zeros(tf.shape(error), dtype=config.real(tf)), error
+                    )
                 )
             return losses
 
@@ -116,7 +126,8 @@ class PDE(Data):
                 if not isinstance(f_test, (list, tuple)):
                     f_test = [f_test]
             return [
-                loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f_test
+                loss[i](tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi)
+                for i, fi in enumerate(f_test)
             ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
 
         return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)

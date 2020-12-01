@@ -21,6 +21,9 @@ softmax_cross_entropy = tf.losses.softmax_cross_entropy
 
 
 def get(identifier):
+    if isinstance(identifier, (list, tuple)):
+        return list(map(get, identifier))
+
     loss_identifier = {
         "mean absolute error": mean_absolute_error,
         "MAE": mean_absolute_error,

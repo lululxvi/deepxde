@@ -61,7 +61,9 @@ class Model(object):
         Args:
             optimizer: String. Name of optimizer.
             lr: A Tensor or a floating point value. The learning rate.
-            loss: String (name of objective function) or objective function.
+            loss: If the same loss is used for all errors, then `loss` is a String (name of objective function) or
+                objective function. If different errors use different losses, then `loss` is a list whose size is equal
+                to the number of errors.
             metrics: List of metrics to be evaluated by the model during training.
             decay: Tuple. Name and parameters of decay to the initial learning rate. One of the following options:
 
