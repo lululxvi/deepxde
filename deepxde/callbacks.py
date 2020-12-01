@@ -213,19 +213,23 @@ class EarlyStopping(Callback):
 
 class Timer(Callback):
     """Stop training when training time reach the threshold.
+    This Timer starts after the first call of `on_train_begin`.
 
     Args:
-        available_time (float): Total time (in minutes) available for the script.
-        buffer_time (float): Time (in minutes) reserved for parts other than training.
+        available_time (float): Total time (in minutes) available for the training.
     """
 
-    def __init__(self, available_time, buffer_time=2):
+    def __init__(self, available_time):
         super(Timer, self).__init__()
 
-        self.threshold = (available_time - buffer_time) * 60  # convert to seconds
-        self.t_start = time.time()
+        self.threshold = available_time * 60  # convert to seconds
+        self.t_start = None
         self.time_used = None
         self.stopped_epoch = None
+
+    def on_train_begin(self):
+        if self.t_start is None:
+            self.t_start = time.time()
 
     def on_epoch_end(self):
         if time.time() - self.t_start > self.threshold:
