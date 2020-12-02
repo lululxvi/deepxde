@@ -225,8 +225,6 @@ class Timer(Callback):
 
         self.threshold = available_time * 60  # convert to seconds
         self.t_start = None
-        self.time_used = None
-        self.stopped_epoch = None
 
     def on_train_begin(self):
         if self.t_start is None:
@@ -234,15 +232,10 @@ class Timer(Callback):
 
     def on_epoch_end(self):
         if time.time() - self.t_start > self.threshold:
-            self.time_used = time.time() - self.t_start
-            self.stopped_epoch = self.model.train_state.epoch
             self.model.stop_training = True
-
-    def on_train_end(self):
-        if self.time_used is not None:
             print(
                 "\nStop training as time used up. time used: {:.1f} mins, epoch trained: {}".format(
-                    self.time_used / 60, self.stopped_epoch
+                    (time.time() - self.t_start) / 60, self.model.train_state.epoch
                 )
             )
 
