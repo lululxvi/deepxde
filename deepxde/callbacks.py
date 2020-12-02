@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import sys
+import time
 
 import numpy as np
 
@@ -209,6 +210,34 @@ class EarlyStopping(Callback):
 
     def get_monitor_value(self):
         return sum(self.model.train_state.loss_train)
+
+
+class Timer(Callback):
+    """Stop training when training time reaches the threshold.
+    This Timer starts after the first call of `on_train_begin`.
+
+    Args:
+        available_time (float): Total time (in minutes) available for the training.
+    """
+
+    def __init__(self, available_time):
+        super(Timer, self).__init__()
+
+        self.threshold = available_time * 60  # convert to seconds
+        self.t_start = None
+
+    def on_train_begin(self):
+        if self.t_start is None:
+            self.t_start = time.time()
+
+    def on_epoch_end(self):
+        if time.time() - self.t_start > self.threshold:
+            self.model.stop_training = True
+            print(
+                "\nStop training as time used up. time used: {:.1f} mins, epoch trained: {}".format(
+                    (time.time() - self.t_start) / 60, self.model.train_state.epoch
+                )
+            )
 
 
 class VariableValue(Callback):
