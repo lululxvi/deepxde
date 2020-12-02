@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import sys
 import time
+
 import numpy as np
 
 from . import gradients as grad
@@ -212,7 +213,7 @@ class EarlyStopping(Callback):
 
 
 class Timer(Callback):
-    """Stop training when training time reach the threshold.
+    """Stop training when training time reaches the threshold.
     This Timer starts after the first call of `on_train_begin`.
 
     Args:
