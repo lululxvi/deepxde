@@ -7,7 +7,7 @@ import numpy as np
 from .data import Data
 from .. import config
 from ..backend import tf
-from ..utils import get_num_args, run_if_all_none
+from ..utils import run_if_all_none
 
 
 class PDE(Data):
@@ -45,6 +45,7 @@ class PDE(Data):
         train_distribution="sobol",
         anchors=None,
         solution=None,
+        coefficients_generator=None,
         num_test=None,
     ):
         self.geom = geometry
@@ -63,6 +64,7 @@ class PDE(Data):
         self.anchors = anchors
 
         self.soln = solution
+        self.coef_generator = coefficients_generator
         self.num_test = num_test
 
         self.train_x_all = None
@@ -79,10 +81,10 @@ class PDE(Data):
         # the gradients in losses_train(), then error occurs when we use these gradients in losses_test() during
         # sess.run(), because one branch in tf.cond() cannot use the Tensors created in the other branch.
         if self.pde is not None:
-            if get_num_args(self.pde) == 2:
+            if self.coef_generator is None:
                 f = self.pde(model.net.inputs, outputs)
-            elif get_num_args(self.pde) == 3:
-                f = self.pde(model.net.inputs, outputs, self.train_x)
+            else:
+                f = self.pde(model.net.inputs, outputs, model.net.coefficients)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -97,12 +99,6 @@ class PDE(Data):
 
         def losses_train():
             f_train = f
-            # The following code seems redundant, but if removed, error occurs in losses_test()
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_train = self.pde(model.net.inputs, outputs, self.train_x)
-                if not isinstance(f_train, (list, tuple)):
-                    f_train = [f_train]
-
             bcs_start = np.cumsum([0] + self.num_bcs)
             error_f = [fi[bcs_start[-1] :] for fi in f_train]
             losses = [
@@ -121,10 +117,6 @@ class PDE(Data):
 
         def losses_test():
             f_test = f
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_test = self.pde(model.net.inputs, outputs, self.test_x)
-                if not isinstance(f_test, (list, tuple)):
-                    f_test = [f_test]
             return [
                 loss[i](tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi)
                 for i, fi in enumerate(f_test)
@@ -249,3 +241,67 @@ class TimePDE(PDE):
                 )
             X = np.vstack((tmp, X))
         return X
+
+
+class CoefficeintsPDE(PDE):
+    def __init__(
+        self,
+        geometry,
+        pde,
+        bcs,
+        num_domain=0,
+        num_boundary=0,
+        train_distribution="sobol",
+        anchors=None,
+        solution=None,
+        num_test=None,
+        coefficients_generator=None,
+    ):
+        if coefficients_generator is None:
+            raise ValueError("coefficients_generator is None")
+        self.train_c, self.test_c = None, None
+        self.coef_generator = coefficients_generator
+        super(CoefficeintsPDE, self).__init__(
+            geometry,
+            pde,
+            bcs,
+            num_domain,
+            num_boundary,
+            train_distribution=train_distribution,
+            anchors=anchors,
+            solution=solution,
+            coefficients_generator=self.coef_generator,
+            num_test=num_test,
+        )
+
+    @run_if_all_none("train_x", "train_y", "train_c")
+    def train_next_batch(self, batch_size=None):
+        self.train_x_all = self.train_points()
+        self.train_x = self.bc_points()
+        if self.pde is not None:
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
+        self.train_y = self.soln(self.train_x) if self.soln else None
+        self.train_c = self.coef_generator(self.train_x)
+        return self.train_x, self.train_y, self.train_c
+
+    @run_if_all_none("test_x", "test_y", "test_c")
+    def test(self):
+        if self.num_test is None:
+            self.test_x = self.train_x_all
+        else:
+            self.test_x = self.test_points()
+        self.test_y = self.soln(self.test_x) if self.soln else None
+        self.test_c = self.coef_generator(self.test_x)
+        return self.test_x, self.test_y
+
+    def resample_train_points(self):
+        """Resample the training residual points.
+
+        Warning: After resampling, need to call ``Model.compile()`` to update the loss.
+        """
+        self.train_x, self.train_y, self.train_c = None, None, None
+        self.train_next_batch()
+
+    def add_anchors(self, anchors):
+        super(CoefficeintsPDE, self).add_anchors(anchors)
+        self.train_c = self.coef_generator(self.train_x)

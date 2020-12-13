@@ -42,7 +42,13 @@ class Map(object):
     def targets(self):
         """Targets of the mapping outputs."""
 
-    def feed_dict(self, training, dropout, data_id, inputs, targets=None):
+    @property
+    def coefficients(self):
+        """Any additional coefficients needed."""
+
+    def feed_dict(
+        self, training, dropout, data_id, inputs, targets=None, coefficients=None
+    ):
         """Construct a feed_dict to feed values to TensorFlow placeholders."""
         feed_dict = {
             self.training: training,
@@ -52,6 +58,8 @@ class Map(object):
         feed_dict.update(self._feed_dict_inputs(inputs))
         if targets is not None:
             feed_dict.update(self._feed_dict_targets(targets))
+        if coefficients is not None:
+            feed_dict.update(self._feed_dict_coefficients(coefficients))
         return feed_dict
 
     def _feed_dict_inputs(self, inputs):
@@ -59,6 +67,9 @@ class Map(object):
 
     def _feed_dict_targets(self, targets):
         return make_dict(self.targets, targets)
+
+    def _feed_dict_coefficients(self, coefficients):
+        return make_dict(self.coefficients, coefficients)
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,

@@ -14,8 +14,7 @@ from ..utils import timing
 
 
 class FNN(Map):
-    """Feed-forward neural networks.
-    """
+    """Feed-forward neural networks."""
 
     def __init__(
         self,
@@ -46,6 +45,10 @@ class FNN(Map):
     def targets(self):
         return self.y_
 
+    @property
+    def coefficients(self):
+        return self.coef
+
     @timing
     def build(self):
         print("Building feed-forward neural network...")
@@ -70,6 +73,7 @@ class FNN(Map):
             self.y = self._output_transform(self.x, self.y)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+        self.coef = tf.placeholder(config.real(tf))
         self.built = True
 
     def dense(self, inputs, units, activation=None, use_bias=True):

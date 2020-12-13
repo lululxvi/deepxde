@@ -169,16 +169,14 @@ class Model(object):
         return self.losshistory, self.train_state
 
     def evaluate(self, x, y, callbacks=None):
-        """Returns the loss values & metrics values for the model in test mode.
-        """
+        """Returns the loss values & metrics values for the model in test mode."""
         raise NotImplementedError(
             "Model.evaluate to be implemented. Alternatively, use Model.predict."
         )
 
     @timing
     def predict(self, x, operator=None, callbacks=None):
-        """Generates output predictions for the input samples.
-        """
+        """Generates output predictions for the input samples."""
         print("Predicting...")
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
@@ -192,7 +190,10 @@ class Model(object):
                 op = operator(self.net.inputs, self.net.outputs)
             elif get_num_args(operator) == 3:
                 op = operator(self.net.inputs, self.net.outputs, x)
-            y = self.sess.run(op, feed_dict=self.net.feed_dict(False, False, 2, x),)
+            y = self.sess.run(
+                op,
+                feed_dict=self.net.feed_dict(False, False, 2, x),
+            )
         self.callbacks.on_predict_end()
         return y
 
@@ -219,7 +220,12 @@ class Model(object):
             self.sess.run(
                 self.train_op,
                 feed_dict=self.net.feed_dict(
-                    True, True, 0, self.train_state.X_train, self.train_state.y_train
+                    True,
+                    True,
+                    0,
+                    self.train_state.X_train,
+                    self.train_state.y_train,
+                    self.train_state.train_c,
                 ),
             )
 
@@ -251,7 +257,12 @@ class Model(object):
         self.train_op.minimize(
             self.sess,
             feed_dict=self.net.feed_dict(
-                True, True, 0, self.train_state.X_train, self.train_state.y_train
+                True,
+                True,
+                0,
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_c,
             ),
             fetches=[self.losses],
             loss_callback=loss_callback,
@@ -262,7 +273,12 @@ class Model(object):
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.outputs],
             feed_dict=self.net.feed_dict(
-                False, False, 0, self.train_state.X_train, self.train_state.y_train
+                False,
+                False,
+                0,
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_c,
             ),
         )
 
@@ -273,7 +289,12 @@ class Model(object):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.outputs],
                     feed_dict=self.net.feed_dict(
-                        False, True, 1, self.train_state.X_test, self.train_state.y_test
+                        False,
+                        True,
+                        1,
+                        self.train_state.X_test,
+                        self.train_state.y_test,
+                        self.train_state.test_c,
                     ),
                 )
                 losses.append(loss_one)
@@ -285,7 +306,12 @@ class Model(object):
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.outputs],
                 feed_dict=self.net.feed_dict(
-                    False, False, 1, self.train_state.X_test, self.train_state.y_test
+                    False,
+                    False,
+                    1,
+                    self.train_state.X_test,
+                    self.train_state.y_test,
+                    self.train_state.test_c,
                 ),
             )
 
@@ -311,8 +337,7 @@ class Model(object):
         display.training_display(self.train_state)
 
     def state_dict(self):
-        """Returns a dictionary containing all variables.
-        """
+        """Returns a dictionary containing all variables."""
         destination = OrderedDict()
         variables_names = [v.name for v in tf.global_variables()]
         values = self.sess.run(variables_names)
@@ -321,8 +346,7 @@ class Model(object):
         return destination
 
     def print_model(self):
-        """Prints all trainable variables.
-        """
+        """Prints all trainable variables."""
         variables_names = [v.name for v in tf.trainable_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
@@ -364,6 +388,7 @@ class TrainState(object):
         # Data
         self.X_train, self.y_train = None, None
         self.X_test, self.y_test = None, None
+        self.train_c, self.test_c = None, None
 
         # Results of current step
         self.y_pred_train = None
@@ -380,11 +405,11 @@ class TrainState(object):
     def set_tfsession(self, sess):
         self.sess = sess
 
-    def set_data_train(self, X_train, y_train):
-        self.X_train, self.y_train = X_train, y_train
+    def set_data_train(self, X_train, y_train, train_c=None):
+        self.X_train, self.y_train, self.train_c = X_train, y_train, train_c
 
-    def set_data_test(self, X_test, y_test):
-        self.X_test, self.y_test = X_test, y_test
+    def set_data_test(self, X_test, y_test, test_c=None):
+        self.X_test, self.y_test, self.test_c = X_test, y_test, test_c
 
     def update_best(self):
         if self.best_loss_train > np.sum(self.loss_train):

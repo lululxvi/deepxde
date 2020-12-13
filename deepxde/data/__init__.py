@@ -11,6 +11,7 @@ from .mf import MfFunc
 from .op_dataset import OpDataSet
 from .pde import PDE
 from .pde import TimePDE
+from .pde import CoefficeintsPDE
 
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "PDE",
     "TimeFPDE",
     "TimePDE",
+    "CoefficeintsPDE",
 ]
