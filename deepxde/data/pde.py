@@ -296,6 +296,11 @@ class CoefficientsPDE(PDE):
         self.test_c = self.coef_generator(self.test_x)
         return self.test_x, self.test_y, self.test_c
 
+    def resample_train_points(self):
+        """Resample the training residual points."""
+        self.train_x, self.train_y, self.train_c = None, None, None
+        self.train_next_batch()
+
     def add_anchors(self, anchors):
         super(CoefficientsPDE, self).add_anchors(anchors)
         self.train_c = self.coef_generator(self.train_x)
