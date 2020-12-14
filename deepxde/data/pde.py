@@ -7,7 +7,7 @@ import numpy as np
 from .data import Data
 from .. import config
 from ..backend import tf
-from ..utils import run_if_all_none
+from ..utils import get_num_args, run_if_all_none
 
 
 class PDE(Data):
@@ -45,7 +45,6 @@ class PDE(Data):
         train_distribution="sobol",
         anchors=None,
         solution=None,
-        coefficients_generator=None,
         num_test=None,
     ):
         self.geom = geometry
@@ -64,7 +63,6 @@ class PDE(Data):
         self.anchors = anchors
 
         self.soln = solution
-        self.coef_generator = coefficients_generator
         self.num_test = num_test
 
         self.train_x_all = None
@@ -81,9 +79,9 @@ class PDE(Data):
         # the gradients in losses_train(), then error occurs when we use these gradients in losses_test() during
         # sess.run(), because one branch in tf.cond() cannot use the Tensors created in the other branch.
         if self.pde is not None:
-            if self.coef_generator is None:
+            if get_num_args(self.pde) == 2:
                 f = self.pde(model.net.inputs, outputs)
-            else:
+            elif get_num_args(self.pde) == 3:
                 f = self.pde(model.net.inputs, outputs, model.net.coefficients)
             if not isinstance(f, (list, tuple)):
                 f = [f]
@@ -243,7 +241,19 @@ class TimePDE(PDE):
         return X
 
 
-class CoefficeintsPDE(PDE):
+class CoefficientsPDE(PDE):
+    """PDE Solver with external coefficients.
+
+    The coefficients can depends on the input and calculated on-the-fly.
+
+    Args:
+        coefficients_generator: Function that given input, return the coefficients.
+
+    Attributes:
+        train_c (numpy.array): Array of coefficients associated to training input
+        test_c (numpy.array): Array of coefficients associated to test input
+
+    """
     def __init__(
         self,
         geometry,
@@ -261,7 +271,7 @@ class CoefficeintsPDE(PDE):
             raise ValueError("coefficients_generator is None")
         self.train_c, self.test_c = None, None
         self.coef_generator = coefficients_generator
-        super(CoefficeintsPDE, self).__init__(
+        super(CoefficientsPDE, self).__init__(
             geometry,
             pde,
             bcs,
@@ -270,7 +280,6 @@ class CoefficeintsPDE(PDE):
             train_distribution=train_distribution,
             anchors=anchors,
             solution=solution,
-            coefficients_generator=self.coef_generator,
             num_test=num_test,
         )
 
@@ -303,5 +312,5 @@ class CoefficeintsPDE(PDE):
         self.train_next_batch()
 
     def add_anchors(self, anchors):
-        super(CoefficeintsPDE, self).add_anchors(anchors)
+        super(CoefficientsPDE, self).add_anchors(anchors)
         self.train_c = self.coef_generator(self.train_x)
