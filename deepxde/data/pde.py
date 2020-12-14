@@ -250,10 +250,11 @@ class CoefficientsPDE(PDE):
         coefficients_generator: Function that given input, return the coefficients.
 
     Attributes:
-        train_c (numpy.array): Array of coefficients associated to training input
-        test_c (numpy.array): Array of coefficients associated to test input
+        train_c (numpy.array): Array of coefficients associated with training input.
+        test_c (numpy.array): Array of coefficients associated with test input.
 
     """
+
     def __init__(
         self,
         geometry,
@@ -285,31 +286,15 @@ class CoefficientsPDE(PDE):
 
     @run_if_all_none("train_x", "train_y", "train_c")
     def train_next_batch(self, batch_size=None):
-        self.train_x_all = self.train_points()
-        self.train_x = self.bc_points()
-        if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
-        self.train_y = self.soln(self.train_x) if self.soln else None
+        super(CoefficientsPDE, self).train_next_batch(batch_size)
         self.train_c = self.coef_generator(self.train_x)
         return self.train_x, self.train_y, self.train_c
 
     @run_if_all_none("test_x", "test_y", "test_c")
     def test(self):
-        if self.num_test is None:
-            self.test_x = self.train_x_all
-        else:
-            self.test_x = self.test_points()
-        self.test_y = self.soln(self.test_x) if self.soln else None
+        super(CoefficientsPDE, self).test()
         self.test_c = self.coef_generator(self.test_x)
-        return self.test_x, self.test_y
-
-    def resample_train_points(self):
-        """Resample the training residual points.
-
-        Warning: After resampling, need to call ``Model.compile()`` to update the loss.
-        """
-        self.train_x, self.train_y, self.train_c = None, None, None
-        self.train_next_batch()
+        return self.test_x, self.test_y, self.test_c
 
     def add_anchors(self, anchors):
         super(CoefficientsPDE, self).add_anchors(anchors)
