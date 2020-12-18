@@ -82,7 +82,9 @@ class PDE(Data):
             if get_num_args(self.pde) == 2:
                 f = self.pde(model.net.inputs, outputs)
             elif get_num_args(self.pde) == 3:
-                f = self.pde(model.net.inputs, outputs, self.train_x)
+                if model.net.auxiliary_var_function is None:
+                    raise ValueError("Auxiliary variable function is not defined.")
+                f = self.pde(model.net.inputs, outputs, model.net.auxiliary_variables)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -97,11 +99,6 @@ class PDE(Data):
 
         def losses_train():
             f_train = f
-            # The following code seems redundant, but if removed, error occurs in losses_test()
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_train = self.pde(model.net.inputs, outputs, self.train_x)
-                if not isinstance(f_train, (list, tuple)):
-                    f_train = [f_train]
 
             bcs_start = np.cumsum([0] + self.num_bcs)
             error_f = [fi[bcs_start[-1] :] for fi in f_train]
@@ -121,10 +118,7 @@ class PDE(Data):
 
         def losses_test():
             f_test = f
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_test = self.pde(model.net.inputs, outputs, self.test_x)
-                if not isinstance(f_test, (list, tuple)):
-                    f_test = [f_test]
+
             return [
                 loss[i](tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi)
                 for i, fi in enumerate(f_test)

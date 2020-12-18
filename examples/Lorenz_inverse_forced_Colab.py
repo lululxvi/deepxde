@@ -100,16 +100,16 @@ C2 = tf.Variable(1.0)
 C3 = tf.Variable(1.0)
 
 # interpolate time / lift vectors (for using exogenous variable without fixed time stamps)
-def ex_func2(t):
+def ex_func2(x):
     spline = sp.interpolate.Rbf(
         time, ex_input, function="thin_plate", smooth=0, episilon=0
     )
-    return spline(t[:, 0:])
+    return spline(x)
     # return spline(t)
 
 
 # define system ODEs
-def Lorenz_system(x, y, X):
+def Lorenz_system(x, y, auxiliary_variables):
     """Modified Lorenz system (with exogenous input).
     dy1/dx = 10 * (y2 - y1)
     dy2/dx = y1 * (28 - y3) - y2
@@ -122,7 +122,7 @@ def Lorenz_system(x, y, X):
     return [
         dy1_x - C1 * (y2 - y1),
         dy2_x - y1 * (C2 - y3) + y2,
-        dy3_x - y1 * y2 + C3 * y3 - ex_func2(X),
+        dy3_x - y1 * y2 + C3 * y3 - auxiliary_variables,
         # dy3_x - y1 * y2 + C3 * y3 - 10*tf.math.sin(2*np.pi*x),
     ]
 
@@ -175,6 +175,7 @@ plt.show()
 
 # define FNN architecture and compile
 net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
+net.auxiliary_var_function = ex_func2
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001)
 
