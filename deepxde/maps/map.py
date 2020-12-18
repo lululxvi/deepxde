@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from ..backend import tf
 from ..utils import make_dict, timing
+from .. import config
 
 
 class Map(object):
@@ -21,6 +22,9 @@ class Map(object):
 
         self._input_transform = None
         self._output_transform = None
+
+        self.auxiliary_var_function = None
+        self.auxiliary_vars = None
 
     @property
     def built(self):
@@ -42,6 +46,11 @@ class Map(object):
     def targets(self):
         """Targets of the mapping outputs."""
 
+    @property
+    def auxiliary_variables(self):
+        """Any auxiliary variables needed."""
+        return self.auxiliary_vars
+
     def feed_dict(self, training, dropout, data_id, inputs, targets=None):
         """Construct a feed_dict to feed values to TensorFlow placeholders."""
         feed_dict = {
@@ -52,6 +61,11 @@ class Map(object):
         feed_dict.update(self._feed_dict_inputs(inputs))
         if targets is not None:
             feed_dict.update(self._feed_dict_targets(targets))
+
+        if self.auxiliary_var_function is not None:
+            _auxiliary_vars = self.auxiliary_var_function(inputs)
+            feed_dict.update(self._feed_dict_auxiliary_vars(_auxiliary_vars))
+
         return feed_dict
 
     def _feed_dict_inputs(self, inputs):
@@ -59,6 +73,9 @@ class Map(object):
 
     def _feed_dict_targets(self, targets):
         return make_dict(self.targets, targets)
+
+    def _feed_dict_auxiliary_vars(self, auxiliary_variables):
+        return make_dict(self.auxiliary_variables, auxiliary_variables)
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,
@@ -75,4 +92,6 @@ class Map(object):
     @timing
     def build(self):
         """Construct the mapping."""
+        if self.auxiliary_var_function is not None:
+            self.auxiliary_vars = tf.placeholder(config.real(tf))
         self.built = True
