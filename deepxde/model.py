@@ -225,7 +225,7 @@ class Model(object):
                     0,
                     self.train_state.X_train,
                     self.train_state.y_train,
-                    self.train_state.train_c,
+                    self.train_state.train_aux_vars,
                 ),
             )
 
@@ -262,7 +262,7 @@ class Model(object):
                 0,
                 self.train_state.X_train,
                 self.train_state.y_train,
-                self.train_state.train_c,
+                self.train_state.train_aux_vars,
             ),
             fetches=[self.losses],
             loss_callback=loss_callback,
@@ -278,7 +278,7 @@ class Model(object):
                 0,
                 self.train_state.X_train,
                 self.train_state.y_train,
-                self.train_state.train_c,
+                self.train_state.train_aux_vars,
             ),
         )
 
@@ -294,7 +294,7 @@ class Model(object):
                         1,
                         self.train_state.X_test,
                         self.train_state.y_test,
-                        self.train_state.test_c,
+                        self.train_state.test_aux_vars,
                     ),
                 )
                 losses.append(loss_one)
@@ -311,7 +311,7 @@ class Model(object):
                     1,
                     self.train_state.X_test,
                     self.train_state.y_test,
-                    self.train_state.test_c,
+                    self.train_state.test_aux_vars,
                 ),
             )
 
@@ -388,7 +388,7 @@ class TrainState(object):
         # Data
         self.X_train, self.y_train = None, None
         self.X_test, self.y_test = None, None
-        self.train_c, self.test_c = None, None
+        self.train_aux_vars, self.test_aux_vars = None, None
 
         # Results of current step
         self.y_pred_train = None
@@ -405,11 +405,15 @@ class TrainState(object):
     def set_tfsession(self, sess):
         self.sess = sess
 
-    def set_data_train(self, X_train, y_train, train_c=None):
-        self.X_train, self.y_train, self.train_c = X_train, y_train, train_c
+    def set_data_train(self, X_train, y_train, train_aux_vars=None):
+        self.X_train, self.y_train, self.train_aux_vars = (
+            X_train,
+            y_train,
+            train_aux_vars,
+        )
 
-    def set_data_test(self, X_test, y_test, test_c=None):
-        self.X_test, self.y_test, self.test_c = X_test, y_test, test_c
+    def set_data_test(self, X_test, y_test, test_aux_vars=None):
+        self.X_test, self.y_test, self.test_aux_vars = X_test, y_test, test_aux_vars
 
     def update_best(self):
         if self.best_loss_train > np.sum(self.loss_train):

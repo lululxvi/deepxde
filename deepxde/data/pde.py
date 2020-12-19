@@ -46,6 +46,7 @@ class PDE(Data):
         anchors=None,
         solution=None,
         num_test=None,
+        auxiliary_var_function=None,
     ):
         self.geom = geometry
         self.pde = pde
@@ -65,10 +66,13 @@ class PDE(Data):
         self.soln = solution
         self.num_test = num_test
 
+        self.auxiliary_var_fn = auxiliary_var_function
+
         self.train_x_all = None
         self.train_x, self.train_y = None, None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
+        self.train_aux_vars, self.test_aux_vars = None, None
 
         self.train_next_batch()
         self.test()
@@ -82,7 +86,9 @@ class PDE(Data):
             if get_num_args(self.pde) == 2:
                 f = self.pde(model.net.inputs, outputs)
             elif get_num_args(self.pde) == 3:
-                f = self.pde(model.net.inputs, outputs, model.net.coefficients)
+                if self.auxiliary_var_fn is None:
+                    raise ValueError("Auxiliary variable function not defined.")
+                f = self.pde(model.net.inputs, outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -122,30 +128,34 @@ class PDE(Data):
 
         return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
-    @run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
-        return self.train_x, self.train_y
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+        return self.train_x, self.train_y, self.train_aux_vars
 
-    @run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x_all
         else:
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
-        return self.test_x, self.test_y
+        if self.auxiliary_var_fn is not None:
+            self.test_aux_vars = self.auxiliary_var_fn(self.test_x)
+        return self.test_x, self.test_y, self.test_aux_vars
 
     def resample_train_points(self):
         """Resample the training residual points.
 
         Warning: After resampling, need to call ``Model.compile()`` to update the loss.
         """
-        self.train_x, self.train_y = None, None
+        self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
     def add_anchors(self, anchors):
@@ -162,6 +172,8 @@ class PDE(Data):
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
 
     def train_points(self):
         X = np.empty((0, self.geom.dim))
@@ -214,6 +226,7 @@ class TimePDE(PDE):
         anchors=None,
         solution=None,
         num_test=None,
+        auxiliary_var_function=None,
     ):
         self.num_initial = num_initial
         super(TimePDE, self).__init__(
@@ -226,6 +239,7 @@ class TimePDE(PDE):
             anchors=anchors,
             solution=solution,
             num_test=num_test,
+            auxiliary_var_function=auxiliary_var_function,
         )
 
     def train_points(self):
@@ -239,68 +253,3 @@ class TimePDE(PDE):
                 )
             X = np.vstack((tmp, X))
         return X
-
-
-class CoefficientsPDE(PDE):
-    """PDE Solver with external coefficients.
-
-    The coefficients can depends on the input and calculated on-the-fly.
-
-    Args:
-        coefficients_generator: Function that given input, return the coefficients.
-
-    Attributes:
-        train_c (numpy.array): Array of coefficients associated with training input.
-        test_c (numpy.array): Array of coefficients associated with test input.
-
-    """
-
-    def __init__(
-        self,
-        geometry,
-        pde,
-        bcs,
-        num_domain=0,
-        num_boundary=0,
-        train_distribution="sobol",
-        anchors=None,
-        solution=None,
-        num_test=None,
-        coefficients_generator=None,
-    ):
-        if coefficients_generator is None:
-            raise ValueError("coefficients_generator is None")
-        self.train_c, self.test_c = None, None
-        self.coef_generator = coefficients_generator
-        super(CoefficientsPDE, self).__init__(
-            geometry,
-            pde,
-            bcs,
-            num_domain,
-            num_boundary,
-            train_distribution=train_distribution,
-            anchors=anchors,
-            solution=solution,
-            num_test=num_test,
-        )
-
-    @run_if_all_none("train_x", "train_y", "train_c")
-    def train_next_batch(self, batch_size=None):
-        super(CoefficientsPDE, self).train_next_batch(batch_size)
-        self.train_c = self.coef_generator(self.train_x)
-        return self.train_x, self.train_y, self.train_c
-
-    @run_if_all_none("test_x", "test_y", "test_c")
-    def test(self):
-        super(CoefficientsPDE, self).test()
-        self.test_c = self.coef_generator(self.test_x)
-        return self.test_x, self.test_y, self.test_c
-
-    def resample_train_points(self):
-        """Resample the training residual points."""
-        self.train_x, self.train_y, self.train_c = None, None, None
-        self.train_next_batch()
-
-    def add_anchors(self, anchors):
-        super(CoefficientsPDE, self).add_anchors(anchors)
-        self.train_c = self.coef_generator(self.train_x)
