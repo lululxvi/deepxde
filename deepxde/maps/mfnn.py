@@ -51,7 +51,6 @@ class MfNN(Map):
     @timing
     def build(self):
         print("Building multifidelity neural network...")
-        super(MfNN, self).build()
         self.X = tf.placeholder(config.real(tf), [None, self.layer_size_lo[0]])
 
         # Low fidelity

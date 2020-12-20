@@ -25,6 +25,7 @@ class PDE(Data):
             points.
         solution: The reference solution.
         num_test: The number of residual points for testing the PDE residual.
+        auxiliary_var_function: A function that inputs `train_x` or `test_x` and output auxiliary variables.
 
     Attributes:
         train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
@@ -33,6 +34,8 @@ class PDE(Data):
             `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
         test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
+        train_aux_vars: Auxiliary variables that associate with `train_x`.
+        test_aux_vars: Auxiliary variables that associate with `test_x`.
     """
 
     def __init__(

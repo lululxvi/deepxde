@@ -94,7 +94,6 @@ class OpNN(Map):
     @timing
     def build(self):
         print("Building operator neural network...")
-        super(OpNN, self).build()
         self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]

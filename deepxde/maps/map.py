@@ -2,9 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from .. import config
 from ..backend import tf
 from ..utils import make_dict, timing
-from .. import config
 
 
 class Map(object):
@@ -14,7 +14,7 @@ class Map(object):
         self.training = tf.placeholder(tf.bool)
         self.dropout = tf.placeholder(tf.bool)
         self.data_id = tf.placeholder(tf.uint8)  # 0: train data, 1: test data
-        self._auxiliary_vars = None
+        self._auxiliary_vars = tf.placeholder(config.real(tf))
 
         self.regularizer = None
 
@@ -46,7 +46,7 @@ class Map(object):
 
     @property
     def auxiliary_vars(self):
-        """Any additional coefficients needed."""
+        """Any additional variables needed."""
         return self._auxiliary_vars
 
     def feed_dict(
@@ -89,5 +89,4 @@ class Map(object):
     @timing
     def build(self):
         """Construct the mapping."""
-        self._auxiliary_vars = tf.placeholder(config.real(tf))
         self.built = True

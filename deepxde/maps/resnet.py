@@ -49,7 +49,6 @@ class ResNet(Map):
     @timing
     def build(self):
         print("Building residual neural network...")
-        super(ResNet, self).build()
         self.x = tf.placeholder(config.real(tf), [None, self.input_size])
 
         y = self.x
