@@ -196,6 +196,7 @@ class Triangle(Geometry):
         self.v12 = self.x2 - self.x1
         self.v23 = self.x3 - self.x2
         self.v31 = self.x1 - self.x3
+        self.v13 = -self.v31
         self.l12 = np.linalg.norm(self.v12)
         self.l23 = np.linalg.norm(self.v23)
         self.l31 = np.linalg.norm(self.v31)
@@ -221,6 +222,23 @@ class Triangle(Geometry):
             )
             ** 0.5,
         )
+
+        # Used in inside()
+        self._detv1v2 = np.cross(self.v12, self.v13)
+        self._detv0v1 = np.cross(self.x1, self.v12)
+        self._detv0v2 = np.cross(self.x1, self.v13)
+
+    def inside(self, x):
+        """Barycentric method
+
+        https://mathworld.wolfram.com/TriangleInterior.html
+        """
+        a = (np.cross(x, self.v13) - self._detv0v2) / self._detv1v2
+        if 0 <= a <= 1:
+            b = (self._detv0v1 - np.cross(x, self.v12)) / self._detv1v2
+            if b >= 0 and a + b <= 1:
+                return True
+        return False
 
     def on_boundary(self, x):
         l1 = np.linalg.norm(x - self.x1)
