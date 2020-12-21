@@ -25,6 +25,7 @@ class PDE(Data):
             points.
         solution: The reference solution.
         num_test: The number of residual points for testing the PDE residual.
+        auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs auxiliary variables.
 
     Attributes:
         train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
@@ -33,6 +34,8 @@ class PDE(Data):
             `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
         test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
+        train_aux_vars: Auxiliary variables that associate with `train_x`.
+        test_aux_vars: Auxiliary variables that associate with `test_x`.
     """
 
     def __init__(
@@ -46,6 +49,7 @@ class PDE(Data):
         anchors=None,
         solution=None,
         num_test=None,
+        auxiliary_var_function=None,
     ):
         self.geom = geometry
         self.pde = pde
@@ -65,10 +69,13 @@ class PDE(Data):
         self.soln = solution
         self.num_test = num_test
 
+        self.auxiliary_var_fn = auxiliary_var_function
+
         self.train_x_all = None
         self.train_x, self.train_y = None, None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
+        self.train_aux_vars, self.test_aux_vars = None, None
 
         self.train_next_batch()
         self.test()
@@ -82,7 +89,9 @@ class PDE(Data):
             if get_num_args(self.pde) == 2:
                 f = self.pde(model.net.inputs, outputs)
             elif get_num_args(self.pde) == 3:
-                f = self.pde(model.net.inputs, outputs, self.train_x)
+                if self.auxiliary_var_fn is None:
+                    raise ValueError("Auxiliary variable function not defined.")
+                f = self.pde(model.net.inputs, outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -97,12 +106,6 @@ class PDE(Data):
 
         def losses_train():
             f_train = f
-            # The following code seems redundant, but if removed, error occurs in losses_test()
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_train = self.pde(model.net.inputs, outputs, self.train_x)
-                if not isinstance(f_train, (list, tuple)):
-                    f_train = [f_train]
-
             bcs_start = np.cumsum([0] + self.num_bcs)
             error_f = [fi[bcs_start[-1] :] for fi in f_train]
             losses = [
@@ -121,10 +124,6 @@ class PDE(Data):
 
         def losses_test():
             f_test = f
-            if self.pde is not None and get_num_args(self.pde) == 3:
-                f_test = self.pde(model.net.inputs, outputs, self.test_x)
-                if not isinstance(f_test, (list, tuple)):
-                    f_test = [f_test]
             return [
                 loss[i](tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi)
                 for i, fi in enumerate(f_test)
@@ -132,30 +131,34 @@ class PDE(Data):
 
         return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
 
-    @run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
-        return self.train_x, self.train_y
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+        return self.train_x, self.train_y, self.train_aux_vars
 
-    @run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x_all
         else:
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
-        return self.test_x, self.test_y
+        if self.auxiliary_var_fn is not None:
+            self.test_aux_vars = self.auxiliary_var_fn(self.test_x)
+        return self.test_x, self.test_y, self.test_aux_vars
 
     def resample_train_points(self):
         """Resample the training residual points.
 
         Warning: After resampling, need to call ``Model.compile()`` to update the loss.
         """
-        self.train_x, self.train_y = None, None
+        self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
     def add_anchors(self, anchors):
@@ -172,6 +175,8 @@ class PDE(Data):
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
 
     def train_points(self):
         X = np.empty((0, self.geom.dim))
@@ -224,6 +229,7 @@ class TimePDE(PDE):
         anchors=None,
         solution=None,
         num_test=None,
+        auxiliary_var_function=None,
     ):
         self.num_initial = num_initial
         super(TimePDE, self).__init__(
@@ -236,6 +242,7 @@ class TimePDE(PDE):
             anchors=anchors,
             solution=solution,
             num_test=num_test,
+            auxiliary_var_function=auxiliary_var_function,
         )
 
     def train_points(self):
