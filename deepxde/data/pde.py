@@ -25,7 +25,7 @@ class PDE(Data):
             points.
         solution: The reference solution.
         num_test: The number of residual points for testing the PDE residual.
-        auxiliary_var_function: A function that inputs `train_x` or `test_x` and output auxiliary variables.
+        auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs auxiliary variables.
 
     Attributes:
         train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
