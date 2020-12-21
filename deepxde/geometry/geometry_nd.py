@@ -109,6 +109,11 @@ class Hypersphere(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
+    def boundary_normal(self, x):
+        n = x - self.center
+        l = np.linalg.norm(n)
+        return n / l if np.isclose(l, self.radius) else np.zeros(self.dim)
+
     def random_points(self, n, random="pseudo"):
         """https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         """
