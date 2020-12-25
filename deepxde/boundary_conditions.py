@@ -139,6 +139,11 @@ class OperatorBC(BC):
 class PointSetBC(object):
     """Boundary Condition for a set of points.
     Compare the output (that associates with `points`) with `values` (target data).
+
+    Args:
+        points: An array of points where the corresponding target values are known and used for training.
+        values: An array of values that gives the exact solution of the problem.
+        component: The output component satisfying this BC.
     """
 
     def __init__(self, points, values, component):
