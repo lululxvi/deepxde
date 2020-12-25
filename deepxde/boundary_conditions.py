@@ -136,23 +136,22 @@ class OperatorBC(BC):
         return self.func(inputs, outputs, X)[beg:end]
 
 
-class PointSet(object):
-    """A set of points.
+class PointSetBC(object):
+    """Boundary Condition for a set of points.
+    Compare the output (that associates with `points`) with `values` (target data).
     """
 
-    def __init__(self, points):
+    def __init__(self, points, values, component):
         self.points = np.array(points)
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+            raise RuntimeError(
+                "PointSetBC should output 1D values. Use argument 'component' for different components."
+            )
+        self.values = np.array(values)
+        self.component = component
 
-    def inside(self, x):
-        return np.any(np.all(np.isclose(x, self.points), axis=1))
+    def collocation_points(self, X):
+        return self.points
 
-    def values_to_func(self, values):
-        zero = np.zeros(len(values[0]))
-
-        def func(x):
-            if not self.inside(x):
-                return zero
-            idx = np.argwhere(np.all(np.isclose(x, self.points), axis=1))[0, 0]
-            return values[idx]
-
-        return lambda X: np.array(list(map(func, X)))
+    def error(self, X, inputs, outputs, beg, end):
+        return outputs[beg:end, self.component : self.component + 1] - self.values
