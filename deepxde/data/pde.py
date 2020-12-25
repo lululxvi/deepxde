@@ -23,6 +23,7 @@ class PDE(Data):
             "uniform" (equispaced grid), "pseudo" (pseudorandom) or "sobol" (Sobol sequence).
         anchors: A Numpy array of training residual points, in addition to the `num_domain` and `num_boundary` sampled
             points.
+        exclusions: A Numpy array of points to be excluded for training.
         solution: The reference solution.
         num_test: The number of residual points for testing the PDE residual.
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs auxiliary variables.
@@ -47,6 +48,7 @@ class PDE(Data):
         num_boundary=0,
         train_distribution="sobol",
         anchors=None,
+        exclusions=None,
         solution=None,
         num_test=None,
         auxiliary_var_function=None,
@@ -65,6 +67,7 @@ class PDE(Data):
             )
         self.train_distribution = train_distribution
         self.anchors = anchors
+        self.exclusions = exclusions
 
         self.soln = solution
         self.num_test = num_test
@@ -197,6 +200,12 @@ class PDE(Data):
             X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
+        if self.exclusions is not None:
+
+            def is_not_excluded(x):
+                return not np.any([np.allclose(x, y) for y in self.exclusions])
+
+            X = np.array(list(filter(is_not_excluded, X)))
         return X
 
     def bc_points(self):
@@ -227,6 +236,7 @@ class TimePDE(PDE):
         num_initial=0,
         train_distribution="sobol",
         anchors=None,
+        exclusions=None,
         solution=None,
         num_test=None,
         auxiliary_var_function=None,
@@ -240,6 +250,7 @@ class TimePDE(PDE):
             num_boundary,
             train_distribution=train_distribution,
             anchors=anchors,
+            exclusions=exclusions,
             solution=solution,
             num_test=num_test,
             auxiliary_var_function=auxiliary_var_function,
@@ -254,5 +265,11 @@ class TimePDE(PDE):
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
+            if self.exclusions is not None:
+
+                def is_not_excluded(x):
+                    return not np.any([np.allclose(x, y) for y in self.exclusions])
+
+                tmp = np.array(list(filter(is_not_excluded, tmp)))
             X = np.vstack((tmp, X))
         return X
