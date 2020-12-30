@@ -159,7 +159,7 @@ class PointSet(object):
 
 
 class PointSetBC(object):
-    """Boundary Condition for a set of points.
+    """Dirichlet boundary condition for a set of points.
     Compare the output (that associates with `points`) with `values` (target data).
 
     Args:
@@ -168,13 +168,13 @@ class PointSetBC(object):
         component: The output component satisfying this BC.
     """
 
-    def __init__(self, points, values, component):
+    def __init__(self, points, values, component=0):
         self.points = np.array(points)
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
                 "PointSetBC should output 1D values. Use argument 'component' for different components."
             )
-        self.values = np.array(values)
+        self.values = values
         self.component = component
 
     def collocation_points(self, X):

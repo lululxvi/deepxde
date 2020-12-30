@@ -12,6 +12,7 @@ from .boundary_conditions import NeumannBC
 from .boundary_conditions import OperatorBC
 from .boundary_conditions import PeriodicBC
 from .boundary_conditions import RobinBC
+from .boundary_conditions import PointSetBC
 from .initial_condition import IC
 from .model import Model
 from .postprocessing import saveplot
@@ -31,6 +32,7 @@ __all__ = [
     "OperatorBC",
     "PeriodicBC",
     "RobinBC",
+    "PointSetBC",
     "IC",
     "Model",
     "saveplot",

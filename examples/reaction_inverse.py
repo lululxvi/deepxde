@@ -53,8 +53,8 @@ def main():
     ic2 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
 
     observe_x, Ca, Cb = gen_traindata()
-    observe_y1 = dde.bc.PointSetBC(observe_x, Ca, component=0)
-    observe_y2 = dde.bc.PointSetBC(observe_x, Cb, component=1)
+    observe_y1 = dde.PointSetBC(observe_x, Ca, component=0)
+    observe_y2 = dde.PointSetBC(observe_x, Cb, component=1)
 
     data = dde.data.TimePDE(
         geomtime,
@@ -63,6 +63,7 @@ def main():
         num_domain=2000,
         num_boundary=100,
         num_initial=100,
+        anchors=observe_x,
         num_test=50000,
     )
     net = dde.maps.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")

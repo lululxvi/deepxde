@@ -46,9 +46,9 @@ def main():
 
     # Get the train data
     observe_t, ob_y = gen_traindata()
-    observe_y0 = dde.bc.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
-    observe_y1 = dde.bc.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
-    observe_y2 = dde.bc.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
+    observe_y0 = dde.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
+    observe_y1 = dde.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
+    observe_y2 = dde.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
 
     data = dde.data.PDE(
         geom,
@@ -56,6 +56,7 @@ def main():
         [ic1, ic2, ic3, observe_y0, observe_y1, observe_y2],
         num_domain=400,
         num_boundary=2,
+        anchors=observe_t,
     )
 
     net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
