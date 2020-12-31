@@ -46,17 +46,9 @@ def main():
 
     # Get the train data
     observe_t, ob_y = gen_traindata()
-    ptset = dde.bc.PointSet(observe_t)
-    inside = lambda x, _: ptset.inside(x)
-    observe_y0 = dde.DirichletBC(
-        geom, ptset.values_to_func(ob_y[:, 0:1]), inside, component=0
-    )
-    observe_y1 = dde.DirichletBC(
-        geom, ptset.values_to_func(ob_y[:, 1:2]), inside, component=1
-    )
-    observe_y2 = dde.DirichletBC(
-        geom, ptset.values_to_func(ob_y[:, 2:3]), inside, component=2
-    )
+    observe_y0 = dde.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
+    observe_y1 = dde.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
+    observe_y2 = dde.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
 
     data = dde.data.PDE(
         geom,

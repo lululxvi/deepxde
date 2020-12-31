@@ -53,13 +53,8 @@ def main():
     ic2 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
 
     observe_x, Ca, Cb = gen_traindata()
-    ptset = dde.bc.PointSet(observe_x)
-    observe_y1 = dde.DirichletBC(
-        geomtime, ptset.values_to_func(Ca), lambda x, _: ptset.inside(x), component=0
-    )
-    observe_y2 = dde.DirichletBC(
-        geomtime, ptset.values_to_func(Cb), lambda x, _: ptset.inside(x), component=1
-    )
+    observe_y1 = dde.PointSetBC(observe_x, Ca, component=0)
+    observe_y2 = dde.PointSetBC(observe_x, Cb, component=1)
 
     data = dde.data.TimePDE(
         geomtime,

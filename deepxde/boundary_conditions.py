@@ -156,3 +156,29 @@ class PointSet(object):
             return values[idx]
 
         return lambda X: np.array(list(map(func, X)))
+
+
+class PointSetBC(object):
+    """Dirichlet boundary condition for a set of points.
+    Compare the output (that associates with `points`) with `values` (target data).
+
+    Args:
+        points: An array of points where the corresponding target values are known and used for training.
+        values: An array of values that gives the exact solution of the problem.
+        component: The output component satisfying this BC.
+    """
+
+    def __init__(self, points, values, component=0):
+        self.points = np.array(points)
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+            raise RuntimeError(
+                "PointSetBC should output 1D values. Use argument 'component' for different components."
+            )
+        self.values = values
+        self.component = component
+
+    def collocation_points(self, X):
+        return self.points
+
+    def error(self, X, inputs, outputs, beg, end):
+        return outputs[beg:end, self.component : self.component + 1] - self.values
