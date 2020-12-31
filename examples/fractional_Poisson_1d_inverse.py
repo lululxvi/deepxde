@@ -31,10 +31,7 @@ def main():
     geom = dde.geometry.Interval(-1, 1)
 
     observe_x = np.linspace(-1, 1, num=20)[:, None]
-    ptset = dde.bc.PointSet(observe_x)
-    observe_y = dde.DirichletBC(
-        geom, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
-    )
+    observe_y = dde.PointSetBC(observe_x, func(observe_x))
 
     # Static auxiliary points
     # data = dde.data.FPDE(

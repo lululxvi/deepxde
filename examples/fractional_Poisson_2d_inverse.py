@@ -38,10 +38,7 @@ def main():
     geom = dde.geometry.Disk([0, 0], 1)
 
     observe_x = geom.random_points(30)
-    ptset = dde.bc.PointSet(observe_x)
-    observe_y = dde.DirichletBC(
-        geom, ptset.values_to_func(func(observe_x)), lambda x, _: ptset.inside(x)
-    )
+    observe_y = dde.PointSetBC(observe_x, func(observe_x))
 
     data = dde.data.FPDE(
         geom,
