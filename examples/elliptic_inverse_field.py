@@ -4,8 +4,8 @@ from __future__ import print_function
 
 import deepxde as dde
 import matplotlib.pyplot as plt
-from deepxde.backend import tf
 import numpy as np
+from deepxde.backend import tf
 
 
 # generate num equally-spaced points from -1 to 1
@@ -37,7 +37,7 @@ def main():
         pde,
         [bc, observe_u],
         num_domain=200,
-        num_boundary=50,
+        num_boundary=2,
         anchors=ob_x,
         num_test=1000,
     )
@@ -57,14 +57,14 @@ def main():
 
     utrue = np.sin(np.pi * x)
     print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(utrue, uhat)))
-    plot1 = plt.figure(3)
+    plot1 = plt.figure()
     plt.plot(x, uhat, label="uhat")
     plt.plot(x, utrue, label="utrue")
     plt.legend()
 
     qtrue = -np.pi ** 2 * np.sin(np.pi * x)
     print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
-    plot2 = plt.figure(4)
+    plot2 = plt.figure()
     plt.plot(x, qhat, label="qhat")
     plt.plot(x, qtrue, label="qtrue")
     plt.legend()
