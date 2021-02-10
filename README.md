@@ -25,6 +25,7 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 - Solving PDEs and IDEs via PINN: [SIAM Rev.](https://doi.org/10.1137/19M1274067)
 - Solving fPDEs via fPINN: [SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)
 - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)
+- Solving inverse design/topology optimization: [arXiv](https://arxiv.org/abs/2102.04626)
 - Learning from multi-fidelity data via MFNN: [PNAS](https://www.pnas.org/content/117/13/7052)
 - Learning nonlinear operators via DeepONet: [arXiv](https://arxiv.org/abs/1910.03193)
 

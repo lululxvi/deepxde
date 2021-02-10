@@ -6,6 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+- L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://arxiv.org/abs/2102.04626>`_. *arXiv preprint arXiv:2102.04626*, 2021.
 - L. Lu, X. Meng, Z. Mao, & G. E. Karniadakis. `DeepXDE: A deep learning library for solving differential equations <https://doi.org/10.1137/19M1274067>`_. *SIAM Review*, 63(1), 208--228, 2021.
 - A. Yazdani, L. Lu, M. Raissi, & G. E. Karniadakis. `Systems biology informed deep learning for inferring parameters and hidden dynamics <https://doi.org/10.1371/journal.pcbi.1007575>`_. *PLoS Computational Biology*, 16(11), e1007575, 2020.
 - Q. Zhang, Y. Chen, & Z. Yang. `Data driven solutions and discoveries in mechanics using physics informed neural network <https://www.preprints.org/manuscript/202006.0258>`_. *Preprints*, 2020060258, 2020.
