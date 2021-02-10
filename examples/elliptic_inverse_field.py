@@ -57,14 +57,14 @@ def main():
 
     utrue = np.sin(np.pi * x)
     print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(utrue, uhat)))
-    plot1 = plt.figure()
+    plt.figure()
     plt.plot(x, uhat, label="uhat")
     plt.plot(x, utrue, label="utrue")
     plt.legend()
 
     qtrue = -np.pi ** 2 * np.sin(np.pi * x)
     print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
-    plot2 = plt.figure()
+    plt.figure()
     plt.plot(x, qhat, label="qhat")
     plt.plot(x, qtrue, label="qtrue")
     plt.legend()
