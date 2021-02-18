@@ -47,13 +47,9 @@ def main():
 
     model = dde.Model(data, net)
 
-    for _ in range(5):
-        model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-        model.train(epochs=2000)
-        print("epoch = {}, resample train points...".format(model.train_state.epoch))
-        data.resample_train_points()
+    resampler = dde.callbacks.Resampler(period=1)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=2000)
+    losshistory, train_state = model.train(epochs=2000, callbacks=[resampler])
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 

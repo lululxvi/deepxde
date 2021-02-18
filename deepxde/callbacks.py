@@ -409,3 +409,29 @@ class MovieDumper(Callback):
                 save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
+
+
+class Resampler(Callback):
+    """Resample the training data every given period."""
+
+    def __init__(self, period=1):
+        super(Resampler, self).__init__()
+        self.period = period
+
+        self.num_bcs_initial = None
+        self.epochs_since_last_resample = 0
+
+    def on_train_begin(self):
+        self.num_bcs_initial = self.model.data.num_bcs
+
+    def on_epoch_end(self):
+        self.epochs_since_last_resample += 1
+        if self.epochs_since_last_resample < self.period:
+            return
+        self.epochs_since_last_resample = 0
+        self.model.data.resample_train_points()
+        # consistency check
+        if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
+            print(f"Warning: num_bcs changed!")
+            print("Initial value of self.num_bcs:", self.num_bcs_initial)
+            print("self.model.data.num_bcs:", self.model.data.num_bcs)

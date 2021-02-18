@@ -29,10 +29,10 @@ class PDE(Data):
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs auxiliary variables.
 
     Attributes:
-        train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
-            and does not have duplication.
+        train_x_bc: A Numpy array of the training points on boundary, ordered according to `self.num_bcs`.
+            By default `train_x_bc` does not updates when resample.
         train_x: A Numpy array of the residual points fed into the network for training.
-            `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
+            `train_x` ordered from BCs to PDE to `self.anchors`, and may have duplicate points.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
         test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
@@ -74,7 +74,7 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
-        self.train_x_all = None
+        self.train_x_bc = None
         self.train_x, self.train_y = None, None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
@@ -136,10 +136,7 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        self.train_x_all = self.train_points()
-        self.train_x = self.bc_points()
-        if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
+        self.train_x = self.train_points()
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
@@ -148,7 +145,7 @@ class PDE(Data):
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x_all
+            self.test_x = self.train_x
         else:
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
@@ -173,33 +170,20 @@ class PDE(Data):
             self.anchors = anchors
         else:
             self.anchors = np.vstack((anchors, self.anchors))
-        self.train_x_all = np.vstack((anchors, self.train_x_all))
-        self.train_x = self.bc_points()
-        if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
-        self.train_y = self.soln(self.train_x) if self.soln else None
-        if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+        self.resample_train_points()
 
     def train_points(self):
-        X = np.empty((0, self.geom.dim))
+        X = self.bc_points()
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
-                X = self.geom.uniform_points(self.num_domain, boundary=False)
+                tmp = self.geom.uniform_points(self.num_domain, boundary=False)
             elif self.train_distribution in ["pseudo", "sobol"]:
-                X = self.geom.random_points(
+                tmp = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
-        if self.num_boundary > 0:
-            if self.train_distribution == "uniform":
-                tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            elif self.train_distribution in ["pseudo", "sobol"]:
-                tmp = self.geom.random_boundary_points(
-                    self.num_boundary, random=self.train_distribution
-                )
-            X = np.vstack((tmp, X))
+            X = np.vstack((X, tmp))
         if self.anchors is not None:
-            X = np.vstack((self.anchors, X))
+            X = np.vstack((X, tmp))
         if self.exclusions is not None:
 
             def is_not_excluded(x):
@@ -208,10 +192,23 @@ class PDE(Data):
             X = np.array(list(filter(is_not_excluded, X)))
         return X
 
+    @run_if_all_none("train_x_bc")
     def bc_points(self):
-        x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
+        x_bcs = np.empty((0, self.geom.dim))
+        if self.num_boundary > 0:
+            if self.train_distribution == "uniform":
+                tmp = self.geom.uniform_boundary_points(self.num_boundary)
+            elif self.train_distribution in ["pseudo", "sobol"]:
+                tmp = self.geom.random_boundary_points(
+                    self.num_boundary, random=self.train_distribution
+                )
+            x_bcs = np.vstack((x_bcs, tmp))
+        if self.anchors is not None:
+            x_bcs = np.vstack((x_bcs, self.anchors))
+        x_bcs = [bc.collocation_points(x_bcs) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
-        return np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+        self.train_x_bc = np.vstack(x_bcs) if x_bcs else np.empty((0, self.geom.dim))
+        return self.train_x_bc
 
     def test_points(self):
         return self.geom.uniform_points(self.num_test, True)
@@ -256,8 +253,17 @@ class TimePDE(PDE):
             auxiliary_var_function=auxiliary_var_function,
         )
 
-    def train_points(self):
-        X = super(TimePDE, self).train_points()
+    @run_if_all_none("train_x_bc")
+    def bc_points(self):
+        x_bcs = np.empty((0, self.geom.dim))
+        if self.num_boundary > 0:
+            if self.train_distribution == "uniform":
+                tmp = self.geom.uniform_boundary_points(self.num_boundary)
+            elif self.train_distribution in ["pseudo", "sobol"]:
+                tmp = self.geom.random_boundary_points(
+                    self.num_boundary, random=self.train_distribution
+                )
+            x_bcs = np.vstack((x_bcs, tmp))
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
@@ -265,11 +271,10 @@ class TimePDE(PDE):
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
-            if self.exclusions is not None:
-
-                def is_not_excluded(x):
-                    return not np.any([np.allclose(x, y) for y in self.exclusions])
-
-                tmp = np.array(list(filter(is_not_excluded, tmp)))
-            X = np.vstack((tmp, X))
-        return X
+            x_bcs = np.vstack((x_bcs, tmp))
+        if self.anchors is not None:
+            x_bcs = np.vstack((x_bcs, self.anchors))
+        x_bcs = [bc.collocation_points(x_bcs) for bc in self.bcs]
+        self.num_bcs = list(map(len, x_bcs))
+        self.train_x_bc = np.vstack(x_bcs) if x_bcs else np.empty((0, self.geom.dim))
+        return self.train_x_bc
