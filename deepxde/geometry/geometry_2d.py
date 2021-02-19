@@ -20,17 +20,19 @@ class Disk(Geometry):
         self._r2 = radius ** 2
 
     def inside(self, x):
-        return np.linalg.norm(x - self.center) <= self.radius
+        return np.linalg.norm(x - self.center, axis=-1, keepdims=True) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(np.linalg.norm(x - self.center), self.radius)
+        return np.isclose(
+            np.linalg.norm(x - self.center, axis=-1, keepdims=True), self.radius
+        )
 
     def distance2boundary_unitdirn(self, x, dirn):
         """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         """
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return -ad + (ad ** 2 - np.dot(xc, xc) + self._r2) ** 0.5
+        return -ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -39,9 +41,10 @@ class Disk(Geometry):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
 
     def boundary_normal(self, x):
-        n = x - self.center
-        l = np.linalg.norm(n)
-        return n / l if np.isclose(l, self.radius) else np.zeros(self.dim)
+        _n = x - self.center
+        l = np.linalg.norm(_n, axis=-1, keepdims=True)
+        _n = _n / l * np.isclose(l, self.radius)
+        return _n
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html
@@ -196,7 +199,6 @@ class Triangle(Geometry):
         self.v12 = self.x2 - self.x1
         self.v23 = self.x3 - self.x2
         self.v31 = self.x1 - self.x3
-        self.v13 = -self.v31
         self.l12 = np.linalg.norm(self.v12)
         self.l23 = np.linalg.norm(self.v23)
         self.l31 = np.linalg.norm(self.v31)
@@ -223,45 +225,48 @@ class Triangle(Geometry):
             ** 0.5,
         )
 
-        # Used in inside()
-        self._detv1v2 = np.cross(self.v12, self.v13)
-        self._detv0v1 = np.cross(self.x1, self.v12)
-        self._detv0v2 = np.cross(self.x1, self.v13)
-
     def inside(self, x):
-        """Barycentric method
+        """See https://stackoverflow.com/a/2049593/12679294"""
 
-        https://mathworld.wolfram.com/TriangleInterior.html
-        """
-        a = (np.cross(x, self.v13) - self._detv0v2) / self._detv1v2
-        if 0 <= a <= 1:
-            b = (self._detv0v1 - np.cross(x, self.v12)) / self._detv1v2
-            if b >= 0 and a + b <= 1:
-                return True
-        return False
+        _sign = np.hstack(
+            [
+                np.cross(self.v12, x - self.x1)[:, np.newaxis],
+                np.cross(self.v23, x - self.x2)[:, np.newaxis],
+                np.cross(self.v31, x - self.x3)[:, np.newaxis],
+            ]
+        )
+
+        return ~np.logical_and(
+            np.any(_sign > 0, axis=-1, keepdims=True),
+            np.any(_sign < 0, axis=-1, keepdims=True),
+        )
 
     def on_boundary(self, x):
-        l1 = np.linalg.norm(x - self.x1)
-        l2 = np.linalg.norm(x - self.x2)
-        l3 = np.linalg.norm(x - self.x3)
+        l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
+        l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
+        l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
         return np.any(
-            np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0)
+            np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0),
+            axis=0,
         )
 
     def boundary_normal(self, x):
-        l1 = np.linalg.norm(x - self.x1)
-        l2 = np.linalg.norm(x - self.x2)
-        if np.isclose(l1 + l2, self.l12):
-            return self.n12_normal
-
-        l3 = np.linalg.norm(x - self.x3)
-        if np.isclose(l2 + l3, self.l23):
-            return self.n23_normal
-
-        if np.isclose(l3 + l1, self.l31):
-            return self.n31_normal
-
-        return np.array([0, 0])
+        l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
+        l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
+        l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
+        _on12 = np.isclose(l1 + l2, self.l12)
+        _on23 = np.isclose(l2 + l3, self.l23)
+        _on31 = np.isclose(l3 + l1, self.l31)
+        # Check points on the vertexes
+        if np.any(np.count_nonzero(np.hstack([_on12, _on23, _on31]), axis=-1) > 1):
+            raise ValueError(
+                "{}: Method `boundary_normal` do not accept points on the vertexes.".format(
+                    self.__class__.__name__
+                )
+            )
+        return (
+            self.n12_normal * _on12 + self.n23_normal * _on23 + self.n31_normal * _on31
+        )
 
     def random_points(self, n, random="pseudo"):
         """There are two methods for triangle point picking.
@@ -382,39 +387,53 @@ class Polygon(Geometry):
             Returns:
                 wn: Winding number (=0 only if P is outside polygon).
             """
-            wn = 0  # Winding number counter
+            wn = np.zeros((len(P), 1))  # Winding number counter
 
             # Repeat the first vertex at end
             # Loop through all edges of the polygon
             for i in range(-1, self.nvertices - 1):  # Edge from V[i] to V[i+1]
-                if V[i, 1] <= P[1]:  # Start y <= P[1]
-                    if V[i + 1, 1] > P[1]:  # An upward crossing
-                        if is_left(V[i], V[i + 1], P) > 0:  # P left of edge
-                            wn += 1  # Have a valid up intersect
-                else:  # Start y > P[1] (no test needed)
-                    if V[i + 1, 1] <= P[1]:  # A downward crossing
-                        if is_left(V[i], V[i + 1], P) < 0:  # P right of edge
-                            wn -= 1  # Have a valid down intersect
+                tmp = np.all(
+                    np.hstack(
+                        [
+                            V[i, 1] <= P[:, 1:2],
+                            V[i + 1, 1] > P[:, 1:2],
+                            is_left(V[i], V[i + 1], P) > 0,
+                        ]
+                    ),
+                    axis=-1,
+                )
+                wn[tmp] += 1
+                tmp = np.all(
+                    np.hstack(
+                        [
+                            V[i, 1] > P[:, 1:2],
+                            V[i + 1, 1] <= P[:, 1:2],
+                            is_left(V[i], V[i + 1], P) < 0,
+                        ]
+                    ),
+                    axis=-1,
+                )
+                wn[tmp] -= 1
             return wn
 
         return wn_PnPoly(x, self.vertices) != 0
 
     def on_boundary(self, x):
+        _on = np.zeros(shape=(len(x), 1), dtype=np.int)
         for i in range(-1, self.nvertices - 1):
-            l1 = np.linalg.norm(self.vertices[i] - x)
-            l2 = np.linalg.norm(self.vertices[i + 1] - x)
-            if np.isclose(l1 + l2, self.diagonals[i, i + 1]):
-                return True
-        return False
+            l1 = np.linalg.norm(self.vertices[i] - x, axis=-1, keepdims=True)
+            l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1, keepdims=True)
+            _on[np.isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
+        return _on > 0
 
     def random_points(self, n, random="pseudo"):
         x = []
         vbbox = self.bbox[1] - self.bbox[0]
         while len(x) < n:
-            x_new = np.random.rand(2) * vbbox + self.bbox[0]
+            x_new = np.random.rand(1, 2) * vbbox + self.bbox[0]
             if self.inside(x_new):
                 x.append(x_new)
-        return np.array(x)
+        return np.vstack(x)
 
     def uniform_boundary_points(self, n):
         density = n / self.perimeter
@@ -494,12 +513,12 @@ def is_left(P0, P1, P2):
     Args:
         P0: One point in the line.
         P1: One point in the line.
-        P2: The point to be tested.
+        P2: A array of point to be tested.
 
     Returns:
         >0 if P2 left of the line through P0 and P1, =0 if P2 on the line, <0 if P2 right of the line.
     """
-    return (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1])
+    return np.cross(P1 - P0, P2 - P0, axis=-1).reshape((-1, 1))
 
 
 def is_rectangle(vertices):

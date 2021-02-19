@@ -14,10 +14,10 @@ def main():
         return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
 
     def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], -1)
+        return np.logical_and(on_boundary, np.isclose(x[:, 0:1], -1))
 
     def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
+        return np.logical_and(on_boundary, np.isclose(x[:, 0:1], 1))
 
     def func(x):
         return np.sin(np.pi * x)

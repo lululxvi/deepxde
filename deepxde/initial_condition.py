@@ -16,8 +16,7 @@ class IC(object):
         self.component = component
 
     def filter(self, X):
-        X = np.array([x for x in X if self.on_initial(x, self.geom.on_initial(x))])
-        return X if len(X) > 0 else np.empty((0, self.geom.dim))
+        return X[self.on_initial(X, self.geom.on_initial(X)).flatten()]
 
     def collocation_points(self, X):
         return self.filter(X)

@@ -27,23 +27,27 @@ class Hypercube(Geometry):
         self.volume = np.prod(self.side_length)
 
     def inside(self, x):
-        return np.all(x >= self.xmin) and np.all(x <= self.xmax)
-
-    def on_boundary(self, x):
-        return self.inside(x) and (
-            np.any(np.isclose(x, self.xmin)) or np.any(np.isclose(x, self.xmax))
+        return np.logical_and(
+            np.all(x >= self.xmin, axis=-1, keepdims=True),
+            np.all(x <= self.xmax, axis=-1, keepdims=True),
         )
 
+    def on_boundary(self, x):
+        _on_boundary = np.logical_or(
+            np.any(np.isclose(x, self.xmin), axis=-1, keepdims=True),
+            np.any(np.isclose(x, self.xmax), axis=-1, keepdims=True),
+        )
+        return np.logical_and(self.inside(x), _on_boundary)
+
     def boundary_normal(self, x):
-        n = np.zeros(self.dim)
-        for i, xi in enumerate(x):
-            if np.isclose(xi, self.xmin[i]):
-                n[i] = -1
-                break
-            if np.isclose(xi, self.xmax[i]):
-                n[i] = 1
-                break
-        return n
+        _n = np.isclose(x, self.xmin) * -1.0 + np.isclose(x, self.xmax) * 1.0
+        if np.any(np.count_nonzero(_n, axis=-1) > 1):
+            raise ValueError(
+                "{}: Method `boundary_normal` do not accept points on the vertexes.".format(
+                    self.__class__.__name__
+                )
+            )
+        return _n
 
     def uniform_points(self, n, boundary=True):
         dx = (self.volume / n) ** (1 / self.dim)
@@ -74,10 +78,10 @@ class Hypercube(Geometry):
 
     def periodic_point(self, x, component):
         y = np.copy(x)
-        if np.isclose(y[component], self.xmin[component]):
-            y[component] += self.xmax[component] - self.xmin[component]
-        elif np.isclose(y[component], self.xmax[component]):
-            y[component] -= self.xmax[component] - self.xmin[component]
+        _on_xmin = np.isclose(y[:, component], self.xmin[component])
+        _on_xmax = np.isclose(y[:, component], self.xmax[component])
+        y[:, component][_on_xmin] = self.xmax[component]
+        y[:, component][_on_xmax] = self.xmin[component]
         return y
 
 
@@ -91,28 +95,31 @@ class Hypersphere(Geometry):
         self._r2 = radius ** 2
 
     def inside(self, x):
-        return np.linalg.norm(x - self.center) <= self.radius
+        return np.linalg.norm(x - self.center, axis=-1, keepdims=True) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(np.linalg.norm(x - self.center), self.radius)
+        return np.isclose(
+            np.linalg.norm(x - self.center, axis=-1, keepdims=True), self.radius
+        )
 
     def distance2boundary_unitdirn(self, x, dirn):
         """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         """
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return -ad + (ad ** 2 - np.dot(xc, xc) + self._r2) ** 0.5
+        return -ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
 
     def mindist2boundary(self, x):
-        return np.amin(self.radius - np.linalg.norm(x - self.center, axis=1))
+        return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
 
     def boundary_normal(self, x):
-        n = x - self.center
-        l = np.linalg.norm(n)
-        return n / l if np.isclose(l, self.radius) else np.zeros(self.dim)
+        _n = x - self.center
+        l = np.linalg.norm(_n, axis=-1, keepdims=True)
+        _n = _n / l * np.isclose(l, self.radius)
+        return _n
 
     def random_points(self, n, random="pseudo"):
         """https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability

@@ -15,23 +15,19 @@ class Interval(Geometry):
         self.l, self.r = l, r
 
     def inside(self, x):
-        return self.l <= x[0] <= self.r
+        return np.logical_and(self.l <= x, x <= self.r)
 
     def on_boundary(self, x):
-        return np.any(np.isclose(x, [self.l, self.r]))
+        return np.any(np.isclose(x, [self.l, self.r]), axis=-1, keepdims=True)
 
     def distance2boundary(self, x, dirn):
-        return x[0] - self.l if dirn < 0 else self.r - x[0]
+        return x - self.l if dirn < 0 else self.r - x
 
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
     def boundary_normal(self, x):
-        if np.isclose(x[0], self.l):
-            return np.array([-1])
-        if np.isclose(x[0], self.r):
-            return np.array([1])
-        return np.array([0])
+        return np.isclose(x, self.l) * -1.0 + np.isclose(x, self.r) * 1.0
 
     def uniform_points(self, n, boundary=True):
         if boundary:
@@ -72,11 +68,10 @@ class Interval(Geometry):
         return np.random.choice([self.l, self.r], n)[:, None].astype(config.real(np))
 
     def periodic_point(self, x, component=0):
-        if np.isclose(x[0], self.l):
-            return np.array([self.r])
-        if np.isclose(x[0], self.r):
-            return np.array([self.l])
-        return x
+        tmp = np.copy(x)
+        tmp[np.isclose(x, self.l)] = self.r
+        tmp[np.isclose(x, self.r)] = self.l
+        return tmp
 
     def background_points(self, x, dirn, dist2npt, shift):
         """

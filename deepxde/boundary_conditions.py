@@ -24,15 +24,14 @@ class BC(object):
         self.component = component
 
     def filter(self, X):
-        X = np.array([x for x in X if self.on_boundary(x, self.geom.on_boundary(x))])
-        return X if len(X) > 0 else np.empty((0, self.geom.dim))
+        return X[self.on_boundary(X, self.geom.on_boundary(X)).flatten()]
 
     def collocation_points(self, X):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
-        n = np.array(list(map(self.geom.boundary_normal, X[beg:end])))
+        n = self.geom.boundary_normal(X[beg:end])
         return tf.reduce_sum(dydx * n, axis=1, keepdims=True)
 
     def error(self, X, inputs, outputs, beg, end):
@@ -101,7 +100,7 @@ class PeriodicBC(BC):
 
     def collocation_points(self, X):
         X1 = self.filter(X)
-        X2 = np.array([self.geom.periodic_point(x, self.component_x) for x in X1])
+        X2 = self.geom.periodic_point(X1, self.component_x)
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end):
@@ -144,18 +143,20 @@ class PointSet(object):
         self.points = np.array(points)
 
     def inside(self, x):
-        return np.any(np.all(np.isclose(x, self.points), axis=1))
+        return np.any(
+            np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
+            axis=-1,
+            keepdims=True,
+        )
 
     def values_to_func(self, values):
-        zero = np.zeros(len(values[0]))
-
         def func(x):
-            if not self.inside(x):
-                return zero
-            idx = np.argwhere(np.all(np.isclose(x, self.points), axis=1))[0, 0]
-            return values[idx]
+            return np.matmul(
+                np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
+                values,
+            )
 
-        return lambda X: np.array(list(map(func, X)))
+        return func
 
 
 class PointSetBC(object):
