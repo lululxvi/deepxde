@@ -25,6 +25,8 @@ class FNN(Map):
         regularization=None,
         dropout_rate=0,
         batch_normalization=None,
+        kernel_constraint=None,
+        use_bias=True,
     ):
         super(FNN, self).__init__()
         self.layer_size = layer_size
@@ -33,6 +35,8 @@ class FNN(Map):
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
+        self.kernel_constraint = kernel_constraint
+        self.use_bias = use_bias
 
     @property
     def inputs(self):
@@ -56,7 +60,7 @@ class FNN(Map):
             y = self._input_transform(y)
         for i in range(len(self.layer_size) - 2):
             if self.batch_normalization is None:
-                y = self.dense(y, self.layer_size[i + 1], activation=self.activation)
+                y = self.dense(y, self.layer_size[i + 1], activation=self.activation, use_bias=self.use_bias)
             elif self.batch_normalization == "before":
                 y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
             elif self.batch_normalization == "after":
@@ -80,6 +84,7 @@ class FNN(Map):
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=self.regularizer,
+            kernel_constraint=self.kernel_constraint,
         )
 
     @staticmethod
