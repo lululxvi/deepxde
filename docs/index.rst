@@ -50,6 +50,7 @@ User guide
   user/faq
   user/research
   user/cite_deepxde
+  user/team
 
 API reference
 -------------
