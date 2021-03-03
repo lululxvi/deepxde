@@ -147,15 +147,13 @@ class PointSet(object):
         return np.any(np.all(np.isclose(x, self.points), axis=1))
 
     def values_to_func(self, values):
-        zero = np.zeros(len(values[0]))
-
         def func(x):
-            if not self.inside(x):
-                return zero
-            idx = np.argwhere(np.all(np.isclose(x, self.points), axis=1))[0, 0]
-            return values[idx]
+            return np.matmul(
+                np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
+                values,
+            )
 
-        return lambda X: np.array(list(map(func, X)))
+        return func
 
 
 class PointSetBC(object):
