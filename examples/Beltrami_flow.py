@@ -97,8 +97,7 @@ def main():
 
     def p_func(x):
         return (
-            -1
-            / 2
+            -0.5
             * a ** 2
             * (
                 np.exp(2 * a * x[:, 0:1])
@@ -120,7 +119,7 @@ def main():
             * np.exp(-2 * d ** 2 * x[:, 3:4])
         )
 
-    spatial_domain = dde.geometry.geometry_3d.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
+    spatial_domain = dde.geometry.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
     temporal_domain = dde.geometry.TimeDomain(0, 1)
     spatio_temporal_domain = dde.geometry.GeometryXTime(spatial_domain, temporal_domain)
 
@@ -173,15 +172,15 @@ def main():
     losshistory, train_state = model.train()
 
     x, y, z = np.meshgrid(
-        np.linspace(x_min, x_max, 10),
-        np.linspace(y_min, y_max, 10),
-        np.linspace(z_min, z_max, 10),
+        np.linspace(-1, 1, 10),
+        np.linspace(-1, 1, 10),
+        np.linspace(-1, 1, 10),
     )
 
     X = np.vstack((np.ravel(x), np.ravel(y), np.ravel(z))).T
 
-    t_0 = t_min * np.ones(test_points).reshape(test_points, 1)
-    t_1 = t_max * np.ones(test_points).reshape(test_points, 1)
+    t_0 = np.zeros(1000).reshape(1000, 1)
+    t_1 = np.ones(1000).reshape(1000, 1)
 
     X_0 = np.hstack((X, t_0))
     X_1 = np.hstack((X, t_1))
@@ -223,6 +222,18 @@ def main():
     l2_difference_w_1 = dde.metrics.l2_relative_error(w_exact_1, w_pred_1)
     l2_difference_p_1 = dde.metrics.l2_relative_error(p_exact_1, p_pred_1)
     residual_1 = np.mean(np.absolute(f_1))
+
+    print("Accuracy at t = 0:")
+    print("Mean residual:", residual_0)
+    print("L2 relative error in u:", l2_difference_u_0)
+    print("L2 relative error in v:", l2_difference_v_0)
+    print("L2 relative error in w:", l2_difference_w_0)
+    print("\n")
+    print("Accuracy at t = 1:")
+    print("Mean residual:", residual_1)
+    print("L2 relative error in u:", l2_difference_u_1)
+    print("L2 relative error in v:", l2_difference_v_1)
+    print("L2 relative error in w:", l2_difference_w_1)
 
 
 if __name__ == "__main__":

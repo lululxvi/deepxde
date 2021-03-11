@@ -47,12 +47,10 @@ def main():
     def p_func(x):
         return 1 / 2 * (1 - np.exp(2 * l * x[:, 0:1]))
 
-    spatial_domain = dde.geometry.geometry_2d.Rectangle(
-        xmin=[-0.5, -0.5], xmax=[1, 1.5]
-    )
+    spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
 
     def boundary_outflow(x, on_boundary):
-        return on_boundary and spatial_domain.on_boundary(x) and np.isclose(x[1], 1.5)
+        return on_boundary and np.isclose(x[0], 1)
 
     boundary_condition_u = dde.DirichletBC(
         spatial_domain, u_func, lambda _, on_boundary: on_boundary, component=0
@@ -98,6 +96,11 @@ def main():
     l2_difference_v = dde.metrics.l2_relative_error(v_exact, v_pred)
     l2_difference_p = dde.metrics.l2_relative_error(p_exact, p_pred)
     residual = np.mean(np.absolute(f))
+
+    print("Mean residual:", residual)
+    print("L2 relative error in u:", l2_difference_u)
+    print("L2 relative error in v:", l2_difference_v)
+    print("L2 relative error in p:", l2_difference_p)
 
 
 if __name__ == "__main__":
