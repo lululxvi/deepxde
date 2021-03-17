@@ -14,8 +14,7 @@ from ..utils import timing
 
 
 class FNN(Map):
-    """Feed-forward neural networks.
-    """
+    """Feed-forward neural networks."""
 
     def __init__(
         self,
@@ -73,6 +72,13 @@ class FNN(Map):
         self.built = True
 
     def dense(self, inputs, units, activation=None, use_bias=True):
+        # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to some differences.
+        # One difference is that tf.layers.dense() will add regularizer loss to the collection REGULARIZATION_LOSSES,
+        # but tf.keras.layers.Dense() will not. Hence, tf.losses.get_regularization_loss() cannot be used for
+        # tf.keras.layers.Dense().
+        # Ref:
+        #   - https://github.com/tensorflow/tensorflow/issues/21587
+        #   - https://www.tensorflow.org/guide/migrate
         return tf.layers.dense(
             inputs,
             units,
