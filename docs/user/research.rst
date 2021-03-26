@@ -17,7 +17,7 @@ PINN
 DeepONet
 --------
 
+- S. Cai, Z. Wang, L. Lu, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://doi.org/10.1016/j.jcp.2021.110296>`_. *Journal of Computational Physics*, 436, 110296, 2021.
 - L. Lu, P. Jin, G. Pang, Z. Zhang, & G. E. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021.
 - C. Lin, Z. Li, L. Lu, S. Cai, M. Maxey, & G. E. Karniadakis. `Operator learning for predicting multiscale bubble growth dynamics <https://doi.org/10.1063/5.0041203>`_. *The Journal of Chemical Physics*, 154(10), 104118, 2021.
 - Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://arxiv.org/abs/2011.03349>`_. *arXiv preprint arXiv:2011.03349*, 2020.
-- S. Cai, Z. Wang, L. Lu, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://arxiv.org/abs/2009.12935>`_. *arXiv preprint arXiv:2009.12935*, 2020.
