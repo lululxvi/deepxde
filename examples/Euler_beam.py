@@ -20,10 +20,10 @@ def main():
         return dy_xxxx + 1
 
     def boundary_l(x, on_boundary):
-        return np.logical_and(on_boundary, np.isclose(x[:, 0:1], 0))
+        return on_boundary and np.isclose(x[0], 0)
 
     def boundary_r(x, on_boundary):
-        return np.logical_and(on_boundary, np.isclose(x[:, 0:1], 1))
+        return on_boundary and np.isclose(x[0], 1)
 
     def func(x):
         return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
