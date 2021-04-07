@@ -26,8 +26,7 @@ class Disk(Geometry):
         return np.isclose(np.linalg.norm(x - self.center), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
-        """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-        """
+        """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection"""
         xc = x - self.center
         ad = np.dot(xc, dirn)
         return -ad + (ad ** 2 - np.dot(xc, xc) + self._r2) ** 0.5
@@ -44,8 +43,7 @@ class Disk(Geometry):
         return n / l if np.isclose(l, self.radius) else np.zeros(self.dim)
 
     def random_points(self, n, random="pseudo"):
-        """http://mathworld.wolfram.com/DiskPointPicking.html
-        """
+        """http://mathworld.wolfram.com/DiskPointPicking.html"""
         if random == "pseudo":
             rng = np.random.rand(n, 2)
         elif random == "sobol":
@@ -164,8 +162,7 @@ class Rectangle(Hypercube):
 
     @staticmethod
     def is_valid(vertices):
-        """Check if the geometry is a Rectangle.
-        """
+        """Check if the geometry is a Rectangle."""
         return (
             len(vertices) == 4
             and np.isclose(np.prod(vertices[1] - vertices[0]), 0)
@@ -343,7 +340,8 @@ class Polygon(Geometry):
     """Simple polygon.
 
     Args:
-        vertices: Clockwise or counterclockwise.
+        vertices: The order of vertices can be in a clockwise or counterclockwise direction. The vertices will be
+            re-ordered in counterclockwise (right hand rule).
     """
 
     def __init__(self, vertices):
@@ -352,6 +350,12 @@ class Polygon(Geometry):
             raise ValueError("The polygon is a triangle. Use Triangle instead.")
         if Rectangle.is_valid(self.vertices):
             raise ValueError("The polygon is a rectangle. Use Rectangle instead.")
+
+        self.area = polygon_signed_area(self.vertices)
+        # Clockwise
+        if self.area < 0:
+            self.area = -self.area
+            self.vertices = np.flipud(self.vertices)
 
         self.diagonals = spatial.distance.squareform(
             spatial.distance.pdist(self.vertices)
@@ -368,6 +372,11 @@ class Polygon(Geometry):
         self.bbox = np.array(
             [np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)]
         )
+
+        self.segments = self.vertices[1:] - self.vertices[:-1]
+        self.segments = np.vstack((self.vertices[0] - self.vertices[-1], self.segments))
+        self.normal = clockwise_rotation_90(self.segments.T).T
+        self.normal = self.normal / np.linalg.norm(self.normal, axis=1).reshape(-1, 1)
 
     def inside(self, x):
         def wn_PnPoly(P, V):
@@ -406,6 +415,12 @@ class Polygon(Geometry):
             if np.isclose(l1 + l2, self.diagonals[i, i + 1]):
                 return True
         return False
+
+    def boundary_normal(self, x):
+        for i in range(self.nvertices):
+            if is_on_line_segment(self.vertices[i - 1], self.vertices[i], x):
+                return self.normal[i]
+        return np.array([0, 0])
 
     def random_points(self, n, random="pseudo"):
         x = []
@@ -473,6 +488,9 @@ class Polygon(Geometry):
 def polygon_signed_area(vertices):
     """The (signed) area of a simple polygon.
 
+    If the vertices are in the counterclockwise direction, then the area is positive; if they are in the clockwise
+    direction, the area is negative.
+
     Shoelace formula: https://en.wikipedia.org/wiki/Shoelace_formula
     """
     x, y = zip(*vertices)
@@ -482,8 +500,7 @@ def polygon_signed_area(vertices):
 
 
 def clockwise_rotation_90(v):
-    """Rotate a vector of 90 degrees clockwise about the origin.
-    """
+    """Rotate a vector of 90 degrees clockwise about the origin."""
     return np.array([v[1], -v[0]])
 
 
@@ -509,9 +526,34 @@ def is_rectangle(vertices):
     1. Find the center of mass of corner points: cx=(x1+x2+x3+x4)/4, cy=(y1+y2+y3+y4)/4
     2. Test if square of distances from center of mass to all 4 corners are equal
     """
-    if len(vertices) == 4:
-        return True
+    if len(vertices) != 4:
+        return False
 
     c = np.mean(vertices, axis=0)
     d = np.sum((vertices - c) ** 2, axis=1)
     return np.allclose(d, np.full(4, d[0]))
+
+
+def is_on_line_segment(P0, P1, P2):
+    """
+    Test if a point is on a line segment.
+
+    Args:
+        P0: One point in the line.
+        P1: One point in the line.
+        P2: The point to be tested.
+    """
+    v01 = P1 - P0
+    v02 = P2 - P0
+    v12 = P2 - P1
+    return (
+        (
+            # check that P2 is almost on the line P10 P1
+            np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0)
+            # check that projection of P2 to line is between P0 and P21
+            and v01 @ v02 >= 0
+            and v01 @ v12 <= 0
+        )
+        or np.isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
+        or np.isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
+    )
