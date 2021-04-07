@@ -1,7 +1,7 @@
 Installation
 ============
 
-DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Then, you can install DeepXDE itself. If you use Python 2, you need to install DeepXDE using ``pip``.
+DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Then, you can install DeepXDE itself.
 
 - Install the stable version with ``pip``::
 
