@@ -20,12 +20,10 @@ class Disk(Geometry):
         self._r2 = radius ** 2
 
     def inside(self, x):
-        return np.linalg.norm(x - self.center, axis=-1, keepdims=True) <= self.radius
+        return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(
-            np.linalg.norm(x - self.center, axis=-1, keepdims=True), self.radius
-        )
+        return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
@@ -237,14 +235,14 @@ class Triangle(Geometry):
         )
 
         return ~np.logical_and(
-            np.any(_sign > 0, axis=-1, keepdims=True),
-            np.any(_sign < 0, axis=-1, keepdims=True),
+            np.any(_sign > 0, axis=-1),
+            np.any(_sign < 0, axis=-1),
         )
 
     def on_boundary(self, x):
-        l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
-        l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
-        l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
+        l1 = np.linalg.norm(x - self.x1, axis=-1)
+        l2 = np.linalg.norm(x - self.x2, axis=-1)
+        l3 = np.linalg.norm(x - self.x3, axis=-1)
         return np.any(
             np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0),
             axis=0,
@@ -387,7 +385,7 @@ class Polygon(Geometry):
             Returns:
                 wn: Winding number (=0 only if P is outside polygon).
             """
-            wn = np.zeros((len(P), 1))  # Winding number counter
+            wn = np.zeros(len(P))  # Winding number counter
 
             # Repeat the first vertex at end
             # Loop through all edges of the polygon
@@ -419,10 +417,10 @@ class Polygon(Geometry):
         return wn_PnPoly(x, self.vertices) != 0
 
     def on_boundary(self, x):
-        _on = np.zeros(shape=(len(x), 1), dtype=np.int)
+        _on = np.zeros(shape=len(x), dtype=np.int)
         for i in range(-1, self.nvertices - 1):
-            l1 = np.linalg.norm(self.vertices[i] - x, axis=-1, keepdims=True)
-            l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1, keepdims=True)
+            l1 = np.linalg.norm(self.vertices[i] - x, axis=-1)
+            l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1)
             _on[np.isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
         return _on > 0
 

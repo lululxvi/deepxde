@@ -28,14 +28,14 @@ class Hypercube(Geometry):
 
     def inside(self, x):
         return np.logical_and(
-            np.all(x >= self.xmin, axis=-1, keepdims=True),
-            np.all(x <= self.xmax, axis=-1, keepdims=True),
+            np.all(x >= self.xmin, axis=-1),
+            np.all(x <= self.xmax, axis=-1),
         )
 
     def on_boundary(self, x):
         _on_boundary = np.logical_or(
-            np.any(np.isclose(x, self.xmin), axis=-1, keepdims=True),
-            np.any(np.isclose(x, self.xmax), axis=-1, keepdims=True),
+            np.any(np.isclose(x, self.xmin), axis=-1),
+            np.any(np.isclose(x, self.xmax), axis=-1),
         )
         return np.logical_and(self.inside(x), _on_boundary)
 
@@ -95,12 +95,10 @@ class Hypersphere(Geometry):
         self._r2 = radius ** 2
 
     def inside(self, x):
-        return np.linalg.norm(x - self.center, axis=-1, keepdims=True) <= self.radius
+        return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(
-            np.linalg.norm(x - self.center, axis=-1, keepdims=True), self.radius
-        )
+        return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection

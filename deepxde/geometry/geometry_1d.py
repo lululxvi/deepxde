@@ -15,10 +15,10 @@ class Interval(Geometry):
         self.l, self.r = l, r
 
     def inside(self, x):
-        return np.logical_and(self.l <= x, x <= self.r)
+        return np.logical_and(self.l <= x, x <= self.r).flatten()
 
     def on_boundary(self, x):
-        return np.any(np.isclose(x, [self.l, self.r]), axis=-1, keepdims=True)
+        return np.any(np.isclose(x, [self.l, self.r]), axis=-1)
 
     def distance2boundary(self, x, dirn):
         return x - self.l if dirn < 0 else self.r - x

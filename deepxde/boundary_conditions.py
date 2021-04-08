@@ -21,12 +21,12 @@ class BC(object):
     def __init__(self, geom, on_boundary, component):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
-            [[on_boundary(x[i], on[i, 0])] for i in range(len(x))]
+            [on_boundary(x[i], on[i]) for i in range(len(x))]
         )
         self.component = component
 
     def filter(self, X):
-        return X[self.on_boundary(X, self.geom.on_boundary(X)).flatten()]
+        return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
     def collocation_points(self, X):
         return self.filter(X)
@@ -148,7 +148,6 @@ class PointSet(object):
         return np.any(
             np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
             axis=-1,
-            keepdims=True,
         )
 
     def values_to_func(self, values):
