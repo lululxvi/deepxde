@@ -393,25 +393,25 @@ class Polygon(Geometry):
                 tmp = np.all(
                     np.hstack(
                         [
-                            V[i, 1] <= P[:, 1:2],
-                            V[i + 1, 1] > P[:, 1:2],
-                            is_left(V[i], V[i + 1], P) > 0,
+                            V[i, 1] <= P[:, 1:2],  # Start y <= P[1]
+                            V[i + 1, 1] > P[:, 1:2],  # An upward crossing
+                            is_left(V[i], V[i + 1], P) > 0,  # P left of edge
                         ]
                     ),
                     axis=-1,
                 )
-                wn[tmp] += 1
+                wn[tmp] += 1  # Have a valid up intersect
                 tmp = np.all(
                     np.hstack(
                         [
-                            V[i, 1] > P[:, 1:2],
-                            V[i + 1, 1] <= P[:, 1:2],
-                            is_left(V[i], V[i + 1], P) < 0,
+                            V[i, 1] > P[:, 1:2],  # Start y > P[1]
+                            V[i + 1, 1] <= P[:, 1:2],  # A downward crossing
+                            is_left(V[i], V[i + 1], P) < 0,  # P right of edge
                         ]
                     ),
                     axis=-1,
                 )
-                wn[tmp] -= 1
+                wn[tmp] -= 1  # Have a valid down intersect
             return wn
 
         return wn_PnPoly(x, self.vertices) != 0
