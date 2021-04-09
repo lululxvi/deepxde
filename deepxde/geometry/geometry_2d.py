@@ -8,6 +8,7 @@ from scipy import spatial
 
 from .geometry import Geometry
 from .geometry_nd import Hypercube
+from ..utils import vectorize
 
 
 class Disk(Geometry):
@@ -433,6 +434,7 @@ class Polygon(Geometry):
             _on[np.isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
         return _on > 0
 
+    @vectorize(excluded=[0], signature="(n)->(n)")
     def boundary_normal(self, x):
         for i in range(self.nvertices):
             if is_on_line_segment(self.vertices[i - 1], self.vertices[i], x):
