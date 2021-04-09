@@ -138,9 +138,7 @@ class FPDE(PDE):
             self.train_x_all = self.train_points()
             x_bc = self.bc_points()
             # FPDE is only applied to the domain points.
-            x_f = self.train_x_all[
-                [not self.geom.on_boundary(x) for x in self.train_x_all]
-            ]
+            x_f = self.train_x_all[~self.geom.on_boundary(self.train_x_all)]
             self.frac_train = Fractional(self.alpha, self.geom, self.disc, x_f)
             X = self.frac_train.get_x()
 
@@ -158,7 +156,7 @@ class FPDE(PDE):
             self.frac_test = self.frac_train
         else:
             self.test_x = self.test_points()
-            x_f = self.test_x[[not self.geom.on_boundary(x) for x in self.test_x]]
+            x_f = self.test_x[~self.geom.on_boundary(self.test_x)]
             self.frac_test = Fractional(self.alpha, self.geom, self.disc, x_f)
             self.test_x = self.frac_test.get_x()
         self.test_y = self.soln(self.test_x) if self.soln else None
@@ -256,9 +254,7 @@ class TimeFPDE(FPDE):
             self.train_x_all = self.train_points()
             x_bc = self.bc_points()
             # FPDE is only applied to the non-boundary points.
-            x_f = self.train_x_all[
-                [not self.geom.on_boundary(x) for x in self.train_x_all]
-            ]
+            x_f = self.train_x_all[~self.geom.on_boundary(self.train_x_all)]
             self.frac_train = FractionalTime(
                 self.alpha,
                 self.geom.geometry,
@@ -284,7 +280,7 @@ class TimeFPDE(FPDE):
             self.frac_test = self.frac_train
         else:
             self.test_x = self.test_points()
-            x_f = self.test_x[[not self.geom.on_boundary(x) for x in self.test_x]]
+            x_f = self.test_x[~self.geom.on_boundary(self.test_x)]
             self.frac_test = FractionalTime(
                 self.alpha,
                 self.geom.geometry,
@@ -387,7 +383,7 @@ class Fractional(object):
         return int(math.ceil(self.disc.resolution[-1] * dx))
 
     def get_x_dynamic(self):
-        if any(map(self.geom.on_boundary, self.x0)):
+        if np.any(self.geom.on_boundary(self.x0)):
             raise ValueError("x0 contains boundary points.")
         if self.geom.dim == 1:
             dirns, dirn_w = [-1, 1], [1, 1]
@@ -447,7 +443,7 @@ class Fractional(object):
 
     def modify_first_order(self, x, w):
         x = np.vstack(([2 * x[0] - x[1]], x[:-1]))
-        if not self.geom.inside(x[0]):
+        if not self.geom.inside(x[0:1])[0]:
             return x[1:], w[1:]
         return x, w
 
@@ -459,7 +455,7 @@ class Fractional(object):
         if x is None:
             return w
         x = np.vstack(([2 * x[0] - x[1]], x))
-        if not self.geom.inside(x[0]):
+        if not self.geom.inside(x[0:1])[0]:
             return x[1:], w[1:]
         return x, w
 
@@ -476,7 +472,7 @@ class Fractional(object):
         if x is None:
             return w
         x = np.vstack(([2 * x[0] - x[1]], x))
-        if not self.geom.inside(x[0]):
+        if not self.geom.inside(x[0:1])[0]:
             return x[1:], w[1:]
         return x, w
 
