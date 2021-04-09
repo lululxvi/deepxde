@@ -38,38 +38,54 @@ class CSGUnion(geometry.Geometry):
         )
 
     def boundary_normal(self, x):
-        return np.logical_and(
-            self.geom1.on_boundary(x), ~self.geom2.inside(x)
-        ) * self.geom1.boundary_normal(x) + np.logical_and(
+        return np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x))[
+            :, np.newaxis
+        ] * self.geom1.boundary_normal(x) + np.logical_and(
             self.geom2.on_boundary(x), ~self.geom1.inside(x)
-        ) * self.geom2.boundary_normal(
+        )[
+            :, np.newaxis
+        ] * self.geom2.boundary_normal(
             x
         )
 
     def random_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
             tmp = (
                 np.random.rand(n, self.dim) * (self.bbox[1] - self.bbox[0])
                 + self.bbox[0]
             )
-            x += filter(self.inside, tmp)
-        return np.array(x[:n])
+            tmp = tmp[self.inside(tmp)]
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
-            x += [
-                i
-                for i in self.geom1.random_boundary_points(n, random=random)
-                if not self.geom2.inside(i)
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
+            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = geom1_boundary_points[
+                ~self.geom2.inside(geom1_boundary_points)
             ]
-            x += [
-                i
-                for i in self.geom2.random_boundary_points(n, random=random)
-                if not self.geom1.inside(i)
+
+            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = geom2_boundary_points[
+                ~self.geom1.inside(geom2_boundary_points)
             ]
-        return np.random.permutation(x)[:n]
+
+            tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
+            tmp = np.random.permutation(tmp)
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def periodic_point(self, x, component):
         x = np.copy(x)
@@ -112,38 +128,52 @@ class CSGDifference(geometry.Geometry):
         )
 
     def boundary_normal(self, x):
-        return np.logical_and(
-            self.geom1.on_boundary(x), ~self.geom2.inside(x)
-        ) * self.geom1.boundary_normal(x) + np.logical_and(
+        return np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x))[
+            :, np.newaxis
+        ] * self.geom1.boundary_normal(x) + np.logical_and(
             self.geom1.inside(x), self.geom2.on_boundary(x)
-        ) * -self.geom2.boundary_normal(
+        )[
+            :, np.newaxis
+        ] * -self.geom2.boundary_normal(
             x
         )
 
     def random_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
-            x += [
-                i
-                for i in self.geom1.random_points(n, random=random)
-                if not self.geom2.inside(i)
-            ]
-        return np.array(x[:n])
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
+            tmp = self.geom1.random_points(n, random=random)
+            tmp = tmp[~self.geom2.inside(tmp)]
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
-            x += [
-                i
-                for i in self.geom1.random_boundary_points(n, random=random)
-                if not self.geom2.inside(i)
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
+
+            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = geom1_boundary_points[
+                ~self.geom2.inside(geom1_boundary_points)
             ]
-            x += [
-                i
-                for i in self.geom2.random_boundary_points(n, random=random)
-                if self.geom1.inside(i)
+
+            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = geom2_boundary_points[
+                self.geom1.inside(geom2_boundary_points)
             ]
-        return np.random.permutation(x)[:n]
+
+            tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
+            tmp = np.random.permutation(tmp)
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def periodic_point(self, x, component):
         x = np.copy(x)
@@ -187,38 +217,52 @@ class CSGIntersection(geometry.Geometry):
         )
 
     def boundary_normal(self, x):
-        return np.logical_and(
-            self.geom1.on_boundary(x), self.geom2.inside(x)
-        ) * self.geom1.boundary_normal(x) + np.logical_and(
+        return np.logical_and(self.geom1.on_boundary(x), self.geom2.inside(x))[
+            :, np.newaxis
+        ] * self.geom1.boundary_normal(x) + np.logical_and(
             self.geom1.inside(x), self.geom2.on_boundary(x)
-        ) * self.geom2.boundary_normal(
+        )[
+            :, np.newaxis
+        ] * self.geom2.boundary_normal(
             x
         )
 
     def random_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
-            x += [
-                i
-                for i in self.geom1.random_points(n, random=random)
-                if self.geom2.inside(i)
-            ]
-        return np.array(x[:n])
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
+            tmp = self.geom1.random_points(n, random=random)
+            tmp = tmp[self.geom2.inside(tmp)]
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = []
-        while len(x) < n:
-            x += [
-                i
-                for i in self.geom1.random_boundary_points(n, random=random)
-                if self.geom2.inside(i)
+        x = np.empty(shape=(n, self.dim))
+        i = 0
+        while i < n:
+
+            geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            geom1_boundary_points = geom1_boundary_points[
+                self.geom2.inside(geom1_boundary_points)
             ]
-            x += [
-                i
-                for i in self.geom2.random_boundary_points(n, random=random)
-                if self.geom1.inside(i)
+
+            geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            geom2_boundary_points = geom2_boundary_points[
+                self.geom1.inside(geom2_boundary_points)
             ]
-        return np.random.permutation(x)[:n]
+
+            tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
+            tmp = np.random.permutation(tmp)
+
+            if len(tmp) > n - i:
+                tmp = tmp[: n - i]
+            x[i : i + len(tmp)] = tmp
+            i += len(tmp)
+        return x
 
     def periodic_point(self, x, component):
         x = np.copy(x)
