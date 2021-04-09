@@ -76,6 +76,7 @@ class PDE(Data):
 
         self.train_x_all = None
         self.train_x, self.train_y = None, None
+        self.train_x_bc = None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
         self.train_aux_vars, self.test_aux_vars = None, None
@@ -208,10 +209,14 @@ class PDE(Data):
             X = np.array(list(filter(is_not_excluded, X)))
         return X
 
+    @run_if_all_none("train_x_bc")
     def bc_points(self):
         x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
-        return np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+        self.train_x_bc = (
+            np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+        )
+        return self.train_x_bc
 
     def test_points(self):
         return self.geom.uniform_points(self.num_test, True)
