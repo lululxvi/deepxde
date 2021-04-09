@@ -17,7 +17,7 @@ class TimeDomain(Interval):
         self.t1 = t1
 
     def on_initial(self, t):
-        return np.isclose(t[0], self.t0)
+        return np.isclose(t, self.t0).flatten()
 
 
 class GeometryXTime(object):
@@ -27,14 +27,14 @@ class GeometryXTime(object):
         self.dim = geometry.dim + timedomain.dim
 
     def on_boundary(self, x):
-        return self.geometry.on_boundary(x[:-1])
+        return self.geometry.on_boundary(x[:, :-1])
 
     def on_initial(self, x):
-        return self.timedomain.on_initial(x[-1:])
+        return self.timedomain.on_initial(x[:, -1:])
 
     def boundary_normal(self, x):
-        n = self.geometry.boundary_normal(x[:-1])
-        return np.append(n, 0)
+        _n = self.geometry.boundary_normal(x[:, :-1])
+        return np.hstack([_n, np.zeros((len(_n), 1))])
 
     def uniform_points(self, n, boundary=True):
         """Uniform points on the spatio-temporal domain.
@@ -138,5 +138,5 @@ class GeometryXTime(object):
         return np.hstack((x, np.full([n, 1], t)))
 
     def periodic_point(self, x, component):
-        xp = self.geometry.periodic_point(x[:-1], component)
-        return np.append(xp, x[-1])
+        xp = self.geometry.periodic_point(x[:, :-1], component)
+        return np.hstack([xp, x[:, -1:]])
