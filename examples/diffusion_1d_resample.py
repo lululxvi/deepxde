@@ -47,7 +47,7 @@ def main():
 
     model = dde.Model(data, net)
 
-    resampler = dde.callbacks.Resampler(period=1)
+    resampler = dde.callbacks.PDEResidualResampler(period=100)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
     losshistory, train_state = model.train(epochs=2000, callbacks=[resampler])
 

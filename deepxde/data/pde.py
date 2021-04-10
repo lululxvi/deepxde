@@ -33,6 +33,10 @@ class PDE(Data):
             and does not have duplication.
         train_x: A Numpy array of the residual points fed into the network for training.
             `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
+        train_x_bc: A Numpy array of the residual points on boundary.
+            `train_x_bc` is a subset of `train_x_all` at the first step of training, by default it won't be updated
+            when `train_x_all` changes. To update `train_x_bc`, set it to `None` and call `bc_points`,
+            and then update the loss function by `model.compile`.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
         test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
