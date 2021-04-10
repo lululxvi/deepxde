@@ -409,3 +409,31 @@ class MovieDumper(Callback):
                 save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
+
+
+class PDEResidualResampler(Callback):
+    """Resample the training data every given period."""
+
+    def __init__(self, period=100):
+        super(PDEResidualResampler, self).__init__()
+        self.period = period
+
+        self.num_bcs_initial = None
+        self.epochs_since_last_resample = 0
+
+    def on_train_begin(self):
+        self.num_bcs_initial = self.model.data.num_bcs
+
+    def on_epoch_end(self):
+        self.epochs_since_last_resample += 1
+        if self.epochs_since_last_resample < self.period:
+            return
+        self.epochs_since_last_resample = 0
+        self.model.data.resample_train_points()
+
+        if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
+            print("Initial value of self.num_bcs:", self.num_bcs_initial)
+            print("self.model.data.num_bcs:", self.model.data.num_bcs)
+            raise ValueError(
+                "`num_bcs` changed! Please update the loss function by `model.compile`."
+            )

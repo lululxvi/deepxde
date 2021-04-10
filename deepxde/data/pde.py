@@ -33,6 +33,10 @@ class PDE(Data):
             and does not have duplication.
         train_x: A Numpy array of the residual points fed into the network for training.
             `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
+        train_x_bc: A Numpy array of the residual points on boundary.
+            `train_x_bc` is a subset of `train_x_all` at the first step of training, by default it won't be updated
+            when `train_x_all` changes. To update `train_x_bc`, set it to `None` and call `bc_points`,
+            and then update the loss function by `model.compile`.
         num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
         test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
@@ -76,6 +80,7 @@ class PDE(Data):
 
         self.train_x_all = None
         self.train_x, self.train_y = None, None
+        self.train_x_bc = None
         self.num_bcs = None
         self.test_x, self.test_y = None, None
         self.train_aux_vars, self.test_aux_vars = None, None
@@ -208,10 +213,14 @@ class PDE(Data):
             X = np.array(list(filter(is_not_excluded, X)))
         return X
 
+    @run_if_all_none("train_x_bc")
     def bc_points(self):
         x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
-        return np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+        self.train_x_bc = (
+            np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+        )
+        return self.train_x_bc
 
     def test_points(self):
         return self.geom.uniform_points(self.num_test, True)
