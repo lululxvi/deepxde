@@ -43,14 +43,6 @@ class Model(object):
         self.stop_training = False
         self.callbacks = None
 
-    def __str__(self):
-        variables_names = [v.name for v in tf.trainable_variables()]
-        values = self.sess.run(variables_names)
-        s = ""
-        for k, v in zip(variables_names, values):
-            s = s + "Variable: {}, Shape: {} , Value {} \n".format(k, v.shape, v)
-        return s
-
     def close(self):
         self._close_tfsession()
 
