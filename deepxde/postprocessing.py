@@ -7,18 +7,28 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 
-def saveplot(losshistory, train_state, issave=True, isplot=True):
+def saveplot(losshistory, train_state, issave=True, isplot=True,
+             loss_fname="loss.dat",
+             train_fname="train.dat",
+             test_fname="test.dat",
+             best_state_loss_plot_fname="loss.png",
+             loss_hist_plot_fname="loss_hist.png",
+             save_plot=False,
+             show_plot=True,
+             ):
     if issave:
-        save_loss_history(losshistory, "loss.dat")
-        save_best_state(train_state, "train.dat", "test.dat")
+        save_loss_history(losshistory, loss_fname)
+        save_best_state(train_state, train_fname, test_fname)
 
     if isplot:
-        plot_loss_history(losshistory)
-        plot_best_state(train_state)
-        plt.show()
+        plot_loss_history(losshistory, fname=loss_hist_plot_fname, save_plot=save_plot)
+        plot_best_state(train_state, fname=best_state_loss_plot_fname, save_plot=save_plot)
+
+        if show_plot:
+            plt.show()
 
 
-def plot_loss_history(losshistory):
+def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
     loss_train = np.sum(losshistory.loss_train, axis=1)
     loss_test = np.sum(losshistory.loss_test, axis=1)
 
@@ -34,6 +44,9 @@ def plot_loss_history(losshistory):
     plt.xlabel("# Steps")
     plt.legend()
 
+    if save_plot:
+        plt.savefig(fname)
+
 
 def save_loss_history(losshistory, fname):
     print("Saving loss history to {} ...".format(fname))
@@ -48,7 +61,8 @@ def save_loss_history(losshistory, fname):
     np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
 
 
-def plot_best_state(train_state):
+
+def plot_best_state(train_state, fname="best_state.png", save_plot=False):
     X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
 
     y_dim = best_y.shape[1]
@@ -102,6 +116,9 @@ def plot_best_state(train_state):
             )
         plt.xlabel("x")
         plt.ylabel("std(y)")
+
+    if save_plot:
+        plt.savefig(fname)
 
 
 def save_best_state(train_state, fname_train, fname_test):
