@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Poisson equation:
 
-.. math:: -\delta u = \pi^2 \sin(\pi x), \qquad x \in [-1, 1],
+.. math:: -\Delta u = \pi^2 \sin(\pi x), \qquad x \in [-1, 1],
 
 with the Dirichlet boundary conditions
 

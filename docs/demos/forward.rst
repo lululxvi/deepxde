@@ -1,5 +1,5 @@
-Collection of Demos
-===================
+Demos of Forward Problems
+=========================
 
 .. toctree::
    :maxdepth: 2
