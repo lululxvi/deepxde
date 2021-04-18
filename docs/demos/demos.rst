@@ -1,4 +1,4 @@
-Collection of demos
+Collection of Demos
 ===================
 
 .. toctree::
