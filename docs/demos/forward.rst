@@ -5,3 +5,4 @@ Demos of Forward Problems
    :maxdepth: 2
 
    poisson.1d.dirichlet
+   burgers
