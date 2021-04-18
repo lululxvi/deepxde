@@ -47,6 +47,8 @@ User guide
   :maxdepth: 2
 
   user/installation
+  demos/forward
+  demos/inverse
   user/faq
   user/research
   user/cite_deepxde
