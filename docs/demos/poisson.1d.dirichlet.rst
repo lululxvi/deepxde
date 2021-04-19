@@ -22,7 +22,7 @@ Implementation
 
   geom = dde.geometry.Interval(-1, 1)
       
-1)Define the ``pde residual`` function of Poisson equation
+2)Define the ``pde residual`` function of Poisson equation
 
 .. code-block:: python
 
@@ -30,14 +30,14 @@ Implementation
       dy_xx = dde.grad.hessian(y, x)
       return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
         
-2)Define ``boundary conditions`` and ``Data`` which is geometry + pde + BC + training points using DeepXDE inbuilt functions as shown
+3)Define ``boundary conditions`` and ``Data`` which is geometry + pde + BC + training points using DeepXDE inbuilt functions as shown
 
 .. code-block:: python
   
   bc = dde.DirichletBC(geom, func, boundary)
   data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
     
-3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 
+4)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 
 
 .. code-block:: python
 
@@ -46,7 +46,7 @@ Implementation
   initializer = "Glorot uniform"
   net = dde.maps.FNN(layer_size, activation, initializer)
      
-4)Bulid the Model and Compile using the ``MODEL`` and ``Complile`` functions of DeepXDE as shown
+5)Bulid the Model and Compile using the ``MODEL`` and ``Complile`` functions of DeepXDE as shown
 
 .. code-block:: python
 
@@ -56,13 +56,13 @@ Implementation
   movie = dde.callbacks.MovieDumper("model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func)
   
 
-5)Train the model using ``Train`` function of deepXDE, include the callbacks as shown   
+6)Train the model using ``Train`` function of deepXDE, include the callbacks as shown   
 
 .. code-block:: python
 
   losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
   
-6)Predict values by using the ``Predict`` function of deepXDE 
+7)Predict values by using the ``Predict`` function of deepXDE 
 
 .. code-block:: python 
 
