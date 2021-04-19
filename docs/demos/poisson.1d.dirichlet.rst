@@ -19,6 +19,7 @@ Implementation
 1)first we load in the data set and define the funtion pde, which has the Poisson equation
 
 .. code-block:: python
+
   def pde(x, y):
         dy_xx = dde.grad.hessian(y, x)
         return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
@@ -26,6 +27,7 @@ Implementation
 2)Define geometery,boundary conditions and PDE  using DeepXDE inbulilt functions as shown
 
 .. code-block:: python
+
   geom = dde.geometry.Interval(-1, 1)
     bc = dde.DirichletBC(geom, func, boundary)
     data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
@@ -33,6 +35,7 @@ Implementation
 3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 as shown
 
 .. code-block:: python
+
    layer_size = [1] + [50] * 3 + [1]
      activation = "tanh"
      initializer = "Glorot uniform"
@@ -41,6 +44,7 @@ Implementation
 4)Bulid the Model and Compile it using the MODEL and Complile functions of DeepXDE as shown
 
 .. code-block:: python
+
   model = dde.Model(data, net)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
@@ -55,9 +59,10 @@ Implementation
         epochs=10000, callbacks=[checkpointer, movie]
     )
   
-5) Predict values by using the Predict function of deepXDE as shown
+5)Predict values by using the Predict function of deepXDE as shown
 
 .. code-block:: python 
+
     y = model.predict(x, operator=pde)
 
 Complete code
