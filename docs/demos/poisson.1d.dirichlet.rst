@@ -16,7 +16,7 @@ The exact solution is :math:`u(x) = \sin(\pi x)`.
 
 Implementation
 --------------
-1)first we load in the data set and define the function pde, which has the Poisson equation
+1)We first define the pde residual function of Poisson equation
 
 .. code-block:: python
 
@@ -24,7 +24,7 @@ Implementation
       dy_xx = dde.grad.hessian(y, x)
       return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
         
-2)Define geometery,boundary conditions and PDE  using DeepXDE inbulilt functions as shown
+2)Define geometery, boundary conditions and PDE using DeepXDE inbuilt functions as shown
 
 .. code-block:: python
 
@@ -32,7 +32,7 @@ Implementation
   bc = dde.DirichletBC(geom, func, boundary)
   data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
     
-3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 as shown
+3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 
 
 .. code-block:: python
 
@@ -57,7 +57,7 @@ Implementation
 
   losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
   
-6)Predict values by using the Predict function of deepXDE as shown
+6)Predict values by using the Predict function of deepXDE 
 
 .. code-block:: python 
 
