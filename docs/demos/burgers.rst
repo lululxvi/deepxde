@@ -42,7 +42,7 @@ Implementation
   ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
   data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)
     
-4)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 
+4)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20
 
 .. code-block:: python
 
@@ -56,7 +56,7 @@ Implementation
   model.compile("adam", lr=1e-3)
   
 
-6)Train the model using ``Train`` function of deepXDE, include the callbacks as shown   
+6)Train the model using ``Train`` function of deepXDE
 
 .. code-block:: python
 
