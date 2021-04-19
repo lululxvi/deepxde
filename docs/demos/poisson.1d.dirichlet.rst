@@ -16,7 +16,13 @@ The exact solution is :math:`u(x) = \sin(\pi x)`.
 
 Implementation
 --------------
-1)We first define the pde residual function of Poisson equation
+1)We first define the ``Geometry`` 
+
+.. code-block:: python
+
+  geom = dde.geometry.Interval(-1, 1)
+      
+1)We first define the ``pde residual`` function of Poisson equation
 
 .. code-block:: python
 
@@ -24,11 +30,10 @@ Implementation
       dy_xx = dde.grad.hessian(y, x)
       return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
         
-2)Define ``geometery``, ``boundary conditions`` and ``PDE`` using DeepXDE inbuilt functions as shown
+2)Define ``boundary conditions`` and ``Data`` which is geometry + pde + BC + training points using DeepXDE inbuilt functions as shown
 
 .. code-block:: python
-
-  geom = dde.geometry.Interval(-1, 1)
+  
   bc = dde.DirichletBC(geom, func, boundary)
   data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
     
