@@ -16,8 +16,44 @@ The exact solution is :math:`u(x) = \sin(\pi x)`.
 
 Implementation
 --------------
+1)first we load in the data set and define the funtion pde, which has the Poisson equation.
 
-We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50.
+  def pde(x, y):
+        dy_xx = dde.grad.hessian(y, x)
+        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+        
+2)Define geometery,boundary conditions and PDE  using DeepXDE inbulilt functions as shown:
+
+  geom = dde.geometry.Interval(-1, 1)
+    bc = dde.DirichletBC(geom, func, boundary)
+    data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
+    
+3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 as shown:
+
+   layer_size = [1] + [50] * 3 + [1]
+     activation = "tanh"
+     initializer = "Glorot uniform"
+     net = dde.maps.FNN(layer_size, activation, initializer)
+     
+4)Bulid the Model and Compile it using the MODEL and Complile functions of DeepXDE as shown:
+  
+  model = dde.Model(data, net)
+    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+
+    checkpointer = dde.callbacks.ModelCheckpoint(
+        "model/model.ckpt", verbose=1, save_better_only=True
+    )
+    # ImageMagick (https://imagemagick.org/) is required to generate the movie.
+    movie = dde.callbacks.MovieDumper(
+        "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
+    )
+    losshistory, train_state = model.train(
+        epochs=10000, callbacks=[checkpointer, movie]
+    )
+  
+ 5) Predict values by using the Predict function of deepXDE as shown:
+ 
+    y = model.predict(x, operator=pde)
 
 Complete code
 --------------
