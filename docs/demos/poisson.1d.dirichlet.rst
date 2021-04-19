@@ -22,7 +22,7 @@ Implementation
 
   geom = dde.geometry.Interval(-1, 1)
       
-1)We first define the ``pde residual`` function of Poisson equation
+1)Define the ``pde residual`` function of Poisson equation
 
 .. code-block:: python
 
