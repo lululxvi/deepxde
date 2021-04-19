@@ -28,9 +28,9 @@ Implementation
 
 .. code-block:: python
 
-  geom = dde.geometry.Interval(-1, 1)
-  bc = dde.DirichletBC(geom, func, boundary)
-  data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)    
+  geom = dde.geometry.''Interval''(-1, 1)
+  bc = dde.''DirichletBC''(geom, func, boundary)
+  data = dde.data.''PDE''(geom, pde, bc, 16, 2, solution=func, num_test=100)    
     
 3)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50 
 
@@ -45,8 +45,8 @@ Implementation
 
 .. code-block:: python
 
-  model = dde.Model(data, net)
-  model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+  model = dde.''Model''(data, net)
+  model.''compile''("adam", lr=0.001, metrics=["l2 relative error"])
   checkpointer = dde.callbacks.ModelCheckpoint("model/model.ckpt", verbose=1, save_better_only=True)
   movie = dde.callbacks.MovieDumper("model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func)
   
@@ -55,13 +55,13 @@ Implementation
 
 .. code-block:: python
 
-  losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
+  losshistory, train_state = model.''train''(epochs=10000, callbacks=[checkpointer, movie])
   
 6)Predict values by using the Predict function of deepXDE 
 
 .. code-block:: python 
 
-   y = model.predict(x, operator=pde)
+   y = model.''predict''(x, operator=pde)
 
 Complete code
 --------------
