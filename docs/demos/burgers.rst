@@ -16,58 +16,70 @@ The reference solution is <https://github.com/lululxvi/deepxde/blob/master/examp
 
 Implementation
 --------------
-1)We first define the ``Geometry`` , ``Time``, and combine both of them using ``GeometryXTime``
+
+This description goes through the implementation of a solver for the above described Burgers equation step-by-step.
+
+First, the DeepXDE and TensorFlow (``tf``) modules are imported:
 
 .. code-block:: python
 
-   geom = dde.geometry.Interval(-1, 1)
-   timedomain = dde.geometry.TimeDomain(0, 0.99)
-   geomtime = dde.geometry.GeometryXTime(geom, timedomain)
-      
-2)Define the ``pde residual`` function of Poisson equation
+    import deepxde as dde
+    from deepxde.backend import tf
+
+We begin by defining a computational geometry and time domain . We can use a built-in class ``Interval`` , ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
 .. code-block:: python
 
-  def pde(x, y):
+    geom = dde.geometry.Interval(-1, 1)
+    timedomain = dde.geometry.TimeDomain(0, 0.99)
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+Next, we express the PDE residual of the Burgers equation:
+
+.. code-block:: python
+
+    def pde(x, y):
         dy_x = dde.grad.jacobian(y, x, i=0, j=0)
         dy_t = dde.grad.jacobian(y, x, i=0, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         return dy_t + y * dy_x - 0.01 / np.pi * dy_xx
-        
-3)Define ``boundary conditions`` , ``Initail conditions`` and ``Data`` which is geometry + pde + BC + IC + training points using DeepXDE inbuilt functions as shown
+
+The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
+
+Next, we consider the Dirichlet boundary condition.``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. we include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, intial function, and on_initial to specify the ICs. 
 
 .. code-block:: python
-  
-  bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
-  ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
-  data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)
+
+     bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
     
-4)We use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20
+Now, we have specified the geometry, PDE residual, and Dirichlet boundary condition. We then define the ``TimePDE`` problem as
 
 .. code-block:: python
 
-  net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
-     
-5)Bulid the Model and Compile using the ``MODEL`` and ``Complile`` functions of DeepXDE as shown
+     data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)    
+
+The number 2540  is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary.
+
+Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50:
 
 .. code-block:: python
 
-  model = dde.Model(data, net)
-  model.compile("adam", lr=1e-3)
-  
+    net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
-6)Train the model using ``Train`` function of deepXDE
+Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate:
 
 .. code-block:: python
 
-  model.train(epochs=15000)
-  
-7)Predict values and function "f" by using the ``Predict`` function of deepXDE 
+    model = dde.Model(data, net)
+    model.compile("adam", lr=1e-3)
+    
+    
+We then train the model for 15000 iterations:
 
-.. code-block:: python 
+.. code-block:: python
 
-   y_pred = model.predict(X)
-   f = model.predict(X, operator=pde)
+    losshistory, train_state = model.train(epochs=15000)
 
 Complete code
 --------------
