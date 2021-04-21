@@ -26,7 +26,7 @@ First, the DeepXDE and TensorFlow (``tf``) modules are imported:
     import deepxde as dde
     from deepxde.backend import tf
 
-We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval`` , ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
+We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval``, ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
 .. code-block:: python
 
@@ -46,7 +46,7 @@ Next, we express the PDE residual of the Burgers equation:
 
 The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the Dirichlet boundary condition.``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. we include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, intial function, and on_initial to specify the ICs. 
+Next, we consider the Dirichlet boundary condition.``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. we include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, initial function, and on_initial to specify the IC. 
 
 .. code-block:: python
 
