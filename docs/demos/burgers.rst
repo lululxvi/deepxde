@@ -12,7 +12,7 @@ with the Dirichlet boundary conditions
 
 .. math:: u(-1,t)=u(1,t)=0, \quad u(x) = - \sin(\pi x).
 
-The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz>`
+The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz>`_
 
 Implementation
 --------------
