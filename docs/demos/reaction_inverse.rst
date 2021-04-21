@@ -13,7 +13,7 @@ with the Dirichlet boundary conditions
 
 .. math:: C_A(x,0)=C_B(x,0)=e^{-20x}, \quad C_A(0,t)=C_B(0,t)=1, \quad C_A(1,t)=C_B(1,t)=0.
 
-The reference solution is [here]: https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz
+The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz>`_
 
 Implementation
 --------------
