@@ -12,7 +12,7 @@ with the Dirichlet boundary conditions
 
 .. math:: u(-1,t)=u(1,t)=0, \quad u(x) = - \sin(\pi x).
 
-The reference solution is <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz>
+The reference solution is [here](https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz)
 
 Implementation
 --------------
@@ -50,14 +50,14 @@ Next, we consider the Dirichlet boundary condition.``on_boundary`` is chosen her
 
 .. code-block:: python
 
-     bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
     ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
     
 Now, we have specified the geometry, PDE residual, and Dirichlet boundary condition. We then define the ``TimePDE`` problem as
 
 .. code-block:: python
 
-     data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)    
+    data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)    
 
 The number 2540  is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary.
 
