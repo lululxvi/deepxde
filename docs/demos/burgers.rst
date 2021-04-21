@@ -1,5 +1,5 @@
-"Burgers equation" in 1D with Dirichlet boundary conditions
-=========================================================
+Burgers equation 
+================
 
 Problem setup
 --------------
