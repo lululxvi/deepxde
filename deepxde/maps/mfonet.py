@@ -78,23 +78,16 @@ class MfONet(Map):
         X_loc_hi = tf.concat([self.X_loc, self.y_lo], 1)
 
         # Linear
-        # # Branch net
-        # y_func = self.dense(self.X_func, self.layer_hi_l, trainable=self.trainable_hi)
-        # # Trunk net
-        # y_loc = self.dense(X_loc_hi, self.layer_hi_l, trainable=self.trainable_hi)
-        # # Dot product
-        # y_hi_l = tf.einsum("bi,bi->b", y_func, y_loc)
-        # y_hi_l = tf.expand_dims(y_hi_l, axis=1)
-        # # Add bias
-        # b = tf.Variable(tf.zeros(1), trainable=self.trainable_hi)
-        # y_hi_l += b
-        y_hi_l = self.onet(
-            self.X_func,
-            X_loc_hi,
-            [self.layer_hi_l],
-            [self.layer_hi_l],
-            self.trainable_hi,
-        )
+        # Branch net
+        y_func = self.dense(self.X_func, self.layer_hi_l, trainable=self.trainable_hi)
+        # Trunk net
+        y_loc = self.dense(X_loc_hi, self.layer_hi_l, trainable=self.trainable_hi)
+        # Dot product
+        y_hi_l = tf.einsum("bi,bi->b", y_func, y_loc)
+        y_hi_l = tf.expand_dims(y_hi_l, axis=1)
+        # Add bias
+        b = tf.Variable(tf.zeros(1), trainable=self.trainable_hi)
+        y_hi_l += b
 
         # Nonlinear
         y_hi_nl = self.onet(
