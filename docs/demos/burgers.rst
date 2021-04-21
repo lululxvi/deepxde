@@ -26,7 +26,7 @@ First, the DeepXDE and TensorFlow (``tf``) modules are imported:
     import deepxde as dde
     from deepxde.backend import tf
 
-We begin by defining a computational geometry and time domain . We can use a built-in class ``Interval`` , ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
+We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval`` , ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
 .. code-block:: python
 
