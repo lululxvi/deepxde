@@ -8,7 +8,7 @@ We will solve a Burgers equation:
 
 .. math:: \frac{du}{dt} + u\frac{du}{dx} = \nu\frac{du}{dx^2}, \qquad x \in [-1, 1], \qquad t \in [0, 1]
 
-with the Dirichlet boundary conditions 
+with the Dirichlet boundary conditions and initial conditions  
 
 .. math:: u(-1,t)=u(1,t)=0, \quad u(x,0) = - \sin(\pi x).
 
