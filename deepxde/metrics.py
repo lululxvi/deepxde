@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from sklearn import metrics
 
 from . import config
 
@@ -16,8 +17,7 @@ def l2_relative_error(y_true, y_pred):
 
 
 def nanl2_relative_error(y_true, y_pred):
-    """Return the L2 relative error treating Not a Numbers (NaNs) as zero.
-    """
+    """Return the L2 relative error treating Not a Numbers (NaNs) as zero."""
     err = y_true - y_pred
     err = np.nan_to_num(err)
     y_true = np.nan_to_num(y_true)
@@ -42,11 +42,17 @@ def absolute_percentage_error_std(y_true, y_pred):
     return np.std(_absolute_percentage_error(y_true, y_pred))
 
 
+mean_squared_error = metrics.mean_squared_error
+
+
 def get(identifier):
     metric_identifier = {
         "accuracy": accuracy,
         "l2 relative error": l2_relative_error,
         "nanl2 relative error": nanl2_relative_error,
+        "mean squared error": mean_squared_error,
+        "MSE": mean_squared_error,
+        "mse": mean_squared_error,
         "MAPE": mean_absolute_percentage_error,
         "max APE": max_absolute_percentage_error,
         "APE SD": absolute_percentage_error_std,
