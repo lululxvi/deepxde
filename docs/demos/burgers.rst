@@ -44,9 +44,9 @@ Next, we express the PDE residual of the Burgers equation:
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         return dy_t + y * dy_x - 0.01 / np.pi * dy_xx
 
-The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
+The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the Dirichlet boundary condition.``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. we include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, initial function, and on_initial to specify the IC. 
+Next, we consider the Dirichlet boundary condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, initial function, and on_initial to specify the IC. 
 
 .. code-block:: python
 
@@ -57,9 +57,10 @@ Now, we have specified the geometry, PDE residual, and Dirichlet boundary condit
 
 .. code-block:: python
 
-    data = dde.data.TimePDE(geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160)    
+    data = dde.data.TimePDE(geomtime, pde, [bc, ic], 
+                            num_domain=2540, num_boundary=80, num_initial=160)    
 
-The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary.
+The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary.We also include 160 initial residual points for the initial conditions.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
