@@ -24,6 +24,7 @@ class FNN(Map):
         regularization=None,
         dropout_rate=0,
         batch_normalization=None,
+        layer_normalization=None,
         kernel_constraint=None,
         use_bias=True,
     ):
@@ -34,6 +35,7 @@ class FNN(Map):
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
         self.batch_normalization = batch_normalization
+        self.layer_normalization = layer_normalization
         self.kernel_constraint = kernel_constraint
         self.use_bias = use_bias
 
@@ -58,14 +60,31 @@ class FNN(Map):
         if self._input_transform is not None:
             y = self._input_transform(y)
         for i in range(len(self.layer_size) - 2):
-            if self.batch_normalization is None:
-                y = self.dense(y, self.layer_size[i + 1], activation=self.activation, use_bias=self.use_bias)
+            if self.batch_normalization is None and self.layer_normalization is None:
+                y = self.dense(
+                    y,
+                    self.layer_size[i + 1],
+                    activation=self.activation,
+                    use_bias=self.use_bias,
+                )
+            elif self.batch_normalization and self.layer_normalization:
+                raise ValueError(
+                    "Can not apply batch_normalization and layer_normalization at the same time."
+                )
             elif self.batch_normalization == "before":
                 y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
             elif self.batch_normalization == "after":
                 y = self.dense_batchnorm_v2(y, self.layer_size[i + 1])
+            elif self.layer_normalization == "before":
+                y = self.dense_layernorm_v1(y, self.layer_size[i + 1])
+            elif self.layer_normalization == "after":
+                y = self.dense_layernorm_v2(y, self.layer_size[i + 1])
             else:
-                raise ValueError("batch_normalization")
+                raise ValueError(
+                    "batch_normalization: {}, layer_normalization: {}".format(
+                        self.batch_normalization, self.layer_normalization
+                    )
+                )
             if self.dropout_rate > 0:
                 y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
         self.y = self.dense(y, self.layer_size[-1], use_bias=self.use_bias)
@@ -118,3 +137,48 @@ class FNN(Map):
         # FC - activation - BN
         y = self.dense(inputs, units, activation=self.activation)
         return tf.layers.batch_normalization(y, training=self.training)
+
+    @staticmethod
+    def _layer_normalization(inputs, elementwise_affine=True):
+        """
+
+        References:
+            https://tensorflow.google.cn/api_docs/python/tf/keras/layers/LayerNormalization?hl=en
+            https://github.com/taki0112/Group_Normalization-Tensorflow
+
+        """
+
+        with tf.variable_scope("layer_norm"):
+
+            mean, var = tf.nn.moments(inputs, axes=[1], keepdims=True)
+
+            if elementwise_affine:
+                gamma = tf.Variable(
+                    initial_value=tf.constant_initializer(1.0)(shape=[1, 1]),
+                    trainable=True,
+                    name="gamma",
+                    dtype=config.real(tf),
+                )
+                beta = tf.Variable(
+                    initial_value=tf.constant_initializer(0.0)(shape=[1, 1]),
+                    trainable=True,
+                    name="beta",
+                    dtype=config.real(tf),
+                )
+            else:
+                gamma, beta = None, None
+
+            return tf.nn.batch_normalization(
+                inputs, mean, var, offset=beta, scale=gamma, variance_epsilon=1e-3
+            )
+
+    def dense_layernorm_v1(self, inputs, units):
+        # FC - LN - activation
+        y = self.dense(inputs, units, use_bias=False)
+        y = self._layer_normalization(y)
+        return self.activation(y)
+
+    def dense_layernorm_v2(self, inputs, units):
+        # FC - activation - LN
+        y = self.dense(inputs, units, activation=self.activation)
+        return self._layer_normalization(y)
