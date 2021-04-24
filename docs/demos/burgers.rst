@@ -46,7 +46,7 @@ Next, we express the PDE residual of the Burgers equation:
 
 The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the Dirichlet boundary condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation, we give in the computational domain, initial function, and on_initial to specify the IC. 
+Next, we consider the Dirichlet boundary condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation and we use the computational domain, initial function, and on_initial to specify the IC. 
 
 .. code-block:: python
 
