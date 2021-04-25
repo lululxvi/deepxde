@@ -46,14 +46,14 @@ Next, we express the PDE residual of the Burgers equation:
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0]``) is :math:`x`-coordinate and the second componenet (``x[:,1]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the boundary/inital condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the burgers equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
+Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the burgers equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
 
 .. code-block:: python
 
     bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
     ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
     
-Now, we have specified the geometry, PDE residual, and Dirichlet boundary condition. We then define the ``TimePDE`` problem as
+Now, we have specified the geometry, PDE residual, and boundary/initial condition. We then define the ``TimePDE`` problem as
 
 .. code-block:: python
 
@@ -75,18 +75,19 @@ Now, we have the PDE problem and the network. We bulid a ``Model`` and choose th
     model = dde.Model(data, net)
     model.compile("adam", lr=1e-3)
     
-After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
-
-.. code-block:: python
-
-    model.compile("L-BFGS-B")
-    losshistory, train_state = model.train()  
-    
+   
 We then train the model for 15000 iterations:
 
 .. code-block:: python
 
     losshistory, train_state = model.train(epochs=15000)
+    
+After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
+
+.. code-block:: python
+
+    model.compile("L-BFGS-B")
+    losshistory, train_state = model.train()      
 
 Complete code
 --------------
