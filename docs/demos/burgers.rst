@@ -75,6 +75,12 @@ Now, we have the PDE problem and the network. We bulid a ``Model`` and choose th
     model = dde.Model(data, net)
     model.compile("adam", lr=1e-3)
     
+After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
+
+.. code-block:: python
+
+    model.compile("L-BFGS-B")
+    losshistory, train_state = model.train()  
     
 We then train the model for 15000 iterations:
 
