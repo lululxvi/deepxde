@@ -6,13 +6,13 @@ Problem setup
 
 We will solve a Burgers equation:
 
-.. math:: \frac{du}{dt} + u\frac{du}{dx} = \nu\frac{du}{dx^2}, \qquad x \in [-1, 1], \qquad t \in [0, 1]
+.. math:: \frac{du}{dt} + u\frac{du}{dx} = \nu\frac{du}{dx^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
 
 with the Dirichlet boundary conditions and initial conditions  
 
 .. math:: u(-1,t)=u(1,t)=0, \quad u(x,0) = - \sin(\pi x).
 
-The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz>`_
+The reference solution is `here. <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Burgers.npz>`_
 
 Implementation
 --------------
@@ -44,7 +44,7 @@ Next, we express the PDE residual of the Burgers equation:
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         return dy_t + y * dy_x - 0.01 / np.pi * dy_xx
 
-The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
+The first argument to ``pde`` is 2-dimensional vector where first is the :math:`x`-coordinate and second is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
 
 Next, we consider the Dirichlet boundary condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above, ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital conditons for the burgers equation and we use the computational domain, initial function, and on_initial to specify the IC. 
 
