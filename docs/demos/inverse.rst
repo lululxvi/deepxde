@@ -5,3 +5,4 @@ Demos of Inverse Problems
    :maxdepth: 2
 
    lorenz.inverse
+   
