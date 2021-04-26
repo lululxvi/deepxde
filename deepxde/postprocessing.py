@@ -2,10 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-import os
 
 def saveplot(losshistory, train_state, issave=True, isplot=True,
              loss_fname="loss.dat",
@@ -17,22 +18,24 @@ def saveplot(losshistory, train_state, issave=True, isplot=True,
              show_plot=True,
              output_dir=os.getcwd()
              ):
-    output_dir += "/"
+
     if not os.path.exists(output_dir):
-        print("Warning, output directory doesn't exist. Creating it:")
-        print(output_dir)
+        print(f"Warning: Directory {output_dir} doesn't exist. Creating it.")
         os.mkdir(output_dir)
 
+    loss_fpath  = os.path.join(output_dir, loss_fname)
+    train_fpath = os.path.join(output_dir, train_fname)
+    test_fpath  = os.path.join(output_dir, test_fname)
+    loss_best_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
+    loss_hist_plot_fpath = os.path.join(output_dir, loss_hist_plot_fname)
+
     if issave:
-        save_loss_history(losshistory, output_dir+loss_fname)
-        save_best_state(train_state, output_dir+train_fname,
-                        output_dir+test_fname)
+        save_loss_history(losshistory, loss_fpath)
+        save_best_state(train_state, train_fpath, test_fpath)
 
     if isplot:
-        plot_loss_history(losshistory, fname=output_dir+loss_hist_plot_fname,
-                          save_plot=save_plot)
-        plot_best_state(train_state, fname=output_dir+best_state_loss_plot_fname,
-                        save_plot=save_plot)
+        plot_loss_history(losshistory, fname=loss_hist_plot_fpath, save_plot=save_plot)
+        plot_best_state(train_state, fname=loss_best_plot_fpath, save_plot=save_plot)
 
         if show_plot:
             plt.show()
