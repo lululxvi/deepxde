@@ -5,7 +5,7 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-
+import os
 
 def saveplot(losshistory, train_state, issave=True, isplot=True,
              loss_fname="loss.dat",
@@ -15,14 +15,24 @@ def saveplot(losshistory, train_state, issave=True, isplot=True,
              loss_hist_plot_fname="loss_hist.png",
              save_plot=False,
              show_plot=True,
+             output_dir=os.getcwd()
              ):
+    output_dir += "/"
+    if not os.path.exists(output_dir):
+        print("Warning, output directory doesn't exist. Creating it:")
+        print(output_dir)
+        os.mkdir(output_dir)
+
     if issave:
-        save_loss_history(losshistory, loss_fname)
-        save_best_state(train_state, train_fname, test_fname)
+        save_loss_history(losshistory, output_dir+loss_fname)
+        save_best_state(train_state, output_dir+train_fname,
+                        output_dir+test_fname)
 
     if isplot:
-        plot_loss_history(losshistory, fname=loss_hist_plot_fname, save_plot=save_plot)
-        plot_best_state(train_state, fname=best_state_loss_plot_fname, save_plot=save_plot)
+        plot_loss_history(losshistory, fname=output_dir+loss_hist_plot_fname,
+                          save_plot=save_plot)
+        plot_best_state(train_state, fname=output_dir+best_state_loss_plot_fname,
+                        save_plot=save_plot)
 
         if show_plot:
             plt.show()
