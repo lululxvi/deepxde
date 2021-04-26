@@ -26,7 +26,7 @@ def saveplot(losshistory, train_state, issave=True, isplot=True,
     loss_fpath  = os.path.join(output_dir, loss_fname)
     train_fpath = os.path.join(output_dir, train_fname)
     test_fpath  = os.path.join(output_dir, test_fname)
-    loss_best_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
+    best_state_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
     loss_hist_plot_fpath = os.path.join(output_dir, loss_hist_plot_fname)
 
     if issave:
@@ -35,7 +35,7 @@ def saveplot(losshistory, train_state, issave=True, isplot=True,
 
     if isplot:
         plot_loss_history(losshistory, fname=loss_hist_plot_fpath, save_plot=save_plot)
-        plot_best_state(train_state, fname=loss_best_plot_fpath, save_plot=save_plot)
+        plot_best_state(train_state, fname=best_state_plot_fpath, save_plot=save_plot)
 
         if show_plot:
             plt.show()
