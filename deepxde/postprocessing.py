@@ -8,24 +8,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-def saveplot(losshistory, train_state, issave=True, isplot=True,
-             loss_fname="loss.dat",
-             train_fname="train.dat",
-             test_fname="test.dat",
-             best_state_loss_plot_fname="loss.png",
-             loss_hist_plot_fname="loss_hist.png",
-             save_plot=False,
-             show_plot=True,
-             output_dir=os.getcwd()
-             ):
+
+def saveplot(
+    losshistory,
+    train_state,
+    issave=True,
+    isplot=True,
+    loss_fname="loss.dat",
+    train_fname="train.dat",
+    test_fname="test.dat",
+    best_state_loss_plot_fname="loss.png",
+    loss_hist_plot_fname="loss_hist.png",
+    save_plot=False,
+    show_plot=True,
+    output_dir=os.getcwd(),
+):
 
     if not os.path.exists(output_dir):
         print(f"Warning: Directory {output_dir} doesn't exist. Creating it.")
         os.mkdir(output_dir)
 
-    loss_fpath  = os.path.join(output_dir, loss_fname)
+    loss_fpath = os.path.join(output_dir, loss_fname)
     train_fpath = os.path.join(output_dir, train_fname)
-    test_fpath  = os.path.join(output_dir, test_fname)
+    test_fpath = os.path.join(output_dir, test_fname)
     best_state_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
     loss_hist_plot_fpath = os.path.join(output_dir, loss_hist_plot_fname)
 
@@ -72,7 +77,6 @@ def save_loss_history(losshistory, fname):
         )
     )
     np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
-
 
 
 def plot_best_state(train_state, fname="best_state.png", save_plot=False):
