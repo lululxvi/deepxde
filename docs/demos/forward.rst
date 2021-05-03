@@ -6,3 +6,4 @@ Demos of Forward Problems
 
    poisson.1d.dirichlet
    burgers
+   ode_system
