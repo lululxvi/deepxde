@@ -27,7 +27,7 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy scikit-learn scipy
   - conda activate test-environment
 
-  - conda install -c conda-forge salib
+  - conda install -c conda-forge scikit-optimize
   - conda install tensorflow
 
 # command to run tests
