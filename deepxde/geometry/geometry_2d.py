@@ -3,11 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from SALib.sample import sobol_sequence
 from scipy import spatial
 
 from .geometry import Geometry
 from .geometry_nd import Hypercube
+from .sampler import sample
 from ..utils import vectorize
 
 
@@ -46,10 +46,7 @@ class Disk(Geometry):
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html"""
-        if random == "pseudo":
-            rng = np.random.rand(n, 2)
-        elif random == "sobol":
-            rng = sobol_sequence.sample(n, 2)
+        rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = np.cos(theta), np.sin(theta)
         return self.radius * (np.sqrt(r) * np.vstack((x, y))).T + self.center
@@ -60,10 +57,7 @@ class Disk(Geometry):
         return self.radius * X + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
-        if random == "pseudo":
-            u = np.random.rand(n, 1)
-        elif random == "sobol":
-            u = sobol_sequence.sample(n, 1)
+        u = sample(n, 1, random)
         theta = 2 * np.pi * u
         X = np.hstack((np.cos(theta), np.sin(theta)))
         return self.radius * X + self.center
@@ -142,13 +136,12 @@ class Rectangle(Hypercube):
         l1 = self.xmax[0] - self.xmin[0]
         l2 = l1 + self.xmax[1] - self.xmin[1]
         l3 = l2 + l1
-        if random == "sobol":
-            u = np.ravel(sobol_sequence.sample(n + 4, 1))[2:]
-            u = u[np.logical_not(np.isclose(u, l1 / self.perimeter))]
-            u = u[np.logical_not(np.isclose(u, l3 / self.perimeter))]
-            u = u[:n]
-        else:
-            u = np.random.rand(n)
+        u = np.ravel(sample(n + 2, 1, random))
+        # Remove the possible points very close to the corners
+        u = u[np.logical_not(np.isclose(u, l1 / self.perimeter))]
+        u = u[np.logical_not(np.isclose(u, l3 / self.perimeter))]
+        u = u[:n]
+
         u *= self.perimeter
         x = []
         for l in u:
@@ -232,10 +225,7 @@ class Triangle(Geometry):
             ]
         )
 
-        return ~np.logical_and(
-            np.any(_sign > 0, axis=-1),
-            np.any(_sign < 0, axis=-1),
-        )
+        return ~np.logical_and(np.any(_sign > 0, axis=-1), np.any(_sign < 0, axis=-1))
 
     def on_boundary(self, x):
         l1 = np.linalg.norm(x - self.x1, axis=-1)
@@ -321,13 +311,12 @@ class Triangle(Geometry):
             return x_corner[np.random.choice(3, size=n, replace=False)]
         n -= 3
 
-        if random == "sobol":
-            u = np.ravel(sobol_sequence.sample(n + 3, 1))[1:]
-            u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
-            u = u[np.logical_not(np.isclose(u, (self.l12 + self.l23) / self.perimeter))]
-            u = u[:n]
-        else:
-            u = np.random.rand(n)
+        u = np.ravel(sample(n + 2, 1, random))
+        # Remove the possible points very close to the corners
+        u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
+        u = u[np.logical_not(np.isclose(u, (self.l12 + self.l23) / self.perimeter))]
+        u = u[:n]
+
         u *= self.perimeter
         x = []
         for l in u:
@@ -478,15 +467,13 @@ class Polygon(Geometry):
             ]
         n -= self.nvertices
 
-        if random == "sobol":
-            u = np.ravel(sobol_sequence.sample(n + self.nvertices, 1))[1:]
-            l = 0
-            for i in range(0, self.nvertices - 1):
-                l += self.diagonals[i, i + 1]
-                u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
-            u = u[:n]
-        else:
-            u = np.random.rand(n)
+        u = np.ravel(sample(n + self.nvertices, 1, random))
+        # Remove the possible points very close to the corners
+        l = 0
+        for i in range(0, self.nvertices - 1):
+            l += self.diagonals[i, i + 1]
+            u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
+        u = u[:n]
         u *= self.perimeter
         u.sort()
 

@@ -3,9 +3,9 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from SALib.sample import sobol_sequence
 
 from .geometry import Geometry
+from .sampler import sample
 from .. import config
 
 
@@ -49,10 +49,7 @@ class Interval(Geometry):
         return np.exp(x) - eps
 
     def random_points(self, n, random="pseudo"):
-        if random == "pseudo":
-            x = np.random.rand(n, 1)
-        elif random == "sobol":
-            x = sobol_sequence.sample(n + 1, 1)[1:]
+        x = sample(n, 1, random)
         return (self.diam * x + self.l).astype(config.real(np))
 
     def uniform_boundary_points(self, n):

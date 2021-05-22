@@ -5,11 +5,11 @@ from __future__ import print_function
 import itertools
 
 import numpy as np
-from SALib.sample import sobol_sequence
 from scipy import stats
 from sklearn import preprocessing
 
 from .geometry import Geometry
+from .sampler import sample
 
 
 class Hypercube(Geometry):
@@ -28,8 +28,7 @@ class Hypercube(Geometry):
 
     def inside(self, x):
         return np.logical_and(
-            np.all(x >= self.xmin, axis=-1),
-            np.all(x <= self.xmax, axis=-1),
+            np.all(x >= self.xmin, axis=-1), np.all(x <= self.xmax, axis=-1)
         )
 
     def on_boundary(self, x):
@@ -70,10 +69,7 @@ class Hypercube(Geometry):
         return x
 
     def random_points(self, n, random="pseudo"):
-        if random == "pseudo":
-            x = np.random.rand(n, self.dim)
-        elif random == "sobol":
-            x = sobol_sequence.sample(n + 1, self.dim)[1:]
+        x = sample(n, self.dim, random)
         return (self.xmax - self.xmin) * x + self.xmin
 
     def periodic_point(self, x, component):
@@ -125,9 +121,8 @@ class Hypersphere(Geometry):
         if random == "pseudo":
             U = np.random.rand(n, 1)
             X = np.random.normal(size=(n, self.dim))
-        elif random == "sobol":
-            # Remove the first point [0, 0, ...] and the second point [0.5, 0.5, ...]
-            rng = sobol_sequence.sample(n + 2, self.dim + 1)[2:]
+        else:
+            rng = sample(n, self.dim + 1, random)
             U, X = rng[:, 0:1], rng[:, 1:]
             X = stats.norm.ppf(X)
         X = preprocessing.normalize(X)
@@ -139,9 +134,8 @@ class Hypersphere(Geometry):
         """
         if random == "pseudo":
             X = np.random.normal(size=(n, self.dim))
-        elif random == "sobol":
-            # Remove the first point [0, 0, ...] and the second point [0.5, 0.5, ...]
-            U = sobol_sequence.sample(n + 2, self.dim)[2:]
+        else:
+            U = sample(n, self.dim, random)
             X = stats.norm.ppf(U)
         X = preprocessing.normalize(X)
         return self.radius * X + self.center
