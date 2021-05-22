@@ -19,7 +19,7 @@ DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Th
 
     - `Matplotlib <https://matplotlib.org/>`_
     - `NumPy <http://www.numpy.org/>`_
-    - `SALib <http://salib.github.io/SALib/>`_
     - `scikit-learn <https://scikit-learn.org>`_
+    - `scikit-optimize <https://scikit-optimize.github.io>`_
     - `SciPy <https://www.scipy.org/>`_
     - `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0

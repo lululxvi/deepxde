@@ -48,9 +48,17 @@ deepxde.geometry.geometry\_nd module
 ------------------------------------
 
 .. automodule:: deepxde.geometry.geometry_nd
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deepxde.geometry.sampler module
+-------------------------------
+
+.. automodule:: deepxde.geometry.sampler
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 deepxde.geometry.timedomain module
 ----------------------------------

@@ -34,8 +34,9 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 DeepXDE supports
 
 - complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection;
+- 6 sampling methods: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence;
 - multi-physics, i.e., coupled PDEs;
-- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC;
+- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC; BCs can be defined on an arbitrary domain or on a point set;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
 - residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
@@ -73,8 +74,8 @@ $ git clone https://github.com/lululxvi/deepxde.git
 
   - [Matplotlib](https://matplotlib.org/)
   - [NumPy](http://www.numpy.org/)
-  - [SALib](http://salib.github.io/SALib/)
   - [scikit-learn](https://scikit-learn.org)
+  - [scikit-optimize](https://scikit-optimize.github.io)
   - [SciPy](https://www.scipy.org/)
   - [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 

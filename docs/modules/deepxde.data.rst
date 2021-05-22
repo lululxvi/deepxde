@@ -4,6 +4,14 @@ deepxde.data package
 Submodules
 ----------
 
+deepxde.data.constraint module
+------------------------------
+
+.. automodule:: deepxde.data.constraint
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.data.data module
 ------------------------
 
@@ -91,7 +99,6 @@ deepxde.data.sampler module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
