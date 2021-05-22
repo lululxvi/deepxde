@@ -20,7 +20,8 @@ class PDE(Data):
         num_domain (int): The number of training residual points sampled inside the domain.
         num_boundary (int): The number of training residual points sampled on the boundary.
         train_distribution (string): The distribution to sample training residual points. One of the following:
-            "uniform" (equispaced grid), "pseudo" (pseudorandom) or "sobol" (Sobol sequence).
+            "uniform" (equispaced grid), "pseudo" (pseudorandom), "LHS" (Latin hypercube sampling), "Halton" (Halton
+            sequence), "Hammersley" (Hammersley sequence), or "Sobol" (Sobol sequence).
         anchors: A Numpy array of training residual points, in addition to the `num_domain` and `num_boundary` sampled
             points.
         exclusions: A Numpy array of points to be excluded for training.
@@ -50,7 +51,7 @@ class PDE(Data):
         bcs,
         num_domain=0,
         num_boundary=0,
-        train_distribution="sobol",
+        train_distribution="Sobol",
         anchors=None,
         exclusions=None,
         solution=None,
@@ -63,9 +64,16 @@ class PDE(Data):
 
         self.num_domain = num_domain
         self.num_boundary = num_boundary
-        if train_distribution not in ["uniform", "pseudo", "sobol"]:
+        if train_distribution not in [
+            "uniform",
+            "pseudo",
+            "LHS",
+            "Halton",
+            "Hammersley",
+            "Sobol",
+        ]:
             raise ValueError(
-                "train_distribution == {}. Available choices: {{'uniform'|'pseudo'|'sobol'}}.".format(
+                "train_distribution == {} is not available choices.".format(
                     train_distribution
                 )
             )
@@ -191,14 +199,14 @@ class PDE(Data):
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
                 X = self.geom.uniform_points(self.num_domain, boundary=False)
-            elif self.train_distribution in ["pseudo", "sobol"]:
+            else:
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
-            elif self.train_distribution in ["pseudo", "sobol"]:
+            else:
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
@@ -243,7 +251,7 @@ class TimePDE(PDE):
         num_domain=0,
         num_boundary=0,
         num_initial=0,
-        train_distribution="sobol",
+        train_distribution="Sobol",
         anchors=None,
         exclusions=None,
         solution=None,
@@ -270,7 +278,7 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-            elif self.train_distribution in ["pseudo", "sobol"]:
+            else:
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
