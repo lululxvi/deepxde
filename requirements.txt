@@ -1,6 +1,6 @@
 matplotlib
 numpy
-salib
 scikit-learn
+scikit-optimize
 scipy
 tensorflow>=2.2.0
