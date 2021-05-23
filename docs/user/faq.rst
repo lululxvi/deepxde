@@ -5,42 +5,44 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 
 - | **Q**: DeepXDE failed to run.
   | **A**: `#2`_, `#3`_, `#5`_
-- | **Q**: What is the expected output of DeepXDE? How can I visualize the results?
-  | **A**: `#4`_, `#9`_, `#17`_, `#48`_, `#53`_, `#73`_, `#77`_
-- | **Q**: How can I define a new geometry?
-  | **A**: `#32`_, `#38`_
-- | **Q**: How can I implement new ODEs/PDEs?
-  | **A**: `#12`_, `#13`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_
+- | **Q**: What is the output of DeepXDE? How can I visualize the results?
+  | **A**: `#4`_, `#9`_, `#17`_, `#48`_, `#53`_, `#73`_, `#77`_, `#171`_, `#217`_, `#218`_, `#223`_
+- | **Q**: More details and examples about geometry.
+  | **A**: `#32`_, `#38`_, `#161`_
+- | **Q**: How can I implement new ODEs/PDEs, e.g., compute derivatives?
+  | **A**: `#12`_, `#13`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_, `#172`_, `#185`_, `#193`_, `#194`_, `#246`_
 - | **Q**: How can I implement new IDEs?
-  | **A**: `#95`_
+  | **A**: `#95`_, `#198`_
 - | **Q**: More details and examples about initial conditions.
   | **A**: `#19`_, `#75`_, `#104`_, `#134`_
 - | **Q**: More details and examples about boundary conditions.
-  | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_, `#38`_, `#40`_, `#44`_, `#49`_, `#115`_, `#140`_
+  | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_, `#38`_, `#40`_, `#44`_, `#49`_, `#115`_, `#140`_, `#156`_
 - | **Q**: By default, initial/boundary conditions are enforced in DeepXDE as soft constraints. How can I enforce them as hard constraints?
-  | **A**: `#36`_, `#90`_, `#92`_
+  | **A**: `#36`_, `#90`_, `#92`_, `#252`_
 - | **Q**: Define an inverse problem to solve unknown parameters/fields in the PDEs or initial/boundary conditions.
-  | **A**: `#55`_, `#76`_, `#86`_, `#114`_, `#120`_, `#125`_
+  | **A**: `#55`_, `#76`_, `#86`_, `#114`_, `#120`_, `#125`_, `#178`_, `#208`_, `#235`_
 - | **Q**: How does DeepXDE choose the training points? How can I use some specific training points?
   | **A**: `#32`_, `#57`_, `#64`_
 - | **Q**: How can I give different weights to different residual points?
   | **A**: `#45`_
+- | **Q**: I want to have more control over network training.
+  | **A**: `#166`_
 - | **Q**: I failed to train the network or get the right solution, e.g., the training loss is large.
-  | **A**: `#15`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_
+  | **A**: `#15`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_, `#188`_, `#247`_
 - | **Q**: How can I use a trained model for new predictions?
-  | **A**: `#10`_, `#18`_, `#93`_
+  | **A**: `#10`_, `#18`_, `#93`_, `#177`_
 - | **Q**: How can I save a trained model and then load the model later?
-  | **A**: `#54`_, `#57`_, `#58`_, `#63`_, `#103`_
+  | **A**: `#54`_, `#57`_, `#58`_, `#63`_, `#103`_, `#206`_, `#254`_
 - | **Q**: Residual-based adaptive refinement (RAR).
   | **A**: `#63`_
 - | **Q**: By default, DeepXDE uses ``float32``. How can I use ``float64``?
   | **A**: `#28`_
-- | **Q**: More details about DeepXDE source code, and want to modify DeepXDE, e.g., to use multiple GPUs and mini batch.
-  | **A**: `#35`_, `#39`_, `#66`_, `#68`_, `#69`_, `#91`_, `#99`_, `#131`_
+- | **Q**: More details about DeepXDE source code, and want to modify DeepXDE.
+  | **A**: `#35`_, `#39`_, `#66`_, `#68`_, `#69`_, `#91`_, `#99`_, `#131`_, `#163`_, `#175`_, `#202`_
 - | **Q**: Examples collected from users.
-  | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_
+  | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_, `Shallow water equations <https://github.com/lululxvi/deepxde/issues/247>`_
 - | **Q**: Questions about multi-fidelity neutral networks.
-  | **A**: `#94`_
+  | **A**: `#94`_, `#195`_
 
 .. _#2: https://github.com/lululxvi/deepxde/issues/2
 .. _#3: https://github.com/lululxvi/deepxde/issues/3
@@ -115,3 +117,36 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 .. _#134: https://github.com/lululxvi/deepxde/issues/134
 .. _#140: https://github.com/lululxvi/deepxde/issues/140
 .. _#141: https://github.com/lululxvi/deepxde/issues/141
+.. _#156: https://github.com/lululxvi/deepxde/issues/156
+.. _#161: https://github.com/lululxvi/deepxde/issues/161
+.. _#163: https://github.com/lululxvi/deepxde/issues/163
+.. _#166: https://github.com/lululxvi/deepxde/issues/166
+.. _#171: https://github.com/lululxvi/deepxde/issues/171
+.. _#172: https://github.com/lululxvi/deepxde/issues/172
+.. _#175: https://github.com/lululxvi/deepxde/issues/175
+.. _#177: https://github.com/lululxvi/deepxde/issues/177
+.. _#178: https://github.com/lululxvi/deepxde/issues/178
+.. _#185: https://github.com/lululxvi/deepxde/issues/185
+.. _#188: https://github.com/lululxvi/deepxde/issues/188
+.. _#193: https://github.com/lululxvi/deepxde/issues/193
+.. _#194: https://github.com/lululxvi/deepxde/issues/194
+.. _#195: https://github.com/lululxvi/deepxde/issues/195
+.. _#198: https://github.com/lululxvi/deepxde/issues/198
+.. _#202: https://github.com/lululxvi/deepxde/issues/202
+.. _#206: https://github.com/lululxvi/deepxde/issues/206
+.. _#208: https://github.com/lululxvi/deepxde/issues/208
+.. _#217: https://github.com/lululxvi/deepxde/issues/217
+.. _#218: https://github.com/lululxvi/deepxde/issues/218
+.. _#223: https://github.com/lululxvi/deepxde/issues/223
+.. _#235: https://github.com/lululxvi/deepxde/issues/235
+.. _#246: https://github.com/lululxvi/deepxde/issues/246
+.. _#247: https://github.com/lululxvi/deepxde/issues/247
+.. _#252: https://github.com/lululxvi/deepxde/issues/252
+.. _#254: https://github.com/lululxvi/deepxde/issues/254
+
+.. _#149: https://github.com/lululxvi/deepxde/issues/149
+.. _#174: https://github.com/lululxvi/deepxde/issues/174
+.. _#181: https://github.com/lululxvi/deepxde/issues/181
+.. _#251: https://github.com/lululxvi/deepxde/issues/251
+.. _#253: https://github.com/lululxvi/deepxde/issues/253
+.. _#257: https://github.com/lululxvi/deepxde/issues/257
