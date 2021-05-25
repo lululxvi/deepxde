@@ -18,18 +18,8 @@ C = 10
 
 def get_initial_loss(model):
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    model.train(1)
-    return model.sess.run(
-        model.losses,
-        feed_dict=model.net.feed_dict(
-            True,
-            True,
-            0,
-            model.train_state.X_train,
-            model.train_state.y_train,
-            model.train_state.train_aux_vars,
-        ),
-    )
+    model.train(0)
+    return model.train_state.loss_train
 
 
 def main():
