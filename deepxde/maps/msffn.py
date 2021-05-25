@@ -10,6 +10,8 @@ from ..backend import tf
 class MsFFN(FNN):
     """Multi-scale Fourier Feature Networks.
 
+    Args:
+        sigmas: List of standard deviation of the distribution of fourier feature embeddings.
     References:
         https://arxiv.org/abs/2012.10047
         https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
@@ -110,7 +112,7 @@ class MsFFN(FNN):
         yb = [self.fourier_feature_forward(y, sigma) for sigma in self.sigmas]
         y = [elem[0] for elem in yb]
         self.fourier_feature_weights = [elem[1] for elem in yb]
-        # fully connected layers (reuse)
+        # fully-connected layers (reuse)
         y = [self.fully_connected_forward(_y) for _y in y]
         # concatenate all the fourier features
         y = tf.concat(y, axis=1)
@@ -130,6 +132,7 @@ class STMsFFN(MsFFN):
         https://arxiv.org/abs/2012.10047
         https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
     """
+
     def __init__(
         self,
         layer_size,
@@ -160,12 +163,12 @@ class STMsFFN(MsFFN):
         self.sigmas_t = sigmas_t
 
     def build(self):
-        print("Building Spatio-temporal Multiscale Fourier Feature Network...")
+        print("Building Spatio-temporal Multi-scale Fourier Feature Network...")
         self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
 
         y = self.x
         if self._input_transform is not None:
-            # The last columns should be function of t.
+            # The last column should be function of t.
             y = self._input_transform(y)
 
         # fourier feature layer
@@ -176,7 +179,7 @@ class STMsFFN(MsFFN):
             self.fourier_feature_forward(y[:, -1:], sigma) for sigma in self.sigmas_t
         ]
         self.fourier_feature_weights = [elem[1] for elem in yb_x + yb_t]
-        # fully connected layers (reuse)
+        # fully-connected layers (reuse)
         y_x = [self.fully_connected_forward(_yb[0]) for _yb in yb_x]
         y_t = [self.fully_connected_forward(_yb[0]) for _yb in yb_t]
         # point-wise multiplication layer
