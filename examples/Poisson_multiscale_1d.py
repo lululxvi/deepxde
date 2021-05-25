@@ -46,7 +46,6 @@ def main():
     activation = "tanh"
     initializer = "Glorot uniform"
     net = dde.maps.MsFFN(layer_size, activation, initializer, sigmas=[1, 10])
-    net.apply_feature_transform(lambda x: (x - 0.5) * 2 * np.sqrt(3))
 
     model = dde.Model(data, net)
     model.compile(
