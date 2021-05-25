@@ -13,7 +13,6 @@ class MsFFN(FNN):
     References:
         https://arxiv.org/abs/2012.10047
         https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
-
     """
 
     def __init__(
@@ -130,7 +129,6 @@ class STMsFFN(MsFFN):
     References:
         https://arxiv.org/abs/2012.10047
         https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
-
     """
     def __init__(
         self,
