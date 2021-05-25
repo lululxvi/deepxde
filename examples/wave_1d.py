@@ -60,7 +60,7 @@ def main():
     layer_size = [2] + [100] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = dde.maps.ST_MFFN(
+    net = dde.maps.STMsFFN(
         layer_size, activation, initializer, sigmas_x=[1], sigmas_t=[1, 10]
     )
     net.apply_feature_transform(lambda x: (x - 0.5) * 2 * np.sqrt(3))

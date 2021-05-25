@@ -7,7 +7,7 @@ from .. import config
 from ..backend import tf
 
 
-class MFFN(FNN):
+class MsFFN(FNN):
     """Multi-scale Fourier Feature Networks.
 
     References:
@@ -29,7 +29,7 @@ class MFFN(FNN):
         kernel_constraint=None,
         use_bias=True,
     ):
-        super(MFFN, self).__init__(
+        super(MsFFN, self).__init__(
             layer_size=layer_size,
             activation=activation,
             kernel_initializer=kernel_initializer,
@@ -124,7 +124,7 @@ class MFFN(FNN):
         self.built = True
 
 
-class ST_MFFN(MFFN):
+class STMsFFN(MsFFN):
     """Spatio-temporal Multi-scale Fourier Feature Networks.
 
     References:
@@ -146,7 +146,7 @@ class ST_MFFN(MFFN):
         kernel_constraint=None,
         use_bias=True,
     ):
-        super(ST_MFFN, self).__init__(
+        super(STMsFFN, self).__init__(
             layer_size,
             activation,
             kernel_initializer,
