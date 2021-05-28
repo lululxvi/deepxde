@@ -16,4 +16,4 @@ formats:
 python:
   version: 3.8
   install:
-    - requirements: requirements_rtd.txt
+    - requirements: docs/requirements.txt
