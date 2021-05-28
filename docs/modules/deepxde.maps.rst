@@ -44,6 +44,14 @@ deepxde.maps.mfnn module
    :undoc-members:
    :show-inheritance:
 
+deepxde.maps.msffn module
+-------------------------
+
+.. automodule:: deepxde.maps.msffn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.maps.opnn module
 ------------------------
 
@@ -75,7 +83,6 @@ deepxde.maps.resnet module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
