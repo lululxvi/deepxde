@@ -11,8 +11,10 @@ class MsFFN(FNN):
     """Multi-scale Fourier Feature Networks.
 
     References:
-        https://arxiv.org/abs/2012.10047
-        https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
+
+    - https://arxiv.org/abs/2012.10047
+    - https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
+
     Args:
         sigmas: List of standard deviation of the distribution of fourier feature embeddings.
     """
@@ -129,8 +131,9 @@ class STMsFFN(MsFFN):
     """Spatio-temporal Multi-scale Fourier Feature Networks.
 
     References:
-        https://arxiv.org/abs/2012.10047
-        https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
+
+    - https://arxiv.org/abs/2012.10047
+    - https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
     """
 
     def __init__(
