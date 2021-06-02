@@ -140,6 +140,8 @@ class OpNN(Map):
 
         # Trunk net to encode the domain of the output function
         y_loc = self.X_loc
+        if self._input_transform is not None:
+            y_loc = self._input_transform(y_loc)
         for i in range(1, len(self.layer_size_loc)):
             y_loc = self.dense(
                 y_loc,
