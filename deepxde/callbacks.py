@@ -63,7 +63,7 @@ class CallbackList(Callback):
 
     def __init__(self, callbacks=None):
         callbacks = callbacks or []
-        self.callbacks = [c for c in callbacks]
+        self.callbacks = list(callbacks)
         self.model = None
 
     def set_model(self, model):
