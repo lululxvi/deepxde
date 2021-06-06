@@ -86,6 +86,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
 - [More examples](https://github.com/lululxvi/deepxde/tree/master/examples)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
+- [API](https://deepxde.readthedocs.io/en/latest/modules/modules.html)
 
 ## Cite DeepXDE
 
