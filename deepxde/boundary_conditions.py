@@ -150,12 +150,12 @@ class PointSet(object):
             axis=-1,
         )
 
-    def values_to_func(self, values):
+    def values_to_func(self, values, default_return=0):
         def func(x):
             return np.matmul(
                 np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
                 values,
-            )
+            )+default_return*(1-int(np.isclose(x[:, np.newaxis, :], self.points).any()))
 
         return func
 
