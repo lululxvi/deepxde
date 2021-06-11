@@ -165,6 +165,9 @@ class OpNN(Map):
             b = tf.Variable(tf.zeros(1))
             self.y += b
 
+        if self._output_transform is not None:
+            self.y = self._output_transform(self._inputs, self.y)
+
         self.target = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
