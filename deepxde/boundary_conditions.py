@@ -43,8 +43,7 @@ class BC(object):
 
 
 class DirichletBC(BC):
-    """Dirichlet boundary conditions: y(x) = func(x).
-    """
+    """Dirichlet boundary conditions: y(x) = func(x)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
         super(DirichletBC, self).__init__(geom, on_boundary, component)
@@ -60,8 +59,7 @@ class DirichletBC(BC):
 
 
 class NeumannBC(BC):
-    """Neumann boundary conditions: dy/dn(x) = func(x).
-    """
+    """Neumann boundary conditions: dy/dn(x) = func(x)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
         super(NeumannBC, self).__init__(geom, on_boundary, component)
@@ -74,8 +72,7 @@ class NeumannBC(BC):
 
 
 class RobinBC(BC):
-    """Robin boundary conditions: dy/dn(x) = func(x, y).
-    """
+    """Robin boundary conditions: dy/dn(x) = func(x, y)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
         super(RobinBC, self).__init__(geom, on_boundary, component)
@@ -88,8 +85,7 @@ class RobinBC(BC):
 
 
 class PeriodicBC(BC):
-    """Periodic boundary conditions on component_x.
-    """
+    """Periodic boundary conditions on component_x."""
 
     def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
         super(PeriodicBC, self).__init__(geom, on_boundary, component)
@@ -138,8 +134,7 @@ class OperatorBC(BC):
 
 
 class PointSet(object):
-    """A set of points.
-    """
+    """A set of points."""
 
     def __init__(self, points):
         self.points = np.array(points)
@@ -150,12 +145,11 @@ class PointSet(object):
             axis=-1,
         )
 
-    def values_to_func(self, values):
+    def values_to_func(self, values, default_value=0):
         def func(x):
-            return np.matmul(
-                np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
-                values,
-            )
+            pt_equal = np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1)
+            not_inside = np.logical_not(np.any(pt_equal, axis=-1, keepdims=True))
+            return np.matmul(pt_equal, values) + default_value * not_inside
 
         return func
 
