@@ -431,13 +431,12 @@ class Polygon(Geometry):
         return np.array([0, 0])
 
     def random_points(self, n, random="pseudo"):
-        x = []
+        x = np.empty((0, 2))
         vbbox = self.bbox[1] - self.bbox[0]
         while len(x) < n:
-            x_new = np.random.rand(1, 2) * vbbox + self.bbox[0]
-            if self.inside(x_new):
-                x.append(x_new)
-        return np.vstack(x)
+            x_new = np.random.rand(n, 2) * vbbox + self.bbox[0]
+            x = np.vstack((x, x_new[self.inside(x_new)]))
+        return x[:n]
 
     def uniform_boundary_points(self, n):
         density = n / self.perimeter
