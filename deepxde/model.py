@@ -101,7 +101,7 @@ class Model(object):
         self.optimizer = optimizer
         if loss_weights is not None:
             self.loss_weights = loss_weights
-        self.current_weights = loss_weights
+        self.current_weights = loss_weights.copy()
         if loss_constraints is not None:
             if True in loss_constraints:
                 self.loss_constraints = loss_constraints
