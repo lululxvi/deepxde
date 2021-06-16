@@ -72,7 +72,7 @@ def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
                 label='$\lambda_{i}$'.format(i=i+1),
             )
         lambda_max = np.amax(loss_weights)
-        plt.ylim(0, max(lambda_max*1.05, 1))
+        plt.ylim(0, lambda_max*1.05)
         plt.ylabel("weight value")
         plt.xlabel("# Steps")
         plt.legend()
@@ -89,9 +89,10 @@ def save_loss_history(losshistory, fname):
             np.array(losshistory.loss_train),
             np.array(losshistory.loss_test),
             np.array(losshistory.metrics_test),
+            np.array(losshistory.loss_weights),
         )
     )
-    np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
+    np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test, loss_weights")
 
 
 def plot_best_state(train_state, fname="best_state.png", save_plot=False):
