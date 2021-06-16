@@ -288,10 +288,10 @@ class Model(object):
                         if self.loss_weights[j] > 0:
                             if self.admm:
                                 self.current_c = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
-                                self.current_weights[j] += max(self.current_c * Lj, self.loss_weights[j])
+                                self.current_weights[j] = min(self.current_weights[j] + self.current_c * Lj, self.loss_weights[j])
                             else:
                                 lr = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
-                                self.current_weights[j] += min(lr * Lj, self.loss_weights[j])
+                                self.current_weights[j] = min(self.current_weights[j] + lr * Lj, self.loss_weights[j])
                         else:
                             if self.admm:
                                 self.current_weights[j] += self.current_c * Lj
