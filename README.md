@@ -38,7 +38,7 @@ DeepXDE supports
 - multi-physics, i.e., coupled PDEs;
 - 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC; BCs can be defined on an arbitrary domain or on a point set;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
-- primal-dual algorithm to enforce constraints;
+- primal-dual algorithms to enforce constraints;
 - residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
 - two types of neural networks: (stacked/unstacked) fully connected neural network, and residual neural network;
