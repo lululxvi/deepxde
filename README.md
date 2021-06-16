@@ -38,6 +38,7 @@ DeepXDE supports
 - multi-physics, i.e., coupled PDEs;
 - 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC; BCs can be defined on an arbitrary domain or on a point set;
 - time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
+- primal-dual algorithms to enforce constraints;
 - residual-based adaptive refinement (RAR);
 - uncertainty quantification using dropout;
 - two types of neural networks: (stacked/unstacked) fully connected neural network, and residual neural network;
@@ -119,7 +120,7 @@ First off, thanks for taking the time to contribute!
 
 DeepXDE was originally developed by [Lu Lu](https://lululxvi.github.io/) at the [CRUNCH group](https://www.brown.edu/research/projects/crunch/home) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis), supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
 
-DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: Shunyuan Mao, Qi Tang.
+DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: Shunyuan Mao, Qi Tang and Matthieu Barreau.
 
 ## License
 
