@@ -36,6 +36,7 @@ class Model(object):
         self.current_weights = None
         self.weights_tf = None
         self.admm = False
+        self.epsilon = 0
 
         self.losses = None
         self.totalloss = None
@@ -84,11 +85,12 @@ class Model(object):
                 to weight the loss contributions. The loss value that will be minimized by the model
                 will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
-            loss_constraints: A list specifying binary coefficients (False or True)
+            loss_constraints: A list specifying boolean coefficients
                 to assess if the corresponding loss is a constraint (True) or a 
                 a classical loss (False)
             N_lambda: integer value. The number of epochs between two dual updates
             lr_lambda: florating point value. The learning rate for the dual update
+            admm: boolean specifying if the ADMM algorithm should be used for dual updates
         """
         print("Compiling model...")
 
@@ -123,13 +125,14 @@ class Model(object):
         self.totalloss = 0
         if self.loss_constraints is not None:
             self.weights_tf = []
-            for i, loss in enumerate(self.losses):
+            for i in range(len(self.losses)):
                 if self.loss_constraints[i] == True:
                     self.current_weights[i] = 0
+                    self.losses[i] = tf.nn.relu(self.losses[i] - self.epsilon)
                 self.weights_tf.append(tf.placeholder(tf.float32, shape=()))
-                self.totalloss += loss * self.weights_tf[i]
+                self.totalloss += self.losses[i] * self.weights_tf[i]
                 if self.admm:
-                    self.totalloss += self.c_tf * tf.square(loss) / 2
+                    self.totalloss += self.c_tf * tf.square(self.losses[i]) / 2
         else:
             for i, loss in enumerate(self.losses):
                 self.totalloss += loss * self.loss_weights[i]
