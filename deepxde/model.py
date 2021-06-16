@@ -35,6 +35,7 @@ class Model(object):
         self.loss_constraints = None
         self.current_weights = None
         self.weights_tf = None
+        self.admm = False
 
         self.losses = None
         self.totalloss = None
@@ -63,6 +64,7 @@ class Model(object):
         loss_constraints=None,
         N_lambda=10,
         lr_lambda=1e-3,
+        admm=False,
     ):
         """Configures the model for training.
 
@@ -105,6 +107,7 @@ class Model(object):
             self.loss_constraints = None
         self.N_lambda = max(N_lambda, 0)
         self.lr_lambda = lr_lambda
+        self.admm = admm
 
         loss = losses_module.get(loss)
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
@@ -114,6 +117,9 @@ class Model(object):
             self.losses.append(tf.losses.get_regularization_loss())
         if self.loss_weights is None:
             self.loss_weights = [1] * len(self.losses)
+        if self.admm:
+            self.c_tf = tf.placeholder(tf.float32, shape=())
+            self.current_c = self.lr_lambda
         self.totalloss = 0
         if self.loss_constraints is not None:
             self.weights_tf = []
@@ -122,6 +128,8 @@ class Model(object):
                     self.current_weights[i] = 0
                 self.weights_tf.append(tf.placeholder(tf.float32, shape=()))
                 self.totalloss += loss * self.weights_tf[i]
+                if self.admm:
+                    self.totalloss += self.c_tf * tf.square(loss) / 2
         else:
             for i, loss in enumerate(self.losses):
                 self.totalloss += loss * self.loss_weights[i]
@@ -242,6 +250,8 @@ class Model(object):
         if self.loss_constraints is not None:
             for i in range(len(self.loss_constraints)):
                 feed_dict[self.weights_tf[i]] = self.current_weights[i]
+        if self.admm:
+            feed_dict[self.c_tf] = self.current_c
         return feed_dict
 
     def _train_sgd(self, epochs, display_every, uncertainty):
@@ -273,11 +283,18 @@ class Model(object):
                             continue
                         Lj = self.sess.run(self.losses[j], feed_dict)
                         if self.loss_weights[j] > 0:
-                            lr = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
-                            self.current_weights[j] += min(lr * Lj, self.loss_weights[j])
+                            if self.admm:
+                                self.current_c = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
+                                self.current_weights[j] += self.current_c * Lj
+                            else:
+                                lr = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
+                                self.current_weights[j] += min(lr * Lj, self.loss_weights[j])
                         else:
-                            lr = self.lr_lambda * 1 / (1 + i / epochs)
-                            self.current_weights[j] += lr * Lj
+                            if self.admm:
+                                self.current_weights[j] += self.current_c * Lj
+                            else:
+                                lr = self.lr_lambda * 1 / (1 + i / epochs)
+                                self.current_weights[j] += lr * Lj
 
             self.train_state.epoch += 1
             self.train_state.step += 1
