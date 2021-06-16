@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import inspect
 import sys
-import time
+import timeit
 from functools import wraps
 from multiprocessing import Pool
 
@@ -48,9 +48,9 @@ def timing(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        ts = time.time()
+        ts = timeit.default_timer()
         result = f(*args, **kwargs)
-        te = time.time()
+        te = timeit.default_timer()
         print("%r took %f s\n" % (f.__name__, te - ts))
         sys.stdout.flush()
         return result
