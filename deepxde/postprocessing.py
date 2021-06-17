@@ -15,10 +15,12 @@ def saveplot(
     issave=True,
     isplot=True,
     loss_fname="loss.dat",
+    weight_fname="weight.dat",
     train_fname="train.dat",
     test_fname="test.dat",
     best_state_loss_plot_fname="loss.png",
     loss_hist_plot_fname="loss_hist.png",
+    weight_plot_fname="weight.png",
     save_plot=False,
     show_plot=True,
     output_dir=os.getcwd(),
@@ -31,19 +33,43 @@ def saveplot(
     loss_fpath = os.path.join(output_dir, loss_fname)
     train_fpath = os.path.join(output_dir, train_fname)
     test_fpath = os.path.join(output_dir, test_fname)
+    weight_fpath = os.path.join(output_dir, weight_fname)
     best_state_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
     loss_hist_plot_fpath = os.path.join(output_dir, loss_hist_plot_fname)
+    weight_plot_fpath = os.path.join(output_dir, weight_plot_fname)
 
     if issave:
         save_loss_history(losshistory, loss_fpath)
+        save_weight_history(losshistory, weight_fpath)
         save_best_state(train_state, train_fpath, test_fpath)
 
     if isplot:
         plot_loss_history(losshistory, fname=loss_hist_plot_fpath, save_plot=save_plot)
+        plot_weight_history(losshistory, fname=weight_plot_fpath, save_plot=save_plot)
         plot_best_state(train_state, fname=best_state_plot_fpath, save_plot=save_plot)
 
         if show_plot:
             plt.show()
+     
+def plot_weight_history(losshistory, fname="weight_history.png", save_plot=False):
+    
+    if len(losshistory.loss_weights) > 1:
+        plt.figure('weights')
+        loss_weights = np.array(losshistory.loss_weights)
+        for i in range(len(losshistory.loss_weights[0])):
+            plt.plot(
+                losshistory.steps,
+                loss_weights[:, i],
+                label='$\lambda_{i}$'.format(i=i+1),
+            )
+        lambda_max = np.amax(loss_weights)
+        plt.ylim(0, lambda_max*1.05)
+        plt.ylabel("weight value")
+        plt.xlabel("# Steps")
+        plt.legend()
+        
+        if save_plot:
+            plt.savefig(fname)
 
 
 def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
@@ -62,21 +88,6 @@ def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
     plt.xlabel("# Steps")
     plt.legend()
     
-    if len(losshistory.loss_weights) > 1:
-        plt.figure('weights')
-        loss_weights = np.array(losshistory.loss_weights)
-        for i in range(len(losshistory.loss_weights[0])):
-            plt.plot(
-                losshistory.steps,
-                loss_weights[:, i],
-                label='$\lambda_{i}$'.format(i=i+1),
-            )
-        lambda_max = np.amax(loss_weights)
-        plt.ylim(0, lambda_max*1.05)
-        plt.ylabel("weight value")
-        plt.xlabel("# Steps")
-        plt.legend()
-
     if save_plot:
         plt.savefig(fname)
 
@@ -89,11 +100,20 @@ def save_loss_history(losshistory, fname):
             np.array(losshistory.loss_train),
             np.array(losshistory.loss_test),
             np.array(losshistory.metrics_test),
+        )
+    )
+    np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
+
+
+def save_weight_history(losshistory, fname):
+    print("Saving weight history to {} ...".format(fname))
+    weight = np.hstack(
+        (
+            np.array(losshistory.steps)[:, None],
             np.array(losshistory.loss_weights),
         )
     )
-    np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test, loss_weights")
-
+    np.savetxt(fname, weight, header="step, loss_weights")
 
 def plot_best_state(train_state, fname="best_state.png", save_plot=False):
     X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
