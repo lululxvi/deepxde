@@ -15,10 +15,12 @@ def saveplot(
     issave=True,
     isplot=True,
     loss_fname="loss.dat",
+    weight_fname="weight.dat",
     train_fname="train.dat",
     test_fname="test.dat",
     best_state_loss_plot_fname="loss.png",
     loss_hist_plot_fname="loss_hist.png",
+    weight_plot_fname="weight.png",
     save_plot=False,
     show_plot=True,
     output_dir=os.getcwd(),
@@ -31,26 +33,50 @@ def saveplot(
     loss_fpath = os.path.join(output_dir, loss_fname)
     train_fpath = os.path.join(output_dir, train_fname)
     test_fpath = os.path.join(output_dir, test_fname)
+    weight_fpath = os.path.join(output_dir, weight_fname)
     best_state_plot_fpath = os.path.join(output_dir, best_state_loss_plot_fname)
     loss_hist_plot_fpath = os.path.join(output_dir, loss_hist_plot_fname)
+    weight_plot_fpath = os.path.join(output_dir, weight_plot_fname)
 
     if issave:
         save_loss_history(losshistory, loss_fpath)
+        save_weight_history(losshistory, weight_fpath)
         save_best_state(train_state, train_fpath, test_fpath)
 
     if isplot:
         plot_loss_history(losshistory, fname=loss_hist_plot_fpath, save_plot=save_plot)
+        plot_weight_history(losshistory, fname=weight_plot_fpath, save_plot=save_plot)
         plot_best_state(train_state, fname=best_state_plot_fpath, save_plot=save_plot)
 
         if show_plot:
             plt.show()
+     
+def plot_weight_history(losshistory, fname="weight_history.png", save_plot=False):
+    
+    if len(losshistory.loss_weights) > 1:
+        plt.figure('weights')
+        loss_weights = np.array(losshistory.loss_weights)
+        for i in range(len(losshistory.loss_weights[0])):
+            plt.plot(
+                losshistory.steps,
+                loss_weights[:, i],
+                label='$\lambda_{i}$'.format(i=i+1),
+            )
+        lambda_max = np.amax(loss_weights)
+        plt.ylim(0, lambda_max*1.05)
+        plt.ylabel("weight value")
+        plt.xlabel("# Steps")
+        plt.legend()
+        
+        if save_plot:
+            plt.savefig(fname)
 
 
 def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
     loss_train = np.sum(losshistory.loss_train, axis=1)
     loss_test = np.sum(losshistory.loss_test, axis=1)
 
-    plt.figure()
+    plt.figure('loss')
     plt.semilogy(losshistory.steps, loss_train, label="Train loss")
     plt.semilogy(losshistory.steps, loss_test, label="Test loss")
     for i in range(len(losshistory.metrics_test[0])):
@@ -61,7 +87,7 @@ def plot_loss_history(losshistory, fname="loss_history.png", save_plot=False):
         )
     plt.xlabel("# Steps")
     plt.legend()
-
+    
     if save_plot:
         plt.savefig(fname)
 
@@ -79,6 +105,16 @@ def save_loss_history(losshistory, fname):
     np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
 
 
+def save_weight_history(losshistory, fname):
+    print("Saving weight history to {} ...".format(fname))
+    weight = np.hstack(
+        (
+            np.array(losshistory.steps)[:, None],
+            np.array(losshistory.loss_weights),
+        )
+    )
+    np.savetxt(fname, weight, header="step, loss_weights")
+
 def plot_best_state(train_state, fname="best_state.png", save_plot=False):
     X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
 
@@ -88,7 +124,7 @@ def plot_best_state(train_state, fname="best_state.png", save_plot=False):
     if X_test.shape[1] == 1:
         idx = np.argsort(X_test[:, 0])
         X = X_test[idx, 0]
-        plt.figure()
+        plt.figure('regression')
         for i in range(y_dim):
             if y_train is not None:
                 plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
@@ -105,7 +141,7 @@ def plot_best_state(train_state, fname="best_state.png", save_plot=False):
         plt.legend()
     elif X_test.shape[1] == 2:
         for i in range(y_dim):
-            plt.figure()
+            plt.figure('prediction')
             ax = plt.axes(projection=Axes3D.name)
             ax.plot3D(X_test[:, 0], X_test[:, 1], best_y[:, i], ".")
             ax.set_xlabel("$x_1$")
@@ -114,7 +150,7 @@ def plot_best_state(train_state, fname="best_state.png", save_plot=False):
 
     # Residual plot
     if y_test is not None:
-        plt.figure()
+        plt.figure('residual')
         residual = y_test[:, 0] - best_y[:, 0]
         plt.plot(best_y[:, 0], residual, "o", zorder=1)
         plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
@@ -123,7 +159,7 @@ def plot_best_state(train_state, fname="best_state.png", save_plot=False):
         plt.tight_layout()
 
     if best_ystd is not None:
-        plt.figure()
+        plt.figure('standard deviation')
         for i in range(y_dim):
             plt.plot(X_test[:, 0], best_ystd[:, i], "-b")
             plt.plot(
