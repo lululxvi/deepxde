@@ -101,7 +101,7 @@ class Model(object):
         self.optimizer = optimizer
         if loss_weights is not None:
             self.loss_weights = loss_weights
-        self.current_weights = loss_weights.copy()
+            self.current_weights = loss_weights.copy()
         if loss_constraints is not None:
             if True in loss_constraints:
                 self.loss_constraints = loss_constraints
@@ -119,6 +119,7 @@ class Model(object):
             self.losses.append(tf.losses.get_regularization_loss())
         if self.loss_weights is None:
             self.loss_weights = [1] * len(self.losses)
+            self.current_weights = [1] * len(self.losses)
         if self.admm:
             self.c_tf = tf.placeholder(tf.float32, shape=())
             self.current_c = self.lr_lambda
