@@ -32,11 +32,6 @@ class Model(object):
         self.batch_size = None
         
         self.loss_weights = None
-        self.loss_constraints = None
-        self.current_weights = None
-        self.weights_tf = None
-        self.admm = False
-        self.epsilon = 0
 
         self.losses = None
         self.totalloss = None
@@ -62,10 +57,6 @@ class Model(object):
         metrics=None,
         decay=None,
         loss_weights=None,
-        loss_constraints=None,
-        N_lambda=10,
-        lr_lambda=1e-3,
-        admm=False,
     ):
         """Configures the model for training.
 
@@ -85,12 +76,6 @@ class Model(object):
                 to weight the loss contributions. The loss value that will be minimized by the model
                 will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
-            loss_constraints: A list specifying boolean coefficients
-                to assess if the corresponding loss is a constraint (True) or a 
-                a classical loss (False)
-            N_lambda: integer value. The number of epochs between two dual updates
-            lr_lambda: florating point value. The learning rate for the dual update
-            admm: boolean specifying if the ADMM algorithm should be used for dual updates
         """
         print("Compiling model...")
 
@@ -99,17 +84,6 @@ class Model(object):
         self._open_tfsession()
 
         self.optimizer = optimizer
-        if loss_weights is not None:
-            self.loss_weights = loss_weights
-            self.current_weights = loss_weights.copy()
-        if loss_constraints is not None:
-            if True in loss_constraints:
-                self.loss_constraints = loss_constraints
-        else:
-            self.loss_constraints = None
-        self.N_lambda = max(N_lambda, 0)
-        self.lr_lambda = lr_lambda
-        self.admm = admm
 
         loss = losses_module.get(loss)
         self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
@@ -119,24 +93,9 @@ class Model(object):
             self.losses.append(tf.losses.get_regularization_loss())
         if self.loss_weights is None:
             self.loss_weights = [1] * len(self.losses)
-            self.current_weights = [1] * len(self.losses)
-        if self.admm:
-            self.c_tf = tf.placeholder(tf.float32, shape=())
-            self.current_c = self.lr_lambda
         self.totalloss = 0
-        if self.loss_constraints is not None:
-            self.weights_tf = []
-            for i in range(len(self.losses)):
-                if self.loss_constraints[i] == True:
-                    self.current_weights[i] = 0
-                    self.losses[i] = tf.nn.relu(self.losses[i] - self.epsilon)
-                self.weights_tf.append(tf.placeholder(tf.float32, shape=()))
-                self.totalloss += self.losses[i] * self.weights_tf[i]
-                if self.admm:
-                    self.totalloss += self.c_tf * tf.square(self.losses[i]) / 2
-        else:
-            for i, loss in enumerate(self.losses):
-                self.totalloss += loss * self.loss_weights[i]
+        for i, loss in enumerate(self.losses):
+            self.totalloss += loss * self.loss_weights[i]
 
         self.train_op = train_module.get_train_op(
             self.totalloss, self.optimizer, lr=lr, decay=decay
@@ -249,14 +208,6 @@ class Model(object):
 
     def _close_tfsession(self):
         self.sess.close()
-        
-    def _feed_dict(self, feed_dict):
-        if self.loss_constraints is not None:
-            for i in range(len(self.loss_constraints)):
-                feed_dict[self.weights_tf[i]] = self.current_weights[i]
-        if self.admm:
-            feed_dict[self.c_tf] = self.current_c
-        return feed_dict
 
     def _train_sgd(self, epochs, display_every, uncertainty):
         for i in range(epochs):
@@ -274,31 +225,10 @@ class Model(object):
                     self.train_state.y_train,
                     self.train_state.train_aux_vars,
                 )
-            feed_dict = self._feed_dict(feed_dict)
             self.sess.run(
                 self.train_op,
                 feed_dict=feed_dict,
             )
-            
-            if self.loss_constraints is not None:
-                if (i + 1) % self.N_lambda == 0:
-                    for j in range(len(self.current_weights)):
-                        if self.loss_constraints[j] == False:
-                            continue
-                        Lj = self.sess.run(self.losses[j], feed_dict)
-                        if self.loss_weights[j] > 0:
-                            if self.admm:
-                                self.current_c = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
-                                self.current_weights[j] = min(self.current_weights[j] + self.current_c * Lj, self.loss_weights[j])
-                            else:
-                                lr = self.lr_lambda * (2 * self.loss_weights[j] - self.current_weights[j]) / self.loss_weights[j]
-                                self.current_weights[j] = min(self.current_weights[j] + lr * Lj, self.loss_weights[j])
-                        else:
-                            if self.admm:
-                                self.current_weights[j] += self.current_c * Lj
-                            else:
-                                lr = self.lr_lambda * 1 / (1 + i / epochs)
-                                self.current_weights[j] += lr * Lj
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -334,7 +264,6 @@ class Model(object):
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
             )
-        feed_dict = self._feed_dict(feed_dict)
         self.train_op.minimize(
             self.sess,
             feed_dict=feed_dict,
@@ -352,7 +281,6 @@ class Model(object):
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
             )
-        feed_dict = self._feed_dict(feed_dict)
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
             [self.losses, self.net.outputs],
             feed_dict=feed_dict,
@@ -369,7 +297,6 @@ class Model(object):
                         self.train_state.y_test,
                         self.train_state.test_aux_vars,
                     )
-            feed_dict = self._feed_dict(feed_dict)
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
                     [self.losses, self.net.outputs],
@@ -389,7 +316,6 @@ class Model(object):
                     self.train_state.y_test,
                     self.train_state.test_aux_vars,
                 )
-            feed_dict = self._feed_dict(feed_dict)
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
                 [self.losses, self.net.outputs],
                 feed_dict=feed_dict,
@@ -414,7 +340,7 @@ class Model(object):
             self.train_state.loss_test,
             self.train_state.metrics_test,
         )
-        self.losshistory.set_loss_weights(self.current_weights)
+        self.losshistory.set_loss_weights(self.loss_weights)
         display.training_display(self.train_state)
 
     def state_dict(self):
