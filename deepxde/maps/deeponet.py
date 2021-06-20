@@ -13,8 +13,11 @@ from ..backend import tf
 from ..utils import timing
 
 
-class OpNN(Map):
+class DeepONet(Map):
     """Deep operator network.
+
+    `Lu et al. Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators. Nat
+    Mach Intell, 2021. <https://doi.org/10.1038/s42256-021-00302-5>`_
 
     Args:
         layer_size_branch: A list of integers as the width of a fully connected network, or `(dim, f)` where `dim` is
@@ -40,7 +43,7 @@ class OpNN(Map):
         trainable_branch=True,
         trainable_trunk=True,
     ):
-        super(OpNN, self).__init__()
+        super(DeepONet, self).__init__()
         if isinstance(trainable_trunk, (list, tuple)):
             if len(trainable_trunk) != len(layer_size_trunk) - 1:
                 raise ValueError("trainable_trunk does not match layer_size_trunk.")
@@ -73,7 +76,7 @@ class OpNN(Map):
     @inputs.setter
     def inputs(self, value):
         if value[1] is not None:
-            raise ValueError("OpNN does not support setting trunk net input.")
+            raise ValueError("DeepONet does not support setting trunk net input.")
         self._X_func_default = value[0]
         self._inputs = self.X_loc
 
@@ -93,7 +96,7 @@ class OpNN(Map):
 
     @timing
     def build(self):
-        print("Building operator neural network...")
+        print("Building DeepONet...")
         self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
