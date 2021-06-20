@@ -9,8 +9,8 @@ from .data import Data
 from .sampler import BatchSampler
 
 
-class Triplet(Data):
-    """Dataset with each data point as a triplet.
+class Triple(Data):
+    """Dataset with each data point as a triple.
 
     This dataset can be used with the network ``DeepONet`` for operator learning. `Lu et al. Learning nonlinear
     operators via DeepONet based on the universal approximation theorem of operators. Nat Mach Intell, 2021.

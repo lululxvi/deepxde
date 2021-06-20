@@ -12,7 +12,7 @@ from .mf import MfFunc
 from .mfopdataset import MfOpDataSet
 from .pde import PDE
 from .pde import TimePDE
-from .triplet import Triplet
+from .triple import Triple
 
 
 __all__ = [
@@ -28,5 +28,5 @@ __all__ = [
     "PDE",
     "TimeFPDE",
     "TimePDE",
-    "Triplet",
+    "Triple",
 ]

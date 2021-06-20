@@ -92,10 +92,10 @@ deepxde.data.sampler module
    :undoc-members:
    :show-inheritance:
 
-deepxde.data.triplet module
+deepxde.data.triple module
 ---------------------------
 
-.. automodule:: deepxde.data.triplet
+.. automodule:: deepxde.data.triple
    :members:
    :undoc-members:
    :show-inheritance:
