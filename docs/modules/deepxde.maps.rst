@@ -12,6 +12,14 @@ deepxde.maps.activations module
    :undoc-members:
    :show-inheritance:
 
+deepxde.maps.deeponet module
+----------------------------
+
+.. automodule:: deepxde.maps.deeponet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.maps.fnn module
 -----------------------
 
@@ -48,14 +56,6 @@ deepxde.maps.msffn module
 -------------------------
 
 .. automodule:: deepxde.maps.msffn
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-deepxde.maps.opnn module
-------------------------
-
-.. automodule:: deepxde.maps.opnn
    :members:
    :undoc-members:
    :show-inheritance:

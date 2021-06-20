@@ -76,14 +76,6 @@ deepxde.data.mf module
    :undoc-members:
    :show-inheritance:
 
-deepxde.data.op\_dataset module
--------------------------------
-
-.. automodule:: deepxde.data.op_dataset
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.data.pde module
 -----------------------
 
@@ -96,6 +88,14 @@ deepxde.data.sampler module
 ---------------------------
 
 .. automodule:: deepxde.data.sampler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deepxde.data.triplet module
+---------------------------
+
+.. automodule:: deepxde.data.triplet
    :members:
    :undoc-members:
    :show-inheritance:
