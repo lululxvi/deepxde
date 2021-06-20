@@ -10,9 +10,9 @@ from .ide import IDE
 from .mf import MfDataSet
 from .mf import MfFunc
 from .mfopdataset import MfOpDataSet
-from .op_dataset import OpDataSet
 from .pde import PDE
 from .pde import TimePDE
+from .triplet import Triplet
 
 
 __all__ = [
@@ -25,8 +25,8 @@ __all__ = [
     "MfDataSet",
     "MfFunc",
     "MfOpDataSet",
-    "OpDataSet",
     "PDE",
     "TimeFPDE",
     "TimePDE",
+    "Triplet",
 ]

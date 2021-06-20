@@ -9,38 +9,28 @@ from .data import Data
 from .sampler import BatchSampler
 
 
-class OpDataSet(Data):
-    """Fitting operator data set.
+class Triplet(Data):
+    """Dataset with each data point as a triplet.
+
+    This dataset can be used with the network ``DeepONet`` for operator learning. `Lu et al. Learning nonlinear
+    operators via DeepONet based on the universal approximation theorem of operators. Nat Mach Intell, 2021.
+    <https://doi.org/10.1038/s42256-021-00302-5>`_
 
     Args:
-        col_x: List of integers.
-        col_y: List of integers.
+        X_train: A tuple of two NumPy arrays.
+        y_train: A NumPy array.
     """
 
     def __init__(
         self,
-        X_train=None,
-        y_train=None,
-        X_test=None,
-        y_test=None,
-        fname_train=None,
-        fname_test=None,
-        col_x=None,
-        col_y=None,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
         standardize=False,
     ):
-        if X_train is not None:
-            self.train_x, self.train_y = X_train, y_train
-            self.test_x, self.test_y = X_test, y_test
-        elif fname_train is not None:
-            # Bug to be fixed: x should be a tuple
-            train_data = np.loadtxt(fname_train)
-            self.train_x = train_data[:, col_x]
-            self.train_y = train_data[:, col_y]
-            test_data = np.loadtxt(fname_test)
-            self.test_x, self.test_y = test_data[:, col_x], test_data[:, col_y]
-        else:
-            raise ValueError("No training data.")
+        self.train_x, self.train_y = X_train, y_train
+        self.test_x, self.test_y = X_test, y_test
 
         self.scaler_x = None
         if standardize:
