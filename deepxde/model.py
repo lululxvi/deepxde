@@ -95,8 +95,8 @@ class Model(object):
         self.loss_weights = loss_weights if loss_weights is not None else [1] * len(self.losses)
         self.totalloss = 0
         for i, loss in enumerate(self.losses):
-            self.weighted_loss.append(loss * self.loss_weights[i]
-            self.totalloss += self.weighted_loss[-1]
+            self.losses_weighted.append(loss * self.loss_weights[i])
+            self.totalloss += self.losses_weighted[-1]
 
         self.train_op = train_module.get_train_op(
             self.totalloss, self.optimizer, lr=lr, decay=decay
@@ -283,7 +283,7 @@ class Model(object):
                 self.train_state.train_aux_vars,
             )
         self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
-            [self.losses, self.net.outputs],
+            [self.losses_weighted, self.net.outputs],
             feed_dict=feed_dict,
         )
 
@@ -300,7 +300,7 @@ class Model(object):
                     )
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
-                    [self.losses, self.net.outputs],
+                    [self.losses_weighted, self.net.outputs],
                     feed_dict=feed_dict,
                 )
                 losses.append(loss_one)
@@ -318,7 +318,7 @@ class Model(object):
                     self.train_state.test_aux_vars,
                 )
             self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
-                [self.losses, self.net.outputs],
+                [self.losses_weighted, self.net.outputs],
                 feed_dict=feed_dict,
             )
 
