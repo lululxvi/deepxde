@@ -93,7 +93,7 @@ deepxde.data.sampler module
    :show-inheritance:
 
 deepxde.data.triple module
----------------------------
+--------------------------
 
 .. automodule:: deepxde.data.triple
    :members:

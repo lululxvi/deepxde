@@ -138,6 +138,7 @@ class DeepONet(Map):
                 y_func,
                 self.layer_size_func[-1],
                 use_bias=self.use_bias,
+                regularizer=self.regularizer,
                 trainable=self.trainable_branch,
             )
 
@@ -241,3 +242,108 @@ class DeepONet(Map):
         if activation is not None:
             return activation(outputs)
         return outputs
+
+
+class DeepONetCartesianProd(Map):
+    """Deep operator network for dataset in the format of Cartesian product.
+
+    Args:
+        layer_size_branch: A list of integers as the width of a fully connected network, or `(dim, f)` where `dim` is
+            the input dimension and `f` is a network function. The width of the last layer in the branch and trunk net
+            should be equal.
+        layer_size_trunk (list): A list of integers as the width of a fully connected network.
+        activation: If `activation` is a ``string``, then the same activation is used in both trunk and branch nets.
+            If `activation` is a ``dict``, then the trunk net uses the activation `activation["trunk"]`,
+            and the branch net uses `activation["branch"]`.
+    """
+
+    def __init__(
+        self,
+        layer_size_branch,
+        layer_size_trunk,
+        activation,
+        kernel_initializer,
+        regularization=None,
+    ):
+        super(DeepONetCartesianProd, self).__init__()
+        self.layer_size_func = layer_size_branch
+        self.layer_size_loc = layer_size_trunk
+        if isinstance(activation, dict):
+            self.activation_branch = activations.get(activation["branch"])
+            self.activation_trunk = activations.get(activation["trunk"])
+        else:
+            self.activation_branch = self.activation_trunk = activations.get(activation)
+        self.kernel_initializer = initializers.get(kernel_initializer)
+        self.regularizer = regularizers.get(regularization)
+
+        self._inputs = None
+
+    @property
+    def inputs(self):
+        return self._inputs
+
+    @property
+    def outputs(self):
+        return self.y
+
+    @property
+    def targets(self):
+        return self.target
+
+    @timing
+    def build(self):
+        print("Building DeepONetCartesianProd...")
+        self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
+        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
+        self._inputs = [self.X_func, self.X_loc]
+
+        # Branch net to encode the input function
+        y_func = self.X_func
+        if callable(self.layer_size_func[1]):
+            # User-defined network
+            y_func = self.layer_size_func[1](y_func)
+        else:
+            # Fully connected network
+            for i in range(1, len(self.layer_size_func) - 1):
+                y_func = tf.layers.dense(
+                    y_func,
+                    self.layer_size_func[i],
+                    activation=self.activation_branch,
+                    kernel_initializer=self.kernel_initializer,
+                    kernel_regularizer=self.regularizer,
+                )
+            y_func = tf.layers.dense(
+                y_func,
+                self.layer_size_func[-1],
+                kernel_initializer=self.kernel_initializer,
+                kernel_regularizer=self.regularizer,
+            )
+
+        # Trunk net to encode the domain of the output function
+        y_loc = self.X_loc
+        if self._input_transform is not None:
+            y_loc = self._input_transform(y_loc)
+        for i in range(1, len(self.layer_size_loc)):
+            y_loc = tf.layers.dense(
+                y_loc,
+                self.layer_size_loc[i],
+                activation=self.activation_trunk,
+                kernel_initializer=self.kernel_initializer,
+                kernel_regularizer=self.regularizer,
+            )
+
+        # Dot product
+        if y_func.get_shape().as_list()[-1] != y_loc.get_shape().as_list()[-1]:
+            raise AssertionError(
+                "Output sizes of branch net and trunk net do not match."
+            )
+        self.y = tf.einsum("bi,ni->bn", y_func, y_loc)
+        # Add bias
+        b = tf.Variable(tf.zeros(1))
+        self.y += b
+
+        if self._output_transform is not None:
+            self.y = self._output_transform(self._inputs, self.y)
+
+        self.target = tf.placeholder(config.real(tf), [None, None])
+        self.built = True
