@@ -24,6 +24,11 @@ def nanl2_relative_error(y_true, y_pred):
     return np.linalg.norm(err) / np.linalg.norm(y_true)
 
 
+def mean_l2_relative_error(y_true, y_pred):
+    """Compute the average of L2 relative error along the first axis."""
+    return np.mean(list(map(l2_relative_error, y_true, y_pred)))
+
+
 def _absolute_percentage_error(y_true, y_pred):
     return 100 * np.abs(
         (y_true - y_pred) / np.clip(np.abs(y_true), np.finfo(config.real(np)).eps, None)
@@ -50,6 +55,7 @@ def get(identifier):
         "accuracy": accuracy,
         "l2 relative error": l2_relative_error,
         "nanl2 relative error": nanl2_relative_error,
+        "mean l2 relative error": mean_l2_relative_error,
         "mean squared error": mean_squared_error,
         "MSE": mean_squared_error,
         "mse": mean_squared_error,
