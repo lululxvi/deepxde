@@ -26,7 +26,9 @@ def nanl2_relative_error(y_true, y_pred):
 
 def mean_l2_relative_error(y_true, y_pred):
     """Compute the average of L2 relative error along the first axis."""
-    return np.mean(list(map(l2_relative_error, y_true, y_pred)))
+    return np.mean(
+        np.linalg.norm(y_true - y_pred, axis=1) / np.linalg.norm(y_true, axis=1)
+    )
 
 
 def _absolute_percentage_error(y_true, y_pred):
