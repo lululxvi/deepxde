@@ -34,6 +34,7 @@ class Model(object):
         self.loss_weights = None
 
         self.losses = None
+        self.weighted_loss = []
         self.totalloss = None
         self.train_op = None
         self.metrics = None
@@ -91,11 +92,11 @@ class Model(object):
             self.losses = [self.losses]
         if self.net.regularizer is not None:
             self.losses.append(tf.losses.get_regularization_loss())
-        if self.loss_weights is None:
-            self.loss_weights = [1] * len(self.losses)
+        self.loss_weights = loss_weights if loss_weights is not None else [1] * len(self.losses)
         self.totalloss = 0
         for i, loss in enumerate(self.losses):
-            self.totalloss += loss * self.loss_weights[i]
+            self.weighted_loss.append(loss * self.loss_weights[i]
+            self.totalloss += self.weighted_loss[-1]
 
         self.train_op = train_module.get_train_op(
             self.totalloss, self.optimizer, lr=lr, decay=decay
@@ -252,7 +253,7 @@ class Model(object):
                 self.losshistory.append(
                     self.train_state.step, self.train_state.loss_train, None, None
                 )
-                self.losshistory.set_loss_weights(self.current_weights)
+                self.losshistory.set_loss_weights(self.loss_weights)
                 display.training_display(self.train_state)
 
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
