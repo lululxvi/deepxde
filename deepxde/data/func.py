@@ -34,7 +34,7 @@ class Func(Data):
             if self.dist_train == "uniform":
                 self.train_x = self.geom.uniform_points(self.num_train, True)
             else:
-                self.train_x = self.geom.random_points(self.num_train, "sobol")
+                self.train_x = self.geom.random_points(self.num_train, "Sobol")
             self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 

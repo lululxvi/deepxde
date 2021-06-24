@@ -51,7 +51,7 @@ class FuncConstraint(Data):
         if self.dist_train == "log uniform":
             self.train_x = self.geom.log_uniform_points(self.num_train, False)
         elif self.dist_train == "random":
-            self.train_x = self.geom.random_points(self.num_train, "sobol")
+            self.train_x = self.geom.random_points(self.num_train, "Sobol")
         else:
             self.train_x = self.geom.uniform_points(self.num_train, False)
         if self.anchors is not None:
