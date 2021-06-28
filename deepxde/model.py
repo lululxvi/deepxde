@@ -119,12 +119,14 @@ class Model(object):
 
         Args:
             epochs: Integer. Number of epochs to train the model.
-            batch_size: Integer or ``None``. Not fully supported yet.
+            batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use
+                `batch_size`, and instead use `dde.callbacks.PDEResidualResampler
+                <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
+                see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
             display_every: Integer. Print the loss and metrics every this steps.
             uncertainty: Boolean. If ``True``, use Monte-Carlo Dropout to estimate uncertainty.
             disregard_previous_best: If ``True``, disregard the previous saved best model.
-            callbacks: List of ``deepxde.callbacks.Callback`` instances.
-                List of callbacks to apply during training.
+            callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks to apply during training.
             model_restore_path: String. Path where parameters were previously saved.
                 See ``save_path`` in `tf.train.Saver.restore <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#restore>`_.
             model_save_path: String. Prefix of filenames created for the checkpoint.
