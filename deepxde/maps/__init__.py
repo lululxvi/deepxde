@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from .bionet import BiONet
-from .deeponet import DeepONet, DeepONetCartesianProd
+from .deeponet import DeepONet, DeepONetCartesianProd, FourierDeepONetCartesianProd
 from .fnn import FNN
 from .msffn import MsFFN
 from .msffn import STMsFFN
@@ -14,6 +14,7 @@ __all__ = [
     "BiONet",
     "DeepONet",
     "DeepONetCartesianProd",
+    "FourierDeepONetCartesianProd",
     "FNN",
     "MsFFN",
     "STMsFFN",
