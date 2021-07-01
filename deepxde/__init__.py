@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 
 from .__about__ import __version__
+
+# Should import backend before importing anything else
 from . import backend
+
 from . import boundary_conditions as bc
 from . import callbacks
 from . import data
@@ -21,8 +24,6 @@ from .utils import apply
 
 
 __all__ = [
-    "__version__",
-    "backend",
     "bc",
     "callbacks",
     "data",
