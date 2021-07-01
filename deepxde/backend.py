@@ -15,6 +15,7 @@ if _IS_TF_1:
     tf = tf
 else:
     print("Using TensorFlow 2 backend.\n")
+    # Disable TF eager mode
     tf = tf.compat.v1
     tf.disable_v2_behavior()
 

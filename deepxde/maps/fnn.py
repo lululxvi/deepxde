@@ -140,12 +140,10 @@ class FNN(Map):
 
     @staticmethod
     def _layer_normalization(inputs, elementwise_affine=True):
-        """
+        """References:
 
-        References:
-            https://tensorflow.google.cn/api_docs/python/tf/keras/layers/LayerNormalization?hl=en
-            https://github.com/taki0112/Group_Normalization-Tensorflow
-
+        - https://tensorflow.google.cn/api_docs/python/tf/keras/layers/LayerNormalization?hl=en
+        - https://github.com/taki0112/Group_Normalization-Tensorflow
         """
 
         with tf.variable_scope("layer_norm"):
