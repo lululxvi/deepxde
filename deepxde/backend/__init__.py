@@ -5,19 +5,14 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-_BACKEND = "tensorflow"
+_BACKEND = "tensorflow.compat.v1"
 _VERSION = tf.__version__
-_IS_TF_1 = _VERSION.startswith("1.")
 
 
-if _IS_TF_1:
-    print("Using TensorFlow 1 backend.\n")
-    tf = tf
-else:
-    print("Using TensorFlow 2 backend.\n")
-    # Disable TF eager mode
-    tf = tf.compat.v1
-    tf.disable_v2_behavior()
+print("Using backend: tensorflow.compat.v1\n")
+# Disable TF eager mode
+tf = tf.compat.v1
+tf.disable_v2_behavior()
 
 
 def backend():
@@ -34,7 +29,3 @@ def backend():
         ("tensorflow", 1.14.0)
     """
     return _BACKEND, _VERSION
-
-
-def is_tf_1():
-    return _IS_TF_1
