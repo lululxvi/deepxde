@@ -200,9 +200,7 @@ class Model(object):
     def _open_tfsession(self):
         if self.sess is not None:
             return
-        tfconfig = tf.ConfigProto()
-        tfconfig.gpu_options.allow_growth = True
-        self.sess = tf.Session(config=tfconfig)
+        self.sess = tf.Session()
         self.saver = tf.train.Saver(max_to_keep=None)
         self.train_state.set_tfsession(self.sess)
 
