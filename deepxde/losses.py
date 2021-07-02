@@ -22,7 +22,7 @@ def zero(*_):
 
 mean_absolute_error = tf.keras.losses.MeanAbsoluteError()
 mean_absolute_percentage_error = tf.keras.losses.MeanAbsolutePercentageError()
-softmax_cross_entropy = tf.losses.softmax_cross_entropy
+softmax_cross_entropy = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
 
 def get(identifier):
