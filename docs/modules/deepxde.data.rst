@@ -36,18 +36,18 @@ deepxde.data.fpde module
    :undoc-members:
    :show-inheritance:
 
-deepxde.data.func module
-------------------------
-
-.. automodule:: deepxde.data.func
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.data.func\_constraint module
 ------------------------------------
 
 .. automodule:: deepxde.data.func_constraint
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deepxde.data.function module
+----------------------------
+
+.. automodule:: deepxde.data.function
    :members:
    :undoc-members:
    :show-inheritance:
