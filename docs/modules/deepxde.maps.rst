@@ -1,18 +1,6 @@
 deepxde.maps package
 ====================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   deepxde.maps.tensorflow
-   deepxde.maps.tensorflow_compat_v1
-
-Submodules
-----------
-
 deepxde.maps.activations module
 -------------------------------
 
@@ -33,14 +21,6 @@ deepxde.maps.regularizers module
 --------------------------------
 
 .. automodule:: deepxde.maps.regularizers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: deepxde.maps
    :members:
    :undoc-members:
    :show-inheritance:

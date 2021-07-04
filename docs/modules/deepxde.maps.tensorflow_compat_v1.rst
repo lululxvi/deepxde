@@ -1,9 +1,6 @@
 deepxde.maps.tensorflow\_compat\_v1 package
 ===========================================
 
-Submodules
-----------
-
 deepxde.maps.tensorflow\_compat\_v1.deeponet module
 ---------------------------------------------------
 
@@ -56,14 +53,6 @@ deepxde.maps.tensorflow\_compat\_v1.resnet module
 -------------------------------------------------
 
 .. automodule:: deepxde.maps.tensorflow_compat_v1.resnet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: deepxde.maps.tensorflow_compat_v1
    :members:
    :undoc-members:
    :show-inheritance:

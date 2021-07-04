@@ -1,9 +1,6 @@
 deepxde.data package
 ====================
 
-Submodules
-----------
-
 deepxde.data.constraint module
 ------------------------------
 
@@ -96,14 +93,6 @@ deepxde.data.triple module
 --------------------------
 
 .. automodule:: deepxde.data.triple
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: deepxde.data
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,19 +1,6 @@
 deepxde package
 ===============
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   deepxde.data
-   deepxde.geometry
-   deepxde.maps
-
-Submodules
-----------
-
 deepxde.array\_ops module
 -------------------------
 
@@ -138,14 +125,6 @@ deepxde.utils module
 --------------------
 
 .. automodule:: deepxde.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: deepxde
    :members:
    :undoc-members:
    :show-inheritance:

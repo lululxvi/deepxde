@@ -1,9 +1,6 @@
 deepxde.geometry package
 ========================
 
-Submodules
-----------
-
 deepxde.geometry.csg module
 ---------------------------
 
@@ -64,15 +61,6 @@ deepxde.geometry.timedomain module
 ----------------------------------
 
 .. automodule:: deepxde.geometry.timedomain
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: deepxde.geometry
     :members:
     :undoc-members:
     :show-inheritance:
