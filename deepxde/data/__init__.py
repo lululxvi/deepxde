@@ -4,7 +4,7 @@ from .constraint import Constraint
 from .dataset import DataSet
 from .fpde import FPDE
 from .fpde import TimeFPDE
-from .func import Func
+from .function import Function
 from .func_constraint import FuncConstraint
 from .ide import IDE
 from .mf import MfDataSet
@@ -19,7 +19,7 @@ __all__ = [
     "Constraint",
     "DataSet",
     "FPDE",
-    "Func",
+    "Function",
     "FuncConstraint",
     "IDE",
     "MfDataSet",

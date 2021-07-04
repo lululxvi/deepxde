@@ -1,24 +1,20 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
+
+def func(x):
+    """
+    x: array_like, N x D_in
+    y: array_like, N x D_out
+    """
+    return x * np.sin(5 * x)
 
 
 def main():
-    def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
-        return x * np.sin(5 * x)
-
     geom = dde.geometry.Interval(-1, 1)
     num_train = 16
     num_test = 100
-    data = dde.data.Func(geom, func, num_train, num_test)
+    data = dde.data.Function(geom, func, num_train, num_test)
 
     activation = "tanh"
     initializer = "Glorot uniform"
