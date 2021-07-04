@@ -1,3 +1,4 @@
+# Reference: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
 dist: xenial
 language: python
 python:
@@ -6,8 +7,6 @@ python:
   - "3.7"
   - "3.8"
 install:
-  # code below is taken from https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
-  - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -30,6 +29,7 @@ install:
   - conda install -c conda-forge scikit-optimize
   - conda install tensorflow
 
-# command to run tests
 script:
-  - python -c "import deepxde"
+  # Your test script goes here
+  - DDEBACKEND=tensorflow.compat.v1 python -c "import deepxde"
+  - DDEBACKEND=tensorflow python -c "import deepxde"
