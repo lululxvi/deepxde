@@ -3,8 +3,8 @@ from __future__ import division
 from __future__ import print_function
 
 from .fnn import FNN
-from .. import config
-from ..backend import tf
+from ... import config
+from ...backend import tf
 
 
 class MsFFN(FNN):

@@ -2,18 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from . import activations
-from . import initializers
-from . import regularizers
 from .map import Map
-from .. import config
-from ..backend import tf
-from ..utils import timing
+from .. import activations
+from .. import initializers
+from .. import regularizers
+from ... import config
+from ...backend import tf
+from ...utils import timing
 
 
 class ResNet(Map):
-    """Residual neural network.
-    """
+    """Residual neural network."""
 
     def __init__(
         self,
@@ -76,8 +75,7 @@ class ResNet(Map):
         )
 
     def residual_block(self, inputs):
-        """A residual block in ResNet.
-        """
+        """A residual block in ResNet."""
         shape = inputs.get_shape().as_list()
         units = shape[1]
 

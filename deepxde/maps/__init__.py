@@ -1,25 +1,28 @@
-from __future__ import absolute_import
+"""The ``deepxde.maps`` package contains framework-specific implementations for
+different neural networks.
 
-from .bionet import BiONet
-from .deeponet import DeepONet, DeepONetCartesianProd, FourierDeepONetCartesianProd
-from .fnn import FNN
-from .msffn import MsFFN
-from .msffn import STMsFFN
-from .mfnn import MfNN
-from .mfonet import MfONet
-from .pfnn import PFNN
-from .resnet import ResNet
+Users can directly import ``deepxde.maps.<network_name>`` (e.g., ``deepxde.maps.FNN``),
+and the package will dispatch the network name to the actual implementation according to
+the backend framework currently in use.
 
-__all__ = [
-    "BiONet",
-    "DeepONet",
-    "DeepONetCartesianProd",
-    "FourierDeepONetCartesianProd",
-    "FNN",
-    "MsFFN",
-    "STMsFFN",
-    "MfNN",
-    "MfONet",
-    "PFNN",
-    "ResNet",
-]
+Note that there are coverage differences among frameworks. If you encounter an
+``AttributeError: module 'deepxde.maps.XXX' has no attribute 'XXX'`` or ``ImportError:
+cannot import name 'XXX' from 'deepxde.maps.XXX'`` error, that means the network is not
+available to the current backend. If you wish a module to appear in DeepXDE, please
+create an issue. If you want to contribute a NN module, please create a pull request.
+"""
+
+import importlib
+import sys
+
+from ..backend import backend_name
+
+
+def _load_backend(mod_name):
+    mod = importlib.import_module(".%s" % mod_name, __name__)
+    thismod = sys.modules[__name__]
+    for api, obj in mod.__dict__.items():
+        setattr(thismod, api, obj)
+
+
+_load_backend(backend_name.replace(".", "_"))
