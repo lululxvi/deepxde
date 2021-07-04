@@ -49,7 +49,7 @@ class MsFFN(FNN):
     def fourier_feature_forward(self, y, sigma):
         b = tf.Variable(
             tf.random_normal(
-                [y.get_shape()[1], self.layer_size[1] // 2], dtype=config.real(tf)
+                [y.shape[1], self.layer_size[1] // 2], dtype=config.real(tf)
             )
             * sigma,
             dtype=config.real(tf),

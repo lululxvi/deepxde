@@ -399,7 +399,7 @@ def _accumulate(list_):
 
 
 def _get_shape_tuple(tensor):
-  return tuple(tensor.get_shape().as_list())
+  return tuple(tensor.shape)
 
 
 def _prod(array):

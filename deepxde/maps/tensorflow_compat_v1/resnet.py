@@ -76,8 +76,7 @@ class ResNet(Map):
 
     def residual_block(self, inputs):
         """A residual block in ResNet."""
-        shape = inputs.get_shape().as_list()
-        units = shape[1]
+        units = inputs.shape[1]
 
         x = self.dense(inputs, units, activation=self.activation)
         x = self.dense(x, units)

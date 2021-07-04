@@ -551,7 +551,7 @@ class Fractional(object):
             indices, values = [], []
             beg = self.x0.shape[0]
             for i in range(self.x0.shape[0]):
-                for _ in range(array_ops.shape(self.w[i])[0]):
+                for _ in range(self.w[i].shape[0]):
                     indices.append([i, beg])
                     beg += 1
                 values = array_ops.hstack((values, self.w[i]))

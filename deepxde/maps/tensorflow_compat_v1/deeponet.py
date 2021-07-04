@@ -158,7 +158,7 @@ class DeepONet(Map):
             )
 
         # Dot product
-        if y_func.get_shape().as_list()[-1] != y_loc.get_shape().as_list()[-1]:
+        if y_func.shape[-1] != y_loc.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
@@ -210,7 +210,7 @@ class DeepONet(Map):
             2D tensor with shape: `(batch_size, stack_size)`;
             otherwise, 3D tensor with shape: `(batch_size, stack_size, units)`.
         """
-        shape = inputs.get_shape().as_list()
+        shape = inputs.shape
         input_dim = shape[-1]
         if len(shape) == 2:
             # NN input layer
@@ -333,7 +333,7 @@ class DeepONetCartesianProd(Map):
             )
 
         # Dot product
-        if y_func.get_shape().as_list()[-1] != y_loc.get_shape().as_list()[-1]:
+        if y_func.shape[-1] != y_loc.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
@@ -419,7 +419,7 @@ class FourierDeepONetCartesianProd(DeepONetCartesianProd):
             y = tf.signal.irfft(y_func, fft_length=self.output_shape)
         elif self.layer_size_loc[0] == 2:
             # Inverse 2D FFT
-            s = y_func.get_shape().as_list()
+            s = y_func.shape
             if len(s) == 2:
                 # 1D branch output
                 modes = s[-1] // 2

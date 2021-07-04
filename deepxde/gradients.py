@@ -19,8 +19,8 @@ class Jacobian(object):
         self.ys = ys
         self.xs = xs
 
-        self.dim_y = ys.get_shape().as_list()[1]
-        self.dim_x = xs.get_shape().as_list()[1]
+        self.dim_y = ys.shape[1]
+        self.dim_x = xs.shape[1]
         self.J = {}
 
     def __call__(self, i=0, j=None):
@@ -53,7 +53,7 @@ class Hessian(object):
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        dim_y = y.get_shape().as_list()[1]
+        dim_y = y.shape[1]
         if dim_y > 1:
             if component is None:
                 raise ValueError("The component of y is missing.")
@@ -72,8 +72,7 @@ class Hessian(object):
         self.H = Jacobian(grad_y, xs)
 
     def __call__(self, i=0, j=0):
-        """Returns H[`i`][`j`].
-        """
+        """Returns H[`i`][`j`]."""
         return self.H(i, j)
 
 

@@ -18,10 +18,6 @@ def istensorlist(values):
     return any(map(istensor, values))
 
 
-def shape(value):
-    return value.get_shape() if istensor(value) else value.shape
-
-
 def convert_to_array(value):
     """Convert a list to numpy array or tensorflow tensor."""
     if istensorlist(value):

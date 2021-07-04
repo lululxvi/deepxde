@@ -114,8 +114,7 @@ class FNN(Map):
 
     @staticmethod
     def dense_weightnorm(inputs, units, activation=None, use_bias=True):
-        shape = inputs.get_shape().as_list()
-        fan_in = shape[1]
+        fan_in = inputs.shape[1]
         W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
         g = tf.Variable(tf.ones(units))
         W = tf.nn.l2_normalize(W, axis=0) * g

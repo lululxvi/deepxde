@@ -30,7 +30,7 @@ def load_backend(mod_name):
     if mod_name not in ["tensorflow.compat.v1", "tensorflow"]:
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
-    print("Using backend: %s" % mod_name, file=sys.stderr)
+    print("Using backend: %s\n" % mod_name, file=sys.stderr)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
     # log backend name
