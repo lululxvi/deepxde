@@ -29,7 +29,7 @@ def convert_to_array(value):
 
 
 def hstack(tup):
-    if tup[0] == []:
+    if not istensor(tup[0]) and tup[0] == []:
         tup = list(tup)
         if istensorlist(tup[1:]):
             tup[0] = tf.convert_to_tensor([], dtype=config.real(tf))
