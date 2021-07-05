@@ -22,3 +22,9 @@ DeepONet
 - L. Lu, P. Jin, G. Pang, Z. Zhang, & G. E. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021.
 - C. Lin, Z. Li, L. Lu, S. Cai, M. Maxey, & G. E. Karniadakis. `Operator learning for predicting multiscale bubble growth dynamics <https://doi.org/10.1063/5.0041203>`_. *The Journal of Chemical Physics*, 154(10), 104118, 2021.
 - Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://arxiv.org/abs/2011.03349>`_. *arXiv preprint arXiv:2011.03349*, 2020.
+
+Multi-fidelity NN
+-----------------
+
+- L. Lu, M. Dao, P. Kumar, U. Ramamurty, G. E. Karniadakis, & S. Suresh. `Extraction of mechanical properties of materials through deep learning from instrumented indentation <https://doi.org/10.1073/pnas.1922210117>`_. *Proceedings of the National Academy of Sciences*, 117(13), 7052--7062, 2020.
+- X. Meng & G. E. Karniadakis. `A composite neural network that learns from multi-fidelity data: Application to function approximation and inverse PDE problems <https://doi.org/10.1016/j.jcp.2019.109020>`_. *Journal of Computational Physics*, 401, 109020, 2020.

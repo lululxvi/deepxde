@@ -6,8 +6,8 @@ DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
 - solves forward and inverse fractional partial differential equations (fPDEs) via fractional PINN (fPINN),
-- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates nonlinear operators via deep operator network (DeepONet),
+- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates functions from a dataset with/without constraints.
 
 **Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `SIAM Rev. <https://doi.org/10.1137/19M1274067>`_, `Slides <https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_
@@ -18,8 +18,8 @@ DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow
 - Solving fPDEs via fPINN: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
 - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
 - Solving inverse design/topology optimization: `arXiv <https://arxiv.org/abs/2102.04626>`_
+- Learning nonlinear operators via DeepONet: `Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `arXiv <https://arxiv.org/abs/2011.03349>`_
 - Learning from multi-fidelity data via MFNN: `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://www.pnas.org/content/117/13/7052>`_
-- Learning nonlinear operators via DeepONet: `Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_
 
 Features
 --------
