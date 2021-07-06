@@ -28,12 +28,12 @@ class Model(object):
         self.data = data
         self.net = net
 
-        self.optimizer = None
+        self.opt_name = None
         self.batch_size = None
         self.callbacks = None
 
-        self.losses = None
-        self.train_step = None
+        self.losses = None  # Tensor or callable
+        self.train_step = None  # Tensor or callable
         self.metrics = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
@@ -83,28 +83,27 @@ class Model(object):
                 self.sess = tf.Session()
                 self.saver = tf.train.Saver(max_to_keep=None)
 
-        self.optimizer = optimizer
+        self.opt_name = optimizer
 
         loss_fn = losses_module.get(loss)
         if backend_name == "tensorflow.compat.v1":
             # Data losses
-            self.losses = self.data.losses(
-                self.net.targets, self.net.outputs, loss_fn, self
-            )
-            if not isinstance(self.losses, list):
-                self.losses = [self.losses]
+            losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
             # Regularization loss
             if self.net.regularizer is not None:
-                self.losses.append(tf.losses.get_regularization_loss())
-            self.losses = tf.convert_to_tensor(self.losses)
+                losses.append(tf.losses.get_regularization_loss())
+            losses = tf.convert_to_tensor(losses)
             # Weighted losses
             if loss_weights is not None:
-                self.losses *= loss_weights
+                losses *= loss_weights
                 self.losshistory.set_loss_weights(loss_weights)
-            # Total loss
-            total_loss = tf.reduce_sum(self.losses)
+            total_loss = tf.math.reduce_sum(losses)
+            # Tensor: losses and train_step
+            self.losses = losses
             self.train_step = train_module.get_train_op(
-                total_loss, self.optimizer, lr=lr, decay=decay
+                total_loss, self.opt_name, lr=lr, decay=decay
             )
         elif backend_name == "tensorflow":
 
@@ -116,7 +115,6 @@ class Model(object):
                 # TODO: Regularization loss
                 losses = tf.convert_to_tensor(losses)
                 # TODO: Weighted losses
-                # Total loss
                 return losses
 
             # TODO: Support different optimizers
@@ -124,16 +122,17 @@ class Model(object):
             opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
             @tf.function
-            def train_step_tf(inputs, targets):
+            def train_step(inputs, targets):
                 with tf.GradientTape() as tape:
                     outputs = self.net(inputs, training=True)
-                    losses_value = compute_losses(targets, outputs)
-                    total_loss = tf.math.reduce_sum(losses_value)
-                gradients = tape.gradient(total_loss, self.net.trainable_variables)
-                opt.apply_gradients(zip(gradients, self.net.trainable_variables))
+                    losses = compute_losses(targets, outputs)
+                    total_loss = tf.math.reduce_sum(losses)
+                grads = tape.gradient(total_loss, self.net.trainable_variables)
+                opt.apply_gradients(zip(grads, self.net.trainable_variables))
 
+            # Callable: losses and train_step
             self.losses = compute_losses
-            self.train_step = train_step_tf
+            self.train_step = train_step
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
@@ -193,11 +192,11 @@ class Model(object):
         self.train_state.set_data_test(*self.data.test())
         self._test(uncertainty)
         self.callbacks.on_train_begin()
-        if train_module.is_scipy_opts(self.optimizer):
+        if train_module.is_scipy_opts(self.opt_name):
             self._train_scipy(display_every, uncertainty)
         else:
             if epochs is None:
-                raise ValueError("No epochs for {}.".format(self.optimizer))
+                raise ValueError("No epochs for {}.".format(self.opt_name))
             self._train_sgd(epochs, display_every, uncertainty)
         self.callbacks.on_train_end()
 
