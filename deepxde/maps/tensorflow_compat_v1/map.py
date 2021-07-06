@@ -34,19 +34,19 @@ class Map(object):
 
     @property
     def inputs(self):
-        """Mapping inputs."""
+        """Placeholders: Mapping inputs."""
 
     @property
     def outputs(self):
-        """Mapping outputs."""
+        """Mapping outputs (tf.Tensor)."""
 
     @property
     def targets(self):
-        """Targets of the mapping outputs."""
+        """Placeholders: Targets of the mapping outputs."""
 
     @property
     def auxiliary_vars(self):
-        """Any additional variables needed."""
+        """Placeholders: Any additional variables needed."""
         return self._auxiliary_vars
 
     def feed_dict(

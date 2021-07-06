@@ -14,11 +14,11 @@ from ...utils import timing
 
 
 class FNN(Map):
-    """Feed-forward neural networks."""
+    """Fully-connected neural network."""
 
     def __init__(
         self,
-        layer_size,
+        layer_sizes,
         activation,
         kernel_initializer,
         regularization=None,
@@ -29,7 +29,7 @@ class FNN(Map):
         use_bias=True,
     ):
         super(FNN, self).__init__()
-        self.layer_size = layer_size
+        self.layer_size = layer_sizes
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
@@ -69,7 +69,8 @@ class FNN(Map):
                 )
             elif self.batch_normalization and self.layer_normalization:
                 raise ValueError(
-                    "Can not apply batch_normalization and layer_normalization at the same time."
+                    "Can not apply batch_normalization and layer_normalization at the "
+                    "same time."
                 )
             elif self.batch_normalization == "before":
                 y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
@@ -95,13 +96,14 @@ class FNN(Map):
         self.built = True
 
     def dense(self, inputs, units, activation=None, use_bias=True):
-        # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to some differences.
-        # One difference is that tf.layers.dense() will add regularizer loss to the collection REGULARIZATION_LOSSES,
-        # but tf.keras.layers.Dense() will not. Hence, tf.losses.get_regularization_loss() cannot be used for
-        # tf.keras.layers.Dense().
-        # Ref:
-        #   - https://github.com/tensorflow/tensorflow/issues/21587
-        #   - https://www.tensorflow.org/guide/migrate
+        # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to
+        # some differences. One difference is that tf.layers.dense() will add
+        # regularizer loss to the collection REGULARIZATION_LOSSES, but
+        # tf.keras.layers.Dense() will not. Hence, tf.losses.get_regularization_loss()
+        # cannot be used for tf.keras.layers.Dense().
+        # References:
+        # - https://github.com/tensorflow/tensorflow/issues/21587
+        # - https://www.tensorflow.org/guide/migrate
         return tf.layers.dense(
             inputs,
             units,
