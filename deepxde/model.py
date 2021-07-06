@@ -33,7 +33,7 @@ class Model(object):
         self.callbacks = None
 
         self.losses = None
-        self.totalloss = None  # TODO: can be removed
+        self.train_step = None
         self.metrics = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
@@ -42,9 +42,6 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-            self.train_op = None
-        elif backend_name == "tensorflow":
-            self.opt = None  # TODO: Need a more consistent name among backends
 
     @timing
     def compile(
@@ -105,10 +102,9 @@ class Model(object):
                 self.losses *= loss_weights
                 self.losshistory.set_loss_weights(loss_weights)
             # Total loss
-            self.totalloss = tf.reduce_sum(self.losses)
-
-            self.train_op = train_module.get_train_op(
-                self.totalloss, self.optimizer, lr=lr, decay=decay
+            total_loss = tf.reduce_sum(self.losses)
+            self.train_step = train_module.get_train_op(
+                total_loss, self.optimizer, lr=lr, decay=decay
             )
         elif backend_name == "tensorflow":
 
@@ -123,10 +119,21 @@ class Model(object):
                 # Total loss
                 return losses
 
-            self.losses = compute_losses
             # TODO: Support different optimizers
             # TODO: Support learning rate decay
-            self.opt = tf.keras.optimizers.Adam(learning_rate=lr)
+            opt = tf.keras.optimizers.Adam(learning_rate=lr)
+
+            @tf.function
+            def train_step_tf(inputs, targets):
+                with tf.GradientTape() as tape:
+                    outputs = self.net(inputs, training=True)
+                    losses_value = compute_losses(targets, outputs)
+                    total_loss = tf.math.reduce_sum(losses_value)
+                gradients = tape.gradient(total_loss, self.net.trainable_variables)
+                opt.apply_gradients(zip(gradients, self.net.trainable_variables))
+
+            self.losses = compute_losses
+            self.train_step = train_step_tf
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
@@ -178,7 +185,7 @@ class Model(object):
                 guarantee_initialized_variables(self.sess)
 
         if model_restore_path is not None:
-            self.restore(self, model_restore_path, verbose=1)
+            self.restore(model_restore_path, verbose=1)
 
         print("Training model...\n")
         self.stop_training = False
@@ -245,16 +252,10 @@ class Model(object):
                     self.train_state.y_train,
                     self.train_state.train_aux_vars,
                 )
-                self.sess.run(self.train_op, feed_dict=feed_dict)
+                self.sess.run(self.train_step, feed_dict=feed_dict)
             elif backend_name == "tensorflow":
-                with tf.GradientTape() as tape:
-                    # TODO: Support self.train_state.train_aux_vars, dropout, data_id
-                    outputs = self.net(self.train_state.X_train, training=True)
-                    losses_value = self.losses(self.train_state.y_train, outputs)
-                    total_loss = tf.math.reduce_sum(losses_value)
-
-                gradients = tape.gradient(total_loss, self.net.trainable_variables)
-                self.opt.apply_gradients(zip(gradients, self.net.trainable_variables))
+                # TODO: Support self.train_state.train_aux_vars, data_id
+                self.train_step(self.train_state.X_train, self.train_state.y_train)
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -290,7 +291,7 @@ class Model(object):
             self.train_state.y_train,
             self.train_state.train_aux_vars,
         )
-        self.train_op.minimize(
+        self.train_step.minimize(
             self.sess,
             feed_dict=feed_dict,
             fetches=[self.losses],
