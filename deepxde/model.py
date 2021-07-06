@@ -11,13 +11,13 @@ from . import display
 from . import losses as losses_module
 from . import metrics as metrics_module
 from . import train as train_module
-from .backend import tf
+from .backend import backend_name, tf
 from .callbacks import CallbackList
 from .utils import get_num_args, guarantee_initialized_variables, timing
 
 
 class Model(object):
-    """The ``Model`` class trains a ``Map`` on a ``Data``.
+    """A ``Model`` trains a ``Map`` on a ``Data``.
 
     Args:
         data: ``deepxde.data.Data`` instance.
@@ -30,21 +30,21 @@ class Model(object):
 
         self.optimizer = None
         self.batch_size = None
+        self.callbacks = None
 
         self.losses = None
-        self.totalloss = None
-        self.train_op = None
+        self.totalloss = None  # TODO: can be removed
         self.metrics = None
-
-        self.sess = None
-        self.saver = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
-        self.callbacks = None
 
-    def close(self):
-        self._close_tfsession()
+        if backend_name == "tensorflow.compat.v1":
+            self.sess = None
+            self.saver = None
+            self.train_op = None
+        elif backend_name == "tensorflow":
+            self.opt = None  # TODO: Need a more consistent name among backends
 
     @timing
     def compile(
@@ -61,43 +61,72 @@ class Model(object):
         Args:
             optimizer: String. Name of optimizer.
             lr: A Tensor or a floating point value. The learning rate.
-            loss: If the same loss is used for all errors, then `loss` is a String (name of objective function) or
-                objective function. If different errors use different losses, then `loss` is a list whose size is equal
-                to the number of errors.
+            loss: If the same loss is used for all errors, then `loss` is a String (name
+                of objective function) or objective function. If different errors use
+                different losses, then `loss` is a list whose size is equal to the
+                number of errors.
             metrics: List of metrics to be evaluated by the model during training.
-            decay: Tuple. Name and parameters of decay to the initial learning rate. One of the following options:
+            decay: Tuple. Name and parameters of decay to the initial learning rate. One
+                of the following options:
 
                 - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
                 - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
 
-            loss_weights: A list specifying scalar coefficients (Python floats)
-                to weight the loss contributions. The loss value that will be minimized by the model
-                will then be the weighted sum of all individual losses,
+            loss_weights: A list specifying scalar coefficients (Python floats) to
+                weight the loss contributions. The loss value that will be minimized by
+                the model will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
         """
         print("Compiling model...")
 
-        if not self.net.built:
-            self.net.build()
-        self._open_tfsession()
+        if backend_name == "tensorflow.compat.v1":
+            if not self.net.built:
+                self.net.build()
+            if self.sess is None:
+                self.sess = tf.Session()
+                self.saver = tf.train.Saver(max_to_keep=None)
 
         self.optimizer = optimizer
 
-        loss = losses_module.get(loss)
-        self.losses = self.data.losses(self.net.targets, self.net.outputs, loss, self)
-        if not isinstance(self.losses, list):
-            self.losses = [self.losses]
-        if self.net.regularizer is not None:
-            self.losses.append(tf.losses.get_regularization_loss())
-        self.losses = tf.convert_to_tensor(self.losses)
-        if loss_weights is not None:
-            self.losses *= loss_weights
-            self.losshistory.set_loss_weights(loss_weights)
-        self.totalloss = tf.reduce_sum(self.losses)
+        loss_fn = losses_module.get(loss)
+        if backend_name == "tensorflow.compat.v1":
+            # Data losses
+            self.losses = self.data.losses(
+                self.net.targets, self.net.outputs, loss_fn, self
+            )
+            if not isinstance(self.losses, list):
+                self.losses = [self.losses]
+            # Regularization loss
+            if self.net.regularizer is not None:
+                self.losses.append(tf.losses.get_regularization_loss())
+            self.losses = tf.convert_to_tensor(self.losses)
+            # Weighted losses
+            if loss_weights is not None:
+                self.losses *= loss_weights
+                self.losshistory.set_loss_weights(loss_weights)
+            # Total loss
+            self.totalloss = tf.reduce_sum(self.losses)
 
-        self.train_op = train_module.get_train_op(
-            self.totalloss, self.optimizer, lr=lr, decay=decay
-        )
+            self.train_op = train_module.get_train_op(
+                self.totalloss, self.optimizer, lr=lr, decay=decay
+            )
+        elif backend_name == "tensorflow":
+
+            def compute_losses(targets, outputs):
+                # Data losses
+                losses = self.data.losses(targets, outputs, loss_fn, self)
+                if not isinstance(losses, list):
+                    losses = [losses]
+                # TODO: Regularization loss
+                losses = tf.convert_to_tensor(losses)
+                # TODO: Weighted losses
+                # Total loss
+                return losses
+
+            self.losses = compute_losses
+            # TODO: Support different optimizers
+            # TODO: Support learning rate decay
+            self.opt = tf.keras.optimizers.Adam(learning_rate=lr)
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
@@ -113,25 +142,27 @@ class Model(object):
         callbacks=None,
         model_restore_path=None,
         model_save_path=None,
-        print_model=False,
     ):
         """Trains the model for a fixed number of epochs (iterations on a dataset).
 
         Args:
             epochs: Integer. Number of epochs to train the model.
-            batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use
-                `batch_size`, and instead use `dde.callbacks.PDEResidualResampler
+            batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or
+                ``dde.data.TimePDE``, do not use `batch_size`, and instead use
+                `dde.callbacks.PDEResidualResampler
                 <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
                 see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
             display_every: Integer. Print the loss and metrics every this steps.
-            uncertainty: Boolean. If ``True``, use Monte-Carlo Dropout to estimate uncertainty.
-            disregard_previous_best: If ``True``, disregard the previous saved best model.
-            callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks to apply during training.
+            uncertainty: Boolean. If ``True``, use Monte-Carlo Dropout to estimate
+                uncertainty.
+            disregard_previous_best: If ``True``, disregard the previous saved best
+                model.
+            callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks
+                to apply during training.
             model_restore_path: String. Path where parameters were previously saved.
                 See ``save_path`` in `tf.train.Saver.restore <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#restore>`_.
             model_save_path: String. Prefix of filenames created for the checkpoint.
                 See ``save_path`` in `tf.train.Saver.save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#save>`_.
-            print_model: If ``True``, print the values of all variables.
         """
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
@@ -139,14 +170,15 @@ class Model(object):
         if disregard_previous_best:
             self.train_state.disregard_best()
 
-        if self.train_state.step == 0:
-            print("Initializing variables...")
-            self.sess.run(tf.global_variables_initializer())
-        else:
-            guarantee_initialized_variables(self.sess)
+        if backend_name == "tensorflow.compat.v1":
+            if self.train_state.step == 0:
+                print("Initializing variables...")
+                self.sess.run(tf.global_variables_initializer())
+            else:
+                guarantee_initialized_variables(self.sess)
+
         if model_restore_path is not None:
-            print("Restoring model from {} ...".format(model_restore_path))
-            self.saver.restore(self.sess, model_restore_path)
+            self.restore(self, model_restore_path, verbose=1)
 
         print("Training model...\n")
         self.stop_training = False
@@ -164,8 +196,6 @@ class Model(object):
 
         print("")
         display.training_display.summary(self.train_state)
-        if print_model:
-            self.print_model()
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
@@ -181,31 +211,22 @@ class Model(object):
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
-        if operator is None:
-            y = self.sess.run(
-                self.net.outputs, feed_dict=self.net.feed_dict(False, False, 2, x)
-            )
-        else:
-            if get_num_args(operator) == 2:
-                op = operator(self.net.inputs, self.net.outputs)
-            elif get_num_args(operator) == 3:
-                op = operator(self.net.inputs, self.net.outputs, x)
-            y = self.sess.run(
-                op,
-                feed_dict=self.net.feed_dict(False, False, 2, x),
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(False, False, 2, x)
+            if operator is None:
+                y = self.sess.run(self.net.outputs, feed_dict=feed_dict)
+            else:
+                if get_num_args(operator) == 2:
+                    op = operator(self.net.inputs, self.net.outputs)
+                elif get_num_args(operator) == 3:
+                    op = operator(self.net.inputs, self.net.outputs, x)
+                y = self.sess.run(op, feed_dict=feed_dict)
+        elif backend_name == "tensorflow":
+            raise NotImplementedError(
+                "Model.predict has not been implemented for backend tensorflow."
             )
         self.callbacks.on_predict_end()
         return y
-
-    def _open_tfsession(self):
-        if self.sess is not None:
-            return
-        self.sess = tf.Session()
-        self.saver = tf.train.Saver(max_to_keep=None)
-        self.train_state.set_tfsession(self.sess)
-
-    def _close_tfsession(self):
-        self.sess.close()
 
     def _train_sgd(self, epochs, display_every, uncertainty):
         for i in range(epochs):
@@ -215,17 +236,25 @@ class Model(object):
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
-            self.sess.run(
-                self.train_op,
-                feed_dict=self.net.feed_dict(
+            if backend_name == "tensorflow.compat.v1":
+                feed_dict = self.net.feed_dict(
                     True,
                     True,
                     0,
                     self.train_state.X_train,
                     self.train_state.y_train,
                     self.train_state.train_aux_vars,
-                ),
-            )
+                )
+                self.sess.run(self.train_op, feed_dict=feed_dict)
+            elif backend_name == "tensorflow":
+                with tf.GradientTape() as tape:
+                    # TODO: Support self.train_state.train_aux_vars, dropout, data_id
+                    outputs = self.net(self.train_state.X_train, training=True)
+                    losses_value = self.losses(self.train_state.y_train, outputs)
+                    total_loss = tf.math.reduce_sum(losses_value)
+
+                gradients = tape.gradient(total_loss, self.net.trainable_variables)
+                self.opt.apply_gradients(zip(gradients, self.net.trainable_variables))
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -239,6 +268,7 @@ class Model(object):
                 break
 
     def _train_scipy(self, display_every, uncertainty):
+        # TODO: backend tensorflow
         def loss_callback(loss_train):
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -252,48 +282,57 @@ class Model(object):
                 display.training_display(self.train_state)
 
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
+        feed_dict = self.net.feed_dict(
+            True,
+            True,
+            0,
+            self.train_state.X_train,
+            self.train_state.y_train,
+            self.train_state.train_aux_vars,
+        )
         self.train_op.minimize(
             self.sess,
-            feed_dict=self.net.feed_dict(
-                True,
-                True,
-                0,
-                self.train_state.X_train,
-                self.train_state.y_train,
-                self.train_state.train_aux_vars,
-            ),
+            feed_dict=feed_dict,
             fetches=[self.losses],
             loss_callback=loss_callback,
         )
         self._test(uncertainty)
 
     def _test(self, uncertainty):
-        self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
-            [self.losses, self.net.outputs],
-            feed_dict=self.net.feed_dict(
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(
                 False,
                 False,
                 0,
                 self.train_state.X_train,
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
-            ),
-        )
+            )
+            self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
+                [self.losses, self.net.outputs], feed_dict=feed_dict
+            )
+        elif backend_name == "tensorflow":
+            outputs = self.net(self.train_state.X_train, training=False)
+            self.train_state.loss_train = self.losses(
+                self.train_state.y_train, outputs
+            ).numpy()
+            self.train_state.y_pred_train = outputs.numpy()
 
         if uncertainty:
             # TODO: support multi outputs
+            # TODO: backend tensorflow
             losses, y_preds = [], []
+            feed_dict = self.net.feed_dict(
+                False,
+                True,
+                1,
+                self.train_state.X_test,
+                self.train_state.y_test,
+                self.train_state.test_aux_vars,
+            )
             for _ in range(1000):
                 loss_one, y_pred_test_one = self.sess.run(
-                    [self.losses, self.net.outputs],
-                    feed_dict=self.net.feed_dict(
-                        False,
-                        True,
-                        1,
-                        self.train_state.X_test,
-                        self.train_state.y_test,
-                        self.train_state.test_aux_vars,
-                    ),
+                    [self.losses, self.net.outputs], feed_dict=feed_dict
                 )
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
@@ -301,23 +340,31 @@ class Model(object):
             self.train_state.y_pred_test = np.mean(y_preds, axis=0)
             self.train_state.y_std_test = np.std(y_preds, axis=0)
         else:
-            self.train_state.loss_test, self.train_state.y_pred_test = self.sess.run(
-                [self.losses, self.net.outputs],
-                feed_dict=self.net.feed_dict(
+            if backend_name == "tensorflow.compat.v1":
+                feed_dict = self.net.feed_dict(
                     False,
                     False,
                     1,
                     self.train_state.X_test,
                     self.train_state.y_test,
                     self.train_state.test_aux_vars,
-                ),
-            )
+                )
+                (
+                    self.train_state.loss_test,
+                    self.train_state.y_pred_test,
+                ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
+            elif backend_name == "tensorflow":
+                outputs = self.net(self.train_state.X_test, training=False)
+                self.train_state.loss_test = self.losses(
+                    self.train_state.y_test, outputs
+                ).numpy()
+                self.train_state.y_pred_test = outputs.numpy()
 
-        if isinstance(self.net.targets, (list, tuple)):
+        if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
                 m(self.train_state.y_test[i], self.train_state.y_pred_test[i])
                 for m in self.metrics
-                for i in range(len(self.net.targets))
+                for i in range(len(self.train_state.y_test))
             ]
         else:
             self.train_state.metrics_test = [
@@ -336,6 +383,7 @@ class Model(object):
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
+        # TODO: backend tensorflow
         destination = OrderedDict()
         variables_names = [v.name for v in tf.global_variables()]
         values = self.sess.run(variables_names)
@@ -343,22 +391,16 @@ class Model(object):
             destination[k] = v
         return destination
 
-    def print_model(self):
-        """Prints all trainable variables."""
-        variables_names = [v.name for v in tf.trainable_variables()]
-        values = self.sess.run(variables_names)
-        for k, v in zip(variables_names, values):
-            print("Variable: {}, Shape: {}".format(k, v.shape))
-            print(v)
-
     def save(self, save_path, protocol="tf.train.Saver", verbose=0):
         """Saves all variables to a disk file.
 
         Args:
-            protocol (string): If `protocol` is "tf.train.Saver", save using `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
-                If `protocol` is "pickle", save using the Python pickle module.
-                Only "tf.train.Saver" protocol supports ``restore()``.
+            protocol (string): If `protocol` is "tf.train.Saver", save using
+                `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                If `protocol` is "pickle", save using the Python pickle module. Only
+                "tf.train.Saver" protocol supports ``restore()``.
         """
+        # TODO: backend tensorflow
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {}-{} ...\n".format(
@@ -372,53 +414,70 @@ class Model(object):
                 pickle.dump(self.state_dict(), f)
 
     def restore(self, save_path, verbose=0):
+        """Restore all variables from a disk file."""
+        # TODO: backend tensorflow
         if verbose > 0:
             print("Restoring model from {} ...\n".format(save_path))
         self.saver.restore(self.sess, save_path)
 
+    def print_model(self):
+        """Prints all trainable variables."""
+        # TODO: backend tensorflow
+        variables_names = [v.name for v in tf.trainable_variables()]
+        values = self.sess.run(variables_names)
+        for k, v in zip(variables_names, values):
+            print("Variable: {}, Shape: {}".format(k, v.shape))
+            print(v)
+
 
 class TrainState(object):
     def __init__(self):
-        self.epoch, self.step = 0, 0
+        self.epoch = 0
+        self.step = 0
 
-        self.sess = None
-
-        # Data
-        self.X_train, self.y_train = None, None
-        self.X_test, self.y_test = None, None
-        self.train_aux_vars, self.test_aux_vars = None, None
+        # Current data
+        self.X_train = None
+        self.y_train = None
+        self.train_aux_vars = None
+        self.X_test = None
+        self.y_test = None
+        self.test_aux_vars = None
 
         # Results of current step
+        # Train results
+        self.loss_train = None
         self.y_pred_train = None
-        self.loss_train, self.loss_test = None, None
-        self.y_pred_test, self.y_std_test = None, None
+        # Test results
+        self.loss_test = None
+        self.y_pred_test = None
+        self.y_std_test = None
         self.metrics_test = None
 
         # The best results correspond to the min train loss
         self.best_step = 0
-        self.best_loss_train, self.best_loss_test = np.inf, np.inf
-        self.best_y, self.best_ystd = None, None
+        self.best_loss_train = np.inf
+        self.best_loss_test = np.inf
+        self.best_y = None
+        self.best_ystd = None
         self.best_metrics = None
 
-    def set_tfsession(self, sess):
-        self.sess = sess
-
     def set_data_train(self, X_train, y_train, train_aux_vars=None):
-        self.X_train, self.y_train, self.train_aux_vars = (
-            X_train,
-            y_train,
-            train_aux_vars,
-        )
+        self.X_train = X_train
+        self.y_train = y_train
+        self.train_aux_vars = train_aux_vars
 
     def set_data_test(self, X_test, y_test, test_aux_vars=None):
-        self.X_test, self.y_test, self.test_aux_vars = X_test, y_test, test_aux_vars
+        self.X_test = X_test
+        self.y_test = y_test
+        self.test_aux_vars = test_aux_vars
 
     def update_best(self):
         if self.best_loss_train > np.sum(self.loss_train):
             self.best_step = self.step
             self.best_loss_train = np.sum(self.loss_train)
             self.best_loss_test = np.sum(self.loss_test)
-            self.best_y, self.best_ystd = self.y_pred_test, self.y_std_test
+            self.best_y = self.y_pred_test
+            self.best_ystd = self.y_std_test
             self.best_metrics = self.metrics_test
 
     def disregard_best(self):

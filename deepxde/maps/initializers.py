@@ -90,15 +90,13 @@ class VarianceScalingStacked(object):
 def get(identifier):
     identifiers = {
         "zeros": tf.zeros_initializer(),
-        "He normal": tf.variance_scaling_initializer(scale=2.0),
-        "He uniform": tf.variance_scaling_initializer(
-            scale=2.0, distribution="uniform"
-        ),
-        "LeCun normal": tf.variance_scaling_initializer(),
-        "LeCun uniform": tf.variance_scaling_initializer(distribution="uniform"),
-        "Glorot normal": tf.glorot_normal_initializer(),
-        "Glorot uniform": tf.glorot_uniform_initializer(),
-        "Orthogonal": tf.orthogonal_initializer(),
+        "He normal": tf.keras.initializers.he_normal(),
+        "He uniform": tf.keras.initializers.he_uniform(),
+        "LeCun normal": tf.keras.initializers.lecun_normal(),
+        "LeCun uniform": tf.keras.initializers.lecun_uniform(),
+        "Glorot normal": tf.keras.initializers.glorot_normal(),
+        "Glorot uniform": tf.keras.initializers.glorot_uniform(),
+        "Orthogonal": tf.keras.initializers.Orthogonal(),
     }
     identifiers_stacked = {
         "He normal": VarianceScalingStacked(scale=2.0),
