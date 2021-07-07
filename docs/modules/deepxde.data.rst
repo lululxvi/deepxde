@@ -96,3 +96,4 @@ deepxde.data.triple module
    :members:
    :undoc-members:
    :show-inheritance:
+

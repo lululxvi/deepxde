@@ -8,7 +8,7 @@ from ...backend import tf
 
 
 class MsFFN(FNN):
-    """Multi-scale Fourier Feature Networks.
+    """Multi-scale fourier feature networks.
 
     References:
 
@@ -16,7 +16,8 @@ class MsFFN(FNN):
     - https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
 
     Args:
-        sigmas: List of standard deviation of the distribution of fourier feature embeddings.
+        sigmas: List of standard deviation of the distribution of fourier feature
+            embeddings.
     """
 
     def __init__(
@@ -46,7 +47,31 @@ class MsFFN(FNN):
         self.sigmas = sigmas  # list or tuple
         self.fourier_feature_weights = None
 
-    def fourier_feature_forward(self, y, sigma):
+    def build(self):
+        print("Building Multiscale Fourier Feature Network...")
+        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+
+        y = self.x
+        if self._input_transform is not None:
+            y = self._input_transform(y)
+
+        # fourier feature layer
+        yb = [self._fourier_feature_forward(y, sigma) for sigma in self.sigmas]
+        y = [elem[0] for elem in yb]
+        self.fourier_feature_weights = [elem[1] for elem in yb]
+        # fully-connected layers (reuse)
+        y = [self._fully_connected_forward(_y) for _y in y]
+        # concatenate all the fourier features
+        y = tf.concat(y, axis=1)
+        self.y = self._dense(y, self.layer_size[-1], use_bias=self.use_bias)
+
+        if self._output_transform is not None:
+            self.y = self._output_transform(self.x, self.y)
+
+        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+        self.built = True
+
+    def _fourier_feature_forward(self, y, sigma):
         b = tf.Variable(
             tf.random_normal(
                 [y.shape[1], self.layer_size[1] // 2], dtype=config.real(tf)
@@ -64,14 +89,14 @@ class MsFFN(FNN):
         )
         return y, b
 
-    def fully_connected_forward(self, y):
+    def _fully_connected_forward(self, y):
         with tf.variable_scope("fully_connected", reuse=tf.AUTO_REUSE):
             for i in range(1, len(self.layer_size) - 2):
                 if (
                     self.batch_normalization is None
                     and self.layer_normalization is None
                 ):
-                    y = self.dense(
+                    y = self._dense(
                         y,
                         self.layer_size[i + 1],
                         activation=self.activation,
@@ -79,16 +104,17 @@ class MsFFN(FNN):
                     )
                 elif self.batch_normalization and self.layer_normalization:
                     raise ValueError(
-                        "Can not apply batch_normalization and layer_normalization at the same time."
+                        "Can not apply batch_normalization and layer_normalization at "
+                        "the same time."
                     )
                 elif self.batch_normalization == "before":
-                    y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
+                    y = self._dense_batchnorm_v1(y, self.layer_size[i + 1])
                 elif self.batch_normalization == "after":
-                    y = self.dense_batchnorm_v2(y, self.layer_size[i + 1])
+                    y = self._dense_batchnorm_v2(y, self.layer_size[i + 1])
                 elif self.layer_normalization == "before":
-                    y = self.dense_layernorm_v1(y, self.layer_size[i + 1])
+                    y = self._dense_layernorm_v1(y, self.layer_size[i + 1])
                 elif self.layer_normalization == "after":
-                    y = self.dense_layernorm_v2(y, self.layer_size[i + 1])
+                    y = self._dense_layernorm_v2(y, self.layer_size[i + 1])
                 else:
                     raise ValueError(
                         "batch_normalization: {}, layer_normalization: {}".format(
@@ -99,36 +125,11 @@ class MsFFN(FNN):
                     y = tf.layers.dropout(
                         y, rate=self.dropout_rate, training=self.dropout
                     )
-
         return y
-
-    def build(self):
-        print("Building Multiscale Fourier Feature Network...")
-        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
-
-        y = self.x
-        if self._input_transform is not None:
-            y = self._input_transform(y)
-
-        # fourier feature layer
-        yb = [self.fourier_feature_forward(y, sigma) for sigma in self.sigmas]
-        y = [elem[0] for elem in yb]
-        self.fourier_feature_weights = [elem[1] for elem in yb]
-        # fully-connected layers (reuse)
-        y = [self.fully_connected_forward(_y) for _y in y]
-        # concatenate all the fourier features
-        y = tf.concat(y, axis=1)
-        self.y = self.dense(y, self.layer_size[-1], use_bias=self.use_bias)
-
-        if self._output_transform is not None:
-            self.y = self._output_transform(self.x, self.y)
-
-        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
-        self.built = True
 
 
 class STMsFFN(MsFFN):
-    """Spatio-temporal Multi-scale Fourier Feature Networks.
+    """Spatio-temporal multi-scale fourier feature networks.
 
     References:
 
@@ -176,20 +177,20 @@ class STMsFFN(MsFFN):
 
         # fourier feature layer
         yb_x = [
-            self.fourier_feature_forward(y[:, :-1], sigma) for sigma in self.sigmas_x
+            self._fourier_feature_forward(y[:, :-1], sigma) for sigma in self.sigmas_x
         ]
         yb_t = [
-            self.fourier_feature_forward(y[:, -1:], sigma) for sigma in self.sigmas_t
+            self._fourier_feature_forward(y[:, -1:], sigma) for sigma in self.sigmas_t
         ]
         self.fourier_feature_weights = [elem[1] for elem in yb_x + yb_t]
         # fully-connected layers (reuse)
-        y_x = [self.fully_connected_forward(_yb[0]) for _yb in yb_x]
-        y_t = [self.fully_connected_forward(_yb[0]) for _yb in yb_t]
+        y_x = [self._fully_connected_forward(_yb[0]) for _yb in yb_x]
+        y_t = [self._fully_connected_forward(_yb[0]) for _yb in yb_t]
         # point-wise multiplication layer
         y = [tf.multiply(_y_x, _y_t) for _y_x in y_x for _y_t in y_t]
         # concatenate all the fourier features
         y = tf.concat(y, axis=1)
-        self.y = self.dense(y, self.layer_size[-1], use_bias=self.use_bias)
+        self.y = self._dense(y, self.layer_size[-1], use_bias=self.use_bias)
 
         if self._output_transform is not None:
             self.y = self._output_transform(self.x, self.y)

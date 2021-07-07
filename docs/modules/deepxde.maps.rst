@@ -24,3 +24,4 @@ deepxde.maps.regularizers module
    :members:
    :undoc-members:
    :show-inheritance:
+

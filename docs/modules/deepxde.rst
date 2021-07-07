@@ -121,10 +121,3 @@ deepxde.train module
    :undoc-members:
    :show-inheritance:
 
-deepxde.utils module
---------------------
-
-.. automodule:: deepxde.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:

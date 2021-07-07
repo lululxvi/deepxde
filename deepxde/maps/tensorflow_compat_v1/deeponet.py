@@ -16,17 +16,21 @@ from ...utils import timing
 class DeepONet(Map):
     """Deep operator network.
 
-    `Lu et al. Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators. Nat
-    Mach Intell, 2021. <https://doi.org/10.1038/s42256-021-00302-5>`_
+    `Lu et al. Learning nonlinear operators via DeepONet based on the universal
+    approximation theorem of operators. Nat Mach Intell, 2021.
+    <https://doi.org/10.1038/s42256-021-00302-5>`_
 
     Args:
-        layer_size_branch: A list of integers as the width of a fully connected network, or `(dim, f)` where `dim` is
-            the input dimension and `f` is a network function. The width of the last layer in the branch and trunk net
-            should be equal.
-        layer_size_trunk (list): A list of integers as the width of a fully connected network.
-        activation: If `activation` is a ``string``, then the same activation is used in both trunk and branch nets.
-            If `activation` is a ``dict``, then the trunk net uses the activation `activation["trunk"]`,
-            and the branch net uses `activation["branch"]`.
+        layer_size_branch: A list of integers as the width of a fully connected network,
+            or `(dim, f)` where `dim` is the input dimension and `f` is a network
+            function. The width of the last layer in the branch and trunk net should be
+            equal.
+        layer_size_trunk (list): A list of integers as the width of a fully connected
+            network.
+        activation: If `activation` is a ``string``, then the same activation is used in
+            both trunk and branch nets. If `activation` is a ``dict``, then the trunk
+            net uses the activation `activation["trunk"]`, and the branch net uses
+            `activation["branch"]`.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
     """
@@ -110,14 +114,14 @@ class DeepONet(Map):
             # Stacked fully connected network
             stack_size = self.layer_size_func[-1]
             for i in range(1, len(self.layer_size_func) - 1):
-                y_func = self.stacked_dense(
+                y_func = self._stacked_dense(
                     y_func,
                     self.layer_size_func[i],
                     stack_size,
                     activation=self.activation_branch,
                     trainable=self.trainable_branch,
                 )
-            y_func = self.stacked_dense(
+            y_func = self._stacked_dense(
                 y_func,
                 1,
                 stack_size,
@@ -127,14 +131,14 @@ class DeepONet(Map):
         else:
             # Unstacked fully connected network
             for i in range(1, len(self.layer_size_func) - 1):
-                y_func = self.dense(
+                y_func = self._dense(
                     y_func,
                     self.layer_size_func[i],
                     activation=self.activation_branch,
                     regularizer=self.regularizer,
                     trainable=self.trainable_branch,
                 )
-            y_func = self.dense(
+            y_func = self._dense(
                 y_func,
                 self.layer_size_func[-1],
                 use_bias=self.use_bias,
@@ -147,7 +151,7 @@ class DeepONet(Map):
         if self._input_transform is not None:
             y_loc = self._input_transform(y_loc)
         for i in range(1, len(self.layer_size_loc)):
-            y_loc = self.dense(
+            y_loc = self._dense(
                 y_loc,
                 self.layer_size_loc[i],
                 activation=self.activation_trunk,
@@ -175,7 +179,7 @@ class DeepONet(Map):
         self.target = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
-    def dense(
+    def _dense(
         self,
         inputs,
         units,
@@ -194,14 +198,15 @@ class DeepONet(Map):
             trainable=trainable,
         )
 
-    def stacked_dense(
+    def _stacked_dense(
         self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
     ):
         """Stacked densely-connected NN layer.
 
         Args:
-            inputs: If inputs is the NN input, then it is a 2D tensor with shape: `(batch_size, input_dim)`;
-                otherwise, it is 3D tensor with shape: `(batch_size, stack_size, input_dim)`.
+            inputs: If inputs is the NN input, then it is a 2D tensor with shape:
+                `(batch_size, input_dim)`; otherwise, it is 3D tensor with shape:
+                `(batch_size, stack_size, input_dim)`.
 
         Returns:
             tensor: outputs.
@@ -248,13 +253,16 @@ class DeepONetCartesianProd(Map):
     """Deep operator network for dataset in the format of Cartesian product.
 
     Args:
-        layer_size_branch: A list of integers as the width of a fully connected network, or `(dim, f)` where `dim` is
-            the input dimension and `f` is a network function. The width of the last layer in the branch and trunk net
-            should be equal.
-        layer_size_trunk (list): A list of integers as the width of a fully connected network.
-        activation: If `activation` is a ``string``, then the same activation is used in both trunk and branch nets.
-            If `activation` is a ``dict``, then the trunk net uses the activation `activation["trunk"]`,
-            and the branch net uses `activation["branch"]`.
+        layer_size_branch: A list of integers as the width of a fully connected network,
+            or `(dim, f)` where `dim` is the input dimension and `f` is a network
+            function. The width of the last layer in the branch and trunk net should be
+            equal.
+        layer_size_trunk (list): A list of integers as the width of a fully connected
+            network.
+        activation: If `activation` is a ``string``, then the same activation is used in
+            both trunk and branch nets. If `activation` is a ``dict``, then the trunk
+            net uses the activation `activation["trunk"]`, and the branch net uses
+            `activation["branch"]`.
     """
 
     def __init__(
@@ -350,15 +358,18 @@ class DeepONetCartesianProd(Map):
 
 
 class FourierDeepONetCartesianProd(DeepONetCartesianProd):
-    """Deep operator network with a Fourier trunk net for dataset in the format of Cartesian product.
+    """Deep operator network with a Fourier trunk net for dataset in the format of
+    Cartesian product.
 
-    There are two pairs of trunk and branch nets. One pair is the vanilla DeepONet, and the other one uses Fourier
-    basis as the trunk net. Because the dataset is in the format of Cartesian product, the Fourier branch-trunk nets
-    are implemented via the inverse FFT. (TODO: Does it only work for equispaced x in [0, 1]?)
+    There are two pairs of trunk and branch nets. One pair is the vanilla DeepONet, and
+    the other one uses Fourier basis as the trunk net. Because the dataset is in the
+    format of Cartesian product, the Fourier branch-trunk nets are implemented via the
+    inverse FFT.
 
     Args:
-        layer_size_Fourier_branch: A list of integers as the width of a fully connected network, or `(dim, f)` where `dim` is
-            the input dimension and `f` is a network function.
+        layer_size_Fourier_branch: A list of integers as the width of a fully connected
+            network, or `(dim, f)` where `dim` is the input dimension and `f` is a
+            network function.
         output_shape (tuple[int]): Shape of the output.
     """
 

@@ -59,11 +59,11 @@ class BiONet(Map):
         self._inputs = [self.X_func1, self.X_func2, self.X_loc]
 
         # Branch net 1
-        y_func1 = self.branch_net(self.X_func1, self.layer_branch1[1:])
+        y_func1 = self._branch_net(self.X_func1, self.layer_branch1[1:])
         # Branch net 2
-        y_func2 = self.branch_net(self.X_func2, self.layer_branch2[1:])
+        y_func2 = self._branch_net(self.X_func2, self.layer_branch2[1:])
         # Trunk net
-        y_loc = self.trunk_net(self.X_loc, self.layer_trunk[1:])
+        y_loc = self._trunk_net(self.X_loc, self.layer_trunk[1:])
 
         # Dot product
         y_loc = tf.reshape(y_loc, (-1, self.layer_branch1[-1], self.layer_branch2[-1]))
@@ -76,21 +76,21 @@ class BiONet(Map):
         self.target = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
-    def branch_net(self, X_func, layer_branch):
+    def _branch_net(self, X_func, layer_branch):
         y_func = X_func
         for i in range(len(layer_branch) - 1):
-            y_func = self.dense(
+            y_func = self._dense(
                 y_func,
                 layer_branch[i],
                 activation=self.activation_branch,
                 regularizer=self.regularizer,
             )
-        return self.dense(y_func, layer_branch[-1], regularizer=self.regularizer)
+        return self._dense(y_func, layer_branch[-1], regularizer=self.regularizer)
 
-    def trunk_net(self, X_loc, layer_trunk):
+    def _trunk_net(self, X_loc, layer_trunk):
         y_loc = X_loc
         for i in range(len(layer_trunk)):
-            y_loc = self.dense(
+            y_loc = self._dense(
                 y_loc,
                 layer_trunk[i],
                 activation=self.activation_trunk,
@@ -98,7 +98,7 @@ class BiONet(Map):
             )
         return y_loc
 
-    def dense(
+    def _dense(
         self,
         inputs,
         units,

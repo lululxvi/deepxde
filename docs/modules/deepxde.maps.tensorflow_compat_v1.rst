@@ -41,14 +41,6 @@ deepxde.maps.tensorflow\_compat\_v1.msffn module
    :undoc-members:
    :show-inheritance:
 
-deepxde.maps.tensorflow\_compat\_v1.pfnn module
------------------------------------------------
-
-.. automodule:: deepxde.maps.tensorflow_compat_v1.pfnn
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.maps.tensorflow\_compat\_v1.resnet module
 -------------------------------------------------
 
@@ -56,3 +48,4 @@ deepxde.maps.tensorflow\_compat\_v1.resnet module
    :members:
    :undoc-members:
    :show-inheritance:
+

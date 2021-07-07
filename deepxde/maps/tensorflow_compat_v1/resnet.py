@@ -53,10 +53,10 @@ class ResNet(Map):
         y = self.x
         if self._input_transform is not None:
             y = self._input_transform(y)
-        y = self.dense(y, self.num_neurons, activation=self.activation)
+        y = self._dense(y, self.num_neurons, activation=self.activation)
         for _ in range(self.num_blocks):
-            y = self.residual_block(y)
-        self.y = self.dense(y, self.output_size)
+            y = self._residual_block(y)
+        self.y = self._dense(y, self.output_size)
 
         if self._output_transform is not None:
             self.y = self._output_transform(self.x, self.y)
@@ -64,7 +64,7 @@ class ResNet(Map):
         self.y_ = tf.placeholder(config.real(tf), [None, self.output_size])
         self.built = True
 
-    def dense(self, inputs, units, activation=None, use_bias=True):
+    def _dense(self, inputs, units, activation=None, use_bias=True):
         return tf.layers.dense(
             inputs,
             units,
@@ -74,12 +74,12 @@ class ResNet(Map):
             kernel_regularizer=self.regularizer,
         )
 
-    def residual_block(self, inputs):
+    def _residual_block(self, inputs):
         """A residual block in ResNet."""
         units = inputs.shape[1]
 
-        x = self.dense(inputs, units, activation=self.activation)
-        x = self.dense(x, units)
+        x = self._dense(inputs, units, activation=self.activation)
+        x = self._dense(x, units)
 
         x += inputs
         x = self.activation(x)

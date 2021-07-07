@@ -66,7 +66,7 @@ class MfONet(Map):
         self._inputs = [self.X_func, self.X_loc]
 
         # Low fidelity
-        self.y_lo = self.onet(
+        self.y_lo = self._onet(
             self.X_func,
             self.X_loc,
             self.layer_branch_lo[1:],
@@ -79,9 +79,9 @@ class MfONet(Map):
 
         # Linear
         # Branch net
-        y_func = self.dense(self.X_func, self.layer_hi_l, trainable=self.trainable_hi)
+        y_func = self._dense(self.X_func, self.layer_hi_l, trainable=self.trainable_hi)
         # Trunk net
-        y_loc = self.dense(X_loc_hi, self.layer_hi_l, trainable=self.trainable_hi)
+        y_loc = self._dense(X_loc_hi, self.layer_hi_l, trainable=self.trainable_hi)
         # Dot product
         y_hi_l = tf.einsum("bi,bi->b", y_func, y_loc)
         y_hi_l = tf.expand_dims(y_hi_l, axis=1)
@@ -90,7 +90,7 @@ class MfONet(Map):
         y_hi_l += b
 
         # Nonlinear
-        y_hi_nl = self.onet(
+        y_hi_nl = self._onet(
             self.X_func,
             X_loc_hi,
             self.layer_branch_hi_nl,
@@ -112,25 +112,25 @@ class MfONet(Map):
         self.target_hi = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
-    def onet(self, X_func, X_loc, layer_branch, layer_trunk, trainable):
+    def _onet(self, X_func, X_loc, layer_branch, layer_trunk, trainable):
         # Branch net: Unstacked fully connected network
         y_func = X_func
         for i in range(len(layer_branch) - 1):
-            y_func = self.dense(
+            y_func = self._dense(
                 y_func,
                 layer_branch[i],
                 activation=self.activation_branch,
                 regularizer=self.regularizer,
                 trainable=trainable,
             )
-        y_func = self.dense(
+        y_func = self._dense(
             y_func, layer_branch[-1], regularizer=self.regularizer, trainable=trainable
         )
 
         # Trunk net
         y_loc = X_loc
         for i in range(len(layer_trunk)):
-            y_loc = self.dense(
+            y_loc = self._dense(
                 y_loc,
                 layer_trunk[i],
                 activation=self.activation_trunk,
@@ -146,7 +146,7 @@ class MfONet(Map):
         y += b
         return y
 
-    def dense(
+    def _dense(
         self,
         inputs,
         units,

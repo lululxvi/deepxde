@@ -8,3 +8,4 @@ deepxde.maps.tensorflow.fnn module
    :members:
    :undoc-members:
    :show-inheritance:
+

@@ -55,14 +55,14 @@ class MfNN(Map):
         # Low fidelity
         y = self.X
         for i in range(len(self.layer_size_lo) - 2):
-            y = self.dense(
+            y = self._dense(
                 y,
                 self.layer_size_lo[i + 1],
                 activation=self.activation,
                 regularizer=self.regularizer,
                 trainable=self.trainable_lo,
             )
-        self.y_lo = self.dense(
+        self.y_lo = self._dense(
             y,
             self.layer_size_lo[-1],
             regularizer=self.regularizer,
@@ -72,18 +72,18 @@ class MfNN(Map):
         # High fidelity
         X_hi = tf.concat([self.X, self.y_lo], 1)
         # Linear
-        y_hi_l = self.dense(X_hi, self.layer_size_hi[-1], trainable=self.trainable_hi)
+        y_hi_l = self._dense(X_hi, self.layer_size_hi[-1], trainable=self.trainable_hi)
         # Nonlinear
         y = X_hi
         for i in range(len(self.layer_size_hi) - 1):
-            y = self.dense(
+            y = self._dense(
                 y,
                 self.layer_size_hi[i],
                 activation=self.activation,
                 regularizer=self.regularizer,
                 trainable=self.trainable_hi,
             )
-        y_hi_nl = self.dense(
+        y_hi_nl = self._dense(
             y,
             self.layer_size_hi[-1],
             use_bias=False,
@@ -106,7 +106,7 @@ class MfNN(Map):
         self.target_hi = tf.placeholder(config.real(tf), [None, self.layer_size_hi[-1]])
         self.built = True
 
-    def dense(
+    def _dense(
         self,
         inputs,
         units,

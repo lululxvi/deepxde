@@ -61,7 +61,7 @@ class FNN(Map):
             y = self._input_transform(y)
         for i in range(len(self.layer_size) - 2):
             if self.batch_normalization is None and self.layer_normalization is None:
-                y = self.dense(
+                y = self._dense(
                     y,
                     self.layer_size[i + 1],
                     activation=self.activation,
@@ -73,13 +73,13 @@ class FNN(Map):
                     "same time."
                 )
             elif self.batch_normalization == "before":
-                y = self.dense_batchnorm_v1(y, self.layer_size[i + 1])
+                y = self._dense_batchnorm_v1(y, self.layer_size[i + 1])
             elif self.batch_normalization == "after":
-                y = self.dense_batchnorm_v2(y, self.layer_size[i + 1])
+                y = self._dense_batchnorm_v2(y, self.layer_size[i + 1])
             elif self.layer_normalization == "before":
-                y = self.dense_layernorm_v1(y, self.layer_size[i + 1])
+                y = self._dense_layernorm_v1(y, self.layer_size[i + 1])
             elif self.layer_normalization == "after":
-                y = self.dense_layernorm_v2(y, self.layer_size[i + 1])
+                y = self._dense_layernorm_v2(y, self.layer_size[i + 1])
             else:
                 raise ValueError(
                     "batch_normalization: {}, layer_normalization: {}".format(
@@ -88,14 +88,14 @@ class FNN(Map):
                 )
             if self.dropout_rate > 0:
                 y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
-        self.y = self.dense(y, self.layer_size[-1], use_bias=self.use_bias)
+        self.y = self._dense(y, self.layer_size[-1], use_bias=self.use_bias)
         if self._output_transform is not None:
             self.y = self._output_transform(self.x, self.y)
 
         self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
         self.built = True
 
-    def dense(self, inputs, units, activation=None, use_bias=True):
+    def _dense(self, inputs, units, activation=None, use_bias=True):
         # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to
         # some differences. One difference is that tf.layers.dense() will add
         # regularizer loss to the collection REGULARIZATION_LOSSES, but
@@ -115,7 +115,7 @@ class FNN(Map):
         )
 
     @staticmethod
-    def dense_weightnorm(inputs, units, activation=None, use_bias=True):
+    def _dense_weightnorm(inputs, units, activation=None, use_bias=True):
         fan_in = inputs.shape[1]
         W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
         g = tf.Variable(tf.ones(units))
@@ -128,15 +128,15 @@ class FNN(Map):
             return activation(y)
         return y
 
-    def dense_batchnorm_v1(self, inputs, units):
+    def _dense_batchnorm_v1(self, inputs, units):
         # FC - BN - activation
-        y = self.dense(inputs, units, use_bias=False)
+        y = self._dense(inputs, units, use_bias=False)
         y = tf.layers.batch_normalization(y, training=self.training)
         return self.activation(y)
 
-    def dense_batchnorm_v2(self, inputs, units):
+    def _dense_batchnorm_v2(self, inputs, units):
         # FC - activation - BN
-        y = self.dense(inputs, units, activation=self.activation)
+        y = self._dense(inputs, units, activation=self.activation)
         return tf.layers.batch_normalization(y, training=self.training)
 
     @staticmethod
@@ -171,13 +171,108 @@ class FNN(Map):
                 inputs, mean, var, offset=beta, scale=gamma, variance_epsilon=1e-3
             )
 
-    def dense_layernorm_v1(self, inputs, units):
+    def _dense_layernorm_v1(self, inputs, units):
         # FC - LN - activation
-        y = self.dense(inputs, units, use_bias=False)
+        y = self._dense(inputs, units, use_bias=False)
         y = self._layer_normalization(y)
         return self.activation(y)
 
-    def dense_layernorm_v2(self, inputs, units):
+    def _dense_layernorm_v2(self, inputs, units):
         # FC - activation - LN
-        y = self.dense(inputs, units, activation=self.activation)
+        y = self._dense(inputs, units, activation=self.activation)
         return self._layer_normalization(y)
+
+
+class PFNN(FNN):
+    """Parallel fully-connected neural network that uses independent sub-networks for
+    each network output.
+
+    Args:
+        layer_size: A nested list to define the architecture of the neural network (how
+            the layers are connected). If `layer_size[i]` is int, it represent one layer
+            shared by all the outputs; if `layer_size[i]` is list, it represent
+            `len(layer_size[i])` sub-layers, each of which exclusively used by one
+            output. Note that `len(layer_size[i])` should equal to the number of
+            outputs. Every number specify the number of neurons of that layer.
+    """
+
+    def __init__(
+        self,
+        layer_size,
+        activation,
+        kernel_initializer,
+        regularization=None,
+        dropout_rate=0,
+        batch_normalization=None,
+    ):
+        super(PFNN, self).__init__(
+            layer_size,
+            activation,
+            kernel_initializer,
+            regularization,
+            dropout_rate,
+            batch_normalization,
+        )
+
+    @timing
+    def build(self):
+        def layer_map(_y, layer_size, net):
+            if net.batch_normalization is None:
+                _y = net._dense(_y, layer_size, activation=net.activation)
+            elif net.batch_normalization == "before":
+                _y = net._dense_batchnorm_v1(_y, layer_size)
+            elif net.batch_normalization == "after":
+                _y = net._dense_batchnorm_v2(_y, layer_size)
+            else:
+                raise ValueError("batch_normalization")
+            if net.dropout_rate > 0:
+                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.dropout)
+            return _y
+
+        print("Building feed-forward neural network...")
+        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+
+        y = self.x
+        if self._input_transform is not None:
+            y = self._input_transform(y)
+        # hidden layers
+        for i_layer in range(len(self.layer_size) - 2):
+            if isinstance(self.layer_size[i_layer + 1], (list, tuple)):
+                if isinstance(y, (list, tuple)):
+                    # e.g. [8, 8, 8] -> [16, 16, 16]
+                    if len(self.layer_size[i_layer + 1]) != len(
+                        self.layer_size[i_layer]
+                    ):
+                        raise ValueError(
+                            "Number of sub-layers should be the same when feed-forwarding"
+                        )
+                    y = [
+                        layer_map(y[i_net], self.layer_size[i_layer + 1][i_net], self)
+                        for i_net in range(len(self.layer_size[i_layer + 1]))
+                    ]
+                else:
+                    # e.g. 64 -> [8, 8, 8]
+                    y = [
+                        layer_map(y, self.layer_size[i_layer + 1][i_net], self)
+                        for i_net in range(len(self.layer_size[i_layer + 1]))
+                    ]
+            else:
+                # e.g. 64 -> 64
+                y = layer_map(y, self.layer_size[i_layer + 1], self)
+        # output layers
+        if isinstance(y, (list, tuple)):
+            # e.g. [3, 3, 3] -> 3
+            if len(self.layer_size[-2]) != self.layer_size[-1]:
+                raise ValueError(
+                    "Number of sub-layers should be the same as number of outputs"
+                )
+            y = [self._dense(y[i_net], 1) for i_net in range(len(y))]
+            self.y = tf.concat(y, axis=1)
+        else:
+            self.y = self._dense(y, self.layer_size[-1])
+
+        if self._output_transform is not None:
+            self.y = self._output_transform(self.x, self.y)
+
+        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+        self.built = True
