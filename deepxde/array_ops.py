@@ -1,4 +1,4 @@
-"""Operations which handle numpy and tensorflow automatically."""
+"""Operations which handle numpy and tensorflow.compat.v1 automatically."""
 
 from __future__ import absolute_import
 from __future__ import division

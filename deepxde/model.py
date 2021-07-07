@@ -11,9 +11,9 @@ from . import display
 from . import losses as losses_module
 from . import metrics as metrics_module
 from . import train as train_module
+from . import utils
 from .backend import backend_name, tf
 from .callbacks import CallbackList
-from .utils import get_num_args, guarantee_initialized_variables, timing
 
 
 class Model(object):
@@ -43,7 +43,7 @@ class Model(object):
             self.sess = None
             self.saver = None
 
-    @timing
+    @utils.timing
     def compile(
         self,
         optimizer,
@@ -137,7 +137,7 @@ class Model(object):
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
-    @timing
+    @utils.timing
     def train(
         self,
         epochs=None,
@@ -181,7 +181,7 @@ class Model(object):
                 print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
             else:
-                guarantee_initialized_variables(self.sess)
+                utils.guarantee_initialized_variables(self.sess)
 
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
@@ -222,9 +222,9 @@ class Model(object):
             if operator is None:
                 y = self.sess.run(self.net.outputs, feed_dict=feed_dict)
             else:
-                if get_num_args(operator) == 2:
+                if utils.get_num_args(operator) == 2:
                     op = operator(self.net.inputs, self.net.outputs)
-                elif get_num_args(operator) == 3:
+                elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
                 y = self.sess.run(op, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
