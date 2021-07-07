@@ -1,4 +1,4 @@
-"""Utilities."""
+"""Internal utilities."""
 
 import importlib
 import sys
