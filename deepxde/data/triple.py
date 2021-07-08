@@ -11,8 +11,9 @@ from .sampler import BatchSampler
 class Triple(Data):
     """Dataset with each data point as a triple.
 
-    The couple of the first two elements are the input, and the third element is the output. This dataset can be used
-    with the network ``DeepONet`` for operator learning. `Lu et al. Learning nonlinear operators via DeepONet based on
+    The couple of the first two elements are the input, and the third element is the
+    output. This dataset can be used with the network ``DeepONet`` for operator
+    learning. Reference: `Lu et al. Learning nonlinear operators via DeepONet based on
     the universal approximation theorem of operators. Nat Mach Intell, 2021.
     <https://doi.org/10.1038/s42256-021-00302-5>`_
 
@@ -64,15 +65,17 @@ class Triple(Data):
 
 
 class TripleCartesianProd(Data):
-    """Dataset with each data point as a triple. The ordered pair of the first two elements are created from a Cartesian
-    product of the first two lists. If we compute the Cartesian product of the first two arrays, then we have a
-    ``Triple`` dataset.
+    """Dataset with each data point as a triple. The ordered pair of the first two
+    elements are created from a Cartesian product of the first two lists. If we compute
+    the Cartesian product of the first two arrays, then we have a ``Triple`` dataset.
 
-    This dataset can be used with the network ``DeepONetCartesianProd`` for operator learning.
+    This dataset can be used with the network ``DeepONetCartesianProd`` for operator
+    learning.
 
     Args:
-        X_train: A tuple of two NumPy arrays. The first element has the shape (`N1`, `dim1`), and the second element
-            has the shape (`N2`, `dim2`). The mini-batch is only applied to `N1`.
+        X_train: A tuple of two NumPy arrays. The first element has the shape (`N1`,
+            `dim1`), and the second element has the shape (`N2`, `dim2`). The mini-batch
+            is only applied to `N1`.
         y_train: A NumPy array of shape (`N1`, `N2`).
     """
 

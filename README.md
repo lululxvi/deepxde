@@ -31,19 +31,17 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 
 ## Features
 
-DeepXDE supports
+DeepXDE has implemented many algorithms as shown above and supports many features:
 
-- complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection;
-- 6 sampling methods: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence;
-- multi-physics, i.e., coupled PDEs;
-- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC; BCs can be defined on an arbitrary domain or on a point set;
-- time-dependent PDEs are solved as easily as time-independent ones by only adding initial conditions;
-- residual-based adaptive refinement (RAR);
-- uncertainty quantification using dropout;
-- two types of neural networks: (stacked/unstacked) fully connected neural network, and residual neural network;
-- many different losses, metrics, optimizers, learning rate schedules, initializations, regularizations, etc.;
-- useful techniques, such as dropout and batch normalization;
-- callbacks to monitor the internal states and statistics of the model during training;
+- complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
+- multi-physics, i.e., (time-dependent) coupled PDEs.
+- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
+- different neural networks, such as (stacked/unstacked) fully connected neural network, residual neural network, and (spatio-temporal) multi-scale fourier feature networks.
+- 6 sampling methods: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
+- conveniently save the model during training, and load a trained model.
+- uncertainty quantification using dropout.
+- many different (weighted) losses, optimizers, learning rate schedules, metrics, etc.
+- callbacks to monitor the internal states and statistics of the model during training, such as early stopping.
 - enables the user code to be compact, resembling closely the mathematical formulation.
 
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
@@ -121,7 +119,7 @@ First off, thanks for taking the time to contribute!
 
 DeepXDE was originally developed by [Lu Lu](https://lululxvi.github.io/) at the [CRUNCH group](https://www.brown.edu/research/projects/crunch/home) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis), supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
 
-DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: Shunyuan Mao, Qi Tang.
+DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro).
 
 ## License
 
