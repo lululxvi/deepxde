@@ -5,18 +5,20 @@ from __future__ import print_function
 import numpy as np
 
 from . import external_optimizer
-from .backend import tf
+from ...backend import tf
+
+__all__ = ["get", "is_external_optimizer"]
 
 
-def is_scipy_opts(optimizer):
+def is_external_optimizer(optimizer):
     scipy_opts = ["BFGS", "L-BFGS-B", "Nelder-Mead", "Powell", "CG", "Newton-CG"]
     return optimizer in scipy_opts
 
 
-def get_train_op(loss, optimizer, lr=None, decay=None):
-    if is_scipy_opts(optimizer):
+def get(loss, optimizer, learning_rate=None, decay=None):
+    if is_external_optimizer(optimizer):
         ScipyOptimizerInterface = external_optimizer.ScipyOptimizerInterface
-        if lr is not None or decay is not None:
+        if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         return ScipyOptimizerInterface(
             loss,
@@ -34,10 +36,10 @@ def get_train_op(loss, optimizer, lr=None, decay=None):
             },
         )
 
-    if lr is None:
+    if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
 
-    lr, global_step = _get_learningrate(lr, decay)
+    lr, global_step = _get_learningrate(learning_rate, decay)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_op = _get_optimizer(optimizer, lr).minimize(loss, global_step=global_step)

@@ -10,7 +10,7 @@ import numpy as np
 from . import display
 from . import losses as losses_module
 from . import metrics as metrics_module
-from . import train as train_module
+from . import optimizers
 from . import utils
 from .backend import backend_name, tf
 from .callbacks import CallbackList
@@ -102,8 +102,8 @@ class Model(object):
             total_loss = tf.math.reduce_sum(losses)
             # Tensor: losses and train_step
             self.losses = losses
-            self.train_step = train_module.get_train_op(
-                total_loss, self.opt_name, lr=lr, decay=decay
+            self.train_step = optimizers.get(
+                total_loss, self.opt_name, learning_rate=lr, decay=decay
             )
         elif backend_name == "tensorflow":
 
@@ -192,7 +192,7 @@ class Model(object):
         self.train_state.set_data_test(*self.data.test())
         self._test(uncertainty)
         self.callbacks.on_train_begin()
-        if train_module.is_scipy_opts(self.opt_name):
+        if optimizers.is_external_optimizer(self.opt_name):
             self._train_scipy(display_every, uncertainty)
         else:
             if epochs is None:

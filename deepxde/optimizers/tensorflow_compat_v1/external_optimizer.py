@@ -23,7 +23,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from .backend import tf
+from ...backend import tf
 
 __all__ = ["ExternalOptimizerInterface", "ScipyOptimizerInterface"]
 
