@@ -41,14 +41,6 @@ deepxde.display module
    :undoc-members:
    :show-inheritance:
 
-deepxde.external\_optimizer module
-----------------------------------
-
-.. automodule:: deepxde.external_optimizer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.gradients module
 ------------------------
 
@@ -109,14 +101,6 @@ deepxde.real module
 -------------------
 
 .. automodule:: deepxde.real
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-deepxde.train module
---------------------
-
-.. automodule:: deepxde.train
    :members:
    :undoc-members:
    :show-inheritance:

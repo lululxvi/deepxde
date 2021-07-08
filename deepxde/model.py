@@ -66,8 +66,8 @@ class Model(object):
             decay: Tuple. Name and parameters of decay to the initial learning rate. One
                 of the following options:
 
-                - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
-                - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
+                - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
+                - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
@@ -117,9 +117,7 @@ class Model(object):
                 # TODO: Weighted losses
                 return losses
 
-            # TODO: Support different optimizers
-            # TODO: Support learning rate decay
-            opt = tf.keras.optimizers.Adam(learning_rate=lr)
+            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
             def train_step(inputs, targets):
