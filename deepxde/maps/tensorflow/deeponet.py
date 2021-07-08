@@ -3,11 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 from .fnn import FNN
+from .nn import NN
 from .. import activations
 from ...backend import tf
 
 
-class DeepONetCartesianProd(tf.keras.Model):
+class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 
     Args:
@@ -53,6 +54,8 @@ class DeepONetCartesianProd(tf.keras.Model):
         # Branch net to encode the input function
         x_func = self.branch(x_func)
         # Trunk net to encode the domain of the output function
+        if self._input_transform is not None:
+            x_loc = self._input_transform(x_loc)
         x_loc = self.activation_trunk(self.trunk(x_loc))
         # Dot product
         if x_func.shape[-1] != x_loc.shape[-1]:
@@ -62,4 +65,8 @@ class DeepONetCartesianProd(tf.keras.Model):
         x = tf.einsum("bi,ni->bn", x_func, x_loc)
         # Add bias
         x += self.b
+
+        if self._output_transform is not None:
+            x = self._output_transform(inputs, x)
+
         return x

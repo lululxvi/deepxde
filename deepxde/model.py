@@ -228,9 +228,12 @@ class Model(object):
                     op = operator(self.net.inputs, self.net.outputs, x)
                 y = self.sess.run(op, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
-            raise NotImplementedError(
-                "Model.predict has not been implemented for backend tensorflow."
-            )
+            if operator is None:
+                y = self.net(x).numpy()
+            else:
+                raise NotImplementedError(
+                    "Model.predict for operator has not been implemented for backend tensorflow."
+                )
         self.callbacks.on_predict_end()
         return y
 

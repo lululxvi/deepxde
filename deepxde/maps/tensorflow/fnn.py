@@ -2,12 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from .nn import NN
 from .. import activations
 from .. import initializers
 from ...backend import tf
 
 
-class FNN(tf.keras.Model):
+class FNN(NN):
     """Fully-connected neural network."""
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
