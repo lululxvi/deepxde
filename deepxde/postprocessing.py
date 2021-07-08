@@ -22,7 +22,7 @@ def saveplot(
     """Save/plot the best trained result and loss history.
 
     This function is used to quickly check your results. To better investigate your
-        result, use ``save_loss_history()`` and ``save_best_state()``.
+    result, use ``save_loss_history()`` and ``save_best_state()``.
 
     Args:
         output_dir (string): If ``None``, use the current working directory.
@@ -49,7 +49,8 @@ def saveplot(
 def plot_loss_history(loss_history, fname=None):
     """Plot the training and testing loss history.
 
-    Note: You need to call ``plt.show()`` to show the figure.
+    Note:
+        You need to call ``plt.show()`` to show the figure.
 
     Args:
         loss_history: ``LossHistory`` instance. The first variable returned from
@@ -93,9 +94,11 @@ def save_loss_history(loss_history, fname):
 def plot_best_state(train_state):
     """Plot the best result of the smallest training loss.
 
-    Note: You need to call ``plt.show()`` to show the figure. This function only works
-        for 1D and 2D problems. For other problems and to better customize the figure,
-        use ``save_best_state()``.
+    This function only works for 1D and 2D problems. For other problems and to better
+    customize the figure, use ``save_best_state()``.
+
+    Note:
+        You need to call ``plt.show()`` to show the figure.
 
     Args:
         train_state: ``TrainState`` instance. The second variable returned from
@@ -157,6 +160,7 @@ def plot_best_state(train_state):
 
 
 def save_best_state(train_state, fname_train, fname_test):
+    """Save the best result of the smallest training loss to a file."""
     print("Saving training data to {} ...".format(fname_train))
     X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
     if y_train is None:
