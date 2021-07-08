@@ -19,7 +19,13 @@ from .boundary_conditions import RobinBC
 from .boundary_conditions import PointSetBC
 from .initial_condition import IC
 from .model import Model
-from .postprocessing import saveplot
+from .postprocessing import (
+    plot_best_state,
+    plot_loss_history,
+    save_best_state,
+    save_loss_history,
+    saveplot,
+)
 from .utils import apply
 
 
