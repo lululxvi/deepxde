@@ -16,18 +16,18 @@ class BiONet(Map):
 
     def __init__(
         self,
-        layer_size_branch1,
-        layer_size_branch2,
-        layer_size_trunk,
+        layer_sizes_branch1,
+        layer_sizes_branch2,
+        layer_sizes_trunk,
         activation,
         kernel_initializer,
         regularization=None,
     ):
         super(BiONet, self).__init__()
 
-        self.layer_branch1 = layer_size_branch1
-        self.layer_branch2 = layer_size_branch2
-        self.layer_trunk = layer_size_trunk
+        self.layer_branch1 = layer_sizes_branch1
+        self.layer_branch2 = layer_sizes_branch2
+        self.layer_trunk = layer_sizes_trunk
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])

@@ -16,8 +16,8 @@ class MfNN(Map):
 
     def __init__(
         self,
-        layer_size_low_fidelity,
-        layer_size_high_fidelity,
+        layer_sizes_low_fidelity,
+        layer_sizes_high_fidelity,
         activation,
         kernel_initializer,
         regularization=None,
@@ -26,8 +26,8 @@ class MfNN(Map):
         trainable_high_fidelity=True,
     ):
         super(MfNN, self).__init__()
-        self.layer_size_lo = layer_size_low_fidelity
-        self.layer_size_hi = layer_size_high_fidelity
+        self.layer_size_lo = layer_sizes_low_fidelity
+        self.layer_size_hi = layer_sizes_high_fidelity
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)

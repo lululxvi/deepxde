@@ -21,11 +21,11 @@ class DeepONet(Map):
     <https://doi.org/10.1038/s42256-021-00302-5>`_
 
     Args:
-        layer_size_branch: A list of integers as the width of a fully connected network,
-            or `(dim, f)` where `dim` is the input dimension and `f` is a network
-            function. The width of the last layer in the branch and trunk net should be
-            equal.
-        layer_size_trunk (list): A list of integers as the width of a fully connected
+        layer_sizes_branch: A list of integers as the width of a fully connected
+            network, or `(dim, f)` where `dim` is the input dimension and `f` is a
+            network function. The width of the last layer in the branch and trunk net
+            should be equal.
+        layer_sizes_trunk (list): A list of integers as the width of a fully connected
             network.
         activation: If `activation` is a ``string``, then the same activation is used in
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
@@ -37,8 +37,8 @@ class DeepONet(Map):
 
     def __init__(
         self,
-        layer_size_branch,
-        layer_size_trunk,
+        layer_sizes_branch,
+        layer_sizes_trunk,
         activation,
         kernel_initializer,
         regularization=None,
@@ -49,11 +49,11 @@ class DeepONet(Map):
     ):
         super(DeepONet, self).__init__()
         if isinstance(trainable_trunk, (list, tuple)):
-            if len(trainable_trunk) != len(layer_size_trunk) - 1:
+            if len(trainable_trunk) != len(layer_sizes_trunk) - 1:
                 raise ValueError("trainable_trunk does not match layer_size_trunk.")
 
-        self.layer_size_func = layer_size_branch
-        self.layer_size_loc = layer_size_trunk
+        self.layer_size_func = layer_sizes_branch
+        self.layer_size_loc = layer_sizes_trunk
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])

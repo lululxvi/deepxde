@@ -188,17 +188,17 @@ class PFNN(FNN):
     each network output.
 
     Args:
-        layer_size: A nested list to define the architecture of the neural network (how
-            the layers are connected). If `layer_size[i]` is int, it represent one layer
-            shared by all the outputs; if `layer_size[i]` is list, it represent
-            `len(layer_size[i])` sub-layers, each of which exclusively used by one
-            output. Note that `len(layer_size[i])` should equal to the number of
+        layer_sizes: A nested list to define the architecture of the neural network (how
+            the layers are connected). If `layer_sizes[i]` is int, it represent one
+            layer shared by all the outputs; if `layer_sizes[i]` is list, it represent
+            `len(layer_sizes[i])` sub-layers, each of which exclusively used by one
+            output. Note that `len(layer_sizes[i])` should equal to the number of
             outputs. Every number specify the number of neurons of that layer.
     """
 
     def __init__(
         self,
-        layer_size,
+        layer_sizes,
         activation,
         kernel_initializer,
         regularization=None,
@@ -206,7 +206,7 @@ class PFNN(FNN):
         batch_normalization=None,
     ):
         super(PFNN, self).__init__(
-            layer_size,
+            layer_sizes,
             activation,
             kernel_initializer,
             regularization,

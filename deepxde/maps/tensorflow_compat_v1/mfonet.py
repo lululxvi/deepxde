@@ -16,11 +16,11 @@ class MfONet(Map):
 
     def __init__(
         self,
-        layer_size_branch_low_fidelity,
-        layer_size_trunk_low_fidelity,
-        layer_size_high_fidelity_linear,
-        layer_size_branch_high_fidelity_nonlinear,
-        layer_size_trunk_high_fidelity_nonlinear,
+        layer_sizes_branch_low_fidelity,
+        layer_sizes_trunk_low_fidelity,
+        layer_sizes_high_fidelity_linear,
+        layer_sizes_branch_high_fidelity_nonlinear,
+        layer_sizes_trunk_high_fidelity_nonlinear,
         activation,
         kernel_initializer,
         regularization=None,
@@ -29,11 +29,11 @@ class MfONet(Map):
     ):
         super(MfONet, self).__init__()
 
-        self.layer_branch_lo = layer_size_branch_low_fidelity
-        self.layer_trunk_lo = layer_size_trunk_low_fidelity
-        self.layer_hi_l = layer_size_high_fidelity_linear
-        self.layer_branch_hi_nl = layer_size_branch_high_fidelity_nonlinear
-        self.layer_trunk_hi_nl = layer_size_trunk_high_fidelity_nonlinear
+        self.layer_branch_lo = layer_sizes_branch_low_fidelity
+        self.layer_trunk_lo = layer_sizes_trunk_low_fidelity
+        self.layer_hi_l = layer_sizes_high_fidelity_linear
+        self.layer_branch_hi_nl = layer_sizes_branch_high_fidelity_nonlinear
+        self.layer_trunk_hi_nl = layer_sizes_trunk_high_fidelity_nonlinear
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])

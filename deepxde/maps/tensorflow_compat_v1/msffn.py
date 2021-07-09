@@ -22,7 +22,7 @@ class MsFFN(FNN):
 
     def __init__(
         self,
-        layer_size,
+        layer_sizes,
         activation,
         kernel_initializer,
         sigmas,
@@ -34,9 +34,9 @@ class MsFFN(FNN):
         use_bias=True,
     ):
         super(MsFFN, self).__init__(
-            layer_size=layer_size,
-            activation=activation,
-            kernel_initializer=kernel_initializer,
+            layer_sizes,
+            activation,
+            kernel_initializer,
             regularization=regularization,
             dropout_rate=dropout_rate,
             batch_normalization=batch_normalization,
@@ -139,7 +139,7 @@ class STMsFFN(MsFFN):
 
     def __init__(
         self,
-        layer_size,
+        layer_sizes,
         activation,
         kernel_initializer,
         sigmas_x,
@@ -152,7 +152,7 @@ class STMsFFN(MsFFN):
         use_bias=True,
     ):
         super(STMsFFN, self).__init__(
-            layer_size,
+            layer_sizes,
             activation,
             kernel_initializer,
             sigmas_x + sigmas_t,
