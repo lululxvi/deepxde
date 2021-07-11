@@ -1,5 +1,5 @@
 DeepXDE
-===================================
+=======
 
 DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow.org/>`_. Use DeepXDE if you need a deep learning library that
 
@@ -40,7 +40,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
 
 User guide
-------------
+----------
 
 .. toctree::
   :maxdepth: 2
@@ -60,8 +60,14 @@ If you are looking for information on a specific function, class or method, this
 
 .. toctree::
   :maxdepth: 2
+  :caption: API Reference
 
-  modules/modules
+  modules/deepxde
+  modules/deepxde.data
+  modules/deepxde.geometry
+  modules/deepxde.maps
+  modules/deepxde.maps.tensorflow_compat_v1
+  modules/deepxde.maps.tensorflow
 
 Indices and tables
 ==================
