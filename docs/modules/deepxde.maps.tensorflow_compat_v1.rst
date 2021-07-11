@@ -1,5 +1,5 @@
-deepxde.maps.tensorflow\_compat\_v1 package
-===========================================
+deepxde.maps.tensorflow\_compat\_v1
+===================================
 
 deepxde.maps.tensorflow\_compat\_v1.deeponet module
 ---------------------------------------------------

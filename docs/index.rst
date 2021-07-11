@@ -59,8 +59,8 @@ API reference
 If you are looking for information on a specific function, class or method, this part of the documentation is for you.
 
 .. toctree::
-  :maxdepth: 2
-  :caption: API Reference
+  :maxdepth: 1
+  :caption: API
 
   modules/deepxde
   modules/deepxde.data

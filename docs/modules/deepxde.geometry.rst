@@ -1,5 +1,5 @@
-deepxde.geometry package
-========================
+deepxde.geometry
+================
 
 deepxde.geometry.csg module
 ---------------------------

@@ -1,5 +1,5 @@
-deepxde.maps package
-====================
+deepxde.maps
+============
 
 deepxde.maps.activations module
 -------------------------------

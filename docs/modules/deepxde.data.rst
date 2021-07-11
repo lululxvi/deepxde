@@ -1,5 +1,5 @@
-deepxde.data package
-====================
+deepxde.data
+============
 
 deepxde.data.constraint module
 ------------------------------

@@ -1,5 +1,5 @@
-deepxde.maps.tensorflow package
-===============================
+deepxde.maps.tensorflow
+=======================
 
 deepxde.maps.tensorflow.deeponet module
 ---------------------------------------

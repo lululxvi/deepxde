@@ -1,5 +1,5 @@
-deepxde package
-===============
+deepxde
+=======
 
 deepxde.array\_ops module
 -------------------------
