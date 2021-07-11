@@ -1,4 +1,4 @@
-"""General utilities."""
+"""Internal utilities."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -8,11 +8,12 @@ import inspect
 import sys
 import timeit
 from functools import wraps
-from multiprocessing import Pool
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import animation
+
+from .external import apply
 
 
 def run_if_all_none(*attr):
@@ -63,9 +64,9 @@ def vectorize(**kwargs):
 
     References:
 
-        - https://numpy.org/doc/stable/reference/generated/numpy.vectorize.html
-        - https://stackoverflow.com/questions/48981501/is-it-possible-to-numpy-vectorize-an-instance-method
-        - https://github.com/numpy/numpy/issues/9477
+    - https://numpy.org/doc/stable/reference/generated/numpy.vectorize.html
+    - https://stackoverflow.com/questions/48981501/is-it-possible-to-numpy-vectorize-an-instance-method
+    - https://github.com/numpy/numpy/issues/9477
     """
 
     def decorator(fn):
@@ -78,25 +79,6 @@ def vectorize(**kwargs):
         return wrapper
 
     return decorator
-
-
-def apply(func, args=None, kwds=None):
-    """Clear Tensorflow GPU memory after model execution.
-
-    References:
-
-        - https://stackoverflow.com/questions/39758094/clearing-tensorflow-gpu-memory-after-model-execution
-    """
-    with Pool(1) as p:
-        if args is None and kwds is None:
-            r = p.apply(func)
-        elif kwds is None:
-            r = p.apply(func, args=args)
-        elif args is None:
-            r = p.apply(func, kwds=kwds)
-        else:
-            r = p.apply(func, args=args, kwds=kwds)
-    return r
 
 
 def make_dict(keys, values):
@@ -121,7 +103,7 @@ def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
 
     References:
 
-        - https://stackoverflow.com/questions/43776528/python-animation-figure-window-cannot-be-closed-automatically
+    - https://stackoverflow.com/questions/43776528/python-animation-figure-window-cannot-be-closed-automatically
     """
     fig, ax = plt.subplots()
     if y_reference is not None:
@@ -161,7 +143,7 @@ def get_num_args(func):
 
     References:
 
-        - https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function
+    - https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function
     """
     if sys.version_info[0] == 2:
         return len(inspect.getargspec(func).args)

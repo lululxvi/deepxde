@@ -18,8 +18,8 @@ def guarantee_initialized_variables(session, var_list=None):
 
     References:
 
-        - https://stackoverflow.com/questions/35164529/in-tensorflow-is-there-any-way-to-just-initialize-uninitialised-variables
-        - https://www.programcreek.com/python/example/90525/tensorflow.report_uninitialized_variables
+    - https://stackoverflow.com/questions/35164529/in-tensorflow-is-there-any-way-to-just-initialize-uninitialised-variables
+    - https://www.programcreek.com/python/example/90525/tensorflow.report_uninitialized_variables
     """
     name_to_var = {v.op.name: v for v in tf.global_variables() + tf.local_variables()}
     uninitialized_variables = [

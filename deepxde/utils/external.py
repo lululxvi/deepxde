@@ -1,0 +1,80 @@
+"""External utilities."""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+from multiprocessing import Pool
+
+import numpy as np
+
+
+class PointSet(object):
+    """A set of points.
+
+    Args:
+        points: A NumPy array of shape (`N`, `dx`). A list of `dx`-dim points.
+    """
+
+    def __init__(self, points):
+        self.points = np.array(points)
+
+    def inside(self, x):
+        """Returns ``True`` if `x` is in this set of points, otherwise, returns
+        ``False``.
+
+        Args:
+            x: A NumPy array. A single point, or a list of points.
+
+        Returns:
+            If `x` is a single point, returns ``True`` or ``False``. If `x` is a list of
+                points, returns a list of ``True`` or ``False``.
+        """
+        if x.ndim == 1:
+            # A single point
+            return np.any(np.all(np.isclose(x, self.points), axis=1))
+        if x.ndim == 2:
+            # A list of points
+            return np.any(
+                np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
+                axis=-1,
+            )
+
+    def values_to_func(self, values, default_value=0):
+        """Convert the pairs of points and values to a callable function.
+
+        Args:
+            values: A NumPy array of shape (`N`, `dy`). `values[i]` is the `dy`-dim
+                function value of the `i`-th point in this point set.
+            default_value (float): The function value of the points not in this point
+                set.
+
+        Returns:
+            A callable function. The input of this function should be a NumPy array of
+                shape (?, `dx`).
+        """
+
+        def func(x):
+            pt_equal = np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1)
+            not_inside = np.logical_not(np.any(pt_equal, axis=-1, keepdims=True))
+            return np.matmul(pt_equal, values) + default_value * not_inside
+
+        return func
+
+
+def apply(func, args=None, kwds=None):
+    """Launch a new process to call the function.
+
+    This can be used to clear Tensorflow GPU memory after model execution:
+    https://stackoverflow.com/questions/39758094/clearing-tensorflow-gpu-memory-after-model-execution
+    """
+    with Pool(1) as p:
+        if args is None and kwds is None:
+            r = p.apply(func)
+        elif kwds is None:
+            r = p.apply(func, args=args)
+        elif args is None:
+            r = p.apply(func, kwds=kwds)
+        else:
+            r = p.apply(func, args=args, kwds=kwds)
+    return r

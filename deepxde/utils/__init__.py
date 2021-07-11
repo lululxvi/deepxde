@@ -3,7 +3,8 @@
 import importlib
 import sys
 
-from .utils import *
+from .external import *
+from .internal import *
 from ..backend import backend_name
 
 
@@ -14,4 +15,4 @@ def _load_backend(mod_name):
         setattr(thismod, api, obj)
 
 
-_load_backend("utils_" + backend_name.replace(".", "_"))
+_load_backend(backend_name.replace(".", "_"))

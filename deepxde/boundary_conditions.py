@@ -133,27 +133,6 @@ class OperatorBC(BC):
         return self.func(inputs, outputs, X)[beg:end]
 
 
-class PointSet(object):
-    """A set of points."""
-
-    def __init__(self, points):
-        self.points = np.array(points)
-
-    def inside(self, x):
-        return np.any(
-            np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
-            axis=-1,
-        )
-
-    def values_to_func(self, values, default_value=0):
-        def func(x):
-            pt_equal = np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1)
-            not_inside = np.logical_not(np.any(pt_equal, axis=-1, keepdims=True))
-            return np.matmul(pt_equal, values) + default_value * not_inside
-
-        return func
-
-
 class PointSetBC(object):
     """Dirichlet boundary condition for a set of points.
     Compare the output (that associates with `points`) with `values` (target data).

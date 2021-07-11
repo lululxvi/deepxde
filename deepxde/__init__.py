@@ -11,6 +11,7 @@ from . import data
 from . import geometry
 from . import gradients as grad
 from . import maps
+from . import utils
 from .boundary_conditions import DirichletBC
 from .boundary_conditions import NeumannBC
 from .boundary_conditions import OperatorBC
@@ -26,7 +27,6 @@ from .postprocessing import (
     save_loss_history,
     saveplot,
 )
-from .utils import apply
 
 
 __all__ = [
@@ -45,5 +45,5 @@ __all__ = [
     "IC",
     "Model",
     "saveplot",
-    "apply",
+    "utils",
 ]
