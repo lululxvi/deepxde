@@ -7,6 +7,7 @@ from __future__ import print_function
 from multiprocessing import Pool
 
 import numpy as np
+import scipy.spatial.distance
 
 
 class PointSet(object):
@@ -78,3 +79,29 @@ def apply(func, args=None, kwds=None):
         else:
             r = p.apply(func, args=args, kwds=kwds)
     return r
+
+
+def uniformly_continuous_delta(X, Y, eps):
+    """Compute the supremum of delta in uniformly continuous.
+
+    Args:
+        X: N x d, equispaced points.
+    """
+    if X.shape[1] == 1:
+        # 1d equispaced points
+        dx = np.linalg.norm(X[1] - X[0])
+        n = len(Y)
+        k = 1
+        while True:
+            if np.any(np.linalg.norm(Y[: n - k] - Y[k:], ord=np.inf, axis=1) >= eps):
+                return (k - 0.5) * dx
+            k += 1
+    else:
+        dX = scipy.spatial.distance.pdist(X, "euclidean")
+        dY = scipy.spatial.distance.pdist(Y, "chebyshev")
+        delta = np.min(dX)
+        dx = delta / 2
+        while True:
+            if np.max(dY[dX <= delta]) >= eps:
+                return delta - dx / 2
+            delta += dx

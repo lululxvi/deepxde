@@ -49,14 +49,6 @@ deepxde.losses module
    :undoc-members:
    :show-inheritance:
 
-deepxde.math\_ops module
-------------------------
-
-.. automodule:: deepxde.math_ops
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.metrics module
 ----------------------
 
