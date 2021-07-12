@@ -1,3 +1,5 @@
+"""Initial conditions."""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -6,8 +8,7 @@ import numpy as np
 
 
 class IC(object):
-    """Initial conditions: y([x, t0]) = func([x, t0]).
-    """
+    """Initial conditions: y([x, t0]) = func([x, t0])."""
 
     def __init__(self, geom, func, on_initial, component=0):
         self.geom = geom

@@ -9,14 +9,6 @@ deepxde.array\_ops module
    :undoc-members:
    :show-inheritance:
 
-deepxde.boundary\_conditions module
------------------------------------
-
-.. automodule:: deepxde.boundary_conditions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.callbacks module
 ------------------------
 
@@ -45,14 +37,6 @@ deepxde.gradients module
 ------------------------
 
 .. automodule:: deepxde.gradients
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-deepxde.initial\_condition module
----------------------------------
-
-.. automodule:: deepxde.initial_condition
    :members:
    :undoc-members:
    :show-inheritance:
