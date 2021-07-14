@@ -6,6 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+- M. Almajid & M. Abu-Alsaud. `Prediction of porous media fluid flow using physics informed neural networks <https://doi.org/10.1016/j.petrol.2021.109205>`_. *Journal of Petroleum Science and Engineering*, 109205, 2021.
 - M. Merkle. `Boosting the training of physics-informed neural networks with transfer learning <https://github.com/mariusmerkle/TL-PINNs/blob/main/Bachelor%20Thesis.pdf>`_. 2021. [`Code <https://github.com/mariusmerkle/TL-PINNs>`_]
 - L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://arxiv.org/abs/2102.04626>`_. *arXiv preprint arXiv:2102.04626*, 2021. [`Code <https://github.com/lululxvi/hpinn>`_]
 - L. Lu, X. Meng, Z. Mao, & G. E. Karniadakis. `DeepXDE: A deep learning library for solving differential equations <https://doi.org/10.1137/19M1274067>`_. *SIAM Review*, 63(1), 208--228, 2021. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
