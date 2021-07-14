@@ -6,7 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
-- M. Almajid & M. Abu-Alsaud. `Prediction of porous media fluid flow using physics informed neural networks <https://doi.org/10.1016/j.petrol.2021.109205>`_. *Journal of Petroleum Science and Engineering*, 109205, 2021.
+- M. Almajid, & M. Abu-Alsaud. `Prediction of porous media fluid flow using physics informed neural networks <https://doi.org/10.1016/j.petrol.2021.109205>`_. *Journal of Petroleum Science and Engineering*, 109205, 2021.
 - M. Merkle. `Boosting the training of physics-informed neural networks with transfer learning <https://github.com/mariusmerkle/TL-PINNs/blob/main/Bachelor%20Thesis.pdf>`_. 2021. [`Code <https://github.com/mariusmerkle/TL-PINNs>`_]
 - L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://arxiv.org/abs/2102.04626>`_. *arXiv preprint arXiv:2102.04626*, 2021. [`Code <https://github.com/lululxvi/hpinn>`_]
 - L. Lu, X. Meng, Z. Mao, & G. E. Karniadakis. `DeepXDE: A deep learning library for solving differential equations <https://doi.org/10.1137/19M1274067>`_. *SIAM Review*, 63(1), 208--228, 2021. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
@@ -29,4 +29,4 @@ Multi-fidelity NN
 -----------------
 
 - L. Lu, M. Dao, P. Kumar, U. Ramamurty, G. E. Karniadakis, & S. Suresh. `Extraction of mechanical properties of materials through deep learning from instrumented indentation <https://doi.org/10.1073/pnas.1922210117>`_. *Proceedings of the National Academy of Sciences*, 117(13), 7052--7062, 2020. [`Code <https://github.com/lululxvi/deep-learning-for-indentation>`_]
-- X. Meng & G. E. Karniadakis. `A composite neural network that learns from multi-fidelity data: Application to function approximation and inverse PDE problems <https://doi.org/10.1016/j.jcp.2019.109020>`_. *Journal of Computational Physics*, 401, 109020, 2020.
+- X. Meng, & G. E. Karniadakis. `A composite neural network that learns from multi-fidelity data: Application to function approximation and inverse PDE problems <https://doi.org/10.1016/j.jcp.2019.109020>`_. *Journal of Computational Physics*, 401, 109020, 2020.
