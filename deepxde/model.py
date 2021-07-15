@@ -370,8 +370,8 @@ class Model(object):
                 y_pred, loss = self.forward_step(
                     np.uint8(1), self.train_state.X_test, self.train_state.y_test
                 )
-            self.train_state.loss_test = loss.numpy()
-            self.train_state.y_pred_test = y_pred.numpy()
+                self.train_state.loss_test = loss.numpy()
+                self.train_state.y_pred_test = y_pred.numpy()
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
