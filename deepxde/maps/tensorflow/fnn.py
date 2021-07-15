@@ -12,11 +12,9 @@ from ...backend import tf
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self,
-                 layer_sizes,
-                 activation,
-                 kernel_initializer,
-                 regularization=None):
+    def __init__(
+        self, layer_sizes, activation, kernel_initializer, regularization=None
+    ):
         super(FNN, self).__init__()
         self.regularizer = regularizers.get(regularization)
 
@@ -29,14 +27,14 @@ class FNN(NN):
                     units,
                     activation=activation,
                     kernel_initializer=initializer,
-                    kernel_regularizer=self.regularizer
+                    kernel_regularizer=self.regularizer,
                 )
             )
         self.denses.append(
             tf.keras.layers.Dense(
                 layer_sizes[-1],
                 kernel_initializer=initializer,
-                kernel_regularizer=self.regularizer
+                kernel_regularizer=self.regularizer,
             )
         )
         self._inputs = None
