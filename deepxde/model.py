@@ -31,19 +31,19 @@ class Model(object):
         self.opt_name = None
         self.batch_size = None
         self.callbacks = None
-
-        self.losses = None  # Tensor or callable
-        self.train_step = None  # Tensor or callable
         self.metrics = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
 
+        # Backend-dependent attributes
+        # Tensor or callable
+        self.losses = None
+        self.outputs_losses = None
+        self.train_step = None
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "tensorflow":
-            self.forward_step = None  # callable
 
     @utils.timing
     def compile(
@@ -102,8 +102,9 @@ class Model(object):
                 losses *= loss_weights
                 self.losshistory.set_loss_weights(loss_weights)
             total_loss = tf.math.reduce_sum(losses)
-            # Tensor: losses and train_step
+            # Tensors
             self.losses = losses
+            self.outputs_losses = [self.net.outputs, losses]
             self.train_step = optimizers.get(
                 total_loss, self.opt_name, learning_rate=lr, decay=decay
             )
@@ -123,24 +124,25 @@ class Model(object):
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
-            def forward_step(data_id, inputs, targets=None):
+            def outputs_losses(data_id, inputs, targets):
                 self.net.data_id = data_id
-                self.net.inputs, self.net.targets = inputs, targets
+                self.net.inputs = inputs
+                self.net.targets = targets
                 outputs = self.net(inputs)
-                losses = self.losses(targets, outputs)
+                losses = compute_losses(targets, outputs)
                 return outputs, losses
 
             @tf.function
             def train_step(data_id, inputs, targets):
                 with tf.GradientTape() as tape:
-                    _, losses = self.forward_step(data_id, inputs, targets)
+                    _, losses = outputs_losses(data_id, inputs, targets)
                     total_loss = tf.math.reduce_sum(losses)
                 grads = tape.gradient(total_loss, self.net.trainable_variables)
                 opt.apply_gradients(zip(grads, self.net.trainable_variables))
 
-            # Callable: losses and train_step
+            # Callables
             self.losses = compute_losses
-            self.forward_step = forward_step
+            self.outputs_losses = outputs_losses
             self.train_step = train_step
 
         metrics = metrics or []
@@ -215,37 +217,6 @@ class Model(object):
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
-    def evaluate(self, x, y, callbacks=None):
-        """Returns the loss values & metrics values for the model in test mode."""
-        raise NotImplementedError(
-            "Model.evaluate to be implemented. Alternatively, use Model.predict."
-        )
-
-    def predict(self, x, operator=None, callbacks=None):
-        """Generates output predictions for the input samples."""
-        self.callbacks = CallbackList(callbacks=callbacks)
-        self.callbacks.set_model(self)
-        self.callbacks.on_predict_begin()
-        if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(False, False, 2, x)
-            if operator is None:
-                y = self.sess.run(self.net.outputs, feed_dict=feed_dict)
-            else:
-                if utils.get_num_args(operator) == 2:
-                    op = operator(self.net.inputs, self.net.outputs)
-                elif utils.get_num_args(operator) == 3:
-                    op = operator(self.net.inputs, self.net.outputs, x)
-                y = self.sess.run(op, feed_dict=feed_dict)
-        elif backend_name == "tensorflow":
-            if operator is None:
-                y = self.net(x).numpy()
-            else:
-                raise NotImplementedError(
-                    "Model.predict for operator has not been implemented for backend tensorflow."
-                )
-        self.callbacks.on_predict_end()
-        return y
-
     def _train_sgd(self, epochs, display_every, uncertainty):
         for i in range(epochs):
             self.callbacks.on_epoch_begin()
@@ -254,20 +225,15 @@ class Model(object):
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
-            if backend_name == "tensorflow.compat.v1":
-                feed_dict = self.net.feed_dict(
-                    True,
-                    True,
-                    0,
-                    self.train_state.X_train,
-                    self.train_state.y_train,
-                    self.train_state.train_aux_vars,
-                )
-                self.sess.run(self.train_step, feed_dict=feed_dict)
-            elif backend_name == "tensorflow":
-                self.train_step(
-                    np.uint8(0), self.train_state.X_train, self.train_state.y_train
-                )
+            self._run(
+                self.train_step,
+                True,
+                True,
+                np.uint8(0),
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_aux_vars,
+            )
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -312,25 +278,25 @@ class Model(object):
         self._test(uncertainty)
 
     def _test(self, uncertainty):
-        if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(
-                False,
-                False,
-                0,
-                self.train_state.X_train,
-                self.train_state.y_train,
-                self.train_state.train_aux_vars,
-            )
-            self.train_state.loss_train, self.train_state.y_pred_train = self.sess.run(
-                [self.losses, self.net.outputs], feed_dict=feed_dict
-            )
-        elif backend_name == "tensorflow":
-            y_pred, loss = self.forward_step(
-                np.uint8(0), self.train_state.X_train, self.train_state.y_train
-            )
-            self.train_state.loss_train = loss.numpy()
-            self.train_state.y_pred_train = y_pred.numpy()
-
+        self.train_state.y_pred_train, self.train_state.loss_train = self._run(
+            self.outputs_losses,
+            False,
+            False,
+            np.uint8(0),
+            self.train_state.X_train,
+            self.train_state.y_train,
+            self.train_state.train_aux_vars,
+        )
+        self.train_state.y_pred_test, self.train_state.loss_test = self._run(
+            self.outputs_losses,
+            False,
+            False,
+            np.uint8(1),
+            self.train_state.X_test,
+            self.train_state.y_test,
+            self.train_state.test_aux_vars,
+        )
+        # UQ via dropout
         if uncertainty:
             # TODO: support multi outputs
             # TODO: backend tensorflow
@@ -344,34 +310,14 @@ class Model(object):
                 self.train_state.test_aux_vars,
             )
             for _ in range(1000):
-                loss_one, y_pred_test_one = self.sess.run(
-                    [self.losses, self.net.outputs], feed_dict=feed_dict
+                y_pred_test_one, loss_one = self.sess.run(
+                    self.outputs_losses, feed_dict=feed_dict
                 )
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
             self.train_state.loss_test = np.mean(losses, axis=0)
             self.train_state.y_pred_test = np.mean(y_preds, axis=0)
             self.train_state.y_std_test = np.std(y_preds, axis=0)
-        else:
-            if backend_name == "tensorflow.compat.v1":
-                feed_dict = self.net.feed_dict(
-                    False,
-                    False,
-                    1,
-                    self.train_state.X_test,
-                    self.train_state.y_test,
-                    self.train_state.test_aux_vars,
-                )
-                (
-                    self.train_state.loss_test,
-                    self.train_state.y_pred_test,
-                ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
-            elif backend_name == "tensorflow":
-                y_pred, loss = self.forward_step(
-                    np.uint8(1), self.train_state.X_test, self.train_state.y_test
-                )
-                self.train_state.loss_test = loss.numpy()
-                self.train_state.y_pred_test = y_pred.numpy()
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
@@ -393,6 +339,38 @@ class Model(object):
             self.train_state.metrics_test,
         )
         display.training_display(self.train_state)
+
+    def predict(self, x, operator=None, callbacks=None):
+        """Generates output predictions for the input samples."""
+        self.callbacks = CallbackList(callbacks=callbacks)
+        self.callbacks.set_model(self)
+        self.callbacks.on_predict_begin()
+        # TODO: use self._run
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(False, False, 2, x)
+            if operator is None:
+                y = self.sess.run(self.net.outputs, feed_dict=feed_dict)
+            else:
+                if utils.get_num_args(operator) == 2:
+                    op = operator(self.net.inputs, self.net.outputs)
+                elif utils.get_num_args(operator) == 3:
+                    op = operator(self.net.inputs, self.net.outputs, x)
+                y = self.sess.run(op, feed_dict=feed_dict)
+        elif backend_name == "tensorflow":
+            if operator is None:
+                y = self.net(x).numpy()
+            else:
+                raise NotImplementedError(
+                    "Model.predict for operator has not been implemented for backend tensorflow."
+                )
+        self.callbacks.on_predict_end()
+        return y
+
+    # def evaluate(self, x, y, callbacks=None):
+    #     """Returns the loss values & metrics values for the model in test mode."""
+    #     raise NotImplementedError(
+    #         "Model.evaluate to be implemented. Alternatively, use Model.predict."
+    #     )
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
@@ -441,6 +419,25 @@ class Model(object):
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
+
+    def _run(
+        self, fetches, training, dropout, data_id, inputs, targets, auxiliary_vars
+    ):
+        """Runs one "step" of computation of tensors or callables in `fetches`."""
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(
+                training,
+                dropout,
+                data_id,
+                inputs,
+                targets,
+                auxiliary_vars,
+            )
+            return self.sess.run(fetches, feed_dict=feed_dict)
+        if backend_name == "tensorflow":
+            # TODO: Support training, dropout, auxiliary_vars
+            outs = fetches(data_id, inputs, targets)
+            return None if outs is None else [out.numpy() for out in outs]
 
 
 class TrainState(object):

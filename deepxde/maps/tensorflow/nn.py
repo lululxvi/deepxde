@@ -13,6 +13,7 @@ class NN(tf.keras.Model):
         self.data_id = None
         self._inputs = None
         self._targets = None
+        self._auxiliary_vars = None
 
         self.regularizer = None
 
@@ -21,6 +22,7 @@ class NN(tf.keras.Model):
 
     @property
     def inputs(self):
+        """Tensors: Mapping inputs."""
         return self._inputs
 
     @inputs.setter
@@ -29,11 +31,17 @@ class NN(tf.keras.Model):
 
     @property
     def targets(self):
+        """Tensors: Targets of the mapping outputs."""
         return self._targets
 
     @targets.setter
     def targets(self, value):
         self._targets = value
+
+    @property
+    def auxiliary_vars(self):
+        """Tensors: Any additional variables needed."""
+        return self._auxiliary_vars
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,
