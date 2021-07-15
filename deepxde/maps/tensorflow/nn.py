@@ -10,8 +10,30 @@ class NN(tf.keras.Model):
 
     def __init__(self):
         super(NN, self).__init__()
+        self.data_id = None
+        self._inputs = None
+        self._targets = None
+
+        self.regularizer = None
+
         self._input_transform = None
         self._output_transform = None
+
+    @property
+    def inputs(self):
+        return self._inputs
+
+    @inputs.setter
+    def inputs(self, value):
+        self._inputs = value
+
+    @property
+    def targets(self):
+        return self._targets
+
+    @targets.setter
+    def targets(self, value):
+        self._targets = value
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,

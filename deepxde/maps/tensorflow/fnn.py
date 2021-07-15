@@ -37,9 +37,6 @@ class FNN(NN):
                 kernel_regularizer=self.regularizer,
             )
         )
-        self._inputs = None
-        self._targets = None
-        self._data_id = None
 
     def call(self, inputs, training=False):
         y = inputs
@@ -50,27 +47,3 @@ class FNN(NN):
         if self._output_transform is not None:
             y = self._output_transform(inputs, y)
         return y
-
-    @property
-    def inputs(self):
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, value):
-        self._inputs = value
-
-    @property
-    def targets(self):
-        return self._targets
-
-    @targets.setter
-    def targets(self, value):
-        self._targets = value
-
-    @property
-    def data_id(self):
-        return self._data_id
-
-    @data_id.setter
-    def data_id(self, value):
-        self._data_id = value
