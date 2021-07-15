@@ -267,7 +267,7 @@ class Model(object):
             elif backend_name == "tensorflow":
                 self.train_step(
                     np.uint8(0),
-                    self.train_state.X_train, 
+                    self.train_state.X_train,
                     self.train_state.y_train
                 )
 
@@ -373,9 +373,9 @@ class Model(object):
             elif backend_name == "tensorflow":
                 y_pred_test, loss_test = self.forward_step(
                     np.uint8(1),
-                    self.train_state.X_test, 
+                    self.train_state.X_test,
                     self.train_state.y_test
-                )   
+                )
             self.train_state.loss_test = loss_test.numpy()
             self.train_state.y_pred_test = y_pred_test.numpy()
 
