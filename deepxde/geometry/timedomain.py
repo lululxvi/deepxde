@@ -132,12 +132,12 @@ class GeometryXTime(object):
             print(
                 "Warning: {} points required, but {} points sampled.".format(n, len(x))
             )
-        return np.hstack((x, np.full([len(x), 1], t)))
+        return np.hstack((x, np.full([len(x), 1], t, dtype=config.real(np))))
 
     def random_initial_points(self, n, random="pseudo"):
         x = self.geometry.random_points(n, random=random)
         t = self.timedomain.t0
-        return np.hstack((x, np.full([n, 1], t)))
+        return np.hstack((x, np.full([n, 1], t, dtype=config.real(np))))
 
     def periodic_point(self, x, component):
         xp = self.geometry.periodic_point(x[:, :-1], component)
