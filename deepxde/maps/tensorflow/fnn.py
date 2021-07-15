@@ -50,7 +50,7 @@ class FNN(NN):
         for f in self.denses:
             y = f(y)
         if self._output_transform is not None:
-            y = self._output_transform(inputs, y) 
+            y = self._output_transform(inputs, y)
         return y
 
     @property
