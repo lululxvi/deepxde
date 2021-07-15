@@ -325,11 +325,11 @@ class Model(object):
                 [self.losses, self.net.outputs], feed_dict=feed_dict
             )
         elif backend_name == "tensorflow":
-            y_pred_train, loss_train = self.forward_step(
+            y_pred, loss = self.forward_step(
                 np.uint8(0), self.train_state.X_train, self.train_state.y_train
             )
-            self.train_state.loss_train = loss_train.numpy()
-            self.train_state.y_pred_train = y_pred_train.numpy()
+            self.train_state.loss_train = loss.numpy()
+            self.train_state.y_pred_train = y_pred.numpy()
 
         if uncertainty:
             # TODO: support multi outputs
@@ -367,11 +367,11 @@ class Model(object):
                     self.train_state.y_pred_test,
                 ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
             elif backend_name == "tensorflow":
-                y_pred_test, loss_test = self.forward_step(
+                y_pred, loss = self.forward_step(
                     np.uint8(1), self.train_state.X_test, self.train_state.y_test
                 )
-            self.train_state.loss_test = loss_test.numpy()
-            self.train_state.y_pred_test = y_pred_test.numpy()
+            self.train_state.loss_test = loss.numpy()
+            self.train_state.y_pred_test = y_pred.numpy()
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
