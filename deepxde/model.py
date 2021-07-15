@@ -43,7 +43,7 @@ class Model(object):
             self.sess = None
             self.saver = None
         elif backend_name == "tensorflow":
-            self.forward_step = None # callable
+            self.forward_step = None  # callable
 
     @utils.timing
     def compile(
@@ -266,9 +266,7 @@ class Model(object):
                 self.sess.run(self.train_step, feed_dict=feed_dict)
             elif backend_name == "tensorflow":
                 self.train_step(
-                    np.uint8(0),
-                    self.train_state.X_train,
-                    self.train_state.y_train
+                    np.uint8(0), self.train_state.X_train, self.train_state.y_train
                 )
 
             self.train_state.epoch += 1
@@ -328,9 +326,7 @@ class Model(object):
             )
         elif backend_name == "tensorflow":
             y_pred_train, loss_train = self.forward_step(
-                np.uint8(0),
-                self.train_state.X_train,
-                self.train_state.y_train
+                np.uint8(0), self.train_state.X_train, self.train_state.y_train
             )
             self.train_state.loss_train = loss_train.numpy()
             self.train_state.y_pred_train = y_pred_train.numpy()
@@ -372,9 +368,7 @@ class Model(object):
                 ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
             elif backend_name == "tensorflow":
                 y_pred_test, loss_test = self.forward_step(
-                    np.uint8(1),
-                    self.train_state.X_test,
-                    self.train_state.y_test
+                    np.uint8(1), self.train_state.X_test, self.train_state.y_test
                 )
             self.train_state.loss_test = loss_test.numpy()
             self.train_state.y_pred_test = y_pred_test.numpy()
