@@ -42,6 +42,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+        elif backend_name == "tensorflow":
+            self.forward_step = None  # callable
 
     @utils.timing
     def compile(
@@ -112,7 +114,8 @@ class Model(object):
                 losses = self.data.losses(targets, outputs, loss_fn, self)
                 if not isinstance(losses, list):
                     losses = [losses]
-                # TODO: Regularization loss
+                if self.net.regularizer is not None:
+                    losses += [tf.math.reduce_sum(self.net.losses)]
                 losses = tf.convert_to_tensor(losses)
                 # TODO: Weighted losses
                 return losses
@@ -120,16 +123,24 @@ class Model(object):
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
-            def train_step(inputs, targets):
+            def forward_step(data_id, inputs, targets=None):
+                self.net.data_id = data_id
+                self.net.inputs, self.net.targets = inputs, targets
+                outputs = self.net(inputs)
+                losses = self.losses(targets, outputs)
+                return outputs, losses
+
+            @tf.function
+            def train_step(data_id, inputs, targets):
                 with tf.GradientTape() as tape:
-                    outputs = self.net(inputs, training=True)
-                    losses = compute_losses(targets, outputs)
+                    _, losses = self.forward_step(data_id, inputs, targets)
                     total_loss = tf.math.reduce_sum(losses)
                 grads = tape.gradient(total_loss, self.net.trainable_variables)
                 opt.apply_gradients(zip(grads, self.net.trainable_variables))
 
             # Callable: losses and train_step
             self.losses = compute_losses
+            self.forward_step = forward_step
             self.train_step = train_step
 
         metrics = metrics or []
@@ -254,8 +265,9 @@ class Model(object):
                 )
                 self.sess.run(self.train_step, feed_dict=feed_dict)
             elif backend_name == "tensorflow":
-                # TODO: Support self.train_state.train_aux_vars, data_id
-                self.train_step(self.train_state.X_train, self.train_state.y_train)
+                self.train_step(
+                    np.uint8(0), self.train_state.X_train, self.train_state.y_train
+                )
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -313,11 +325,11 @@ class Model(object):
                 [self.losses, self.net.outputs], feed_dict=feed_dict
             )
         elif backend_name == "tensorflow":
-            outputs = self.net(self.train_state.X_train, training=False)
-            self.train_state.loss_train = self.losses(
-                self.train_state.y_train, outputs
-            ).numpy()
-            self.train_state.y_pred_train = outputs.numpy()
+            y_pred, loss = self.forward_step(
+                np.uint8(0), self.train_state.X_train, self.train_state.y_train
+            )
+            self.train_state.loss_train = loss.numpy()
+            self.train_state.y_pred_train = y_pred.numpy()
 
         if uncertainty:
             # TODO: support multi outputs
@@ -355,11 +367,11 @@ class Model(object):
                     self.train_state.y_pred_test,
                 ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
             elif backend_name == "tensorflow":
-                outputs = self.net(self.train_state.X_test, training=False)
-                self.train_state.loss_test = self.losses(
-                    self.train_state.y_test, outputs
-                ).numpy()
-                self.train_state.y_pred_test = outputs.numpy()
+                y_pred, loss = self.forward_step(
+                    np.uint8(1), self.train_state.X_test, self.train_state.y_test
+                )
+            self.train_state.loss_test = loss.numpy()
+            self.train_state.y_pred_test = y_pred.numpy()
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
