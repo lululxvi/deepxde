@@ -101,6 +101,9 @@ class IDE(PDE):
         self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
+    def test_points(self):
+        return self.geom.uniform_points(self.num_test, True)
+
     def quad_points(self, X):
         def get_quad_points(x):
             return (self.quad_x + 1) * x / 2
