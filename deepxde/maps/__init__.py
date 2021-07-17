@@ -13,16 +13,9 @@ create an issue. If you want to contribute a NN module, please create a pull req
 """
 
 import importlib
-import os
 import sys
 
 from ..backend import backend_name
-
-
-# To get Sphinx documentation to build, we import all
-if os.environ.get("READTHEDOCS") == "True":
-    from . import tensorflow
-    from . import tensorflow_compat_v1
 
 
 def _load_backend(mod_name):

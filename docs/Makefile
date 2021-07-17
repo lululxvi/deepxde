@@ -14,6 +14,24 @@ help:
 
 .PHONY: help Makefile
 
+tensorflow.compat.v1:
+	@echo "##################################################################"
+	@echo "#                                                                #"
+	@echo "#            Step 1: Building TensorFlow.compat.v1 tutorials     #"
+	@echo "#                                                                #"
+	@echo "##################################################################"
+	@DDEBACKEND=tensorflow.compat.v1 $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+tensorflow:
+	@echo "##################################################################"
+	@echo "#                                                                #"
+	@echo "#            Step 2: Building TensorFlow tutorials               #"
+	@echo "#                                                                #"
+	@echo "##################################################################"
+	@DDEBACKEND=tensorflow $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html: Makefile tensorflow.compat.v1 tensorflow
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
