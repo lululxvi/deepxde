@@ -95,7 +95,10 @@ class Model(object):
         if external_trainable_variables is not None:
             if not isinstance(external_trainable_variables, list):
                 self.external_trainable_variables = [external_trainable_variables]
-            self.external_trainable_variables = external_trainable_variables
+            else:
+                self.external_trainable_variables = external_trainable_variables
+        else:
+            self.external_trainable_variables = []
 
         loss_fn = losses_module.get(loss)
         if backend_name == "tensorflow.compat.v1":
