@@ -11,14 +11,37 @@ from deepxde.backend import tf
 
 def main():
     def pde(x, y):
+        """
+        Returns residual between ground-truth PDE and predicted PDE
+
+        Args:
+            x tf.Tensor((batch_size, 1)): Independent variable, e.g., location, x
+            y tf.Tensor((batch_size, 1)): Predicted solution
+
+        Returns
+            res tf.Tensor((batch_size, 1)): Residual
+        """
         dy_xx = dde.grad.hessian(y, x)
-        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+        dy_xx_true = np.pi ** 2 * tf.sin(np.pi * x)
+        res = - dy_xx - dy_xx_true
+        return res
 
     def boundary(x, on_boundary):
         return on_boundary
 
     def func(x):
-        return np.sin(np.pi * x)
+        """
+        Returns solution at x
+ 
+        Args:
+            x np.array((2*num_boundary + num_domain,1)): Unsorted points 
+                to evaluate function, defined by dde.data.PDE.train_distribution
+
+        Returns:
+            sol np.array((2*num_boundary + num_domain,1)): Solution, evaluated at x
+        """
+        sol = np.sin(np.pi * x)
+        return sol
 
     geom = dde.geometry.Interval(-1, 1)
     bc = dde.DirichletBC(geom, func, boundary)
