@@ -10,8 +10,38 @@ class NN(tf.keras.Model):
 
     def __init__(self):
         super(NN, self).__init__()
+        self.data_id = None
+        self._inputs = None
+        self._targets = None
+        self._auxiliary_vars = None
+
+        self.regularizer = None
+
         self._input_transform = None
         self._output_transform = None
+
+    @property
+    def inputs(self):
+        """Tensors: Mapping inputs."""
+        return self._inputs
+
+    @inputs.setter
+    def inputs(self, value):
+        self._inputs = value
+
+    @property
+    def targets(self):
+        """Tensors: Targets of the mapping outputs."""
+        return self._targets
+
+    @targets.setter
+    def targets(self, value):
+        self._targets = value
+
+    @property
+    def auxiliary_vars(self):
+        """Tensors: Any additional variables needed."""
+        return self._auxiliary_vars
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,

@@ -18,7 +18,7 @@ def main():
     geom = dde.geometry.Interval(-1, 1)
     num_train = 10
     num_test = 1000
-    data = dde.data.Func(geom, func, num_train, num_test)
+    data = dde.data.Function(geom, func, num_train, num_test)
 
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"

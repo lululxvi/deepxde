@@ -16,32 +16,61 @@ class PDE(Data):
     Args:
         geometry: Instance of ``Geometry``.
         pde: A global PDE or a list of PDEs. ``None`` if no global PDE.
-        bcs: A boundary condition or a list of boundary conditions. ``[]`` if no boundary condition.
-        num_domain (int): The number of training residual points sampled inside the domain.
-        num_boundary (int): The number of training residual points sampled on the boundary.
-        train_distribution (string): The distribution to sample training residual points. One of the following:
-            "uniform" (equispaced grid), "pseudo" (pseudorandom), "LHS" (Latin hypercube sampling), "Halton" (Halton
-            sequence), "Hammersley" (Hammersley sequence), or "Sobol" (Sobol sequence).
-        anchors: A Numpy array of training residual points, in addition to the `num_domain` and `num_boundary` sampled
-            points.
+        bcs: A boundary condition or a list of boundary conditions. Use ``[]`` if no
+            boundary condition.
+        num_domain (int): The number of training points sampled inside the domain.
+        num_boundary (int): The number of training points sampled on the boundary.
+        train_distribution (string): The distribution to sample training points. One of
+            the following: "uniform" (equispaced grid), "pseudo" (pseudorandom), "LHS"
+            (Latin hypercube sampling), "Halton" (Halton sequence), "Hammersley"
+            (Hammersley sequence), or "Sobol" (Sobol sequence).
+        anchors: A Numpy array of training points, in addition to the `num_domain` and
+            `num_boundary` sampled points.
         exclusions: A Numpy array of points to be excluded for training.
         solution: The reference solution.
-        num_test: The number of residual points for testing the PDE residual.
-        auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs auxiliary variables.
+        num_test: The number of points sampled inside the domain for testing. The testing
+            points on the boundary are the same set of points used for training. If
+            ``None``, then the training points will be used for testing.
+        auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs
+            auxiliary variables.
 
     Attributes:
-        train_x_all: A Numpy array of all residual points for training. `train_x_all` is unordered,
-            and does not have duplication.
-        train_x: A Numpy array of the residual points fed into the network for training.
-            `train_x` is a subset of `train_x_all`, ordered from BCs to PDE, and may have duplicate points.
-        train_x_bc: A Numpy array of the residual points on boundary.
-            `train_x_bc` is a subset of `train_x_all` at the first step of training, by default it won't be updated
-            when `train_x_all` changes. To update `train_x_bc`, set it to `None` and call `bc_points`,
-            and then update the loss function by `model.compile`.
-        num_bcs (list): `num_bcs[i]` is the number of residual points for `bcs[i]`.
-        test_x: A Numpy array of the residual points fed into the network for testing the PDE residual.
+        train_x_all: A Numpy array of all points for training. `train_x_all` is
+            unordered, and does not have duplication.
+        train_x: A Numpy array of the points fed into the network for training.
+            `train_x` is constructed from `train_x_all`, ordered from BCs to PDE, and
+            may have duplicate points.
+        train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
+            constructed from `train_x_all` at the first step of training, by default it
+            won't be updated when `train_x_all` changes. To update `train_x_bc`, set it
+            to `None` and call `bc_points`, and then update the loss function by
+            ``model.compile()``.
+        num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
+        test_x: A Numpy array of the points fed into the network for testing, ordered
+            from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
         test_aux_vars: Auxiliary variables that associate with `test_x`.
+
+    Warning:
+        The testing points include points inside the domain and points on the boundary,
+        and they may not have the same density, and thus the entire testing points may
+        not be uniformly distributed. As a result, if you have a reference solution
+        (`solution`) and would like to compute a metric such as
+
+        .. code-block:: python
+
+            Model.compile(metrics=["l2 relative error"])
+
+        then the metric may not be very accurate. To better compute a metric, you can
+        sample the points manually, and then use ``Model.predict()`` to predict the
+        solution on thess points and compute the metric:
+
+        .. code-block:: python
+
+            x = geom.uniform_points(num, boundary=True)
+            y_true = ...
+            y_pred = model.predict(x)
+            error= dde.metrics.l2_relative_error(y_true, y_pred)
     """
 
     def __init__(
@@ -98,9 +127,6 @@ class PDE(Data):
 
     def losses(self, targets, outputs, loss, model):
         f = []
-        # Always build the gradients in the PDE here, so that we can reuse all the gradients in dde.grad. If we build
-        # the gradients in losses_train(), then error occurs when we use these gradients in losses_test() during
-        # sess.run(), because one branch in tf.cond() cannot use the Tensors created in the other branch.
         if self.pde is not None:
             if get_num_args(self.pde) == 2:
                 f = self.pde(model.net.inputs, outputs)
@@ -120,32 +146,21 @@ class PDE(Data):
                 )
             )
 
-        def losses_train():
-            f_train = f
-            bcs_start = np.cumsum([0] + self.num_bcs)
-            error_f = [fi[bcs_start[-1] :] for fi in f_train]
-            losses = [
-                loss[i](tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
-                for i, error in enumerate(error_f)
-            ]
-            for i, bc in enumerate(self.bcs):
-                beg, end = bcs_start[i], bcs_start[i + 1]
-                error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
-                losses.append(
-                    loss[len(error_f) + i](
-                        tf.zeros(tf.shape(error), dtype=config.real(tf)), error
-                    )
+        bcs_start = np.cumsum([0] + self.num_bcs)
+        error_f = [fi[bcs_start[-1] :] for fi in f]
+        losses = [
+            loss[i](tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+            for i, error in enumerate(error_f)
+        ]
+        for i, bc in enumerate(self.bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
+            losses.append(
+                loss[len(error_f) + i](
+                    tf.zeros(tf.shape(error), dtype=config.real(tf)), error
                 )
-            return losses
-
-        def losses_test():
-            f_test = f
-            return [
-                loss[i](tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi)
-                for i, fi in enumerate(f_test)
-            ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
-
-        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
+            )
+        return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
@@ -161,7 +176,7 @@ class PDE(Data):
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x_all
+            self.test_x = self.train_x
         else:
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
@@ -170,18 +185,12 @@ class PDE(Data):
         return self.test_x, self.test_y, self.test_aux_vars
 
     def resample_train_points(self):
-        """Resample the training residual points.
-
-        Warning: After resampling, need to call ``Model.compile()`` to update the loss.
-        """
+        """Resample the training points for PDEs. The BC points will not be updated."""
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
     def add_anchors(self, anchors):
-        """Add new anchors into the training residual points.
-
-        Warning: After adding anchors, need to call ``Model.compile()`` to update the loss.
-        """
+        """Add new points for training PDE losses. The BC points will not be updated."""
         if self.anchors is None:
             self.anchors = anchors
         else:
@@ -231,16 +240,17 @@ class PDE(Data):
         return self.train_x_bc
 
     def test_points(self):
-        return self.geom.uniform_points(self.num_test, True)
+        x = self.geom.uniform_points(self.num_test, boundary=False)
+        x = np.vstack((self.train_x_bc, x))
+        return x
 
 
 class TimePDE(PDE):
     """Time-dependent PDE solver.
 
     Args:
-        num_domain: Number of f training points.
-        num_boundary: Number of boundary condition points on the geometry boundary.
-        num_initial: Number of initial condition points.
+        num_initial (int): The number of training points sampled on the initial
+            location.
     """
 
     def __init__(
