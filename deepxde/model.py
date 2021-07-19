@@ -45,7 +45,7 @@ class Model(object):
             self.sess = None
             self.saver = None
         elif backend_name == "tensorflow":
-            self.external_trainable_variables = []
+            self.external_trainable_variables = None
 
     @utils.timing
     def compile(
@@ -56,7 +56,7 @@ class Model(object):
         metrics=None,
         decay=None,
         loss_weights=None,
-        external_trainable_variables=[],
+        external_trainable_variables=None,
     ):
         """Configures the model for training.
 
@@ -156,7 +156,9 @@ class Model(object):
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
-            if isinstance(external_trainable_variables, list):
+            if external_trainable_variables == None:
+                self.external_trainable_variables = []
+            elif isinstance(external_trainable_variables, list):
                 self.external_trainable_variables = external_trainable_variables
             else:
                 self.external_trainable_variables = [external_trainable_variables]
