@@ -44,6 +44,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+        elif backend_name == "tensorflow":
+            self.external_trainable_variables = None
 
     @utils.timing
     def compile(
@@ -54,6 +56,7 @@ class Model(object):
         metrics=None,
         decay=None,
         loss_weights=None,
+        external_trainable_variables=None,
     ):
         """Configures the model for training.
 
@@ -137,13 +140,28 @@ class Model(object):
                 with tf.GradientTape() as tape:
                     _, losses = outputs_losses(data_id, inputs, targets)
                     total_loss = tf.math.reduce_sum(losses)
-                grads = tape.gradient(total_loss, self.net.trainable_variables)
-                opt.apply_gradients(zip(grads, self.net.trainable_variables))
+                grads = tape.gradient(
+                    total_loss,
+                    self.net.trainable_variables + self.external_trainable_variables,
+                )
+                opt.apply_gradients(
+                    zip(
+                        grads,
+                        self.net.trainable_variables
+                        + self.external_trainable_variables,
+                    )
+                )
 
             # Callables
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
+            if external_trainable_variables is None:
+                self.external_trainable_variables = []
+            elif isinstance(external_trainable_variables, list):
+                self.external_trainable_variables = external_trainable_variables
+            else:
+                self.external_trainable_variables = [external_trainable_variables]
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
