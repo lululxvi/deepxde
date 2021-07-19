@@ -32,7 +32,7 @@ class Model(object):
         self.batch_size = None
         self.callbacks = None
         self.metrics = None
-        self.external_trainable_variables = None
+        self.external_trainable_variables = []
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
@@ -153,11 +153,9 @@ class Model(object):
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
-            if external_trainable_variables is None:
-                self.external_trainable_variables = []
-            elif isinstance(external_trainable_variables, list):
+            if isinstance(external_trainable_variables, list):
                 self.external_trainable_variables = external_trainable_variables
-            else:
+            elif external_trainable_variables is not None:
                 self.external_trainable_variables = [external_trainable_variables]
 
         metrics = metrics or []
