@@ -156,7 +156,7 @@ class Model(object):
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
-            if external_trainable_variables == None:
+            if external_trainable_variables is None:
                 self.external_trainable_variables = []
             elif isinstance(external_trainable_variables, list):
                 self.external_trainable_variables = external_trainable_variables
