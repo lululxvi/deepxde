@@ -143,15 +143,17 @@ class Model(object):
                 with tf.GradientTape() as tape:
                     _, losses = outputs_losses(data_id, inputs, targets)
                     total_loss = tf.math.reduce_sum(losses)
+                trainable_variables = (
+                    self.net.trainable_variables + self.external_trainable_variables
+                )
                 grads = tape.gradient(
                     total_loss,
-                    self.net.trainable_variables + self.external_trainable_variables,
+                    trainable_variables,
                 )
                 opt.apply_gradients(
                     zip(
                         grads,
-                        self.net.trainable_variables
-                        + self.external_trainable_variables,
+                        trainable_variables,
                     )
                 )
 
