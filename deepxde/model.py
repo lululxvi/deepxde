@@ -146,16 +146,8 @@ class Model(object):
                 trainable_variables = (
                     self.net.trainable_variables + self.external_trainable_variables
                 )
-                grads = tape.gradient(
-                    total_loss,
-                    trainable_variables,
-                )
-                opt.apply_gradients(
-                    zip(
-                        grads,
-                        trainable_variables,
-                    )
-                )
+                grads = tape.gradient(total_loss, trainable_variables)
+                opt.apply_gradients(zip(grads, trainable_variables))
 
             # Callables
             self.losses = compute_losses
