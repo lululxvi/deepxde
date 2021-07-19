@@ -128,6 +128,10 @@ class Model(object):
                 return losses
 
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
+            if external_trainable_variables is not None:
+                if not isinstance(external_trainable_variables, list):
+                    self.external_trainable_variables = [external_trainable_variables]
+                self.external_trainable_variables = external_trainable_variables
 
             @tf.function
             def outputs_losses(data_id, inputs, targets):
@@ -153,10 +157,6 @@ class Model(object):
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
-            if isinstance(external_trainable_variables, list):
-                self.external_trainable_variables = external_trainable_variables
-            elif external_trainable_variables is not None:
-                self.external_trainable_variables = [external_trainable_variables]
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
