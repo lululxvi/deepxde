@@ -9,6 +9,7 @@ import numpy as np
 
 from . import gradients as grad
 from .utils import list_to_str, save_animation
+from .backend import backend_name
 
 
 class Callback(object):
@@ -255,7 +256,10 @@ class VariableValue(Callback):
 
     def __init__(self, var_list, period=1, filename=None, precision=2):
         super(VariableValue, self).__init__()
-        self.var_list = var_list
+        if isinstance(var_list, list):
+            self.var_list = var_list
+        else:
+            self.var_list = [var_list]
         self.period = period
         self.precision = precision
 
@@ -264,14 +268,20 @@ class VariableValue(Callback):
         self.epochs_since_last = 0
 
     def on_train_begin(self):
-        self.value = self.model.sess.run(self.var_list)
+        if backend_name == "tensorflow.compat.v1":
+            self.value = self.model.sess.run(self.var_list)
+        elif backend_name == "tensorflow":
+            self.value = [var.numpy() for var in self.var_list]
         print(self.model.train_state.epoch, self.value, file=self.file)
 
     def on_epoch_end(self):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
-            self.value = self.model.sess.run(self.var_list)
+            if backend_name == "tensorflow.compat.v1":
+                self.value = self.model.sess.run(self.var_list)
+            elif backend_name == "tensorflow":
+                self.value = [var.numpy() for var in self.var_list]
             print(
                 self.model.train_state.epoch,
                 list_to_str(self.value, precision=self.precision),

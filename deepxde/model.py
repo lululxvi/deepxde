@@ -44,6 +44,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+        elif backend_name == "tensorflow":
+            self.external_trainable_variables = []
 
     @utils.timing
     def compile(
@@ -54,6 +56,7 @@ class Model(object):
         metrics=None,
         decay=None,
         loss_weights=None,
+        external_trainable_variables=[],
     ):
         """Configures the model for training.
 
@@ -137,13 +140,26 @@ class Model(object):
                 with tf.GradientTape() as tape:
                     _, losses = outputs_losses(data_id, inputs, targets)
                     total_loss = tf.math.reduce_sum(losses)
-                grads = tape.gradient(total_loss, self.net.trainable_variables)
-                opt.apply_gradients(zip(grads, self.net.trainable_variables))
+                grads = tape.gradient(
+                    total_loss,
+                    self.net.trainable_variables + self.external_trainable_variables,
+                )
+                opt.apply_gradients(
+                    zip(
+                        grads,
+                        self.net.trainable_variables
+                        + self.external_trainable_variables,
+                    )
+                )
 
             # Callables
             self.losses = compute_losses
             self.outputs_losses = outputs_losses
             self.train_step = train_step
+            if isinstance(external_trainable_variables, list):
+                self.external_trainable_variables = external_trainable_variables
+            else:
+                self.external_trainable_variables = [external_trainable_variables]
 
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
@@ -318,29 +334,6 @@ class Model(object):
             self.train_state.loss_test = np.mean(losses, axis=0)
             self.train_state.y_pred_test = np.mean(y_preds, axis=0)
             self.train_state.y_std_test = np.std(y_preds, axis=0)
-<<<<<<< HEAD
-        else:
-            if backend_name == "tensorflow.compat.v1":
-                feed_dict = self.net.feed_dict(
-                    False,
-                    False,
-                    1,
-                    self.train_state.X_test,
-                    self.train_state.y_test,
-                    self.train_state.test_aux_vars,
-                )
-                (
-                    self.train_state.loss_test,
-                    self.train_state.y_pred_test,
-                ) = self.sess.run([self.losses, self.net.outputs], feed_dict=feed_dict)
-            elif backend_name == "tensorflow":
-                y_pred, loss = self.forward_step(
-                    np.uint8(1), self.train_state.X_test, self.train_state.y_test
-                )
-                self.train_state.loss_test = loss.numpy()
-                self.train_state.y_pred_test = y_pred.numpy()
-=======
->>>>>>> f7be58b28478ff4c3a3408573fb7d93a86789c63
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
