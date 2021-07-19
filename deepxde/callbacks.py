@@ -412,7 +412,7 @@ class MovieDumper(Callback):
 
 
 class PDEResidualResampler(Callback):
-    """Resample the training data every given period."""
+    """Resample the training points for PDE losses every given period."""
 
     def __init__(self, period=100):
         super(PDEResidualResampler, self).__init__()

@@ -162,6 +162,9 @@ class FPDE(PDE):
         self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
+    def test_points(self):
+        return self.geom.uniform_points(self.num_test, True)
+
     def get_int_matrix(self, training):
         if training:
             int_mat = self.frac_train.get_matrix(sparse=True)
