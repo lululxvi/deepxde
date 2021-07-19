@@ -32,6 +32,7 @@ class Model(object):
         self.batch_size = None
         self.callbacks = None
         self.metrics = None
+        self.external_trainable_variables = None
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
@@ -44,8 +45,6 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "tensorflow":
-            self.external_trainable_variables = None
 
     @utils.timing
     def compile(
@@ -78,6 +77,10 @@ class Model(object):
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
+            external_trainable_variables: A Variable object or a list of Variable objects.
+                The unknown parameters in the physics systems that need to be recovered.
+                Trainable variables from the neural networks and external_trainable_variables
+                are trained together.
         """
         print("Compiling model...")
 
