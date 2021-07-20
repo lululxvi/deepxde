@@ -94,9 +94,8 @@ class Model(object):
         self.opt_name = optimizer
         if external_trainable_variables is not None:
             if not isinstance(external_trainable_variables, list):
-                self.external_trainable_variables = [external_trainable_variables]
-            else:
-                self.external_trainable_variables = external_trainable_variables
+                external_trainable_variables = [external_trainable_variables]
+            self.external_trainable_variables = external_trainable_variables
         else:
             self.external_trainable_variables = []
 
@@ -361,24 +360,36 @@ class Model(object):
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
-        # TODO: use self._run
+        # TODO: use self._run for tensorflow
         if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(False, False, 2, x)
             if operator is None:
-                y = self.sess.run(self.net.outputs, feed_dict=feed_dict)
+                op = self.net.outputs
             else:
                 if utils.get_num_args(operator) == 2:
                     op = operator(self.net.inputs, self.net.outputs)
                 elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
-                y = self.sess.run(op, feed_dict=feed_dict)
+            y = self._run(op, False, False, np.uint8(2), x, None, None)
         elif backend_name == "tensorflow":
+            # TODO: avoid creating the same graph every time predict is called
             if operator is None:
                 y = self.net(x).numpy()
             else:
-                raise NotImplementedError(
-                    "Model.predict for operator has not been implemented for backend tensorflow."
-                )
+                if utils.get_num_args(operator) == 2:
+
+                    @tf.function
+                    def op(inputs):
+                        y = self.net(inputs)
+                        return operator(inputs, y)
+
+                elif utils.get_num_args(operator) == 3:
+
+                    @tf.function
+                    def op(inputs):
+                        y = self.net(inputs)
+                        return operator(inputs, y, x)
+
+                y = op(x).numpy()
         self.callbacks.on_predict_end()
         return y
 
