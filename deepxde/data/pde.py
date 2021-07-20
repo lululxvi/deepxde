@@ -34,23 +34,6 @@ class PDE(Data):
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs
             auxiliary variables.
 
-    Attributes:
-        train_x_all: A Numpy array of all points for training. `train_x_all` is
-            unordered, and does not have duplication.
-        train_x: A Numpy array of the points fed into the network for training.
-            `train_x` is constructed from `train_x_all`, ordered from BCs to PDE, and
-            may have duplicate points.
-        train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
-            constructed from `train_x_all` at the first step of training, by default it
-            won't be updated when `train_x_all` changes. To update `train_x_bc`, set it
-            to `None` and call `bc_points`, and then update the loss function by
-            ``model.compile()``.
-        num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
-        test_x: A Numpy array of the points fed into the network for testing, ordered
-            from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
-        train_aux_vars: Auxiliary variables that associate with `train_x`.
-        test_aux_vars: Auxiliary variables that associate with `test_x`.
-
     Warning:
         The testing points include points inside the domain and points on the boundary,
         and they may not have the same density, and thus the entire testing points may
@@ -71,6 +54,23 @@ class PDE(Data):
             y_true = ...
             y_pred = model.predict(x)
             error= dde.metrics.l2_relative_error(y_true, y_pred)
+
+    Attributes:
+        train_x_all: A Numpy array of all points for training. `train_x_all` is
+            unordered, and does not have duplication.
+        train_x: A Numpy array of the points fed into the network for training.
+            `train_x` is constructed from `train_x_all`, ordered from BCs to PDE, and
+            may have duplicate points.
+        train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
+            constructed from `train_x_all` at the first step of training, by default it
+            won't be updated when `train_x_all` changes. To update `train_x_bc`, set it
+            to `None` and call `bc_points`, and then update the loss function by
+            ``model.compile()``.
+        num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
+        test_x: A Numpy array of the points fed into the network for testing, ordered
+            from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
+        train_aux_vars: Auxiliary variables that associate with `train_x`.
+        test_aux_vars: Auxiliary variables that associate with `test_x`.
     """
 
     def __init__(
@@ -115,6 +115,7 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
+        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde explicitly.
         self.train_x_all = None
         self.train_x, self.train_y = None, None
         self.train_x_bc = None
@@ -240,6 +241,7 @@ class PDE(Data):
         return self.train_x_bc
 
     def test_points(self):
+        # TODO: Use different BC points from self.train_x_bc
         x = self.geom.uniform_points(self.num_test, boundary=False)
         x = np.vstack((self.train_x_bc, x))
         return x
