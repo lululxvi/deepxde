@@ -1,33 +1,35 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 
+def ddy(x, y):
+    return dde.grad.hessian(y, x)
+
+
+def dddy(x, y):
+    return tf.gradients(ddy(x, y), x)[0]
+
+
+def pde(x, y):
+    dy_xxxx = tf.gradients(dddy(x, y), x)[0]
+    return dy_xxxx + 1
+
+
+def boundary_l(x, on_boundary):
+    return on_boundary and np.isclose(x[0], 0)
+
+
+def boundary_r(x, on_boundary):
+    return on_boundary and np.isclose(x[0], 1)
+
+
+def func(x):
+    return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
+
+
 def main():
-    def ddy(x, y):
-        return dde.grad.hessian(y, x)
-
-    def dddy(x, y):
-        return tf.gradients(ddy(x, y), x)[0]
-
-    def pde(x, y):
-        dy_xxxx = tf.gradients(dddy(x, y), x)[0]
-        return dy_xxxx + 1
-
-    def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 0)
-
-    def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
-
-    def func(x):
-        return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
-
     geom = dde.geometry.Interval(0, 1)
 
     bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)

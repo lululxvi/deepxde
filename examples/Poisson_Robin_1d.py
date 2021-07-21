@@ -1,26 +1,26 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
+
+def pde(x, y):
+    dy_xx = dde.grad.hessian(y, x)
+    return dy_xx - 2
+
+
+def boundary_l(x, on_boundary):
+    return on_boundary and np.isclose(x[0], -1)
+
+
+def boundary_r(x, on_boundary):
+    return on_boundary and np.isclose(x[0], 1)
+
+
+def func(x):
+    return (x + 1) ** 2
 
 
 def main():
-    def pde(x, y):
-        dy_xx = dde.grad.hessian(y, x)
-        return dy_xx - 2
-
-    def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], -1)
-
-    def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
-
-    def func(x):
-        return (x + 1) ** 2
-
     geom = dde.geometry.Interval(-1, 1)
     bc_l = dde.DirichletBC(geom, func, boundary_l)
     bc_r = dde.RobinBC(geom, lambda X, y: y, boundary_r)

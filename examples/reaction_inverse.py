@@ -1,10 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 
@@ -19,26 +15,30 @@ def gen_traindata():
     return np.hstack((X, T)), Ca, Cb
 
 
+kf = tf.Variable(0.05)
+D = tf.Variable(1.0)
+
+
+def pde(x, y):
+    ca, cb = y[:, 0:1], y[:, 1:2]
+    dca_t = dde.grad.jacobian(y, x, i=0, j=1)
+    dca_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
+    dcb_t = dde.grad.jacobian(y, x, i=1, j=1)
+    dcb_xx = dde.grad.hessian(y, x, component=1, i=0, j=0)
+    eq_a = dca_t - 1e-3 * D * dca_xx + kf * ca * cb ** 2
+    eq_b = dcb_t - 1e-3 * D * dcb_xx + 2 * kf * ca * cb ** 2
+    return [eq_a, eq_b]
+
+
+def fun_bc(x):
+    return 1 - x[:, 0:1]
+
+
+def fun_init(x):
+    return np.exp(-20 * x[:, 0:1])
+
+
 def main():
-    kf = tf.Variable(0.05)
-    D = tf.Variable(1.0)
-
-    def pde(x, y):
-        ca, cb = y[:, 0:1], y[:, 1:2]
-        dca_t = dde.grad.jacobian(y, x, i=0, j=1)
-        dca_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
-        dcb_t = dde.grad.jacobian(y, x, i=1, j=1)
-        dcb_xx = dde.grad.hessian(y, x, component=1, i=0, j=0)
-        eq_a = dca_t - 1e-3 * D * dca_xx + kf * ca * cb ** 2
-        eq_b = dcb_t - 1e-3 * D * dcb_xx + 2 * kf * ca * cb ** 2
-        return [eq_a, eq_b]
-
-    def fun_bc(x):
-        return 1 - x[:, 0:1]
-
-    def fun_init(x):
-        return np.exp(-20 * x[:, 0:1])
-
     geom = dde.geometry.Interval(0, 1)
     timedomain = dde.geometry.TimeDomain(0, 10)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)

@@ -1,33 +1,32 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
+
+def ode_system(x, y):
+    """ODE system.
+    dy1/dx = y2
+    dy2/dx = -y1
+    """
+    y1, y2 = y[:, 0:1], y[:, 1:]
+    dy1_x = dde.grad.jacobian(y, x, i=0)
+    dy2_x = dde.grad.jacobian(y, x, i=1)
+    return [dy1_x - y2, dy2_x + y1]
+
+
+def boundary(_, on_initial):
+    return on_initial
+
+
+def func(x):
+    """
+    y1 = sin(x)
+    y2 = cos(x)
+    """
+    return np.hstack((np.sin(x), np.cos(x)))
 
 
 def main():
-    def ode_system(x, y):
-        """ODE system.
-        dy1/dx = y2
-        dy2/dx = -y1
-        """
-        y1, y2 = y[:, 0:1], y[:, 1:]
-        dy1_x = dde.grad.jacobian(y, x, i=0)
-        dy2_x = dde.grad.jacobian(y, x, i=1)
-        return [dy1_x - y2, dy2_x + y1]
-
-    def boundary(_, on_initial):
-        return on_initial
-
-    def func(x):
-        """
-        y1 = sin(x)
-        y2 = cos(x)
-        """
-        return np.hstack((np.sin(x), np.cos(x)))
-
     geom = dde.geometry.TimeDomain(0, 10)
     ic1 = dde.IC(geom, np.sin, boundary, component=0)
     ic2 = dde.IC(geom, np.cos, boundary, component=1)

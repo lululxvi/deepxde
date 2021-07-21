@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,17 +12,18 @@ def gen_traindata(num):
     return xvals, uvals
 
 
+def pde(x, y):
+    u, q = y[:, 0:1], y[:, 1:2]
+    du_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
+    # solution is u(x) = sin(pi*x), q(x) = -pi^2 * sin(pi*x)
+    return -du_xx + q
+
+
+def sol(x):
+    return np.sin(np.pi * x ** 2)
+
+
 def main():
-    def pde(x, y):
-        u, q = y[:, 0:1], y[:, 1:2]
-        du_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
-
-        # solution is u(x) = sin(pi*x), q(x) = -pi^2 * sin(pi*x)
-        return -du_xx + q
-
-    def sol(x):
-        return np.sin(np.pi * x ** 2)
-
     geom = dde.geometry.Interval(-1, 1)
 
     bc = dde.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)

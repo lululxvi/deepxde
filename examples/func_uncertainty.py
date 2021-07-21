@@ -1,20 +1,17 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
+
+def func(x):
+    """
+    x: array_like, N x D_in
+    y: array_like, N x D_out
+    """
+    return x * np.sin(5 * x)
 
 
 def main():
-    def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
-        return x * np.sin(5 * x)
-
     geom = dde.geometry.Interval(-1, 1)
     num_train = 10
     num_test = 1000

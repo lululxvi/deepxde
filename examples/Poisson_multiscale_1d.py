@@ -1,34 +1,31 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Backend supported: tensorflow.compat.v1
 
-"""
 Implementation of the Poisson 1D example in paper https://arxiv.org/abs/2012.10047.
 References:
     https://github.com/PredictiveIntelligenceLab/MultiscalePINNs.
 """
-
-import numpy as np
-
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 A = 2
 B = 50
 
 
+def pde(x, y):
+    dy_xx = dde.grad.hessian(y, x)
+    return (
+        dy_xx
+        + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
+    )
+
+
+def func(x):
+    return np.sin(np.pi * A * x) + 0.1 * np.sin(np.pi * B * x)
+
+
 def main():
-    def pde(x, y):
-        dy_xx = dde.grad.hessian(y, x)
-        return (
-            dy_xx
-            + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
-            + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
-        )
-
-    def func(x):
-        return np.sin(np.pi * A * x) + 0.1 * np.sin(np.pi * B * x)
-
     geom = dde.geometry.Interval(0, 1)
     bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
     data = dde.data.PDE(

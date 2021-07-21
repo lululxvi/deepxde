@@ -1,10 +1,9 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Backend supported: tensorflow.compat.v1
 
-import numpy as np
-
+Documentation: https://deepxde.readthedocs.io/en/latest/demos/lorenz.inverse.html
+"""
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 
@@ -13,30 +12,33 @@ def gen_traindata():
     return data["t"], data["y"]
 
 
+C1 = tf.Variable(1.0)
+C2 = tf.Variable(1.0)
+C3 = tf.Variable(1.0)
+
+
+def Lorenz_system(x, y):
+    """Lorenz system.
+    dy1/dx = 10 * (y2 - y1)
+    dy2/dx = y1 * (28 - y3) - y2
+    dy3/dx = y1 * y2 - 8/3 * y3
+    """
+    y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
+    dy1_x = dde.grad.jacobian(y, x, i=0)
+    dy2_x = dde.grad.jacobian(y, x, i=1)
+    dy3_x = dde.grad.jacobian(y, x, i=2)
+    return [
+        dy1_x - C1 * (y2 - y1),
+        dy2_x - y1 * (C2 - y3) + y2,
+        dy3_x - y1 * y2 + C3 * y3,
+    ]
+
+
+def boundary(_, on_initial):
+    return on_initial
+
+
 def main():
-    C1 = tf.Variable(1.0)
-    C2 = tf.Variable(1.0)
-    C3 = tf.Variable(1.0)
-
-    def Lorenz_system(x, y):
-        """Lorenz system.
-        dy1/dx = 10 * (y2 - y1)
-        dy2/dx = y1 * (28 - y3) - y2
-        dy3/dx = y1 * y2 - 8/3 * y3
-        """
-        y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
-        dy1_x = dde.grad.jacobian(y, x, i=0)
-        dy2_x = dde.grad.jacobian(y, x, i=1)
-        dy3_x = dde.grad.jacobian(y, x, i=2)
-        return [
-            dy1_x - C1 * (y2 - y1),
-            dy2_x - y1 * (C2 - y3) + y2,
-            dy3_x - y1 * y2 + C3 * y3,
-        ]
-
-    def boundary(_, on_initial):
-        return on_initial
-
     geom = dde.geometry.TimeDomain(0, 3)
 
     # Initial conditions

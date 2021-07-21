@@ -1,26 +1,25 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
-import deepxde as dde
 from deepxde.backend import tf
 
 
+def ide(x, y, int_mat):
+    rhs = tf.matmul(int_mat, y)
+    lhs1 = tf.gradients(y, x)[0]
+    return (lhs1 + y)[: tf.size(rhs)] - rhs
+
+
+def kernel(x, s):
+    return np.exp(s - x)
+
+
+def func(x):
+    return np.exp(-x) * np.cosh(x)
+
+
 def main():
-    def ide(x, y, int_mat):
-        rhs = tf.matmul(int_mat, y)
-        lhs1 = tf.gradients(y, x)[0]
-        return (lhs1 + y)[: tf.size(rhs)] - rhs
-
-    def kernel(x, s):
-        return np.exp(s - x)
-
-    def func(x):
-        return np.exp(-x) * np.cosh(x)
-
     geom = dde.geometry.TimeDomain(0, 5)
     ic = dde.IC(geom, func, lambda _, on_initial: on_initial)
 
