@@ -18,6 +18,8 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates functions from a dataset with/without constraints.
 
+DeepXDE supports two tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x) and TensorFlow 2.x. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
 
 **Papers on algorithms**
