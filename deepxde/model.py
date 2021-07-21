@@ -77,10 +77,11 @@ class Model(object):
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
-            external_trainable_variables: A trainable ``tf.Variable`` object or a list of
-                trainable ``tf.Variable`` objects. The unknown parameters in the physics
-                systems that need to be recovered. Trainable variables from the neural
-                networks and external_trainable_variables are trained together.
+            external_trainable_variables: A trainable ``tf.Variable`` object or a list
+                of trainable ``tf.Variable`` objects. The unknown parameters in the
+                physics systems that need to be recovered. If the backend is
+                tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
+                trainable ``tf.Variable`` objects are automatically collected.
         """
         print("Compiling model...")
 
@@ -92,12 +93,18 @@ class Model(object):
                 self.saver = tf.train.Saver(max_to_keep=None)
 
         self.opt_name = optimizer
-        if external_trainable_variables is not None:
+        if external_trainable_variables is None:
+            self.external_trainable_variables = []
+        else:
+            if backend_name == "tensorflow.compat.v1":
+                print(
+                    "Warning: For the backend tensorflow.compat.v1, "
+                    "`external_trainable_variables` is ignored, and all trainable "
+                    "``tf.Variable`` objects are automatically collected."
+                )
             if not isinstance(external_trainable_variables, list):
                 external_trainable_variables = [external_trainable_variables]
             self.external_trainable_variables = external_trainable_variables
-        else:
-            self.external_trainable_variables = []
 
         loss_fn = losses_module.get(loss)
         if backend_name == "tensorflow.compat.v1":
@@ -135,6 +142,7 @@ class Model(object):
 
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
+            # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
             @tf.function
             def outputs_losses(data_id, inputs, targets):
                 self.net.data_id = data_id
