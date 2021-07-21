@@ -1,19 +1,18 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
 
 
+def pde(x, y):
+    dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+    dy_yy = dde.grad.hessian(y, x, i=1, j=1)
+    return -dy_xx - dy_yy - 1
+
+
+def boundary(_, on_boundary):
+    return on_boundary
+
+
 def main():
-    def pde(x, y):
-        dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-        dy_yy = dde.grad.hessian(y, x, i=1, j=1)
-        return -dy_xx - dy_yy - 1
-
-    def boundary(_, on_boundary):
-        return on_boundary
-
     geom = dde.geometry.Polygon([[0, 0], [1, 0], [1, -1], [-1, -1], [-1, 1], [0, 1]])
     bc = dde.DirichletBC(geom, lambda x: 0, boundary)
 

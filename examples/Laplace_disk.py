@@ -1,24 +1,22 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 
+def pde(x, y):
+    dy_r = dde.grad.jacobian(y, x, i=0, j=0)
+    dy_rr = dde.grad.hessian(y, x, i=0, j=0)
+    dy_thetatheta = dde.grad.hessian(y, x, i=1, j=1)
+    return x[:, 0:1] * dy_r + x[:, 0:1] ** 2 * dy_rr + dy_thetatheta
+
+
+def solution(x):
+    r, theta = x[:, 0:1], x[:, 1:]
+    return r * np.cos(theta)
+
+
 def main():
-    def pde(x, y):
-        dy_r = dde.grad.jacobian(y, x, i=0, j=0)
-        dy_rr = dde.grad.hessian(y, x, i=0, j=0)
-        dy_thetatheta = dde.grad.hessian(y, x, i=1, j=1)
-        return x[:, 0:1] * dy_r + x[:, 0:1] ** 2 * dy_rr + dy_thetatheta
-
-    def solution(x):
-        r, theta = x[:, 0:1], x[:, 1:]
-        return r * np.cos(theta)
-
     geom = dde.geometry.Rectangle(xmin=[0, 0], xmax=[1, 2 * np.pi])
     bc_rad = dde.DirichletBC(
         geom,

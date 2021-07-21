@@ -1,25 +1,27 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Backend supported: tensorflow.compat.v1
 
+Documentation: https://deepxde.readthedocs.io/en/latest/demos/poisson.1d.dirichlet.html
+"""
+import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
-import deepxde as dde
 from deepxde.backend import tf
 
 
+def pde(x, y):
+    dy_xx = dde.grad.hessian(y, x)
+    return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+
+
+def boundary(x, on_boundary):
+    return on_boundary
+
+
+def func(x):
+    return np.sin(np.pi * x)
+
+
 def main():
-    def pde(x, y):
-        dy_xx = dde.grad.hessian(y, x)
-        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
-
-    def boundary(x, on_boundary):
-        return on_boundary
-
-    def func(x):
-        return np.sin(np.pi * x)
-
     geom = dde.geometry.Interval(-1, 1)
     bc = dde.DirichletBC(geom, func, boundary)
     data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)

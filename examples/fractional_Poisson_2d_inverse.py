@@ -1,40 +1,40 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
+from deepxde.backend import tf
 from scipy.special import gamma
 
-import deepxde as dde
-from deepxde.backend import tf
+
+alpha0 = 1.8
+alpha = tf.Variable(1.5)
+
+
+def fpde(x, y, int_mat):
+    """\int_theta D_theta^alpha u(x)"""
+    if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+        int_mat = tf.SparseTensor(*int_mat)
+        lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
+    else:
+        lhs = tf.matmul(int_mat, y)
+    lhs = lhs[:, 0]
+    lhs *= -tf.exp(tf.lgamma((1 - alpha) / 2) + tf.lgamma((2 + alpha) / 2)) / (
+        2 * np.pi ** 1.5
+    )
+    x = x[: tf.size(lhs)]
+    rhs = (
+        2 ** alpha0
+        * gamma(2 + alpha0 / 2)
+        * gamma(1 + alpha0 / 2)
+        * (1 - (1 + alpha0 / 2) * tf.reduce_sum(x ** 2, axis=1))
+    )
+    return lhs - rhs
+
+
+def func(x):
+    return (1 - np.linalg.norm(x, axis=1, keepdims=True) ** 2) ** (1 + alpha0 / 2)
 
 
 def main():
-    alpha0 = 1.8
-    alpha = tf.Variable(1.5)
-
-    def fpde(x, y, int_mat):
-        """\int_theta D_theta^alpha u(x)
-        """
-        if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-            int_mat = tf.SparseTensor(*int_mat)
-            lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
-        else:
-            lhs = tf.matmul(int_mat, y)
-        lhs = lhs[:, 0]
-        lhs *= -tf.exp(tf.lgamma((1 - alpha) / 2) + tf.lgamma((2 + alpha) / 2)) / (
-            2 * np.pi ** 1.5
-        )
-        x = x[: tf.size(lhs)]
-        rhs = (
-            2 ** alpha0 * gamma(2 + alpha0 / 2) * gamma(1 + alpha0 / 2)
-            * (1 - (1 + alpha0 / 2) * tf.reduce_sum(x ** 2, axis=1))
-        )
-        return lhs - rhs
-
-    def func(x):
-        return (1 - np.linalg.norm(x, axis=1, keepdims=True) ** 2) ** (1 + alpha0 / 2)
-
     geom = dde.geometry.Disk([0, 0], 1)
 
     observe_x = geom.random_points(30)

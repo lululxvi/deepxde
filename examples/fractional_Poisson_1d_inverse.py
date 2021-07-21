@@ -1,33 +1,31 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
+from deepxde.backend import tf
 from scipy.special import gamma
 
-import deepxde as dde
-from deepxde.backend import tf
+
+alpha0 = 1.8
+alpha = tf.Variable(1.5)
+
+
+def fpde(x, y, int_mat):
+    """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
+    if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+        int_mat = tf.SparseTensor(*int_mat)
+        lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
+    else:
+        lhs = tf.matmul(int_mat, y)
+    lhs /= 2 * tf.cos(alpha * np.pi / 2)
+    rhs = gamma(alpha0 + 2) * x
+    return lhs - rhs[: tf.size(lhs)]
+
+
+def func(x):
+    return x * (np.abs(1 - x ** 2)) ** (alpha0 / 2)
 
 
 def main():
-    alpha0 = 1.8
-    alpha = tf.Variable(1.5)
-
-    def fpde(x, y, int_mat):
-        """(D_{0+}^alpha + D_{1-}^alpha) u(x)
-        """
-        if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-            int_mat = tf.SparseTensor(*int_mat)
-            lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
-        else:
-            lhs = tf.matmul(int_mat, y)
-        lhs /= 2 * tf.cos(alpha * np.pi / 2)
-        rhs = gamma(alpha0 + 2) * x
-        return lhs - rhs[: tf.size(lhs)]
-
-    def func(x):
-        return x * (np.abs(1 - x ** 2)) ** (alpha0 / 2)
-
     geom = dde.geometry.Interval(-1, 1)
 
     observe_x = np.linspace(-1, 1, num=20)[:, None]

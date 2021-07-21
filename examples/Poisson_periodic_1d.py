@@ -1,27 +1,27 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import numpy as np
 from deepxde.backend import tf
 
 
+def pde(x, y):
+    dy_xx = dde.grad.hessian(y, x)
+    return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+
+
+def boundary_l(x, on_boundary):
+    return on_boundary and np.isclose(x[0], -1)
+
+
+def boundary_r(x, on_boundary):
+    return on_boundary and np.isclose(x[0], 1)
+
+
+def func(x):
+    return np.sin(np.pi * x)
+
+
 def main():
-    def pde(x, y):
-        dy_xx = dde.grad.hessian(y, x)
-        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
-
-    def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], -1)
-
-    def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
-
-    def func(x):
-        return np.sin(np.pi * x)
-
     geom = dde.geometry.Interval(-1, 1)
     bc1 = dde.DirichletBC(geom, func, boundary_l)
     bc2 = dde.PeriodicBC(geom, 0, boundary_r)

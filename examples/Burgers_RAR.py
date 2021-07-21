@@ -1,10 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
+"""Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import numpy as np
 
 
 def gen_testdata():
@@ -16,13 +12,14 @@ def gen_testdata():
     return X, y
 
 
-def main():
-    def pde(x, y):
-        dy_x = dde.grad.jacobian(y, x, i=0, j=0)
-        dy_t = dde.grad.jacobian(y, x, i=0, j=1)
-        dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-        return dy_t + y * dy_x - 0.01 / np.pi * dy_xx
+def pde(x, y):
+    dy_x = dde.grad.jacobian(y, x, i=0, j=0)
+    dy_t = dde.grad.jacobian(y, x, i=0, j=1)
+    dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+    return dy_t + y * dy_x - 0.01 / np.pi * dy_xx
 
+
+def main():
     geom = dde.geometry.Interval(-1, 1)
     timedomain = dde.geometry.TimeDomain(0, 0.99)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)

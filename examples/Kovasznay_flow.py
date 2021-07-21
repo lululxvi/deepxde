@@ -1,56 +1,57 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
+
+Re = 20
+nu = 1 / Re
+l = 1 / (2 * nu) - np.sqrt(1 / (4 * nu ** 2) + 4 * np.pi ** 2)
+
+
+def pde(x, u):
+    u_vel, v_vel, p = u[:, 0:1], u[:, 1:2], u[:, 2:]
+    u_vel_x = dde.grad.jacobian(u, x, i=0, j=0)
+    u_vel_y = dde.grad.jacobian(u, x, i=0, j=1)
+    u_vel_xx = dde.grad.hessian(u, x, component=0, i=0, j=0)
+    u_vel_yy = dde.grad.hessian(u, x, component=0, i=1, j=1)
+
+    v_vel_x = dde.grad.jacobian(u, x, i=1, j=0)
+    v_vel_y = dde.grad.jacobian(u, x, i=1, j=1)
+    v_vel_xx = dde.grad.hessian(u, x, component=1, i=0, j=0)
+    v_vel_yy = dde.grad.hessian(u, x, component=1, i=1, j=1)
+
+    p_x = dde.grad.jacobian(u, x, i=2, j=0)
+    p_y = dde.grad.jacobian(u, x, i=2, j=1)
+
+    momentum_x = (
+        u_vel * u_vel_x + v_vel * u_vel_y + p_x - 1 / Re * (u_vel_xx + u_vel_yy)
+    )
+    momentum_y = (
+        u_vel * v_vel_x + v_vel * v_vel_y + p_y - 1 / Re * (v_vel_xx + v_vel_yy)
+    )
+    continuity = u_vel_x + v_vel_y
+
+    return [momentum_x, momentum_y, continuity]
+
+
+def u_func(x):
+    return 1 - np.exp(l * x[:, 0:1]) * np.cos(2 * np.pi * x[:, 1:2])
+
+
+def v_func(x):
+    return l / (2 * np.pi) * np.exp(l * x[:, 0:1]) * np.sin(2 * np.pi * x[:, 1:2])
+
+
+def p_func(x):
+    return 1 / 2 * (1 - np.exp(2 * l * x[:, 0:1]))
+
+
+def boundary_outflow(x, on_boundary):
+    return on_boundary and np.isclose(x[0], 1)
 
 
 def main():
-    Re = 20
-
-    def pde(x, u):
-        u_vel, v_vel, p = u[:, 0:1], u[:, 1:2], u[:, 2:]
-        u_vel_x = dde.grad.jacobian(u, x, i=0, j=0)
-        u_vel_y = dde.grad.jacobian(u, x, i=0, j=1)
-        u_vel_xx = dde.grad.hessian(u, x, component=0, i=0, j=0)
-        u_vel_yy = dde.grad.hessian(u, x, component=0, i=1, j=1)
-
-        v_vel_x = dde.grad.jacobian(u, x, i=1, j=0)
-        v_vel_y = dde.grad.jacobian(u, x, i=1, j=1)
-        v_vel_xx = dde.grad.hessian(u, x, component=1, i=0, j=0)
-        v_vel_yy = dde.grad.hessian(u, x, component=1, i=1, j=1)
-
-        p_x = dde.grad.jacobian(u, x, i=2, j=0)
-        p_y = dde.grad.jacobian(u, x, i=2, j=1)
-
-        momentum_x = (
-            u_vel * u_vel_x + v_vel * u_vel_y + p_x - 1 / Re * (u_vel_xx + u_vel_yy)
-        )
-        momentum_y = (
-            u_vel * v_vel_x + v_vel * v_vel_y + p_y - 1 / Re * (v_vel_xx + v_vel_yy)
-        )
-        continuity = u_vel_x + v_vel_y
-
-        return [momentum_x, momentum_y, continuity]
-
-    nu = 1 / Re
-    l = 1 / (2 * nu) - np.sqrt(1 / (4 * nu ** 2) + 4 * np.pi ** 2)
-
-    def u_func(x):
-        return 1 - np.exp(l * x[:, 0:1]) * np.cos(2 * np.pi * x[:, 1:2])
-
-    def v_func(x):
-        return l / (2 * np.pi) * np.exp(l * x[:, 0:1]) * np.sin(2 * np.pi * x[:, 1:2])
-
-    def p_func(x):
-        return 1 / 2 * (1 - np.exp(2 * l * x[:, 0:1]))
-
     spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
-
-    def boundary_outflow(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
 
     boundary_condition_u = dde.DirichletBC(
         spatial_domain, u_func, lambda _, on_boundary: on_boundary, component=0

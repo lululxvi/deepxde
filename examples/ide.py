@@ -1,30 +1,27 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+"""Backend supported: tensorflow.compat.v1"""
+import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
-import deepxde as dde
 from deepxde.backend import tf
 
 
+def ide(x, y, int_mat):
+    """int_0^x y(t)dt"""
+    lhs1 = tf.matmul(int_mat, y)
+    lhs2 = tf.gradients(y, x)[0]
+    rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
+    return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
+
+
+def func(x):
+    """
+    x: array_like, N x D_in
+    y: array_like, N x D_out
+    """
+    return np.sin(2 * np.pi * x)
+
+
 def main():
-    def ide(x, y, int_mat):
-        """int_0^x y(t)dt
-        """
-        lhs1 = tf.matmul(int_mat, y)
-        lhs2 = tf.gradients(y, x)[0]
-        rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
-        return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
-
-    def func(x):
-        """
-        x: array_like, N x D_in
-        y: array_like, N x D_out
-        """
-        return np.sin(2 * np.pi * x)
-
     geom = dde.geometry.TimeDomain(0, 1)
     ic = dde.IC(geom, func, lambda _, on_initial: on_initial)
 

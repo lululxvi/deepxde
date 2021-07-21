@@ -1,16 +1,12 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Backend supported: tensorflow.compat.v1
 
-"""
 Implementation of the wave propagation example in paper https://arxiv.org/abs/2012.10047.
 References:
     https://github.com/PredictiveIntelligenceLab/MultiscalePINNs.
 """
-
+import deepxde as dde
 import numpy as np
 
-import deepxde as dde
 
 A = 2
 C = 10
@@ -22,18 +18,20 @@ def get_initial_loss(model):
     return losshistory.loss_train[0]
 
 
+def pde(x, y):
+    dy_tt = dde.grad.hessian(y, x, i=1, j=1)
+    dy_xx = dde.grad.hessian(y, x, i=0, j=0)
+    return dy_tt - C ** 2 * dy_xx
+
+
+def func(x):
+    x, t = np.split(x, 2, axis=1)
+    return np.sin(np.pi * x) * np.cos(C * np.pi * t) + np.sin(A * np.pi * x) * np.cos(
+        A * C * np.pi * t
+    )
+
+
 def main():
-    def pde(x, y):
-        dy_tt = dde.grad.hessian(y, x, i=1, j=1)
-        dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-        return dy_tt - C ** 2 * dy_xx
-
-    def func(x):
-        x, t = np.split(x, 2, axis=1)
-        return np.sin(np.pi * x) * np.cos(C * np.pi * t) + np.sin(
-            A * np.pi * x
-        ) * np.cos(A * C * np.pi * t)
-
     geom = dde.geometry.Interval(0, 1)
     timedomain = dde.geometry.TimeDomain(0, 1)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
