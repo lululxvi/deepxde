@@ -7,6 +7,7 @@ from sklearn import preprocessing
 
 from .data import Data
 from .. import config
+from .. import utils
 
 
 class DataSet(Data):
@@ -46,7 +47,9 @@ class DataSet(Data):
 
         self.scaler_x = None
         if standardize:
-            self._standardize()
+            self.scaler_x, self.train_x, self.test_x = utils.standardize(
+                self.train_x, self.test_x
+            )
 
     def losses(self, targets, outputs, loss, model):
         return [loss(targets, outputs)]
@@ -61,14 +64,3 @@ class DataSet(Data):
         if self.scaler_x is None:
             return x
         return self.scaler_x.transform(x)
-
-    def _standardize(self):
-        def standardize_one(X1, X2):
-            scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
-            X1 = scaler.fit_transform(X1)
-            X2 = scaler.transform(X2)
-            return scaler, X1, X2
-
-        self.scaler_x, self.train_x, self.test_x = standardize_one(
-            self.train_x, self.test_x
-        )

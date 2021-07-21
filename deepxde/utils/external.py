@@ -8,6 +8,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy.spatial.distance
+from sklearn import preprocessing
 
 
 class PointSet(object):
@@ -79,6 +80,30 @@ def apply(func, args=None, kwds=None):
         else:
             r = p.apply(func, args=args, kwds=kwds)
     return r
+
+
+def standardize(X_train, X_test):
+    """Standardize features by removing the mean and scaling to unit variance.
+
+    The mean and std are computed from the training data `X_train` using
+    `sklearn.preprocessing.StandardScaler <https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html>`_,
+    and then applied to the testing data `X_test`.
+
+    Args:
+        X_train: A NumPy array of shape (n_samples, n_features). The data used to
+            compute the mean and standard deviation used for later scaling along the
+            features axis.
+        X_test: A NumPy array.
+
+    Returns:
+        scaler: Instance of ``sklearn.preprocessing.StandardScaler``.
+        X_train: Transformed training data.
+        X_test: Transformed testing data.
+    """
+    scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+    return scaler, X_train, X_test
 
 
 def uniformly_continuous_delta(X, Y, eps):
