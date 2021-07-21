@@ -6,6 +6,7 @@ import numpy as np
 from sklearn import preprocessing
 
 from .data import Data
+from .. import config
 
 
 class DataSet(Data):
@@ -29,14 +30,17 @@ class DataSet(Data):
         standardize=False,
     ):
         if X_train is not None:
-            self.train_x, self.train_y = X_train, y_train
-            self.test_x, self.test_y = X_test, y_test
+            self.train_x = X_train.astype(config.real(np))
+            self.train_y = y_train.astype(config.real(np))
+            self.test_x = X_test.astype(config.real(np))
+            self.test_y = y_test.astype(config.real(np))
         elif fname_train is not None:
             train_data = np.loadtxt(fname_train)
-            self.train_x = train_data[:, col_x]
-            self.train_y = train_data[:, col_y]
+            self.train_x = train_data[:, col_x].astype(config.real(np))
+            self.train_y = train_data[:, col_y].astype(config.real(np))
             test_data = np.loadtxt(fname_test)
-            self.test_x, self.test_y = test_data[:, col_x], test_data[:, col_y]
+            self.test_x = test_data[:, col_x].astype(config.real(np))
+            self.test_y = test_data[:, col_y].astype(config.real(np))
         else:
             raise ValueError("No training data.")
 
