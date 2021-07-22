@@ -116,8 +116,9 @@ class ModelCheckpoint(Callback):
     Args:
         filepath (string): Path to save the model file.
         verbose: Verbosity mode, 0 or 1.
-        save_better_only: If True, only save a better model according to the quantity monitored.
-            Model is only checked at validation step according to ``display_every`` in ``Model.train``.
+        save_better_only: If True, only save a better model according to the quantity
+            monitored. Model is only checked at validation step according to
+            ``display_every`` in ``Model.train``.
         period: Interval (number of epochs) between checkpoints.
     """
 
@@ -363,6 +364,12 @@ class MovieDumper(Callback):
         self.y = []
         self.spectrum = []
         self.epochs_since_last_save = 0
+
+        # TODO: support backend tensorflow
+        if backend_name != "tensorflow.compat.v1":
+            raise RuntimeError(
+                "MovieDumper only supports backend tensorflow.compat.v1."
+            )
 
     def init(self):
         self.tf_op = self.model.net.outputs[:, self.component]

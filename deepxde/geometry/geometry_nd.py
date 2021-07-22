@@ -10,6 +10,7 @@ from sklearn import preprocessing
 
 from .geometry import Geometry
 from .sampler import sample
+from .. import config
 
 
 class Hypercube(Geometry):
@@ -19,7 +20,8 @@ class Hypercube(Geometry):
         if np.any(np.array(xmin) >= np.array(xmax)):
             raise ValueError("xmin >= xmax")
 
-        self.xmin, self.xmax = np.array(xmin), np.array(xmax)
+        self.xmin = np.array(xmin, dtype=config.real(np))
+        self.xmax = np.array(xmax, dtype=config.real(np))
         self.side_length = self.xmax - self.xmin
         super(Hypercube, self).__init__(
             len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.side_length)

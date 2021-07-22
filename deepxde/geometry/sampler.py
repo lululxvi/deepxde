@@ -7,6 +7,8 @@ from distutils.version import LooseVersion
 import numpy as np
 import skopt
 
+from .. import config
+
 
 def sample(n_samples, dimension, sampler="pseudo"):
     """Generate random or quasirandom samples in [0, 1]^dimension.
@@ -28,7 +30,7 @@ def sample(n_samples, dimension, sampler="pseudo"):
 def pseudo(n_samples, dimension):
     """Pseudo random."""
     rng = np.random.default_rng()
-    return rng.random((n_samples, dimension))
+    return rng.random(size=(n_samples, dimension), dtype=config.real(np))
 
 
 def quasirandom(n_samples, dimension, sampler):
@@ -48,6 +50,8 @@ def quasirandom(n_samples, dimension, sampler):
         else:
             sampler = skopt.sampler.Sobol(skip=0, randomize=False)
             space = [(0.0, 1.0)] * dimension
-            return np.array(sampler.generate(space, n_samples + 2)[2:])
+            return np.array(
+                sampler.generate(space, n_samples + 2)[2:], dtype=config.real(np)
+            )
     space = [(0.0, 1.0)] * dimension
-    return np.array(sampler.generate(space, n_samples))
+    return np.array(sampler.generate(space, n_samples), dtype=config.real(np))

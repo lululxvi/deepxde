@@ -206,7 +206,7 @@ class PDE(Data):
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
 
     def train_points(self):
-        X = np.empty((0, self.geom.dim))
+        X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
                 X = self.geom.uniform_points(self.num_domain, boundary=False)
