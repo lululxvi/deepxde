@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
 import numpy as np
 
@@ -26,25 +26,18 @@ def func(x):
     return np.hstack((np.sin(x), np.cos(x)))
 
 
-def main():
-    geom = dde.geometry.TimeDomain(0, 10)
-    ic1 = dde.IC(geom, np.sin, boundary, component=0)
-    ic2 = dde.IC(geom, np.cos, boundary, component=1)
-    data = dde.data.PDE(
-        geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100
-    )
+geom = dde.geometry.TimeDomain(0, 10)
+ic1 = dde.IC(geom, np.sin, boundary, component=0)
+ic2 = dde.IC(geom, np.cos, boundary, component=1)
+data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
 
-    layer_size = [1] + [50] * 3 + [2]
-    activation = "tanh"
-    initializer = "Glorot uniform"
-    net = dde.maps.FNN(layer_size, activation, initializer)
+layer_size = [1] + [50] * 3 + [2]
+activation = "tanh"
+initializer = "Glorot uniform"
+net = dde.maps.FNN(layer_size, activation, initializer)
 
-    model = dde.Model(data, net)
-    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=20000)
+model = dde.Model(data, net)
+model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+losshistory, train_state = model.train(epochs=20000)
 
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-if __name__ == "__main__":
-    main()
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
