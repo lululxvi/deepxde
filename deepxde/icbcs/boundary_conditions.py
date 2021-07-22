@@ -8,6 +8,7 @@ import numbers
 
 import numpy as np
 
+from .. import config
 from .. import gradients as grad
 from ..backend import tf
 
@@ -146,12 +147,12 @@ class PointSetBC(object):
     """
 
     def __init__(self, points, values, component=0):
-        self.points = np.array(points)
+        self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
                 "PointSetBC should output 1D values. Use argument 'component' for different components."
             )
-        self.values = values
+        self.values = values.astype(config.real(np))
         self.component = component
 
     def collocation_points(self, X):

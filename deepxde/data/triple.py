@@ -22,13 +22,11 @@ class Triple(Data):
         y_train: A NumPy array.
     """
 
-    def __init__(self, X_train, y_train, X_test, y_test, standardize=False):
-        self.train_x, self.train_y = X_train, y_train
-        self.test_x, self.test_y = X_test, y_test
-
-        self.scaler_x = None
-        if standardize:
-            self._standardize()
+    def __init__(self, X_train, y_train, X_test, y_test):
+        self.train_x = X_train
+        self.train_y = y_train
+        self.test_x = X_test
+        self.test_y = y_test
 
         self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
 
@@ -46,22 +44,6 @@ class Triple(Data):
 
     def test(self):
         return self.test_x, self.test_y
-
-    def transform_inputs(self, x):
-        if self.scaler_x is None:
-            return x
-        return list(map(lambda scaler, xi: scaler.transform(xi), self.scaler_x, x))
-
-    def _standardize(self):
-        def standardize_one(X1, X2):
-            scaler = preprocessing.StandardScaler(with_mean=True, with_std=True)
-            X1 = scaler.fit_transform(X1)
-            X2 = scaler.transform(X2)
-            return scaler, X1, X2
-
-        self.scaler_x, self.train_x, self.test_x = zip(
-            *map(standardize_one, self.train_x, self.test_x)
-        )
 
 
 class TripleCartesianProd(Data):

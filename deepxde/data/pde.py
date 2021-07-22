@@ -107,7 +107,7 @@ class PDE(Data):
                 )
             )
         self.train_distribution = train_distribution
-        self.anchors = anchors
+        self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
         self.soln = solution
@@ -192,6 +192,7 @@ class PDE(Data):
 
     def add_anchors(self, anchors):
         """Add new points for training PDE losses. The BC points will not be updated."""
+        anchors = anchors.astype(config.real(np))
         if self.anchors is None:
             self.anchors = anchors
         else:
@@ -236,7 +237,9 @@ class PDE(Data):
         x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
         self.train_x_bc = (
-            np.vstack(x_bcs) if x_bcs else np.empty([0, self.train_x_all.shape[-1]])
+            np.vstack(x_bcs)
+            if x_bcs
+            else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
         )
         return self.train_x_bc
 
