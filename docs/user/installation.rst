@@ -43,7 +43,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x) and
 
 Currently BACKEND can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend) and "tensorflow" (TensorFlow 2.x backend). The default backend is TensorFlow 1.x.
 
-Currently, TensorFlow 1.x backend supports more features than TensorFlow 2.x backend, and switch to another backend if DeepXDE raised a backend-related error.
+Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Some features can be implemented easily, we welcome your contributions.
 
 TensorFlow 1.x backend
 ``````````````````````
