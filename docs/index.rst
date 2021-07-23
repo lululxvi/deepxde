@@ -50,6 +50,7 @@ User guide
   user/installation
   demos/forward
   demos/inverse
+  demos/func
   user/faq
   user/research
   user/cite_deepxde
