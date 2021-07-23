@@ -14,7 +14,7 @@ Here are some demos of solving forward problems of PDEs.
 - `Euler beam <https://github.com/lululxvi/deepxde/blob/master/examples/Euler_beam.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/Kovasznay_flow.py>`_
 - `Laplace equation on a disk <https://github.com/lululxvi/deepxde/blob/master/examples/Laplace_disk.py>`_
-- `Lotka–Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra_Colab.ipynb>`_
+- `Lotka-Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra_Colab.ipynb>`_
 - `Poisson equation over an L-shaped domain <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Lshape.py>`_
 - `Poisson equation in 1D with Dirichlet/Neumann boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Neumann_1d.py>`_
 - `Poisson equation in 1D with Dirichlet/Robin boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Robin_1d.py>`_

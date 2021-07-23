@@ -48,10 +48,18 @@ User guide
   :maxdepth: 2
 
   user/installation
+
+.. toctree::
+  :maxdepth: 1
+
   demos/forward
   demos/inverse
   demos/func
   user/faq
+
+.. toctree::
+  :maxdepth: 2
+
   user/research
   user/cite_deepxde
   user/team
