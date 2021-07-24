@@ -6,6 +6,9 @@ from distutils.version import LooseVersion
 import tensorflow.compat.v1 as tf
 
 
+bkd = tf
+
+
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 
 # The major changes from TensorFlow 1.x to TensorFlow 2.x are:

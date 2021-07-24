@@ -6,6 +6,9 @@ from distutils.version import LooseVersion
 import tensorflow as tf
 
 
+bkd = tf
+
+
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):

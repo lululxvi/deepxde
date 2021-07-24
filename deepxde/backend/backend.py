@@ -13,5 +13,9 @@ also OK to skip some. The generated backend module has an ``is_enabled`` functio
 that returns whether the interface is supported by the framework or not.
 """
 
-# For now the backend only has one API
+# The backend currently being used
+# bkd will be set to one of the following backends.
+bkd = None
+# All possible backends to use explicitly
 tf = None
+torch = None
