@@ -26,4 +26,3 @@ torch = None
 
 def is_tensor(obj):
     """Returns True if `obj` is a backend-native type tensor."""
-    pass
