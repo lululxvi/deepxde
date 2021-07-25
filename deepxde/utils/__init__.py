@@ -3,6 +3,7 @@
 import importlib
 import sys
 
+from . import array_ops_compat
 from .external import *
 from .internal import *
 from ..backend import backend_name

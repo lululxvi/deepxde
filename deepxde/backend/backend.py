@@ -19,3 +19,11 @@ bkd = None
 # All possible backends to use explicitly
 tf = None
 torch = None
+
+###############################################################################
+# Tensor, data type and context interfaces
+
+
+def is_tensor(obj):
+    """Returns True if `obj` is a backend-native type tensor."""
+    pass

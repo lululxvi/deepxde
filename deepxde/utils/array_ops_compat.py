@@ -6,16 +6,12 @@ from __future__ import print_function
 
 import numpy as np
 
-from . import config
-from .backend import tf
-
-
-def istensor(value):
-    return isinstance(value, (tf.Tensor, tf.Variable, tf.SparseTensor))
+from .. import config
+from ..backend import is_tensor, tf
 
 
 def istensorlist(values):
-    return any(map(istensor, values))
+    return any(map(is_tensor, values))
 
 
 def convert_to_array(value):
@@ -29,17 +25,17 @@ def convert_to_array(value):
 
 
 def hstack(tup):
-    if not istensor(tup[0]) and tup[0] == []:
+    if not is_tensor(tup[0]) and tup[0] == []:
         tup = list(tup)
         if istensorlist(tup[1:]):
             tup[0] = tf.convert_to_tensor([], dtype=config.real(tf))
         else:
             tup[0] = np.array([], dtype=config.real(np))
-    return tf.concat(tup, 0) if istensor(tup[0]) else np.hstack(tup)
+    return tf.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup)
 
 
 def roll(a, shift, axis):
-    return tf.roll(a, shift, axis) if istensor(a) else np.roll(a, shift, axis=axis)
+    return tf.roll(a, shift, axis) if is_tensor(a) else np.roll(a, shift, axis=axis)
 
 
 def zero_padding(array, pad_width):
@@ -52,6 +48,6 @@ def zero_padding(array, pad_width):
             dense_shape[1] + sum(pad_width[1]),
         )
         return indices, values, dense_shape
-    if istensor(array):
+    if is_tensor(array):
         return tf.pad(array, tf.constant(pad_width))
     return np.pad(array, pad_width)
