@@ -1,9 +1,9 @@
-"""tensorflow.compat.v1 backend implementation"""
+"""tensorflow backend implementation"""
 from __future__ import absolute_import
 
 from distutils.version import LooseVersion
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):

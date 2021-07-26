@@ -6,6 +6,14 @@ from . import config
 from .backend import tf
 
 
+def mean_absolute_error(y_true, y_pred):
+    return tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
+
+
+def mean_absolute_percentage_error(y_true, y_pred):
+    return tf.keras.losses.MeanAbsolutePercentageError()(y_true, y_pred)
+
+
 def mean_squared_error(y_true, y_pred):
     # Warning:
     # - Do not use ``tf.losses.mean_squared_error``, which casts `y_true` and `y_pred` to ``float32``.
@@ -16,13 +24,12 @@ def mean_squared_error(y_true, y_pred):
     return tf.reduce_mean(tf.math.square(y_true - y_pred))
 
 
+def softmax_cross_entropy(y_true, y_pred):
+    return tf.keras.losses.CategoricalCrossentropy(from_logits=True)(y_true, y_pred)
+
+
 def zero(*_):
     return tf.constant(0, dtype=config.real(tf))
-
-
-mean_absolute_error = tf.keras.losses.MeanAbsoluteError()
-mean_absolute_percentage_error = tf.keras.losses.MeanAbsolutePercentageError()
-softmax_cross_entropy = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
 
 def get(identifier):

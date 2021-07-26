@@ -13,7 +13,7 @@ def set_default_backend(backend_name):
     print(
         'Setting the default backend to "{}". You can change it in the '
         "~/.deepxde/config.json file or export the DDEBACKEND environment variable. "
-        "Valid options are: tensorflow.compat.v1, tensorflow (all lowercase)".format(
+        "Valid options are: tensorflow.compat.v1, tensorflow, pytorch (all lowercase)".format(
             backend_name
         )
     )
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         "backend",
         nargs=1,
         type=str,
-        choices=["tensorflow.compat.v1", "tensorflow"],
+        choices=["tensorflow.compat.v1", "tensorflow", "pytorch"],
         help="Set default backend",
     )
     args = parser.parse_args()

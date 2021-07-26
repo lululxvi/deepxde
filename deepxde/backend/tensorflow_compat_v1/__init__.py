@@ -33,6 +33,6 @@ tf.enable_v2_tensorshape()
 # It hurts performance a little (only in some cases?) if enabling control flow.
 # tf.disable_control_flow_v2()
 
-bkd = tf
-
 from .tensor import *
+
+lib = tf

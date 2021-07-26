@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from .backend import tf
+from . import backend as bkd
 
 
 class Real(object):
@@ -21,8 +21,8 @@ class Real(object):
 
     def set_float32(self):
         self.precision = 32
-        self.reals = {np: np.float32, tf: tf.float32}
+        self.reals = {np: np.float32, bkd.lib: bkd.float32}
 
     def set_float64(self):
         self.precision = 64
-        self.reals = {np: np.float64, tf: tf.float64}
+        self.reals = {np: np.float64, bkd.lib: bkd.float64}
