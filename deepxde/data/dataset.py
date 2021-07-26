@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-from sklearn import preprocessing
 
 from .data import Data
 from .. import config
