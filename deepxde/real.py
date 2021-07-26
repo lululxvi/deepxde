@@ -9,22 +9,20 @@ from .backend import tf
 
 class Real(object):
     def __init__(self, precision):
-        self.set_precision(precision)
-
-    def set_precision(self, precision):
-        self.precision = precision
-        self.reals = {
-            32: {np: np.float32, tf: tf.float32},
-            64: {np: np.float64, tf: tf.float64},
-        }[precision]
+        self.precision = None
+        self.reals = None
+        if precision == 32:
+            self.set_float32()
+        elif precision == 64:
+            self.set_float64()
 
     def __call__(self, package):
         return self.reals[package]
 
     def set_float32(self):
-        print("Set float to float32")
-        self.set_precision(32)
+        self.precision = 32
+        self.reals = {np: np.float32, tf: tf.float32}
 
     def set_float64(self):
-        print("Set float to float64")
-        self.set_precision(64)
+        self.precision = 64
+        self.reals = {np: np.float64, tf: tf.float64}

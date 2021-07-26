@@ -17,14 +17,6 @@ deepxde.config module
    :undoc-members:
    :show-inheritance:
 
-deepxde.display module
-----------------------
-
-.. automodule:: deepxde.display
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.gradients module
 ------------------------
 
