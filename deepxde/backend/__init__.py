@@ -78,13 +78,12 @@ def get_preferred_backend():
 
     if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
         return backend_name
-    else:
-        print(
-            "Deepxde backend not selected or invalid. Assuming tensorflow.compat.v1 for now.",
-            file=sys.stderr,
-        )
-        set_default_backend("tensorflow.compat.v1")
-        return "tensorflow.compat.v1"
+    print(
+        "Deepxde backend not selected or invalid. Assuming tensorflow.compat.v1 for now.",
+        file=sys.stderr,
+    )
+    set_default_backend("tensorflow.compat.v1")
+    return "tensorflow.compat.v1"
 
 
 load_backend(get_preferred_backend())
