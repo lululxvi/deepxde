@@ -4,7 +4,8 @@ from __future__ import print_function
 
 import math
 
-from ..backend import tf
+from .. import config
+from ..backend import backend_name, tf, torch
 
 
 class VarianceScalingStacked(object):
@@ -44,7 +45,6 @@ class VarianceScalingStacked(object):
         mode="fan_in",
         distribution="truncated_normal",
         seed=None,
-        dtype=tf.float32,
     ):
         if scale <= 0.0:
             raise ValueError("`scale` must be positive float.")
@@ -62,7 +62,7 @@ class VarianceScalingStacked(object):
         self.mode = mode
         self.distribution = distribution
         self.seed = seed
-        self.dtype = _assert_float_dtype(tf.as_dtype(dtype))
+        self.dtype = config.real(tf)
 
     def __call__(self, shape, dtype=None):
         if dtype is None:
@@ -85,38 +85,6 @@ class VarianceScalingStacked(object):
         else:
             limit = math.sqrt(3.0 * scale)
             return tf.random_uniform(shape, -limit, limit, dtype, seed=self.seed)
-
-
-def get(identifier):
-    identifiers = {
-        "zeros": tf.zeros_initializer(),
-        "He normal": tf.keras.initializers.he_normal(),
-        "He uniform": tf.keras.initializers.he_uniform(),
-        "LeCun normal": tf.keras.initializers.lecun_normal(),
-        "LeCun uniform": tf.keras.initializers.lecun_uniform(),
-        "Glorot normal": tf.keras.initializers.glorot_normal(),
-        "Glorot uniform": tf.keras.initializers.glorot_uniform(),
-        "Orthogonal": tf.keras.initializers.Orthogonal(),
-    }
-    identifiers_stacked = {
-        "He normal": VarianceScalingStacked(scale=2.0),
-        "He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
-        "LeCun normal": VarianceScalingStacked(),
-        "LeCun uniform": VarianceScalingStacked(distribution="uniform"),
-    }
-
-    if isinstance(identifier, str):
-        if "stacked" in identifier:
-            identifier = identifier.replace("stacked", "")
-            return identifiers_stacked[identifier]
-        else:
-            return identifiers[identifier]
-    elif callable(identifier):
-        return identifier
-    else:
-        raise ValueError(
-            "Could not interpret initializer identifier: " + str(identifier)
-        )
 
 
 def _compute_fans_stacked(shape):
@@ -145,20 +113,52 @@ def _compute_fans_stacked(shape):
     return fan_in, fan_out
 
 
-def _assert_float_dtype(dtype):
-    """Validate and return floating point type based on `dtype`.
+def initializer_dict_tf():
+    return {
+        "Glorot normal": tf.keras.initializers.glorot_normal(),
+        "Glorot uniform": tf.keras.initializers.glorot_uniform(),
+        "He normal": tf.keras.initializers.he_normal(),
+        "He uniform": tf.keras.initializers.he_uniform(),
+        "LeCun normal": tf.keras.initializers.lecun_normal(),
+        "LeCun uniform": tf.keras.initializers.lecun_uniform(),
+        "Orthogonal": tf.keras.initializers.Orthogonal(),
+        "zeros": tf.zeros_initializer(),
+        # Initializers of stacked DeepONet
+        "stacked He normal": VarianceScalingStacked(scale=2.0),
+        "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
+        "stacked LeCun normal": VarianceScalingStacked(),
+        "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
+    }
 
-    `dtype` must be a floating point type.
+
+def initializer_dict_torch():
+    return {
+        "Glorot normal": torch.nn.init.xavier_normal_,
+        "Glorot uniform": torch.nn.init.xavier_uniform_,
+        "He normal": torch.nn.init.kaiming_normal_,
+        "He uniform": torch.nn.init.kaiming_uniform_,
+        "zeros": torch.nn.init.zeros_,
+    }
+
+
+if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    INITIALIZER_DICT = initializer_dict_tf()
+elif backend_name == "pytorch":
+    INITIALIZER_DICT = initializer_dict_torch()
+
+
+def get(identifier):
+    """Retrieve an initializer by the identifier.
 
     Args:
-        dtype: The data type to validate.
+        identifier: String that contains the initializer name or an initializer
+            function.
 
     Returns:
-        Validated type.
-
-    Raises:
-        ValueError: if `dtype` is not a floating point type.
+        Initializer instance base on the input identifier.
     """
-    if not dtype.is_floating:
-        raise ValueError("Expected floating point type, got %s." % dtype)
-    return dtype
+    if isinstance(identifier, str):
+        return INITIALIZER_DICT[identifier]
+    if callable(identifier):
+        return identifier
+    raise ValueError("Could not interpret initializer identifier: " + str(identifier))
