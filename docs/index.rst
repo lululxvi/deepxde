@@ -80,6 +80,7 @@ If you are looking for information on a specific function, class or method, this
   modules/deepxde.maps
   modules/deepxde.maps.tensorflow_compat_v1
   modules/deepxde.maps.tensorflow
+  modules/deepxde.maps.pytorch
   modules/deepxde.utils
 
 Indices and tables
