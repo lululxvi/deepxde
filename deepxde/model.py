@@ -12,7 +12,7 @@ from . import losses as losses_module
 from . import metrics as metrics_module
 from . import optimizers
 from . import utils
-from .backend import backend_name, tf
+from .backend import backend_name, tf, torch
 from .callbacks import CallbackList
 
 
@@ -140,8 +140,6 @@ class Model(object):
                 # TODO: Weighted losses
                 return losses
 
-            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
-
             # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
             @tf.function
             def outputs_losses(data_id, inputs, targets):
@@ -151,6 +149,8 @@ class Model(object):
                 outputs = self.net(inputs)
                 losses = compute_losses(targets, outputs)
                 return outputs, losses
+
+            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
             def train_step(data_id, inputs, targets):
@@ -162,6 +162,40 @@ class Model(object):
                 )
                 grads = tape.gradient(total_loss, trainable_variables)
                 opt.apply_gradients(zip(grads, trainable_variables))
+
+            # Callables
+            self.losses = compute_losses
+            self.outputs_losses = outputs_losses
+            self.train_step = train_step
+
+        elif backend_name == "pytorch":
+
+            def compute_losses(targets, outputs):
+                # Data losses
+                losses = self.data.losses(targets, outputs, loss_fn, self)
+                if not isinstance(losses, list):
+                    losses = [losses]
+                # TODO: regularization
+                # TODO: Weighted losses
+                losses = torch.stack(losses)
+                return losses
+
+            def outputs_losses(data_id, inputs, targets):
+                # Is this the best place to convert?
+                inputs = torch.from_numpy(inputs)
+                targets = torch.from_numpy(targets)
+                outputs = self.net(inputs)
+                losses = compute_losses(targets, outputs)
+                return outputs, losses
+
+            opt = torch.optim.Adam(self.net.parameters(), lr=lr)
+
+            def train_step(data_id, inputs, targets):
+                _, losses = outputs_losses(data_id, inputs, targets)
+                total_loss = torch.sum(losses)
+                opt.zero_grad()
+                total_loss.backward()
+                opt.step()
 
             # Callables
             self.losses = compute_losses
@@ -473,6 +507,10 @@ class Model(object):
             # TODO: Support training, dropout, auxiliary_vars
             outs = fetches(data_id, inputs, targets)
             return None if outs is None else [out.numpy() for out in outs]
+        if backend_name == "pytorch":
+            # TODO: Use torch.no_grad() in _test() and predict()
+            outs = fetches(data_id, inputs, targets)
+            return None if outs is None else [out.detach().numpy() for out in outs]
 
 
 class TrainState(object):

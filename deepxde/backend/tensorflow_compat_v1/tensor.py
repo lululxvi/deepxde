@@ -26,3 +26,15 @@ def data_type_dict():
 
 def is_tensor(obj):
     return tf.is_tensor(obj)
+
+
+def square(input):
+    return tf.math.square(input)
+
+
+def mean(input, dim, keepdims=False):
+    return tf.math.reduce_mean(input, axis=dim, keepdims=keepdims)
+
+
+def reduce_mean(input):
+    return tf.math.reduce_mean(input)

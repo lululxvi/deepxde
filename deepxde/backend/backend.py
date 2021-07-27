@@ -58,3 +58,22 @@ def data_type_dict():
 
 def is_tensor(obj):
     """Returns True if `obj` is a backend-native type tensor."""
+
+
+###############################################################################
+# Tensor functions on feature data
+# --------------------------------
+# These functions are performance critical, so it's better to have efficient
+# implementation in each framework.
+
+
+def square(input):
+    """Returns the square of the elements of input."""
+
+
+def mean(input, dim, keepdims=False):
+    """Returns the mean value of the input tensor in the given dimension dim."""
+
+
+def reduce_mean(input):
+    """Returns the mean value of all elements in the input tensor."""

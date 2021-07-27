@@ -29,12 +29,20 @@ def layer_wise_locally_adaptive(activation, n=1):
     References: `Jagtap et al., 2019 <https://arxiv.org/abs/1909.12228>`_.
     """
     if backend_name != "tensorflow.compat.v1":
-        raise RuntimeError("Only tensorflow.compat.v1 backend supports L-LAAF.")
+        raise NotImplementedError("Only tensorflow.compat.v1 backend supports L-LAAF.")
     a = tf.Variable(1 / n, dtype=config.real(tf))
     return lambda x: activation(n * a * x)
 
 
 def get(identifier):
+    """Returns function.
+
+    Args:
+        identifier: Function or string.
+
+    Returns:
+        Function corresponding to the input string or input function.
+    """
     if identifier is None:
         return linear
     if isinstance(identifier, str):
@@ -51,9 +59,8 @@ def get(identifier):
             "swish": swish,
             "tanh": tf.nn.tanh,
         }[identifier]
-    elif callable(identifier):
+    if callable(identifier):
         return identifier
-    else:
-        raise ValueError(
-            "Could not interpret activation function identifier:", identifier
-        )
+    raise TypeError(
+        "Could not interpret activation function identifier: {}".format(identifier)
+    )

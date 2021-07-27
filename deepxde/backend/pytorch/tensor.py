@@ -18,3 +18,15 @@ def data_type_dict():
 
 def is_tensor(obj):
     return torch.is_tensor(obj)
+
+
+def square(input):
+    return torch.square(input)
+
+
+def mean(input, dim, keepdims=False):
+    return torch.mean(input, dim, keepdim=keepdims)
+
+
+def reduce_mean(input):
+    return torch.mean(input)
