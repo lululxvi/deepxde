@@ -28,13 +28,41 @@ def is_tensor(obj):
     return tf.is_tensor(obj)
 
 
-def square(input):
-    return tf.math.square(input)
+def elu(x):
+    return tf.nn.elu(x)
 
 
-def mean(input, dim, keepdims=False):
-    return tf.math.reduce_mean(input, axis=dim, keepdims=keepdims)
+def relu(x):
+    return tf.nn.relu(x)
 
 
-def reduce_mean(input):
-    return tf.math.reduce_mean(input)
+def selu(x):
+    return tf.nn.selu(x)
+
+
+def sigmoid(x):
+    return tf.math.sigmoid(x)
+
+
+def silu(x):
+    return tf.keras.activations.swish(x)
+
+
+def sin(x):
+    return tf.math.sin(x)
+
+
+def square(x):
+    return tf.math.square(x)
+
+
+def tanh(x):
+    return tf.math.tanh(x)
+
+
+def mean(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_mean(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_mean(input_tensor):
+    return tf.math.reduce_mean(input_tensor)

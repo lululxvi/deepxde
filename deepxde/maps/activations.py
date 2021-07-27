@@ -2,16 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from .. import backend as bkd
 from .. import config
 from ..backend import backend_name, tf
 
 
 def linear(x):
     return x
-
-
-def swish(x):
-    return x * tf.math.sigmoid(x)
 
 
 def layer_wise_locally_adaptive(activation, n=1):
@@ -51,13 +48,14 @@ def get(identifier):
             n = float(identifier[0].split("-")[1])
             return layer_wise_locally_adaptive(get(identifier[1]), n=n)
         return {
-            "elu": tf.nn.elu,
-            "relu": tf.nn.relu,
-            "selu": tf.nn.selu,
-            "sigmoid": tf.nn.sigmoid,
-            "sin": tf.sin,
-            "swish": swish,
-            "tanh": tf.nn.tanh,
+            "elu": bkd.elu,
+            "relu": bkd.relu,
+            "selu": bkd.selu,
+            "sigmoid": bkd.sigmoid,
+            "silu": bkd.silu,
+            "sin": bkd.sin,
+            "swish": bkd.silu,
+            "tanh": bkd.tanh,
         }[identifier]
     if callable(identifier):
         return identifier

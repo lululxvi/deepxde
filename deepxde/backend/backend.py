@@ -61,19 +61,56 @@ def is_tensor(obj):
 
 
 ###############################################################################
+# Element-wise math functions
+# ---------------------------
+# These functions are performance critical, so it's better to have efficient
+# implementation in each framework.
+
+
+def elu(x):
+    """Computes the exponential linear function."""
+
+
+def relu(x):
+    """Applies the rectified linear unit activation function."""
+
+
+def selu(x):
+    """Computes scaled exponential linear."""
+
+
+def sigmoid(x):
+    """Computes sigmoid of x element-wise."""
+
+
+def silu(x):
+    """Sigmoid Linear Unit (SiLU) function, also known as the swish function.
+    silu(x) = x * sigmoid(x).
+    """
+
+
+def sin(x):
+    """Computes sine of x element-wise."""
+
+
+def square(x):
+    """Returns the square of the elements of input."""
+
+
+def tanh(x):
+    """Computes hyperbolic tangent of x element-wise."""
+
+
+###############################################################################
 # Tensor functions on feature data
 # --------------------------------
 # These functions are performance critical, so it's better to have efficient
 # implementation in each framework.
 
 
-def square(input):
-    """Returns the square of the elements of input."""
-
-
-def mean(input, dim, keepdims=False):
+def mean(input_tensor, dim, keepdims=False):
     """Returns the mean value of the input tensor in the given dimension dim."""
 
 
-def reduce_mean(input):
+def reduce_mean(input_tensor):
     """Returns the mean value of all elements in the input tensor."""

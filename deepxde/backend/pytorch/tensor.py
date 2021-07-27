@@ -20,13 +20,41 @@ def is_tensor(obj):
     return torch.is_tensor(obj)
 
 
-def square(input):
-    return torch.square(input)
+def elu(x):
+    return torch.nn.functional.elu(x)
 
 
-def mean(input, dim, keepdims=False):
-    return torch.mean(input, dim, keepdim=keepdims)
+def relu(x):
+    return torch.nn.functional.relu(x)
 
 
-def reduce_mean(input):
-    return torch.mean(input)
+def selu(x):
+    return torch.nn.functional.selu(x)
+
+
+def sigmoid(x):
+    return torch.nn.functional.sigmoid(x)
+
+
+def silu(x):
+    return torch.nn.functional.silu(x)
+
+
+def sin(x):
+    return torch.sin(x)
+
+
+def square(x):
+    return torch.square(x)
+
+
+def tanh(x):
+    return torch.nn.functional.tanh(x)
+
+
+def mean(input_tensor, dim, keepdims=False):
+    return torch.mean(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_mean(input_tensor):
+    return torch.mean(input_tensor)
