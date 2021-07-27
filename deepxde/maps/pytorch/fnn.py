@@ -1,6 +1,7 @@
+import torch
+
 from .. import activations
 from .. import initializers
-from ...backend import torch
 
 
 class FNN(torch.nn.Module):
