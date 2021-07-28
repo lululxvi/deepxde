@@ -505,7 +505,7 @@ class Model(object):
             )
             return self.sess.run(fetches, feed_dict=feed_dict)
         if backend_name == "tensorflow":
-            # TODO: Support training, dropout, auxiliary_vars
+            # TODO: Support training, dropout
             outs = fetches(data_id, inputs, targets, auxiliary_vars)
             return None if outs is None else [out.numpy() for out in outs]
         if backend_name == "pytorch":
