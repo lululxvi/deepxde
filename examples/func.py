@@ -11,22 +11,17 @@ def func(x):
     return x * np.sin(5 * x)
 
 
-def main():
-    geom = dde.geometry.Interval(-1, 1)
-    num_train = 16
-    num_test = 100
-    data = dde.data.Function(geom, func, num_train, num_test)
+geom = dde.geometry.Interval(-1, 1)
+num_train = 16
+num_test = 100
+data = dde.data.Function(geom, func, num_train, num_test)
 
-    activation = "tanh"
-    initializer = "Glorot uniform"
-    net = dde.maps.FNN([1] + [20] * 3 + [1], activation, initializer)
+activation = "tanh"
+initializer = "Glorot uniform"
+net = dde.maps.FNN([1] + [20] * 3 + [1], activation, initializer)
 
-    model = dde.Model(data, net)
-    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=10000)
+model = dde.Model(data, net)
+model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+losshistory, train_state = model.train(epochs=10000)
 
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-if __name__ == "__main__":
-    main()
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

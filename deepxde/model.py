@@ -189,7 +189,9 @@ class Model(object):
                 losses = compute_losses(targets, outputs)
                 return outputs, losses
 
-            opt = torch.optim.Adam(self.net.parameters(), lr=lr)
+            opt = optimizers.get(
+                self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
+            )
 
             def train_step(data_id, inputs, targets):
                 _, losses = outputs_losses(data_id, inputs, targets)
@@ -404,6 +406,7 @@ class Model(object):
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
         # TODO: use self._run for tensorflow
+        # TODO: predict operator with auxiliary_vars
         if backend_name == "tensorflow.compat.v1":
             if operator is None:
                 op = self.net.outputs

@@ -49,7 +49,7 @@ def square(x):
 
 
 def tanh(x):
-    return torch.nn.functional.tanh(x)
+    return torch.tanh(x)
 
 
 def mean(input_tensor, dim, keepdims=False):
