@@ -43,6 +43,10 @@ class NN(tf.keras.Model):
         """Tensors: Any additional variables needed."""
         return self._auxiliary_vars
 
+    @auxiliary_vars.setter
+    def auxiliary_vars(self, value):
+        self._auxiliary_vars = value
+
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,
         features = transform(inputs). Then, outputs = network(features).

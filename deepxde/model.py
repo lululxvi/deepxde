@@ -142,10 +142,11 @@ class Model(object):
 
             # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
             @tf.function
-            def outputs_losses(data_id, inputs, targets):
+            def outputs_losses(data_id, inputs, targets, auxiliary_vars=None):
                 self.net.data_id = data_id
                 self.net.inputs = inputs
                 self.net.targets = targets
+                self.net.auxiliary_vars = auxiliary_vars
                 outputs = self.net(inputs)
                 losses = compute_losses(targets, outputs)
                 return outputs, losses
@@ -153,9 +154,9 @@ class Model(object):
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
-            def train_step(data_id, inputs, targets):
+            def train_step(data_id, inputs, targets, auxiliary_vars=None):
                 with tf.GradientTape() as tape:
-                    _, losses = outputs_losses(data_id, inputs, targets)
+                    _, losses = outputs_losses(data_id, inputs, targets, auxiliary_vars)
                     total_loss = tf.math.reduce_sum(losses)
                 trainable_variables = (
                     self.net.trainable_variables + self.external_trainable_variables
@@ -505,7 +506,7 @@ class Model(object):
             return self.sess.run(fetches, feed_dict=feed_dict)
         if backend_name == "tensorflow":
             # TODO: Support training, dropout, auxiliary_vars
-            outs = fetches(data_id, inputs, targets)
+            outs = fetches(data_id, inputs, targets, auxiliary_vars)
             return None if outs is None else [out.numpy() for out in outs]
         if backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
