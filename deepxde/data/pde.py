@@ -171,7 +171,9 @@ class PDE(Data):
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
         return self.train_x, self.train_y, self.train_aux_vars
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
@@ -182,7 +184,9 @@ class PDE(Data):
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.test_aux_vars = self.auxiliary_var_fn(self.test_x)
+            self.test_aux_vars = self.auxiliary_var_fn(self.test_x).astype(
+                config.real(np)
+            )
         return self.test_x, self.test_y, self.test_aux_vars
 
     def resample_train_points(self):
@@ -203,7 +207,9 @@ class PDE(Data):
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
 
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
