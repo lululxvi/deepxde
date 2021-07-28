@@ -1,14 +1,6 @@
 deepxde
 =======
 
-deepxde.array\_ops module
--------------------------
-
-.. automodule:: deepxde.array_ops
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.callbacks module
 ------------------------
 
@@ -21,14 +13,6 @@ deepxde.config module
 ---------------------
 
 .. automodule:: deepxde.config
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-deepxde.display module
-----------------------
-
-.. automodule:: deepxde.display
    :members:
    :undoc-members:
    :show-inheritance:

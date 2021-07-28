@@ -2,8 +2,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from . import backend as bkd
 from . import config
 from .backend import tf
+
+
+def mean_absolute_error(y_true, y_pred):
+    return tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
+
+
+def mean_absolute_percentage_error(y_true, y_pred):
+    return tf.keras.losses.MeanAbsolutePercentageError()(y_true, y_pred)
 
 
 def mean_squared_error(y_true, y_pred):
@@ -13,16 +22,15 @@ def mean_squared_error(y_true, y_pred):
     # - Do not use ``tf.keras.losses.MeanSquaredError()``, which casts loss to ``float32``
     #     when calling ``compute_weighted_loss()`` calling ``scale_losses_by_sample_weight()``,
     #     although it finally casts loss back to the original type.
-    return tf.reduce_mean(tf.math.square(y_true - y_pred))
+    return bkd.reduce_mean(bkd.square(y_true - y_pred))
+
+
+def softmax_cross_entropy(y_true, y_pred):
+    return tf.keras.losses.CategoricalCrossentropy(from_logits=True)(y_true, y_pred)
 
 
 def zero(*_):
     return tf.constant(0, dtype=config.real(tf))
-
-
-mean_absolute_error = tf.keras.losses.MeanAbsoluteError()
-mean_absolute_percentage_error = tf.keras.losses.MeanAbsolutePercentageError()
-softmax_cross_entropy = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
 
 def get(identifier):
@@ -45,7 +53,6 @@ def get(identifier):
 
     if isinstance(identifier, str):
         return loss_identifier[identifier]
-    elif callable(identifier):
+    if callable(identifier):
         return identifier
-    else:
-        raise ValueError("Could not interpret loss function identifier:", identifier)
+    raise ValueError("Could not interpret loss function identifier:", identifier)

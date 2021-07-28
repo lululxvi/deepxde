@@ -1,12 +1,10 @@
 from __future__ import absolute_import
 
 import os
-from distutils.version import LooseVersion
-
-import tensorflow.compat.v1 as tf
-
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
+
+import tensorflow.compat.v1 as tf
 
 # The major changes from TensorFlow 1.x to TensorFlow 2.x are:
 # 1. Eager execution: enable_eager_execution(), disable_eager_execution()
@@ -34,5 +32,6 @@ tf.enable_v2_tensorshape()
 # It hurts performance a little (only in some cases?) if enabling control flow.
 # tf.disable_control_flow_v2()
 
-if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
-    raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
+from .tensor import *
+
+lib = tf

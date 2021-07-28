@@ -81,12 +81,13 @@ $ git clone https://github.com/lululxvi/deepxde.git
 
 ## Explore more
 
+- [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
 - [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/forward.html)
 - [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/inverse.html)
-- [More examples](https://github.com/lululxvi/deepxde/tree/master/examples)
+- [Demos of function approximation](https://deepxde.readthedocs.io/en/latest/demos/func.html)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
-- [API](https://deepxde.readthedocs.io/en/latest/modules/modules.html)
+- [API](https://deepxde.readthedocs.io/en/latest/modules/deepxde.html)
 
 ## Cite DeepXDE
 
@@ -119,9 +120,9 @@ First off, thanks for taking the time to contribute!
 
 ## The Team
 
-DeepXDE was originally developed by [Lu Lu](https://lululxvi.github.io/) at the [CRUNCH group](https://www.brown.edu/research/projects/crunch/home) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis), supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
+DeepXDE was originally developed by [Lu Lu](https://lululxvi.github.io/) at [Brown University](https://www.brown.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis), supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
 
-DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro), [Zongren Zou](https://github.com/ZongrenZou).
+DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) at [University of Pennsylvania](https://www.upenn.edu/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro), [Zongren Zou](https://github.com/ZongrenZou).
 
 ## License
 

@@ -27,7 +27,7 @@ def _gen_missing_api(api, mod_name):
 
 
 def load_backend(mod_name):
-    if mod_name not in ["tensorflow.compat.v1", "tensorflow"]:
+    if mod_name not in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
     print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
@@ -39,12 +39,31 @@ def load_backend(mod_name):
         if api.startswith("__"):
             # ignore python builtin attributes
             continue
-        # load functions
-        if api in mod.__dict__:
-            _enabled_apis.add(api)
-            setattr(thismod, api, mod.__dict__[api])
+        if api == "data_type_dict":
+            # load data type
+            if api not in mod.__dict__:
+                raise ImportError(
+                    'API "data_type_dict" is required but missing for backend "%s".'
+                    % mod_name
+                )
+            data_type_dict = mod.__dict__[api]()
+            for name, dtype in data_type_dict.items():
+                setattr(thismod, name, dtype)
+
+            # override data type dict function
+            setattr(thismod, "data_type_dict", data_type_dict)
+            setattr(
+                thismod,
+                "reverse_data_type_dict",
+                {v: k for k, v in data_type_dict.items()},
+            )
         else:
-            setattr(thismod, api, _gen_missing_api(api, mod_name))
+            # load functions
+            if api in mod.__dict__:
+                _enabled_apis.add(api)
+                setattr(thismod, api, mod.__dict__[api])
+            else:
+                setattr(thismod, api, _gen_missing_api(api, mod_name))
 
 
 def get_preferred_backend():
@@ -57,15 +76,14 @@ def get_preferred_backend():
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
         return backend_name
-    else:
-        print(
-            "Deepxde backend not selected or invalid.  Assuming tensorflow.compat.v1 for now.",
-            file=sys.stderr,
-        )
-        set_default_backend("tensorflow.compat.v1")
-        return "tensorflow.compat.v1"
+    print(
+        "Deepxde backend not selected or invalid. Assuming tensorflow.compat.v1 for now.",
+        file=sys.stderr,
+    )
+    set_default_backend("tensorflow.compat.v1")
+    return "tensorflow.compat.v1"
 
 
 load_backend(get_preferred_backend())

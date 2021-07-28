@@ -49,7 +49,8 @@ def absolute_percentage_error_std(y_true, y_pred):
     return np.std(_absolute_percentage_error(y_true, y_pred))
 
 
-mean_squared_error = metrics.mean_squared_error
+def mean_squared_error(y_true, y_pred):
+    return metrics.mean_squared_error(y_true, y_pred)
 
 
 def get(identifier):
@@ -68,7 +69,6 @@ def get(identifier):
 
     if isinstance(identifier, str):
         return metric_identifier[identifier]
-    elif callable(identifier):
+    if callable(identifier):
         return identifier
-    else:
-        raise ValueError("Could not interpret metric function identifier:", identifier)
+    raise ValueError("Could not interpret metric function identifier:", identifier)

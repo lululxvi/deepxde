@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   deepxde.optimizers.pytorch
    deepxde.optimizers.tensorflow
    deepxde.optimizers.tensorflow_compat_v1
 

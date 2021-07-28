@@ -2,16 +2,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from .. import backend as bkd
 from .. import config
-from ..backend import tf
+from ..backend import backend_name, tf
 
 
 def linear(x):
     return x
-
-
-def swish(x):
-    return x * tf.math.sigmoid(x)
 
 
 def layer_wise_locally_adaptive(activation, n=1):
@@ -28,11 +25,21 @@ def layer_wise_locally_adaptive(activation, n=1):
 
     References: `Jagtap et al., 2019 <https://arxiv.org/abs/1909.12228>`_.
     """
+    if backend_name != "tensorflow.compat.v1":
+        raise NotImplementedError("Only tensorflow.compat.v1 backend supports L-LAAF.")
     a = tf.Variable(1 / n, dtype=config.real(tf))
     return lambda x: activation(n * a * x)
 
 
 def get(identifier):
+    """Returns function.
+
+    Args:
+        identifier: Function or string.
+
+    Returns:
+        Function corresponding to the input string or input function.
+    """
     if identifier is None:
         return linear
     if isinstance(identifier, str):
@@ -41,17 +48,17 @@ def get(identifier):
             n = float(identifier[0].split("-")[1])
             return layer_wise_locally_adaptive(get(identifier[1]), n=n)
         return {
-            "elu": tf.nn.elu,
-            "relu": tf.nn.relu,
-            "selu": tf.nn.selu,
-            "sigmoid": tf.nn.sigmoid,
-            "sin": tf.sin,
-            "swish": swish,
-            "tanh": tf.nn.tanh,
+            "elu": bkd.elu,
+            "relu": bkd.relu,
+            "selu": bkd.selu,
+            "sigmoid": bkd.sigmoid,
+            "silu": bkd.silu,
+            "sin": bkd.sin,
+            "swish": bkd.silu,
+            "tanh": bkd.tanh,
         }[identifier]
-    elif callable(identifier):
+    if callable(identifier):
         return identifier
-    else:
-        raise ValueError(
-            "Could not interpret activation function identifier:", identifier
-        )
+    raise TypeError(
+        "Could not interpret activation function identifier: {}".format(identifier)
+    )

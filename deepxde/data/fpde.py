@@ -7,10 +7,9 @@ import math
 import numpy as np
 
 from .pde import PDE
-from .. import array_ops
 from .. import config
-from ..backend import tf
-from ..utils import run_if_all_none
+from ..backend import is_tensor, tf
+from ..utils import array_ops_compat, run_if_all_none
 
 
 class Scheme(object):
@@ -174,10 +173,10 @@ class FPDE(PDE):
             num_bc = 0
 
         if self.disc.meshtype == "static":
-            int_mat = array_ops.roll(int_mat, -1, 1)
+            int_mat = array_ops_compat.roll(int_mat, -1, 1)
             int_mat = int_mat[1:-1]
 
-        int_mat = array_ops.zero_padding(int_mat, ((num_bc, 0), (num_bc, 0)))
+        int_mat = array_ops_compat.zero_padding(int_mat, ((num_bc, 0), (num_bc, 0)))
         return int_mat
 
 
@@ -315,7 +314,7 @@ class TimeFPDE(FPDE):
             int_mat = self.frac_test.get_matrix(sparse=True)
             num_bc = 0
 
-        int_mat = array_ops.zero_padding(int_mat, ((num_bc, 0), (num_bc, 0)))
+        int_mat = array_ops_compat.zero_padding(int_mat, ((num_bc, 0), (num_bc, 0)))
         return int_mat
 
 
@@ -362,7 +361,7 @@ class Fractional(object):
         w = [1]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
-        return array_ops.convert_to_array(w)
+        return array_ops_compat.convert_to_array(w)
 
     def get_x(self):
         self.x = (
@@ -438,7 +437,7 @@ class Fractional(object):
             # third order
             # xi, wi = zip(*map(self.modify_third_order, xi, wi))
             x.append(np.vstack(xi))
-            self.w.append(array_ops.hstack(wi))
+            self.w.append(array_ops_compat.hstack(wi))
         self.xindex_start = np.hstack(([0], np.cumsum(list(map(len, x))))) + len(
             self.x0
         )
@@ -483,7 +482,7 @@ class Fractional(object):
         return self._w_init[: n + 1]
 
     def get_matrix_static(self):
-        if not array_ops.istensor(self.alpha):
+        if not is_tensor(self.alpha):
             int_mat = np.zeros(
                 (self.disc.resolution[0], self.disc.resolution[0]),
                 dtype=config.real(np),
@@ -557,7 +556,7 @@ class Fractional(object):
                 for _ in range(self.w[i].shape[0]):
                     indices.append([i, beg])
                     beg += 1
-                values = array_ops.hstack((values, self.w[i]))
+                values = array_ops_compat.hstack((values, self.w[i]))
             return indices, values, dense_shape
 
         print("Generating dense fractional matrix...")
