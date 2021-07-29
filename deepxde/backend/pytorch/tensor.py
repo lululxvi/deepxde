@@ -20,6 +20,10 @@ def is_tensor(obj):
     return torch.is_tensor(obj)
 
 
+def shape(input_tensor):
+    return list(input_tensor.shape)
+
+
 def elu(x):
     return torch.nn.functional.elu(x)
 
@@ -58,3 +62,11 @@ def mean(input_tensor, dim, keepdims=False):
 
 def reduce_mean(input_tensor):
     return torch.mean(input_tensor)
+
+
+def zeros(shape, dtype):
+    return torch.zeros(shape, dtype=dtype)
+
+
+def zeros_like(input_tensor):
+    return torch.zeros_like(input_tensor)

@@ -28,6 +28,10 @@ def is_tensor(obj):
     return tf.is_tensor(obj)
 
 
+def shape(input_tensor):
+    return input_tensor.shape.as_list()
+
+
 def elu(x):
     return tf.nn.elu(x)
 
@@ -66,3 +70,11 @@ def mean(input_tensor, dim, keepdims=False):
 
 def reduce_mean(input_tensor):
     return tf.math.reduce_mean(input_tensor)
+
+
+def zeros(shape, dtype):
+    return tf.zeros(shape, dtype=dtype)
+
+
+def zeros_like(input_tensor):
+    return tf.zeros_like(input_tensor)
