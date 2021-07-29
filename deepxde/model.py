@@ -157,7 +157,9 @@ class Model(object):
             @tf.function
             def train_step(dropout, data_id, inputs, targets, auxiliary_vars=None):
                 with tf.GradientTape() as tape:
-                    _, losses = outputs_losses(dropout, data_id, inputs, targets, auxiliary_vars)
+                    _, losses = outputs_losses(
+                        dropout, data_id, inputs, targets, auxiliary_vars
+                    )
                     total_loss = tf.math.reduce_sum(losses)
                 trainable_variables = (
                     self.net.trainable_variables + self.external_trainable_variables
@@ -363,14 +365,14 @@ class Model(object):
             losses, y_preds = [], []
             for _ in range(1000):
                 y_pred_test_one, loss_one = self._run(
-                        self.outputs_losses,
-                        False,
-                        True,
-                        np.uint8(1),
-                        self.train_state.X_test,
-                        self.train_state.y_test,
-                        self.train_state.test_aux_vars,
-                        )
+                    self.outputs_losses,
+                    False,
+                    True,
+                    np.uint8(1),
+                    self.train_state.X_test,
+                    self.train_state.y_test,
+                    self.train_state.test_aux_vars,
+                )
                 losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
             self.train_state.loss_test = np.mean(losses, axis=0)

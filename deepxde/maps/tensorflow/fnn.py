@@ -13,7 +13,12 @@ class FNN(NN):
     """Fully-connected neural network."""
 
     def __init__(
-        self, layer_sizes, activation, kernel_initializer, regularization=None, dropout_rate=0
+        self,
+        layer_sizes,
+        activation,
+        kernel_initializer,
+        regularization=None,
+        dropout_rate=0,
     ):
         super(FNN, self).__init__()
         self.regularizer = regularizers.get(regularization)
@@ -33,7 +38,7 @@ class FNN(NN):
             )
             if self.dropout_rate > 0:
                 self.denses.append(tf.keras.layers.Dropout(rate=self.dropout_rate))
-            
+
         self.denses.append(
             tf.keras.layers.Dense(
                 layer_sizes[-1],
