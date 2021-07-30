@@ -226,7 +226,7 @@ class PFNN(FNN):
             else:
                 raise ValueError("batch_normalization")
             if net.dropout_rate > 0:
-                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.dropout)
+                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.training)
             return _y
 
         print("Building feed-forward neural network...")
