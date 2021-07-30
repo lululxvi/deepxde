@@ -60,6 +60,17 @@ def is_tensor(obj):
     """Returns True if `obj` is a backend-native type tensor."""
 
 
+def shape(input_tensor):
+    """Return the shape of the tensor.
+
+    Args:
+        input (Tensor): The input tensor.
+
+    Returns:
+        list of ints: The tensor shape.
+    """
+
+
 ###############################################################################
 # Element-wise math functions
 # ---------------------------
@@ -114,3 +125,26 @@ def mean(input_tensor, dim, keepdims=False):
 
 def reduce_mean(input_tensor):
     """Returns the mean value of all elements in the input tensor."""
+
+
+def zeros(shape, dtype):
+    """Creates a tensor with all elements set to zero.
+
+    Args:
+        shape (tuple of int). The tensor shape.
+        dtype (data type). It should be one of the values in the data type dict.
+
+    Returns:
+        Tensor. The zero tensor.
+    """
+
+
+def zeros_like(input_tensor):
+    """Create a zero tensor with the same shape, dtype and context of the given tensor.
+
+    Args:
+        input_tensor (Tensor).
+
+    Returns:
+        Tensor: The result.
+    """

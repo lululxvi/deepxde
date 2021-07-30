@@ -9,6 +9,8 @@ class FNN(torch.nn.Module):
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
         super(FNN, self).__init__()
+        self.inputs = None
+
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
