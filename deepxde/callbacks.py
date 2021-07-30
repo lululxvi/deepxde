@@ -248,7 +248,7 @@ class DropoutUncertainty(Callback):
     Reference: https://arxiv.org/abs/1506.02142
 
     Warning:
-    This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
+        This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
     """
 
     def __init__(self, period=1000):
