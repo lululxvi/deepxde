@@ -123,7 +123,7 @@ class MsFFN(FNN):
                     )
                 if self.dropout_rate > 0:
                     y = tf.layers.dropout(
-                        y, rate=self.dropout_rate, training=self.dropout
+                        y, rate=self.dropout_rate, training=self.training
                     )
         return y
 

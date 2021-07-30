@@ -87,7 +87,7 @@ class FNN(Map):
                     )
                 )
             if self.dropout_rate > 0:
-                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.dropout)
+                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.training)
         self.y = self._dense(y, self.layer_size[-1], use_bias=self.use_bias)
         if self._output_transform is not None:
             self.y = self._output_transform(self.x, self.y)
@@ -226,7 +226,7 @@ class PFNN(FNN):
             else:
                 raise ValueError("batch_normalization")
             if net.dropout_rate > 0:
-                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.dropout)
+                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.training)
             return _y
 
         print("Building feed-forward neural network...")

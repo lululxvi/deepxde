@@ -242,6 +242,42 @@ class Timer(Callback):
             )
 
 
+class DropoutUncertainty(Callback):
+    """Uncertainty estimation via MC dropout.
+
+    Reference: https://arxiv.org/abs/1506.02142
+
+    Warning:
+        This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
+    """
+
+    def __init__(self, period=1000):
+        super(DropoutUncertainty, self).__init__()
+        self.period = period
+        self.epochs_since_last = 0
+
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.period:
+            self.epochs_since_last = 0
+            y_preds = []
+            for _ in range(1000):
+                # TODO: No need to compute outputs_losses, only outputs are needed.
+                y_pred_test_one, _ = self.model._run(
+                    self.model.outputs_losses,
+                    True,
+                    np.uint8(1),
+                    self.model.train_state.X_test,
+                    self.model.train_state.y_test,
+                    self.model.train_state.test_aux_vars,
+                )
+                y_preds.append(y_pred_test_one)
+            self.model.train_state.y_std_test = np.std(y_preds, axis=0)
+
+    def on_train_end(self):
+        self.on_epoch_end()
+
+
 class VariableValue(Callback):
     """Get the variable values.
 
