@@ -50,13 +50,10 @@ class Map(object):
         """Placeholders: Any additional variables needed."""
         return self._auxiliary_vars
 
-    def feed_dict(
-        self, training, dropout, data_id, inputs, targets=None, auxiliary_vars=None
-    ):
+    def feed_dict(self, training, data_id, inputs, targets=None, auxiliary_vars=None):
         """Construct a feed_dict to feed values to TensorFlow placeholders."""
         feed_dict = {
             self.training: training,
-            self.dropout: dropout,
             self.data_id: data_id,
         }
         feed_dict.update(self._feed_dict_inputs(inputs))

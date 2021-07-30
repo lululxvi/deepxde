@@ -216,7 +216,6 @@ class Model(object):
         epochs=None,
         batch_size=None,
         display_every=1000,
-        uncertainty=False,
         disregard_previous_best=False,
         callbacks=None,
         model_restore_path=None,
@@ -232,8 +231,6 @@ class Model(object):
                 <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
                 see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
             display_every: Integer. Print the loss and metrics every this steps.
-            uncertainty: Boolean. If ``True``, use Monte-Carlo Dropout to estimate
-                uncertainty.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 model.
             callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks
@@ -263,14 +260,14 @@ class Model(object):
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        self._test(uncertainty)
+        self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
-            self._train_scipy(display_every, uncertainty)
+            self._train_scipy(display_every)
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
-            self._train_sgd(epochs, display_every, uncertainty)
+            self._train_sgd(epochs, display_every)
         self.callbacks.on_train_end()
 
         print("")
@@ -279,7 +276,7 @@ class Model(object):
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
-    def _train_sgd(self, epochs, display_every, uncertainty):
+    def _train_sgd(self, epochs, display_every):
         for i in range(epochs):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -290,7 +287,6 @@ class Model(object):
             self._run(
                 self.train_step,
                 True,
-                True,
                 np.uint8(0),
                 self.train_state.X_train,
                 self.train_state.y_train,
@@ -300,7 +296,7 @@ class Model(object):
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
-                self._test(uncertainty)
+                self._test()
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -339,10 +335,9 @@ class Model(object):
         )
         self._test(uncertainty)
 
-    def _test(self, uncertainty):
+    def _test(self):
         self.train_state.y_pred_train, self.train_state.loss_train = self._run(
             self.outputs_losses,
-            False,
             False,
             np.uint8(0),
             self.train_state.X_train,
@@ -352,31 +347,11 @@ class Model(object):
         self.train_state.y_pred_test, self.train_state.loss_test = self._run(
             self.outputs_losses,
             False,
-            False,
             np.uint8(1),
             self.train_state.X_test,
             self.train_state.y_test,
             self.train_state.test_aux_vars,
         )
-        # UQ via dropout
-#        if uncertainty:
-#            # TODO: support multi outputs
-#            losses, y_preds = [], []
-#            for _ in range(1000):
-#                y_pred_test_one, loss_one = self._run(
-#                    self.outputs_losses,
-#                    False,
-#                    True,
-#                    np.uint8(1),
-#                    self.train_state.X_test,
-#                    self.train_state.y_test,
-#                    self.train_state.test_aux_vars,
-#                )
-#                losses.append(loss_one)
-#                y_preds.append(y_pred_test_one)
-#            self.train_state.loss_test = np.mean(losses, axis=0)
-#            self.train_state.y_pred_test = np.mean(y_preds, axis=0)
-#            self.train_state.y_std_test = np.std(y_preds, axis=0)
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
@@ -414,7 +389,7 @@ class Model(object):
                     op = operator(self.net.inputs, self.net.outputs)
                 elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
-            y = self._run(op, False, False, np.uint8(2), x, None, None)
+            y = self._run(op, False, np.uint8(2), x, None, None)
         elif backend_name == "tensorflow":
             # TODO: avoid creating the same graph every time predict is called
             if operator is None:
@@ -492,14 +467,11 @@ class Model(object):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
 
-    def _run(
-        self, fetches, training, dropout, data_id, inputs, targets, auxiliary_vars
-    ):
+    def _run(self, fetches, training, data_id, inputs, targets, auxiliary_vars):
         """Runs one "step" of computation of tensors or callables in `fetches`."""
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(
                 training,
-                dropout,
                 data_id,
                 inputs,
                 targets,
