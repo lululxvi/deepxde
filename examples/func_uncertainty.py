@@ -31,8 +31,9 @@ def main():
     )
 
     model = dde.Model(data, net)
+    uncertainty = dde.callbacks.DropoutUncertainty(period=0)
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=30000, uncertainty=True)
+    losshistory, train_state = model.train(epochs=30000, callbacks=[uncertainty])
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
