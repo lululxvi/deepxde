@@ -153,7 +153,7 @@ class Model(object):
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
-            def train_step(dropout, data_id, inputs, targets, auxiliary_vars=None):
+            def train_step(training, data_id, inputs, targets, auxiliary_vars=None):
                 # inputs and targets are np.ndarray, and automatically converted to
                 # tf.Tensor without memory copy:
                 # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
