@@ -270,7 +270,7 @@ class Model(object):
         self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
-            self._train_scipy(display_every, uncertainty)
+            self._train_scipy(display_every)
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
@@ -311,7 +311,7 @@ class Model(object):
             if self.stop_training:
                 break
 
-    def _train_scipy(self, display_every, uncertainty):
+    def _train_scipy(self, display_every):
         # TODO: backend tensorflow
         def loss_callback(loss_train):
             self.train_state.epoch += 1
@@ -340,7 +340,7 @@ class Model(object):
             fetches=[self.losses],
             loss_callback=loss_callback,
         )
-        self._test(uncertainty)
+        self._test()
 
     def _test(self):
         self.train_state.y_pred_train, self.train_state.loss_train = self._run(
