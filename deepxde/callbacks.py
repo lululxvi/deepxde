@@ -243,20 +243,20 @@ class Timer(Callback):
 
 
 class DropoutUncertainty(Callback):
+    """Uncertainty estimation via MC dropout.
+
+    Reference: https://arxiv.org/abs/1506.02142
+
+    Warning:
+    This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
+    """
+
     def __init__(self, period=1000):
         super(DropoutUncertainty, self).__init__()
         self.period = period
         self.epochs_since_last = 0
 
     def on_epoch_end(self):
-        try:
-            if self.model.net.batch_normalization is not None:
-                raise ValueError(
-                    "Can not apply batch_normalization and DropoutUncertainty at the "
-                    "same time."
-                )
-        except AttributeError:
-            pass
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
