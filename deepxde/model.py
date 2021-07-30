@@ -263,7 +263,7 @@ class Model(object):
         self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
-            self._train_scipy(display_every)
+            self._train_scipy(display_every, uncertainty)
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
