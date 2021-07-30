@@ -245,28 +245,31 @@ class DropoutUncertainty(Callback):
     def __init__(self, period=1):
         super(DropoutUncertainty, self).__init__()
         self.period = period
-
         self.epochs_since_last = 0
 
     def on_epoch_end(self):
+        try:
+            if self.model.net.batch_normalization is not None:
+                raise ValueError(
+                        "Can not apply batch_normalization and DropoutUncertainty at the "
+                        "same time."
+                    )
+        except AttributeError:
+            pass
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
-            losses, y_preds = [], []           
+            y_preds = []         
             for _ in range(1000):
-                y_pred_test_one, loss_one = self.model._run(
+                y_pred_test_one, _ = self.model._run(
                     self.model.outputs_losses,
                     True,
-                    False,
                     np.uint8(1),
                     self.model.train_state.X_test,
                     self.model.train_state.y_test,
                     self.model.train_state.test_aux_vars,
                 )
-                losses.append(loss_one)
                 y_preds.append(y_pred_test_one)
-            self.model.train_state.loss_test = np.mean(losses, axis=0)
-            self.model.train_state.y_pred_test = np.mean(y_preds, axis=0)
             self.model.train_state.y_std_test = np.std(y_preds, axis=0)
 
 

@@ -19,10 +19,12 @@ class FNN(NN):
         kernel_initializer,
         regularization=None,
         dropout_rate=0,
+        batch_normalization=None,
     ):
         super(FNN, self).__init__()
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
+        self.batch_normalization = batch_normalization
 
         self.denses = []
         activation = activations.get(activation)
