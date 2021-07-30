@@ -12,7 +12,6 @@ class Map(object):
 
     def __init__(self):
         self.training = tf.placeholder(tf.bool)
-        self.dropout = tf.placeholder(tf.bool)
         # 0: train data, 1: test data, 2: predict
         self.data_id = tf.placeholder(tf.uint8)
         self._auxiliary_vars = tf.placeholder(config.real(tf))
