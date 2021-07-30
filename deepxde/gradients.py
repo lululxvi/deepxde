@@ -2,7 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from .backend import tf
+from .backend import backend_name, tf, torch
+
+__all__ = ["hessian", "jacobian"]
 
 
 class Jacobian(object):
@@ -34,8 +36,74 @@ class Jacobian(object):
         # Compute J[i]
         if i not in self.J:
             y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
-            self.J[i] = tf.gradients(y, self.xs)[0]
+            if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+                self.J[i] = tf.gradients(y, self.xs)[0]
+            elif backend_name == "pytorch":
+                # TODO: retain_graph=True has memory leak?
+                self.J[i] = torch.autograd.grad(
+                    y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
+                )[0]
         return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
+
+
+class Jacobians(object):
+    """Compute multiple Jacobians.
+
+    A new instance will be created for a new pair of (output, input). For the (output, input) pair that has been
+    computed before, it will reuse the previous instance, rather than creating a new one.
+    """
+
+    def __init__(self):
+        self.Js = {}
+
+    def __call__(self, ys, xs, i=0, j=None):
+        # TODO: For backend tensorflow, in each iteration, ys and xs are new tensors
+        # converted from np.ndarray.
+        # It seems that this doesn't hurt the speed, but maybe have memory leak.
+        #
+        # Examples:
+        #
+        # @tf.function
+        # def f(a):  # a is a new tensor?
+        #     b = 3 * a  # b is a new tensor for sure.
+        #     dde.grad.jacobian(b, a)
+        #     dde.grad.jacobian(b, a)
+        #
+        # a = np.array([[1.], [2], [3]])
+        # f(a)
+        # f(a)
+        #
+        # Similar issue in backend pytorch: network output is a new tensor for sure.
+        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+            key = (ys.ref(), xs.ref())
+        elif backend_name == "pytorch":
+            key = (ys, xs)
+        if key not in self.Js:
+            self.Js[key] = Jacobian(ys, xs)
+        return self.Js[key](i, j)
+
+
+def jacobian(ys, xs, i=0, j=None):
+    """Compute Jacobian matrix J: J[i][j] = dy_i/dx_j, where i=0,...,dim_y-1 and j=0,...,dim_x-1.
+
+    Use this function to compute first-order derivatives instead of ``tf.gradients()``, because
+
+    - It is lazy evaluation, i.e., it only computes J[i][j] when needed.
+    - It will remember the gradients that have already been computed to avoid duplicate computation.
+
+    Args:
+        ys: Output Tensor of shape (batch_size, dim_y).
+        xs: Input Tensor of shape (batch_size, dim_x).
+        i (int):
+        j (int or None):
+
+    Returns:
+        J[`i`][`j`] in Jacobian matrix J. If `j` is ``None``, returns the gradient of y_i, i.e., J[`i`].
+    """
+    return jacobian._fn(ys, xs, i=i, j=j)
+
+
+jacobian._fn = Jacobians()
 
 
 class Hessian(object):
@@ -74,46 +142,6 @@ class Hessian(object):
     def __call__(self, i=0, j=0):
         """Returns H[`i`][`j`]."""
         return self.H(i, j)
-
-
-class Jacobians(object):
-    """Compute multiple Jacobians.
-
-    A new instance will be created for a new pair of (output, input). For the (output, input) pair that has been
-    computed before, it will reuse the previous instance, rather than creating a new one.
-    """
-
-    def __init__(self):
-        self.Js = {}
-
-    def __call__(self, ys, xs, i=0, j=None):
-        key = (ys.ref(), xs.ref())
-        if key not in self.Js:
-            self.Js[key] = Jacobian(ys, xs)
-        return self.Js[key](i, j)
-
-
-def jacobian(ys, xs, i=0, j=None):
-    """Compute Jacobian matrix J: J[i][j] = dy_i/dx_j, where i=0,...,dim_y-1 and j=0,...,dim_x-1.
-
-    Use this function to compute first-order derivatives instead of ``tf.gradients()``, because
-
-    - It is lazy evaluation, i.e., it only computes J[i][j] when needed.
-    - It will remember the gradients that have already been computed to avoid duplicate computation.
-
-    Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
-        xs: Input Tensor of shape (batch_size, dim_x).
-        i (int):
-        j (int or None):
-
-    Returns:
-        J[`i`][`j`] in Jacobian matrix J. If `j` is ``None``, returns the gradient of y_i, i.e., J[`i`].
-    """
-    return jacobian._fn(ys, xs, i=i, j=j)
-
-
-jacobian._fn = Jacobians()
 
 
 class Hessians(object):

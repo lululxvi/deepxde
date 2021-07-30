@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+from ..backend import backend_name, torch
 
 
 class IC(object):
@@ -25,6 +26,8 @@ class IC(object):
         return self.filter(X)
 
     def error(self, X, inputs, outputs, beg, end):
-        return outputs[beg:end, self.component : self.component + 1] - self.func(
-            X[beg:end]
-        )
+        # TODO: For PyTorch, this is recomputed in each iteration.
+        targets = self.func(X[beg:end])
+        if backend_name == "pytorch":
+            targets = torch.from_numpy(targets)
+        return outputs[beg:end, self.component : self.component + 1] - targets
