@@ -85,14 +85,8 @@ class Model(object):
         """
         print("Compiling model...")
 
-        if backend_name == "tensorflow.compat.v1":
-            if not self.net.built:
-                self.net.build()
-            if self.sess is None:
-                self.sess = tf.Session()
-                self.saver = tf.train.Saver(max_to_keep=None)
-
         self.opt_name = optimizer
+        loss_fn = losses_module.get(loss)
         if external_trainable_variables is None:
             self.external_trainable_variables = []
         else:
@@ -106,8 +100,13 @@ class Model(object):
                 external_trainable_variables = [external_trainable_variables]
             self.external_trainable_variables = external_trainable_variables
 
-        loss_fn = losses_module.get(loss)
         if backend_name == "tensorflow.compat.v1":
+            if not self.net.built:
+                self.net.build()
+            if self.sess is None:
+                self.sess = tf.Session()
+                self.saver = tf.train.Saver(max_to_keep=None)
+
             # Data losses
             losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
             if not isinstance(losses, list):
@@ -156,6 +155,11 @@ class Model(object):
 
             @tf.function
             def train_step(dropout, data_id, inputs, targets, auxiliary_vars=None):
+                # inputs and targets are np.ndarray, and automatically converted to
+                # tf.Tensor without memory copy:
+                # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
+                # But, this doesn't seem to be true:
+                # https://github.com/tensorflow/tensorflow/issues/33254
                 with tf.GradientTape() as tape:
                     _, losses = outputs_losses(
                         dropout, data_id, inputs, targets, auxiliary_vars
@@ -184,10 +188,11 @@ class Model(object):
                 losses = torch.stack(losses)
                 return losses
 
-            def outputs_losses(data_id, inputs, targets):
-                # Is this the best place to convert?
+            def outputs_losses(inputs, targets):
                 inputs = torch.from_numpy(inputs)
                 targets = torch.from_numpy(targets)
+                inputs.requires_grad_()
+                self.net.inputs = inputs
                 outputs = self.net(inputs)
                 losses = compute_losses(targets, outputs)
                 return outputs, losses
@@ -196,8 +201,8 @@ class Model(object):
                 self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
             )
 
-            def train_step(data_id, inputs, targets):
-                _, losses = outputs_losses(data_id, inputs, targets)
+            def train_step(inputs, targets):
+                _, losses = outputs_losses(inputs, targets)
                 total_loss = torch.sum(losses)
                 opt.zero_grad()
                 total_loss.backward()
@@ -208,6 +213,8 @@ class Model(object):
             self.outputs_losses = outputs_losses
             self.train_step = train_step
 
+        # metrics may use model variables such as self.net, and thus are Instantiated in
+        # the end.
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
@@ -513,7 +520,7 @@ class Model(object):
             return None if outs is None else [out.numpy() for out in outs]
         if backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
-            outs = fetches(data_id, inputs, targets)
+            outs = fetches(inputs, targets)
             return None if outs is None else [out.detach().numpy() for out in outs]
 
 

@@ -5,8 +5,8 @@ from __future__ import print_function
 import numpy as np
 
 from .data import Data
+from .. import backend as bkd
 from .. import config
-from ..backend import lib
 from ..utils import get_num_args, run_if_all_none
 
 
@@ -150,12 +150,13 @@ class PDE(Data):
         bcs_start = np.cumsum([0] + self.num_bcs)
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss[i](lib.zeros_like(error), error) for i, error in enumerate(error_f)
+            loss[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
         ]
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
+            # The same BC points are used for training and testing.
             error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
-            losses.append(loss[len(error_f) + i](lib.zeros_like(error), error))
+            losses.append(loss[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
