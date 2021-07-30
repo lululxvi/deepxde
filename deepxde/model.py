@@ -142,23 +142,22 @@ class Model(object):
 
             # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
             @tf.function
-            def outputs_losses(dropout, data_id, inputs, targets, auxiliary_vars=None):
-                self.net.dropout = dropout
+            def outputs_losses(training, data_id, inputs, targets, auxiliary_vars=None):
                 self.net.data_id = data_id
                 self.net.inputs = inputs
                 self.net.targets = targets
                 self.net.auxiliary_vars = auxiliary_vars
-                outputs = self.net(inputs, training=dropout)
+                outputs = self.net(inputs, training=training)
                 losses = compute_losses(targets, outputs)
                 return outputs, losses
 
             opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
             @tf.function
-            def train_step(dropout, data_id, inputs, targets, auxiliary_vars=None):
+            def train_step(training, data_id, inputs, targets, auxiliary_vars=None):
                 with tf.GradientTape() as tape:
                     _, losses = outputs_losses(
-                        dropout, data_id, inputs, targets, auxiliary_vars
+                        training, data_id, inputs, targets, auxiliary_vars
                     )
                     total_loss = tf.math.reduce_sum(losses)
                 trainable_variables = (
@@ -360,24 +359,24 @@ class Model(object):
             self.train_state.test_aux_vars,
         )
         # UQ via dropout
-        if uncertainty:
-            # TODO: support multi outputs
-            losses, y_preds = [], []
-            for _ in range(1000):
-                y_pred_test_one, loss_one = self._run(
-                    self.outputs_losses,
-                    False,
-                    True,
-                    np.uint8(1),
-                    self.train_state.X_test,
-                    self.train_state.y_test,
-                    self.train_state.test_aux_vars,
-                )
-                losses.append(loss_one)
-                y_preds.append(y_pred_test_one)
-            self.train_state.loss_test = np.mean(losses, axis=0)
-            self.train_state.y_pred_test = np.mean(y_preds, axis=0)
-            self.train_state.y_std_test = np.std(y_preds, axis=0)
+#        if uncertainty:
+#            # TODO: support multi outputs
+#            losses, y_preds = [], []
+#            for _ in range(1000):
+#                y_pred_test_one, loss_one = self._run(
+#                    self.outputs_losses,
+#                    False,
+#                    True,
+#                    np.uint8(1),
+#                    self.train_state.X_test,
+#                    self.train_state.y_test,
+#                    self.train_state.test_aux_vars,
+#                )
+#                losses.append(loss_one)
+#                y_preds.append(y_pred_test_one)
+#            self.train_state.loss_test = np.mean(losses, axis=0)
+#            self.train_state.y_pred_test = np.mean(y_preds, axis=0)
+#            self.train_state.y_std_test = np.std(y_preds, axis=0)
 
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
@@ -508,8 +507,7 @@ class Model(object):
             )
             return self.sess.run(fetches, feed_dict=feed_dict)
         if backend_name == "tensorflow":
-            # TODO: Support training
-            outs = fetches(dropout, data_id, inputs, targets, auxiliary_vars)
+            outs = fetches(training, data_id, inputs, targets, auxiliary_vars)
             return None if outs is None else [out.numpy() for out in outs]
         if backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
