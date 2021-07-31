@@ -43,7 +43,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 Currently BACKEND can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
 
-Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Some features can be implemented easily, we welcome your contributions.
+Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Some features can be implemented easily, we welcome your contributions. Different backends also have different computational speed, and switch to another backend if the speed is an issue in your case.
 
 TensorFlow 1.x backend
 ``````````````````````
