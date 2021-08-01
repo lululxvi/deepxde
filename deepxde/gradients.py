@@ -118,12 +118,12 @@ def jacobian(ys, xs, i=0, j=None):
     """Compute Jacobian matrix J: J[i][j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and
     j = 0, ..., dim_x - 1.
 
-    Use this function to compute first-order derivatives instead of ``tf.gradients()``,
-    because
+    Use this function to compute first-order derivatives instead of ``tf.gradients()``
+    or ``torch.autograd.grad()``, because
 
     - It is lazy evaluation, i.e., it only computes J[i][j] when needed.
     - It will remember the gradients that have already been computed to avoid duplicate
-        computation.
+      computation.
 
     Args:
         ys: Output Tensor of shape (batch_size, dim_y).
@@ -133,7 +133,7 @@ def jacobian(ys, xs, i=0, j=None):
 
     Returns:
         J[`i`][`j`] in Jacobian matrix J. If `j` is ``None``, returns the gradient of
-            y_i, i.e., J[`i`].
+        y_i, i.e., J[`i`].
     """
     return jacobian._Jacobians(ys, xs, i=i, j=j)
 
@@ -167,12 +167,13 @@ class Hessian(object):
                         component, dim_y
                     )
                 )
-            y = y[:, component : component + 1]
-        if dim_y == 1 and component is not None:
-            raise ValueError("Do not use component for 1D y.")
+        else:
+            if component is not None:
+                raise ValueError("Do not use component for 1D y.")
+            component = 0
 
         if grad_y is None:
-            grad_y = tf.gradients(y, xs)[0]
+            grad_y = jacobian(y, xs, i=component, j=None)
         self.H = Jacobian(grad_y, xs)
 
     def __call__(self, i=0, j=0):
@@ -192,24 +193,28 @@ class Hessians(object):
         self.Hs = {}
 
     def __call__(self, y, xs, component=None, i=0, j=0, grad_y=None):
-        _component = 0 if component is None else component
-        key = (y.ref(), xs.ref(), _component)
+        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+            key = (y.ref(), xs.ref(), component)
+        elif backend_name == "pytorch":
+            key = (y, xs, component)
         if key not in self.Hs:
-            if grad_y is None:
-                grad_y = jacobian(y, xs, i=_component, j=None)
             self.Hs[key] = Hessian(y, xs, component=component, grad_y=grad_y)
         return self.Hs[key](i, j)
+
+    def clear(self):
+        """Clear cached Hessians."""
+        self.Hs = {}
 
 
 def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
     """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j=0,...,dim_x-1.
 
-    Use this function to compute second-order derivatives instead of ``tf.gradients()``,
-    because
+    Use this function to compute second-order derivatives instead of ``tf.gradients()``
+    or ``torch.autograd.grad()``, because
 
     - It is lazy evaluation, i.e., it only computes H[i][j] when needed.
     - It will remember the gradients that have already been computed to avoid duplicate
-        computation.
+      computation.
 
     Args:
         ys: Output Tensor of shape (batch_size, dim_y).
@@ -235,3 +240,4 @@ hessian._Hessians = Hessians()
 def clear():
     """Clear cached Jacobians and Hessians."""
     jacobian._Jacobians.clear()
+    hessian._Hessians.clear()

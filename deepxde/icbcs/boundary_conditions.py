@@ -10,7 +10,7 @@ import numpy as np
 
 from .. import config
 from .. import gradients as grad
-from ..backend import tf
+from ..backend import backend_name, tf, torch
 
 
 class BC(object):
@@ -58,6 +58,8 @@ class DirichletBC(BC):
             raise RuntimeError(
                 "DirichletBC should output 1D values. Use argument 'component' for different components."
             )
+        if backend_name == "pytorch":
+            values = torch.from_numpy(values)
         return outputs[beg:end, self.component : self.component + 1] - values
 
 

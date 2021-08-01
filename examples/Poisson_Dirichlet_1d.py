@@ -1,16 +1,22 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
 
 Documentation: https://deepxde.readthedocs.io/en/latest/demos/poisson.1d.dirichlet.html
 """
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
+# Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
+# Import torch if using backend pytorch
+# import torch
 
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
+    # Use tf.sin for backend tensorflow.compat.v1 or tensorflow
     return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+    # Use torch.sin for backend pytorch
+    # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
 
 
 def boundary(x, on_boundary):
@@ -47,8 +53,9 @@ losshistory, train_state = model.train(epochs=10000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
+# Optional: Restore the saved model with the smallest training loss
+# model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
 # Plot PDE residual
-model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
 x = geom.uniform_points(1000, True)
 y = model.predict(x, operator=pde)
 plt.figure()
