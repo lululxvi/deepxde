@@ -8,6 +8,7 @@ from collections import OrderedDict
 import numpy as np
 
 from . import display
+from . import gradients as grad
 from . import losses as losses_module
 from . import metrics as metrics_module
 from . import optimizers
@@ -185,6 +186,8 @@ class Model(object):
                 # TODO: regularization
                 # TODO: Weighted losses
                 losses = torch.stack(losses)
+                # Clear cached Jacobians and Hessians.
+                grad.clear()
                 return losses
 
             def outputs_losses(inputs, targets):
