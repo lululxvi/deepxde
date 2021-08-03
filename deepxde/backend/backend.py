@@ -71,6 +71,32 @@ def shape(input_tensor):
     """
 
 
+def as_tensor(data, dtype=None):
+    """Convert the data to a Tensor.
+
+    If the data is already a tensor and has the same dtype, directly return.
+
+    Args:
+        data. Tensor object, numpy array, Python list, and Python scalar.
+    dtype (data type, optional). It should be one of the values in the data type dict.
+        If None, infers data type from data.
+
+    Returns:
+        Tensor. A framework-specific tensor.
+    """
+
+
+def from_numpy(np_array):
+    """Create a tensor that shares the underlying numpy array memory, if possible.
+
+    Args:
+        np_array (numpy.ndarray). The numpy ndarray.
+
+    Returns:
+        Tensor. A framework-specific tensor.
+    """
+
+
 ###############################################################################
 # Element-wise math functions
 # ---------------------------

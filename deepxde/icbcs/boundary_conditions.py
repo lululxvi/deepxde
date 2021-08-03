@@ -8,9 +8,25 @@ import numbers
 
 import numpy as np
 
+from .. import backend as bkd
 from .. import config
 from .. import gradients as grad
-from ..backend import backend_name, tf, torch
+from ..backend import tf
+
+
+# TODO: Performance issue of backend pytorch.
+# For some BCs, we need to call self.func(X[beg:end]) in BC.error(). For backend
+# tensorflow.compat.v1/tensorflow, self.func() is only called once in graph mode, but
+# for backend pytorch, it will be recomputed in each iteration. To reduce the
+# computation, one solution is that we cache the results by using @functools.cache, but
+# numpy.ndarray is unhashable. So we need to implement a hash function and a cache
+# function for numpy.ndarray.
+# References:
+# - https://docs.python.org/3/library/functools.html
+# - https://stackoverflow.com/questions/52331944/cache-decorator-for-numpy-arrays
+# - https://forum.kavli.tudelft.nl/t/caching-of-python-functions-with-array-input/59/6
+# - https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array/16592241#16592241
+# - https://stackoverflow.com/questions/39674863/python-alternative-for-using-numpy-array-as-key-in-dictionary/47922199
 
 
 class BC(object):
@@ -56,10 +72,10 @@ class DirichletBC(BC):
         values = self.func(X[beg:end])
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
-                "DirichletBC should output 1D values. Use argument 'component' for different components."
+                "DirichletBC func should return an array of shape N by 1 for a single component."
+                "Use argument 'component' for different components."
             )
-        if backend_name == "pytorch":
-            values = torch.from_numpy(values)
+        values = bkd.as_tensor(values)
         return outputs[beg:end, self.component : self.component + 1] - values
 
 

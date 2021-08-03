@@ -24,6 +24,21 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def as_tensor(data, dtype=None):
+    if isinstance(data, torch.Tensor):
+        if dtype is None or data.dtype == dtype:
+            return data
+        return data.type(dtype=dtype)
+    return torch.as_tensor(data, dtype=dtype)
+
+
+def from_numpy(np_array):
+    # Both torch.from_numpy and torch.as_tensor work without memory copy.
+    # https://discuss.pytorch.org/t/from-numpy-vs-as-tensor/79932
+    # https://stackoverflow.com/questions/48482787/pytorch-memory-model-torch-from-numpy-vs-torch-tensor
+    return torch.from_numpy(np_array)
+
+
 def elu(x):
     return torch.nn.functional.elu(x)
 

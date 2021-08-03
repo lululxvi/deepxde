@@ -4,8 +4,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numbers
+
 import numpy as np
-from ..backend import backend_name, torch
+
+from .. import backend as bkd
 
 
 class IC(object):
@@ -26,8 +29,11 @@ class IC(object):
         return self.filter(X)
 
     def error(self, X, inputs, outputs, beg, end):
-        # TODO: For PyTorch, this is recomputed in each iteration.
         targets = self.func(X[beg:end])
-        if backend_name == "pytorch":
-            targets = torch.from_numpy(targets)
+        if not isinstance(targets, numbers.Number) and targets.shape[1] != 1:
+            raise RuntimeError(
+                "IC func should return an array of shape N by 1 for a single component."
+                "Use argument 'component' for different components."
+            )
+        targets = bkd.as_tensor(targets)
         return outputs[beg:end, self.component : self.component + 1] - targets

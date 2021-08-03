@@ -32,6 +32,22 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
+def as_tensor(data, dtype=None):
+    if tf.is_tensor(data):
+        if dtype is None or data.dtype == dtype:
+            return data
+        return tf.cast(data, dtype)
+    return tf.convert_to_tensor(data, dtype=dtype)
+
+
+def from_numpy(np_array):
+    # Do memory copy:
+    # https://stackoverflow.com/questions/47519802/does-tensorflow-convert-to-tensor-do-memory-copy
+    # To avoid memory copy, use implicit conversion, but memory copy is still possible.
+    # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
+    return tf.convert_to_tensor(np_array)
+
+
 def elu(x):
     return tf.nn.elu(x)
 
