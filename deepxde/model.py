@@ -102,123 +102,136 @@ class Model(object):
             self.external_trainable_variables = external_trainable_variables
 
         if backend_name == "tensorflow.compat.v1":
-            if not self.net.built:
-                self.net.build()
-            if self.sess is None:
-                self.sess = tf.Session()
-                self.saver = tf.train.Saver(max_to_keep=None)
+            self._compile_tensorflow_compat_v1(lr, loss_fn, decay, loss_weights)
+        elif backend_name == "tensorflow":
+            self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
+        elif backend_name == "pytorch":
+            self._compile_pytorch(lr, loss_fn, decay, loss_weights)
 
+        # metrics may use model variables such as self.net, and thus are instantiated
+        # after backend compile.
+        metrics = metrics or []
+        self.metrics = [metrics_module.get(m) for m in metrics]
+
+    def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay, loss_weights):
+        """tensorflow.compat.v1"""
+        if not self.net.built:
+            self.net.build()
+        if self.sess is None:
+            self.sess = tf.Session()
+            self.saver = tf.train.Saver(max_to_keep=None)
+
+        # Data losses
+        losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
+        if not isinstance(losses, list):
+            losses = [losses]
+        # Regularization loss
+        if self.net.regularizer is not None:
+            losses.append(tf.losses.get_regularization_loss())
+        losses = tf.convert_to_tensor(losses)
+        # Weighted losses
+        if loss_weights is not None:
+            losses *= loss_weights
+            self.losshistory.set_loss_weights(loss_weights)
+        total_loss = tf.math.reduce_sum(losses)
+
+        # Tensors
+        self.losses = losses
+        self.outputs_losses = [self.net.outputs, losses]
+        self.train_step = optimizers.get(
+            total_loss, self.opt_name, learning_rate=lr, decay=decay
+        )
+
+    def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
+        """tensorflow"""
+
+        def compute_losses(targets, outputs):
             # Data losses
-            losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
+            losses = self.data.losses(targets, outputs, loss_fn, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
             if self.net.regularizer is not None:
-                losses.append(tf.losses.get_regularization_loss())
+                losses += [tf.math.reduce_sum(self.net.losses)]
             losses = tf.convert_to_tensor(losses)
-            # Weighted losses
-            if loss_weights is not None:
-                losses *= loss_weights
-                self.losshistory.set_loss_weights(loss_weights)
-            total_loss = tf.math.reduce_sum(losses)
-            # Tensors
-            self.losses = losses
-            self.outputs_losses = [self.net.outputs, losses]
-            self.train_step = optimizers.get(
-                total_loss, self.opt_name, learning_rate=lr, decay=decay
-            )
-        elif backend_name == "tensorflow":
+            # TODO: Weighted losses
+            return losses
 
-            def compute_losses(targets, outputs):
-                # Data losses
-                losses = self.data.losses(targets, outputs, loss_fn, self)
-                if not isinstance(losses, list):
-                    losses = [losses]
-                if self.net.regularizer is not None:
-                    losses += [tf.math.reduce_sum(self.net.losses)]
-                losses = tf.convert_to_tensor(losses)
-                # TODO: Weighted losses
-                return losses
+        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
+        @tf.function
+        def outputs_losses(training, data_id, inputs, targets, auxiliary_vars=None):
+            self.net.data_id = data_id
+            self.net.inputs = inputs
+            self.net.targets = targets
+            self.net.auxiliary_vars = auxiliary_vars
+            outputs = self.net(inputs, training=training)
+            losses = compute_losses(targets, outputs)
+            return outputs, losses
 
-            # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
-            @tf.function
-            def outputs_losses(training, data_id, inputs, targets, auxiliary_vars=None):
-                self.net.data_id = data_id
-                self.net.inputs = inputs
-                self.net.targets = targets
-                self.net.auxiliary_vars = auxiliary_vars
-                outputs = self.net(inputs, training=training)
-                losses = compute_losses(targets, outputs)
-                return outputs, losses
+        opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
-            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
-
-            @tf.function
-            def train_step(training, data_id, inputs, targets, auxiliary_vars=None):
-                # inputs and targets are np.ndarray, and automatically converted to
-                # tf.Tensor without memory copy:
-                # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
-                # But, this doesn't seem to be true:
-                # https://github.com/tensorflow/tensorflow/issues/33254
-                with tf.GradientTape() as tape:
-                    _, losses = outputs_losses(
-                        training, data_id, inputs, targets, auxiliary_vars
-                    )
-                    total_loss = tf.math.reduce_sum(losses)
-                trainable_variables = (
-                    self.net.trainable_variables + self.external_trainable_variables
+        @tf.function
+        def train_step(training, data_id, inputs, targets, auxiliary_vars=None):
+            # inputs and targets are np.ndarray, and automatically converted to
+            # tf.Tensor without memory copy:
+            # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
+            # But, this doesn't seem to be true:
+            # https://github.com/tensorflow/tensorflow/issues/33254
+            with tf.GradientTape() as tape:
+                _, losses = outputs_losses(
+                    training, data_id, inputs, targets, auxiliary_vars
                 )
-                grads = tape.gradient(total_loss, trainable_variables)
-                opt.apply_gradients(zip(grads, trainable_variables))
-
-            # Callables
-            self.losses = compute_losses
-            self.outputs_losses = outputs_losses
-            self.train_step = train_step
-
-        elif backend_name == "pytorch":
-
-            def compute_losses(targets, outputs):
-                # Data losses
-                losses = self.data.losses(targets, outputs, loss_fn, self)
-                if not isinstance(losses, list):
-                    losses = [losses]
-                # TODO: regularization
-                # TODO: Weighted losses
-                losses = torch.stack(losses)
-                # Clear cached Jacobians and Hessians.
-                grad.clear()
-                return losses
-
-            def outputs_losses(inputs, targets):
-                inputs = torch.from_numpy(inputs)
-                targets = torch.from_numpy(targets)
-                inputs.requires_grad_()
-                self.net.inputs = inputs
-                outputs = self.net(inputs)
-                losses = compute_losses(targets, outputs)
-                return outputs, losses
-
-            opt = optimizers.get(
-                self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
+                total_loss = tf.math.reduce_sum(losses)
+            trainable_variables = (
+                self.net.trainable_variables + self.external_trainable_variables
             )
+            grads = tape.gradient(total_loss, trainable_variables)
+            opt.apply_gradients(zip(grads, trainable_variables))
 
-            def train_step(inputs, targets):
-                _, losses = outputs_losses(inputs, targets)
-                total_loss = torch.sum(losses)
-                opt.zero_grad()
-                total_loss.backward()
-                opt.step()
+        # Callables
+        self.losses = compute_losses
+        self.outputs_losses = outputs_losses
+        self.train_step = train_step
 
-            # Callables
-            self.losses = compute_losses
-            self.outputs_losses = outputs_losses
-            self.train_step = train_step
+    def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
+        """pytorch"""
 
-        # metrics may use model variables such as self.net, and thus are Instantiated in
-        # the end.
-        metrics = metrics or []
-        self.metrics = [metrics_module.get(m) for m in metrics]
+        def compute_losses(targets, outputs):
+            # Data losses
+            losses = self.data.losses(targets, outputs, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
+            # TODO: regularization
+            # TODO: Weighted losses
+            losses = torch.stack(losses)
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
+            return losses
+
+        def outputs_losses(inputs, targets):
+            inputs = torch.from_numpy(inputs)
+            targets = torch.from_numpy(targets)
+            inputs.requires_grad_()
+            self.net.inputs = inputs
+            outputs = self.net(inputs)
+            losses = compute_losses(targets, outputs)
+            return outputs, losses
+
+        opt = optimizers.get(
+            self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
+        )
+
+        def train_step(inputs, targets):
+            _, losses = outputs_losses(inputs, targets)
+            total_loss = torch.sum(losses)
+            opt.zero_grad()
+            total_loss.backward()
+            opt.step()
+
+        # Callables
+        self.losses = compute_losses
+        self.outputs_losses = outputs_losses
+        self.train_step = train_step
 
     @utils.timing
     def train(
@@ -331,7 +344,6 @@ class Model(object):
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
             True,
-            True,
             0,
             self.train_state.X_train,
             self.train_state.y_train,
@@ -389,7 +401,6 @@ class Model(object):
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
-        # TODO: use self._run for tensorflow
         # TODO: predict operator with auxiliary_vars
         if backend_name == "tensorflow.compat.v1":
             if operator is None:
@@ -402,6 +413,7 @@ class Model(object):
             y = self._run(op, False, np.uint8(2), x, None, None)
         elif backend_name == "tensorflow":
             # TODO: avoid creating the same graph every time predict is called
+            # TODO: use self._run for tensorflow
             if operator is None:
                 y = self.net(x).numpy()
             else:
@@ -420,6 +432,12 @@ class Model(object):
                         return operator(inputs, y, x)
 
                 y = op(x).numpy()
+        elif backend_name == "pytorch":
+            # TODO
+            raise NotImplementedError(
+                "Model.predict hasn't been implemented for backend pytorch."
+            )
+
         self.callbacks.on_predict_end()
         return y
 
@@ -431,7 +449,7 @@ class Model(object):
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
-        # TODO: backend tensorflow
+        # TODO: backend tensorflow, pytorch
         destination = OrderedDict()
         variables_names = [v.name for v in tf.global_variables()]
         values = self.sess.run(variables_names)
@@ -448,7 +466,7 @@ class Model(object):
                 If `protocol` is "pickle", save using the Python pickle module. Only
                 "tf.train.Saver" protocol supports ``restore()``.
         """
-        # TODO: backend tensorflow
+        # TODO: backend tensorflow, pytorch
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {}-{} ...\n".format(
@@ -463,14 +481,14 @@ class Model(object):
 
     def restore(self, save_path, verbose=0):
         """Restore all variables from a disk file."""
-        # TODO: backend tensorflow
+        # TODO: backend tensorflow, pytorch
         if verbose > 0:
             print("Restoring model from {} ...\n".format(save_path))
         self.saver.restore(self.sess, save_path)
 
     def print_model(self):
         """Prints all trainable variables."""
-        # TODO: backend tensorflow
+        # TODO: backend tensorflow, pytorch
         variables_names = [v.name for v in tf.trainable_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
