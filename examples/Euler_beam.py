@@ -1,7 +1,6 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
 
 
 def ddy(x, y):
@@ -9,11 +8,12 @@ def ddy(x, y):
 
 
 def dddy(x, y):
-    return tf.gradients(ddy(x, y), x)[0]
+    return dde.grad.jacobian(ddy(x, y), x)
 
 
 def pde(x, y):
-    dy_xxxx = tf.gradients(dddy(x, y), x)[0]
+    dy_xx = ddy(x, y)
+    dy_xxxx = dde.grad.hessian(dy_xx, x)
     return dy_xxxx + 1
 
 

@@ -75,7 +75,7 @@ class DirichletBC(BC):
                 "DirichletBC func should return an array of shape N by 1 for a single component."
                 "Use argument 'component' for different components."
             )
-        values = bkd.as_tensor(values)
+        values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         return outputs[beg:end, self.component : self.component + 1] - values
 
 
@@ -87,7 +87,7 @@ class NeumannBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end):
-        values = bkd.as_tensor(self.func(X[beg:end]))
+        values = bkd.as_tensor(self.func(X[beg:end]), dtype=config.real(bkd.lib))
         return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 
