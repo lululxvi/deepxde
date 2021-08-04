@@ -11,7 +11,6 @@ import numpy as np
 from .. import backend as bkd
 from .. import config
 from .. import gradients as grad
-from ..backend import tf
 
 
 # TODO: Performance issue of backend pytorch.
@@ -27,6 +26,7 @@ from ..backend import tf
 # - https://forum.kavli.tudelft.nl/t/caching-of-python-functions-with-array-input/59/6
 # - https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array/16592241#16592241
 # - https://stackoverflow.com/questions/39674863/python-alternative-for-using-numpy-array-as-key-in-dictionary/47922199
+# Similarly, self.geom.boundary_normal() in BC.normal_derivative()
 
 
 class BC(object):
@@ -52,8 +52,8 @@ class BC(object):
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
-        n = self.geom.boundary_normal(X[beg:end])
-        return tf.reduce_sum(dydx * n, axis=1, keepdims=True)
+        n = bkd.from_numpy(self.geom.boundary_normal(X[beg:end]))
+        return bkd.sum(dydx * n, 1, keepdims=True)
 
     def error(self, X, inputs, outputs, beg, end):
         raise NotImplementedError(
@@ -87,9 +87,8 @@ class NeumannBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end):
-        return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
-            X[beg:end]
-        )
+        values = bkd.as_tensor(self.func(X[beg:end]))
+        return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 
 class RobinBC(BC):

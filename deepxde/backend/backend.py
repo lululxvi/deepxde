@@ -153,6 +153,30 @@ def reduce_mean(input_tensor):
     """Returns the mean value of all elements in the input tensor."""
 
 
+def sum(input_tensor, dim, keepdims=False):
+    """Returns the sum of the input tensor along the given dim.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+        dim (int). The reduce dim.
+        keepdims (bool). Whether to keep the summed dimension.
+
+    Returns:
+        Tensor: A framework-specific tensor.
+    """
+
+
+def reduce_sum(input_tensor):
+    """Returns the sum of all elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor.
+    """
+
+
 def zeros(shape, dtype):
     """Creates a tensor with all elements set to zero.
 

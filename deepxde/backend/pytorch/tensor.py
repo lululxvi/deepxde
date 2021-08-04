@@ -79,6 +79,14 @@ def reduce_mean(input_tensor):
     return torch.mean(input_tensor)
 
 
+def sum(input_tensor, dim, keepdims=False):
+    return torch.sum(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_sum(input_tensor):
+    return torch.sum(input_tensor)
+
+
 def zeros(shape, dtype):
     return torch.zeros(shape, dtype=dtype)
 

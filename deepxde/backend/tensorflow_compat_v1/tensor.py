@@ -88,6 +88,14 @@ def reduce_mean(input_tensor):
     return tf.math.reduce_mean(input_tensor)
 
 
+def sum(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_sum(input_tensor):
+    return tf.math.reduce_sum(input_tensor)
+
+
 def zeros(shape, dtype):
     return tf.zeros(shape, dtype=dtype)
 
