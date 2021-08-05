@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
