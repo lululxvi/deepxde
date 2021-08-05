@@ -9,7 +9,7 @@
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow.org/). Use DeepXDE if you need a deep learning library that
+DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
@@ -18,7 +18,7 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates functions from a dataset with/without constraints.
 
-DeepXDE supports two tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x) and TensorFlow 2.x. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
 
@@ -50,7 +50,7 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed. Then, you can install DeepXDE itself.
+DeepXDE requires [TensorFlow](https://www.tensorflow.org/) or [PyTorch](https://pytorch.org/) to be installed. Then, you can install DeepXDE itself.
 
 - Install the stable version with `pip`:
 
@@ -77,7 +77,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
   - [scikit-learn](https://scikit-learn.org)
   - [scikit-optimize](https://scikit-optimize.github.io)
   - [SciPy](https://www.scipy.org/)
-  - [TensorFlow](https://www.tensorflow.org/)>=2.2.0
+  - [TensorFlow](https://www.tensorflow.org/)>=2.2.0 or [PyTorch](https://pytorch.org/)
 
 ## Explore more
 

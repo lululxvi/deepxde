@@ -1,7 +1,7 @@
 DeepXDE
 =======
 
-DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow.org/>`_. Use DeepXDE if you need a deep learning library that
+DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
@@ -10,7 +10,7 @@ DeepXDE is a deep learning library on top of `TensorFlow <https://www.tensorflow
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates functions from a dataset with/without constraints.
 
-DeepXDE supports two tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x) and TensorFlow 2.x.
+DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch.
 
 **Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `SIAM Rev. <https://doi.org/10.1137/19M1274067>`_, `Slides <https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_
 

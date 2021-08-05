@@ -9,3 +9,11 @@ deepxde.maps.pytorch.fnn module
    :undoc-members:
    :show-inheritance:
 
+deepxde.maps.pytorch.nn module
+------------------------------
+
+.. automodule:: deepxde.maps.pytorch.nn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+

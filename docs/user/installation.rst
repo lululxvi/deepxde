@@ -4,7 +4,7 @@ Install and Setup
 Installation
 ------------
 
-DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Then, you can install DeepXDE itself.
+DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ or `PyTorch <https://pytorch.org/>`_ to be installed. Then, you can install DeepXDE itself.
 
 - Install the stable version with ``pip``::
 
@@ -25,7 +25,7 @@ DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ to be installed. Th
     - `scikit-learn <https://scikit-learn.org>`_
     - `scikit-optimize <https://scikit-optimize.github.io>`_
     - `SciPy <https://www.scipy.org/>`_
-    - `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0
+    - `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0 or `PyTorch <https://pytorch.org/>`_
 
 Working with different backends
 -------------------------------
@@ -34,21 +34,24 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 * Use the ``DDEBACKEND`` environment variable:
 
-   - You can use ``DDEBACKEND=[BACKEND] python pde.py ...`` to specify the backend
-   - Or ``export DDEBACKEND=[BACKEND]`` to set the global environment variable
+   - You can use ``DDEBACKEND=BACKEND python pde.py ...`` to specify the backend
+   - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
 
 * Modify the ``config.json`` file under "~/.deepxde":
 
-   - You can use ``python -m deepxde.backend.set_default_backend [BACKEND]`` to set the default backend
+   - You can use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
 
-Currently BACKEND can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
+Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
 
-Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Some features can be implemented easily, we welcome your contributions. Different backends also have different computational speed, and switch to another backend if the speed is an issue in your case.
+We note that
+
+- Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch. Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
+- Different backends also have different computational speed, and switch to another backend if the speed is an issue in your case.
 
 TensorFlow 1.x backend
 ``````````````````````
 
-Export ``DDEBACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. The required TensorFlow version is 2.2.0 or later. TensorFlow 1.x backend uses `tensorflow.compat.v1 APIs <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution.
+Export ``DDEBACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. The required TensorFlow version is 2.2.0 or later. Essentially, TensorFlow 1.x backend uses the API `tensorflow.compat.v1 <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution:
 
 .. code:: python
 
