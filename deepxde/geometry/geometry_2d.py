@@ -8,12 +8,14 @@ from scipy import spatial
 from .geometry import Geometry
 from .geometry_nd import Hypercube
 from .sampler import sample
+from .. import config
 from ..utils import vectorize
 
 
 class Disk(Geometry):
     def __init__(self, center, radius):
-        self.center, self.radius = np.array(center), radius
+        self.center = np.array(center, dtype=config.real(np))
+        self.radius = radius
         super(Disk, self).__init__(
             2, (self.center - radius, self.center + radius), 2 * radius
         )
@@ -181,9 +183,9 @@ class Triangle(Geometry):
             self.area = -self.area
             x2, x3 = x3, x2
 
-        self.x1 = np.array(x1)
-        self.x2 = np.array(x2)
-        self.x3 = np.array(x3)
+        self.x1 = np.array(x1, dtype=config.real(np))
+        self.x2 = np.array(x2, dtype=config.real(np))
+        self.x3 = np.array(x3, dtype=config.real(np))
 
         self.v12 = self.x2 - self.x1
         self.v23 = self.x3 - self.x2
@@ -338,7 +340,7 @@ class Polygon(Geometry):
     """
 
     def __init__(self, vertices):
-        self.vertices = np.array(vertices)
+        self.vertices = np.array(vertices, dtype=config.real(np))
         if len(vertices) == 3:
             raise ValueError("The polygon is a triangle. Use Triangle instead.")
         if Rectangle.is_valid(self.vertices):
