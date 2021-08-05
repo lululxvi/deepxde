@@ -28,8 +28,10 @@ install:
 
   - conda install -c conda-forge scikit-optimize
   - conda install tensorflow
+  - conda install -c pytorch pytorch
 
 script:
   # Your test script goes here
   - DDEBACKEND=tensorflow.compat.v1 python -c "import deepxde"
   - DDEBACKEND=tensorflow python -c "import deepxde"
+  - DDEBACKEND=pytorch python -c "import deepxde"

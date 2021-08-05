@@ -32,7 +32,7 @@ with open("requirements.txt", "r") as f:
 setup(
     name="DeepXDE",
     version=version,
-    description="Deep learning library for solving differential equations",
+    description="A library for scientific machine learning",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Lu Lu",
@@ -62,6 +62,7 @@ setup(
         "Deep Learning",
         "Machine Learning",
         "Neural Networks",
+        "Scientific machine learning",
         "Scientific computing",
         "Differential equations",
         "PDE solver",
