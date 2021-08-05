@@ -1,10 +1,11 @@
 import torch
 
+from .nn import NN
 from .. import activations
 from .. import initializers
 
 
-class FNN(torch.nn.Module):
+class FNN(NN):
     """Fully-connected neural network."""
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
@@ -21,8 +22,13 @@ class FNN(torch.nn.Module):
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
-    def forward(self, x):
+    def forward(self, inputs):
+        x = inputs
+        if self._input_transform is not None:
+            x = self._input_transform(x)
         for linear in self.linears[:-1]:
             x = self.activation(linear(x))
         x = self.linears[-1](x)
+        if self._output_transform is not None:
+            x = self._output_transform(inputs, x)
         return x
