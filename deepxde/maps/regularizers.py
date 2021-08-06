@@ -6,6 +6,7 @@ from ..backend import tf
 
 
 def get(identifier):
+    # TODO: pytorch
     if identifier is None:
         return None
     name, scales = identifier[0], identifier[1:]

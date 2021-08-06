@@ -86,6 +86,7 @@ class Rectangle(Hypercube):
         self.area = np.prod(self.xmax - self.xmin)
 
     def uniform_boundary_points(self, n):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         nx, ny = np.ceil(n / self.perimeter * (self.xmax - self.xmin)).astype(int)
         xbot = np.hstack(
             (
@@ -123,6 +124,7 @@ class Rectangle(Hypercube):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         x_corner = np.vstack(
             (
                 self.xmin,
@@ -278,6 +280,7 @@ class Triangle(Geometry):
         )
 
     def uniform_boundary_points(self, n):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         density = n / self.perimeter
         x12 = (
             np.linspace(0, 1, num=int(np.ceil(density * self.l12)), endpoint=False)[
@@ -308,6 +311,7 @@ class Triangle(Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         x_corner = np.vstack((self.x1, self.x2, self.x3))
         if n <= 3:
             return x_corner[np.random.choice(3, size=n, replace=False)]
@@ -441,6 +445,7 @@ class Polygon(Geometry):
         return x[:n]
 
     def uniform_boundary_points(self, n):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         density = n / self.perimeter
         x = []
         for i in range(-1, self.nvertices - 1):
@@ -462,6 +467,7 @@ class Polygon(Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         if n <= self.nvertices:
             return self.vertices[
                 np.random.choice(len(self.vertices), size=n, replace=False)

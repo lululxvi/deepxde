@@ -23,6 +23,7 @@ class Cuboid(Hypercube):
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
 
     def random_boundary_points(self, n, random="pseudo"):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         x_corner = np.vstack(
             (
                 self.xmin,
@@ -58,6 +59,7 @@ class Cuboid(Hypercube):
         return pts
 
     def uniform_boundary_points(self, n):
+        # TODO: Remove the corners, whose normal derivative is not well defined.
         h = (self.area / n) ** 0.5
         nx, ny, nz = np.ceil((self.xmax - self.xmin) / h).astype(int) + 1
         x = np.linspace(self.xmin[0], self.xmax[0], num=nx)

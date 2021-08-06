@@ -4,6 +4,7 @@ __all__ = ["get", "is_external_optimizer"]
 
 
 def is_external_optimizer(optimizer):
+    # TODO: L-BFGS
     return False
 
 

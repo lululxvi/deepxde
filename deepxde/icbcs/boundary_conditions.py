@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numbers
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -29,8 +30,8 @@ from .. import gradients as grad
 # Similarly, self.geom.boundary_normal() in BC.normal_derivative()
 
 
-class BC(object):
-    """Boundary conditions.
+class BC(ABC):
+    """Boundary condition base class.
 
     Args:
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
@@ -55,10 +56,9 @@ class BC(object):
         n = bkd.from_numpy(self.geom.boundary_normal(X[beg:end]))
         return bkd.sum(dydx * n, 1, keepdims=True)
 
+    @abstractmethod
     def error(self, X, inputs, outputs, beg, end):
-        raise NotImplementedError(
-            "{}.error to be implemented".format(type(self).__name__)
-        )
+        """Returns the error."""
 
 
 class DirichletBC(BC):

@@ -7,7 +7,7 @@ import abc
 import numpy as np
 
 
-class Geometry(object):
+class Geometry(abc.ABC):
     def __init__(self, dim, bbox, diam):
         self.dim = dim
         self.bbox = bbox
@@ -16,32 +16,30 @@ class Geometry(object):
 
     @abc.abstractmethod
     def inside(self, x):
-        raise NotImplementedError("{}.inside to be implemented".format(self.idstr))
+        """Check if x is inside the geometry (including the boundary)."""
 
     @abc.abstractmethod
     def on_boundary(self, x):
-        raise NotImplementedError("{}.on_boundary to be implemented".format(self.idstr))
+        """Check if x is on the geometry boundary."""
 
-    @abc.abstractmethod
     def distance2boundary(self, x, dirn):
         raise NotImplementedError(
             "{}.distance2boundary to be implemented".format(self.idstr)
         )
 
-    @abc.abstractmethod
     def mindist2boundary(self, x):
         raise NotImplementedError(
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
 
-    @abc.abstractmethod
     def boundary_normal(self, x):
+        """Compute the unit normal at x for Neumann or Robin boundary conditions."""
         raise NotImplementedError(
             "{}.boundary_normal to be implemented".format(self.idstr)
         )
 
-    @abc.abstractmethod
     def uniform_points(self, n, boundary=True):
+        """Compute the equispaced point locations in the geometry."""
         print(
             "Warning: {}.uniform_points not implemented. Use random_points instead.".format(
                 self.idstr
@@ -51,12 +49,10 @@ class Geometry(object):
 
     @abc.abstractmethod
     def random_points(self, n, random="pseudo"):
-        raise NotImplementedError(
-            "{}.random_points to be implemented".format(self.idstr)
-        )
+        """Compute the random point locations in the geometry."""
 
-    @abc.abstractmethod
     def uniform_boundary_points(self, n):
+        """Compute the equispaced point locations on the boundary."""
         print(
             "Warning: {}.uniform_boundary_points not implemented. Use random_boundary_points instead.".format(
                 self.idstr
@@ -66,17 +62,14 @@ class Geometry(object):
 
     @abc.abstractmethod
     def random_boundary_points(self, n, random="pseudo"):
-        raise NotImplementedError(
-            "{}.random_boundary_points to be implemented".format(self.idstr)
-        )
+        """Compute the random point locations on the boundary."""
 
-    @abc.abstractmethod
     def periodic_point(self, x, component):
+        """Compute the periodic image of x for periodic boundary condition."""
         raise NotImplementedError(
             "{}.periodic_point to be implemented".format(self.idstr)
         )
 
-    @abc.abstractmethod
     def background_points(self, x, dirn, dist2npt, shift):
         raise NotImplementedError(
             "{}.background_points to be implemented".format(self.idstr)

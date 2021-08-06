@@ -248,7 +248,8 @@ class DropoutUncertainty(Callback):
     Reference: https://arxiv.org/abs/1506.02142
 
     Warning:
-        This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
+        This cannot be used together with other techniques that have different behaviors
+        during training and testing, such as batch normalization.
     """
 
     def __init__(self, period=1000):
@@ -306,6 +307,11 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
+        elif backend_name == "pytorch":
+            # TODO
+            raise NotImplementedError(
+                "VariableValue not implemented for backend pytorch."
+            )
         print(self.model.train_state.epoch, self.value, file=self.file)
 
     def on_epoch_end(self):
@@ -316,6 +322,11 @@ class VariableValue(Callback):
                 self.value = self.model.sess.run(self.var_list)
             elif backend_name == "tensorflow":
                 self.value = [var.numpy() for var in self.var_list]
+            elif backend_name == "pytorch":
+                # TODO
+                raise NotImplementedError(
+                    "VariableValue not implemented for backend pytorch."
+                )
             print(
                 self.model.train_state.epoch,
                 list_to_str(self.value, precision=self.precision),
@@ -342,6 +353,11 @@ class OperatorPredictor(Callback):
         self.op = op
         self.tf_op = None
         self.value = None
+        # TODO: other backends
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                f"OperatorPredictor not implemented for backend {backend_name}."
+            )
 
     def init(self):
         self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
@@ -401,7 +417,7 @@ class MovieDumper(Callback):
         self.spectrum = []
         self.epochs_since_last_save = 0
 
-        # TODO: support backend tensorflow
+        # TODO: support other backends
         if backend_name != "tensorflow.compat.v1":
             raise RuntimeError(
                 "MovieDumper only supports backend tensorflow.compat.v1."

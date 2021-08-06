@@ -97,6 +97,11 @@ class Model(object):
                     "`external_trainable_variables` is ignored, and all trainable "
                     "``tf.Variable`` objects are automatically collected."
                 )
+            elif backend_name == "pytorch":
+                # TODO
+                raise NotImplementedError(
+                    "Backend pytorch doesn't support external_trainable_variables"
+                )
             if not isinstance(external_trainable_variables, list):
                 external_trainable_variables = [external_trainable_variables]
             self.external_trainable_variables = external_trainable_variables
@@ -155,6 +160,10 @@ class Model(object):
                 losses += [tf.math.reduce_sum(self.net.losses)]
             losses = tf.convert_to_tensor(losses)
             # TODO: Weighted losses
+            if loss_weights is not None:
+                raise NotImplementedError(
+                    "Backend tensorflow doesn't support loss_weights"
+                )
             return losses
 
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
@@ -203,6 +212,10 @@ class Model(object):
                 losses = [losses]
             # TODO: regularization
             # TODO: Weighted losses
+            if loss_weights is not None:
+                raise NotImplementedError(
+                    "Backend pytorch doesn't support loss_weights"
+                )
             losses = torch.stack(losses)
             # Clear cached Jacobians and Hessians.
             grad.clear()
@@ -328,7 +341,6 @@ class Model(object):
                 break
 
     def _train_scipy(self, display_every):
-        # TODO: backend tensorflow
         def loss_callback(loss_train):
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -450,6 +462,10 @@ class Model(object):
     def state_dict(self):
         """Returns a dictionary containing all variables."""
         # TODO: backend tensorflow, pytorch
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                "state_dict hasn't been implemented for this backend."
+            )
         destination = OrderedDict()
         variables_names = [v.name for v in tf.global_variables()]
         values = self.sess.run(variables_names)
@@ -467,6 +483,10 @@ class Model(object):
                 "tf.train.Saver" protocol supports ``restore()``.
         """
         # TODO: backend tensorflow, pytorch
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                "state_dict hasn't been implemented for this backend."
+            )
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {}-{} ...\n".format(
@@ -482,6 +502,10 @@ class Model(object):
     def restore(self, save_path, verbose=0):
         """Restore all variables from a disk file."""
         # TODO: backend tensorflow, pytorch
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                "state_dict hasn't been implemented for this backend."
+            )
         if verbose > 0:
             print("Restoring model from {} ...\n".format(save_path))
         self.saver.restore(self.sess, save_path)
@@ -489,6 +513,10 @@ class Model(object):
     def print_model(self):
         """Prints all trainable variables."""
         # TODO: backend tensorflow, pytorch
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                "state_dict hasn't been implemented for this backend."
+            )
         variables_names = [v.name for v in tf.trainable_variables()]
         values = self.sess.run(variables_names)
         for k, v in zip(variables_names, values):
@@ -497,6 +525,7 @@ class Model(object):
 
     def _run(self, fetches, training, data_id, inputs, targets, auxiliary_vars):
         """Runs one "step" of computation of tensors or callables in `fetches`."""
+        # TODO: Remove data_id
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(
                 training,

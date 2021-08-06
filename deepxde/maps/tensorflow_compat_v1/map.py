@@ -34,15 +34,15 @@ class Map(object):
 
     @property
     def inputs(self):
-        """Placeholders: Mapping inputs."""
+        """Return the net inputs (placeholders)."""
 
     @property
     def outputs(self):
-        """Mapping outputs (tf.Tensor)."""
+        """Return the net outputs (tf.Tensor)."""
 
     @property
     def targets(self):
-        """Placeholders: Targets of the mapping outputs."""
+        """Return the targets of the net outputs (placeholders)."""
 
     @property
     def auxiliary_vars(self):
@@ -85,5 +85,5 @@ class Map(object):
 
     @timing
     def build(self):
-        """Construct the mapping."""
+        """Construct the network."""
         self.built = True

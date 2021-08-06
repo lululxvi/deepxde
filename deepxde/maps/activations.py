@@ -25,6 +25,7 @@ def layer_wise_locally_adaptive(activation, n=1):
 
     References: `Jagtap et al., 2019 <https://arxiv.org/abs/1909.12228>`_.
     """
+    # TODO: other backends
     if backend_name != "tensorflow.compat.v1":
         raise NotImplementedError("Only tensorflow.compat.v1 backend supports L-LAAF.")
     a = tf.Variable(1 / n, dtype=config.real(tf))
