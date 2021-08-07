@@ -267,7 +267,6 @@ class DropoutUncertainty(Callback):
                 y_pred_test_one, _ = self.model._run(
                     self.model.outputs_losses,
                     True,
-                    np.uint8(1),
                     self.model.train_state.X_test,
                     self.model.train_state.y_test,
                     self.model.train_state.test_aux_vars,

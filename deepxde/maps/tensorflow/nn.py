@@ -10,7 +10,6 @@ class NN(tf.keras.Model):
 
     def __init__(self):
         super(NN, self).__init__()
-        self.data_id = None
         self._inputs = None
         self._targets = None
         self._auxiliary_vars = None

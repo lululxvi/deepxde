@@ -9,6 +9,7 @@ import numbers
 import numpy as np
 
 from .. import backend as bkd
+from .. import config
 
 
 class IC(object):
@@ -35,5 +36,5 @@ class IC(object):
                 "IC func should return an array of shape N by 1 for a single component."
                 "Use argument 'component' for different components."
             )
-        targets = bkd.as_tensor(targets)
+        targets = bkd.as_tensor(targets, dtype=config.real(bkd.lib))
         return outputs[beg:end, self.component : self.component + 1] - targets

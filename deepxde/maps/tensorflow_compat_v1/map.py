@@ -12,8 +12,6 @@ class Map(object):
 
     def __init__(self):
         self.training = tf.placeholder(tf.bool)
-        # 0: train data, 1: test data, 2: predict
-        self.data_id = tf.placeholder(tf.uint8)
         self._auxiliary_vars = tf.placeholder(config.real(tf))
 
         self.regularizer = None
@@ -49,12 +47,9 @@ class Map(object):
         """Placeholders: Any additional variables needed."""
         return self._auxiliary_vars
 
-    def feed_dict(self, training, data_id, inputs, targets=None, auxiliary_vars=None):
+    def feed_dict(self, training, inputs, targets=None, auxiliary_vars=None):
         """Construct a feed_dict to feed values to TensorFlow placeholders."""
-        feed_dict = {
-            self.training: training,
-            self.data_id: data_id,
-        }
+        feed_dict = {self.training: training}
         feed_dict.update(self._feed_dict_inputs(inputs))
         if targets is not None:
             feed_dict.update(self._feed_dict_targets(targets))

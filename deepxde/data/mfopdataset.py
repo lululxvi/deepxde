@@ -32,9 +32,7 @@ class MfOpDataSet(Data):
         self.y_train = None
 
     def losses(self, targets, outputs, loss, model):
-        n = tf.cond(
-            tf.equal(model.net.data_id, 0), lambda: len(self.X_lo_train[0]), lambda: 0
-        )
+        n = tf.cond(model.net.training, lambda: len(self.X_lo_train[0]), lambda: 0)
         loss_lo = loss(targets[0][:n], outputs[0][:n])
         loss_hi = loss(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]

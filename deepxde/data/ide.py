@@ -37,6 +37,8 @@ class IDE(PDE):
         self.kernel = kernel or one_function(1)
         self.quad_deg = quad_deg
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)
+        self.quad_x = self.quad_x.astype(config.real(np))
+        self.quad_w = self.quad_w.astype(config.real(np))
 
         super(IDE, self).__init__(
             geometry,
@@ -79,7 +81,7 @@ class IDE(PDE):
                 loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
             ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
 
-        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
+        return tf.cond(model.net.training, losses_train, losses_test)
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

@@ -168,8 +168,7 @@ class Model(object):
 
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
         @tf.function
-        def outputs_losses(training, data_id, inputs, targets, auxiliary_vars=None):
-            self.net.data_id = data_id
+        def outputs_losses(training, inputs, targets, auxiliary_vars=None):
             self.net.inputs = inputs
             self.net.targets = targets
             self.net.auxiliary_vars = auxiliary_vars
@@ -180,16 +179,14 @@ class Model(object):
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function
-        def train_step(training, data_id, inputs, targets, auxiliary_vars=None):
+        def train_step(training, inputs, targets, auxiliary_vars=None):
             # inputs and targets are np.ndarray, and automatically converted to
             # tf.Tensor without memory copy:
             # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
             # But, this doesn't seem to be true:
             # https://github.com/tensorflow/tensorflow/issues/33254
             with tf.GradientTape() as tape:
-                _, losses = outputs_losses(
-                    training, data_id, inputs, targets, auxiliary_vars
-                )
+                _, losses = outputs_losses(training, inputs, targets, auxiliary_vars)
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
@@ -260,7 +257,8 @@ class Model(object):
         """Trains the model for a fixed number of epochs (iterations on a dataset).
 
         Args:
-            epochs: Integer. Number of epochs to train the model.
+            epochs: Integer. Number of iterations to train the model. Note: It is the
+                number of iterations, not the number of epochs.
             batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or
                 ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                 `dde.callbacks.PDEResidualResampler
@@ -323,7 +321,6 @@ class Model(object):
             self._run(
                 self.train_step,
                 True,
-                np.uint8(0),
                 self.train_state.X_train,
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
@@ -356,7 +353,6 @@ class Model(object):
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
             True,
-            0,
             self.train_state.X_train,
             self.train_state.y_train,
             self.train_state.train_aux_vars,
@@ -372,8 +368,7 @@ class Model(object):
     def _test(self):
         self.train_state.y_pred_train, self.train_state.loss_train = self._run(
             self.outputs_losses,
-            False,
-            np.uint8(0),
+            True,
             self.train_state.X_train,
             self.train_state.y_train,
             self.train_state.train_aux_vars,
@@ -381,7 +376,6 @@ class Model(object):
         self.train_state.y_pred_test, self.train_state.loss_test = self._run(
             self.outputs_losses,
             False,
-            np.uint8(1),
             self.train_state.X_test,
             self.train_state.y_test,
             self.train_state.test_aux_vars,
@@ -422,7 +416,7 @@ class Model(object):
                     op = operator(self.net.inputs, self.net.outputs)
                 elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
-            y = self._run(op, False, np.uint8(2), x, None, None)
+            y = self._run(op, False, x, None, None)
         elif backend_name == "tensorflow":
             # TODO: avoid creating the same graph every time predict is called
             # TODO: use self._run for tensorflow
@@ -523,23 +517,17 @@ class Model(object):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
 
-    def _run(self, fetches, training, data_id, inputs, targets, auxiliary_vars):
+    def _run(self, fetches, training, inputs, targets, auxiliary_vars):
         """Runs one "step" of computation of tensors or callables in `fetches`."""
-        # TODO: Remove data_id
         if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(
-                training,
-                data_id,
-                inputs,
-                targets,
-                auxiliary_vars,
-            )
+            feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
             return self.sess.run(fetches, feed_dict=feed_dict)
         if backend_name == "tensorflow":
-            outs = fetches(training, data_id, inputs, targets, auxiliary_vars)
+            outs = fetches(training, inputs, targets, auxiliary_vars)
             return None if outs is None else [out.numpy() for out in outs]
         if backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
+            # TODO: training, auxiliary_vars
             outs = fetches(inputs, targets)
             return None if outs is None else [out.detach().numpy() for out in outs]
 
