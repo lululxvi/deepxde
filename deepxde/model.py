@@ -40,7 +40,7 @@ class Model(object):
 
         # Backend-dependent attributes
         # Tensor or callable
-        self.losses = None
+        self.outputs = None
         self.outputs_losses = None
         self.train_step = None
         if backend_name == "tensorflow.compat.v1":
@@ -141,7 +141,7 @@ class Model(object):
         total_loss = tf.math.reduce_sum(losses)
 
         # Tensors
-        self.losses = losses
+        self.outputs = self.net.outputs
         self.outputs_losses = [self.net.outputs, losses]
         self.train_step = optimizers.get(
             total_loss, self.opt_name, learning_rate=lr, decay=decay
@@ -150,44 +150,43 @@ class Model(object):
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        def losses(targets, outputs):
+        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
+        @tf.function
+        def outputs(training, inputs):
+            # TODO: Add training
+            # self.net.training = training
+            self.net.inputs = inputs
+            return self.net(inputs, training=training)
+
+        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
+        @tf.function
+        def outputs_losses(training, inputs, targets, auxiliary_vars):
+            outputs_ = outputs(training, inputs)
             # Data losses
-            losses_ = self.data.losses(targets, outputs, loss_fn, self)
-            if not isinstance(losses_, list):
-                losses_ = [losses_]
+            self.net.targets = targets
+            self.net.auxiliary_vars = auxiliary_vars
+            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
             # Regularization loss
             if self.net.regularizer is not None:
-                losses_ += [tf.math.reduce_sum(self.net.losses)]
-            losses_ = tf.convert_to_tensor(losses_)
+                losses += [tf.math.reduce_sum(self.net.losses)]
+            losses = tf.convert_to_tensor(losses)
             # TODO: Weighted losses
             if loss_weights is not None:
                 raise NotImplementedError(
                     "Backend tensorflow doesn't support loss_weights"
                 )
-            return losses_
-
-        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
-        @tf.function
-        def outputs_losses(training, inputs, targets, auxiliary_vars=None):
-            self.net.inputs = inputs
-            self.net.targets = targets
-            self.net.auxiliary_vars = auxiliary_vars
-            outputs = self.net(inputs, training=training)
-            losses_ = losses(targets, outputs)
-            return outputs, losses_
+            return outputs_, losses
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function
-        def train_step(training, inputs, targets, auxiliary_vars=None):
-            # inputs and targets are np.ndarray, and automatically converted to
-            # tf.Tensor without memory copy:
-            # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
-            # But, this doesn't seem to be true:
-            # https://github.com/tensorflow/tensorflow/issues/33254
+        def train_step(training, inputs, targets, auxiliary_vars):
+            # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
-                _, losses_ = outputs_losses(training, inputs, targets, auxiliary_vars)
-                total_loss = tf.math.reduce_sum(losses_)
+                losses = outputs_losses(training, inputs, targets, auxiliary_vars)[1]
+                total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
@@ -195,53 +194,84 @@ class Model(object):
             opt.apply_gradients(zip(grads, trainable_variables))
 
         # Callables
-        self.losses = losses
+        self.outputs = outputs
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
 
-        def losses(targets, outputs):
+        def outputs(inputs):
+            # TODO: Add training
+            # TODO: Use torch.no_grad() if training is False
+            inputs = torch.from_numpy(inputs)
+            inputs.requires_grad_()
+            self.net.inputs = inputs
+            return self.net(inputs)
+
+        def outputs_losses(inputs, targets):
+            outputs_ = outputs(inputs)
             # Data losses
-            losses_ = self.data.losses(targets, outputs, loss_fn, self)
-            if not isinstance(losses_, list):
-                losses_ = [losses_]
+            targets = torch.from_numpy(targets)
+            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
             # TODO: regularization
             # TODO: Weighted losses
             if loss_weights is not None:
                 raise NotImplementedError(
                     "Backend pytorch doesn't support loss_weights"
                 )
-            losses_ = torch.stack(losses_)
+            losses = torch.stack(losses)
             # Clear cached Jacobians and Hessians.
             grad.clear()
-            return losses_
-
-        def outputs_losses(inputs, targets):
-            inputs = torch.from_numpy(inputs)
-            targets = torch.from_numpy(targets)
-            inputs.requires_grad_()
-            self.net.inputs = inputs
-            outputs = self.net(inputs)
-            losses_ = losses(targets, outputs)
-            return outputs, losses_
+            return outputs_, losses
 
         opt = optimizers.get(
             self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
         )
 
         def train_step(inputs, targets):
-            _, losses_ = outputs_losses(inputs, targets)
-            total_loss = torch.sum(losses_)
+            losses = outputs_losses(inputs, targets)[1]
+            total_loss = torch.sum(losses)
             opt.zero_grad()
             total_loss.backward()
             opt.step()
 
         # Callables
-        self.losses = losses
+        self.outputs = outputs
         self.outputs_losses = outputs_losses
         self.train_step = train_step
+
+    def _outputs(self, training, inputs):
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(training, inputs)
+            return self.sess.run(self.outputs, feed_dict=feed_dict)
+        if backend_name == "tensorflow":
+            outs = self.outputs(training, inputs)
+            if isinstance(outs, (list, tuple)):
+                return [out.numpy() for out in outs]
+            return outs.numpy()
+        if backend_name == "pytorch":
+            # TODO: training
+            outs = self.outputs(inputs)
+            if isinstance(outs, (list, tuple)):
+                return [out.detach().numpy() for out in outs]
+            return outs.detach().numpy()
+
+    def _run(self, fetches, training, inputs, targets, auxiliary_vars):
+        """Runs one "step" of computation of tensors or callables in `fetches`."""
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
+            return self.sess.run(fetches, feed_dict=feed_dict)
+        if backend_name == "tensorflow":
+            outs = fetches(training, inputs, targets, auxiliary_vars)
+            return None if outs is None else [out.numpy() for out in outs]
+        if backend_name == "pytorch":
+            # TODO: Use torch.no_grad() in _test() and predict()
+            # TODO: training, auxiliary_vars
+            outs = fetches(inputs, targets)
+            return None if outs is None else [out.detach().numpy() for out in outs]
 
     @utils.timing
     def train(
@@ -360,7 +390,7 @@ class Model(object):
         self.train_step.minimize(
             self.sess,
             feed_dict=feed_dict,
-            fetches=[self.losses],
+            fetches=[self.outputs_losses[1]],
             loss_callback=loss_callback,
         )
         self._test()
@@ -407,22 +437,19 @@ class Model(object):
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
-        # TODO: predict operator with auxiliary_vars
-        if backend_name == "tensorflow.compat.v1":
-            if operator is None:
-                op = self.net.outputs
-            else:
+        if operator is None:
+            y = self._outputs(False, x)
+        else:
+            # TODO: predict operator with auxiliary_vars
+            if backend_name == "tensorflow.compat.v1":
                 if utils.get_num_args(operator) == 2:
                     op = operator(self.net.inputs, self.net.outputs)
                 elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
-            y = self._run(op, False, x, None, None)
-        elif backend_name == "tensorflow":
-            # TODO: avoid creating the same graph every time predict is called
-            # TODO: use self._run for tensorflow
-            if operator is None:
-                y = self.net(x).numpy()
-            else:
+                y = self._run(op, False, x, None, None)
+            elif backend_name == "tensorflow":
+                # TODO: avoid creating the same graph every time predict is called
+                # TODO: use self._run for tensorflow
                 if utils.get_num_args(operator) == 2:
 
                     @tf.function
@@ -438,12 +465,11 @@ class Model(object):
                         return operator(inputs, y, x)
 
                 y = op(x).numpy()
-        elif backend_name == "pytorch":
-            # TODO
-            raise NotImplementedError(
-                "Model.predict hasn't been implemented for backend pytorch."
-            )
-
+            elif backend_name == "pytorch":
+                # TODO
+                raise NotImplementedError(
+                    "Model.predict hasn't been implemented for backend pytorch."
+                )
         self.callbacks.on_predict_end()
         return y
 
@@ -516,20 +542,6 @@ class Model(object):
         for k, v in zip(variables_names, values):
             print("Variable: {}, Shape: {}".format(k, v.shape))
             print(v)
-
-    def _run(self, fetches, training, inputs, targets, auxiliary_vars):
-        """Runs one "step" of computation of tensors or callables in `fetches`."""
-        if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
-            return self.sess.run(fetches, feed_dict=feed_dict)
-        if backend_name == "tensorflow":
-            outs = fetches(training, inputs, targets, auxiliary_vars)
-            return None if outs is None else [out.numpy() for out in outs]
-        if backend_name == "pytorch":
-            # TODO: Use torch.no_grad() in _test() and predict()
-            # TODO: training, auxiliary_vars
-            outs = fetches(inputs, targets)
-            return None if outs is None else [out.detach().numpy() for out in outs]
 
 
 class TrainState(object):

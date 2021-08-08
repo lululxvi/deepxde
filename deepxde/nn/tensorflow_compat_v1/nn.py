@@ -12,23 +12,12 @@ class NN(object):
 
     def __init__(self):
         self.training = tf.placeholder(tf.bool)
-        self._auxiliary_vars = tf.placeholder(config.real(tf))
-
         self.regularizer = None
 
-        # The property will be set upon call of self.build()
-        self._built = False
-
+        self._auxiliary_vars = tf.placeholder(config.real(tf))
         self._input_transform = None
         self._output_transform = None
-
-    @property
-    def built(self):
-        return self._built
-
-    @built.setter
-    def built(self, value):
-        self._built = value
+        self._built = False  # The property will be set upon call of self.build()
 
     @property
     def inputs(self):
@@ -44,8 +33,16 @@ class NN(object):
 
     @property
     def auxiliary_vars(self):
-        """Placeholders: Any additional variables needed."""
+        """Return additional variables needed (placeholders)."""
         return self._auxiliary_vars
+
+    @property
+    def built(self):
+        return self._built
+
+    @built.setter
+    def built(self, value):
+        self._built = value
 
     def feed_dict(self, training, inputs, targets=None, auxiliary_vars=None):
         """Construct a feed_dict to feed values to TensorFlow placeholders."""

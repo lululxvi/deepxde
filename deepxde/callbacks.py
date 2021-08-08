@@ -263,13 +263,8 @@ class DropoutUncertainty(Callback):
             self.epochs_since_last = 0
             y_preds = []
             for _ in range(1000):
-                # TODO: No need to compute outputs_losses, only outputs are needed.
-                y_pred_test_one, _ = self.model._run(
-                    self.model.outputs_losses,
-                    True,
-                    self.model.train_state.X_test,
-                    self.model.train_state.y_test,
-                    self.model.train_state.test_aux_vars,
+                y_pred_test_one = self.model._outputs(
+                    True, self.model.train_state.X_test
                 )
                 y_preds.append(y_pred_test_one)
             self.model.train_state.y_std_test = np.std(y_preds, axis=0)
