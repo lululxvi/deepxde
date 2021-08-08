@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from .map import Map
+from .nn import NN
 from .. import activations
 from .. import initializers
 from .. import regularizers
@@ -11,7 +11,7 @@ from ...backend import tf
 from ...utils import timing
 
 
-class BiONet(Map):
+class BiONet(NN):
     """Deep operator network with two input functions."""
 
     def __init__(

@@ -6,7 +6,7 @@ from ...backend import tf
 
 
 class NN(tf.keras.Model):
-    """Map base class."""
+    """Base class for all neural network modules."""
 
     def __init__(self):
         super(NN, self).__init__()
@@ -21,7 +21,7 @@ class NN(tf.keras.Model):
 
     @property
     def inputs(self):
-        """Tensors: Mapping inputs."""
+        """Return the net inputs (Tensors)."""
         return self._inputs
 
     @inputs.setter
@@ -30,7 +30,7 @@ class NN(tf.keras.Model):
 
     @property
     def targets(self):
-        """Tensors: Targets of the mapping outputs."""
+        """Return the targets of the net outputs (Tensors)."""
         return self._targets
 
     @targets.setter

@@ -7,8 +7,8 @@ from ...backend import tf
 from ...utils import make_dict, timing
 
 
-class Map(object):
-    """Map base class."""
+class NN(object):
+    """Base class for all neural network modules."""
 
     def __init__(self):
         self.training = tf.placeholder(tf.bool)

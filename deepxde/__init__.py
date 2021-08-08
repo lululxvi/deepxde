@@ -10,7 +10,7 @@ from . import data
 from . import geometry
 from . import gradients as grad
 from . import icbcs
-from . import maps
+from . import nn
 from . import utils
 
 from .icbcs import (
@@ -31,6 +31,8 @@ from .postprocessing import (
     saveplot,
 )
 
+# Backward compatibility
+maps = nn
 
 __all__ = [
     "callbacks",
@@ -39,6 +41,7 @@ __all__ = [
     "grad",
     "icbcs",
     "maps",
+    "nn",
     "utils",
     "Model",
 ]

@@ -18,11 +18,11 @@ from .callbacks import CallbackList
 
 
 class Model(object):
-    """A ``Model`` trains a ``Map`` on a ``Data``.
+    """A ``Model`` trains a ``NN`` on a ``Data``.
 
     Args:
         data: ``deepxde.data.Data`` instance.
-        net: ``deepxde.maps.Map`` instance.
+        net: ``deepxde.nn.NN`` instance.
     """
 
     def __init__(self, data, net):
@@ -150,21 +150,21 @@ class Model(object):
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        def compute_losses(targets, outputs):
+        def losses(targets, outputs):
             # Data losses
-            losses = self.data.losses(targets, outputs, loss_fn, self)
-            if not isinstance(losses, list):
-                losses = [losses]
+            losses_ = self.data.losses(targets, outputs, loss_fn, self)
+            if not isinstance(losses_, list):
+                losses_ = [losses_]
             # Regularization loss
             if self.net.regularizer is not None:
-                losses += [tf.math.reduce_sum(self.net.losses)]
-            losses = tf.convert_to_tensor(losses)
+                losses_ += [tf.math.reduce_sum(self.net.losses)]
+            losses_ = tf.convert_to_tensor(losses_)
             # TODO: Weighted losses
             if loss_weights is not None:
                 raise NotImplementedError(
                     "Backend tensorflow doesn't support loss_weights"
                 )
-            return losses
+            return losses_
 
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
         @tf.function
@@ -173,8 +173,8 @@ class Model(object):
             self.net.targets = targets
             self.net.auxiliary_vars = auxiliary_vars
             outputs = self.net(inputs, training=training)
-            losses = compute_losses(targets, outputs)
-            return outputs, losses
+            losses_ = losses(targets, outputs)
+            return outputs, losses_
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
@@ -186,8 +186,8 @@ class Model(object):
             # But, this doesn't seem to be true:
             # https://github.com/tensorflow/tensorflow/issues/33254
             with tf.GradientTape() as tape:
-                _, losses = outputs_losses(training, inputs, targets, auxiliary_vars)
-                total_loss = tf.math.reduce_sum(losses)
+                _, losses_ = outputs_losses(training, inputs, targets, auxiliary_vars)
+                total_loss = tf.math.reduce_sum(losses_)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
@@ -195,28 +195,28 @@ class Model(object):
             opt.apply_gradients(zip(grads, trainable_variables))
 
         # Callables
-        self.losses = compute_losses
+        self.losses = losses
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
 
-        def compute_losses(targets, outputs):
+        def losses(targets, outputs):
             # Data losses
-            losses = self.data.losses(targets, outputs, loss_fn, self)
-            if not isinstance(losses, list):
-                losses = [losses]
+            losses_ = self.data.losses(targets, outputs, loss_fn, self)
+            if not isinstance(losses_, list):
+                losses_ = [losses_]
             # TODO: regularization
             # TODO: Weighted losses
             if loss_weights is not None:
                 raise NotImplementedError(
                     "Backend pytorch doesn't support loss_weights"
                 )
-            losses = torch.stack(losses)
+            losses_ = torch.stack(losses_)
             # Clear cached Jacobians and Hessians.
             grad.clear()
-            return losses
+            return losses_
 
         def outputs_losses(inputs, targets):
             inputs = torch.from_numpy(inputs)
@@ -224,22 +224,22 @@ class Model(object):
             inputs.requires_grad_()
             self.net.inputs = inputs
             outputs = self.net(inputs)
-            losses = compute_losses(targets, outputs)
-            return outputs, losses
+            losses_ = losses(targets, outputs)
+            return outputs, losses_
 
         opt = optimizers.get(
             self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
         )
 
         def train_step(inputs, targets):
-            _, losses = outputs_losses(inputs, targets)
-            total_loss = torch.sum(losses)
+            _, losses_ = outputs_losses(inputs, targets)
+            total_loss = torch.sum(losses_)
             opt.zero_grad()
             total_loss.backward()
             opt.step()
 
         # Callables
-        self.losses = compute_losses
+        self.losses = losses
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 

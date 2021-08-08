@@ -1,13 +1,13 @@
-"""The ``deepxde.maps`` package contains framework-specific implementations for
-different neural networks.
+"""The ``deepxde.nn`` package contains framework-specific implementations for different
+neural networks.
 
-Users can directly import ``deepxde.maps.<network_name>`` (e.g., ``deepxde.maps.FNN``),
-and the package will dispatch the network name to the actual implementation according to
-the backend framework currently in use.
+Users can directly import ``deepxde.nn.<network_name>`` (e.g., ``deepxde.nn.FNN``), and
+the package will dispatch the network name to the actual implementation according to the
+backend framework currently in use.
 
 Note that there are coverage differences among frameworks. If you encounter an
-``AttributeError: module 'deepxde.maps.XXX' has no attribute 'XXX'`` or ``ImportError:
-cannot import name 'XXX' from 'deepxde.maps.XXX'`` error, that means the network is not
+``AttributeError: module 'deepxde.nn.XXX' has no attribute 'XXX'`` or ``ImportError:
+cannot import name 'XXX' from 'deepxde.nn.XXX'`` error, that means the network is not
 available to the current backend. If you wish a module to appear in DeepXDE, please
 create an issue. If you want to contribute a NN module, please create a pull request.
 """

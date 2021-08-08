@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import numpy as np
 
-from .map import Map
+from .nn import NN
 from .. import activations
 from .. import initializers
 from .. import regularizers
@@ -13,7 +13,7 @@ from ...backend import tf
 from ...utils import timing
 
 
-class DeepONet(Map):
+class DeepONet(NN):
     """Deep operator network.
 
     `Lu et al. Learning nonlinear operators via DeepONet based on the universal
@@ -249,7 +249,7 @@ class DeepONet(Map):
         return outputs
 
 
-class DeepONetCartesianProd(Map):
+class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 
     Args:

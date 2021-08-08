@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import math
 
-from .map import Map
+from .nn import NN
 from .. import activations
 from .. import initializers
 from .. import regularizers
@@ -13,7 +13,7 @@ from ...backend import tf
 from ...utils import timing
 
 
-class FNN(Map):
+class FNN(NN):
     """Fully-connected neural network."""
 
     def __init__(

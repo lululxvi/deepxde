@@ -2,7 +2,7 @@ import torch
 
 
 class NN(torch.nn.Module):
-    """Map base class."""
+    """Base class for all neural network modules."""
 
     def __init__(self):
         super(NN, self).__init__()
