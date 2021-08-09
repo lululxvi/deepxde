@@ -1,7 +1,10 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
+# Backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
+# Backend pytorch
+# import torch
 
 
 def gen_traindata():
@@ -15,8 +18,12 @@ def gen_traindata():
     return np.hstack((X, T)), Ca, Cb
 
 
+# Backend tensorflow.compat.v1 or tensorflow
 kf = tf.Variable(0.05)
 D = tf.Variable(1.0)
+# Backend pytorch
+# kf = torch.tensor(0.05, requires_grad=True)
+# D = torch.tensor(1.0, requires_grad=True)
 
 
 def pde(x, y):

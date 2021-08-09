@@ -209,7 +209,8 @@ class Model(object):
         def outputs_losses(inputs, targets):
             outputs_ = outputs(inputs)
             # Data losses
-            targets = torch.from_numpy(targets)
+            if targets is not None:
+                targets = torch.from_numpy(targets)
             losses = self.data.losses(targets, outputs_, loss_fn, self)
             if not isinstance(losses, list):
                 losses = [losses]
