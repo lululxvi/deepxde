@@ -153,18 +153,20 @@ class Model(object):
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
         @tf.function
         def outputs(training, inputs):
-            # TODO: Add training
-            # self.net.training = training
-            self.net.inputs = inputs
             return self.net(inputs, training=training)
 
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
         @tf.function
         def outputs_losses(training, inputs, targets, auxiliary_vars):
-            outputs_ = outputs(training, inputs)
-            # Data losses
+            # TODO: Add training
+            # self.net.training = training
+            self.net.inputs = inputs
             self.net.targets = targets
             self.net.auxiliary_vars = auxiliary_vars
+            # Don't call outputs() decorated by @tf.function above, otherwise the
+            # gradient of outputs wrt inputs will be lost here.
+            outputs_ = self.net(inputs, training=training)
+            # Data losses
             losses = self.data.losses(targets, outputs_, loss_fn, self)
             if not isinstance(losses, list):
                 losses = [losses]
@@ -182,10 +184,10 @@ class Model(object):
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function
-        def train_step(training, inputs, targets, auxiliary_vars):
+        def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
-                losses = outputs_losses(training, inputs, targets, auxiliary_vars)[1]
+                losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
@@ -249,15 +251,23 @@ class Model(object):
             return self.sess.run(self.outputs, feed_dict=feed_dict)
         if backend_name == "tensorflow":
             outs = self.outputs(training, inputs)
-            if isinstance(outs, (list, tuple)):
-                return [out.numpy() for out in outs]
-            return outs.numpy()
-        if backend_name == "pytorch":
+        elif backend_name == "pytorch":
             # TODO: training
-            outs = self.outputs(inputs)
-            if isinstance(outs, (list, tuple)):
-                return [out.detach().numpy() for out in outs]
-            return outs.detach().numpy()
+            with torch.no_grad():
+                outs = self.outputs(inputs)
+        if isinstance(outs, (list, tuple)):
+            return [out.numpy() for out in outs]
+        return outs.numpy()
+
+    def _train_step(self, inputs, targets, auxiliary_vars):
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
+            self.sess.run(self.train_step, feed_dict=feed_dict)
+        elif backend_name == "tensorflow":
+            self.train_step(inputs, targets, auxiliary_vars)
+        elif backend_name == "pytorch":
+            # TODO: auxiliary_vars
+            self.train_step(inputs, targets)
 
     def _run(self, fetches, training, inputs, targets, auxiliary_vars):
         """Runs one "step" of computation of tensors or callables in `fetches`."""
@@ -348,9 +358,7 @@ class Model(object):
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
-            self._run(
-                self.train_step,
-                True,
+            self._train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
