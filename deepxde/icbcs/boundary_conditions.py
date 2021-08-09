@@ -169,7 +169,7 @@ class PointSetBC(object):
             raise RuntimeError(
                 "PointSetBC should output 1D values. Use argument 'component' for different components."
             )
-        self.values = values.astype(config.real(np))
+        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
 
     def collocation_points(self, X):

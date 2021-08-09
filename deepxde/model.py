@@ -97,11 +97,6 @@ class Model(object):
                     "`external_trainable_variables` is ignored, and all trainable "
                     "``tf.Variable`` objects are automatically collected."
                 )
-            elif backend_name == "pytorch":
-                # TODO
-                raise NotImplementedError(
-                    "Backend pytorch doesn't support external_trainable_variables"
-                )
             if not isinstance(external_trainable_variables, list):
                 external_trainable_variables = [external_trainable_variables]
             self.external_trainable_variables = external_trainable_variables
@@ -229,8 +224,13 @@ class Model(object):
             grad.clear()
             return outputs_, losses
 
+        # Another way is using Per-parameter options
+        # https://pytorch.org/docs/stable/optim.html#per-parameter-options
+        trainable_variables = (
+            list(self.net.parameters()) + self.external_trainable_variables
+        )
         opt = optimizers.get(
-            self.net.parameters(), self.opt_name, learning_rate=lr, decay=decay
+            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
         def train_step(inputs, targets):

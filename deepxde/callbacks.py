@@ -302,31 +302,19 @@ class VariableValue(Callback):
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
         elif backend_name == "pytorch":
-            # TODO
-            raise NotImplementedError(
-                "VariableValue not implemented for backend pytorch."
-            )
-        print(self.model.train_state.epoch, self.value, file=self.file)
+            self.value = [var.detach().item() for var in self.var_list]
+        print(
+            self.model.train_state.epoch,
+            list_to_str(self.value, precision=self.precision),
+            file=self.file,
+        )
+        self.file.flush()
 
     def on_epoch_end(self):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
-            if backend_name == "tensorflow.compat.v1":
-                self.value = self.model.sess.run(self.var_list)
-            elif backend_name == "tensorflow":
-                self.value = [var.numpy() for var in self.var_list]
-            elif backend_name == "pytorch":
-                # TODO
-                raise NotImplementedError(
-                    "VariableValue not implemented for backend pytorch."
-                )
-            print(
-                self.model.train_state.epoch,
-                list_to_str(self.value, precision=self.precision),
-                file=self.file,
-            )
-            self.file.flush()
+            self.on_train_begin()
 
     def get_value(self):
         """Return the variable values."""
