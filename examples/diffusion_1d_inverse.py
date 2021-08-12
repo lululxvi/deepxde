@@ -7,10 +7,7 @@ from deepxde.backend import tf
 # import torch
 
 
-# Backend tensorflow.compat.v1 or tensorflow
-C = tf.Variable(2.0)
-# Backend pytorch
-# C = torch.tensor(2.0, requires_grad=True)
+C = dde.Variable(2.0)
 
 
 def pde(x, y):

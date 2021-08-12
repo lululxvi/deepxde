@@ -24,6 +24,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def Variable(initial_value, dtype=None):
+    return torch.tensor(initial_value, dtype=dtype, requires_grad=True)
+
+
 def as_tensor(data, dtype=None):
     if isinstance(data, torch.Tensor):
         if dtype is None or data.dtype == dtype:

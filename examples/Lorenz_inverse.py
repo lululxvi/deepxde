@@ -4,10 +4,6 @@ Documentation: https://deepxde.readthedocs.io/en/latest/demos/lorenz.inverse.htm
 """
 import deepxde as dde
 import numpy as np
-# Backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Backend pytorch
-# import torch
 
 
 def gen_traindata():
@@ -15,14 +11,9 @@ def gen_traindata():
     return data["t"], data["y"]
 
 
-# Backend tensorflow.compat.v1 or tensorflow
-C1 = tf.Variable(1.0)
-C2 = tf.Variable(1.0)
-C3 = tf.Variable(1.0)
-# Backend pytorch
-# C1 = torch.tensor(1.0, requires_grad=True)
-# C2 = torch.tensor(1.0, requires_grad=True)
-# C3 = torch.tensor(1.0, requires_grad=True)
+C1 = dde.Variable(1.0)
+C2 = dde.Variable(1.0)
+C3 = dde.Variable(1.0)
 
 
 def Lorenz_system(x, y):

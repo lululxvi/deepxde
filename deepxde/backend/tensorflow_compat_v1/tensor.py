@@ -32,6 +32,10 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
+def Variable(initial_value, dtype=None):
+    return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
+
+
 def as_tensor(data, dtype=None):
     if tf.is_tensor(data):
         if dtype is None or data.dtype == dtype:
