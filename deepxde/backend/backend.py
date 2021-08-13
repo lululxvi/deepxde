@@ -107,6 +107,17 @@ def from_numpy(np_array):
     """
 
 
+def to_numpy(input_tensor):
+    """Create a numpy ndarray that shares the same underlying storage, if possible.
+
+    Args:
+        input_tensor (Tensor).
+
+    Returns:
+        np_array (numpy.ndarray). The numpy ndarray.
+    """
+
+
 ###############################################################################
 # Element-wise math functions
 # ---------------------------

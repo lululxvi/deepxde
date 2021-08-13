@@ -4,7 +4,7 @@ import numpy as np
 
 
 def gen_traindata():
-    data = np.load("examples/dataset/reaction.npz")
+    data = np.load("dataset/reaction.npz")
     t, x, ca, cb = data["t"], data["x"], data["Ca"], data["Cb"]
     X, T = np.meshgrid(x, t)
     X = np.reshape(X, (-1, 1))

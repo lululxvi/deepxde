@@ -1,6 +1,4 @@
 """tensorflow backend implementation"""
-from __future__ import absolute_import
-
 from distutils.version import LooseVersion
 
 import tensorflow as tf
@@ -8,6 +6,9 @@ import tensorflow as tf
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
     raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
+
+
+lib = tf
 
 
 def data_type_dict():
@@ -50,6 +51,10 @@ def from_numpy(np_array):
     # To avoid memory copy, use implicit conversion, but memory copy is still possible.
     # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
     return tf.convert_to_tensor(np_array)
+
+
+def to_numpy(input_tensor):
+    return input_tensor.numpy()
 
 
 def elu(x):

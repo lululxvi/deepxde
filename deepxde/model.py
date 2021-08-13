@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import numpy as np
 
+from . import backend as bkd
 from . import display
 from . import gradients as grad
 from . import losses as losses_module
@@ -201,7 +202,7 @@ class Model(object):
         def outputs(inputs):
             # TODO: Add training
             # TODO: Use torch.no_grad() if training is False
-            inputs = torch.from_numpy(inputs)
+            inputs = torch.as_tensor(inputs)
             inputs.requires_grad_()
             self.net.inputs = inputs
             return self.net(inputs)
@@ -210,7 +211,7 @@ class Model(object):
             outputs_ = outputs(inputs)
             # Data losses
             if targets is not None:
-                targets = torch.from_numpy(targets)
+                targets = torch.as_tensor(targets)
             losses = self.data.losses(targets, outputs_, loss_fn, self)
             if not isinstance(losses, list):
                 losses = [losses]
@@ -257,8 +258,8 @@ class Model(object):
             with torch.no_grad():
                 outs = self.outputs(inputs)
         if isinstance(outs, (list, tuple)):
-            return [out.numpy() for out in outs]
-        return outs.numpy()
+            return [bkd.to_numpy(out) for out in outs]
+        return bkd.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
@@ -282,7 +283,9 @@ class Model(object):
             # TODO: Use torch.no_grad() in _test() and predict()
             # TODO: training, auxiliary_vars
             outs = fetches(inputs, targets)
-            return None if outs is None else [out.detach().numpy() for out in outs]
+            return (
+                None if outs is None else [out.detach().cpu().numpy() for out in outs]
+            )
 
     @utils.timing
     def train(

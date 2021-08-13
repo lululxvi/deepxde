@@ -13,9 +13,6 @@ from . import icbcs
 from . import nn
 from . import utils
 
-# Backward compatibility
-maps = nn
-
 from .backend import Variable
 from .icbcs import (
     DirichletBC,
@@ -28,6 +25,9 @@ from .icbcs import (
 )
 from .model import Model
 from .postprocessing import saveplot
+
+# Backward compatibility
+maps = nn
 
 __all__ = [
     "backend",

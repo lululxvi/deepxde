@@ -2,6 +2,21 @@
 import torch
 
 
+# To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
+# torch.device and then use it for all the tensors.
+# https://pytorch.org/docs/stable/notes/cuda.html
+# >>> device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# >>> tensor.to(device=device)
+# But, taking care of all tensors requires a lot of work.
+# An alternative way is to use GPU by default if GPU is available, which is similar to
+# TensorFlow.
+if torch.cuda.is_available():
+    torch.set_default_tensor_type(torch.cuda.FloatTensor)
+
+
+lib = torch
+
+
 def data_type_dict():
     return {
         "float16": torch.float16,
@@ -40,7 +55,12 @@ def from_numpy(np_array):
     # Both torch.from_numpy and torch.as_tensor work without memory copy.
     # https://discuss.pytorch.org/t/from-numpy-vs-as-tensor/79932
     # https://stackoverflow.com/questions/48482787/pytorch-memory-model-torch-from-numpy-vs-torch-tensor
-    return torch.from_numpy(np_array)
+    # But torch.from_numpy cannot handle device.
+    return torch.as_tensor(np_array)
+
+
+def to_numpy(input_tensor):
+    return input_tensor.detach().cpu().numpy()
 
 
 def elu(x):
