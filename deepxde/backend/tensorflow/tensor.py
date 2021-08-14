@@ -33,6 +33,10 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
+def ndim(input_tensor):
+    return len(input_tensor.shape)
+
+
 def Variable(initial_value, dtype=None):
     return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
 

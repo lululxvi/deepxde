@@ -39,6 +39,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def ndim(input_tensor):
+    return input_tensor.dim()
+
+
 def Variable(initial_value, dtype=None):
     return torch.tensor(initial_value, dtype=dtype, requires_grad=True)
 

@@ -71,6 +71,17 @@ def shape(input_tensor):
     """
 
 
+def ndim(input_tensor):
+    """Returns the number of dimensions of the tensor.
+
+    Args:
+        input (Tensor): The input tensor.
+
+    Returns:
+        int: The number of dimensions.
+    """
+
+
 def Variable(initial_value, dtype=None):
     """Return a trainable variable.
 

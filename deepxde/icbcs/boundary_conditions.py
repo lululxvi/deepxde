@@ -1,32 +1,50 @@
 """Boundary conditions."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+__all__ = [
+    "DirichletBC",
+    "NeumannBC",
+    "RobinBC",
+    "PeriodicBC",
+    "OperatorBC",
+    "PointSetBC",
+]
+
 import numbers
 from abc import ABC, abstractmethod
+from functools import wraps
 
 import numpy as np
 
 from .. import backend as bkd
 from .. import config
 from .. import gradients as grad
+from .. import utils
+from ..backend import backend_name
 
 
 # TODO: Performance issue of backend pytorch.
 # For some BCs, we need to call self.func(X[beg:end]) in BC.error(). For backend
 # tensorflow.compat.v1/tensorflow, self.func() is only called once in graph mode, but
 # for backend pytorch, it will be recomputed in each iteration. To reduce the
-# computation, one solution is that we cache the results by using @functools.cache, but
-# numpy.ndarray is unhashable. So we need to implement a hash function and a cache
-# function for numpy.ndarray.
+# computation, one solution is that we cache the results by using @functools.cache
+# (https://docs.python.org/3/library/functools.html). However, numpy.ndarray is
+# unhashable, so we need to implement a hash function and a cache function for
+# numpy.ndarray. Here are some possible implementations of the hash function for
+# numpy.ndarray:
+# - xxhash.xxh64(ndarray).digest(): Fast
+# - hash(ndarray.tobytes()): Slow
+# - hash(pickle.dumps(ndarray)): Slower
+# - hashlib.md5(ndarray).digest(): Slowest
 # References:
-# - https://docs.python.org/3/library/functools.html
-# - https://stackoverflow.com/questions/52331944/cache-decorator-for-numpy-arrays
-# - https://forum.kavli.tudelft.nl/t/caching-of-python-functions-with-array-input/59/6
 # - https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array/16592241#16592241
 # - https://stackoverflow.com/questions/39674863/python-alternative-for-using-numpy-array-as-key-in-dictionary/47922199
+# Then we can implement a cache function or use memoization
+# (https://github.com/lonelyenvoy/python-memoization), which supports custom cache key.
+# However, IC/BC is only for dde.data.PDE, and the ndarray is fixed. So we can simply
+# use id of X as the key, as what we do for gradients.
 # Similarly, self.geom.boundary_normal() in BC.normal_derivative()
 
 
@@ -66,16 +84,15 @@ class DirichletBC(BC):
 
     def __init__(self, geom, func, on_boundary, component=0):
         super(DirichletBC, self).__init__(geom, on_boundary, component)
-        self.func = func
+        self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end):
-        values = self.func(X[beg:end])
-        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+        values = self.func(X, beg, end)
+        if bkd.ndim(values) > 0 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
-                "DirichletBC func should return an array of shape N by 1 for a single component."
-                "Use argument 'component' for different components."
+                "DirichletBC func should return an array of shape N by 1 for a single"
+                " component. Use argument 'component' for different components."
             )
-        values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         return outputs[beg:end, self.component : self.component + 1] - values
 
 
@@ -177,3 +194,28 @@ class PointSetBC(object):
 
     def error(self, X, inputs, outputs, beg, end):
         return outputs[beg:end, self.component : self.component + 1] - self.values
+
+
+def npfunc_range_autocache(func):
+    """Call a NumPy function on a range of the input ndarray.
+
+    If the backend is pytorch, the results are cached based on the id of X.
+    """
+
+    cache = {}
+
+    @wraps(func)
+    def wrapper_nocache(X, beg, end):
+        return func(X[beg:end])
+
+    @wraps(func)
+    def wrapper_cache(X, beg, end):
+        key = (id(X), beg, end)
+        if key not in cache:
+            cache[key] = func(X[beg:end])
+        return cache[key]
+
+    if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        return wrapper_nocache
+    if backend_name == "pytorch":
+        return wrapper_cache
