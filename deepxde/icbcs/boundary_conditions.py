@@ -1,9 +1,11 @@
 """Boundary conditions."""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 __all__ = [
+    "BC",
     "DirichletBC",
     "NeumannBC",
     "RobinBC",
@@ -25,34 +27,12 @@ from .. import utils
 from ..backend import backend_name
 
 
-# TODO: Performance issue of backend pytorch.
-# For some BCs, we need to call self.func(X[beg:end]) in BC.error(). For backend
-# tensorflow.compat.v1/tensorflow, self.func() is only called once in graph mode, but
-# for backend pytorch, it will be recomputed in each iteration. To reduce the
-# computation, one solution is that we cache the results by using @functools.cache
-# (https://docs.python.org/3/library/functools.html). However, numpy.ndarray is
-# unhashable, so we need to implement a hash function and a cache function for
-# numpy.ndarray. Here are some possible implementations of the hash function for
-# numpy.ndarray:
-# - xxhash.xxh64(ndarray).digest(): Fast
-# - hash(ndarray.tobytes()): Slow
-# - hash(pickle.dumps(ndarray)): Slower
-# - hashlib.md5(ndarray).digest(): Slowest
-# References:
-# - https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array/16592241#16592241
-# - https://stackoverflow.com/questions/39674863/python-alternative-for-using-numpy-array-as-key-in-dictionary/47922199
-# Then we can implement a cache function or use memoization
-# (https://github.com/lonelyenvoy/python-memoization), which supports custom cache key.
-# However, IC/BC is only for dde.data.PDE, and the ndarray is fixed. So we can simply
-# use id of X as the key, as what we do for gradients.
-# Similarly, self.geom.boundary_normal() in BC.normal_derivative()
-
-
 class BC(ABC):
     """Boundary condition base class.
 
     Args:
-        on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        on_boundary: A function: (x, Geometry.on_boundary(x)) -> True/False.
         component: The output component satisfying this BC.
     """
 
@@ -63,6 +43,10 @@ class BC(ABC):
         )
         self.component = component
 
+        self.boundary_normal = npfunc_range_autocache(
+            utils.return_tensor(self.geom.boundary_normal)
+        )
+
     def filter(self, X):
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
@@ -71,12 +55,12 @@ class BC(ABC):
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
-        n = bkd.from_numpy(self.geom.boundary_normal(X[beg:end]))
+        n = self.boundary_normal(X, beg, end)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
     @abstractmethod
     def error(self, X, inputs, outputs, beg, end):
-        """Returns the error."""
+        """Returns the loss."""
 
 
 class DirichletBC(BC):
@@ -101,10 +85,10 @@ class NeumannBC(BC):
 
     def __init__(self, geom, func, on_boundary, component=0):
         super(NeumannBC, self).__init__(geom, on_boundary, component)
-        self.func = func
+        self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end):
-        values = bkd.as_tensor(self.func(X[beg:end]), dtype=config.real(bkd.lib))
+        values = self.func(X, beg, end)
         return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 
@@ -158,7 +142,7 @@ class OperatorBC(BC):
         func: A function takes arguments (`inputs`, `outputs`, `X`)
             and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
             `inputs` and `outputs` are the network input and output tensors, respectively;
-            `X` are the values of the `inputs`.
+            `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
     """
 
@@ -201,6 +185,25 @@ def npfunc_range_autocache(func):
 
     If the backend is pytorch, the results are cached based on the id of X.
     """
+    # For some BCs, we need to call self.func(X[beg:end]) in BC.error(). For backend
+    # tensorflow.compat.v1/tensorflow, self.func() is only called once in graph mode,
+    # but for backend pytorch, it will be recomputed in each iteration. To reduce the
+    # computation, one solution is that we cache the results by using @functools.cache
+    # (https://docs.python.org/3/library/functools.html). However, numpy.ndarray is
+    # unhashable, so we need to implement a hash function and a cache function for
+    # numpy.ndarray. Here are some possible implementations of the hash function for
+    # numpy.ndarray:
+    # - xxhash.xxh64(ndarray).digest(): Fast
+    # - hash(ndarray.tobytes()): Slow
+    # - hash(pickle.dumps(ndarray)): Slower
+    # - hashlib.md5(ndarray).digest(): Slowest
+    # References:
+    # - https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array/16592241#16592241
+    # - https://stackoverflow.com/questions/39674863/python-alternative-for-using-numpy-array-as-key-in-dictionary/47922199
+    # Then we can implement a cache function or use memoization
+    # (https://github.com/lonelyenvoy/python-memoization), which supports custom cache
+    # key. However, IC/BC is only for dde.data.PDE, where the ndarray is fixed. So we
+    # can simply use id of X as the key, as what we do for gradients.
 
     cache = {}
 
