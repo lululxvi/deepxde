@@ -1,31 +1,30 @@
-"""TensorFlow interface for third-party optimizers.
+"""TensorFlow interface for SciPy optimizers."""
 
-Code below is taken from https://github.com/tensorflow/tensorflow/blob/v1.15.2/tensorflow/contrib/opt/python/training/external_optimizer.py,
-because the ``tf.contrib`` module is not included in TensorFlow 2.
+# Code below is taken from
+# https://github.com/tensorflow/tensorflow/blob/v1.15.2/tensorflow/contrib/opt/python/training/external_optimizer.py,
+# because the ``tf.contrib`` module is not included in TensorFlow 2.
 
-Another solution is using TensorFlow Probability, see the following references.
-But the following solution requires setting the weights before building the network and loss,
-which is not consistent with other optimizers in graph mode.
-A possible solution Could be adding a TFPOptimizerInterface similar to ScipyOptimizerInterface.
-
-- https://www.tensorflow.org/probability/api_docs/python/tfp/optimizer/lbfgs_minimize
-- https://github.com/tensorflow/probability/blob/master/tensorflow_probability/python/optimizer/lbfgs_test.py
-- https://stackoverflow.com/questions/58591562/how-can-we-use-lbfgs-minimize-in-tensorflow-2-0
-- https://stackoverflow.com/questions/59029854/use-scipy-optimizer-with-tensorflow-2-0-for-neural-network-training
-- https://pychao.com/2019/11/02/optimize-tensorflow-keras-models-with-l-bfgs-from-tensorflow-probability/
-- https://gist.github.com/piyueh/712ec7d4540489aad2dcfb80f9a54993
-- https://github.com/pierremtb/PINNs-TF2.0/blob/master/utils/neuralnetwork.py
-"""
+# Another solution is using TensorFlow Probability, see the following references. But
+# the following solution requires setting the weights before building the network and
+# loss, which is not consistent with other optimizers in graph mode. A possible solution
+# could be adding a TFPOptimizerInterface similar to ScipyOptimizerInterface.
+# - https://www.tensorflow.org/probability/api_docs/python/tfp/optimizer/lbfgs_minimize
+# - https://github.com/tensorflow/probability/blob/master/tensorflow_probability/python/optimizer/lbfgs_test.py
+# - https://stackoverflow.com/questions/58591562/how-can-we-use-lbfgs-minimize-in-tensorflow-2-0
+# - https://stackoverflow.com/questions/59029854/use-scipy-optimizer-with-tensorflow-2-0-for-neural-network-training
+# - https://pychao.com/2019/11/02/optimize-tensorflow-keras-models-with-l-bfgs-from-tensorflow-probability/
+# - https://gist.github.com/piyueh/712ec7d4540489aad2dcfb80f9a54993
+# - https://github.com/pierremtb/PINNs-TF2.0/blob/master/utils/neuralnetwork.py
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+__all__ = ["ExternalOptimizerInterface", "ScipyOptimizerInterface"]
+
 import numpy as np
 
 from ...backend import tf
-
-__all__ = ["ExternalOptimizerInterface", "ScipyOptimizerInterface"]
 
 
 class ExternalOptimizerInterface(object):

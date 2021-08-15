@@ -2,12 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+__all__ = ["get", "is_external_optimizer"]
+
 import numpy as np
 
-from . import external_optimizer
+from . import scipy_optimizer
 from ...backend import tf
-
-__all__ = ["get", "is_external_optimizer"]
 
 
 def is_external_optimizer(optimizer):
@@ -17,7 +17,7 @@ def is_external_optimizer(optimizer):
 
 def get(loss, optimizer, learning_rate=None, decay=None):
     if is_external_optimizer(optimizer):
-        ScipyOptimizerInterface = external_optimizer.ScipyOptimizerInterface
+        ScipyOptimizerInterface = scipy_optimizer.ScipyOptimizerInterface
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         return ScipyOptimizerInterface(
