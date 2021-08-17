@@ -26,8 +26,8 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy scikit-learn scipy
   - conda activate test-environment
 
-  - conda install -c conda-forge scikit-optimize
   - conda install tensorflow
+  - conda install -c conda-forge scikit-optimize tensorflow-probability
   - conda install -c pytorch pytorch
 
 script:

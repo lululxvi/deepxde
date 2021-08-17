@@ -50,7 +50,13 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires [TensorFlow](https://www.tensorflow.org/) or [PyTorch](https://pytorch.org/) to be installed. Then, you can install DeepXDE itself.
+DeepXDE requires the following backend-specific dependencies to be installed:
+
+- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0 and [TensorFlow Probability](https://www.tensorflow.org/probability)
+- PyTorch: [PyTorch](https://pytorch.org/)
+
+Then, you can install DeepXDE itself.
 
 - Install the stable version with `pip`:
 
@@ -70,14 +76,13 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
-- Dependencies
+- Other dependencies
 
   - [Matplotlib](https://matplotlib.org/)
   - [NumPy](http://www.numpy.org/)
   - [scikit-learn](https://scikit-learn.org)
   - [scikit-optimize](https://scikit-optimize.github.io)
   - [SciPy](https://www.scipy.org/)
-  - [TensorFlow](https://www.tensorflow.org/)>=2.2.0 or [PyTorch](https://pytorch.org/)
 
 ## Explore more
 

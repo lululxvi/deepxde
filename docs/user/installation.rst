@@ -4,7 +4,13 @@ Install and Setup
 Installation
 ------------
 
-DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ or `PyTorch <https://pytorch.org/>`_ to be installed. Then, you can install DeepXDE itself.
+DeepXDE requires the following backend-specific dependencies to be installed:
+
+- TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0
+- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0 and `TensorFlow Probability <https://www.tensorflow.org/probability>`_
+- PyTorch: `PyTorch <https://pytorch.org/>`_
+
+Then, you can install DeepXDE itself.
 
 - Install the stable version with ``pip``::
 
@@ -18,14 +24,13 @@ DeepXDE requires `TensorFlow <https://www.tensorflow.org/>`_ or `PyTorch <https:
 
     $ git clone https://github.com/lululxvi/deepxde.git
 
-- Dependencies
+- Other dependencies
 
     - `Matplotlib <https://matplotlib.org/>`_
     - `NumPy <http://www.numpy.org/>`_
     - `scikit-learn <https://scikit-learn.org>`_
     - `scikit-optimize <https://scikit-optimize.github.io>`_
     - `SciPy <https://www.scipy.org/>`_
-    - `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0 or `PyTorch <https://pytorch.org/>`_
 
 Working with different backends
 -------------------------------
