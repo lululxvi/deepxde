@@ -12,6 +12,14 @@ deepxde.optimizers.tensorflow.optimizers module
    :undoc-members:
    :show-inheritance:
 
+deepxde.optimizers.tensorflow.tfp\_optimizer module
+---------------------------------------------------
+
+.. automodule:: deepxde.optimizers.tensorflow.tfp_optimizer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
