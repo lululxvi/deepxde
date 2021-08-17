@@ -92,6 +92,20 @@ def return_tensor(func):
     return wrapper
 
 
+def to_numpy(tensors):
+    """Create numpy ndarrays that shares the same underlying storage, if possible.
+
+    Args:
+        tensors. A Tensor or a list of Tensor.
+
+    Returns:
+        A numpy ndarray or a list of numpy ndarray.
+    """
+    if isinstance(tensors, (list, tuple)):
+        return [bkd.to_numpy(tensor) for tensor in tensors]
+    return bkd.to_numpy(tensors)
+
+
 def make_dict(keys, values):
     """Convert two lists or two variables into a dictionary."""
     if isinstance(keys, (list, tuple)):

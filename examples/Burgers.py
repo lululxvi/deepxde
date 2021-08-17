@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
 
 Documentation: https://deepxde.readthedocs.io/en/latest/demos/burgers.html
 """
@@ -40,7 +40,9 @@ model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 model.train(epochs=15000)
 model.compile("L-BFGS-B")
-losshistory, train_state = model.train()
+losshistory, train_state = model.train(
+    # epochs=250  # epochs of L-BFGS is only required for backend pytorch
+)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X, y_true = gen_testdata()

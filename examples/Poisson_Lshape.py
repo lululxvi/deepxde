@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 
 
@@ -22,5 +22,7 @@ model = dde.Model(data, net)
 model.compile("adam", lr=0.001)
 model.train(epochs=50000)
 model.compile("L-BFGS-B")
-losshistory, train_state = model.train()
+losshistory, train_state = model.train(
+    # epochs=500  # epochs of L-BFGS is only required for backend pytorch
+)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

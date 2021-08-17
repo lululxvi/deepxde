@@ -252,11 +252,14 @@ class Model(object):
         )
 
         def train_step(inputs, targets):
-            losses = outputs_losses(inputs, targets)[1]
-            total_loss = torch.sum(losses)
-            opt.zero_grad()
-            total_loss.backward()
-            opt.step()
+            def closure():
+                losses = outputs_losses(inputs, targets)[1]
+                total_loss = torch.sum(losses)
+                opt.zero_grad()
+                total_loss.backward()
+                return total_loss
+
+            opt.step(closure)
 
         # Callables
         self.outputs = outputs
@@ -273,9 +276,7 @@ class Model(object):
             # TODO: training
             with torch.no_grad():
                 outs = self.outputs(inputs)
-        if isinstance(outs, (list, tuple)):
-            return [bkd.to_numpy(out) for out in outs]
-        return bkd.to_numpy(outs)
+        return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
@@ -294,14 +295,11 @@ class Model(object):
             return self.sess.run(fetches, feed_dict=feed_dict)
         if backend_name == "tensorflow":
             outs = fetches(training, inputs, targets, auxiliary_vars)
-            return None if outs is None else [out.numpy() for out in outs]
-        if backend_name == "pytorch":
+        elif backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
             # TODO: training, auxiliary_vars
             outs = fetches(inputs, targets)
-            return (
-                None if outs is None else [out.detach().cpu().numpy() for out in outs]
-            )
+        return None if outs is None else utils.to_numpy(outs)
 
     @utils.timing
     def train(
@@ -509,15 +507,16 @@ class Model(object):
                         return operator(inputs, y, x)
 
                 y = op(x)
-                if isinstance(y, (list, tuple)):
-                    y = [y_.numpy() for y_ in y]
-                else:
-                    y = y.numpy()
+                y = utils.to_numpy(y)
             elif backend_name == "pytorch":
-                # TODO
-                raise NotImplementedError(
-                    "Model.predict hasn't been implemented for backend pytorch."
-                )
+                inputs = torch.as_tensor(x)
+                inputs.requires_grad_()
+                outputs = self.net(inputs)
+                if utils.get_num_args(operator) == 2:
+                    y = operator(inputs, outputs)
+                elif utils.get_num_args(operator) == 3:
+                    y = operator(inputs, outputs, x)
+                y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
         return y
 
