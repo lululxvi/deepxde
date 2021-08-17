@@ -8,6 +8,7 @@ from collections import OrderedDict
 import numpy as np
 
 from . import backend as bkd
+from . import config
 from . import display
 from . import gradients as grad
 from . import losses as losses_module
@@ -191,10 +192,24 @@ class Model(object):
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
 
+        def train_step_tfp(inputs, targets, auxiliary_vars):
+            def build_loss():
+                losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
+                return tf.math.reduce_sum(losses)
+
+            trainable_variables = (
+                self.net.trainable_variables + self.external_trainable_variables
+            )
+            return opt(trainable_variables, build_loss, trainable_variables)
+
         # Callables
         self.outputs = outputs
         self.outputs_losses = outputs_losses
-        self.train_step = train_step
+        self.train_step = (
+            train_step
+            if not optimizers.is_external_optimizer(self.opt_name)
+            else train_step_tfp
+        )
 
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
@@ -341,7 +356,10 @@ class Model(object):
         self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
-            self._train_scipy(display_every)
+            if backend_name == "tensorflow.compat.v1":
+                self._train_scipy(display_every)
+            elif backend_name == "tensorflow":
+                self._train_tfp()
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
@@ -407,6 +425,18 @@ class Model(object):
         )
         self._test()
 
+    def _train_tfp(self):
+        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
+        results = self.train_step(
+            self.train_state.X_train,
+            self.train_state.y_train,
+            self.train_state.train_aux_vars,
+        )
+        # TODO: Loss history
+        self.train_state.epoch += results.num_iterations.numpy()
+        self.train_state.step += results.num_iterations.numpy()
+        self._test()
+
     def _test(self):
         self.train_state.y_pred_train, self.train_state.loss_train = self._run(
             self.outputs_losses,
@@ -446,6 +476,7 @@ class Model(object):
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates output predictions for the input samples."""
+        x = x.astype(config.real(np))
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
