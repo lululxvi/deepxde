@@ -200,7 +200,7 @@ class Model(object):
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
-            return opt(trainable_variables, build_loss, trainable_variables)
+            return opt(trainable_variables, build_loss)
 
         # Callables
         self.outputs = outputs
@@ -241,8 +241,9 @@ class Model(object):
             grad.clear()
             return outputs_, losses
 
-        # Another way is using Per-parameter options
-        # https://pytorch.org/docs/stable/optim.html#per-parameter-options
+        # Another way is using per-parameter options
+        # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
+        # but not all optimizers (such as L-BFGS) support this.
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
@@ -357,9 +358,9 @@ class Model(object):
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
-                self._train_scipy(display_every)
+                self._train_tensorflow_compat_v1_scipy(display_every)
             elif backend_name == "tensorflow":
-                self._train_tfp()
+                self._train_tensorflow_tfp()
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
@@ -397,7 +398,7 @@ class Model(object):
             if self.stop_training:
                 break
 
-    def _train_scipy(self, display_every):
+    def _train_tensorflow_compat_v1_scipy(self, display_every):
         def loss_callback(loss_train):
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -425,7 +426,7 @@ class Model(object):
         )
         self._test()
 
-    def _train_tfp(self):
+    def _train_tensorflow_tfp(self):
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         results = self.train_step(
             self.train_state.X_train,

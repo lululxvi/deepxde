@@ -66,12 +66,11 @@ class LossAndFlatGradient(object):
         Returns:
             A scalar loss and the gradients w.r.t. the `weights_1d`.
         """
+        # Set the weights
+        self.set_flat_weights(weights_1d)
         with tf.GradientTape() as tape:
-            # Update the weights
-            self.set_flat_weights(weights_1d)
             # Calculate the loss
             loss = self.build_loss()
-
         # Calculate gradients and convert to 1D tf.Tensor
         grads = tape.gradient(loss, self.trainable_variables)
         grads = tf.dynamic_stitch(self.indices, grads)
@@ -99,15 +98,18 @@ class LossAndFlatGradient(object):
         return tf.dynamic_stitch(self.indices, weights)
 
 
-def lbfgs_minimize(trainable_variables, build_loss, initial_weights):
+def lbfgs_minimize(trainable_variables, build_loss):
+    """TensorFlow interface for tfp.optimizer.lbfgs_minimize.
+
+    Args:
+        trainable_variables: Trainable variables, also used as the initial position.
+        build_loss: A function to build the loss function expression.
+    """
     func = LossAndFlatGradient(trainable_variables, build_loss)
-    # Convert initial weights to a 1D tf.Tensor
-    initial_weights = func.to_flat_weights(initial_weights)
-    # Train with L-BFGS solver
     # TODO: L-BFGS parameters
     results = tfp.optimizer.lbfgs_minimize(
         value_and_gradients_function=func,
-        initial_position=initial_weights,
+        initial_position=func.to_flat_weights(trainable_variables),
         max_iterations=15000,
     )
     # The final optimized parameters are in results.position.
