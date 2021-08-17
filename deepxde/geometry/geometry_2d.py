@@ -437,10 +437,10 @@ class Polygon(Geometry):
         return np.array([0, 0])
 
     def random_points(self, n, random="pseudo"):
-        x = np.empty((0, 2))
+        x = np.empty((0, 2), dtype=config.real(np))
         vbbox = self.bbox[1] - self.bbox[0]
         while len(x) < n:
-            x_new = np.random.rand(n, 2) * vbbox + self.bbox[0]
+            x_new = sample(n, 2, sampler="pseudo") * vbbox + self.bbox[0]
             x = np.vstack((x, x_new[self.inside(x_new)]))
         return x[:n]
 

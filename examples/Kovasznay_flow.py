@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
 import numpy as np
 
@@ -50,59 +50,54 @@ def boundary_outflow(x, on_boundary):
     return on_boundary and np.isclose(x[0], 1)
 
 
-def main():
-    spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
+spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
 
-    boundary_condition_u = dde.DirichletBC(
-        spatial_domain, u_func, lambda _, on_boundary: on_boundary, component=0
-    )
-    boundary_condition_v = dde.DirichletBC(
-        spatial_domain, v_func, lambda _, on_boundary: on_boundary, component=1
-    )
-    boundary_condition_right_p = dde.DirichletBC(
-        spatial_domain, p_func, boundary_outflow, component=2
-    )
+boundary_condition_u = dde.DirichletBC(
+    spatial_domain, u_func, lambda _, on_boundary: on_boundary, component=0
+)
+boundary_condition_v = dde.DirichletBC(
+    spatial_domain, v_func, lambda _, on_boundary: on_boundary, component=1
+)
+boundary_condition_right_p = dde.DirichletBC(
+    spatial_domain, p_func, boundary_outflow, component=2
+)
 
-    data = dde.data.TimePDE(
-        spatial_domain,
-        pde,
-        [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],
-        num_domain=2601,
-        num_boundary=400,
-        num_test=100000,
-    )
+data = dde.data.TimePDE(
+    spatial_domain,
+    pde,
+    [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],
+    num_domain=2601,
+    num_boundary=400,
+    num_test=100000,
+)
 
-    net = dde.maps.FNN([2] + 4 * [50] + [3], "tanh", "Glorot normal")
+net = dde.maps.FNN([2] + 4 * [50] + [3], "tanh", "Glorot normal")
 
-    model = dde.Model(data, net)
+model = dde.Model(data, net)
 
-    model.compile("adam", lr=1e-3)
-    model.train(epochs=30000)
-    model.compile("L-BFGS-B")
-    losshistory, train_state = model.train()
+model.compile("adam", lr=1e-3)
+model.train(epochs=30000)
+model.compile("L-BFGS-B")
+losshistory, train_state = model.train()
 
-    X = spatial_domain.random_points(100000)
-    output = model.predict(X)
-    u_pred = output[:, 0]
-    v_pred = output[:, 1]
-    p_pred = output[:, 2]
+X = spatial_domain.random_points(100000)
+output = model.predict(X)
+u_pred = output[:, 0]
+v_pred = output[:, 1]
+p_pred = output[:, 2]
 
-    u_exact = u_func(X).reshape(-1)
-    v_exact = v_func(X).reshape(-1)
-    p_exact = p_func(X).reshape(-1)
+u_exact = u_func(X).reshape(-1)
+v_exact = v_func(X).reshape(-1)
+p_exact = p_func(X).reshape(-1)
 
-    f = model.predict(X, operator=pde)
+f = model.predict(X, operator=pde)
 
-    l2_difference_u = dde.metrics.l2_relative_error(u_exact, u_pred)
-    l2_difference_v = dde.metrics.l2_relative_error(v_exact, v_pred)
-    l2_difference_p = dde.metrics.l2_relative_error(p_exact, p_pred)
-    residual = np.mean(np.absolute(f))
+l2_difference_u = dde.metrics.l2_relative_error(u_exact, u_pred)
+l2_difference_v = dde.metrics.l2_relative_error(v_exact, v_pred)
+l2_difference_p = dde.metrics.l2_relative_error(p_exact, p_pred)
+residual = np.mean(np.absolute(f))
 
-    print("Mean residual:", residual)
-    print("L2 relative error in u:", l2_difference_u)
-    print("L2 relative error in v:", l2_difference_v)
-    print("L2 relative error in p:", l2_difference_p)
-
-
-if __name__ == "__main__":
-    main()
+print("Mean residual:", residual)
+print("L2 relative error in u:", l2_difference_u)
+print("L2 relative error in v:", l2_difference_v)
+print("L2 relative error in p:", l2_difference_p)

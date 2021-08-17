@@ -507,7 +507,11 @@ class Model(object):
                         y = self.net(inputs)
                         return operator(inputs, y, x)
 
-                y = op(x).numpy()
+                y = op(x)
+                if isinstance(y, (list, tuple)):
+                    y = [y_.numpy() for y_ in y]
+                else:
+                    y = y.numpy()
             elif backend_name == "pytorch":
                 # TODO
                 raise NotImplementedError(
