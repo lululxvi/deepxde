@@ -2,12 +2,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+__all__ = ["Model", "TrainState", "LossHistory"]
+
+
 import pickle
 from collections import OrderedDict
 
 import numpy as np
 
-from . import backend as bkd
 from . import config
 from . import display
 from . import gradients as grad
@@ -490,8 +492,6 @@ class Model(object):
                     op = operator(self.net.inputs, self.net.outputs, x)
                 y = self._run(op, False, x, None, None)
             elif backend_name == "tensorflow":
-                # TODO: avoid creating the same graph every time predict is called
-                # TODO: use self._run for tensorflow
                 if utils.get_num_args(operator) == 2:
 
                     @tf.function

@@ -50,7 +50,7 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires the following backend-specific dependencies to be installed:
+DeepXDE requires one of the following backend-specific dependencies to be installed:
 
 - TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0 and [TensorFlow Probability](https://www.tensorflow.org/probability)
