@@ -26,6 +26,8 @@ import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
+from ..config import LBFGS_options
+
 
 class LossAndFlatGradient(object):
     """A helper class to create a function required by tfp.optimizer.lbfgs_minimize.
@@ -108,9 +110,16 @@ def lbfgs_minimize(trainable_variables, build_loss):
     func = LossAndFlatGradient(trainable_variables, build_loss)
     # TODO: L-BFGS parameters
     results = tfp.optimizer.lbfgs_minimize(
-        value_and_gradients_function=func,
-        initial_position=func.to_flat_weights(trainable_variables),
-        max_iterations=15000,
+        func,
+        func.to_flat_weights(trainable_variables),
+        previous_optimizer_results=None,
+        num_correction_pairs=LBFGS_options["maxcor"],
+        tolerance=LBFGS_options["gtol"],
+        x_tolerance=0,
+        f_relative_tolerance=LBFGS_options["ftol"],
+        max_iterations=LBFGS_options["maxiter"],
+        parallel_iterations=1,
+        max_line_search_iterations=LBFGS_options["maxls"],
     )
     # The final optimized parameters are in results.position.
     # Set them back to the variables.

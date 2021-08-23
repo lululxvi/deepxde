@@ -361,6 +361,13 @@ class Model(object):
                 self._train_tensorflow_compat_v1_scipy(display_every)
             elif backend_name == "tensorflow":
                 self._train_tensorflow_tfp()
+            elif backend_name == "pytorch":
+                self._train_sgd(
+                    optimizers.LBFGS_options["maxiter"]
+                    // optimizers.config.LBFGS_iter_per_step,
+                    display_every,
+                    iter_per_step=optimizers.config.LBFGS_iter_per_step,
+                )
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
@@ -373,7 +380,7 @@ class Model(object):
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
-    def _train_sgd(self, epochs, display_every):
+    def _train_sgd(self, epochs, display_every, iter_per_step=1):
         for i in range(epochs):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -387,8 +394,8 @@ class Model(object):
                 self.train_state.train_aux_vars,
             )
 
-            self.train_state.epoch += 1
-            self.train_state.step += 1
+            self.train_state.epoch += iter_per_step
+            self.train_state.step += iter_per_step
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
                 self._test()
 

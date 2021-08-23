@@ -1,20 +1,10 @@
-deepxde.optimizers package
-==========================
+deepxde.optimizers
+==================
 
-Subpackages
------------
+deepxde.optimizers.config module
+--------------------------------
 
-.. toctree::
-   :maxdepth: 4
-
-   deepxde.optimizers.pytorch
-   deepxde.optimizers.tensorflow
-   deepxde.optimizers.tensorflow_compat_v1
-
-Module contents
----------------
-
-.. automodule:: deepxde.optimizers
+.. automodule:: deepxde.optimizers.config
    :members:
    :undoc-members:
    :show-inheritance:

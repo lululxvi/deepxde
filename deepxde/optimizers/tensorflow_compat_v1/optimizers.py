@@ -4,9 +4,8 @@ from __future__ import print_function
 
 __all__ = ["get", "is_external_optimizer"]
 
-import numpy as np
-
 from . import scipy_optimizer
+from ..config import LBFGS_options
 from ...backend import tf
 
 
@@ -25,14 +24,14 @@ def get(loss, optimizer, learning_rate=None, decay=None):
             method=optimizer,
             options={
                 "disp": None,
-                "maxcor": 50,
-                "ftol": np.finfo(float).eps,
-                "gtol": 1e-8,
+                "maxcor": LBFGS_options["maxcor"],
+                "ftol": LBFGS_options["ftol"],
+                "gtol": LBFGS_options["gtol"],
                 "eps": 1e-8,
-                "maxfun": 15000,
-                "maxiter": 15000,
+                "maxfun": LBFGS_options["maxfun"],
+                "maxiter": LBFGS_options["maxiter"],
                 "iprint": -1,
-                "maxls": 50,
+                "maxls": LBFGS_options["maxls"],
             },
         )
 
