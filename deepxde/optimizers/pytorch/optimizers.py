@@ -17,7 +17,6 @@ def get(params, optimizer, learning_rate=None, decay=None):
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
-        # TODO: L-BFGS parameters
         return torch.optim.LBFGS(
             params,
             lr=1,

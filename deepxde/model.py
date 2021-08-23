@@ -362,6 +362,7 @@ class Model(object):
             elif backend_name == "tensorflow":
                 self._train_tensorflow_tfp()
             elif backend_name == "pytorch":
+                # TODO: Stop training when L-BFGS is converged
                 self._train_sgd(
                     optimizers.LBFGS_options["maxiter"]
                     // optimizers.config.LBFGS_iter_per_step,

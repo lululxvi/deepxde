@@ -108,7 +108,6 @@ def lbfgs_minimize(trainable_variables, build_loss):
         build_loss: A function to build the loss function expression.
     """
     func = LossAndFlatGradient(trainable_variables, build_loss)
-    # TODO: L-BFGS parameters
     results = tfp.optimizer.lbfgs_minimize(
         func,
         func.to_flat_weights(trainable_variables),

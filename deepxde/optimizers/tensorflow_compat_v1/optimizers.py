@@ -4,24 +4,23 @@ from __future__ import print_function
 
 __all__ = ["get", "is_external_optimizer"]
 
-from . import scipy_optimizer
+from .scipy_optimizer import ScipyOptimizerInterface
 from ..config import LBFGS_options
 from ...backend import tf
 
 
 def is_external_optimizer(optimizer):
-    scipy_opts = ["BFGS", "L-BFGS-B", "Nelder-Mead", "Powell", "CG", "Newton-CG"]
+    scipy_opts = ["L-BFGS", "L-BFGS-B"]
     return optimizer in scipy_opts
 
 
 def get(loss, optimizer, learning_rate=None, decay=None):
     if is_external_optimizer(optimizer):
-        ScipyOptimizerInterface = scipy_optimizer.ScipyOptimizerInterface
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         return ScipyOptimizerInterface(
             loss,
-            method=optimizer,
+            method="L-BFGS-B",
             options={
                 "disp": None,
                 "maxcor": LBFGS_options["maxcor"],

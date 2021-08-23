@@ -40,9 +40,7 @@ model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 model.train(epochs=15000)
 model.compile("L-BFGS-B")
-losshistory, train_state = model.train(
-    # epochs=250  # epochs of L-BFGS is only required for backend pytorch
-)
+losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X, y_true = gen_testdata()
