@@ -23,24 +23,8 @@ class Cuboid(Hypercube):
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
 
     def random_boundary_points(self, n, random="pseudo"):
-        # TODO: Remove the corners, whose normal derivative is not well defined.
-        x_corner = np.vstack(
-            (
-                self.xmin,
-                [self.xmin[0], self.xmax[1], self.xmin[2]],
-                [self.xmax[0], self.xmax[1], self.xmin[2]],
-                [self.xmax[0], self.xmin[1], self.xmin[2]],
-                self.xmax,
-                [self.xmin[0], self.xmax[1], self.xmax[2]],
-                [self.xmin[0], self.xmin[1], self.xmax[2]],
-                [self.xmax[0], self.xmin[1], self.xmax[2]],
-            )
-        )
-        if n <= 8:
-            return x_corner[np.random.choice(8, size=n, replace=False)]
-
-        pts = [x_corner]
-        density = (n - 8) / self.area
+        pts = []
+        density = n / self.area
         rect = Rectangle(self.xmin[:-1], self.xmax[:-1])
         for z in [self.xmin[-1], self.xmax[-1]]:
             u = rect.random_points(int(np.ceil(density * rect.area)), random=random)
@@ -59,7 +43,7 @@ class Cuboid(Hypercube):
         return pts
 
     def uniform_boundary_points(self, n):
-        # TODO: Remove the corners, whose normal derivative is not well defined.
+        # TODO: Should we remove the corners, whose normal derivative is not well defined?
         h = (self.area / n) ** 0.5
         nx, ny, nz = np.ceil((self.xmax - self.xmin) / h).astype(int) + 1
         x = np.linspace(self.xmin[0], self.xmax[0], num=nx)
