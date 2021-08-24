@@ -12,7 +12,7 @@ def set_LBFGS_options(
     ftol=0,
     gtol=1e-8,
     maxiter=15000,
-    maxfun=15000,
+    maxfun=None,
     maxls=50,
 ):
     """Sets the hyperparameters of L-BFGS.
@@ -36,7 +36,7 @@ def set_LBFGS_options(
         maxiter (int): `maxiter` (scipy), `max_iterations` (tfp), `max_iter` (torch).
             Maximum number of iterations.
         maxfun (int): `maxfun` (scipy), `max_eval` (torch).
-            Maximum number of function evaluations.
+            Maximum number of function evaluations. If ``None``, `maxiter` * 1.25.
         maxls (int): `maxls` (scipy), `max_line_search_iterations` (tfp).
             Maximum number of line search steps (per iteration).
     """
@@ -45,7 +45,7 @@ def set_LBFGS_options(
     LBFGS_options["ftol"] = ftol
     LBFGS_options["gtol"] = gtol
     LBFGS_options["maxiter"] = maxiter
-    LBFGS_options["maxfun"] = maxfun
+    LBFGS_options["maxfun"] = maxfun if maxfun is not None else int(maxiter * 1.25)
     LBFGS_options["maxls"] = maxls
 
 

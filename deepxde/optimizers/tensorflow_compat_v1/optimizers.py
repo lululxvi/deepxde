@@ -22,14 +22,11 @@ def get(loss, optimizer, learning_rate=None, decay=None):
             loss,
             method="L-BFGS-B",
             options={
-                "disp": None,
                 "maxcor": LBFGS_options["maxcor"],
                 "ftol": LBFGS_options["ftol"],
                 "gtol": LBFGS_options["gtol"],
-                "eps": 1e-8,
                 "maxfun": LBFGS_options["maxfun"],
                 "maxiter": LBFGS_options["maxiter"],
-                "iprint": -1,
                 "maxls": LBFGS_options["maxls"],
             },
         )

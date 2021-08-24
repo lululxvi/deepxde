@@ -34,6 +34,7 @@ class Model(object):
         self.net = net
 
         self.opt_name = None
+        self.opt = None
         self.batch_size = None
         self.callbacks = None
         self.metrics = None
@@ -249,7 +250,7 @@ class Model(object):
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        opt = optimizers.get(
+        self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
@@ -257,11 +258,11 @@ class Model(object):
             def closure():
                 losses = outputs_losses(inputs, targets)[1]
                 total_loss = torch.sum(losses)
-                opt.zero_grad()
+                self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
 
-            opt.step(closure)
+            self.opt.step(closure)
 
         # Callables
         self.outputs = outputs
@@ -362,13 +363,7 @@ class Model(object):
             elif backend_name == "tensorflow":
                 self._train_tensorflow_tfp()
             elif backend_name == "pytorch":
-                # TODO: Stop training when L-BFGS is converged
-                self._train_sgd(
-                    optimizers.LBFGS_options["maxiter"]
-                    // optimizers.config.LBFGS_iter_per_step,
-                    display_every,
-                    iter_per_step=optimizers.config.LBFGS_iter_per_step,
-                )
+                self._train_pytorch_lbfgs()
         else:
             if epochs is None:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
@@ -381,7 +376,7 @@ class Model(object):
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
-    def _train_sgd(self, epochs, display_every, iter_per_step=1):
+    def _train_sgd(self, epochs, display_every):
         for i in range(epochs):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -395,8 +390,8 @@ class Model(object):
                 self.train_state.train_aux_vars,
             )
 
-            self.train_state.epoch += iter_per_step
-            self.train_state.step += iter_per_step
+            self.train_state.epoch += 1
+            self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
                 self._test()
 
@@ -445,6 +440,37 @@ class Model(object):
         self.train_state.epoch += results.num_iterations.numpy()
         self.train_state.step += results.num_iterations.numpy()
         self._test()
+
+    def _train_pytorch_lbfgs(self):
+        prev_n_iter = 0
+        while prev_n_iter < optimizers.LBFGS_options["maxiter"]:
+            self.callbacks.on_epoch_begin()
+            self.callbacks.on_batch_begin()
+
+            self.train_state.set_data_train(
+                *self.data.train_next_batch(self.batch_size)
+            )
+            self._train_step(
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_aux_vars,
+            )
+
+            n_iter = self.opt.state_dict()["state"][0]["n_iter"]
+            if prev_n_iter == n_iter:
+                # Converged
+                break
+
+            self.train_state.epoch += n_iter - prev_n_iter
+            self.train_state.step += n_iter - prev_n_iter
+            prev_n_iter = n_iter
+            self._test()
+
+            self.callbacks.on_batch_end()
+            self.callbacks.on_epoch_end()
+
+            if self.stop_training:
+                break
 
     def _test(self):
         self.train_state.y_pred_train, self.train_state.loss_train = self._run(

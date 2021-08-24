@@ -21,7 +21,9 @@ def get(params, optimizer, learning_rate=None, decay=None):
             params,
             lr=1,
             max_iter=LBFGS_iter_per_step,
-            max_eval=LBFGS_options["maxfun"],
+            max_eval=LBFGS_options["maxfun"]
+            * LBFGS_iter_per_step
+            // LBFGS_options["maxiter"],
             tolerance_grad=LBFGS_options["gtol"],
             tolerance_change=LBFGS_options["ftol"],
             history_size=LBFGS_options["maxcor"],
