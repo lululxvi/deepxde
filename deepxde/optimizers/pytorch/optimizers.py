@@ -2,7 +2,7 @@ __all__ = ["get", "is_external_optimizer"]
 
 import torch
 
-from ..config import LBFGS_iter_per_step, LBFGS_options
+from ..config import LBFGS_options
 
 
 def is_external_optimizer(optimizer):
@@ -20,10 +20,8 @@ def get(params, optimizer, learning_rate=None, decay=None):
         return torch.optim.LBFGS(
             params,
             lr=1,
-            max_iter=LBFGS_iter_per_step,
-            max_eval=LBFGS_options["maxfun"]
-            * LBFGS_iter_per_step
-            // LBFGS_options["maxiter"],
+            max_iter=LBFGS_options["iter_per_step"],
+            max_eval=LBFGS_options["fun_per_step"],
             tolerance_grad=LBFGS_options["gtol"],
             tolerance_change=LBFGS_options["ftol"],
             history_size=LBFGS_options["maxcor"],

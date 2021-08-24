@@ -23,6 +23,9 @@ def set_LBFGS_options(
     - TensorFlow 2.x: `tfp.optimizer.lbfgs_minimize <https://www.tensorflow.org/probability/api_docs/python/tfp/optimizer/lbfgs_minimize>`_
     - PyTorch: `torch.optim.LBFGS <https://pytorch.org/docs/stable/generated/torch.optim.LBFGS.html>`_
 
+    I find empirically that torch.optim.LBFGS and scipy.optimize.minimize are better than
+    tfp.optimizer.lbfgs_minimize in terms of the final loss value.
+
     Args:
         maxcor (int): `maxcor` (scipy), `num_correction_pairs` (tfp), `history_size` (torch).
             The maximum number of variable metric corrections used to define the limited
@@ -54,5 +57,10 @@ set_LBFGS_options()
 
 # Backend-dependent options
 if backend_name == "pytorch":
-    # number of iterations per optimization step, i.e., max_iter in torch.optim.LBFGS
-    LBFGS_iter_per_step = 1000
+    # number of iterations per optimization call
+    LBFGS_options["iter_per_step"] = min(1000, LBFGS_options["maxiter"])
+    LBFGS_options["fun_per_step"] = (
+        LBFGS_options["maxfun"]
+        * LBFGS_options["iter_per_step"]
+        // LBFGS_options["maxiter"]
+    )

@@ -67,7 +67,8 @@ class Model(object):
 
         Args:
             optimizer: String. Name of optimizer.
-            lr: A Tensor or a floating point value. The learning rate.
+            lr: A Tensor or a floating point value. The learning rate. For L-BFGS, use
+                `dde.optimizers.set_LBFGS_options` to set the hyperparameters.
             loss: If the same loss is used for all errors, then `loss` is a String (name
                 of objective function) or objective function. If different errors use
                 different losses, then `loss` is a list whose size is equal to the
@@ -195,7 +196,9 @@ class Model(object):
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
 
-        def train_step_tfp(inputs, targets, auxiliary_vars):
+        def train_step_tfp(
+            inputs, targets, auxiliary_vars, previous_optimizer_results=None
+        ):
             def build_loss():
                 losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
                 return tf.math.reduce_sum(losses)
@@ -203,7 +206,7 @@ class Model(object):
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
-            return opt(trainable_variables, build_loss)
+            return opt(trainable_variables, build_loss, previous_optimizer_results)
 
         # Callables
         self.outputs = outputs
@@ -430,16 +433,27 @@ class Model(object):
         self._test()
 
     def _train_tensorflow_tfp(self):
-        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
-        results = self.train_step(
-            self.train_state.X_train,
-            self.train_state.y_train,
-            self.train_state.train_aux_vars,
-        )
-        # TODO: Loss history
-        self.train_state.epoch += results.num_iterations.numpy()
-        self.train_state.step += results.num_iterations.numpy()
-        self._test()
+        # There is only one optimization step. If using multiple steps with/without
+        # previous_optimizer_results, L-BFGS failed to reach a small error. The reason
+        # could be that tfp.optimizer.lbfgs_minimize will start from scratch for each
+        # call.
+        n_iter = 0
+        while n_iter < optimizers.LBFGS_options["maxiter"]:
+            self.train_state.set_data_train(
+                *self.data.train_next_batch(self.batch_size)
+            )
+            results = self.train_step(
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_aux_vars,
+            )
+            n_iter += results.num_iterations.numpy()
+            self.train_state.epoch += results.num_iterations.numpy()
+            self.train_state.step += results.num_iterations.numpy()
+            self._test()
+
+            if results.converged or results.failed:
+                break
 
     def _train_pytorch_lbfgs(self):
         prev_n_iter = 0

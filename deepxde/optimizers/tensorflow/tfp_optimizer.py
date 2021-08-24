@@ -100,18 +100,22 @@ class LossAndFlatGradient(object):
         return tf.dynamic_stitch(self.indices, weights)
 
 
-def lbfgs_minimize(trainable_variables, build_loss):
+def lbfgs_minimize(trainable_variables, build_loss, previous_optimizer_results=None):
     """TensorFlow interface for tfp.optimizer.lbfgs_minimize.
 
     Args:
         trainable_variables: Trainable variables, also used as the initial position.
         build_loss: A function to build the loss function expression.
+        previous_optimizer_results
     """
     func = LossAndFlatGradient(trainable_variables, build_loss)
+    initial_position = None
+    if previous_optimizer_results is None:
+        initial_position = func.to_flat_weights(trainable_variables)
     results = tfp.optimizer.lbfgs_minimize(
         func,
-        func.to_flat_weights(trainable_variables),
-        previous_optimizer_results=None,
+        initial_position=initial_position,
+        previous_optimizer_results=previous_optimizer_results,
         num_correction_pairs=LBFGS_options["maxcor"],
         tolerance=LBFGS_options["gtol"],
         x_tolerance=0,
