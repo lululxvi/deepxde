@@ -86,7 +86,6 @@ class Rectangle(Hypercube):
         self.area = np.prod(self.xmax - self.xmin)
 
     def uniform_boundary_points(self, n):
-        # TODO: Should we remove the corners, whose normal derivative is not well defined?
         nx, ny = np.ceil(n / self.perimeter * (self.xmax - self.xmin)).astype(int)
         xbot = np.hstack(
             (
@@ -267,7 +266,6 @@ class Triangle(Geometry):
         )
 
     def uniform_boundary_points(self, n):
-        # TODO: Should we remove the corners, whose normal derivative is not well defined?
         density = n / self.perimeter
         x12 = (
             np.linspace(0, 1, num=int(np.ceil(density * self.l12)), endpoint=False)[
@@ -426,7 +424,6 @@ class Polygon(Geometry):
         return x[:n]
 
     def uniform_boundary_points(self, n):
-        # TODO: Should we remove the corners, whose normal derivative is not well defined?
         density = n / self.perimeter
         x = []
         for i in range(-1, self.nvertices - 1):

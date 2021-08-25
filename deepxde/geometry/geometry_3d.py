@@ -43,7 +43,6 @@ class Cuboid(Hypercube):
         return pts
 
     def uniform_boundary_points(self, n):
-        # TODO: Should we remove the corners, whose normal derivative is not well defined?
         h = (self.area / n) ** 0.5
         nx, ny, nz = np.ceil((self.xmax - self.xmin) / h).astype(int) + 1
         x = np.linspace(self.xmin[0], self.xmax[0], num=nx)

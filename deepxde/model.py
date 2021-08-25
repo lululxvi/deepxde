@@ -159,8 +159,7 @@ class Model(object):
         # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
         @tf.function
         def outputs_losses(training, inputs, targets, auxiliary_vars):
-            # TODO: Add training
-            # self.net.training = training
+            self.net.training = training
             self.net.inputs = inputs
             self.net.targets = targets
             self.net.auxiliary_vars = auxiliary_vars
@@ -175,11 +174,10 @@ class Model(object):
             if self.net.regularizer is not None:
                 losses += [tf.math.reduce_sum(self.net.losses)]
             losses = tf.convert_to_tensor(losses)
-            # TODO: Weighted losses
+            # Weighted losses
             if loss_weights is not None:
-                raise NotImplementedError(
-                    "Backend tensorflow doesn't support loss_weights"
-                )
+                losses *= loss_weights
+                self.losshistory.set_loss_weights(loss_weights)
             return outputs_, losses
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
@@ -237,12 +235,11 @@ class Model(object):
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            # TODO: Weighted losses
-            if loss_weights is not None:
-                raise NotImplementedError(
-                    "Backend pytorch doesn't support loss_weights"
-                )
             losses = torch.stack(losses)
+            # Weighted losses
+            if loss_weights is not None:
+                losses *= torch.as_tensor(loss_weights)
+                self.losshistory.set_loss_weights(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
