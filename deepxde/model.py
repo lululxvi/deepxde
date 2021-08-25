@@ -34,7 +34,6 @@ class Model(object):
         self.net = net
 
         self.opt_name = None
-        self.opt = None
         self.batch_size = None
         self.callbacks = None
         self.metrics = None
@@ -44,6 +43,7 @@ class Model(object):
         self.stop_training = False
 
         # Backend-dependent attributes
+        self.opt = None
         # Tensor or callable
         self.outputs = None
         self.outputs_losses = None
@@ -161,7 +161,6 @@ class Model(object):
         def outputs_losses(training, inputs, targets, auxiliary_vars):
             self.net.training = training
             self.net.inputs = inputs
-            self.net.targets = targets
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
@@ -277,6 +276,19 @@ class Model(object):
         outs = self.outputs(training, inputs)
         return utils.to_numpy(outs)
 
+    def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
+        if backend_name == "tensorflow.compat.v1":
+            feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
+            return self.sess.run(self.outputs_losses, feed_dict=feed_dict)
+        if backend_name == "tensorflow":
+            outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
+        elif backend_name == "pytorch":
+            # TODO: auxiliary_vars
+            self.net.requires_grad_(requires_grad=False)
+            outs = self.outputs_losses(training, inputs, targets)
+            self.net.requires_grad_()
+        return utils.to_numpy(outs)
+
     def _train_step(self, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
@@ -286,19 +298,6 @@ class Model(object):
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-
-    def _run(self, fetches, training, inputs, targets, auxiliary_vars):
-        """Runs one "step" of computation of tensors or callables in `fetches`."""
-        if backend_name == "tensorflow.compat.v1":
-            feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
-            return self.sess.run(fetches, feed_dict=feed_dict)
-        if backend_name == "tensorflow":
-            outs = fetches(training, inputs, targets, auxiliary_vars)
-        elif backend_name == "pytorch":
-            # TODO: Use torch.no_grad() in _test() and predict()
-            # TODO: auxiliary_vars
-            outs = fetches(training, inputs, targets)
-        return None if outs is None else utils.to_numpy(outs)
 
     @utils.timing
     def train(
@@ -480,15 +479,16 @@ class Model(object):
                 break
 
     def _test(self):
-        self.train_state.y_pred_train, self.train_state.loss_train = self._run(
-            self.outputs_losses,
+        (
+            self.train_state.y_pred_train,
+            self.train_state.loss_train,
+        ) = self._outputs_losses(
             True,
             self.train_state.X_train,
             self.train_state.y_train,
             self.train_state.train_aux_vars,
         )
-        self.train_state.y_pred_test, self.train_state.loss_test = self._run(
-            self.outputs_losses,
+        self.train_state.y_pred_test, self.train_state.loss_test = self._outputs_losses(
             False,
             self.train_state.X_test,
             self.train_state.y_test,
@@ -531,7 +531,7 @@ class Model(object):
                     op = operator(self.net.inputs, self.net.outputs)
                 elif utils.get_num_args(operator) == 3:
                     op = operator(self.net.inputs, self.net.outputs, x)
-                y = self._run(op, False, x, None, None)
+                y = self.sess.run(op, feed_dict=self.net.feed_dict(False, x))
             elif backend_name == "tensorflow":
                 if utils.get_num_args(operator) == 2:
 

@@ -13,7 +13,6 @@ class NN(tf.keras.Model):
         self.training = True
         self.regularizer = None
         self._inputs = None
-        self._targets = None
         self._auxiliary_vars = None
         self._input_transform = None
         self._output_transform = None
@@ -26,15 +25,6 @@ class NN(tf.keras.Model):
     @inputs.setter
     def inputs(self, value):
         self._inputs = value
-
-    @property
-    def targets(self):
-        """Return the targets of the net outputs (Tensors)."""
-        return self._targets
-
-    @targets.setter
-    def targets(self, value):
-        self._targets = value
 
     @property
     def auxiliary_vars(self):
