@@ -218,16 +218,16 @@ class Model(object):
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
 
-        def outputs(inputs):
-            # TODO: Add training
-            # TODO: Use torch.no_grad() if training is False
-            inputs = torch.as_tensor(inputs)
-            inputs.requires_grad_()
-            self.net.inputs = inputs
-            return self.net(inputs)
+        def outputs(training, inputs):
+            self.net.train(mode=training)
+            with torch.no_grad():
+                return self.net(torch.as_tensor(inputs))
 
-        def outputs_losses(inputs, targets):
-            outputs_ = outputs(inputs)
+        def outputs_losses(training, inputs, targets):
+            self.net.train(mode=training)
+            self.net.inputs = torch.as_tensor(inputs)
+            self.net.inputs.requires_grad_()
+            outputs_ = self.net(self.net.inputs)
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -256,7 +256,7 @@ class Model(object):
 
         def train_step(inputs, targets):
             def closure():
-                losses = outputs_losses(inputs, targets)[1]
+                losses = outputs_losses(True, inputs, targets)[1]
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
                 total_loss.backward()
@@ -273,12 +273,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        if backend_name == "tensorflow":
-            outs = self.outputs(training, inputs)
-        elif backend_name == "pytorch":
-            # TODO: training
-            with torch.no_grad():
-                outs = self.outputs(inputs)
+        # tensorflow and pytorch
+        outs = self.outputs(training, inputs)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -300,8 +296,8 @@ class Model(object):
             outs = fetches(training, inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: Use torch.no_grad() in _test() and predict()
-            # TODO: training, auxiliary_vars
-            outs = fetches(inputs, targets)
+            # TODO: auxiliary_vars
+            outs = fetches(training, inputs, targets)
         return None if outs is None else utils.to_numpy(outs)
 
     @utils.timing

@@ -10,12 +10,11 @@ class NN(tf.keras.Model):
 
     def __init__(self):
         super(NN, self).__init__()
+        self.training = True
+        self.regularizer = None
         self._inputs = None
         self._targets = None
         self._auxiliary_vars = None
-
-        self.regularizer = None
-
         self._input_transform = None
         self._output_transform = None
 
