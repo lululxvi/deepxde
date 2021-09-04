@@ -42,6 +42,13 @@ def set_LBFGS_options(
             Maximum number of function evaluations. If ``None``, `maxiter` * 1.25.
         maxls (int): `maxls` (scipy), `max_line_search_iterations` (tfp).
             Maximum number of line search steps (per iteration).
+
+    Warning:
+        If L-BFGS stops earlier than expected, set the default float type to 'float64':
+
+        .. code-block:: python
+
+            dde.config.set_default_float("float64")
     """
     global LBFGS_options
     LBFGS_options["maxcor"] = maxcor
