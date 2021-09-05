@@ -77,7 +77,7 @@ model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
 model.train(epochs=30000)
-model.compile("L-BFGS-B")
+model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
 X = spatial_domain.random_points(100000)

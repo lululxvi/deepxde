@@ -167,7 +167,7 @@ model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3, loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
 model.train(epochs=30000)
-model.compile("L-BFGS-B", loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
+model.compile("L-BFGS", loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
 losshistory, train_state = model.train()
 
 x, y, z = np.meshgrid(

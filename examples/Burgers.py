@@ -39,7 +39,7 @@ model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
 model.train(epochs=15000)
-model.compile("L-BFGS-B")
+model.compile("L-BFGS")
 losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 

@@ -41,7 +41,7 @@ def main():
     net = dde.maps.FNN(layer_size, activation, initializer)
 
     model = dde.Model(data, net)
-    model.compile("L-BFGS-B")
+    model.compile("L-BFGS")
     model.train()
 
     X = geom.uniform_points(100)
