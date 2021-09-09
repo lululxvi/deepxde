@@ -9,6 +9,8 @@
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
+[**Voting on whether we should have a Slack channel for discussion.**](https://github.com/lululxvi/deepxde/issues/371)
+
 DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
