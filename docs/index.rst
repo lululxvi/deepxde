@@ -20,7 +20,7 @@ DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow
 - Solving fPDEs via fPINN: `SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_
 - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): `J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_
 - Solving inverse design/topology optimization via hPINN: `arXiv <https://arxiv.org/abs/2102.04626>`_
-- Learning nonlinear operators via DeepONet: `Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `arXiv <https://arxiv.org/abs/2011.03349>`_
+- Learning nonlinear operators via DeepONet: `Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_
 - Learning from multi-fidelity data via MFNN: `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://www.pnas.org/content/117/13/7052>`_
 
 Features
