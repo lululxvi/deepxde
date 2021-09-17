@@ -518,7 +518,10 @@ class Model(object):
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates output predictions for the input samples."""
-        x = x.astype(config.real(np))
+        if isinstance(x, tuple):
+            x = tuple(np.array(xi, dtype=config.real(np)) for xi in x)
+        else:
+            x = np.array(x, dtype=config.real(np))
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
