@@ -19,7 +19,7 @@ PINN
 DeepONet
 --------
 
-- Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 110698, 2021.
+- Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.
 - P. Clark Di Leoni, L. Lu, C. Meneveau, G. E. Karniadakis, & T. A. Zaki. `DeepONet prediction of linear instability waves in high-speed boundary layers <https://arxiv.org/abs/2105.08697>`_. *arXiv preprint arXiv:2105.08697*, 2021.
 - S. Cai, Z. Wang, L. Lu, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://doi.org/10.1016/j.jcp.2021.110296>`_. *Journal of Computational Physics*, 436, 110296, 2021.
 - L. Lu, P. Jin, G. Pang, Z. Zhang, & G. E. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021. [`Code <https://github.com/lululxvi/deeponet>`_]
