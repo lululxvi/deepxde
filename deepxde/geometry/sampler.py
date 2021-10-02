@@ -53,5 +53,5 @@ def quasirandom(n_samples, dimension, sampler):
             return np.array(
                 sampler.generate(space, n_samples + 2)[2:], dtype=config.real(np)
             )
-    space = [(0.0, 1.0)] * dimension
+    space = [(-1.0, 1.0) , (0.0 , 1)]
     return np.array(sampler.generate(space, n_samples), dtype=config.real(np))
