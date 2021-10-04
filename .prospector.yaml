@@ -2,3 +2,7 @@ pep257:
   disable:
     - D203
     - D213
+
+pylint:
+  disable:
+    - too-many-arguments
