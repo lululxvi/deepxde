@@ -1,6 +1,3 @@
-ignore-paths:
-  - deepxde/backend/backend.py
-
 pep257:
   disable:
     - D203
