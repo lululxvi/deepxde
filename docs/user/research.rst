@@ -6,6 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. S. Lee, & T. Kadeethum. `Physics-informed neural networks for solving coupled flow and transport system <http://ceur-ws.org/Vol-2964/article_197.pdf>`_. 2021.
 #. Y. Chen, & L. Dal Negro. `Physics-informed neural networks for imaging and parameter retrieval of photonic nanostructures from near-field data <https://arxiv.org/abs/2109.12754>`_. *arXiv preprint arXiv:2109.12754*, 2021.
 #. A. M. Ncube, G. E. Harmsen, & A. S. Cornell. `Investigating a new approach to quasinormal modes: Physics-informed neural networks <https://arxiv.org/abs/2108.05867>`_. *arXiv preprint arXiv:2108.05867*, 2021.
 #. M. Almajid, & M. Abu-Alsaud. `Prediction of porous media fluid flow using physics informed neural networks <https://doi.org/10.1016/j.petrol.2021.109205>`_. *Journal of Petroleum Science and Engineering*, 109205, 2021.
