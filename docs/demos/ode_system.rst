@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a ODE system:
 
-.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad where t is in [0,10]
+.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad \text{where} \quad t \in [0,10]
 
 with the initial conditions  
 
@@ -51,13 +51,6 @@ Next, we consider the initial condition. We can use a boundary function in our c
 
     def boundary(_, on_initial):
         return on_initial
-
-Here ``on_initial`` is defined as follows, and ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point ``t`` is in an initial state.
-
-.. code-block:: python
-
-    def on_initial(self, t):
-        return np.isclose(t, self.t0).flatten()
 
 Then the initial conditions are specified using the computational domain, initial function and boundary. The argument ``component`` refers to if this IC is for the first component or the second component.
 
