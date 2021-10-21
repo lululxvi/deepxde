@@ -60,12 +60,12 @@ The Neumann boundary condition is defined by a simple Python function. The funct
         return on_boundary and np.isclose(x[0], 1)
 
 
-The Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise.
+The Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise.
 
 .. code-block:: python
 
-    def boundary(x, on_boundary):
-        return on_boundary
+    def boundary_l(x, on_boundary):
+        return on_boundary and np.isclose(x[0], -1)
 
 In these two functions, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, either Dirichlet boundary when it reaches the left endpoint or Neumann boundary if it reaches the right endpoint of the interval in this case, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
