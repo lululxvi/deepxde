@@ -76,6 +76,7 @@ Now, we have specified the geometry, ODEs, and initial conditions. Since `PDE` i
 The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. We use 100 points for testing the ODE residual. The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
 
 .. code-block:: python
+
     def func(x):
         return np.hstack((np.sin(x), np.cos(x)))
 
