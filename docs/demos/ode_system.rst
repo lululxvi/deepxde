@@ -45,7 +45,7 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second component (``y[:, 1:]``) is :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition. We can use a boundary function in our code to define whether we should apply initial conditions:
+Next, we consider the initial condition. We can use a boundary function in our code, in which ``on_initial`` returns true if we should apply initial conditions:
 
 .. code-block:: python
 
