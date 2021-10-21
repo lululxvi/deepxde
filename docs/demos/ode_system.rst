@@ -19,7 +19,7 @@ Implementation
 
 This description goes through the implementation of a solver for the above ODE system step-by-step.
 
-First, the DeepXDE and Numpy (``np``) modules are imported:
+First, the DeepXDE and NumPy (``np``) modules are imported:
 
 .. code-block:: python
 
