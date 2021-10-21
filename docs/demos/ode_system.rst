@@ -43,14 +43,14 @@ Next, we express the ODE system:
         return [dy1_x - y2, dy2_x + y1]
 
 
-The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second component (``y[:, 1:]``) is :math:`y_2`-coordinate. 
+The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1` and the second component (``y[:, 1:]``) is :math:`y_2`. 
 
-Next, we consider the initial condition. We can use a ``boundary`` function in our code, and it should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point t of the initial condition is :math:`t = t_0 = 0`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+Next, we consider the initial condition. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point t of the initial condition is :math:`t = t_0 = 0`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
 
 .. code-block:: python
 
     def boundary(x, on_initial):
-        return np.isclose(x, self.t0).flatten()
+        return np.isclose(x[0], 0)
 
 The argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_initial`` is used as the second argument. If the point :math:`t = 0`, then ``on_initial`` is True, otherwise, ``on_initial`` is False. Thus, we can also define ``boundary`` in a simpler way:
 
@@ -66,7 +66,7 @@ Then the initial conditions are specified using the computational domain, initia
     ic1 = dde.IC(geom, np.sin, boundary, component=0)
     ic2 = dde.IC(geom, np.cos, boundary, component=1)
    
-Now, we have specified the geometry, ODEs, and initial conditions. Since `PDE` is also an ODE solver, we then define the ``ODE`` problem as
+Now, we have specified the geometry, ODEs, and initial conditions. Since ``PDE`` is also an ODE solver, we then define the ``ODE`` problem as
 
 .. code-block:: python
 
