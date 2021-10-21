@@ -10,7 +10,7 @@ We will solve an ODE system:
 
 with the initial conditions  
 
-.. math:: y_1 = \sin(t), \quad y_2 = \cos(t).
+.. math:: y_1(0) = 0, \quad y_2(0) = 1.
 
 The reference solution is :math:`y_1 = \sin(t), \quad y_2 = \cos(t)`.
 
