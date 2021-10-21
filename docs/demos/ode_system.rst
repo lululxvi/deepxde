@@ -19,7 +19,7 @@ Implementation
 
 This description goes through the implementation of a solver for the above ODE system step-by-step.
 
-First, the DeepXDE and TensorFlow (``tf``) modules are imported:
+First, the DeepXDE and Numpy (``np``) modules are imported:
 
 .. code-block:: python
 
@@ -45,7 +45,14 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second component (``y[:, 1:]``) is :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition. We can use a boundary function in our code, in which ``on_initial`` returns true if we should apply initial conditions:
+Next, we consider the initial condition. We can use a ``boundary`` function in our code, and it should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point t of the initial condition is :math:`t = t_0 = 0`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+
+.. code-block:: python
+
+    def boundary(x, on_initial):
+        return np.isclose(x, self.t0).flatten()
+
+The argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_initial`` is used as the second argument. If the point :math:`t = 0`, then ``on_initial`` is True, otherwise, ``on_initial`` is False. Thus, we can also define ``boundary`` in a simpler way:
 
 .. code-block:: python
 
@@ -65,7 +72,7 @@ Now, we have specified the geometry, ODEs, and initial conditions. Since `PDE` i
 
     data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
 
-The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. We use 100 points for testing the ODE residual. The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
+The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary (the left and right endpoints of the domain of time in this case). We use 100 points for testing the ODE residual. The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
 
 .. code-block:: python
 
