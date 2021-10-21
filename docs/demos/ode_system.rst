@@ -60,7 +60,7 @@ We use a boundary function to define whether we should apply initial conditions:
     def boundary(_, on_initial):
         return on_initial
 
-Then the initial conditions are
+Then the initial conditions are specified using the computational domain, initial function and boundary. The argument ``component`` refers to if this IC is for the first component or the second component.
 
 .. code-block:: python
 
