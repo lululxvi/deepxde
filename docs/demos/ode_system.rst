@@ -43,9 +43,9 @@ Next, we express the ODE system:
         return [dy1_x - y2, dy2_x + y1]
 
 
-The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as `x`. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second componenet (``y[:, 1:]``) is the :math:`y_2`-coordinate. 
+The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second componenet (``y[:, 1:]``) is the :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition. Here ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point `t` is in an initial state.
+Next, we consider the initial condition. Here ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point ``t`` is in an initial state.
 
 .. code-block:: python
 
@@ -56,6 +56,7 @@ Next, we consider the initial condition. Here ``np.isclose()`` returns true if t
 We use a boundary function to define whether we should apply initial conditions:
 
 .. code-block:: python
+
     def boundary(_, on_initial):
         return on_initial
 
