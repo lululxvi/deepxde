@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a ODE system:
 
-.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad where t in [0,10]
+.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad where t is in [0,10]
 
 with the initial conditions  
 
