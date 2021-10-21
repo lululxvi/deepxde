@@ -1,5 +1,5 @@
 Poisson equation in 1D with Neumann/Dirichlet boundary conditions
-=========================================================
+=================================================================
 
 Problem setup
 --------------
@@ -8,11 +8,11 @@ We will solve a Poisson equation:
 
 .. math:: \Delta u = 2, \qquad x \in [-1, 1],
 
-with the Neumman boundary conditions 
+with the Neumman boundary conditions on the right boundary
 
-.. math:: u(1)=0
+.. math:: \left.\dfrac{du}{dx}\right|_{x=1} =4
 
-and Dirichlet boundary conditions
+and Dirichlet boundary conditions on the left boundary
 
 .. math:: u(-1)=0.
 
