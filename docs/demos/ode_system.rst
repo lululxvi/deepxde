@@ -1,12 +1,12 @@
-ODE system 
+A simple ODE system
 ================
 
 Problem setup
 --------------
 
-We will solve a ODE system:
+We will solve an ODE system:
 
-.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad \text{where} \quad t \in [0,10]
+.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad \text{where} \quad t \in [0,10],
 
 with the initial conditions  
 
