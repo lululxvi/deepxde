@@ -45,7 +45,7 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1` and the second component (``y[:, 1:]``) is :math:`y_2`. 
 
-Next, we consider the initial condition. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point t of the initial condition is :math:`t = 0`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+Next, we consider the initial condition. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point :math:`t` of the initial condition is :math:`t = 0`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
 
 .. code-block:: python
 
