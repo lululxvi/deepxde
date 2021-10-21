@@ -6,13 +6,13 @@ Problem setup
 
 We will solve a ODE system:
 
-.. math:: \frac{dy_1}{dx} = y_2, \qquad \frac{dy_2}{dx} = y_1
+.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1
 
 with the initial conditions  
 
-.. math:: y_1(0) = 1, \quad y_2(0) = 0.
+.. math:: y_1 = \sin(t), \quad y_2 = \cos(t).
 
-The reference solution is :math:`y_1 = \sin(x), \quad y_2 = \cos(x)`.
+The reference solution is :math:`y_1 = \sin(t), \quad y_2 = \cos(t)`.
 
 Implementation
 --------------
@@ -43,9 +43,9 @@ Next, we express the ODE system:
         return [dy1_x - y2, dy2_x + y1]
 
 
-The first argument to ``ode_system`` is the network input, i.e., the :math:`x`-coordinate. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second componenet (``y[:, 1:]``) is the :math:`y_2`-coordinate. 
+The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as `x`. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second componenet (``y[:, 1:]``) is the :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition.
+Next, we consider the initial condition. Here ``on_initial`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition Returns a boolean array where two arrays are element-wise equal within a tolerance.
 
 .. code-block:: python
 
@@ -66,7 +66,7 @@ Then the initial conditions are
     ic1 = dde.IC(geom, np.sin, boundary, component=0)
     ic2 = dde.IC(geom, np.cos, boundary, component=1)
    
-Now, we have specified the geometry, ODEs, and initial condition. We then define the ``ODE`` problem as
+Now, we have specified the geometry, ODEs, and initial conditions.  We then define the ``ODE`` problem as
 
 .. code-block:: python
 
