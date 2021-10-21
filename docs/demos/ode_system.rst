@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a ODE system:
 
-.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1
+.. math:: \frac{dy_1}{dt} = y_2, \qquad \frac{dy_2}{dt} = - y_1, \qquad where t in [0,10]
 
 with the initial conditions  
 
@@ -24,7 +24,7 @@ First, the DeepXDE and TensorFlow (``tf``) modules are imported:
 .. code-block:: python
 
     import deepxde as dde
-    from deepxde.backend import tf
+    import numpy as np
 
 We begin by defining a computational geometry. We can use a built-in class ``TimeDomain`` to define a time domain as follows
 
@@ -45,20 +45,19 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as ``x``. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second component (``y[:, 1:]``) is :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition. Here ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point ``t`` is in an initial state.
-
-.. code-block:: python
-
-    def on_initial(self, t):
-        return np.isclose(t, self.t0).flatten()
-
-
-We can use a boundary function in our code to define whether we should apply initial conditions:
+Next, we consider the initial condition. We can use a boundary function in our code to define whether we should apply initial conditions:
 
 .. code-block:: python
 
     def boundary(_, on_initial):
         return on_initial
+
+Here ``on_initial`` is defined as follows, and ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point ``t`` is in an initial state.
+
+.. code-block:: python
+
+    def on_initial(self, t):
+        return np.isclose(t, self.t0).flatten()
 
 Then the initial conditions are specified using the computational domain, initial function and boundary. The argument ``component`` refers to if this IC is for the first component or the second component.
 
