@@ -45,7 +45,7 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the network input, i.e., the :math:`t`-coordinate, and here we represent it as `x`. The second argument to ``ode_system`` is the network output, which is a 2-dimensional vector where the first component(``y[:, 0:1]``) is :math:`y_1`-coordinate and the second componenet (``y[:, 1:]``) is the :math:`y_2`-coordinate. 
 
-Next, we consider the initial condition. Here ``on_initial`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition Returns a boolean array where two arrays are element-wise equal within a tolerance.
+Next, we consider the initial condition. Here ``np.isclose()`` returns true if t and :math:`t_0` are element-wise equal within a tolerance, which means the point `t` is in an initial state.
 
 .. code-block:: python
 
@@ -53,7 +53,7 @@ Next, we consider the initial condition. Here ``on_initial`` is chosen here to u
         return np.isclose(t, self.t0).flatten()
 
 
-We use a boundary function to define initial conditions:
+We use a boundary function to define whether we should apply initial conditions:
 
 .. code-block:: python
     def boundary(_, on_initial):
@@ -66,14 +66,13 @@ Then the initial conditions are
     ic1 = dde.IC(geom, np.sin, boundary, component=0)
     ic2 = dde.IC(geom, np.cos, boundary, component=1)
    
-Now, we have specified the geometry, ODEs, and initial conditions.  We then define the ``ODE`` problem as
+Now, we have specified the geometry, ODEs, and initial conditions. Since `PDE` is also an ODE solver, we then define the ``ODE`` problem as
 
 .. code-block:: python
 
     data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
 
-The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. We use 100 residual points for testing the PDE residual.
-The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
+The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. We use 100 points for testing the ODE residual. The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
 
 .. code-block:: python
     def func(x):
