@@ -6,7 +6,11 @@ Here are some demos of solving forward problems of PDEs.
 ODEs
 ----
 
-- `ODE system <https://github.com/lululxvi/deepxde/blob/master/examples/ode_system.py>`_
+.. toctree::
+   :maxdepth: 1
+
+   ode_system
+
 - `Lotka-Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra_Colab.ipynb>`_
 
 Time-independent PDEs
