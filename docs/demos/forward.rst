@@ -20,6 +20,7 @@ Time-independent PDEs
    :maxdepth: 1
 
    poisson.1d.dirichlet
+   poisson.1d.neumanndirichlet
 
 - `Poisson equation in 1D with Dirichlet/Neumann boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Neumann_1d.py>`_
 - `Poisson equation in 1D with Dirichlet/Robin boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Robin_1d.py>`_
