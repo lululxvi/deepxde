@@ -30,7 +30,7 @@ Time-independent PDEs
 .. toctree::
    :maxdepth: 1
 
-   Laplace_disk
+   laplace_disk
 
 - `Euler beam <https://github.com/lululxvi/deepxde/blob/master/examples/Euler_beam.py>`_
 
