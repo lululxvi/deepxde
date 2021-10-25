@@ -10,7 +10,7 @@ We will solve a Poisson equation:
 
 with the Robin boundary conditions on the right boundary
 
-.. math:: \left.\dfrac{du}{dx} = u
+.. math:: \left.\frac{du}{dx} = u
 
 and Dirichlet boundary conditions on the left boundary
 
