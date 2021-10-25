@@ -45,7 +45,8 @@ Next, we express the PDE residual of the Laplace equation:
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`r`-coordinate and the second componenet (``x[:,1:]``) is the :math:`\theta`-coordinate. The second argument is the network output, i.e., the solution :math:`y(r,\theta)`.
 
-Next, we consider the Dirichlet boundary condition. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, if the points satisfy :math:`r=1` and are on the whole boundary of the rectangle domain, then function ``boundary`` returns True. Otherwise, it returns False. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+Next, we consider the Dirichlet boundary condition. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, if the points satisfy :math:`r=1` and are on the whole boundary of the rectangle domain, then function ``boundary`` returns ``True``. Otherwise, it returns ``False``. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+
 .. code-block:: python
 
     def boundary(x, on_boundary):
@@ -79,21 +80,25 @@ The number 2540 is the number of training residual points sampled inside the dom
         r, theta = x[:, 0:1], x[:, 1:]
         return r * np.cos(theta)
 
-Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50:
+Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
 .. code-block:: python
 
     net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
 In this problem, we use :math:`[r*\sin(\theta), r*\cos(\theta)]` as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate.
+
 .. code-block:: python
+
     def feature_transform(x):
         return tf.concat(
             [x[:, 0:1] * tf.sin(x[:, 1:2]), x[:, 0:1] * tf.cos(x[:, 1:2])], axis=1
         )
 
 Then we apply this ``feature_transform`` to the network inputs:
+
 .. code-block:: python
+
     net.apply_feature_transform(feature_transform)
 
 Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate:
