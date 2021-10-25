@@ -1,4 +1,4 @@
-Poisson equation in 1D with Neumann/Dirichlet boundary conditions
+Poisson equation in 1D with Dirichlet/Neumann boundary conditions
 =================================================================
 
 Problem setup
@@ -22,7 +22,6 @@ Implementation
 --------------
 
 This description goes through the implementation of a solver for the above described Poisson equation step-by-step.
-
 First, modules setting is the same as Possion equation in 1D with Dirichlet boundary conditions. More details can be found in this page.
 
 .. _Possion equation in 1D with Dirichlet boundary conditions: https://github.com/lululxvi/deepxde/blob/master/docs/demos/poisson.1d.dirichlet.rst.
@@ -52,7 +51,7 @@ The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordina
 
 Next, we consider the Neumann boundary condition and Dirichlet boundary condition respectively.
 
-The Neumann boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent).In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Neumann boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The Neumann boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Neumann boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
@@ -120,9 +119,7 @@ We then train the model for 10000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(
-        epochs=10000, callbacks=[checkpointer, movie]
-    )
+    losshistory, train_state = model.train(epochs=10000)
 
 Complete code
 --------------
