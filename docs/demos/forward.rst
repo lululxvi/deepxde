@@ -24,7 +24,6 @@ Time-independent PDEs
    poisson.1d.dirichletrobin
    poisson.1d.dirichletperiodic
 
-=======
 
 - `Poisson equation in 1D with the multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_multiscale_1d.py>`_
 - `Poisson equation over an L-shaped domain <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Lshape.py>`_
