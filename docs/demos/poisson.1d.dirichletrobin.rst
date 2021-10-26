@@ -10,7 +10,7 @@ We will solve a Poisson equation:
 
 with the Robin boundary conditions on the right boundary
 
-.. math:: \left.\frac{du}{dx} = u
+.. math:: \frac{du}{dx} = u
 
 and Dirichlet boundary conditions on the left boundary
 
@@ -31,7 +31,7 @@ The DeepXDE and TensorFlow (``tf``) modules are imported:
 .. code-block:: python
 
     import deepxde as dde
-    from deepxde.backend import tf
+    import numpy as np
 
 We begin by defining a computational geometry. We can use a built-in class ``Interval`` as follows
 
@@ -51,7 +51,7 @@ The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordina
 
 Next, we consider the Robin boundary condition and Dirichlet boundary condition respectively.
 
-The Robin boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Robin boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The location fo the Robin boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Robin boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
@@ -59,7 +59,7 @@ The Robin boundary condition is defined by a simple Python function. The functio
         return on_boundary and np.isclose(x[0], 1)
 
 
-The Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_r``, and the only difference is that in this case Dirichlet boundary condition is used when it reaches the left endpoint of the interval.
+The location fo the Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_r``, and the only difference is that in this case Dirichlet boundary condition is used when it reaches the left endpoint of the interval.
 
 .. code-block:: python
 
