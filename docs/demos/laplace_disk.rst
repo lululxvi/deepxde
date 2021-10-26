@@ -1,5 +1,5 @@
 Laplace equation on a disk
-================
+================================
 
 Problem setup
 --------------
