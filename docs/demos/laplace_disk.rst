@@ -4,20 +4,20 @@ Laplace equation on a disk
 Problem setup
 --------------
 
-We will solve a Laplace equation:
+We will solve a Laplace equation in a polar coordinate system:
 
-.. math:: r * \frac{dy}{dr} + r^2 * \frac{dy}{dr^2} + \frac{dy}{d\theta^2} = 0,
+.. math:: r\frac{dy}{dr} + r^2\frac{dy}{dr^2} + \frac{dy}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
 
 with the Dirichlet boundary conditions  
 
-.. math:: y(1,\theta) = \cos(\theta).
+.. math:: y(1,\theta) = \cos(\theta), \quad y(r, \theta +2\pi) = y(r, \theta )
 
-The reference solution is :math:`y=r*\cos(\theta)`.
+The reference solution is :math:`y=r\cos(\theta)`.
 
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above ODE system step-by-step.
+This description goes through the implementation of a solver for the above described Laplace equation step-by-step.
 
 First, the DeepXDE, NumPy (``np``), and TensorFlow (``tf``) modules are imported:
 
@@ -52,7 +52,7 @@ Next, we consider the Dirichlet boundary condition. We need to implement a funct
     def boundary(x, on_boundary):
         return on_boundary and np.isclose(x[0], 1)
 
-The argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=2` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_boundary`` is used as the second argument. If the point ``(r,\theta)`` (the first argument) is on the entire boundary of the rectangle geometry that created above, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``. 
+The argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=2` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_boundary`` is used as the second argument. If the point :math:`(r,\theta)` (the first argument) is on the entire boundary of the rectangle geometry that created above, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``. 
 
 Using a lambda funtion, the ``boundary`` we defined above can be passed to ``DirichletBC`` as the third argument. Thus, the Dirichlet boundary condition is
 
@@ -86,7 +86,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
     net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
-In this problem, we use :math:`[r*\sin(\theta), r*\cos(\theta)]` as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate.
+If we rewrite this problem in a cartesian coordinates, the variables are in the form of :math:`[r\sin(\theta), r\cos(\theta)]`. We use them as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate and the period is :math:`2\pi`.
 
 .. code-block:: python
 
@@ -95,7 +95,7 @@ In this problem, we use :math:`[r*\sin(\theta), r*\cos(\theta)]` as features to 
             [x[:, 0:1] * tf.sin(x[:, 1:2]), x[:, 0:1] * tf.cos(x[:, 1:2])], axis=1
         )
 
-Then we apply this ``feature_transform`` to the network inputs:
+Then we apply ``feature_transform`` to the network inputs:
 
 .. code-block:: python
 
