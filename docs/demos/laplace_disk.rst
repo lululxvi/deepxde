@@ -125,4 +125,3 @@ Complete code
 
 .. literalinclude:: ../../examples/Laplace_disk.py
   :language: python
-  
