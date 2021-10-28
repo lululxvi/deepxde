@@ -85,7 +85,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 .. code-block:: python
     net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
-If we rewrite this problem in a cartesian coordinates, the variables are in the form of :math:`[r\sin(\theta), r\cos(\theta)]`. We use them as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate and the period is :math:`2\pi`.
+If we rewrite this problem in cartesian coordinates, the variables are in the form of :math:`[r\sin(\theta), r\cos(\theta)]`. We use them as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate and the period is :math:`2\pi`.
 
 .. code-block:: python
 
