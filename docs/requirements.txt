@@ -6,3 +6,4 @@ scipy
 tensorflow>=2.2.0
 tensorflow-probability
 torch
+docutils<0.18  # https://github.com/readthedocs/readthedocs.org/issues/8616
