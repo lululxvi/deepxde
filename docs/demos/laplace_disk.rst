@@ -8,9 +8,13 @@ We will solve a Laplace equation in a polar coordinate system:
 
 .. math:: r\frac{dy}{dr} + r^2\frac{dy}{dr^2} + \frac{dy}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
 
-with the Dirichlet boundary conditions  
+with the Dirichlet boundary condition
 
-.. math:: y(1,\theta) = \cos(\theta), \quad y(r, \theta +2\pi) = y(r, \theta )
+.. math:: y(1,\theta) = \cos(\theta)
+
+and the periodic boundary condition
+
+.. math:: y(r, \theta +2\pi) = y(r, \theta).
 
 The reference solution is :math:`y=r\cos(\theta)`.
 
