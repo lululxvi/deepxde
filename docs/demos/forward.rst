@@ -26,7 +26,12 @@ Time-independent PDEs
 - `Poisson equation in 1D with the multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_multiscale_1d.py>`_
 - `Poisson equation in 1D with Dirichlet/periodic boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_periodic_1d.py>`_
 - `Poisson equation over an L-shaped domain <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Lshape.py>`_
-- `Laplace equation on a disk <https://github.com/lululxvi/deepxde/blob/master/examples/Laplace_disk.py>`_
+
+.. toctree::
+   :maxdepth: 1
+
+   laplace_disk
+
 - `Euler beam <https://github.com/lululxvi/deepxde/blob/master/examples/Euler_beam.py>`_
 
 Time-dependent PDEs
