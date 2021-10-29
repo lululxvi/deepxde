@@ -21,10 +21,10 @@ Time-independent PDEs
 
    poisson.1d.dirichlet
    poisson.1d.neumanndirichlet
+   poisson.1d.dirichletrobin
+   poisson.1d.dirichletperiodic
 
-- `Poisson equation in 1D with Dirichlet/Robin boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Robin_1d.py>`_
 - `Poisson equation in 1D with the multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_multiscale_1d.py>`_
-- `Poisson equation in 1D with Dirichlet/periodic boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_periodic_1d.py>`_
 - `Poisson equation over an L-shaped domain <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Lshape.py>`_
 
 .. toctree::
