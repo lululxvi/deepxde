@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Poisson equation:
 
-.. math:: -\Delta u = \pi^2sin(\pi x), \qquad x \in [-1, 1],
+.. math:: -\Delta u = \pi^2\sin(\pi x), \qquad x \in [-1, 1],
 
 with the Periodic boundary conditions on the right boundary
 
@@ -65,7 +65,7 @@ The location of the Dirichlet boundary condition is defined in a similar way tha
         return on_boundary and np.isclose(x[0], -1)
 
 
-Next, we define a function to return the value of :math:`u(x)` for the points :math:`x` on the Dirichlet boundary. In this case, it is :math:`u(x)=0`. For example, :math:`sin(pi * x)` is 0 on the boundary, and thus we can also use
+Next, we define a function to return the value of :math:`u(x)` for the points :math:`x` on the Dirichlet boundary. In this case, it is :math:`u(x)=0`. For example, :math:`\sin(pi * x)` is 0 on the boundary, and thus we can also use
 
 
 .. code-block:: python
