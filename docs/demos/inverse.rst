@@ -15,8 +15,12 @@ ODEs
 
 PDEs
 ----
+
+.. toctree::
+   :maxdepth: 1
+
+   diffusion_1d_inverse
    
-- `Inverse problem for the diffusion equation <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_inverse.py>`_
 - `Inverse Problem for the diffusion-reaction system <https://github.com/lululxvi/deepxde/blob/master/examples/reaction_inverse.py>`_
 - `Inverse problem for the Poisson equation with unknown forcing field <https://github.com/lululxvi/deepxde/blob/master/examples/elliptic_inverse_field.py>`_
 
