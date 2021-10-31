@@ -16,7 +16,7 @@ and Dirichlet boundary conditions on the left boundary
 
 .. math:: u(-1)=0.
 
-The exact solution is :math:`u(x) = sin(\pi x)`.
+The exact solution is :math:`u(x) = \sin(\pi x)`.
 
 Implementation
 --------------
