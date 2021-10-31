@@ -16,7 +16,7 @@ the Dirichlet boundary conditions
 
 .. math:: y(-1, t) = y(1, t) = 0.
 
-The reference solution is :math:`y = e^{-t}* \sin(\pi x)`.
+The reference solution is :math:`y = e^{-t} \sin(\pi x)`.
 
 Implementation
 --------------
@@ -55,7 +55,7 @@ Next, we express the PDE residual of the diffusion equation:
 
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second componenet (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
-Here ``C`` is an unknown parameter with initial value :math:`2.0`:
+Here ``C`` is an unknown parameter with initial value 2.0:
 
 .. code-block:: python
 
@@ -109,7 +109,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate, and the unknown parameters ``C`` is passed as ``external_trainable_variables``:
+Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate, and the unknown parameter ``C`` is passed as ``external_trainable_variables``:
 
 .. code-block:: python
 
