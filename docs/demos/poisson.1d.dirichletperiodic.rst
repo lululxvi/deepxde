@@ -22,15 +22,13 @@ Implementation
 --------------
 
 This description goes through the implementation of a solver for the above described Poisson equation step-by-step.
-First, modules setting is the same as Possion equation in 1D with Dirichlet boundary conditions. More details can be found in this page.
 
-.. _Possion equation in 1D with Dirichlet boundary conditions: https://github.com/lululxvi/deepxde/blob/master/docs/demos/poisson.1d.dirichlet.rst.
-
-The DeepXDE and TensorFlow (``tf``) modules are imported:
+First, the DeepXDE and TensorFlow (``tf``) modules are imported:
 
 .. code-block:: python
 
     import deepxde as dde
+    import numpy as np
     from deepxde.backend import tf
 
 We begin by defining a computational geometry. We can use a built-in class ``Interval`` as follows
@@ -45,13 +43,13 @@ Next, we express the PDE residual of the Poisson equation:
 
     def pde(x, y):
         dy_xx = dde.grad.hessian(y, x)
-        return dy_xx - 2
+        return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
 
 The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
 
 Next, we consider the Periodic boundary condition and Dirichlet boundary condition respectively.
 
-The Periodic boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The location of the Periodic boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
@@ -59,7 +57,7 @@ The Periodic boundary condition is defined by a simple Python function. The func
         return on_boundary and np.isclose(x[0], 1)
 
 
-The Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_r``, and the only difference is that in this case Dirichlet boundary condition is used when it reaches the left endpoint of the interval.
+The location of the Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_r``, and the only difference is that in this case Dirichlet boundary condition is used when it reaches the left endpoint of the interval.
 
 .. code-block:: python
 
