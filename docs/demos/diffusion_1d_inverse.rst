@@ -4,15 +4,15 @@ Inverse problem for the diffusion equation
 Problem setup
 --------------
 
-We will solve an inverse problem for the diffusion equation with an unknown parameter C:
+We will solve an inverse problem for the diffusion equation with an unknown parameter :math:`C`:
 
-.. math:: \frac{dy}{dt} = C\frac{d^2y}{dx^2} - e^{-t}(\sin(\pi x) - \pi^2\sin(\pi x)),   \qquad x \in [-1, 1], \quad t \in [0, 1]
+.. math:: \frac{\partial y}{\partial t} = C\frac{\partial^2y}{\partial x^2} - e^{-t}(\sin(\pi x) - \pi^2\sin(\pi x)),   \qquad x \in [-1, 1], \quad t \in [0, 1]
 
 with the initial condition
 
 .. math:: y(x, 0) = \sin(\pi x)
 
-the Dirichlet boundary conditions 
+and the Dirichlet boundary condition 
 
 .. math:: y(-1, t) = y(1, t) = 0.
 
@@ -31,7 +31,7 @@ First, the DeepXDE, NumPy (``np``), and TensorFlow (``tf``) modules are imported
     import numpy as np
     from deepxde.backend import tf
 
-We begin by defining computational geometries. We can use a built-in class ``interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
+We begin by defining computational geometries. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
 .. code-block:: python
 
@@ -75,7 +75,7 @@ The reference solution ``func`` is defined as:
     def func(x):
         return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
-In this problem, we provide extra information on some training points and the parameter ``C`` can be identified from these observations. We generate a 2-dimensional array ``observe_x`` of 10 equally-spaced input points :math:`(x, t)` as the first argument to ``PointSetBC``, where :math:`x` is in :math:`[-1, 1]` and :math:`t=1`. The second argument ``func(observe_x)`` is the corresponding exact solution. ``PointSetBC`` compares ``observe_x`` and ``func(observe_x)``, and they satisfy the Dirichlet boundary condition.
+In this problem, we provide extra information on some training points and the parameter :math:`C` can be identified from these observations. We generate a 2-dimensional array ``observe_x`` of 10 equally-spaced input points :math:`(x, t)` as the first argument to ``PointSetBC``, where :math:`x` is in :math:`[-1, 1]` and :math:`t=1`. The second argument ``func(observe_x)`` is the corresponding exact solution. ``PointSetBC`` compares ``observe_x`` and ``func(observe_x)``, and they satisfy the Dirichlet boundary condition.
 
 .. code-block:: python
 
@@ -117,7 +117,7 @@ Now, we have the PDE problem and the network. We bulid a ``Model`` and choose th
     model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=C)
     
    
-We then train the model for 50000 iterations. During the training process, we output the value of ``C`` every 1000 epochs:
+We then train the model for 50000 iterations. During the training process, we output the value of :math:`C` every 1000 epochs:
 
 .. code-block:: python
 
