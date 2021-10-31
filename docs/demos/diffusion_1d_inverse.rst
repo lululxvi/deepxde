@@ -61,7 +61,7 @@ Here ``C`` is an unknown parameter with initial value 2.0:
 
     C = dde.Variable(2.0)
 
-Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BCs in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
+Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
 
 .. code-block:: python
 
