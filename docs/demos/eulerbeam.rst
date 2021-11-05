@@ -4,7 +4,7 @@ Euler beam
 Problem setup
 --------------
 
-We will solve a Euler Beam problem:
+We will solve a Euler beam problem:
 
 .. math:: \frac{\partial^{4} u}{\partial x^4} + 1 = 0, \qquad x \in [0, 1],
 
@@ -40,7 +40,16 @@ We begin by defining a computational geometry. We can use a built-in class ``Int
 
     geom = dde.geometry.Interval(0, 1)
 
-Next, we express the PDE residual of the Poisson equation:
+The Hessian matrix and the Jacobian maxtrix are defined to calculate the second and the third derivatives respectively.
+
+.. code-block:: python
+    def ddy(x, y):
+    return dde.grad.hessian(y, x)
+    
+    def dddy(x, y):
+    return dde.grad.jacobian(ddy(x, y), x)
+
+Next, we express the PDE residual of the Poisson equation. 
 
 .. code-block:: python
 
@@ -81,17 +90,7 @@ The Dirichlet boundary condition and the Neumann boundary condition on the left 
     bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)
     bc2 = dde.NeumannBC(geom, lambda x: 0, boundary_l)
 
-The right boundaries in this problem are of higher order so that the Hessian matrix and the Jacobian maxtrix are defined to calculate the second and the third derivatives respectively, which will be utilized when calculating the right boundary conditions.
-
-.. code-block:: python
-    def ddy(x, y):
-    return dde.grad.hessian(y, x)
-
-.. code-block:: python
-   def dddy(x, y):
-   return dde.grad.jacobian(ddy(x, y), x)
-
-The right boundary is defined as,
+The right boundaries in this problem are of higher order so that the Hessian matrix and the Jacobian maxtrix are utilized when calculating the right boundary conditions. The right boundary is defined as,
 
 .. code-block:: python
 
