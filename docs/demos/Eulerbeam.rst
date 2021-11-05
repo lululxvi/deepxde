@@ -92,7 +92,7 @@ Now, we have specified the geometry, PDE residual and boundary conditions. We th
 
 .. code-block:: python
  
-data = dde.data.PDE(
+    data = dde.data.PDE(
     geom,
     pde,
     [bc1, bc2, bc3, bc4],
@@ -100,7 +100,7 @@ data = dde.data.PDE(
     num_boundary=2,
     solution=func,
     num_test=100,
-)
+    )
 
 The number 10 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 100 residual points for testing the PDE residual.
 
