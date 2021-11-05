@@ -31,8 +31,7 @@ Time-independent PDEs
    :maxdepth: 1
 
    laplace_disk
-
-- `Euler beam <https://github.com/lululxvi/deepxde/blob/master/examples/Euler_beam.py>`_
+   eulerbeam
 
 Time-dependent PDEs
 -------------------
