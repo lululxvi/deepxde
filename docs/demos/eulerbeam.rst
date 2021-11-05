@@ -45,10 +45,10 @@ The Hessian matrix and the Jacobian maxtrix are defined to calculate the second 
 .. code-block:: python
 
     def ddy(x, y):
-    return dde.grad.hessian(y, x)
+        return dde.grad.hessian(y, x)
     
     def dddy(x, y):
-    return dde.grad.jacobian(ddy(x, y), x)
+        return dde.grad.jacobian(ddy(x, y), x)
 
 Next, we express the PDE residual of the Poisson equation. 
 
