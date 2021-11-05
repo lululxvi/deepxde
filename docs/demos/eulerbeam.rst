@@ -1,5 +1,5 @@
-Euler Beam
-==================================================================
+Euler beam
+==========
 
 Problem setup
 --------------
@@ -8,17 +8,17 @@ We will solve a Euler Beam problem:
 
 .. math:: \frac{\partial^{4} u}{\partial x^4} + 1 = 0, \qquad x \in [0, 1],
 
-with two general operator boundary conditions on the right boundary,
+with two boundary conditions on the right boundary,
 
 .. math:: u''(1)=0,   u'''(1)=0
 
 and one Dirichlet boundary condition on the left boundary,
 
-.. math:: u(0)=0.
+.. math:: u(0)=0
 
 along with one Neumann boundary condition on the left boundary,
 
-.. math:: u'(0)=0.
+.. math:: u'(0)=0
 
 The exact solution is :math:`u(x) = -\frac{1}{24}x^4+\frac{1}{6}x^3-\frac{1}{4}x^2`.
 
@@ -60,7 +60,7 @@ Two boundary conditions on the left including one Dirichlet boundary condition a
     def boundary_l(x, on_boundary):
         return on_boundary and np.isclose(x[0], 0)
 
-Two general operator boundary conditions applied on the right boundary. The location of these two general operator boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_l``, and the only difference is that in these case general operator boundary conditions are used when it reaches the right endpoint of the interval.
+Two boundary conditions applied on the right boundary. The location of these two boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_l``, and the only difference is that in these case general operator boundary conditions are used when it reaches the right endpoint of the interval.
 
 .. code-block:: python
 
@@ -74,14 +74,24 @@ Next, for better comparsion, we define a function which is the exact solution to
     def func(x):
         return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
 
-The Dirichlet boundary condition and the Neumann boundary condition on the left are defined as following,
+The Dirichlet boundary condition and the Neumann boundary condition on the left are defined as following.
 
 .. code-block:: python
 
     bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)
     bc2 = dde.NeumannBC(geom, lambda x: 0, boundary_l)
 
-and two general operator boundary conditions on the right are defined as below
+The right boundaries in this problem are of higher order so that the Hessian matrix and the Jacobian maxtrix are defined to calculate the second and the third derivatives respectively, which will be utilized when calculating the right boundary conditions.
+
+.. code-block:: python
+    def ddy(x, y):
+    return dde.grad.hessian(y, x)
+
+.. code-block:: python
+   def dddy(x, y):
+   return dde.grad.jacobian(ddy(x, y), x)
+
+The right boundary is defined as,
 
 .. code-block:: python
 
@@ -93,13 +103,13 @@ Now, we have specified the geometry, PDE residual and boundary conditions. We th
 .. code-block:: python
  
     data = dde.data.PDE(
-    geom,
-    pde,
-    [bc1, bc2, bc3, bc4],
-    num_domain=10,
-    num_boundary=2,
-    solution=func,
-    num_test=100,
+        geom,
+        pde,
+        [bc1, bc2, bc3, bc4],
+        num_domain=10,
+        num_boundary=2,
+        solution=func,
+        num_test=100,
     )
 
 The number 10 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 100 residual points for testing the PDE residual.
