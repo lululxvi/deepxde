@@ -25,7 +25,7 @@ The exact solution is :math:`u(x) = -\frac{1}{24}x^4+\frac{1}{6}x^3-\frac{1}{4}x
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above described Euler Beam problem step-by-step.
+This description goes through the implementation of a solver for the above described Euler beam problem step-by-step.
 
 First, the DeepXDE is imported:
 
@@ -43,6 +43,7 @@ We begin by defining a computational geometry. We can use a built-in class ``Int
 The Hessian matrix and the Jacobian maxtrix are defined to calculate the second and the third derivatives respectively.
 
 .. code-block:: python
+
     def ddy(x, y):
     return dde.grad.hessian(y, x)
     
