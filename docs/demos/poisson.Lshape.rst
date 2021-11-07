@@ -1,4 +1,4 @@
-Poisson equation with L-shaped domain and Dirichlet boundary conditions
+Poisson equation over an L-shaped domain
 ========================================================================
 
 Problem setup
@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Poisson equation:
 
-.. math:: - u_xx-u_yy = 1, \qquad  \Omega = [-1,1]^2 \backslash [0,1]^2
+.. math:: - u_{xx}-u_{yy} = 1, \qquad  \Omega = [-1,1]^2 \backslash [0,1]^2
 
 with the Dirichlet boundary conditions
 
@@ -60,12 +60,12 @@ Now, we have specified the geometry, PDE residual, and Dirichlet boundary condit
 .. code-block:: python
 
     data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test=1500)
+    
 The number 1200 is the number of training residual points sampled inside the domain, and the number 120 is the number of training points sampled on the boundary. We use 1500 residual points for testing the PDE residual.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 5 (i.e., 4 hidden layers) and width 50. Besides, we choose ``tanh`` as activation function and ``Glorot uniform`` as initializer :
 
 .. code-block:: python
-
 
     net = dde.maps.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 
@@ -85,8 +85,10 @@ We first train the model for 50000 iterations with Adam optimizer:
 And then we train the model again using L-BFGS
 
 .. code-block:: python
+
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
+    
 Complete code
 --------------
 
