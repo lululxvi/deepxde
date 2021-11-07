@@ -1,4 +1,4 @@
-Poisson equation in 1D with Multi-scale Fourier feature networks and Dirichlet boundary conditions
+Poisson equation in 1D with Multi-scale Fourier feature networks
 ===================================================================================================
 
 Problem setup
