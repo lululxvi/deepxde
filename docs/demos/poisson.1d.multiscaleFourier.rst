@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Poisson equation:
 
-.. math:: \Delta u = -(\pi*A)^2 \sin(\pi A x)- 0.1 (\pi B)^2 \sin(\pi B x),
+.. math:: \Delta u = -(\pi A)^2 \sin(\pi A x)- 0.1 (\pi B)^2 \sin(\pi B x),
 .. math:: \qquad x \in [-1, 1]
 
 with Dirichlet boundary conditions
@@ -79,9 +79,9 @@ Now, we have specified the geometry, PDE residual and Dirichlet boundary conditi
         num_test=10000,
     )
 
-The number 1280 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``train_distribution = 'pseudo'`` means that the sample training points follows a pseudo-random distribution.  ``The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 10000 residual points for testing the PDE residual.
+The number 1280 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``train_distribution = 'pseudo'`` means that the sample training points follows a pseudo-random distribution.  The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 10000 residual points for testing the PDE residual.
 
-Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 100:
+Next, we choose the network. Here, we use a multi-scale Fourier feature networks of depth 4 (i.e., 3 hidden layers) and width 100. ``sigmas`` is the list of standard deviation of the distribution of fourier feature embeddings. In this example, the network consists of a Fourier feature layer and fully-connected layers. The Fourier feature network is constructed using a random Fourier feature mapping as a coordinate embedding of the inputs. Specifically, we multiply the input vector with matrix whose entry is sampled from a Gaussian distribution with mean zero and variance sigma, and then concatenate the list of tensors horizontally with cosine and sine functions. Then, the network is:
 
 .. code-block:: python
 
