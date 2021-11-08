@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Poisson equation:
 
-.. math:: - u_xx-u_yy = 1, \qquad  \Omega = [-1,1]^2 \backslash [0,1]^2
+.. math:: - u_{xx}-u_{yy} = 1, \qquad  \Omega = [-1,1]^2 \backslash [0,1]^2
 
 with the Dirichlet boundary conditions
 
