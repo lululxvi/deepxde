@@ -34,7 +34,7 @@ We begin by defining a computational geometry. We can use a built-in class ``Int
     geom = dde.geometry.Interval(0, 1)
 
 
-Next, we choose `A = 2` and `B = 50`, and then express the PDE residual of the Poisson equation:
+Next, we choose `A = 2` and `B = 50`, two user-specified hyper-parameters that implies the fluctuation of sine functions, and then express the PDE residual of the Poisson equation:
 
 .. code-block:: python
 
