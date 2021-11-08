@@ -13,6 +13,10 @@ with Dirichlet boundary conditions
 
 .. math:: u(0) = 0, \quad u(1) = 0
 
+and two user-specified hyper-parameters that implies the fluctuation of sine functions
+
+.. math:: A = 2, B = 50
+
 The exact solution is :math:`u(x) = \sin(\pi A x)+0.1 \sin(\pi B x)`.
 
 Implementation
@@ -34,7 +38,7 @@ We begin by defining a computational geometry. We can use a built-in class ``Int
     geom = dde.geometry.Interval(0, 1)
 
 
-Next, we choose `A = 2` and `B = 50`, two user-specified hyper-parameters that implies the fluctuation of sine functions, and then express the PDE residual of the Poisson equation:
+Next, we express the PDE residual of the Poisson equation:
 
 .. code-block:: python
 
