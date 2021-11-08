@@ -1,4 +1,4 @@
-Poisson equation with L-shaped domain and Dirichlet boundary conditions
+Poisson equation over L-shaped domain
 ========================================================================
 
 Problem setup
@@ -66,7 +66,6 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
 .. code-block:: python
 
-
     net = dde.maps.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 
 Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate:
@@ -85,8 +84,10 @@ We first train the model for 50000 iterations with Adam optimizer:
 And then we train the model again using L-BFGS
 
 .. code-block:: python
+
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
+    
 Complete code
 --------------
 
