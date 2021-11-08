@@ -28,7 +28,7 @@ install:
 
   - conda install -c conda-forge scikit-optimize
   - pip install tensorflow tensorflow-probability
-  - conda install -c pytorch pytorch
+  - conda install pytorch torchvision torchaudio cpuonly -c pytorch
 
 script:
   # Your test script goes here
