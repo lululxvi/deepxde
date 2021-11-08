@@ -24,8 +24,7 @@ Time-independent PDEs
    poisson.1d.dirichletrobin
    poisson.1d.dirichletperiodic
    poisson.1d.multiscaleFourier
-   
-- `Poisson equation over an L-shaped domain <https://github.com/lululxvi/deepxde/blob/master/examples/Poisson_Lshape.py>`_
+   poisson.Lshape
 
 .. toctree::
    :maxdepth: 1
