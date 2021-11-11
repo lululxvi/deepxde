@@ -17,7 +17,7 @@ The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above described Lorenz system step-by-step.
+This description goes through the implementation of a solver for the above Lorenz system step-by-step.
 
 First, the DeepXDE and NumPy (``np``) modules are imported:
 
@@ -40,7 +40,7 @@ Now we can begin by creating a ``TimeDomain`` class.
     
     geom = dde.geometry.TimeDomain(0, 3)
     
-Next, we create the Lorenz system to solve using the ``Jacobian``.
+Next, we create the Lorenz system to solve using the ``Jacobian`` class.
 
 .. code-block:: python
 
@@ -55,16 +55,16 @@ Next, we create the Lorenz system to solve using the ``Jacobian``.
         dy3_x - y1 * y2 + C3 * y3,
     ]
 
-The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math: y(t), but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
+The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math: y(x, y, z), but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
 
-Next, we consider the initial conditions. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. In our case, the point :math:`t` of the initial condition is :math:`t = 0`. 
+Next, we consider the initial conditions. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. 
 
 .. code-block:: python
 
     def boundary(_, on_initial):
     return on_initial
 
-Then the initial conditions are specified using the computational domain, initial function and boundary. The argument ``component`` refers to if this IC is for the first component (:math:`x`), the second component (:math:`y`), or the third component (:math:`z`).
+Then the initial conditions are specified using the computational domain, initial function, and boundary. The argument ``component`` refers to if this IC is for the first component (:math:`x`), the second component (:math:`y`), or the third component (:math:`z`). Note that in our case, the point :math:`t` of the initial condition is :math:`t = 0`. 
 
 .. code-block:: python
     
@@ -80,7 +80,7 @@ Now me must assign the data from ``Lorenz.npz`` to the corresponding :math:`t`, 
         data = np.load("dataset/Lorenz.npz")
         return data["t"], data["y"]
         
-Then we get the train data. 
+Then we organize and assign the train data. 
 
 .. code-block:: python
 
@@ -102,7 +102,7 @@ Now that the problem is fully setup, we define the PDE as:
         anchors=observe_t,
         )
 
-Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` is extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
+Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 40:
 
@@ -110,7 +110,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
     net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
     
-Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer, learning rate, and setup trainable variables:
+Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer, learning rate, and provide the trainable variables C1, C2, and C3:
 
 .. code-block:: python
 
