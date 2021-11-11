@@ -1,6 +1,10 @@
 Inverse problem for the Lorenz system
 =====================================
 
+We will solve the Lorenz system:
+
+.. math:: \frac{dx}{dt}
+
 Problem setup
 --------------
 
