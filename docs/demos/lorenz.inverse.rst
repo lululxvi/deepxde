@@ -45,15 +45,15 @@ Next, we create the Lorenz system to solve using the ``Jacobian`` class.
 .. code-block:: python
 
     def Lorenz_system(x, y):
-    y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
-    dy1_x = dde.grad.jacobian(y, x, i=0)
-    dy2_x = dde.grad.jacobian(y, x, i=1)
-    dy3_x = dde.grad.jacobian(y, x, i=2)
-    return [
-        dy1_x - C1 * (y2 - y1),
-        dy2_x - y1 * (C2 - y3) + y2,
-        dy3_x - y1 * y2 + C3 * y3,
-    ]
+        y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
+        dy1_x = dde.grad.jacobian(y, x, i=0)
+        dy2_x = dde.grad.jacobian(y, x, i=1)
+        dy3_x = dde.grad.jacobian(y, x, i=2)
+        return [
+            dy1_x - C1 * (y2 - y1),
+            dy2_x - y1 * (C2 - y3) + y2,
+            dy3_x - y1 * y2 + C3 * y3,
+        ]
 
 The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math: y(x, y, z), but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
 
@@ -62,7 +62,7 @@ Next, we consider the initial conditions. We need to implement a function, which
 .. code-block:: python
 
     def boundary(_, on_initial):
-    return on_initial
+        return on_initial
 
 Then the initial conditions are specified using the computational domain, initial function, and boundary. The argument ``component`` refers to if this IC is for the first component (:math:`x`), the second component (:math:`y`), or the third component (:math:`z`). Note that in our case, the point :math:`t` of the initial condition is :math:`t = 0`. 
 
@@ -100,7 +100,7 @@ Now that the problem is fully setup, we define the PDE as:
         num_domain=400,
         num_boundary=2,
         anchors=observe_t,
-        )
+    )
 
 Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
 
