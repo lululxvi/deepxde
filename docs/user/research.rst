@@ -23,6 +23,7 @@ PINN
 DeepONet
 --------
 
+#. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. E. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://arxiv.org/abs/2111.05512>`_. *arXiv preprint arXiv:2111.05512*, 2021.
 #. C. Lin, M. Maxey, Z. Li, & G. E. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
 #. Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.
 #. P. Clark Di Leoni, L. Lu, C. Meneveau, G. E. Karniadakis, & T. A. Zaki. `DeepONet prediction of linear instability waves in high-speed boundary layers <https://arxiv.org/abs/2105.08697>`_. *arXiv preprint arXiv:2105.08697*, 2021.
