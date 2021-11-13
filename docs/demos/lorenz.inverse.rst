@@ -26,7 +26,7 @@ First, the DeepXDE and NumPy (``np``) modules are imported:
     import deepxde as dde
     import numpy as np
         
-We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and math:`\beta` which will now be called C1, C2, and C3, respectivly.        
+We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and :math:`\beta` which will now be called C1, C2, and C3, respectivly.        
 
 .. code-block:: python
     
