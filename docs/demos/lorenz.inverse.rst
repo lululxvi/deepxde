@@ -26,7 +26,7 @@ First, the DeepXDE and NumPy (``np``) modules are imported:
     import deepxde as dde
     import numpy as np
         
-We also want to define our three unknown variables, :math: `\sigma`, `\rho`, and `\beta` which will now be called C1, C2, and C3, respectivly.        
+We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and math:`\beta` which will now be called C1, C2, and C3, respectivly.        
 
 .. code-block:: python
     
@@ -55,7 +55,7 @@ Next, we create the Lorenz system to solve using the ``Jacobian`` class.
             dy3_x - y1 * y2 + C3 * y3,
         ]
 
-The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math: y(x, y, z), but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
+The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x,y,z)`, but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
 
 Next, we consider the initial conditions. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. 
 
