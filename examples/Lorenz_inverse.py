@@ -19,7 +19,7 @@ C3 = dde.Variable(1.0)
 def Lorenz_system(x, y):
     """Lorenz system.
     dy1/dx = 10 * (y2 - y1)
-    dy2/dx = y1 * (28 - y3) - y2
+    dy2/dx = y1 * (15 - y3) - y2
     dy3/dx = y1 * y2 - 8/3 * y3
     """
     y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
