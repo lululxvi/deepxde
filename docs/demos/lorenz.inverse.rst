@@ -12,7 +12,7 @@ with initial conditions
 
 .. math:: x(0) = -8, \quad y(0) = 7, \quad z(0) = 27.
 
-The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Lorenz.npz>`_.
+The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Lorenz.npz>`_, where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. 
 
 Implementation
 --------------
@@ -26,7 +26,7 @@ First, the DeepXDE and NumPy (``np``) modules are imported:
     import deepxde as dde
     import numpy as np
         
-We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and :math:`\beta` which will now be called C1, C2, and C3, respectivly.        
+We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and :math:`\beta` which will now be called C1, C2, and C3, respectivly. These variables are given an initial guess of 1.0.
 
 .. code-block:: python
     
@@ -40,7 +40,7 @@ Now we can begin by creating a ``TimeDomain`` class.
     
     geom = dde.geometry.TimeDomain(0, 3)
     
-Next, we create the Lorenz system to solve using the ``Jacobian`` class.
+Next, we create the Lorenz system to solve using the ``dde.grad.jacobian`` function.
 
 .. code-block:: python
 
