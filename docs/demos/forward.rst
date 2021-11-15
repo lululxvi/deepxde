@@ -25,10 +25,6 @@ Time-independent PDEs
    poisson.1d.dirichletperiodic
    poisson.1d.multiscaleFourier
    poisson.Lshape
-
-.. toctree::
-   :maxdepth: 1
-
    laplace_disk
    eulerbeam
 
