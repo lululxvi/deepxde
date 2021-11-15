@@ -20,6 +20,6 @@ keywords:
   - "deep learning"
   - "physics-informed neural networks"
   - "scientific machine learning"
-
+version: "0.13.6"
 repository-code: "https://github.com/lululxvi/deepxde"
 title: "DeepXDE: A deep learning library for solving differential equations"
