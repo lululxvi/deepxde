@@ -1,0 +1,25 @@
+cff-version: 1.1.0
+message: "If you use DeepXDE for academic research, you are encouraged to cite the following paper:"
+authors: 
+- family-names: Lu
+  given-names: Lu
+- family-names: Meng
+  given-names: Xuhui
+- family-names: Mao
+  given-names: Zhiping
+- family-names: Karniadakis
+  given-names: George Em
+
+journal: "SIAM Review"
+date-released: 2021-02-04
+doi: 10.1137/19M1274067
+keywords: 
+  - "education software"
+  - "DeepXDE"
+  - "differential equations"
+  - "deep learning"
+  - "physics-informed neural networks"
+  - "scientific machine learning"
+
+repository-code: "https://github.com/lululxvi/deepxde"
+title: "DeepXDE: A deep learning library for solving differential equations"
