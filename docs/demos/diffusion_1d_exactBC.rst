@@ -1,10 +1,10 @@
-Diffusion equation
-================
+Diffusion equation with hard initial and boundary conditions
+=============================================================
 
 Problem setup
 --------------
 
-We will solve a diffusion equation:
+We will solve a diffusion equation with hard initial and boundary conditions:
 
 .. math:: \frac{\partial y}{\partial t} = \frac{\partial^2y}{\partial x^2} - e^{-t}(\sin(\pi x) - \pi^2\sin(\pi x)),   \qquad x \in [-1, 1], \quad t \in [0, 1]
 
@@ -56,13 +56,6 @@ Next, we express the PDE residual of the diffusion equation:
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second componenet (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
 
-Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
-
-.. code-block:: python
-
-    bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-    ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
-
 The reference solution ``func`` is defined as:
 
 .. code-block:: python
@@ -70,22 +63,13 @@ The reference solution ``func`` is defined as:
     def func(x):
         return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
-Now, we have specified the geometry, the PDE residual and the boundary/initial conditions. We then define the ``TimePDE`` problem as
+Now, we have specified the geometry and the PDE residual. However, in order to apply hard boundary and initial conditions, they are not specified and exclusive from the loss function. We then define the ``TimePDE`` problem as
 
 .. code-block:: python
 
-    data = dde.data.TimePDE(
-        geomtime,
-        pde,
-        [bc, ic],
-        num_domain=40,
-        num_boundary=20,
-        num_initial=10,
-        solution=func,
-        num_test=10000,
-    )
+    data = dde.data.TimePDE(geomtime, pde, [], num_domain=40, solution=func, num_test=10000)
 
-The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual. The argument ``anchors`` is the above descirbed training points in addition to the ``num_domain``, ``num_initial``, and ``num_boundary`` sampled points.
+The number 40 is the number of training residual points sampled inside the domain. 10000 points for testing the PDE residual.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 32:
 
@@ -95,6 +79,13 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     activation = "tanh"
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
+
+Then we construct a function that spontaneously satisfies both the initial and the boundary conditions to transform the network output. In this case, :math:`t(1-x^2)y + sin(\pi x)` is used. When t is equal to 0, the initial condition :math:`sin(\pi x)` is recovered. When x is equal to -1 or 1, the boundary condition is recovered. Hence the initial and boundary conditions are both hard conditions.
+
+.. code-block:: python
+    net.apply_output_transform(
+    lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
+    )
 
 Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate. We then train the model for 10000 iterations.
 
@@ -113,5 +104,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/diffusion_1d.py
+.. literalinclude:: ../../examples/diffusion_1d_exactBC.py
   :language: python
