@@ -83,6 +83,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 Then we construct a function that spontaneously satisfies both the initial and the boundary conditions to transform the network output. In this case, :math:`t(1-x^2)y + sin(\pi x)` is used. When t is equal to 0, the initial condition :math:`sin(\pi x)` is recovered. When x is equal to -1 or 1, the boundary condition is recovered. Hence the initial and boundary conditions are both hard conditions.
 
 .. code-block:: python
+    
     net.apply_output_transform(
     lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
     )
