@@ -86,7 +86,7 @@ Now, we have specified the geometry, the PDE residual and the boundary/initial c
         num_test=10000,
     )
 
-The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual. 
+The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual. The argument ``train_distribution="pseudo"`` means that the sample training points follows a pseudo-random distribution.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 32:
 
@@ -97,13 +97,14 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate. We then train the model for 10000 iterations.
+Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate. We then train the model for 2000 iterations. The training points for PDE losses are resampled for every 100 periods.
 
 .. code-block:: python
 
-    model = dde.Model(data, net)
-    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=10000)
+   model = dde.Model(data, net)
+   resampler = dde.callbacks.PDEResidualResampler(period=100)
+   model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+   losshistory, train_state = model.train(epochs=2000, callbacks=[resampler])
     
 We also save and plot the best trained result and loss history.
 
@@ -114,5 +115,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/diffusion_1d.py
+.. literalinclude:: ../../examples/diffusion_1d_resample
   :language: python
