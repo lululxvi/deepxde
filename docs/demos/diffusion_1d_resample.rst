@@ -1,5 +1,5 @@
 Diffusion equation with training points resampling
-================
+===================================================
 
 Problem setup
 --------------
