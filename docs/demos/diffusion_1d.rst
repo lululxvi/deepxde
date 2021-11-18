@@ -46,7 +46,6 @@ Next, we express the PDE residual of the diffusion equation:
     def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, j=1)
     dy_xx = dde.grad.hessian(y, x, j=0)
-    # Backend tensorflow.compat.v1 or tensorflow
     return (
         dy_t
         - dy_xx
@@ -57,7 +56,7 @@ Next, we express the PDE residual of the diffusion equation:
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second componenet (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
 
-Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
+Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
 
 .. code-block:: python
 
