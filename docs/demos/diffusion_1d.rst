@@ -1,5 +1,5 @@
 Diffusion equation
-================
+===================
 
 Problem setup
 --------------
