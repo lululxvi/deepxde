@@ -3,9 +3,9 @@ dist: focal
 language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.6"
   - "3.7"
   - "3.8"
+  - "3.9"
 install:
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
