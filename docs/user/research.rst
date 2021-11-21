@@ -6,13 +6,13 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://doi.org/10.1137/21M1397908>`_. *SIAM Journal on Scientific Computing*, 43(6), B1105--B1132, 2021. [`Code <https://github.com/lululxvi/hpinn>`_]
 #. J. Yu, L. Lu, X. Meng, & G. E. Karniadakis. `Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems <https://arxiv.org/abs/2111.02801>`_. *arXiv preprint arXiv:2111.02801*, 2021.
 #. S. Lee, & T. Kadeethum. `Physics-informed neural networks for solving coupled flow and transport system <http://ceur-ws.org/Vol-2964/article_197.pdf>`_. 2021.
 #. Y. Chen, & L. Dal Negro. `Physics-informed neural networks for imaging and parameter retrieval of photonic nanostructures from near-field data <https://arxiv.org/abs/2109.12754>`_. *arXiv preprint arXiv:2109.12754*, 2021.
 #. A. M. Ncube, G. E. Harmsen, & A. S. Cornell. `Investigating a new approach to quasinormal modes: Physics-informed neural networks <https://arxiv.org/abs/2108.05867>`_. *arXiv preprint arXiv:2108.05867*, 2021.
 #. M. Almajid, & M. Abu-Alsaud. `Prediction of porous media fluid flow using physics informed neural networks <https://doi.org/10.1016/j.petrol.2021.109205>`_. *Journal of Petroleum Science and Engineering*, 109205, 2021.
 #. M. Merkle. `Boosting the training of physics-informed neural networks with transfer learning <https://github.com/mariusmerkle/TL-PINNs/blob/main/Bachelor%20Thesis.pdf>`_. 2021. [`Code <https://github.com/mariusmerkle/TL-PINNs>`_]
-#. L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://arxiv.org/abs/2102.04626>`_. *arXiv preprint arXiv:2102.04626*, 2021. [`Code <https://github.com/lululxvi/hpinn>`_]
 #. L. Lu, X. Meng, Z. Mao, & G. E. Karniadakis. `DeepXDE: A deep learning library for solving differential equations <https://doi.org/10.1137/19M1274067>`_. *SIAM Review*, 63(1), 208--228, 2021. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
 #. A. Yazdani, L. Lu, M. Raissi, & G. E. Karniadakis. `Systems biology informed deep learning for inferring parameters and hidden dynamics <https://doi.org/10.1371/journal.pcbi.1007575>`_. *PLoS Computational Biology*, 16(11), e1007575, 2020. [`Code <https://github.com/alirezayazdani1/SBINNs>`_]
 #. Q. Zhang, Y. Chen, & Z. Yang. `Data driven solutions and discoveries in mechanics using physics informed neural network <https://www.preprints.org/manuscript/202006.0258>`_. *Preprints*, 2020060258, 2020.
