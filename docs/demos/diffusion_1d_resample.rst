@@ -120,5 +120,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/diffusion_1d_resample
+.. literalinclude:: ../../examples/diffusion_1d_resample.py
   :language: python
