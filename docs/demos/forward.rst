@@ -35,10 +35,10 @@ Time-dependent PDEs
    :maxdepth: 1
 
    burgers
-
-- `Diffusion equation <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d.py>`_
-- `Diffusion equation with hard initial and boundary conditions <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_exactBC.py>`_
-- `Diffusion equation with training points resampling <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_
+   diffusion_1d
+   diffusion_1d_exactBC
+   diffusion_1d_resample
+   
 - `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/heat_conduction_1d_uniform_bar.ipynb>`_
 - `Burgers equation with residual-based adaptive refinement (RAR) <https://github.com/lululxvi/deepxde/blob/master/examples/Burgers_RAR.py>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/Beltrami_flow.py>`_
