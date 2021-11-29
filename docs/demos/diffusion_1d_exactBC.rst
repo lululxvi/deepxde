@@ -47,7 +47,7 @@ Next, we express the PDE residual of the diffusion equation:
     	dy_t = dde.grad.jacobian(y, x, j=1)
     	dy_xx = dde.grad.hessian(y, x, j=0)
     	return (
-        	    dy_t
+                dy_t
         		- dy_xx
         		+ tf.exp(-x[:, 1:])
         		* (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
