@@ -85,7 +85,7 @@ Then we construct a function that spontaneously satisfies both the initial and t
 .. code-block:: python
     
     net.apply_output_transform(
-    lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
+        lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
     )
 
 Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate. We then train the model for 10000 iterations.
