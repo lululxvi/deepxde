@@ -21,7 +21,7 @@ The reference solution is :math:`y = e^{-t} \sin(\pi x)`.
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above descirbed diffusion equation step-by-step.
+This description goes through the implementation of a solver for the above described diffusion equation step-by-step.
 
 First, the DeepXDE, NumPy (``np``), and TensorFlow (``tf``) modules are imported:
 
@@ -54,14 +54,14 @@ Next, we express the PDE residual of the diffusion equation:
         )
 
 
-The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second componenet (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
+The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second component (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
 Here ``C`` is an unknown parameter with initial value 2.0:
 
 .. code-block:: python
 
     C = dde.Variable(2.0)
 
-Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the inital condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
+Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain in considered as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the initial condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
 
 .. code-block:: python
 
@@ -98,7 +98,7 @@ Now, we have specified the geometry, PDE residual, boundary/initial condition, a
         num_test=10000,
     )
 
-The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual. The argument ``anchors`` is the above descirbed training points in addition to the ``num_domain``, ``num_initial``, and ``num_boundary`` sampled points.
+The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual. The argument ``anchors`` is the above described training points in addition to the ``num_domain``, ``num_initial``, and ``num_boundary`` sampled points.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 32:
 
@@ -109,7 +109,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate, and the unknown parameter ``C`` is passed as ``external_trainable_variables``:
+Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate, and the unknown parameter ``C`` is passed as ``external_trainable_variables``:
 
 .. code-block:: python
 
