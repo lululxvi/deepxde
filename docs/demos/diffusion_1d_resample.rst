@@ -97,7 +97,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.maps.FNN(layer_size, activation, initializer)
 
-The following code is to apply mini-batch gradient descent sampling method. The period is the size of a batch, which is set as 100 in this case. For one batch, 100 points will be selected randomly from the database to calculate the loss and then update the model.
+The following code is to apply mini-batch gradient descent sampling method. The period is the period of resamping. Here, the training points in the domain will be resampled every 100 iterations.
 
 .. code-block:: python
 
