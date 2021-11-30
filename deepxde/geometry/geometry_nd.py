@@ -68,7 +68,7 @@ class Hypercube(Geometry):
                         1:
                     ]
                 )
-        x = np.array(list(itertools.product(*xi)))
+        x = np.array(list(itertools.product(*xi)), dtype=config.real(np))
         if n != len(x):
             print(
                 "Warning: {} points required, but {} points sampled.".format(n, len(x))
