@@ -5,6 +5,7 @@ from __future__ import print_function
 import numpy as np
 
 from . import geometry
+from .. import config
 
 
 class CSGUnion(geometry.Geometry):
@@ -49,7 +50,7 @@ class CSGUnion(geometry.Geometry):
         )
 
     def random_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
             tmp = (
@@ -65,7 +66,7 @@ class CSGUnion(geometry.Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
