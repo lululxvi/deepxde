@@ -61,14 +61,22 @@ class Hypercube(Geometry):
         for i in range(self.dim):
             ni = int(np.ceil(self.side_length[i] / dx))
             if boundary:
-                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=ni))
+                xi.append(
+                    np.linspace(
+                        self.xmin[i], self.xmax[i], num=ni, dtype=config.real(np)
+                    )
+                )
             else:
                 xi.append(
-                    np.linspace(self.xmin[i], self.xmax[i], num=ni + 1, endpoint=False)[
-                        1:
-                    ]
+                    np.linspace(
+                        self.xmin[i],
+                        self.xmax[i],
+                        num=ni + 1,
+                        endpoint=False,
+                        dtype=config.real(np),
+                    )[1:]
                 )
-        x = np.array(list(itertools.product(*xi)), dtype=config.real(np))
+        x = np.array(list(itertools.product(*xi)))
         if n != len(x):
             print(
                 "Warning: {} points required, but {} points sampled.".format(n, len(x))
