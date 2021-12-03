@@ -5,7 +5,7 @@ import tensorflow.compat.v1 as tf
 
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
-    raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
+    raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
 
 
 # The major changes from TensorFlow 1.x to TensorFlow 2.x are:

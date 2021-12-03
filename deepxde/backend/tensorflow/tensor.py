@@ -2,11 +2,13 @@
 from distutils.version import LooseVersion
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
-    raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
-
+    raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
+if LooseVersion(tfp.__version__) < LooseVersion("0.10.0"):
+    raise RuntimeError("DeepXDE requires TensorFlow Probability>=0.10.0.")
 
 lib = tf
 
