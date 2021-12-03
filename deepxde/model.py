@@ -579,9 +579,8 @@ class Model(object):
             values = self.sess.run(variables_names)
             for k, v in zip(variables_names, values):
                 destination[k] = v
-        if backend_name == "pytorch":
+        elif backend_name == "pytorch":
             destination = self.net.state_dict()
-
         else:
             raise NotImplementedError(
                 "state_dict hasn't been implemented for this backend."
@@ -593,10 +592,10 @@ class Model(object):
 
         Args:
             protocol (string): If `protocol` is "backend", save using the backend-specific method.
-            For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
-            For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
-            If `protocol` is "pickle", save using the Python pickle module.
-            Only the protocol "backend" supports ``restore()``.
+                For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
+                If `protocol` is "pickle", save using the Python pickle module.
+                Only the protocol "backend" supports ``restore()``.
         """
         # TODO: backend tensorflow
         if verbose > 0:
@@ -608,17 +607,12 @@ class Model(object):
         if protocol == "pickle":
             with open("{}-{}.pkl".format(save_path, self.train_state.epoch), "wb") as f:
                 pickle.dump(self.state_dict(), f)
-
         elif protocol == "backend":
             if backend_name == "tensorflow.compat.v1":
-
-                if protocol == "tf.train.Saver":
-                    self.saver.save(
-                        self.sess, save_path, global_step=self.train_state.epoch
-                    )
-
+                self.saver.save(
+                    self.sess, save_path, global_step=self.train_state.epoch
+                )
             elif backend_name == "pytorch":
-                # torch.save does not make a directory, so directory has to be created before training
                 torch.save(
                     {
                         "model_state_dict": self.net.state_dict(),
