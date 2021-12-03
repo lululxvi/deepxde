@@ -572,54 +572,74 @@ class Model(object):
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
-        # TODO: backend tensorflow, pytorch
-        if backend_name != "tensorflow.compat.v1":
+        # TODO: backend tensorflow
+        if backend_name == "tensorflow.compat.v1":
+            destination = OrderedDict()
+            variables_names = [v.name for v in tf.global_variables()]
+            values = self.sess.run(variables_names)
+            for k, v in zip(variables_names, values):
+                destination[k] = v
+        elif backend_name == "pytorch":
+            destination = self.net.state_dict()
+        else:
             raise NotImplementedError(
                 "state_dict hasn't been implemented for this backend."
             )
-        destination = OrderedDict()
-        variables_names = [v.name for v in tf.global_variables()]
-        values = self.sess.run(variables_names)
-        for k, v in zip(variables_names, values):
-            destination[k] = v
         return destination
 
-    def save(self, save_path, protocol="tf.train.Saver", verbose=0):
+    def save(self, save_path, protocol="backend", verbose=0):
         """Saves all variables to a disk file.
 
         Args:
-            protocol (string): If `protocol` is "tf.train.Saver", save using
-                `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
-                If `protocol` is "pickle", save using the Python pickle module. Only
-                "tf.train.Saver" protocol supports ``restore()``.
+            protocol (string): If `protocol` is "backend", save using the backend-specific method.
+                For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
+                If `protocol` is "pickle", save using the Python pickle module.
+                Only the protocol "backend" supports ``restore()``.
         """
-        # TODO: backend tensorflow, pytorch
-        if backend_name != "tensorflow.compat.v1":
-            raise NotImplementedError(
-                "state_dict hasn't been implemented for this backend."
-            )
+        # TODO: backend tensorflow
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {}-{} ...\n".format(
                     self.train_state.epoch, save_path, self.train_state.epoch
                 )
             )
-        if protocol == "tf.train.Saver":
-            self.saver.save(self.sess, save_path, global_step=self.train_state.epoch)
-        elif protocol == "pickle":
+        if protocol == "pickle":
             with open("{}-{}.pkl".format(save_path, self.train_state.epoch), "wb") as f:
                 pickle.dump(self.state_dict(), f)
+        elif protocol == "backend":
+            if backend_name == "tensorflow.compat.v1":
+                self.saver.save(
+                    self.sess, save_path, global_step=self.train_state.epoch
+                )
+            elif backend_name == "pytorch":
+                torch.save(
+                    {
+                        "model_state_dict": self.net.state_dict(),
+                        "optimizer_state_dict": self.opt.state_dict(),
+                    },
+                    save_path + "-{}.pt".format(self.train_state.epoch),
+                )
+            else:
+                raise NotImplementedError(
+                    "Model.save() hasn't been implemented for this backend."
+                )
 
     def restore(self, save_path, verbose=0):
         """Restore all variables from a disk file."""
-        # TODO: backend tensorflow, pytorch
-        if backend_name != "tensorflow.compat.v1":
-            raise NotImplementedError(
-                "state_dict hasn't been implemented for this backend."
-            )
+        # TODO: backend tensorflow
         if verbose > 0:
             print("Restoring model from {} ...\n".format(save_path))
-        self.saver.restore(self.sess, save_path)
+        if backend_name == "tensorflow.compat.v1":
+            self.saver.restore(self.sess, save_path)
+        elif backend_name == "pytorch":
+            checkpoint = torch.load(save_path)
+            self.net.load_state_dict(checkpoint["model_state_dict"])
+            self.opt.load_state_dict(checkpoint["optimizer_state_dict"])
+        else:
+            raise NotImplementedError(
+                "Model.restore() hasn't been implemented for this backend."
+            )
 
     def print_model(self):
         """Prints all trainable variables."""
