@@ -114,7 +114,7 @@ class ModelCheckpoint(Callback):
     """Save the model after every epoch.
 
     Args:
-        filepath (string): Path to save the model file.
+        filepath (string): Prefix of filenames to save the model file.
         verbose: Verbosity mode, 0 or 1.
         save_better_only: If True, only save a better model according to the quantity
             monitored. Model is only checked at validation step according to
@@ -142,18 +142,18 @@ class ModelCheckpoint(Callback):
         if self.save_better_only:
             current = self.model.train_state.best_loss_train
             if self.monitor_op(current, self.best):
+                save_path = self.model.save(self.filepath, verbose=0)
                 if self.verbose > 0:
                     print(
-                        "Epoch {epoch}: {} improved from {:.2e} to {:.2e}, saving model to {}-{epoch} ...\n".format(
+                        "Epoch {}: {} improved from {:.2e} to {:.2e}, saving model to {} ...\n".format(
+                            self.model.train_state.epoch,
                             self.monitor,
                             self.best,
                             current,
-                            self.filepath,
-                            epoch=self.model.train_state.epoch,
+                            save_path,
                         )
                     )
                 self.best = current
-                self.model.save(self.filepath, verbose=0)
         else:
             self.model.save(self.filepath, verbose=self.verbose)
 
