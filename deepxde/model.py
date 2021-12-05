@@ -517,7 +517,20 @@ class Model(object):
         display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
-        """Generates output predictions for the input samples."""
+        """Generates predictions for the input samples. If `operator` is ``None``,
+        returns the network output, otherwise returns the output of the `operator`.
+
+        Args:
+            x: The network inputs. A Numpy array or a tuple of Numpy arrays.
+            operator: A function takes arguments (`inputs`, `outputs`) or (`inputs`,
+                `outputs`, `auxiliary_variables`) and outputs a tensor. `inputs` and
+                `outputs` are the network input and output tensors, respectively.
+                `auxiliary_variables` is the output of `auxiliary_var_function(x)`
+                in `dde.data.PDE`. `operator` is typically chosen as the PDE (used to
+                define `dde.data.PDE`) to predict the PDE residual.
+            callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks
+                to apply during prediction.
+        """
         if isinstance(x, tuple):
             x = tuple(np.array(xi, dtype=config.real(np)) for xi in x)
         else:
@@ -525,59 +538,56 @@ class Model(object):
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()
+
         if operator is None:
             y = self._outputs(False, x)
-        else:
-            if backend_name == "tensorflow.compat.v1":
-                if utils.get_num_args(operator) == 2:
-                    op = operator(self.net.inputs, self.net.outputs)
-                    feed_dict = self.net.feed_dict(False, x)
-                elif utils.get_num_args(operator) == 3:
-                    op = operator(
-                        self.net.inputs, self.net.outputs, self.net.auxiliary_vars
-                    )
-                    feed_dict = self.net.feed_dict(
-                        False,
-                        x,
-                        auxiliary_vars=self.data.auxiliary_var_fn(x).astype(
-                            config.real(np)
-                        ),
-                    )
-                y = self.sess.run(op, feed_dict=feed_dict)
-            elif backend_name == "tensorflow":
-                if utils.get_num_args(operator) == 2:
+            self.callbacks.on_predict_end()
+            return y
 
-                    @tf.function
-                    def op(inputs):
-                        y = self.net(inputs)
-                        return operator(inputs, y)
+        # operator is not None
+        if utils.get_num_args(operator) == 3:
+            auxiliary_vars = self.data.auxiliary_var_fn(x).astype(config.real(np))
+        if backend_name == "tensorflow.compat.v1":
+            if utils.get_num_args(operator) == 2:
+                op = operator(self.net.inputs, self.net.outputs)
+                feed_dict = self.net.feed_dict(False, x)
+            elif utils.get_num_args(operator) == 3:
+                op = operator(
+                    self.net.inputs, self.net.outputs, self.net.auxiliary_vars
+                )
+                feed_dict = self.net.feed_dict(False, x, auxiliary_vars=auxiliary_vars)
+            y = self.sess.run(op, feed_dict=feed_dict)
+        elif backend_name == "tensorflow":
+            if utils.get_num_args(operator) == 2:
 
-                elif utils.get_num_args(operator) == 3:
+                @tf.function
+                def op(inputs):
+                    y = self.net(inputs)
+                    return operator(inputs, y)
 
-                    @tf.function
-                    def op(inputs):
-                        y = self.net(inputs)
-                        return operator(
-                            inputs,
-                            y,
-                            self.data.auxiliary_var_fn(x).astype(config.real(np)),
-                        )
+            elif utils.get_num_args(operator) == 3:
 
-                y = op(x)
-                y = utils.to_numpy(y)
-            elif backend_name == "pytorch":
-                inputs = torch.as_tensor(x)
-                inputs.requires_grad_()
-                outputs = self.net(inputs)
-                if utils.get_num_args(operator) == 2:
-                    y = operator(inputs, outputs)
-                elif utils.get_num_args(operator) == 3:
-                    # TODO: Pytorch backend Implementation of Auxiliary variables.
-                    raise NotImplementedError(
-                        "pytorch auxiliary variable not been implemented for this backend."
-                    )
-                    # y = operator(inputs, outputs, torch.as_tensor(self.data.auxiliary_var_fn(x).astype(config.real(np))))
-                y = utils.to_numpy(y)
+                @tf.function
+                def op(inputs):
+                    y = self.net(inputs)
+                    return operator(inputs, y, auxiliary_vars)
+
+            y = op(x)
+            y = utils.to_numpy(y)
+        elif backend_name == "pytorch":
+            self.net.eval()
+            inputs = torch.as_tensor(x)
+            inputs.requires_grad_()
+            outputs = self.net(inputs)
+            if utils.get_num_args(operator) == 2:
+                y = operator(inputs, outputs)
+            elif utils.get_num_args(operator) == 3:
+                # TODO: Pytorch backend Implementation of Auxiliary variables.
+                # y = operator(inputs, outputs, torch.as_tensor(auxiliary_vars))
+                raise NotImplementedError(
+                    "Model.predict() with auxiliary variable hasn't been implemented for backend pytorch."
+                )
+            y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
         return y
 
