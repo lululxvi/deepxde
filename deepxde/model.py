@@ -572,6 +572,7 @@ class Model(object):
                 if utils.get_num_args(operator) == 2:
                     y = operator(inputs, outputs)
                 elif utils.get_num_args(operator) == 3:
+                    # TODO: Pytorch backend Implementation of Auxiliary variables.
                     raise NotImplementedError(
                         "pytorch auxiliary variable not been implemented for this backend."
                     )
