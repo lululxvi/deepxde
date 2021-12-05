@@ -531,10 +531,18 @@ class Model(object):
             if backend_name == "tensorflow.compat.v1":
                 if utils.get_num_args(operator) == 2:
                     op = operator(self.net.inputs, self.net.outputs)
-                    feed_dict=self.net.feed_dict(False, x)
+                    feed_dict = self.net.feed_dict(False, x)
                 elif utils.get_num_args(operator) == 3:
-                    op = operator(self.net.inputs, self.net.outputs, self.net.auxiliary_vars)
-                    feed_dict=self.net.feed_dict(False, x , auxiliary_vars = self.data.auxiliary_var_fn(x).astype(config.real(np)))
+                    op = operator(
+                        self.net.inputs, self.net.outputs, self.net.auxiliary_vars
+                    )
+                    feed_dict = self.net.feed_dict(
+                        False,
+                        x,
+                        auxiliary_vars=self.data.auxiliary_var_fn(x).astype(
+                            config.real(np)
+                        ),
+                    )
                 y = self.sess.run(op, feed_dict=feed_dict)
             elif backend_name == "tensorflow":
                 if utils.get_num_args(operator) == 2:
@@ -549,7 +557,11 @@ class Model(object):
                     @tf.function
                     def op(inputs):
                         y = self.net(inputs)
-                        return operator(inputs, y, self.data.auxiliary_var_fn(x).astype(config.real(np)))
+                        return operator(
+                            inputs,
+                            y,
+                            self.data.auxiliary_var_fn(x).astype(config.real(np)),
+                        )
 
                 y = op(x)
                 y = utils.to_numpy(y)
@@ -561,9 +573,9 @@ class Model(object):
                     y = operator(inputs, outputs)
                 elif utils.get_num_args(operator) == 3:
                     raise NotImplementedError(
-                "pytorch auxiliary variable not been implemented for this backend."
-            )
-                    #y = operator(inputs, outputs, torch.as_tensor(self.data.auxiliary_var_fn(x).astype(config.real(np))))
+                        "pytorch auxiliary variable not been implemented for this backend."
+                    )
+                    # y = operator(inputs, outputs, torch.as_tensor(self.data.auxiliary_var_fn(x).astype(config.real(np))))
                 y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
         return y
