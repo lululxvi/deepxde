@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .csg import CSGDifference
 from .csg import CSGIntersection
 from .csg import CSGUnion

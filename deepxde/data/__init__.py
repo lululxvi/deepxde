@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .constraint import Constraint
 from .dataset import DataSet
 from .fpde import FPDE

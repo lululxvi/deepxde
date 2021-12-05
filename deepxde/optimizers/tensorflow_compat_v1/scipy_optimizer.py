@@ -4,10 +4,6 @@
 # https://github.com/tensorflow/tensorflow/blob/v1.15.2/tensorflow/contrib/opt/python/training/external_optimizer.py,
 # because the ``tf.contrib`` module is not included in TensorFlow 2.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 __all__ = ["ExternalOptimizerInterface", "ScipyOptimizerInterface"]
 
 import numpy as np

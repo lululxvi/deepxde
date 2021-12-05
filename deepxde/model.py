@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 __all__ = ["Model", "TrainState", "LossHistory"]
 
 
@@ -546,7 +542,7 @@ class Model(object):
 
         # operator is not None
         if utils.get_num_args(operator) == 3:
-            auxiliary_vars = self.data.auxiliary_var_fn(x).astype(config.real(np))
+            aux_vars = self.data.auxiliary_var_fn(x).astype(config.real(np))
         if backend_name == "tensorflow.compat.v1":
             if utils.get_num_args(operator) == 2:
                 op = operator(self.net.inputs, self.net.outputs)
@@ -555,7 +551,7 @@ class Model(object):
                 op = operator(
                     self.net.inputs, self.net.outputs, self.net.auxiliary_vars
                 )
-                feed_dict = self.net.feed_dict(False, x, auxiliary_vars=auxiliary_vars)
+                feed_dict = self.net.feed_dict(False, x, auxiliary_vars=aux_vars)
             y = self.sess.run(op, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
             if utils.get_num_args(operator) == 2:
@@ -570,7 +566,7 @@ class Model(object):
                 @tf.function
                 def op(inputs):
                     y = self.net(inputs)
-                    return operator(inputs, y, auxiliary_vars)
+                    return operator(inputs, y, aux_vars)
 
             y = op(x)
             y = utils.to_numpy(y)
@@ -583,7 +579,7 @@ class Model(object):
                 y = operator(inputs, outputs)
             elif utils.get_num_args(operator) == 3:
                 # TODO: Pytorch backend Implementation of Auxiliary variables.
-                # y = operator(inputs, outputs, torch.as_tensor(auxiliary_vars))
+                # y = operator(inputs, outputs, torch.as_tensor(aux_vars))
                 raise NotImplementedError(
                     "Model.predict() with auxiliary variable hasn't been implemented for backend pytorch."
                 )

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .__about__ import __version__
 
 # Should import backend before importing anything else

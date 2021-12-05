@@ -1,5 +1,4 @@
 """Package for tensorflow.compat.v1 NN modules."""
-from __future__ import absolute_import
 
 from .bionet import BiONet
 from .deeponet import DeepONet, DeepONetCartesianProd, FourierDeepONetCartesianProd
