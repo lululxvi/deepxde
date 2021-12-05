@@ -528,7 +528,6 @@ class Model(object):
         if operator is None:
             y = self._outputs(False, x)
         else:
-            # TODO: predict operator with auxiliary_vars
             if backend_name == "tensorflow.compat.v1":
                 if utils.get_num_args(operator) == 2:
                     op = operator(self.net.inputs, self.net.outputs)
@@ -561,7 +560,10 @@ class Model(object):
                 if utils.get_num_args(operator) == 2:
                     y = operator(inputs, outputs)
                 elif utils.get_num_args(operator) == 3:
-                    y = operator(inputs, outputs, torch.as_tensor(self.data.auxiliary_var_fn(x).astype(config.real(np))))
+                    raise NotImplementedError(
+                "pytorch auxiliary variable not been implemented for this backend."
+            )
+                    #y = operator(inputs, outputs, torch.as_tensor(self.data.auxiliary_var_fn(x).astype(config.real(np))))
                 y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
         return y
