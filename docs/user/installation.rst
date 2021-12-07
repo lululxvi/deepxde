@@ -41,10 +41,10 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
     - You can use ``DDEBACKEND=BACKEND python pde.py`` to specify the backend:
 
-.. code-block:: bash
-
     $ DDEBACKEND=tensorflow.compat.v1 python pde.py
+
     $ DDEBACKEND=tensorflow python pde.py
+
     $ DDEBACKEND=pytorch python pde.py
 
     - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
