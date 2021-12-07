@@ -39,12 +39,18 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 * Use the ``DDEBACKEND`` environment variable:
 
-   - You can use ``DDEBACKEND=BACKEND python pde.py ...`` to specify the backend
-   - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
+    - You can use ``DDEBACKEND=BACKEND python pde.py`` to specify the backend:
+
+    $ DDEBACKEND=tensorflow.compat.v1 python pde.py
+    $ DDEBACKEND=tensorflow python pde.py
+    $ DDEBACKEND=pytorch python pde.py
+
+    - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
 
 * Modify the ``config.json`` file under "~/.deepxde":
 
-   - You can use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
+    - The file has the content such as ``{"backend": "tensorflow.compat.v1"}``
+    - You can use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
 
 Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
 
