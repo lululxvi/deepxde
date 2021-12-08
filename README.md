@@ -7,7 +7,7 @@
 [![PyPI Downloads](https://pepy.tech/badge/deepxde)](https://pepy.tech/project/deepxde)
 [![Conda Version](https://anaconda.org/conda-forge/deepxde/badges/version.svg)](https://anaconda.org/conda-forge/deepxde)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/lululxvi/deepxde)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
 [**Voting on whether we should have a Slack channel for discussion.**](https://github.com/lululxvi/deepxde/issues/371)
 
@@ -133,4 +133,4 @@ DeepXDE is currently maintained by [Lu Group](https://lu.seas.upenn.edu) at [Uni
 
 ## License
 
-[Apache license 2.0](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[LGPL-2.1 License](https://github.com/lululxvi/deepxde/blob/master/LICENSE)

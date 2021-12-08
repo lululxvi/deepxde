@@ -29,4 +29,4 @@ identifiers:
     value: 10.1137/19M1274067
 repository-code: 'https://github.com/lululxvi/deepxde'
 url: 'https://deepxde.readthedocs.io'
-license: Apache-2.0
+license: LGPL-2.1
