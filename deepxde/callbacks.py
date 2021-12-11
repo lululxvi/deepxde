@@ -3,6 +3,7 @@ import time
 
 import numpy as np
 
+from . import config
 from . import gradients as grad
 from .backend import backend_name
 from .utils import list_to_str, save_animation
@@ -385,7 +386,9 @@ class MovieDumper(Callback):
         self.filename = filename
         x1 = np.array(x1)
         x2 = np.array(x2)
-        self.x = x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        self.x = (
+            x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        ).astype(dtype=config.real(np))
         self.period = period
         self.component = component
         self.save_spectrum = save_spectrum
@@ -395,18 +398,8 @@ class MovieDumper(Callback):
         self.spectrum = []
         self.epochs_since_last_save = 0
 
-        # TODO: support other backends
-        if backend_name != "tensorflow.compat.v1":
-            raise RuntimeError(
-                "MovieDumper only supports backend tensorflow.compat.v1."
-            )
-
-    def init(self):
-        self.tf_op = self.model.net.outputs[:, self.component]
-        self.feed_dict = self.model.net.feed_dict(False, self.x)
-
     def on_train_begin(self):
-        self.y.append(self.model.sess.run(self.tf_op, feed_dict=self.feed_dict))
+        self.y.append(self.model._outputs(False, self.x)[:, self.component])
         if self.save_spectrum:
             A = np.fft.rfft(self.y[-1])
             self.spectrum.append(np.abs(A))
