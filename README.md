@@ -9,8 +9,6 @@
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/github/license/lululxvi/deepxde)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-[**Voting on whether we should have a Slack channel for discussion.**](https://github.com/lululxvi/deepxde/issues/371)
-
 DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
@@ -124,6 +122,8 @@ First off, thanks for taking the time to contribute!
 - **Pull requests.** If you made improvements to DeepXDE, fixed a bug, or had a new example, feel free to send us a pull-request.
 - **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can as well open an issue.
 - **Answering questions.** If you know the answer to any question in the "Issues", you are welcomed to answer.
+
+**Slack.** The DeepXDE Slack hosts a primary audience of moderate to experienced DeepXDE users and developers for general chat, online discussions, collaboration, etc. If you need a slack invite, please send me an email.
 
 ## The Team
 
