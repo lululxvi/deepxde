@@ -12,7 +12,7 @@ DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a 
 
 DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch.
 
-**Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `SIAM Rev. <https://doi.org/10.1137/19M1274067>`_, `Slides <https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_
+**Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_, `SIAM Rev. <https://doi.org/10.1137/19M1274067>`_, `Slides <https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_, `Video in Chinese <http://tianyuan.xmu.edu.cn/cn/minicourses/637.html>`_
 
 **Papers on algorithms**
 
