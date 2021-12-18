@@ -9,9 +9,9 @@ ODEs
 .. toctree::
    :maxdepth: 1
 
-   ode_system
+   ode.system
 
-- `Lotka-Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra_Colab.ipynb>`_
+- `Lotka-Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra.ipynb>`_
 
 Time-independent PDEs
 ---------------------
@@ -25,7 +25,7 @@ Time-independent PDEs
    poisson.1d.dirichletperiodic
    poisson.1d.multiscaleFourier
    poisson.Lshape
-   laplace_disk
+   laplace.disk
    eulerbeam
 
 Time-dependent PDEs
@@ -35,15 +35,16 @@ Time-dependent PDEs
    :maxdepth: 1
 
    burgers
-   diffusion_1d
-   diffusion_1d_exactBC
-   diffusion_1d_resample
-   
+   diffusion.1d
+   diffusion.1d.exactBC
+   diffusion.1d.resample
+
 - `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/heat_conduction_1d_uniform_bar.ipynb>`_
 - `Burgers equation with residual-based adaptive refinement (RAR) <https://github.com/lululxvi/deepxde/blob/master/examples/Burgers_RAR.py>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/Beltrami_flow.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/Kovasznay_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/wave_1d.py>`_
+- `Schrodinger equation <https://github.com/lululxvi/deepxde/blob/master/examples/Schrodinger.ipynb>`_
 
 Integro-differential equations
 ------------------------------

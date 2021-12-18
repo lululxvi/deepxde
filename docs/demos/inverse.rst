@@ -11,7 +11,7 @@ ODEs
 
    lorenz.inverse
 
-- `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/Lorenz_inverse_forced_Colab.ipynb>`_
+- `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/Lorenz_inverse_forced.ipynb>`_
 
 PDEs
 ----
@@ -19,8 +19,8 @@ PDEs
 .. toctree::
    :maxdepth: 1
 
-   diffusion_1d_inverse
-   
+   diffusion.1d.inverse
+
 - `Inverse Problem for the diffusion-reaction system <https://github.com/lululxvi/deepxde/blob/master/examples/reaction_inverse.py>`_
 - `Inverse problem for the Poisson equation with unknown forcing field <https://github.com/lululxvi/deepxde/blob/master/examples/elliptic_inverse_field.py>`_
 
