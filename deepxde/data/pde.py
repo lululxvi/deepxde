@@ -203,6 +203,19 @@ class PDE(Data):
                 config.real(np)
             )
 
+    def replace_anchors(self, anchors):
+        """Replace new points for training PDE losses. The BC points will not be replaced."""
+        self.anchors = anchors
+        self.train_x_all = anchors
+        self.train_x = self.bc_points()
+        if self.pde is not None:
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
+        self.train_y = self.soln(self.train_x) if self.soln else None
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
+
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
