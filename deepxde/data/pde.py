@@ -203,9 +203,9 @@ class PDE(Data):
                 config.real(np)
             )
 
-    def replace_anchors(self, anchors):
-        """Replace new points for training PDE losses. The BC points will not be replaced."""
-        self.anchors = anchors
+    def replace_with_anchors(self, anchors):
+        """Replace the current PDE training points with anchors. The BC points will not be changed."""
+        self.anchors = anchors.astype(config.real(np))
         self.train_x_all = anchors
         self.train_x = self.bc_points()
         if self.pde is not None:
