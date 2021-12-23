@@ -74,25 +74,25 @@ class BiONet(NN):
 
     def _branch_net(self, X_func, layer_branch):
         y_func = X_func
-        for i in range(len(layer_branch) - 1):
+        for i in range(len(layer_branch)):
             y_func = self._dense(
                 y_func,
                 layer_branch[i],
                 activation=self.activation_branch,
                 regularizer=self.regularizer,
             )
-        return self._dense(y_func, layer_branch[-1], regularizer=self.regularizer)
+        return y_func
 
     def _trunk_net(self, X_loc, layer_trunk):
         y_loc = X_loc
-        for i in range(len(layer_trunk)):
+        for i in range(len(layer_trunk) - 1):
             y_loc = self._dense(
                 y_loc,
                 layer_trunk[i],
                 activation=self.activation_trunk,
                 regularizer=self.regularizer,
             )
-        return y_loc
+        return self._dense(y_loc, layer_trunk[-1], regularizer=self.regularizer)
 
     def _dense(
         self,
@@ -112,3 +112,41 @@ class BiONet(NN):
             kernel_regularizer=regularizer,
             trainable=trainable,
         )
+    
+    
+class BiONetCartesianProd(BiONet):
+    """Deep operator network with two input functions 
+    for dataset in the format of Cartesian product."""
+
+    @timing
+    def build(self):
+        print("Building BiONetCartesianProd...")
+
+        self.X_func1 = tf.placeholder(config.real(tf), [None, self.layer_branch1[0]])
+        self.X_func2 = tf.placeholder(config.real(tf), [None, self.layer_branch2[0]])
+        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_trunk[0]])
+        self._inputs = [self.X_func1, self.X_func2, self.X_loc]
+
+        # Branch net 1
+        y_func1 = self._branch_net(self.X_func1, self.layer_branch1[1:])
+        # Branch net 2
+        y_func2 = self._branch_net(self.X_func2, self.layer_branch2[1:])
+        # Trunk net
+        y_loc = self._trunk_net(self.X_loc, self.layer_trunk[1:])
+
+        # Dot product
+        y_loc = tf.reshape(y_loc, (-1, self.layer_branch1[-1], self.layer_branch2[-1]))
+        # self.y = tf.einsum("bji,bi->bj", y_loc, y_func2)
+        # self.y = tf.einsum("bi,bi->b", self.y, y_func1)
+        # self.y = tf.expand_dims(self.y, axis=1)
+        self.y = tf.einsum("bj, nij -> bni", y_func1, y_loc)
+        self.y = tf.einsum("bni,bi->bn", self.y, y_func2)
+
+        # self.y = tf.einsum("bi, nij -> bnj", y_func1, y_loc)
+        # self.y = tf.einsum("bnj,bj->bn", self.y, y_func2)
+
+        b = tf.Variable(tf.zeros(1))
+        self.y += b
+
+        self.target = tf.placeholder(config.real(tf), [None, None])
+        self.built = True
