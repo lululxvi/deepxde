@@ -2,7 +2,6 @@ from .data import Data
 from .sampler import BatchSampler
 
 
-
 class Triple(Data):
     """Dataset with each data point as a triple.
 
