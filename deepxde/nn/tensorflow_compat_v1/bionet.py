@@ -115,8 +115,7 @@ class BiONet(NN):
     
     
 class BiONetCartesianProd(BiONet):
-    """Deep operator network with two input functions 
-    for dataset in the format of Cartesian product."""
+    """Deep operator network with two input functions for Cartesian product format dataset."""
 
     @timing
     def build(self):
