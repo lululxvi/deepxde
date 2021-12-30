@@ -132,3 +132,4 @@ class QuadrupleCartesianProd(Data):
 
     def test(self):
         return self.test_x, self.test_y
+
