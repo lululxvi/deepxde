@@ -90,8 +90,8 @@ class QuadrupleCartesianProd(Data):
 
     Args:
         X_train: A tuple of three NumPy arrays. The first element has the shape (`N1`,
-            `dim1`), the second element has the shape (`N1`, `dim2`),
-            and the third element has the shape (`N2`, `dim3`).
+            `dim1`), the second element has the shape (`N1`, `dim2`), and the third
+            element has the shape (`N2`, `dim3`).
         y_train: A NumPy array of shape (`N1`, `N2`).
     """
 
@@ -132,4 +132,3 @@ class QuadrupleCartesianProd(Data):
 
     def test(self):
         return self.test_x, self.test_y
-
