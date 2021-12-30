@@ -84,9 +84,10 @@ class TripleCartesianProd(Data):
     
 class QuadrupleCartesianProd(Data):
     """Cartesian Product input data format for BioNet architecture.
+    
     This dataset can be used with the network ``BiONetCartesianProd`` for operator
     learning.
-    
+
     Args:
         X_train: A tuple of three NumPy arrays. The first element has the shape (`N1`,
             `dim1`), the second element has the shape (`N1`, `dim2`), 
