@@ -81,7 +81,7 @@ Then, the Dirichlet boundary condition is
 
 .. code-block:: python
 
-    bc_l = dde.DirichletBC(geom, func, boundary_1)
+    bc_l = dde.DirichletBC(geom, func, boundary_l)
 
 For Neumann boundary condition, rather than define a function to return the value of :math:`u(x)` on the boundary, we use a lambda function and the Neumann boundary condition is defined
 
