@@ -3,6 +3,8 @@ __all__ = ["get", "is_external_optimizer"]
 from .scipy_optimizer import ScipyOptimizerInterface
 from ..config import LBFGS_options
 from ...backend import tf
+import tensorflow_addons as tfa
+
 
 
 def is_external_optimizer(optimizer):
@@ -60,4 +62,5 @@ def _get_optimizer(name, lr):
         "adadelta": tf.train.AdadeltaOptimizer(),
         "rmsprop": tf.train.RMSPropOptimizer(lr),
         "adam": tf.train.AdamOptimizer(lr),
+        "adabelief":tfa.optimizers.AdaBelief(learning_rate = lr),
     }[name]
