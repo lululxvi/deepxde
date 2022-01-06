@@ -2,6 +2,7 @@ __all__ = ["get", "is_external_optimizer"]
 
 from .tfp_optimizer import lbfgs_minimize
 from ...backend import tf
+import tensorflow_addons as tfa
 
 
 def is_external_optimizer(optimizer):
@@ -27,6 +28,8 @@ def get(optimizer, learning_rate=None, decay=None):
         return tf.keras.optimizers.Nadam(learning_rate=lr_schedule)
     if optimizer == "sgd":
         return tf.keras.optimizers.SGD(learning_rate=lr_schedule)
+    if optimizer == "adabelief":
+        return tfa.optimizers.AdaBelief(learning_rate = lr_schedule)
 
     raise NotImplementedError(f"{optimizer} to be implemented for backend tensorflow.")
 
