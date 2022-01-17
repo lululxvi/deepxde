@@ -27,6 +27,7 @@ Time-independent PDEs
    poisson.Lshape
    laplace.disk
    eulerbeam
+   helmholtz.2d.dirichlet
 
 Time-dependent PDEs
 -------------------
