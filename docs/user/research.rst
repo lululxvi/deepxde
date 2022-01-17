@@ -6,6 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. A. Sacchetti, B. Bachmann, K. Loffel, U.-M. Kunzi, & B. Paoli. `Neural networks to solve partial differential equations: a comparison with finite elements <https://arxiv.org/abs/2201.03269>`_. *arXiv preprint arXiv:2201.03269*, 2022.
 #. L. Lu, R. Pestourie, W. Yao, Z. Wang, F. Verdugo, & S. G. Johnson. `Physics-informed neural networks with hard constraints for inverse design <https://doi.org/10.1137/21M1397908>`_. *SIAM Journal on Scientific Computing*, 43(6), B1105--B1132, 2021. [`Code <https://github.com/lululxvi/hpinn>`_]
 #. J. Yu, L. Lu, X. Meng, & G. E. Karniadakis. `Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems <https://arxiv.org/abs/2111.02801>`_. *arXiv preprint arXiv:2111.02801*, 2021.
 #. S. Lee, & T. Kadeethum. `Physics-informed neural networks for solving coupled flow and transport system <http://ceur-ws.org/Vol-2964/article_197.pdf>`_. 2021.

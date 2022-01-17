@@ -56,10 +56,18 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
 
-We note that
+Which backend should I choose?
+``````````````````````````````
 
-- Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error. Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch. Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
-- Different backends also have different computational speed, and switch to another backend if the speed is an issue in your case.
+Although TensorFlow 1.x is the default backend, it may not be your best choice. Here is a comparison between different backends:
+
+- Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error.
+    - Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch.
+    - Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
+- Different backends have different computational speed, and switch to another backend if the speed is an issue in your case.
+    - We find that there is no backend that is always faster than the others.
+    - The speed depends on the specific problem, the dataset size, your hardware, etc. In some cases, one backend could be significantly faster than others such as 4x faster.
+    - If you are not sure which one is the fastest for your problem, in general, we recommend TensorFlow 2.x, because we find that in some cases TensorFlow 2.x > PyTorch > TensorFlow 1.x (> means faster).
 
 TensorFlow 1.x backend
 ``````````````````````
