@@ -72,7 +72,7 @@ Next, we express the PDE residual of the Helmholtz equation:
       return -dy_xx - dy_yy - k0 ** 2 * y - f
 
 
-The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
+The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`y`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
 
 Next, we introduce the exact solution and the Dirichlet boundary condition. 
 If boundary conditions are enforced in a hard fashion, we apply the following transformation to the neural network:
