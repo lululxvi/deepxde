@@ -91,3 +91,4 @@ else:
 
 
 losshistory, train_state = model.train(epochs=epochs)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
