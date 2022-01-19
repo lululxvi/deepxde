@@ -1,38 +1,29 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import numpy as np
-
-from . import external_optimizer
-from ...backend import tf
-
 __all__ = ["get", "is_external_optimizer"]
+
+from .scipy_optimizer import ScipyOptimizerInterface
+from ..config import LBFGS_options
+from ...backend import tf
 
 
 def is_external_optimizer(optimizer):
-    scipy_opts = ["BFGS", "L-BFGS-B", "Nelder-Mead", "Powell", "CG", "Newton-CG"]
+    scipy_opts = ["L-BFGS", "L-BFGS-B"]
     return optimizer in scipy_opts
 
 
 def get(loss, optimizer, learning_rate=None, decay=None):
     if is_external_optimizer(optimizer):
-        ScipyOptimizerInterface = external_optimizer.ScipyOptimizerInterface
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         return ScipyOptimizerInterface(
             loss,
-            method=optimizer,
+            method="L-BFGS-B",
             options={
-                "disp": None,
-                "maxcor": 50,
-                "ftol": np.finfo(float).eps,
-                "gtol": 1e-8,
-                "eps": 1e-8,
-                "maxfun": 15000,
-                "maxiter": 15000,
-                "iprint": -1,
-                "maxls": 50,
+                "maxcor": LBFGS_options["maxcor"],
+                "ftol": LBFGS_options["ftol"],
+                "gtol": LBFGS_options["gtol"],
+                "maxfun": LBFGS_options["maxfun"],
+                "maxiter": LBFGS_options["maxiter"],
+                "maxls": LBFGS_options["maxls"],
             },
         )
 

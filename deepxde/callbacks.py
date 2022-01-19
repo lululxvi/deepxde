@@ -1,12 +1,9 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import sys
 import time
 
 import numpy as np
 
+from . import config
 from . import gradients as grad
 from .backend import backend_name
 from .utils import list_to_str, save_animation
@@ -114,7 +111,7 @@ class ModelCheckpoint(Callback):
     """Save the model after every epoch.
 
     Args:
-        filepath (string): Path to save the model file.
+        filepath (string): Prefix of filenames to save the model file.
         verbose: Verbosity mode, 0 or 1.
         save_better_only: If True, only save a better model according to the quantity
             monitored. Model is only checked at validation step according to
@@ -142,18 +139,18 @@ class ModelCheckpoint(Callback):
         if self.save_better_only:
             current = self.model.train_state.best_loss_train
             if self.monitor_op(current, self.best):
+                save_path = self.model.save(self.filepath, verbose=0)
                 if self.verbose > 0:
                     print(
-                        "Epoch {epoch}: {} improved from {:.2e} to {:.2e}, saving model to {}-{epoch} ...\n".format(
+                        "Epoch {}: {} improved from {:.2e} to {:.2e}, saving model to {} ...\n".format(
+                            self.model.train_state.epoch,
                             self.monitor,
                             self.best,
                             current,
-                            self.filepath,
-                            epoch=self.model.train_state.epoch,
+                            save_path,
                         )
                     )
                 self.best = current
-                self.model.save(self.filepath, verbose=0)
         else:
             self.model.save(self.filepath, verbose=self.verbose)
 
@@ -248,7 +245,8 @@ class DropoutUncertainty(Callback):
     Reference: https://arxiv.org/abs/1506.02142
 
     Warning:
-        This cannot be used together with other techniques that have different behaviors during training and testing, such as batch normalization.
+        This cannot be used together with other techniques that have different behaviors
+        during training and testing, such as batch normalization.
     """
 
     def __init__(self, period=1000):
@@ -262,14 +260,8 @@ class DropoutUncertainty(Callback):
             self.epochs_since_last = 0
             y_preds = []
             for _ in range(1000):
-                # TODO: No need to compute outputs_losses, only outputs are needed.
-                y_pred_test_one, _ = self.model._run(
-                    self.model.outputs_losses,
-                    True,
-                    np.uint8(1),
-                    self.model.train_state.X_test,
-                    self.model.train_state.y_test,
-                    self.model.train_state.test_aux_vars,
+                y_pred_test_one = self.model._outputs(
+                    True, self.model.train_state.X_test
                 )
                 y_preds.append(y_pred_test_one)
             self.model.train_state.y_std_test = np.std(y_preds, axis=0)
@@ -306,22 +298,20 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
-        print(self.model.train_state.epoch, self.value, file=self.file)
+        elif backend_name == "pytorch":
+            self.value = [var.detach().item() for var in self.var_list]
+        print(
+            self.model.train_state.epoch,
+            list_to_str(self.value, precision=self.precision),
+            file=self.file,
+        )
+        self.file.flush()
 
     def on_epoch_end(self):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
-            if backend_name == "tensorflow.compat.v1":
-                self.value = self.model.sess.run(self.var_list)
-            elif backend_name == "tensorflow":
-                self.value = [var.numpy() for var in self.var_list]
-            print(
-                self.model.train_state.epoch,
-                list_to_str(self.value, precision=self.precision),
-                file=self.file,
-            )
-            self.file.flush()
+            self.on_train_begin()
 
     def get_value(self):
         """Return the variable values."""
@@ -342,6 +332,11 @@ class OperatorPredictor(Callback):
         self.op = op
         self.tf_op = None
         self.value = None
+        # TODO: other backends
+        if backend_name != "tensorflow.compat.v1":
+            raise NotImplementedError(
+                f"OperatorPredictor not implemented for backend {backend_name}."
+            )
 
     def init(self):
         self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
@@ -391,7 +386,9 @@ class MovieDumper(Callback):
         self.filename = filename
         x1 = np.array(x1)
         x2 = np.array(x2)
-        self.x = x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        self.x = (
+            x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        ).astype(dtype=config.real(np))
         self.period = period
         self.component = component
         self.save_spectrum = save_spectrum
@@ -401,18 +398,8 @@ class MovieDumper(Callback):
         self.spectrum = []
         self.epochs_since_last_save = 0
 
-        # TODO: support backend tensorflow
-        if backend_name != "tensorflow.compat.v1":
-            raise RuntimeError(
-                "MovieDumper only supports backend tensorflow.compat.v1."
-            )
-
-    def init(self):
-        self.tf_op = self.model.net.outputs[:, self.component]
-        self.feed_dict = self.model.net.feed_dict(False, False, 2, self.x)
-
     def on_train_begin(self):
-        self.y.append(self.model.sess.run(self.tf_op, feed_dict=self.feed_dict))
+        self.y.append(self.model._outputs(False, self.x)[:, self.component])
         if self.save_spectrum:
             A = np.fft.rfft(self.y[-1])
             self.spectrum.append(np.abs(A))

@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .data import Data
@@ -11,8 +7,7 @@ from ..utils import run_if_any_none
 
 
 class FuncConstraint(Data):
-    """Function approximation with constraints.
-    """
+    """Function approximation with constraints."""
 
     def __init__(
         self, geom, constraint, func, num_train, anchors, num_test, dist_train="uniform"
@@ -37,7 +32,7 @@ class FuncConstraint(Data):
             n += len(self.anchors)
 
         f = tf.cond(
-            tf.equal(model.net.data_id, 0),
+            model.net.training,
             lambda: self.constraint(model.net.inputs, outputs, self.train_x),
             lambda: self.constraint(model.net.inputs, outputs, self.test_x),
         )

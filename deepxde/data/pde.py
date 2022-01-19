@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .data import Data
@@ -198,6 +194,19 @@ class PDE(Data):
         else:
             self.anchors = np.vstack((anchors, self.anchors))
         self.train_x_all = np.vstack((anchors, self.train_x_all))
+        self.train_x = self.bc_points()
+        if self.pde is not None:
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
+        self.train_y = self.soln(self.train_x) if self.soln else None
+        if self.auxiliary_var_fn is not None:
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
+
+    def replace_with_anchors(self, anchors):
+        """Replace the current PDE training points with anchors. The BC points will not be changed."""
+        self.anchors = anchors.astype(config.real(np))
+        self.train_x_all = self.anchors
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))

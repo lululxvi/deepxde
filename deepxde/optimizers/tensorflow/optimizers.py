@@ -1,16 +1,22 @@
-from ...backend import tf
-
 __all__ = ["get", "is_external_optimizer"]
+
+from .tfp_optimizer import lbfgs_minimize
+from ...backend import tf
 
 
 def is_external_optimizer(optimizer):
-    return False
+    return optimizer in ["L-BFGS", "L-BFGS-B"]
 
 
 def get(optimizer, learning_rate=None, decay=None):
     """Retrieves a Keras Optimizer instance."""
     if isinstance(optimizer, tf.keras.optimizers.Optimizer):
         return optimizer
+    if is_external_optimizer(optimizer):
+        if learning_rate is not None or decay is not None:
+            print("Warning: learning rate is ignored for {}".format(optimizer))
+        return lbfgs_minimize
+
     if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
 

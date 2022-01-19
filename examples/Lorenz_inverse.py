@@ -1,10 +1,9 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
 
 Documentation: https://deepxde.readthedocs.io/en/latest/demos/lorenz.inverse.html
 """
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
 
 
 def gen_traindata():
@@ -12,15 +11,15 @@ def gen_traindata():
     return data["t"], data["y"]
 
 
-C1 = tf.Variable(1.0)
-C2 = tf.Variable(1.0)
-C3 = tf.Variable(1.0)
+C1 = dde.Variable(1.0)
+C2 = dde.Variable(1.0)
+C3 = dde.Variable(1.0)
 
 
 def Lorenz_system(x, y):
     """Lorenz system.
     dy1/dx = 10 * (y2 - y1)
-    dy2/dx = y1 * (28 - y3) - y2
+    dy2/dx = y1 * (15 - y3) - y2
     dy3/dx = y1 * y2 - 8/3 * y3
     """
     y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]

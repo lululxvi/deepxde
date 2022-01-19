@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .geometry import Geometry
@@ -27,7 +23,7 @@ class Interval(Geometry):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
     def boundary_normal(self, x):
-        return np.isclose(x, self.l) * -1.0 + np.isclose(x, self.r) * 1.0
+        return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
 
     def uniform_points(self, n, boundary=True):
         if boundary:

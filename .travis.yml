@@ -1,11 +1,11 @@
 # Reference: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
-dist: xenial
+dist: focal
 language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
-  - "3.6"
   - "3.7"
   - "3.8"
+  - "3.9"
 install:
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
@@ -27,9 +27,11 @@ install:
   - conda activate test-environment
 
   - conda install -c conda-forge scikit-optimize
-  - conda install tensorflow
+  - pip install tensorflow tensorflow-probability
+  - conda install pytorch torchvision torchaudio cpuonly -c pytorch
 
 script:
   # Your test script goes here
   - DDEBACKEND=tensorflow.compat.v1 python -c "import deepxde"
   - DDEBACKEND=tensorflow python -c "import deepxde"
+  - DDEBACKEND=pytorch python -c "import deepxde"

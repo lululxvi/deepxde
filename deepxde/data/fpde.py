@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import math
 
 import numpy as np
@@ -116,7 +112,7 @@ class FPDE(PDE):
                 loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
             ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
 
-        return tf.cond(tf.equal(model.net.data_id, 0), losses_train, losses_test)
+        return tf.cond(model.net.training, losses_train, losses_test)
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

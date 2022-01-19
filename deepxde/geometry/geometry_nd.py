@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import itertools
 
 import numpy as np
@@ -41,7 +37,9 @@ class Hypercube(Geometry):
         return np.logical_and(self.inside(x), _on_boundary)
 
     def boundary_normal(self, x):
-        _n = np.isclose(x, self.xmin) * -1.0 + np.isclose(x, self.xmax) * 1.0
+        _n = -np.isclose(x, self.xmin).astype(config.real(np)) + np.isclose(
+            x, self.xmax
+        )
         # For vertices, the normal is averaged for all directions
         idx = np.count_nonzero(_n, axis=-1) > 1
         if np.any(idx):
@@ -59,12 +57,20 @@ class Hypercube(Geometry):
         for i in range(self.dim):
             ni = int(np.ceil(self.side_length[i] / dx))
             if boundary:
-                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=ni))
+                xi.append(
+                    np.linspace(
+                        self.xmin[i], self.xmax[i], num=ni, dtype=config.real(np)
+                    )
+                )
             else:
                 xi.append(
-                    np.linspace(self.xmin[i], self.xmax[i], num=ni + 1, endpoint=False)[
-                        1:
-                    ]
+                    np.linspace(
+                        self.xmin[i],
+                        self.xmax[i],
+                        num=ni + 1,
+                        endpoint=False,
+                        dtype=config.real(np),
+                    )[1:]
                 )
         x = np.array(list(itertools.product(*xi)))
         if n != len(x):
@@ -97,7 +103,8 @@ class Hypercube(Geometry):
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
-        self.center, self.radius = np.array(center), radius
+        self.center = np.array(center, dtype=config.real(np))
+        self.radius = radius
         super(Hypersphere, self).__init__(
             len(center), (self.center - radius, self.center + radius), 2 * radius
         )
@@ -144,7 +151,7 @@ class Hypersphere(Geometry):
     def random_boundary_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/HyperspherePointPicking.html"""
         if random == "pseudo":
-            X = np.random.normal(size=(n, self.dim))
+            X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
             U = sample(n, self.dim, random)
             X = stats.norm.ppf(U)

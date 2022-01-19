@@ -6,29 +6,37 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 - | **Q**: DeepXDE failed to run.
   | **A**: `#2`_, `#3`_, `#5`_
 - | **Q**: What is the output of DeepXDE? How can I visualize the results?
-  | **A**: `#4`_, `#9`_, `#17`_, `#48`_, `#53`_, `#73`_, `#77`_, `#171`_, `#217`_, `#218`_, `#223`_
+  | **A**: `#4`_, `#9`_, `#17`_, `#48`_, `#53`_, `#73`_, `#77`_, `#171`_, `#217`_, `#218`_, `#223`_, `#274`_, `#276`_
 - | **Q**: More details and examples about geometry.
-  | **A**: `#32`_, `#38`_, `#161`_
-- | **Q**: How can I implement new ODEs/PDEs, e.g., compute derivatives?
-  | **A**: `#12`_, `#13`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_, `#172`_, `#185`_, `#193`_, `#194`_, `#246`_
-- | **Q**: How can I implement new IDEs?
-  | **A**: `#95`_, `#198`_
+  | **A**: `#32`_, `#38`_, `#161`_, `#264`_, `#278`_, `#332`_
+- | **Q**: How can I implement new ODEs/PDEs, e.g., compute derivatives, complicated PDEs?
+  | **A**: `#12`_, `#13`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_, `#172`_, `#185`_, `#193`_, `#194`_, `#246`_, `#302`_
 - | **Q**: More details and examples about initial conditions.
   | **A**: `#19`_, `#75`_, `#104`_, `#134`_
 - | **Q**: More details and examples about boundary conditions.
   | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_, `#38`_, `#40`_, `#44`_, `#49`_, `#115`_, `#140`_, `#156`_
 - | **Q**: By default, initial/boundary conditions are enforced in DeepXDE as soft constraints. How can I enforce them as hard constraints?
   | **A**: `#36`_, `#90`_, `#92`_, `#252`_
-- | **Q**: Define an inverse problem to solve unknown parameters/fields in the PDEs or initial/boundary conditions.
+- | **Q**: I failed to train the network or get the right solution, e.g., large training loss, unbalanced losses.
+  | **A**: `#15`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_, `#188`_, `#247`_, `#305`_, `#321`_
+- | **Q**: Implement certain features for the input, such as Fourier features.
+  | **A**: `#277`_
+- | **Q**: Implement new losses/constraints.
+  | **A**: `#286`_, `#311`_
+- | **Q**: How can I implement new IDEs?
+  | **A**: `#95`_, `#198`_
+- | **Q**: Solve PDEs with complex numbers.
+  | **A**: `#284`_
+- | **Q**: Solve inverse problems with unknown parameters/fields in the PDEs or initial/boundary conditions.
   | **A**: `#55`_, `#76`_, `#86`_, `#114`_, `#120`_, `#125`_, `#178`_, `#208`_, `#235`_
+- | **Q**: Solve parametric PDEs.
+  | **A**: `#273`_, `#299`_
 - | **Q**: How does DeepXDE choose the training points? How can I use some specific training points?
   | **A**: `#32`_, `#57`_, `#64`_
 - | **Q**: How can I give different weights to different residual points?
   | **A**: `#45`_
-- | **Q**: I want to have more control over network training.
-  | **A**: `#166`_
-- | **Q**: I failed to train the network or get the right solution, e.g., the training loss is large.
-  | **A**: `#15`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_, `#188`_, `#247`_
+- | **Q**: I want to customize network training/optimization, e.g., mini-batch.
+  | **A**: `#166`_, `#307`_, `#320`_, `#331`_
 - | **Q**: How can I use a trained model for new predictions?
   | **A**: `#10`_, `#18`_, `#93`_, `#177`_
 - | **Q**: How can I save a trained model and then load the model later?
@@ -42,7 +50,7 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 - | **Q**: Examples collected from users.
   | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_, `Shallow water equations <https://github.com/lululxvi/deepxde/issues/247>`_
 - | **Q**: Questions about multi-fidelity neutral networks.
-  | **A**: `#94`_, `#195`_
+  | **A**: `#94`_, `#195`_, `#324`_
 
 .. _#2: https://github.com/lululxvi/deepxde/issues/2
 .. _#3: https://github.com/lululxvi/deepxde/issues/3
@@ -143,6 +151,24 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 .. _#247: https://github.com/lululxvi/deepxde/issues/247
 .. _#252: https://github.com/lululxvi/deepxde/issues/252
 .. _#254: https://github.com/lululxvi/deepxde/issues/254
+.. _#264: https://github.com/lululxvi/deepxde/issues/264
+.. _#273: https://github.com/lululxvi/deepxde/issues/273
+.. _#274: https://github.com/lululxvi/deepxde/issues/274
+.. _#276: https://github.com/lululxvi/deepxde/issues/276
+.. _#277: https://github.com/lululxvi/deepxde/issues/277
+.. _#278: https://github.com/lululxvi/deepxde/issues/278
+.. _#284: https://github.com/lululxvi/deepxde/issues/284
+.. _#286: https://github.com/lululxvi/deepxde/issues/286
+.. _#299: https://github.com/lululxvi/deepxde/issues/299
+.. _#302: https://github.com/lululxvi/deepxde/issues/302
+.. _#305: https://github.com/lululxvi/deepxde/issues/305
+.. _#307: https://github.com/lululxvi/deepxde/issues/307
+.. _#311: https://github.com/lululxvi/deepxde/issues/311
+.. _#320: https://github.com/lululxvi/deepxde/issues/320
+.. _#321: https://github.com/lululxvi/deepxde/issues/321
+.. _#324: https://github.com/lululxvi/deepxde/issues/324
+.. _#331: https://github.com/lululxvi/deepxde/issues/331
+.. _#332: https://github.com/lululxvi/deepxde/issues/332
 
 .. _#149: https://github.com/lululxvi/deepxde/issues/149
 .. _#174: https://github.com/lululxvi/deepxde/issues/174
@@ -150,3 +176,5 @@ If you have any questions about DeepXDE, first read the papers/slides and watch 
 .. _#251: https://github.com/lululxvi/deepxde/issues/251
 .. _#253: https://github.com/lululxvi/deepxde/issues/253
 .. _#257: https://github.com/lululxvi/deepxde/issues/257
+.. _#263: https://github.com/lululxvi/deepxde/issues/263
+.. _#345: https://github.com/lululxvi/deepxde/issues/345

@@ -1,4 +1,1 @@
-import torch
-from .tensor import *
-
-lib = torch
+from .tensor import *  # pylint: disable=redefined-builtin

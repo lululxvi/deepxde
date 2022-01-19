@@ -1,0 +1,32 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  DeepXDE: A deep learning library for solving
+  differential equations
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Lu
+    orcid: 'https://orcid.org/0000-0002-5476-5768'
+    family-names: Lu
+    affiliation: Massachusetts Institute of Technology
+  - given-names: Xuhui
+    family-names: Meng
+    affiliation: Brown University
+  - family-names: Mao
+    given-names: Zhiping
+    affiliation: Xiamen University
+  - family-names: Karniadakis
+    given-names: George Em
+    orcid: 'https://orcid.org/0000-0002-9713-7120'
+    affiliation: Brown University
+identifiers:
+  - type: doi
+    value: 10.1137/19M1274067
+repository-code: 'https://github.com/lululxvi/deepxde'
+url: 'https://deepxde.readthedocs.io'
+license: LGPL-2.1

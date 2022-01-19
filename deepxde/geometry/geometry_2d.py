@@ -1,19 +1,17 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 from scipy import spatial
 
 from .geometry import Geometry
 from .geometry_nd import Hypercube
 from .sampler import sample
+from .. import config
 from ..utils import vectorize
 
 
 class Disk(Geometry):
     def __init__(self, center, radius):
-        self.center, self.radius = np.array(center), radius
+        self.center = np.array(center, dtype=config.real(np))
+        self.radius = radius
         super(Disk, self).__init__(
             2, (self.center - radius, self.center + radius), 2 * radius
         )
@@ -121,18 +119,6 @@ class Rectangle(Hypercube):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x_corner = np.vstack(
-            (
-                self.xmin,
-                [self.xmax[0], self.xmin[1]],
-                self.xmax,
-                [self.xmin[0], self.xmax[1]],
-            )
-        )
-        if n <= 4:
-            return x_corner[np.random.choice(4, size=n, replace=False)]
-        n -= 4
-
         l1 = self.xmax[0] - self.xmin[0]
         l2 = l1 + self.xmax[1] - self.xmin[1]
         l3 = l2 + l1
@@ -153,7 +139,7 @@ class Rectangle(Hypercube):
                 x.append([self.xmax[0] - l + l2, self.xmax[1]])
             else:
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
-        return np.vstack((x_corner, x))
+        return np.vstack(x)
 
     @staticmethod
     def is_valid(vertices):
@@ -181,9 +167,9 @@ class Triangle(Geometry):
             self.area = -self.area
             x2, x3 = x3, x2
 
-        self.x1 = np.array(x1)
-        self.x2 = np.array(x2)
-        self.x3 = np.array(x3)
+        self.x1 = np.array(x1, dtype=config.real(np))
+        self.x2 = np.array(x2, dtype=config.real(np))
+        self.x3 = np.array(x3, dtype=config.real(np))
 
         self.v12 = self.x2 - self.x1
         self.v23 = self.x3 - self.x2
@@ -306,11 +292,6 @@ class Triangle(Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x_corner = np.vstack((self.x1, self.x2, self.x3))
-        if n <= 3:
-            return x_corner[np.random.choice(3, size=n, replace=False)]
-        n -= 3
-
         u = np.ravel(sample(n + 2, 1, random))
         # Remove the possible points very close to the corners
         u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
@@ -326,7 +307,7 @@ class Triangle(Geometry):
                 x.append((l - self.l12) * self.n23 + self.x2)
             else:
                 x.append((l - self.l12 - self.l23) * self.n31 + self.x3)
-        return np.vstack((x_corner, x))
+        return np.vstack(x)
 
 
 class Polygon(Geometry):
@@ -338,7 +319,7 @@ class Polygon(Geometry):
     """
 
     def __init__(self, vertices):
-        self.vertices = np.array(vertices)
+        self.vertices = np.array(vertices, dtype=config.real(np))
         if len(vertices) == 3:
             raise ValueError("The polygon is a triangle. Use Triangle instead.")
         if Rectangle.is_valid(self.vertices):
@@ -431,10 +412,10 @@ class Polygon(Geometry):
         return np.array([0, 0])
 
     def random_points(self, n, random="pseudo"):
-        x = np.empty((0, 2))
+        x = np.empty((0, 2), dtype=config.real(np))
         vbbox = self.bbox[1] - self.bbox[0]
         while len(x) < n:
-            x_new = np.random.rand(n, 2) * vbbox + self.bbox[0]
+            x_new = sample(n, 2, sampler="pseudo") * vbbox + self.bbox[0]
             x = np.vstack((x, x_new[self.inside(x_new)]))
         return x[:n]
 
@@ -460,12 +441,6 @@ class Polygon(Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        if n <= self.nvertices:
-            return self.vertices[
-                np.random.choice(len(self.vertices), size=n, replace=False)
-            ]
-        n -= self.nvertices
-
         u = np.ravel(sample(n + self.nvertices, 1, random))
         # Remove the possible points very close to the corners
         l = 0
@@ -487,7 +462,7 @@ class Polygon(Geometry):
                 l0, l1 = l1, l1 + self.diagonals[i, i + 1]
                 v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
             x.append((l - l0) * v + self.vertices[i])
-        return np.vstack((self.vertices, x))
+        return np.vstack(x)
 
 
 def polygon_signed_area(vertices):

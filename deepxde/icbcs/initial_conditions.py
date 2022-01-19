@@ -1,11 +1,12 @@
 """Initial conditions."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+__all__ = ["IC"]
 
 import numpy as np
-from ..backend import backend_name, torch
+
+from .boundary_conditions import npfunc_range_autocache
+from .. import backend as bkd
+from .. import utils
 
 
 class IC(object):
@@ -13,7 +14,7 @@ class IC(object):
 
     def __init__(self, geom, func, on_initial, component=0):
         self.geom = geom
-        self.func = func
+        self.func = npfunc_range_autocache(utils.return_tensor(func))
         self.on_initial = lambda x, on: np.array(
             [on_initial(x[i], on[i]) for i in range(len(x))]
         )
@@ -26,8 +27,10 @@ class IC(object):
         return self.filter(X)
 
     def error(self, X, inputs, outputs, beg, end):
-        # TODO: For PyTorch, this is recomputed in each iteration.
-        targets = self.func(X[beg:end])
-        if backend_name == "pytorch":
-            targets = torch.from_numpy(targets)
-        return outputs[beg:end, self.component : self.component + 1] - targets
+        values = self.func(X, beg, end)
+        if bkd.ndim(values) > 0 and bkd.shape(values)[1] != 1:
+            raise RuntimeError(
+                "IC func should return an array of shape N by 1 for a single component."
+                "Use argument 'component' for different components."
+            )
+        return outputs[beg:end, self.component : self.component + 1] - values

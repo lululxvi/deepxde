@@ -1,7 +1,10 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
+# Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
+# Import torch if using backend pytorch
+# import torch
 
 
 def pde(x, y):
@@ -27,13 +30,21 @@ data = dde.data.PDE(
 )
 
 net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
+
 # Use [r*sin(theta), r*cos(theta)] as features,
 # so that the network is automatically periodic along the theta coordinate.
-net.apply_feature_transform(
-    lambda x: tf.concat(
+# Backend tensorflow.compat.v1 or tensorflow
+def feature_transform(x):
+    return tf.concat(
         [x[:, 0:1] * tf.sin(x[:, 1:2]), x[:, 0:1] * tf.cos(x[:, 1:2])], axis=1
     )
-)
+# Backend pytorch
+# def feature_transform(x):
+#     return torch.cat(
+#         [x[:, 0:1] * torch.sin(x[:, 1:2]), x[:, 0:1] * torch.cos(x[:, 1:2])], dim=1
+#     )
+
+net.apply_feature_transform(feature_transform)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, metrics=["l2 relative error"])

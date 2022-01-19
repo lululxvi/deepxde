@@ -42,7 +42,7 @@ model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 losshistory, train_state = model.train(epochs=10000)
 # Optional: Save the model during training.
 # checkpointer = dde.callbacks.ModelCheckpoint(
-#     "model/model.ckpt", verbose=1, save_better_only=True
+#     "model/model", verbose=1, save_better_only=True
 # )
 # Optional: Save the movie of the network solution during training.
 # ImageMagick (https://imagemagick.org/) is required to generate the movie.
@@ -54,7 +54,7 @@ losshistory, train_state = model.train(epochs=10000)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # Optional: Restore the saved model with the smallest training loss
-# model.restore("model/model.ckpt-" + str(train_state.best_step), verbose=1)
+# model.restore(f"model/model-{train_state.best_step}.ckpt", verbose=1)
 # Plot PDE residual
 x = geom.uniform_points(1000, True)
 y = model.predict(x, operator=pde)

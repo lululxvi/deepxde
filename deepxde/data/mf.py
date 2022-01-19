@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 from sklearn import preprocessing
 
@@ -11,8 +7,7 @@ from ..utils import run_if_any_none
 
 
 class MfFunc(Data):
-    """Multifidelity function approximation.
-    """
+    """Multifidelity function approximation."""
 
     def __init__(
         self, geom, func_lo, func_hi, num_lo, num_hi, num_test, dist_train="uniform"
@@ -113,9 +108,7 @@ class MfDataSet(Data):
         self._standardize()
 
     def losses(self, targets, outputs, loss, model):
-        n = tf.cond(
-            tf.equal(model.net.data_id, 0), lambda: len(self.X_lo_train), lambda: 0
-        )
+        n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
         loss_lo = loss(targets[0][:n], outputs[0][:n])
         loss_hi = loss(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]

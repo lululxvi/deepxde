@@ -1,15 +1,15 @@
 # DeepXDE
 
-[![Build Status](https://www.travis-ci.com/lululxvi/deepxde.svg?branch=master)](https://www.travis-ci.com/lululxvi/deepxde)
+[![Build Status](https://app.travis-ci.com/lululxvi/deepxde.svg?branch=master)](https://app.travis-ci.com/lululxvi/deepxde)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5c67adbfeabd4ccc9b84d2212c50a342)](https://www.codacy.com/gh/lululxvi/deepxde/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lululxvi/deepxde&amp;utm_campaign=Badge_Grade)
 [![PyPI Version](https://badge.fury.io/py/DeepXDE.svg)](https://badge.fury.io/py/DeepXDE)
 [![PyPI Downloads](https://pepy.tech/badge/deepxde)](https://pepy.tech/project/deepxde)
 [![Conda Version](https://anaconda.org/conda-forge/deepxde/badges/version.svg)](https://anaconda.org/conda-forge/deepxde)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/lululxvi/deepxde)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow.org/). Use DeepXDE if you need a deep learning library that
+DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
@@ -18,18 +18,18 @@ DeepXDE is a deep learning library on top of [TensorFlow](https://www.tensorflow
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
 - approximates functions from a dataset with/without constraints.
 
-DeepXDE supports two tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x) and TensorFlow 2.x. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
-**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
+**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13), [Video in Chinese](http://tianyuan.xmu.edu.cn/cn/minicourses/637.html)
 
 **Papers on algorithms**
 
-- Solving PDEs and IDEs via PINN: [SIAM Rev.](https://doi.org/10.1137/19M1274067)
-- Solving fPDEs via fPINN: [SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)
-- Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)
-- Solving inverse design/topology optimization: [arXiv](https://arxiv.org/abs/2102.04626)
-- Learning nonlinear operators via DeepONet: [Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [arXiv](https://arxiv.org/abs/2011.03349)
-- Learning from multi-fidelity data via MFNN: [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://www.pnas.org/content/117/13/7052)
+- Solving PDEs and IDEs via PINN [[SIAM Rev.](https://doi.org/10.1137/19M1274067)], gradient-enhanced PINN (gPINN) [[arXiv](https://arxiv.org/abs/2111.02801)]
+- Solving fPDEs via fPINN [[SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)]
+- Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC) [[J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)]
+- Solving inverse design/topology optimization via PINN with hard constraints (hPINN) [[SIAM J. Sci. Comput.](https://doi.org/10.1137/21M1397908)]
+- Learning nonlinear operators via DeepONet [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5), [arXiv](https://arxiv.org/abs/2111.05512)], DeepM&Mnet [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
+- Learning from multi-fidelity data via MFNN [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://www.pnas.org/content/117/13/7052)]
 
 ## Features
 
@@ -50,7 +50,13 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 ## Installation
 
-DeepXDE requires [TensorFlow](https://www.tensorflow.org/) to be installed. Then, you can install DeepXDE itself.
+DeepXDE requires one of the following backend-specific dependencies to be installed:
+
+- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0 and [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
+- PyTorch: [PyTorch](https://pytorch.org/)
+
+Then, you can install DeepXDE itself.
 
 - Install the stable version with `pip`:
 
@@ -70,14 +76,13 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
-- Dependencies
+- Other dependencies
 
   - [Matplotlib](https://matplotlib.org/)
   - [NumPy](http://www.numpy.org/)
   - [scikit-learn](https://scikit-learn.org)
   - [scikit-optimize](https://scikit-optimize.github.io)
   - [SciPy](https://www.scipy.org/)
-  - [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 
 ## Explore more
 
@@ -118,12 +123,14 @@ First off, thanks for taking the time to contribute!
 - **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can as well open an issue.
 - **Answering questions.** If you know the answer to any question in the "Issues", you are welcomed to answer.
 
+**Slack.** The DeepXDE Slack hosts a primary audience of moderate to experienced DeepXDE users and developers for general chat, online discussions, collaboration, etc. If you need a slack invite, please send me an email.
+
 ## The Team
 
-DeepXDE was originally developed by [Lu Lu](https://lululxvi.github.io/) at [Brown University](https://www.brown.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis), supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
+DeepXDE was originally developed by [Lu Lu](https://lu.seas.upenn.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from 2018 to 2020, supported by [PhILMs](https://www.pnnl.gov/computing/philms).
 
-DeepXDE is currently maintained by [Lu Lu](https://lululxvi.github.io/) at [University of Pennsylvania](https://www.upenn.edu/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro), [Zongren Zou](https://github.com/ZongrenZou).
+DeepXDE is currently maintained by [Lu Lu](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro), [Zongren Zou](https://github.com/ZongrenZou).
 
 ## License
 
-[Apache license 2.0](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[LGPL-2.1 License](https://github.com/lululxvi/deepxde/blob/master/LICENSE)

@@ -1,13 +1,16 @@
 """tensorflow backend implementation"""
-from __future__ import absolute_import
-
 from distutils.version import LooseVersion
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
-    raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
+    raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
+if LooseVersion(tfp.__version__) < LooseVersion("0.10.0"):
+    raise RuntimeError("DeepXDE requires TensorFlow Probability>=0.10.0.")
+
+lib = tf
 
 
 def data_type_dict():
@@ -30,6 +33,34 @@ def is_tensor(obj):
 
 def shape(input_tensor):
     return input_tensor.shape.as_list()
+
+
+def ndim(input_tensor):
+    return len(input_tensor.shape)
+
+
+def Variable(initial_value, dtype=None):
+    return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
+
+
+def as_tensor(data, dtype=None):
+    if tf.is_tensor(data):
+        if dtype is None or data.dtype == dtype:
+            return data
+        return tf.cast(data, dtype)
+    return tf.convert_to_tensor(data, dtype=dtype)
+
+
+def from_numpy(np_array):
+    # Do memory copy:
+    # https://stackoverflow.com/questions/47519802/does-tensorflow-convert-to-tensor-do-memory-copy
+    # To avoid memory copy, use implicit conversion, but memory copy is still possible.
+    # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
+    return tf.convert_to_tensor(np_array)
+
+
+def to_numpy(input_tensor):
+    return input_tensor.numpy()
 
 
 def elu(x):
@@ -70,6 +101,14 @@ def mean(input_tensor, dim, keepdims=False):
 
 def reduce_mean(input_tensor):
     return tf.math.reduce_mean(input_tensor)
+
+
+def sum(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_sum(input_tensor):
+    return tf.math.reduce_sum(input_tensor)
 
 
 def zeros(shape, dtype):

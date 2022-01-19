@@ -30,7 +30,15 @@ tensorflow:
 	@echo "##################################################################"
 	@DDEBACKEND=tensorflow $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-html: Makefile tensorflow.compat.v1 tensorflow
+pytorch:
+	@echo "##################################################################"
+	@echo "#                                                                #"
+	@echo "#            Step 3: Building PyTorch tutorials                  #"
+	@echo "#                                                                #"
+	@echo "##################################################################"
+	@DDEBACKEND=pytorch $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+html: Makefile tensorflow.compat.v1 tensorflow pytorch
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

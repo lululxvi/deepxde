@@ -1,15 +1,10 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from .data import Data
 from .. import config
 from ..backend import tf
 
 
 class Constraint(Data):
-    """General constraints.
-    """
+    """General constraints."""
 
     def __init__(self, constraint, train_x, test_x):
         self.constraint = constraint
@@ -18,7 +13,7 @@ class Constraint(Data):
 
     def losses(self, targets, outputs, loss, model):
         f = tf.cond(
-            tf.equal(model.net.data_id, 0),
+            model.net.training,
             lambda: self.constraint(model.net.inputs, outputs, self.train_x),
             lambda: self.constraint(model.net.inputs, outputs, self.test_x),
         )

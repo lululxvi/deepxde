@@ -71,6 +71,64 @@ def shape(input_tensor):
     """
 
 
+def ndim(input_tensor):
+    """Returns the number of dimensions of the tensor.
+
+    Args:
+        input (Tensor): The input tensor.
+
+    Returns:
+        int: The number of dimensions.
+    """
+
+
+def Variable(initial_value, dtype=None):
+    """Return a trainable variable.
+
+    Args:
+        initial_value: The initial value of the variable.
+        dtype: The desired data type of returned tensor. Default: if None, infers data
+            type from data.
+    """
+
+
+def as_tensor(data, dtype=None):
+    """Convert the data to a Tensor.
+
+    If the data is already a tensor and has the same dtype, directly return.
+
+    Args:
+        data. Tensor object, numpy array, Python list, and Python scalar.
+        dtype (data type, optional). It should be one of the values in the data type dict.
+            If None, infers data type from data.
+
+    Returns:
+        Tensor. A framework-specific tensor.
+    """
+
+
+def from_numpy(np_array):
+    """Create a tensor that shares the underlying numpy array memory, if possible.
+
+    Args:
+        np_array (numpy.ndarray). The numpy ndarray.
+
+    Returns:
+        Tensor. A framework-specific tensor.
+    """
+
+
+def to_numpy(input_tensor):
+    """Create a numpy ndarray that shares the same underlying storage, if possible.
+
+    Args:
+        input_tensor (Tensor).
+
+    Returns:
+        np_array (numpy.ndarray). The numpy ndarray.
+    """
+
+
 ###############################################################################
 # Element-wise math functions
 # ---------------------------
@@ -125,6 +183,30 @@ def mean(input_tensor, dim, keepdims=False):
 
 def reduce_mean(input_tensor):
     """Returns the mean value of all elements in the input tensor."""
+
+
+def sum(input_tensor, dim, keepdims=False):
+    """Returns the sum of the input tensor along the given dim.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+        dim (int). The reduce dim.
+        keepdims (bool). Whether to keep the summed dimension.
+
+    Returns:
+        Tensor: A framework-specific tensor.
+    """
+
+
+def reduce_sum(input_tensor):
+    """Returns the sum of all elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor.
+    """
 
 
 def zeros(shape, dtype):
