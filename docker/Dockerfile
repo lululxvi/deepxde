@@ -3,6 +3,7 @@ LABEL description="Deepxde with Horovod and GPU support"
 
 COPY requirements.txt /root
 WORKDIR /root
+RUN /usr/bin/python -m pip install --upgrade pip
 RUN pip3 install -r requirements.txt 
 RUN apt-get update
 RUN apt-get install -y imagemagick
