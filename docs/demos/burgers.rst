@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Burgers equation:
 
-.. math:: \frac{du}{dt} + u\frac{du}{dx} = \nu\frac{du}{dx^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
+.. math:: \frac{\partial u}{\partial t} + u\frac{\partial u}{\partial x} = \nu\frac{\partial^2u}{\partial x^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
 
 with the Dirichlet boundary conditions and initial conditions  
 
