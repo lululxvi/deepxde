@@ -1,4 +1,4 @@
-from .backend import tf
+from .backend import tf, backend_name
 from .real import Real
 
 
@@ -27,3 +27,25 @@ def set_default_float(value):
         print("Set the default float type to float64")
         real.set_float64()
     tf.keras.backend.set_floatx(value)
+
+
+def setup_seed(seed):
+    import os
+    import random
+    import numpy as np
+
+    random.seed(seed)  #  by python Set random seeds
+    np.random.seed(seed)  #  by numpy Set random seeds
+
+    if backend_name == "pytorch":
+        print("Torch")
+        from .backend import torch
+
+        torch.manual_seed(seed)
+    elif backend_name == "tensorflow":
+        tf.random.set_seed(seed)  # tf cpu fix seed
+        os.environ["TF_DETERMINISTIC_OPS"] = "1"
+    elif backend_name == "tensorflow.compat.v1":
+        tf.set_random_seed(seed)  # tf cpu fix seed
+        os.environ["TF_DETERMINISTIC_OPS"] = "1"
+    print("OUT")
