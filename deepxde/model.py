@@ -384,12 +384,6 @@ class Model(object):
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
-                if (
-                    np.isnan(self.train_state.loss_train).any()
-                    or np.isnan(self.train_state.loss_test).any()
-                ):
-                    self.stop_training = True
-                    break
                 self._test()
 
             self.callbacks.on_batch_end()
@@ -516,6 +510,12 @@ class Model(object):
             self.train_state.loss_test,
             self.train_state.metrics_test,
         )
+
+        if (
+            np.isnan(self.train_state.loss_train).any()
+            or np.isnan(self.train_state.loss_test).any()
+        ):
+            self.stop_training = True
         display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
