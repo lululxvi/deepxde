@@ -1,6 +1,8 @@
-from .backend import tf, backend_name
+import os
+import random
+import numpy as np
+from .backend import tf, torch, backend_name
 from .real import Real
-
 
 real = Real(32)
 
@@ -34,17 +36,11 @@ def set_seed(seed):
     
     For reproductibility purposes, one has to set the random, numpy and backend seeds.
     """
-    import os
-    import random
-    import numpy as np
-
     random.seed(seed)  #  by python Set random seeds
     np.random.seed(seed)  #  by numpy Set random seeds
 
     if backend_name == "pytorch":
         print("Torch")
-        from .backend import torch
-
         torch.manual_seed(seed)
     elif backend_name == "tensorflow":
         tf.random.set_seed(seed)  # tf cpu fix seed
