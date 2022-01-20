@@ -1,8 +1,11 @@
 import os
 import random
+
 import numpy as np
+
 from .backend import tf, torch, backend_name
 from .real import Real
+
 
 real = Real(32)
 
@@ -40,7 +43,6 @@ def set_seed(seed):
     np.random.seed(seed)  #  by numpy Set random seeds
 
     if backend_name == "pytorch":
-        print("Torch")
         torch.manual_seed(seed)
     elif backend_name == "tensorflow":
         tf.random.set_seed(seed)  # tf cpu fix seed
@@ -48,4 +50,3 @@ def set_seed(seed):
     elif backend_name == "tensorflow.compat.v1":
         tf.set_random_seed(seed)  # tf cpu fix seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
-    print("OUT")
