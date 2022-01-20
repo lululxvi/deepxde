@@ -510,6 +510,12 @@ class Model(object):
             self.train_state.loss_test,
             self.train_state.metrics_test,
         )
+
+        if (
+            np.isnan(self.train_state.loss_train).any()
+            or np.isnan(self.train_state.loss_test).any()
+        ):
+            self.stop_training = True
         display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
