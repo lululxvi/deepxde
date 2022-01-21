@@ -36,7 +36,7 @@ def set_default_float(value):
 
 def set_seed(seed):
     """Set the global random seed.
-    
+        
     For reproductibility purposes, one has to set the random, numpy and backend seeds.
     """
     random.seed(seed)  #  by python Set random seeds
