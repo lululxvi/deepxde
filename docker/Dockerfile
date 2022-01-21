@@ -1,12 +1,13 @@
-FROM horovod/horovod:latest
+FROM horovod/horovod:master
 LABEL description="Deepxde with Horovod and GPU support"
 
 COPY requirements.txt /root
 WORKDIR /root
 RUN /usr/bin/python -m pip install --upgrade pip
 RUN pip3 install -r requirements.txt 
-RUN apt-get update
-RUN apt-get install -y imagemagick
+RUN apt-get update && apt-get install -y --no-install-recommends imagemagick \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 EXPOSE 8888/tcp
 ENV SHELL /bin/bash
 ENTRYPOINT ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
