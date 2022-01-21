@@ -34,7 +34,7 @@ def set_default_float(value):
     tf.keras.backend.set_floatx(value)
 
 
-def set_seed(seed):
+def set_random_seed(seed):
     """Set the global random seed.
 
     For reproductibility purposes, one has to set the random, numpy and backend seeds.
