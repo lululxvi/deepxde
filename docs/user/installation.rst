@@ -32,6 +32,17 @@ Then, you can install DeepXDE itself.
     - `scikit-optimize <https://scikit-optimize.github.io>`_
     - `SciPy <https://www.scipy.org/>`_
 
+
+Docker image
+------------
+
+A Jupyter Notebook environment with GPU-enabled stable DeepXDE built nightly::
+
+    $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 pescapil/deepxde:latest
+
+This image is based on ``horovod/horovod`` and comes with Tensorflow 2.x and PyTorch. Use ``nvidia-docker`` (resp. ``docker``) command to enable GPU (resp. CPU)-based DeepXDE. 
+
+
 Working with different backends
 -------------------------------
 
