@@ -36,11 +36,20 @@ Then, you can install DeepXDE itself.
 Docker image
 ------------
 
-A Jupyter Notebook environment with GPU-enabled stable DeepXDE built nightly::
+You can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE built nightly using::
 
     $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 pescapil/deepxde:latest
 
-This image is based on ``horovod/horovod`` and comes with Tensorflow 2.x and PyTorch. Use ``nvidia-docker`` (resp. ``docker``) command to enable GPU (resp. CPU)-based DeepXDE. 
+Use ``nvidia-docker`` (resp. ``docker``) command to enable GPU (resp. CPU)-based DeepXDE. 
+
+The corresponding `Dockerfile <https://github.com/lululxvi/deepxde/tree/master/docker/Dockerfile>`_ is based on ``horovod/horovod`` and comes with TensorFlow 2.x and PyTorch. To build the image yourself, you can run::
+
+    $ cd docker
+    $ docker build -f Dockerfile . -t mydeepxde
+
+and then run your own ``mydeepxde`` image via::
+
+$ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 mydeepxde
 
 
 Working with different backends
