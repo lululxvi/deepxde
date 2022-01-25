@@ -44,7 +44,8 @@ Use ``nvidia-docker`` (resp. ``docker``) command to enable GPU (resp. CPU)-based
 
 The corresponding `Dockerfile <https://github.com/lululxvi/deepxde/tree/master/docker/Dockerfile>`_ is based on ``horovod/horovod`` and comes with TensorFlow 2.x and PyTorch. To build the image yourself, you can run::
 
-    $ cd docker
+    $ git clone https://github.com/lululxvi/deepxde.git
+    $ cd deepxde/docker
     $ docker build -f Dockerfile . -t mydeepxde
 
 and then run your own ``mydeepxde`` image via::
