@@ -1,4 +1,5 @@
 import os
+import csv
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,6 +22,17 @@ def saveplot(
     result, use ``save_loss_history()`` and ``save_best_state()``.
 
     Args:
+        loss_history: ``LossHistory`` instance. The first variable returned from
+            ``Model.train()``.
+        train_state: ``TrainState`` instance. The second variable returned from
+            ``Model.train()``.
+        issave (bool): Set ``True`` (default) to save the loss, training points,
+            and testing points.
+        isplot (bool): Set ``True`` (default) to plot loss, metric, and the predicted
+            solution.
+        loss_fname (string): Name of the file to save the loss in.
+        train_fname (string): Name of the file to save the training points in.
+        test_fname (string): Name of the file to save the testing points in.
         output_dir (string): If ``None``, use the current working directory.
     """
     if output_dir is None:
@@ -180,3 +192,23 @@ def save_best_state(train_state, fname_train, fname_test):
         else:
             test = np.hstack((test, best_ystd))
             np.savetxt(fname_test, test, header="x, y_true, y_pred, y_std")
+
+
+def dat_to_csv(dat_file_path, csv_file_path, columns):
+    """Converts a dat file to CSV format and saves it.
+
+    Args:
+        dat_file_path (string): Path of the dat file.
+        csv_file_path (string): Desired path of the CSV file.
+        columns (list): Column names to be added in the CSV file.
+    """
+    with open(dat_file_path, "r") as dat_file, open(
+        csv_file_path, "w", newline=""
+    ) as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(columns)
+        for line in dat_file:
+            if "#" in line:
+                continue
+            row = [field.strip() for field in line.split(" ")]
+            csv_writer.writerow(row)
