@@ -9,8 +9,8 @@ def dat_to_csv(dat_file_path, csv_file_path, columns):
         csv_file_path (string): Desired path of the CSV file.
         columns (list): Column names to be added in the CSV file.
     """
-    with open(dat_file_path, "r") as dat_file, open(
-        csv_file_path, "w", newline=""
+    with open(dat_file_path, "r", encoding="utf-8") as dat_file, open(
+        csv_file_path, "w", encoding="utf-8", newline=""
     ) as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(columns)
