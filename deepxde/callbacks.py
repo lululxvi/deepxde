@@ -169,11 +169,12 @@ class EarlyStopping(Callback):
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
             over the baseline.
-        monitored_function: The loss function that is monitored.
-        Either 'loss_train' or 'loss_test'
+        monitored_function: The loss function that is monitored. Either 'loss_train' or 'loss_test'
     """
 
-    def __init__(self, min_delta=0, patience=0, baseline=None, monitored_function = 'loss_train'):
+    def __init__(
+        self, min_delta=0, patience=0, baseline=None, monitored_function="loss_train"
+    ):
         super(EarlyStopping, self).__init__()
 
         self.baseline = baseline
@@ -211,14 +212,12 @@ class EarlyStopping(Callback):
             print("Epoch {}: early stopping".format(self.stopped_epoch))
 
     def get_monitor_value(self):
-        if self.monitored_function == 'loss_train':
+        if self.monitored_function == "loss_train":
             result = sum(self.model.train_state.loss_train)
-        elif self.monitored_function == 'loss_test':
+        elif self.monitored_function == "loss_test":
             result = sum(self.model.train_state.loss_test)
         else:
-            raise ValueError(
-                    "The specified monitor function is incorrect."
-                )
+            raise ValueError("The specified monitor function is incorrect.")
 
         return result
 
