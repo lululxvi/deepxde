@@ -21,6 +21,17 @@ def saveplot(
     result, use ``save_loss_history()`` and ``save_best_state()``.
 
     Args:
+        loss_history: ``LossHistory`` instance. The first variable returned from
+            ``Model.train()``.
+        train_state: ``TrainState`` instance. The second variable returned from
+            ``Model.train()``.
+        issave (bool): Set ``True`` (default) to save the loss, training points,
+            and testing points.
+        isplot (bool): Set ``True`` (default) to plot loss, metric, and the predicted
+            solution.
+        loss_fname (string): Name of the file to save the loss in.
+        train_fname (string): Name of the file to save the training points in.
+        test_fname (string): Name of the file to save the testing points in.
         output_dir (string): If ``None``, use the current working directory.
     """
     if output_dir is None:
