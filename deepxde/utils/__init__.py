@@ -4,6 +4,7 @@ import importlib
 import sys
 
 from . import array_ops_compat
+from .dat_to_csv import *
 from .external import *
 from .internal import *
 from ..backend import backend_name

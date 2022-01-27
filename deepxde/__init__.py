@@ -22,10 +22,7 @@ from .icbcs import (
     IC,
 )
 from .model import Model
-from .postprocessing import (
-    saveplot,
-    dat_to_csv,
-)
+from .postprocessing import saveplot
 
 # Backward compatibility
 maps = nn
