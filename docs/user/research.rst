@@ -20,9 +20,13 @@ PINN
 #. Y. Chen, L. Lu, G. E. Karniadakis, & L. D. Negro. `Physics-informed neural networks for inverse problems in nano-optics and metamaterials <https://doi.org/10.1364/OE.384875>`_. *Optics Express*, 28(8), 11618--11633, 2020.
 #. G. Pang, L. Lu, & G. E. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
 #. D. Zhang, L. Lu, L. Guo, & G. E. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
-#. S. Markidis, `The old and the new: Can physics-informed deep-learning replace traditional linear solvers? <https://www.frontiersin.org/articles/10.3389/fdata.2021.669097/full>`_. *Frontiers in Big Data*, 4:669097, 2021.
-#. E. J. Whalen, `Enhancing surrogate models of engineering structures with graph-based and physics-informed learning <https://dspace.mit.edu/handle/1721.1/139609>`_. *PhD dissertation*, Massachusetts Institute of Technology, 2021.
-#. C. P. Hennigan, `The Primal Hamiltonian: a New Global Approach to Monetary Policy <https://www.colorado.edu/economics/sites/default/files/attached-files/21-02_-_hennigan.pdf>`_. 2021.
+#. S. Markidis. `The old and the new: Can physics-informed deep-learning replace traditional linear solvers? <https://www.frontiersin.org/articles/10.3389/fdata.2021.669097/full>`_. *Frontiers in Big Data*, 4:669097, 2021.
+#. E. J. Whalen. `Enhancing surrogate models of engineering structures with graph-based and physics-informed learning <https://dspace.mit.edu/handle/1721.1/139609>`_. *PhD dissertation, Massachusetts Institute of Technology*, 2021.
+#. C. P. Hennigan. `The Primal Hamiltonian: a New Global Approach to Monetary Policy <https://www.colorado.edu/economics/sites/default/files/attached-files/21-02_-_hennigan.pdf>`_. 2021.
+#. C. H. Martin, A. Oved, R. A. Chowdhury, E. Ullmann, N. S. Peters, A. A. Bharath, & M. Varela.  `EP-PINNs: Cardiac Electrophysiology Characterisation using Physics-Informed Neural Networks <https://arxiv.org/abs/2112.07703>`_. *arXiv preprint arXiv:2112.07703*, 2021.
+#. K. F. Iversen.  `Physics Informed Neural Networks for Inverse Advection-Diffusion Problems <https://bora.uib.no/bora-xmlui/handle/11250/2835305>`_. *The University of Bergen*, 2021.
+#. A. Warey, T. Han, & S. Kaushik.  `Investigation of Numerical Diffusion in Aerodynamic Flow Simulations with Physics Informed Neural Networks <https://arxiv.org/abs/2103.03115>`_. *arXiv preprint arXiv:2103.03115*, 2021.
+#. S. Alkhadhr, X. Liu, & M. Almekkawy. `Modeling of the Forward Wave Propagation Using Physics-Informed Neural Networks <https://doi.org/10.1109/IUS52206.2021.9593574>`_. *2021 IEEE International Ultrasonics Symposium (IUS)*, pp. 1–4, 2021.
 
 
 DeepONet
