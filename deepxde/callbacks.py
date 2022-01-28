@@ -156,7 +156,7 @@ class ModelCheckpoint(Callback):
 
 
 class EarlyStopping(Callback):
-    """Stop training when a monitored quantity (training loss) has stopped improving.
+    """Stop training when a monitored quantity (training or testing loss) has stopped improving.
     Only checked at validation step according to ``display_every`` in ``Model.train``.
 
     Args:
@@ -169,12 +169,14 @@ class EarlyStopping(Callback):
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
             over the baseline.
+        monitor: The loss function that is monitored. Either 'loss_train' or 'loss_test'
     """
 
-    def __init__(self, min_delta=0, patience=0, baseline=None):
+    def __init__(self, min_delta=0, patience=0, baseline=None, monitor="loss_train"):
         super(EarlyStopping, self).__init__()
 
         self.baseline = baseline
+        self.monitor = monitor
         self.patience = patience
         self.min_delta = min_delta
         self.wait = 0
@@ -208,7 +210,14 @@ class EarlyStopping(Callback):
             print("Epoch {}: early stopping".format(self.stopped_epoch))
 
     def get_monitor_value(self):
-        return sum(self.model.train_state.loss_train)
+        if self.monitor == "loss_train":
+            result = sum(self.model.train_state.loss_train)
+        elif self.monitor == "loss_test":
+            result = sum(self.model.train_state.loss_test)
+        else:
+            raise ValueError("The specified monitor function is incorrect.")
+
+        return result
 
 
 class Timer(Callback):
