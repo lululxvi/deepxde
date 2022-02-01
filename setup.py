@@ -42,7 +42,7 @@ setup(
     license="LGPL-2.1",
     install_requires=install_requires,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
         "Programming Language :: Python :: 3 :: Only",
