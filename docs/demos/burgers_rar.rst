@@ -89,8 +89,27 @@ After we train the network using Adam, we continue to train the network using L-
     model.compile("L-BFGS-B")
     losshistory, train_state = model.train()      
 
+Now that we have trained the model, we implement the residual-based adaptive refinement (RAR) method. This method is particularly effective with the Burgers equation because of the sharp discontinuity; intuitively, we should put more points near the sharp front to capture the discontinuity well. First, we randomly generate 100000 points from our domain to calculate the PDE residual. We also initialize the error to 1.
+
+.. code-block:: python
+
+    X = geomtime.random_points(100000)
+    err = 1
+
+We will repeatedly add points while the mean residual is greater than 0.005.
+
+We use our model to generate predictions and compute the absolute values of the errors. We print the mean residual.
+
+.. code-block:: python
+
+    while err > 0.005:
+        f = model.predict(X, operator=pde)
+        err_eq = np.absolute(f)
+        err = np.mean(err_eq)
+        print("Mean residual: %.3e" % (err))
+
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Burgers.py
+.. literalinclude:: ../../examples/Burgers_RAR.py
   :language: python
