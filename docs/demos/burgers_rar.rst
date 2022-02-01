@@ -99,7 +99,7 @@ Now that we have trained the model, we implement the residual-based adaptive ref
     X = geomtime.random_points(100000)
     err = 1
 
-We will repeatedly add points while the mean residual is greater than 0.005. We use our model to generate predictions and compute the absolute values of the errors. We print the mean residual.
+We will repeatedly add points while the mean residual is greater than 0.005. Each iteration, we use our model to generate predictions for inputs in ``X`` and compute the absolute values of the errors. We then print the mean residual.
 
 .. code-block:: python
 
@@ -109,7 +109,8 @@ We will repeatedly add points while the mean residual is greater than 0.005. We 
         err = np.mean(err_eq)
         print("Mean residual: %.3e" % (err))
 
-Next, we find the points where the residual is greatest. We add these new points for training PDE the loss. Furthermore, we check whether the network converges using a callback function. If there is improvement in the model's accuracy, we continue to train the model.
+Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. 
+If there is significant improvement in the model's accuracy, we continue to train the model.
 
 .. code-block:: python
 
@@ -123,10 +124,36 @@ Next, we find the points where the residual is greatest. We add these new points
         print("Adding new point:", X[x_id], "\n")
         data.add_anchors(X[x_id])
         early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
-        model.compile("adam", lr=1e-3)
-        model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
-        model.compile("L-BFGS")
-        losshistory, train_state = model.train()
+
+As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
+
+.. code-block:: python
+
+        while err > 0.005:
+            f = model.predict(X, operator=pde)
+            err_eq = np.absolute(f)
+            err = np.mean(err_eq)
+            print("Mean residual: %.3e" % (err))
+
+            x_id = np.argmax(err_eq)
+            print("Adding new point:", X[x_id], "\n")
+            data.add_anchors(X[x_id])
+            early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
+            model.compile("adam", lr=1e-3)
+            model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
+            model.compile("L-BFGS")
+            losshistory, train_state = model.train()
+
+Finally, we display a graph depicting train loss and test loss over time, along with a graph displaying the predicted solution to the PDE.
+
+.. code-block:: python
+
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
+    X, y_true = gen_testdata()
+    y_pred = model.predict(X)
+    print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
 
 Complete code
 --------------
