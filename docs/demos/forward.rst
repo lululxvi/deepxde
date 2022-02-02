@@ -10,8 +10,7 @@ ODEs
    :maxdepth: 1
 
    ode.system
-
-- `Lotka-Volterra equation <https://github.com/lululxvi/deepxde/blob/master/examples/Lotka_Volterra.ipynb>`_
+   lotkavolterra
 
 Time-independent PDEs
 ---------------------
