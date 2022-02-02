@@ -11,7 +11,7 @@ def data_type_dict():
     return {
         "float16": jnp.float16,
         "float32": jnp.float32,
-        "float64": jnp.float64, 
+        "float64": jnp.float64,
         "uint8": jnp.uint8,
         "int8": jnp.int8,
         "int16": jnp.int16,
@@ -19,6 +19,7 @@ def data_type_dict():
         "int64": jnp.int64,
         "bool": jnp.bool_,
     }
+
 
 def is_tensor(obj):
     return isinstance(obj, jnp.ndarray)

@@ -1,5 +1,5 @@
 import jax
 
 
-class NN():
+class NN:
     """Base class for all neural network modules."""
