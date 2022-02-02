@@ -19,6 +19,7 @@ lib = None
 # All possible backends to use explicitly
 tf = None
 torch = None
+jax = None
 
 ###############################################################################
 # Tensor, data type and context interfaces
