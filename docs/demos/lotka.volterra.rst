@@ -1,4 +1,4 @@
-Burgers equation 
+Lotka-Volterra Equation
 ================
 
 Problem setup
