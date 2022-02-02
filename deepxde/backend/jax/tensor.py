@@ -3,9 +3,10 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+
 lib = jax
 
-# jax.numpy.float64 is not automatically enabled by default, and will be truncated to jax.numpy.float32.
+# TODO:support jax.numpy.float64, which is not automatically enabled by default, and will be truncated to jax.numpy.float32 for now.
 # See https://github.com/google/jax#current-gotchas for more.
 def data_type_dict():
     return {
@@ -34,7 +35,7 @@ def ndim(input_array):
 
 
 def Variable(initial_value, dtype=None):
-    ## TODO: add variable class to jax
+    # TODO: add variable class to jax
     raise NotImplementedError(
         "Variable functionality to be implemented for jax backend"
     )
@@ -45,7 +46,7 @@ def as_tensor(data, dtype=None):
         if dtype is None or data.dtype == dtype:
             return data
         return jnp.asarray(data, dtype=dtype)
-    return jnp.asarray(data, dtype=dtype)
+    return data.astype(dtype)
 
 
 def from_numpy(np_array):
@@ -93,7 +94,7 @@ def tanh(x):
 
 
 def mean(input_tensor, dim, keepdims=False):
-    return jnp.mean(input_tensor, dim, keepdims=keepdims)
+    return jnp.mean(input_tensor, axis=dim, keepdims=keepdims)
 
 
 def reduce_mean(input_tensor):
@@ -101,7 +102,7 @@ def reduce_mean(input_tensor):
 
 
 def sum(input_tensor, dim, keepdims=False):
-    return jnp.sum(input_tensor, dim, keepdims=keepdims)
+    return jnp.sum(input_tensor, axis=dim, keepdims=keepdims)
 
 
 def reduce_sum(input_tensor):
