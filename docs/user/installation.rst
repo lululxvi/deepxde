@@ -33,8 +33,12 @@ Then, you can install DeepXDE itself.
     - `SciPy <https://www.scipy.org/>`_
 
 
-Docker image
-------------
+Docker
+------
+
+The `DeepXDE Docker images <https://hub.docker.com/r/pescapil/deepxde>`_ are already configured to run DeepXDE with the GPU support.
+
+You need first to install `NVIDIA Docker <https://github.com/NVIDIA/nvidia-docker>`_. 
 
 You can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE built nightly using::
 
