@@ -10,7 +10,7 @@ ODEs
    :maxdepth: 1
 
    ode.system
-   lotkavolterra
+   lotka.volterra
 
 Time-independent PDEs
 ---------------------
