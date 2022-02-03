@@ -39,9 +39,9 @@ Time-dependent PDEs
    diffusion.1d
    diffusion.1d.exactBC
    diffusion.1d.resample
+   burgers.rar
 
 - `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/heat_conduction_1d_uniform_bar.ipynb>`_
-- `Burgers equation with residual-based adaptive refinement (RAR) <https://github.com/bfan05/deepxde/blob/burgers_rar_add_doc/docs/demos/burgers.rar.rst>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/Beltrami_flow.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/Kovasznay_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/wave_1d.py>`_
