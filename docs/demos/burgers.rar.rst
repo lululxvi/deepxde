@@ -1,4 +1,4 @@
-Burgers equation 
+Burgers equation with Residual-based Adaptive Refinement
 ================
 
 Problem setup
