@@ -40,7 +40,7 @@ The `DeepXDE Docker images <https://hub.docker.com/r/pescapil/deepxde>`_ are alr
 
 You need first to install `NVIDIA Docker <https://github.com/NVIDIA/nvidia-docker>`_. 
 
-You can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE built nightly using::
+You can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE using::
 
     $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 pescapil/deepxde:latest
 
