@@ -32,30 +32,22 @@ Then, you can install DeepXDE itself.
     - `scikit-optimize <https://scikit-optimize.github.io>`_
     - `SciPy <https://www.scipy.org/>`_
 
-
 Docker
 ------
 
-The `DeepXDE Docker images <https://hub.docker.com/r/pescapil/deepxde>`_ are already configured to run DeepXDE with the GPU support.
-
-You need first to install `NVIDIA Docker <https://github.com/NVIDIA/nvidia-docker>`_. 
-
-You can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE using::
+The `DeepXDE Docker image <https://hub.docker.com/r/pescapil/deepxde>`_ is configured to run DeepXDE with the GPU support. You need first to install `NVIDIA Docker <https://github.com/NVIDIA/nvidia-docker>`_. Then you can run a Jupyter Notebook environment with GPU-enabled stable DeepXDE using::
 
     $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 pescapil/deepxde:latest
 
-Use ``nvidia-docker`` (resp. ``docker``) command to enable GPU (resp. CPU)-based DeepXDE. 
-
-The corresponding `Dockerfile <https://github.com/lululxvi/deepxde/tree/master/docker/Dockerfile>`_ is based on ``horovod/horovod`` and comes with TensorFlow 2.x and PyTorch. To build the image yourself, you can run::
+The `Dockerfile <https://github.com/lululxvi/deepxde/tree/master/docker/Dockerfile>`_ is based on `Horovod Docker image <https://hub.docker.com/r/horovod/horovod>`_ with TensorFlow and PyTorch. To build a DeepXDE image, you can run::
 
     $ git clone https://github.com/lululxvi/deepxde.git
     $ cd deepxde/docker
-    $ docker build -f Dockerfile . -t mydeepxde
+    $ docker build -f Dockerfile . -t deepxde
 
-and then run your own ``mydeepxde`` image via::
+and then run your own DeepXDE image via::
 
-$ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 mydeepxde
-
+$ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 deepxde
 
 Working with different backends
 -------------------------------
