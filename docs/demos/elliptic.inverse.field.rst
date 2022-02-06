@@ -4,90 +4,77 @@ Inverse Problem for the Poisson Equation With Unknown Forcing Field
 Problem setup
 --------------
 
-We will solve the Lorenz system:
+We will solve
 
-.. math:: \frac{dx}{dt} = \sigma(y-x), \quad \frac{dy}{dt} = x (\rho - z) - y, \quad \frac{dz}{dt} = x y - \beta z \qquad t \in [0, 3]
+.. math:: \frac{d^2u}{dx^2} = q(x), \quad x \in [-1, 1]
 
-with initial conditions 
+with the Dirichlet boundary conditions
 
-.. math:: x(0) = -8, \quad y(0) = 7, \quad z(0) = 27.
+.. math:: u(-1) = 0, \quad u(1) = 0
 
-The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Lorenz.npz>`_, where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. 
+This PDE is particularly interesting because both :math:`u(x)` and :math:`q(x)` are unknown.
+
+The reference solution is :math:`u(x) = \sin(\pi x), \quad q(x) = -\pi^2 \sin(\pi x)`.
 
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above Lorenz system step-by-step.
-
-First, the DeepXDE and NumPy (``np``) modules are imported:
+First, the DeepXDE, Matplotlib, and NumPy (``np``) modules are imported:
 
 .. code-block:: python
 
     import deepxde as dde
+    import matplotlib.pyplot as plt
     import numpy as np
         
-We also want to define our three unknown variables, :math:`\sigma`, :math:`\rho`, and :math:`\beta` which will now be called C1, C2, and C3, respectivly. These variables are given an initial guess of 1.0.
+We also define a function to generate (``num``) equally spaced points from :math:`-1` to :math:`1` to use as training data.
 
 .. code-block:: python
     
-    C1 = dde.Variable(1.0)
-    C2 = dde.Variable(1.0)
-    C3 = dde.Variable(1.0)
+    def gen_traindata(num):
+        # generate num equally-spaced points from -1 to 1
+        xvals = np.linspace(-1, 1, num).reshape(num, 1)
+        uvals = np.sin(np.pi * xvals)
+        return xvals, uvals
 
-Now we can begin by creating a ``TimeDomain`` class.
-
-.. code-block:: python
-    
-    geom = dde.geometry.TimeDomain(0, 3)
-    
-Next, we create the Lorenz system to solve using the ``dde.grad.jacobian`` function.
-
-.. code-block:: python
-
-    def Lorenz_system(x, y):
-        y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
-        dy1_x = dde.grad.jacobian(y, x, i=0)
-        dy2_x = dde.grad.jacobian(y, x, i=1)
-        dy3_x = dde.grad.jacobian(y, x, i=2)
-        return [
-            dy1_x - C1 * (y2 - y1),
-            dy2_x - y1 * (C2 - y3) + y2,
-            dy3_x - y1 * y2 + C3 * y3,
-        ]
-
-The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x,y,z)`, but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. 
-
-Next, we consider the initial conditions. We need to implement a function, which should return ``True`` for points inside the subdomain and ``False`` for the points outside. 
-
-.. code-block:: python
-
-    def boundary(_, on_initial):
-        return on_initial
-
-Then the initial conditions are specified using the computational domain, initial function, and boundary. The argument ``component`` refers to if this IC is for the first component (:math:`x`), the second component (:math:`y`), or the third component (:math:`z`). Note that in our case, the point :math:`t` of the initial condition is :math:`t = 0`. 
+Now we begin by defining a computational geometry. We can use a built-in class ``Interval`` as follows
 
 .. code-block:: python
     
-    ic1 = dde.IC(geom, lambda X: -8, boundary, component=0)
-    ic2 = dde.IC(geom, lambda X: 7, boundary, component=1)
-    ic3 = dde.IC(geom, lambda X: 27, boundary, component=2)
+    geom = dde.geometry.Interval(-1, 1)
     
-Now me must assign the data from ``Lorenz.npz`` to the corresponding :math:`t`, :math:`x`, :math:`y`, and :math:`z` values for training. First we retrieve the data to train the model. The data is split into ``"t"`` and ``"y"``, which correspond to time datapoints and the cartesian coodrinate datapoints (x, y, and z), respectivly. 
+Next, we express the PDE residual of the Poisson equation using the ``dde.grad.hessian`` function.
 
 .. code-block:: python
 
-    def gen_traindata():
-        data = np.load("dataset/Lorenz.npz")
-        return data["t"], data["y"]
-        
-Then we organize and assign the train data. 
+    def pde(x, y):
+        u, q = y[:, 0:1], y[:, 1:2]
+        du_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
+        return -du_xx + q
+
+The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u, q`.
+
+Next, we consider the boundary conditions. First, let us define the function ``sol`` that will be used to compute :math:`u(0)` and :math:`u(1)`.
 
 .. code-block:: python
 
-    observe_t, ob_y = gen_traindata()
-    observe_y0 = dde.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
-    observe_y1 = dde.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
-    observe_y2 = dde.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
+    def sol(x):
+        return np.sin(np.pi * x ** 2)
+
+Notice that, as required, ``sol(-1) = sol(1) = 0``. Next, we define the boundary conditions using the built-in ``dde.DirichletBC`` function.
+
+.. code-block:: python
+    
+    bc = dde.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
+    
+Here, we pass in our computational geometry, the function ``sol`` to compute the boundary values, a function which returns ``True`` if a point is on a boundary and ``False`` otherwise, and the component axis on which the boundary is satisfied.
+
+Now, we generate :math:``100`` points and assign the data to ``ob_x`` and ``ob_u``. We organize and assign the train data.
+
+.. code-block:: python
+
+    ob_x, ob_u = gen_traindata(100)
+    observe_u = dde.PointSetBC(ob_x, ob_u, component=0)
   
 Now that the problem is fully setup, we define the PDE as: 
 
@@ -95,41 +82,65 @@ Now that the problem is fully setup, we define the PDE as:
   
     data = dde.data.PDE(
         geom,
-        Lorenz_system,
-        [ic1, ic2, ic3, observe_y0, observe_y1, observe_y2],
-        num_domain=400,
+        pde,
+        [bc, observe_u],
+        num_domain=200,
         num_boundary=2,
-        anchors=observe_t,
+        anchors=ob_x,
+        num_test=1000,
     )
 
 Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
 
-Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 40:
+Next, we choose the networks. We use two networks, one to train for :math:``u(x)`` and the other to train for ``q(x)``. Here, we use two fully connected neural networks of depth 4 (i.e., 3 hidden layers) and width 20.
 
 .. code-block:: python
 
-    net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
+    net = dde.maps.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
     
-Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer, learning rate, and provide the trainable variables C1, C2, and C3:
+Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer and learning rate.
 
 .. code-block:: python
 
     model = dde.Model(data, net)
-    model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
-      variable = dde.callbacks.VariableValue(
-      [C1, C2, C3], period=600, filename="variables.dat"
-    )
+    model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
 
 We then train the model for 60000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=60000, callbacks=[variable])
+    losshistory, train_state = model.train(epochs=20000)
+
+We can now view the results
+
+.. code-block:: python
+
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
+    x = geom.uniform_points(500)
+    yhat = model.predict(x)
+    uhat, qhat = yhat[:, 0:1], yhat[:, 1:2]
+
+    utrue = np.sin(np.pi * x)
+    print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(utrue, uhat)))
+    plt.figure()
+    plt.plot(x, utrue, "-", label="u_true")
+    plt.plot(x, uhat, "--", label="u_NN")
+    plt.legend()
+
+    qtrue = -np.pi ** 2 * np.sin(np.pi * x)
+    print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
+    plt.figure()
+    plt.plot(x, qtrue, "-", label="q_true")
+    plt.plot(x, qhat, "--", label="q_NN")
+    plt.legend()
+
+    plt.show()
 
 Complete code
 --------------
 
-`Jupyter notebook <https://github.com/lululxvi/deepxde/blob/master/examples/Lorenz_inverse.ipynb>`_
+`Jupyter notebook <https://github.com/lululxvi/deepxde/blob/master/examples/elliptic_inverse_field.py>`_
 
-.. literalinclude:: ../../examples/Lorenz_inverse.py
+.. literalinclude:: ../../examples/elliptic_inverse_field.py
   :language: python
