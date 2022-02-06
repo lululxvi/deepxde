@@ -12,7 +12,7 @@ with the Dirichlet boundary conditions
 
 .. math:: u(-1) = 0, \quad u(1) = 0
 
-This PDE is particularly interesting because both :math:`u(x)` and :math:`q(x)` are unknown.
+Here, both :math:`u(x)` and :math:`q(x)` are unknown.
 
 The reference solution is :math:`u(x) = \sin(\pi x), \quad q(x) = -\pi^2 \sin(\pi x)`.
 
@@ -27,17 +27,16 @@ First, the DeepXDE, Matplotlib, and NumPy (``np``) modules are imported:
     import matplotlib.pyplot as plt
     import numpy as np
         
-We also define a function to generate (``num``) equally spaced points from :math:`-1` to :math:`1` to use as training data.
+We also define a function to generate ``num`` equally spaced points from -1 to 1 to use as training data.
 
 .. code-block:: python
     
     def gen_traindata(num):
-        # generate num equally-spaced points from -1 to 1
         xvals = np.linspace(-1, 1, num).reshape(num, 1)
         uvals = np.sin(np.pi * xvals)
         return xvals, uvals
 
-Now we begin by defining a computational geometry. We can use a built-in class ``Interval`` as follows
+Now we begin by defining a computational geometry. We can use a built-in class ``Interval`` as follows:
 
 .. code-block:: python
     
@@ -52,9 +51,9 @@ Next, we express the PDE residual of the Poisson equation using the ``dde.grad.h
         du_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
         return -du_xx + q
 
-The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u, q`.
+The first argument to ``pde`` is the network input, i.e., the x-coordinate. The second argument is the network output, i.e., the solution :math:`u, q`.
 
-Next, we consider the boundary conditions. First, let us define the function ``sol`` that will be used to compute :math:`u(0)` and :math:`u(1)`.
+Next, we consider the boundary conditions. First, let us define the function ``sol`` that will be used to compute :math:`u(-1)` and :math:`u(1)`.
 
 .. code-block:: python
 
@@ -69,7 +68,7 @@ Notice that, as required, ``sol(-1) = sol(1) = 0``. Next, we define the boundary
     
 Here, we pass in our computational geometry, the function ``sol`` to compute the boundary values, a function which returns ``True`` if a point is on a boundary and ``False`` otherwise, and the component axis on which the boundary is satisfied.
 
-Now, we generate :math:``100`` points and assign the data to ``ob_x`` and ``ob_u``. We organize and assign the train data.
+Now, we generate 100 points and assign the data to ``ob_x`` and ``ob_u``. We organize and assign the train data.
 
 .. code-block:: python
 
@@ -92,7 +91,7 @@ Now that the problem is fully setup, we define the PDE as:
 
 Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
 
-Next, we choose the networks. We use two networks, one to train for :math:``u(x)`` and the other to train for ``q(x)``. Here, we use two fully connected neural networks of depth 4 (i.e., 3 hidden layers) and width 20.
+Next, we choose the networks. We use two networks, one to train for ``u(x)`` and the other to train for ``q(x)``. Here, we use two fully connected neural networks of depth 4 (i.e., 3 hidden layers) and width 20.
 
 .. code-block:: python
 
