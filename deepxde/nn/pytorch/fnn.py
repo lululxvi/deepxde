@@ -3,6 +3,7 @@ import torch
 from .nn import NN
 from .. import activations
 from .. import initializers
+from ... import config
 
 
 class FNN(NN):
@@ -16,7 +17,11 @@ class FNN(NN):
 
         self.linears = torch.nn.ModuleList()
         for i in range(1, len(layer_sizes)):
-            self.linears.append(torch.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
+            self.linears.append(
+                torch.nn.Linear(
+                    layer_sizes[i - 1], layer_sizes[i], dtype=config.real(torch)
+                )
+            )
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
