@@ -20,7 +20,6 @@ lib = None
 tf = None
 torch = None
 jax = None
-optax = None
 
 ###############################################################################
 # Tensor, data type and context interfaces

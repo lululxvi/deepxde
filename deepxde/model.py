@@ -13,7 +13,7 @@ from . import losses as losses_module
 from . import metrics as metrics_module
 from . import optimizers
 from . import utils
-from .backend import backend_name, tf, torch, jax, optax
+from .backend import backend_name, tf, torch, jax
 from .callbacks import CallbackList
 
 
@@ -47,8 +47,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        # for jax
-        self.opt_state = None  # to be removed
+        if backend_name == "jax":
+            self.opt_state = None  # TODO: to be removed to opt module
 
     @utils.timing
     def compile(
@@ -270,9 +270,10 @@ class Model(object):
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
         """jax"""
+        import optax
 
         # initialize network's parameters
-        # TODO: random seed specified by users
+        # TODO: random seed should use a random number, or be specified by users
         rng = jax.random.PRNGKey(seed=0)
         x = jax.numpy.ones(shape=[1, self.net.layer_sizes[0]])
         self.net.params = self.net.init(rng, x)
