@@ -6,6 +6,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. M. Daneker, Z. Zhang, G. E. Karniadakis, & L. Lu. `Systems biology: Identifiability analysis and parameter identification via systems-biology informed neural networks <https://arxiv.org/abs/2202.01723>`_. *arXiv preprint arXiv:2202.01723*, 2022.
 #. A. Sacchetti, B. Bachmann, K. Loffel, U.-M. Kunzi, & B. Paoli. `Neural networks to solve partial differential equations: a comparison with finite elements <https://arxiv.org/abs/2201.03269>`_. *arXiv preprint arXiv:2201.03269*, 2022.
 #. C. H. Martin, A. Oved, R. A. Chowdhury, E. Ullmann, N. S. Peters, A. A. Bharath, & M. Varela.  `EP-PINNs: Cardiac electrophysiology characterisation using physics-informed neural networks <https://arxiv.org/abs/2112.07703>`_. *arXiv preprint arXiv:2112.07703*, 2021.
 #. K. F. Iversen.  `Physics informed neural networks for inverse advection-diffusion problems <https://bora.uib.no/bora-xmlui/handle/11250/2835305>`_. *The University of Bergen*, 2021.
