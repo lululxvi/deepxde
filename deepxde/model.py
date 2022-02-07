@@ -47,7 +47,7 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        if backend_name == "jax":
+        elif backend_name == "jax":
             self.opt_state = None  # TODO: to be removed to opt module
 
     @utils.timing
@@ -274,9 +274,9 @@ class Model(object):
 
         # initialize network's parameters
         # TODO: random seed should use a random number, or be specified by users
-        rng = jax.random.PRNGKey(seed=0)
-        x = jax.numpy.ones(shape=[1, self.net.layer_sizes[0]])
-        self.net.params = self.net.init(rng, x)
+        key = jax.random.PRNGKey(seed=0)
+        x = jax.numpy.empty(shape=[1, self.net.layer_sizes[0]])
+        self.net.params = self.net.init(key, x)
 
         @jax.jit
         def inner_outputs(params, training, inputs):
@@ -286,6 +286,7 @@ class Model(object):
         def inner_outputs_losses(params, training, inputs, targets):
             # TODO: add auxiliary vars, regularization loss, weighted losses
             outputs_ = self.net.apply(params, inputs, training=training)
+            # Data losses
             losses = self.data.losses(targets, outputs_, loss_fn, self)
             if not isinstance(losses, list):
                 losses = [losses]
