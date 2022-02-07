@@ -46,8 +46,8 @@ def as_tensor(data, dtype=None):
     if isinstance(data, jnp.ndarray):
         if dtype is None or data.dtype == dtype:
             return data
-        return jnp.asarray(data, dtype=dtype)
-    return data.astype(dtype)
+        return data.astype(dtype=dtype)
+    return jnp.asarray(data, dtype=dtype)
 
 
 def from_numpy(np_array):
