@@ -13,7 +13,7 @@ from . import losses as losses_module
 from . import metrics as metrics_module
 from . import optimizers
 from . import utils
-from .backend import backend_name, tf, torch
+from .backend import backend_name, tf, torch, jax, optax
 from .callbacks import CallbackList
 
 
@@ -47,6 +47,8 @@ class Model(object):
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+        # for jax
+        self.opt_state = None  # to be removed
 
     @utils.timing
     def compile(
@@ -109,6 +111,8 @@ class Model(object):
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
             self._compile_pytorch(lr, loss_fn, decay, loss_weights)
+        elif backend_name == "jax":
+            self._compile_jax(lr, loss_fn, decay, loss_weights)
 
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
@@ -264,6 +268,62 @@ class Model(object):
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 
+    def _compile_jax(self, lr, loss_fn, decay, loss_weights):
+        """jax"""
+
+        # initialize network's parameters
+        # TODO: random seed specified by users
+        rng = jax.random.PRNGKey(seed=0)
+        x = jax.numpy.ones(shape=[1, self.net.layer_sizes[0]])
+        self.net.params = self.net.init(rng, x)
+
+        @jax.jit
+        def inner_outputs(params, training, inputs):
+            return self.net.apply(params, training, inputs)
+
+        @jax.jit
+        def inner_outputs_losses(params, training, inputs, targets):
+            # TODO: add auxiliary vars, regularization loss, weighted losses
+            outputs_ = self.net.apply(params, inputs, training=training)
+            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
+            return outputs_, losses
+
+        @jax.jit
+        def inner_train_step(params, opt_state, inputs, targets):
+            def loss_function(params):
+                losses = inner_outputs_losses(params, True, inputs, targets)[1]
+                return jax.numpy.sum(jax.numpy.stack(losses))
+
+            value_and_grad_fn = jax.value_and_grad(
+                loss_function
+            )  # jax.value_and_grad seems to be slightly faster than jax.grad
+            _, grads = value_and_grad_fn(params)
+            updates, new_opt_state = self.opt.update(grads, opt_state)
+            new_params = optax.apply_updates(params, updates)
+            return new_params, new_opt_state
+
+        def outputs(training, inputs):
+            return inner_outputs(self.net.params, training, inputs)
+
+        def outputs_losses(training, inputs, targets):
+            return inner_outputs_losses(self.net.params, training, inputs, targets)
+
+        def train_step(inputs, targets):
+            self.net.params, self.opt_state = inner_train_step(
+                self.net.params, self.opt_state, inputs, targets
+            )
+
+        # TODO: add more optimizers by "optimizer" argument, decay
+        self.opt = optax.adam(learning_rate=lr)
+        self.opt_state = self.opt.init(self.net.params)
+
+        # Callables
+        self.outputs = outputs
+        self.outputs_losses = outputs_losses
+        self.train_step = train_step
+
     def _outputs(self, training, inputs):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
@@ -283,6 +343,9 @@ class Model(object):
             self.net.requires_grad_(requires_grad=False)
             outs = self.outputs_losses(training, inputs, targets)
             self.net.requires_grad_()
+        elif backend_name == "jax":
+            # TODO: auxiliary_vars
+            outs = self.outputs_losses(training, inputs, targets)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -292,6 +355,9 @@ class Model(object):
         elif backend_name == "tensorflow":
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
+            # TODO: auxiliary_vars
+            self.train_step(inputs, targets)
+        elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
 
