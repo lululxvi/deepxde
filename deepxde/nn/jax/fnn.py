@@ -1,7 +1,9 @@
-from .nn import NN
 from typing import Any
+
 import jax
 from flax import linen as nn
+
+from .nn import NN
 
 
 class FNN(NN):
@@ -10,8 +12,6 @@ class FNN(NN):
     layer_sizes: Any = None
     activation: Any = None
     kernel_initializer: Any = None
-    regularization: Any = None
-    dropout_rate: Any = None
 
     def setup(self):
         # TODO: implement get activation, get initializer

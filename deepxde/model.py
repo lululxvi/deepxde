@@ -273,7 +273,8 @@ class Model(object):
         import optax
 
         # initialize network's parameters
-        # TODO: random seed should use a random number, or be specified by users
+        # TODO: Init should move to network module, because we don't know how to init here, e.g., DeepONet has two inputs.
+        #       random seed should use a random number, or be specified by users
         key = jax.random.PRNGKey(seed=0)
         x = jax.numpy.empty(shape=[1, self.net.layer_sizes[0]])
         self.net.params = self.net.init(key, x)
@@ -298,10 +299,10 @@ class Model(object):
                 losses = inner_outputs_losses(params, True, inputs, targets)[1]
                 return jax.numpy.sum(jax.numpy.stack(losses))
 
-            value_and_grad_fn = jax.value_and_grad(
+            grad_fn = jax.grad(
                 loss_function
-            )  # jax.value_and_grad seems to be slightly faster than jax.grad
-            _, grads = value_and_grad_fn(params)
+            )  # jax.value_and_grad seems to be slightly faster than jax.grad for function approximation
+            grads = grad_fn(params)
             updates, new_opt_state = self.opt.update(grads, opt_state)
             new_params = optax.apply_updates(params, updates)
             return new_params, new_opt_state
