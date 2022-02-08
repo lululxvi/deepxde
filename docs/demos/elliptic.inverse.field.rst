@@ -19,6 +19,8 @@ The reference solution is :math:`u(x) = \sin(\pi x), \quad q(x) = -\pi^2 \sin(\p
 Implementation
 --------------
 
+This description goes through the implementation of a solver for the above described Poisson equation step-by-step.
+
 First, the DeepXDE, Matplotlib, and NumPy (``np``) modules are imported:
 
 .. code-block:: python
@@ -89,7 +91,7 @@ Now that the problem is fully setup, we define the PDE as:
         num_test=1000,
     )
 
-Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
+where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. 
 
 Next, we choose the networks. We use two networks, one to train for ``u(x)`` and the other to train for ``q(x)``. Here, we use two fully connected neural networks of depth 4 (i.e., 3 hidden layers) and width 20.
 
@@ -104,7 +106,7 @@ Now that the PDE problem and network have been created, we build a ``Model`` and
     model = dde.Model(data, net)
     model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
 
-We then train the model for 60000 iterations:
+We then train the model for 20000 iterations:
 
 .. code-block:: python
 
