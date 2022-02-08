@@ -35,10 +35,6 @@ def ode_system(x, y):
     ]
 
 
-def boundary(_, on_initial):
-    return on_initial
-
-
 geom = dde.geometry.TimeDomain(0.0, 1.0)
 data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test=3000)
 
