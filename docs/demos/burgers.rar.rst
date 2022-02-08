@@ -1,4 +1,4 @@
-Burgers equation with Residual-based Adaptive Refinement
+Burgers equation with residual-based adaptive refinement
 ================
 
 Problem setup
@@ -58,9 +58,9 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
 .. code-block:: python
 
     data = dde.data.TimePDE(geomtime, pde, [bc, ic], 
-                            num_domain=2540, num_boundary=80, num_initial=160)    
+                            num_domain=2500, num_boundary=100, num_initial=100)    
 
-The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary. We also include 160 initial residual points for the initial conditions.
+The number 2540 is the number of training residual points sampled inside the domain, and the number 100 is the number of training points sampled on the boundary. We also include 100 initial residual points for the initial conditions.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
@@ -76,11 +76,11 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
     model.compile("adam", lr=1e-3)
     
    
-We then train the model for 15000 iterations:
+We then train the model for 10000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=15000)
+    losshistory, train_state = model.train(epochs=10000)
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
