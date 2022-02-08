@@ -110,7 +110,7 @@ We will repeatedly add points while the mean residual is greater than 0.005. Eac
         print("Mean residual: %.3e" % (err))
 
 Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. 
-If there is significant improvement in the model's accuracy, we continue to train the model.
+If there is significant improvement in the model's accuracy, as judged by the callback function, we continue to train the model.
 
 .. code-block:: python
 
