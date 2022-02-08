@@ -60,7 +60,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
     data = dde.data.TimePDE(geomtime, pde, [bc, ic], 
                             num_domain=2500, num_boundary=100, num_initial=100)    
 
-The number 2540 is the number of training residual points sampled inside the domain, and the number 100 is the number of training points sampled on the boundary. We also include 100 initial residual points for the initial conditions.
+The number 2500 is the number of training residual points sampled inside the domain, and the number 100 is the number of training points sampled on the boundary. We also include 100 initial residual points for the initial conditions.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
