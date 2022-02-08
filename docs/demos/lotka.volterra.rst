@@ -28,10 +28,14 @@ and two user-specified parameters
 .. math:: U = 200, R = 20,
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 the first of which approximates the upper bound of the range, and the second is the right bound of the domain. These two will be used for scaling.
 =======
 the first of which approximates the upper bound of the range, and the second is the right bound of the domain, which will be used for scaling.
 >>>>>>> 4ec7688 (fixed names)
+=======
+the first of which approximates the upper bound of the range, and the second is the right bound of the domain. These two will be used for scaling.
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 The reference solution is generated using ``integrate.solve_ivp()`` from ``scipy``.
 
@@ -79,6 +83,7 @@ Next, we express the ODE system:
 
 The first argument to ``ode_system`` is the :math:`t`-coordinate, represented by ``x``. The second argument is a 2-dimensional vector, represented as ``y``, which contains :math:`r(t)` and :math:`p(t)`.
 <<<<<<< HEAD
+<<<<<<< HEAD
       
 Now, we define the ODE problem as 
 =======
@@ -92,16 +97,25 @@ Next, we consider the boundary. We use ``on_initial`` to specify the domain of t
       
 Since we wish to use a hard condition for the initial conditions, we define this later while creating the network. Now, we define the ODE problem as 
 >>>>>>> 4ec7688 (fixed names)
+=======
+      
+Now, we define the ODE problem as 
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python 
 
     data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test = 3000)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Note that when solving this equation, we want to have hard constraints on the initial conditions, so we define this later when creating the network rather than as part of the PDE.
 
 =======
 >>>>>>> 4ec7688 (fixed names)
+=======
+Note that when solving this equation, we want to have hard constraints on the initial conditions, so we define this later when creating the network rather than as part of the PDE.
+
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 We have 3000 training residual points inside the domain and 2 points on the boundary. We use 3000 points for testing the ODE residual. We now create the network:
 
 .. code-block:: python
@@ -112,10 +126,14 @@ We have 3000 training residual points inside the domain and 2 points on the boun
     net = dde.maps.FNN(layer_size, activation, initializer)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
 =======
 This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we observe periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`:
 >>>>>>> 4ec7688 (fixed names)
+=======
+This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python
 
@@ -157,20 +175,28 @@ We add these layers:
     net.apply_output_transform(output_transform)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Now that we have defined the neural network, we build a ``Model``, choose the optimizer and learning rate, and train it for 50000 iterations:
 =======
 Now that we have defined the neural network, we build a ``Model``, choose the optimizer and learning rate, and train it for 10000 iterations:
 >>>>>>> 4ec7688 (fixed names)
+=======
+Now that we have defined the neural network, we build a ``Model``, choose the optimizer and learning rate, and train it for 50000 iterations:
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python
 
     model = dde.Model(data, net)
     model.compile("adam", lr=0.001)
 <<<<<<< HEAD
+<<<<<<< HEAD
     losshistory, train_state = model.train(epochs=50000)
 =======
     losshistory, train_state = model.train(epochs=10000)
 >>>>>>> 4ec7688 (fixed names)
+=======
+    losshistory, train_state = model.train(epochs=50000)
+>>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 After training with Adam, we continue with L-BFGS to have an even smaller loss:
 
