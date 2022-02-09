@@ -135,39 +135,18 @@ After training with Adam, we continue with L-BFGS to have an even smaller loss:
     losshistory, train_state = model.train()  
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
-We generate the reference solution:
-
-.. code-block:: python
-
-    def gen_truedata():
-        t = np.linspace(0, 1, 100)
-        sol = integrate.solve_ivp(func, (0, 10), (100 / ub, 15 / ub), t_eval=t)
-        x_true, y_true = sol.y
-        x_true = x_true.reshape(100, 1)
-        y_true = y_true.reshape(100, 1)
-
-        return x_true, y_true
-
-
-We compare the predicted and reference solutions and plot the results:
+We generate the predicted and reference solutions:
 
 .. code-block:: python
 
     t = np.linspace(0, 1, 100)
     x_true, y_true = gen_truedata()
-    plt.plot(t, x_true, color="black", label="x_true")
-    plt.plot(t, y_true, color="blue", label="y_true")
 
     t = t.reshape(100, 1)
     sol_pred = model.predict(t)
     x_pred = sol_pred[:, 0:1]
     y_pred = sol_pred[:, 1:2]
 
-    plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
-    plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")
-
-    plt.legend()
-    plt.show()
 
 Complete code
 --------------
