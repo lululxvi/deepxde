@@ -1,35 +1,14 @@
-<<<<<<< HEAD
 Lotka-Volterra equation
 ================
 
-Lotka-Volterra Equation
-================
-
-Problem setup
---------------
-
-We will solve a Lotka-Volterra equation:
-
-.. math:: \frac{dr}{dt} = \frac{R}{U}(2Ur - 0.04U^2rp)
-.. math:: \frac{dp}{dt} = \frac{R}{U}(0.02U^2rp - 1.06Up)
-
-<<<<<<< HEAD
-with the initial condition
-
 .. math:: r(0) = \frac{100}{U}, \quad p(0) = \frac{15}{U}
-
-.. math:: r(0) = 100, \quad p(0) = 15
->>>>>>> 4ec7688 (fixed names)
+>>>>>>> 41746b5 (small changes)
 
 and two user-specified parameters
 
 .. math:: U = 200, R = 20,
 
-<<<<<<< HEAD
 the first of which approximates the upper bound of the range, and the second is the right bound of the domain. These two will be used for scaling.
-=======
-the first of which approximates the upper bound of the range, and the second is the right bound of the domain. These two will be used for scaling.
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 The reference solution is generated using ``integrate.solve_ivp()`` from ``scipy``.
 
@@ -76,25 +55,15 @@ Next, we express the ODE system:
         ]
 
 The first argument to ``ode_system`` is the :math:`t`-coordinate, represented by ``x``. The second argument is a 2-dimensional vector, represented as ``y``, which contains :math:`r(t)` and :math:`p(t)`.
-<<<<<<< HEAD
 
 Now, we define the ODE problem as
-=======
-
-Now, we define the ODE problem as
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python
 
     data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test = 3000)
 
-<<<<<<< HEAD
 Note that when solving this equation, we want to have hard constraints on the initial conditions, so we define this later when creating the network rather than as part of the PDE.
 
-=======
-Note that when solving this equation, we want to have hard constraints on the initial conditions, so we define this later when creating the network rather than as part of the PDE.
-
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 We have 3000 training residual points inside the domain and 2 points on the boundary. We use 3000 points for testing the ODE residual. We now create the network:
 
 .. code-block:: python
@@ -104,11 +73,7 @@ We have 3000 training residual points inside the domain and 2 points on the boun
     initializer = "Glorot normal"
     net = dde.maps.FNN(layer_size, activation, initializer)
 
-<<<<<<< HEAD
 This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
-=======
-This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python
 
@@ -138,8 +103,6 @@ As mentioned earlier, we want the initial conditions :math:`r(0)=\frac{100}{U}` 
             [y1 * tf.tanh(t) + 100 / ub, y2 * tf.tanh(t) + 15 / ub], axis=1
         )
 
-Note that here, the initial conditions are scaled down by :math:`U`.
-
 We add these layers:
 
 .. code-block:: python
@@ -147,21 +110,13 @@ We add these layers:
     net.apply_feature_transform(input_transform)
     net.apply_output_transform(output_transform)
 
-<<<<<<< HEAD
 Now that we have defined the neural network, we build a ``Model``, choose the optimizer and learning rate, and train it for 50000 iterations:
-=======
-Now that we have defined the neural network, we build a ``Model``, choose the optimizer and learning rate, and train it for 50000 iterations:
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 .. code-block:: python
 
     model = dde.Model(data, net)
     model.compile("adam", lr=0.001)
-<<<<<<< HEAD
     losshistory, train_state = model.train(epochs=50000)
-=======
-    losshistory, train_state = model.train(epochs=50000)
->>>>>>> cc1e4dc (small wording changes, changed amount of epochs)
 
 After training with Adam, we continue with L-BFGS to have an even smaller loss:
 
