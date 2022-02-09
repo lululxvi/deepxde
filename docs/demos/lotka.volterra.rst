@@ -11,7 +11,7 @@ We will solve a Lotka-Volterra equation:
 
 with the initial condition   
 
-.. math:: r(0) = 100, \quad p(0) = 15
+.. math:: r(0) = \frac{100}{U}, \quad p(0) = \frac{15}{U}
 
 and two user-specified parameters 
 
@@ -100,7 +100,7 @@ This is a neural network of depth 7 with 6 hidden layers of width 50. We use :ma
             axis=1,
         )
 
-As mentioned earlier, we want the initial conditions :math:`r(0)=100` and :math:`p(0)=15` to be hard constraints, so we transform the output:
+As mentioned earlier, we want the initial conditions :math:`r(0)=\frac{100}{U}` and :math:`p(0)=\frac{15}{U}` to be hard constraints, so we transform the output:
 
 .. code-block:: python
 
@@ -111,8 +111,6 @@ As mentioned earlier, we want the initial conditions :math:`r(0)=100` and :math:
         return tf.concat(
             [y1 * tf.tanh(t) + 100 / ub, y2 * tf.tanh(t) + 15 / ub], axis=1
         )
-
-Note that here, the initial conditions are scaled down by :math:`U`.
 
 We add these layers:
 
@@ -135,11 +133,6 @@ After training with Adam, we continue with L-BFGS to have an even smaller loss:
 
     model.compile("L-BFGS")
     losshistory, train_state = model.train()  
-
-After that, we save the best result:
-
-.. code-block:: python
-
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 We generate the reference solution:
