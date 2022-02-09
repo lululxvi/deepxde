@@ -96,20 +96,7 @@ Because we only use 2500 residual points for training, the accuracy is low. Next
     X = geomtime.random_points(100000)
     err = 1
 
-We will repeatedly add points while the mean residual is greater than 0.005. Each iteration, we use our model to generate predictions for inputs in ``X`` and compute the absolute values of the errors. We then print the mean residual.
-
-.. code-block:: python
-
-    while err > 0.005:
-        f = model.predict(X, operator=pde)
-        err_eq = np.absolute(f)
-        err = np.mean(err_eq)
-        print("Mean residual: %.3e" % (err))
-
-Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. 
-If there is significant improvement in the model's accuracy, as judged by the callback function, we continue to train the model.
-
-As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
+We will repeatedly add points while the mean residual is greater than 0.005. Each iteration, we use our model to generate predictions for inputs in ``X`` and compute the absolute values of the errors. We then print the mean residual. Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. If there is significant improvement in the model's accuracy, as judged by the callback function, we continue to train the model. As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
 .. code-block:: python
 
