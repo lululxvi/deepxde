@@ -1,4 +1,4 @@
-Lotka-Volterra Equation
+Lotka-Volterra equation
 ================
 
 Problem setup
@@ -9,7 +9,7 @@ We will solve a Lotka-Volterra equation:
 .. math:: \frac{dr}{dt} = \frac{R}{U}(2Ur - 0.04U^2rp)
 .. math:: \frac{dp}{dt} = \frac{R}{U}(0.02U^2rp - 1.06Up)
 
-with the Dirichlet boundary conditions   
+with the initial condition   
 
 .. math:: r(0) = 100, \quad p(0) = 15
 
@@ -112,6 +112,8 @@ As mentioned earlier, we want the initial conditions :math:`r(0)=100` and :math:
             [y1 * tf.tanh(t) + 100 / ub, y2 * tf.tanh(t) + 15 / ub], axis=1
         )
 
+Note that here, the initial conditions are scaled down by :math:`U`.
+
 We add these layers:
 
 .. code-block:: python
@@ -140,7 +142,7 @@ After that, we save the best result:
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
-Now that we have a prediction for the model, we generate data to compare by using ``integrate.solve_ivp()`` from ``scipy``:
+We generate the reference solution:
 
 .. code-block:: python
 
@@ -154,7 +156,7 @@ Now that we have a prediction for the model, we generate data to compare by usin
         return x_true, y_true
 
 
-We call this function to get the true data and plot it with ``matplotlib``:
+We compare the predicted and reference solutions and plot the results:
 
 .. code-block:: python
 
@@ -163,10 +165,6 @@ We call this function to get the true data and plot it with ``matplotlib``:
     plt.plot(t, x_true, color="black", label="x_true")
     plt.plot(t, y_true, color="blue", label="y_true")
 
-We also plot the predicted data from earlier:
-
-.. code-block:: python
-
     t = t.reshape(100, 1)
     sol_pred = model.predict(t)
     x_pred = sol_pred[:, 0:1]
@@ -174,10 +172,6 @@ We also plot the predicted data from earlier:
 
     plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
     plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")
-
-Lastly, we add a legend and show this graph:
-
-.. code-block:: python
 
     plt.legend()
     plt.show()
