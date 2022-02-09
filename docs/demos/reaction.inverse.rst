@@ -1,4 +1,4 @@
-Inverse problem for the diffusion equation
+Inverse problem for the diffusion-reaction system
 ================
 
 Problem setup
