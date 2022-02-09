@@ -89,7 +89,7 @@ After we train the network using Adam, we continue to train the network using L-
     model.compile("L-BFGS-B")
     losshistory, train_state = model.train()      
 
-Now that we have trained the model, we implement the residual-based adaptive refinement (RAR) method. This method is particularly effective with the Burgers equation because of the sharp discontinuity; intuitively, we should put more points near the sharp front to capture the discontinuity well. First, we randomly generate 100000 points from our domain to calculate the PDE residual. We also initialize the error to 1.
+Because we only use 2500 residual points for training, the accuracy is low. Next, we improve the accuracy by the residual-based adaptive refinement (RAR) method. Because the Burgers equation has a sharp front, intuitively, we should put more points near the sharp front. First, we randomly generate 100000 points from our domain to calculate the PDE residual.
 
 .. code-block:: python
 
@@ -109,6 +109,8 @@ We will repeatedly add points while the mean residual is greater than 0.005. Eac
 Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. 
 If there is significant improvement in the model's accuracy, as judged by the callback function, we continue to train the model.
 
+As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
+
 .. code-block:: python
 
     while err > 0.005:
@@ -121,25 +123,10 @@ If there is significant improvement in the model's accuracy, as judged by the ca
         print("Adding new point:", X[x_id], "\n")
         data.add_anchors(X[x_id])
         early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
-
-As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
-
-.. code-block:: python
-
-        while err > 0.005:
-            f = model.predict(X, operator=pde)
-            err_eq = np.absolute(f)
-            err = np.mean(err_eq)
-            print("Mean residual: %.3e" % (err))
-
-            x_id = np.argmax(err_eq)
-            print("Adding new point:", X[x_id], "\n")
-            data.add_anchors(X[x_id])
-            early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
-            model.compile("adam", lr=1e-3)
-            model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
-            model.compile("L-BFGS")
-            losshistory, train_state = model.train()
+        model.compile("adam", lr=1e-3)
+        model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
+        model.compile("L-BFGS")
+        losshistory, train_state = model.train()
 
 Finally, we display a graph depicting train loss and test loss over time, along with a graph displaying the predicted solution to the PDE.
 
