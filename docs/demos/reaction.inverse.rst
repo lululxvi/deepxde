@@ -20,7 +20,7 @@ and boundary conditions
 
 .. math:: C_A(1, t) = C_B(1, t) = 0.
 
-The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz>`_, where the parameters :math:`D` and :math:`k_f` are :math:`2 \cdot 10^{-3}` and :math:`0.1`, respectively.
+The training dataset is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz>`_, and the expected values of :math:`D` and :math:`k_f` are :math:`2 \cdot 10^{-3}` and :math:`0.1`, respectively.
 
 Implementation
 --------------
