@@ -20,8 +20,8 @@ PDEs
    :maxdepth: 1
 
    diffusion.1d.inverse
+   reaction.inverse
 
-- `Inverse Problem for the diffusion-reaction system <https://github.com/lululxvi/deepxde/blob/master/examples/reaction_inverse.py>`_
 - `Inverse problem for the Poisson equation with unknown forcing field <https://github.com/lululxvi/deepxde/blob/master/examples/elliptic_inverse_field.py>`_
 
 fractional PDEs
