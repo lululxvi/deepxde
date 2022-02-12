@@ -1,4 +1,4 @@
-Inverse Problem for the Poisson Equation With Unknown Forcing Field
+Inverse problem for the Poisson equation with unknown forcing field
 =====================================
  
 Problem setup
@@ -12,7 +12,7 @@ with the Dirichlet boundary conditions
  
 .. math:: u(-1) = 0, \quad u(1) = 0
  
-Here, both :math:`u(x)` and :math:`q(x)` are unknown.
+We have the measurement of :math:`u(x)` at 100 points.
  
 The reference solution is :math:`u(x) = \sin(\pi x), \quad q(x) = -\pi^2 \sin(\pi x)`.
  
@@ -112,36 +112,8 @@ We then train the model for 20000 iterations:
  
     losshistory, train_state = model.train(epochs=20000)
  
-We can now view the results
- 
-.. code-block:: python
- 
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
- 
-    x = geom.uniform_points(500)
-    yhat = model.predict(x)
-    uhat, qhat = yhat[:, 0:1], yhat[:, 1:2]
- 
-    utrue = np.sin(np.pi * x)
-    print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(utrue, uhat)))
-    plt.figure()
-    plt.plot(x, utrue, "-", label="u_true")
-    plt.plot(x, uhat, "--", label="u_NN")
-    plt.legend()
- 
-    qtrue = -np.pi ** 2 * np.sin(np.pi * x)
-    print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
-    plt.figure()
-    plt.plot(x, qtrue, "-", label="q_true")
-    plt.plot(x, qhat, "--", label="q_NN")
-    plt.legend()
- 
-    plt.show()
- 
 Complete code
 --------------
- 
-`Jupyter notebook <https://github.com/lululxvi/deepxde/blob/master/examples/elliptic_inverse_field.py>`_
  
 .. literalinclude:: ../../examples/elliptic_inverse_field.py
   :language: python
