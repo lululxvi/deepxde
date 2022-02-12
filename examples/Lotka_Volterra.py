@@ -1,8 +1,10 @@
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate
 
+# Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
