@@ -12,7 +12,7 @@ with the Dirichlet boundary conditions
  
 .. math:: u(-1) = 0, \quad u(1) = 0
  
-We have the measurement of :math:`u(x)` at 100 points.
+Here, both :math:`u(x)` and :math:`q(x)` are unknown. Furthermore, we have the measurement of :math:`u(x)` at 100 points.
  
 The reference solution is :math:`u(x) = \sin(\pi x), \quad q(x) = -\pi^2 \sin(\pi x)`.
  
