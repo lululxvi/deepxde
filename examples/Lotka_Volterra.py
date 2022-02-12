@@ -47,7 +47,7 @@ activation = "tanh"
 initializer = "Glorot normal"
 net = dde.maps.FNN(layer_size, activation, initializer)
 
-
+# Backend tensorflow.compat.v1 or tensorflow
 def input_transform(t):
     return tf.concat(
         (
@@ -72,6 +72,7 @@ def input_transform(t):
 #     )
 
 # hard constraints: x(0) = 100, y(0) = 15
+# Backend tensorflow.compat.v1 or tensorflow
 def output_transform(t, y):
     y1 = y[:, 0:1]
     y2 = y[:, 1:2]
