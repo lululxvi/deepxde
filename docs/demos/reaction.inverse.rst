@@ -28,22 +28,29 @@ Implementation
 We first import DeepXDE and numpy (``np``):
 
 .. code-block:: python
+
     import deepxde as dde
     import numpy as np
+
 Now, we define the unknown variables :math:`D` and :math:`k_f` with initial guesses of 1 and 0.05, respectively:
 
 .. code-block:: python
+
     kf = dde.Variable(0.05)
     D = dde.Variable(1.0)
+    
 We define the computational geometries by using the built-in ``Interval`` and ``TimeDomain`` classes and combining them with ``GeometryXTime``:
 
 .. code-block:: python
+
     geom = dde.geometry.Interval(0, 1)
     timedomain = dde.geometry.TimeDomain(0, 10)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
 Now, we create the reaction-inverse PDE:
 
 .. code-block:: python
+
     def pde(x, y):
         ca, cb = y[:, 0:1], y[:, 1:2]
         dca_t = dde.grad.jacobian(y, x, i=0, j=1)
@@ -53,21 +60,27 @@ Now, we create the reaction-inverse PDE:
         eq_a = dca_t - 1e-3 * D * dca_xx + kf * ca * cb ** 2
         eq_b = dcb_t - 1e-3 * D * dcb_xx + 2 * kf * ca * cb ** 2
         return [eq_a, eq_b]
+
 Here, the first parameter is the :math:`t`-coordinate, and it is represented by ``x``. The second parameter has :math:`C_A` and :math:`C_B`, which are represented by ``y``. Then, we use ``dde.grad.jacobian`` and ``dde.grad.hessian`` to represent the desired first and second order partial derivatives. 
 
 Next, we consider the Dirichlet boundary conditions:
 
 .. code-block:: python 
+
     def fun_bc(x):
         return 1 - x[:, 0:1]
+
 Now, we define the initial conditions:
 
 .. code-block:: python 
+
     def fun_init(x):
         return np.exp(-20 * x[:, 0:1]) 
+
 Now that these are defined, we apply them:
 
 .. code-block:: python
+
     bc_a = dde.DirichletBC(
         geomtime, fun_bc, lambda _, on_boundary: on_boundary, component=0
     )
@@ -76,9 +89,11 @@ Now that these are defined, we apply them:
     )
     ic1 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=0)
     ic2 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
+
 Now, we generate the training data by getting it from `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz>`_:
 
 .. code-block:: python
+
     def gen_traindata():
         data = np.load("dataset/reaction.npz")
         t, x, ca, cb = data["t"], data["x"], data["Ca"], data["Cb"]
@@ -88,15 +103,19 @@ Now, we generate the training data by getting it from `here <https://github.com/
         Ca = np.reshape(ca, (-1, 1))
         Cb = np.reshape(cb, (-1, 1))
         return np.hstack((X, T)), Ca, Cb
+
 After generating the data, we organize it:
 
 .. code-block:: python
+
     observe_x, Ca, Cb = gen_traindata()
     observe_y1 = dde.PointSetBC(observe_x, Ca, component=0)
     observe_y2 = dde.PointSetBC(observe_x, Cb, component=1)
+
 Now, we can define the ``TimePDE`` problem as follows:
 
 .. code-block:: python
+
     data = dde.data.TimePDE(
         geomtime,
         pde,
@@ -107,26 +126,32 @@ Now, we can define the ``TimePDE`` problem as follows:
         anchors=observe_x,
         num_test=50000,
     )
+
 We have 2000 training residual points in the domain, 100 points on the boundary, 100 points for the initial conditions, and 50000 to test the PDE residual. ``anchors`` specifies the training points as well.
 
 Now, we create the network:
 
 .. code-block:: python
+
     net = dde.maps.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
+
 This network has two inputs, one for the :math:`t`-coordinate and one for the :math:`x`-coordinate, and three hidden layers with 20 neurons each. The output layer has two outputs, one for :math:`C_A` and one for :math:`C_B`. We also choose ``tanh`` to be the activation function, and the initializer is ``Glorot uniform``.
 
 Now, we create the ``Model`` and specify the optimizer, learning rate, and ``external_trainable_variables``. We also output the values of :math:`D` and :math:`k_f` every 1000 iterations.
 
 .. code-block:: python
+
     model = dde.Model(data, net)
     model.compile("adam", lr=0.001, external_trainable_variables=[kf, D])
     variable = dde.callbacks.VariableValue([kf, D], period=1000, filename="variables.dat")
+
 Lastly, we train this network for 80000 epochs:
 
 .. code-block:: python 
     
     losshistory, train_state = model.train(epochs=80000, callbacks=[variable])
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
 Complete Code
 --------------
 
