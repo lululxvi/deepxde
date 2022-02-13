@@ -41,6 +41,7 @@ Time-dependent PDEs
    burgers.rar
 
 - `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/heat_conduction_1d_uniform_bar.ipynb>`_
+- `Diffusion reaction <https://github.com/bfan05/deepxde/blob/master/examples/diffusion_reaction.py>
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/Beltrami_flow.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/Kovasznay_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/wave_1d.py>`_
