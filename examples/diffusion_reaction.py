@@ -1,3 +1,4 @@
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
  
@@ -54,25 +55,29 @@ layer_size = [2] + [30] * 6 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.maps.FNN(layer_size, activation, initializer)
+
+def output_transform(x, y):
+    return (
+        x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
+        + tf.sin(x[:, 0:1])
+        + tf.sin(2 * x[:, 0:1]) / 2
+        + tf.sin(3 * x[:, 0:1]) / 3
+        + tf.sin(4 * x[:, 0:1]) / 4
+        + tf.sin(8 * x[:, 0:1]) / 8
+    )
+
+# Backend pytorch
+# def output_transform(x, y):
+#     return (
+#         x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
+#         + tf.sin(x[:, 0:1])
+#         + tf.sin(2 * x[:, 0:1]) / 2
+#         + tf.sin(3 * x[:, 0:1]) / 3
+#         + tf.sin(4 * x[:, 0:1]) / 4
+#         + tf.sin(8 * x[:, 0:1]) / 8
+#    )
  
-net.apply_output_transform(
-    # Backend tensorflow.compact.v1 or tensorflow
-    lambda x, y: x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-    + tf.sin(x[:, 0:1])
-    + tf.sin(2 * x[:, 0:1]) / 2
-    + tf.sin(3 * x[:, 0:1]) / 3
-    + tf.sin(4 * x[:, 0:1]) / 4
-    + tf.sin(8 * x[:, 0:1]) / 8
-
-    # Backend pytorch
-    # lambda x, y: x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-    # + torch.sin(x[:, 0:1])
-    # + torch.sin(2 * x[:, 0:1]) / 2
-    # + torch.sin(3 * x[:, 0:1]) / 3
-    # + torch.sin(4 * x[:, 0:1]) / 4
-    # + torch.sin(8 * x[:, 0:1]) / 8
-
-)
+net.apply_output_transform(output_transform)
  
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, metrics=["l2 relative error"])
