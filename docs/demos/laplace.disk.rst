@@ -127,5 +127,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Laplace_disk.py
+.. literalinclude:: ../../examples/pinn_forward/Laplace_disk.py
   :language: python

@@ -133,5 +133,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/diffusion_1d_inverse.py
+.. literalinclude:: ../../examples/pinn_inverse/diffusion_1d_inverse.py
   :language: python

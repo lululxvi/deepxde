@@ -155,5 +155,5 @@ Lastly, we train this network for 80000 epochs:
 Complete Code
 --------------
 
-.. literalinclude:: ../../examples/reaction_inverse.py
+.. literalinclude:: ../../examples/pinn_inverse/reaction_inverse.py
   :language: python

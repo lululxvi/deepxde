@@ -1,7 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
-
-Documentation: https://deepxde.readthedocs.io/en/latest/demos/poisson.1d.dirichlet.html
-"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np

@@ -31,26 +31,21 @@ def func(x):
     return x ** 3 * (1 - x) ** 3
 
 
-def main():
-    geom = dde.geometry.Interval(0, 1)
-    bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
+geom = dde.geometry.Interval(0, 1)
+bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
-    # Static auxiliary points
-    data = dde.data.FPDE(geom, fpde, alpha, bc, [101], meshtype="static", solution=func)
-    # Dynamic auxiliary points
-    # data = dde.data.FPDE(
-    #     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test=100
-    # )
+# Static auxiliary points
+data = dde.data.FPDE(geom, fpde, alpha, bc, [101], meshtype="static", solution=func)
+# Dynamic auxiliary points
+# data = dde.data.FPDE(
+#     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test=100
+# )
 
-    net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
-    net.apply_output_transform(lambda x, y: x * (1 - x) * y)
+net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
+net.apply_output_transform(lambda x, y: x * (1 - x) * y)
 
-    model = dde.Model(data, net)
+model = dde.Model(data, net)
 
-    model.compile("adam", lr=1e-3)
-    losshistory, train_state = model.train(epochs=10000)
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-if __name__ == "__main__":
-    main()
+model.compile("adam", lr=1e-3)
+losshistory, train_state = model.train(epochs=10000)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

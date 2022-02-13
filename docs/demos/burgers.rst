@@ -92,5 +92,5 @@ After we train the network using Adam, we continue to train the network using L-
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Burgers.py
+.. literalinclude:: ../../examples/pinn_forward/Burgers.py
   :language: python

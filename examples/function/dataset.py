@@ -2,8 +2,9 @@
 import deepxde as dde
 
 
-fname_train = "dataset/dataset.train"
-fname_test = "dataset/dataset.test"
+fname_train = "../dataset/dataset.train"
+fname_test = "../dataset/dataset.test"
+
 data = dde.data.DataSet(
     fname_train=fname_train,
     fname_test=fname_test,

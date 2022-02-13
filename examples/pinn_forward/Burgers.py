@@ -4,7 +4,7 @@ import numpy as np
 
 
 def gen_testdata():
-    data = np.load("dataset/Burgers.npz")
+    data = np.load("../dataset/Burgers.npz")
     t, x, exact = data["t"], data["x"], data["usol"].T
     xx, tt = np.meshgrid(x, t)
     X = np.vstack((np.ravel(xx), np.ravel(tt))).T
@@ -29,35 +29,20 @@ ic = dde.IC(
 )
 
 data = dde.data.TimePDE(
-    geomtime, pde, [bc, ic], num_domain=2500, num_boundary=100, num_initial=160
+    geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160
 )
 net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
-model.compile("adam", lr=1.0e-3)
-model.train(epochs=10000)
+model.compile("adam", lr=1e-3)
+model.train(epochs=15000)
 model.compile("L-BFGS")
-model.train()
-
-X = geomtime.random_points(100000)
-err = 1
-while err > 0.005:
-    f = model.predict(X, operator=pde)
-    err_eq = np.absolute(f)
-    err = np.mean(err_eq)
-    print("Mean residual: %.3e" % (err))
-
-    x_id = np.argmax(err_eq)
-    print("Adding new point:", X[x_id], "\n")
-    data.add_anchors(X[x_id])
-    early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
-    model.compile("adam", lr=1e-3)
-    model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
-    model.compile("L-BFGS")
-    losshistory, train_state = model.train()
+losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
+f = model.predict(X, operator=pde)
+print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

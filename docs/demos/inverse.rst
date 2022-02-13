@@ -11,7 +11,7 @@ ODEs
 
    lorenz.inverse
 
-- `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/Lorenz_inverse_forced.ipynb>`_
+- `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/Lorenz_inverse_forced.ipynb>`_
 
 PDEs
 ----
@@ -26,5 +26,5 @@ PDEs
 fractional PDEs
 ---------------
 
-- `Inverse problem for the fractional Poisson equation in 1D <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_Poisson_1d_inverse.py>`_
-- `Inverse problem for the fractional Poisson equation in 2D <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_Poisson_2d_inverse.py>`_
+- `Inverse problem for the fractional Poisson equation in 1D <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/fractional_Poisson_1d_inverse.py>`_
+- `Inverse problem for the fractional Poisson equation in 2D <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/fractional_Poisson_2d_inverse.py>`_

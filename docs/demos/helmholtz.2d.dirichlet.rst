@@ -169,5 +169,5 @@ We first train the model for 5000 iterations with Adam optimizer:
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Helmholtz_Dirichlet_2d.py
+.. literalinclude:: ../../examples/pinn_forward/Helmholtz_Dirichlet_2d.py
   :language: python

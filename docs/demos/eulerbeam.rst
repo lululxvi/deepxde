@@ -141,5 +141,5 @@ We then train the model for 10000 iterations:
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Euler_beam.py
+.. literalinclude:: ../../examples/pinn_forward/Euler_beam.py
   :language: python

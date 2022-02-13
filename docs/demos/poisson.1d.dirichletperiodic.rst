@@ -120,5 +120,5 @@ We then train the model for 10000 iterations:
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Poisson_periodic_1d.py
+.. literalinclude:: ../../examples/pinn_forward/Poisson_periodic_1d.py
   :language: python

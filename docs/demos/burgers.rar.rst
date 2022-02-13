@@ -129,5 +129,5 @@ Finally, we display a graph depicting train loss and test loss over time, along 
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Burgers_RAR.py
+.. literalinclude:: ../../examples/pinn_forward/Burgers_RAR.py
   :language: python

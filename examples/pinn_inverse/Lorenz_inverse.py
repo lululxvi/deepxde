@@ -1,13 +1,10 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
-
-Documentation: https://deepxde.readthedocs.io/en/latest/demos/lorenz.inverse.html
-"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
 
 
 def gen_traindata():
-    data = np.load("dataset/Lorenz.npz")
+    data = np.load("../dataset/Lorenz.npz")
     return data["t"], data["y"]
 
 

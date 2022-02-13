@@ -40,23 +40,23 @@ Time-dependent PDEs
    diffusion.1d.resample
    burgers.rar
 
-- `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/heat_conduction_1d_uniform_bar.ipynb>`_
-- `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_reaction.py>`_
-- `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/Beltrami_flow.py>`_
-- `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/Kovasznay_flow.py>`_
-- `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/wave_1d.py>`_
-- `Schrodinger equation <https://github.com/lululxvi/deepxde/blob/master/examples/Schrodinger.ipynb>`_
+- `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_conduction_1d_uniform_bar.ipynb>`_
+- `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_reaction.py>`_
+- `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
+- `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Kovasznay_flow.py>`_
+- `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/wave_1d.py>`_
+- `Schrodinger equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Schrodinger.ipynb>`_
 
 Integro-differential equations
 ------------------------------
 
-- `Integro-differential equation <https://github.com/lululxvi/deepxde/blob/master/examples/ide.py>`_
-- `Volterra IDE <https://github.com/lululxvi/deepxde/blob/master/examples/Volterra_IDE.py>`_
+- `Integro-differential equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/ide.py>`_
+- `Volterra IDE <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Volterra_IDE.py>`_
 
 fractional PDEs
 ---------------
 
-- `fractional Poisson equation in 1D <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_Poisson_1d.py>`_
-- `fractional Poisson equation in 2D <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_Poisson_2d.py>`_
-- `fractional Poisson equation in 3D <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_Poisson_3d.py>`_
-- `fractional diffusion equation <https://github.com/lululxvi/deepxde/blob/master/examples/fractional_diffusion_1d.py>`_
+- `fractional Poisson equation in 1D <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/fractional_Poisson_1d.py>`_
+- `fractional Poisson equation in 2D <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/fractional_Poisson_2d.py>`_
+- `fractional Poisson equation in 3D <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/fractional_Poisson_3d.py>`_
+- `fractional diffusion equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/fractional_diffusion_1d.py>`_

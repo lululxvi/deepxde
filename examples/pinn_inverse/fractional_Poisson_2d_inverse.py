@@ -34,34 +34,29 @@ def func(x):
     return (1 - np.linalg.norm(x, axis=1, keepdims=True) ** 2) ** (1 + alpha0 / 2)
 
 
-def main():
-    geom = dde.geometry.Disk([0, 0], 1)
+geom = dde.geometry.Disk([0, 0], 1)
 
-    observe_x = geom.random_points(30)
-    observe_y = dde.PointSetBC(observe_x, func(observe_x))
+observe_x = geom.random_points(30)
+observe_y = dde.PointSetBC(observe_x, func(observe_x))
 
-    data = dde.data.FPDE(
-        geom,
-        fpde,
-        alpha,
-        observe_y,
-        [8, 100],
-        num_domain=64,
-        anchors=observe_x,
-        solution=func,
-    )
+data = dde.data.FPDE(
+    geom,
+    fpde,
+    alpha,
+    observe_y,
+    [8, 100],
+    num_domain=64,
+    anchors=observe_x,
+    solution=func,
+)
 
-    net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
-    net.apply_output_transform(
-        lambda x, y: (1 - tf.reduce_sum(x ** 2, axis=1, keepdims=True)) * y
-    )
+net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
+net.apply_output_transform(
+    lambda x, y: (1 - tf.reduce_sum(x ** 2, axis=1, keepdims=True)) * y
+)
 
-    model = dde.Model(data, net)
-    model.compile("adam", lr=1e-3, loss_weights=[1, 100])
-    variable = dde.callbacks.VariableValue(alpha, period=1000)
-    losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-if __name__ == "__main__":
-    main()
+model = dde.Model(data, net)
+model.compile("adam", lr=1e-3, loss_weights=[1, 100])
+variable = dde.callbacks.VariableValue(alpha, period=1000)
+losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

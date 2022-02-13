@@ -1,9 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy import integrate
-
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Import torch if using backend pytorch
@@ -12,11 +11,13 @@ from deepxde.backend import tf
 ub = 200
 rb = 20
 
+
 def func(t, r):
     x, y = r
     dx_t = 1 / ub * rb * (2.0 * ub * x - 0.04 * ub * x * ub * y)
     dy_t = 1 / ub * rb * (0.02 * ub * x * ub * y - 1.06 * ub * y)
     return dx_t, dy_t
+
 
 def gen_truedata():
     t = np.linspace(0, 1, 100)
@@ -27,6 +28,7 @@ def gen_truedata():
     y_true = y_true.reshape(100, 1)
 
     return x_true, y_true
+
 
 def ode_system(x, y):
     r = y[:, 0:1]
@@ -61,7 +63,6 @@ def input_transform(t):
         ),
         axis=1,
     )
-    
 # Backend pytorch
 # def input_transform(t):
 #     return torch.cat(
@@ -76,19 +77,12 @@ def input_transform(t):
 def output_transform(t, y):
     y1 = y[:, 0:1]
     y2 = y[:, 1:2]
-
-    return tf.concat(
-        [y1 * tf.tanh(t) + 100 / ub, y2 * tf.tanh(t) + 15 / ub], axis=1
-    )
-
+    return tf.concat([y1 * tf.tanh(t) + 100 / ub, y2 * tf.tanh(t) + 15 / ub], axis=1)
 # Backend pytorch
 # def output_transform(t, y):
 #     y1 = y[:, 0:1]
 #     y2 = y[:, 1:2]
-
-#     return torch.cat(
-#         [y1 * torch.tanh(t) + 100 / ub, y2 * torch.tanh(t) + 15 / ub], dim=1
-#     )
+#     return torch.cat([y1 * torch.tanh(t) + 100 / ub, y2 * torch.tanh(t) + 15 / ub], dim=1)
 
 net.apply_feature_transform(input_transform)
 net.apply_output_transform(output_transform)

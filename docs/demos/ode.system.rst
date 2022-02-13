@@ -111,5 +111,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/ode_system.py
+.. literalinclude:: ../../examples/pinn_forward/ode_system.py
   :language: python

@@ -139,5 +139,5 @@ After training with Adam, we continue with L-BFGS to have an even smaller loss:
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/Lotka_Volterra.py
+.. literalinclude:: ../../examples/pinn_forward/Lotka_Volterra.py
   :language: python
