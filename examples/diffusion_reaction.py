@@ -70,11 +70,11 @@ def output_transform(x, y):
 # def output_transform(x, y):
 #     return (
 #         x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-#         + tf.sin(x[:, 0:1])
-#         + tf.sin(2 * x[:, 0:1]) / 2
-#         + tf.sin(3 * x[:, 0:1]) / 3
-#         + tf.sin(4 * x[:, 0:1]) / 4
-#         + tf.sin(8 * x[:, 0:1]) / 8
+#         + torch.sin(x[:, 0:1])
+#         + torch.sin(2 * x[:, 0:1]) / 2
+#         + torch.sin(3 * x[:, 0:1]) / 3
+#         + torch.sin(4 * x[:, 0:1]) / 4
+#         + torch.sin(8 * x[:, 0:1]) / 8
 #    )
  
 net.apply_output_transform(output_transform)
