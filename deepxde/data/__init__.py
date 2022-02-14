@@ -10,7 +10,8 @@ from .mf import MfFunc
 from .mfopdataset import MfOpDataSet
 from .pde import PDE
 from .pde import TimePDE
-from .triple import Triple, TripleCartesianProd, QuadrupleCartesianProd
+from .triple import Triple, TripleCartesianProd
+from .quadruple import QuadrupleCartesianProd
 
 
 __all__ = [
