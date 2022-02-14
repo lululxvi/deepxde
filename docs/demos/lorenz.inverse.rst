@@ -129,7 +129,5 @@ We then train the model for 60000 iterations:
 Complete code
 --------------
 
-`Jupyter notebook <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/Lorenz_inverse.ipynb>`_
-
 .. literalinclude:: ../../examples/pinn_inverse/Lorenz_inverse.py
   :language: python
