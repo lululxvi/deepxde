@@ -3,9 +3,9 @@ from .sampler import BatchSampler
 
 
 class QuadrupleCartesianProd(Data):
-    """Cartesian Product input data format for BioNet architecture.
+    """Cartesian Product input data format for MIONet architecture.
 
-    This dataset can be used with the network ``BiONetCartesianProd`` for operator
+    This dataset can be used with the network ``MIONetCartesianProd`` for operator
     learning.
 
     Args:
