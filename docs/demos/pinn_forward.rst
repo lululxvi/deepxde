@@ -9,8 +9,8 @@ ODEs
 .. toctree::
    :maxdepth: 1
 
-   ode.system
-   lotka.volterra
+   pinn_forward/ode.system
+   pinn_forward/lotka.volterra
 
 Time-independent PDEs
 ---------------------
@@ -18,15 +18,15 @@ Time-independent PDEs
 .. toctree::
    :maxdepth: 1
 
-   poisson.1d.dirichlet
-   poisson.1d.neumanndirichlet
-   poisson.1d.dirichletrobin
-   poisson.1d.dirichletperiodic
-   poisson.1d.multiscaleFourier
-   poisson.Lshape
-   laplace.disk
-   eulerbeam
-   helmholtz.2d.dirichlet
+   pinn_forward/poisson.1d.dirichlet
+   pinn_forward/poisson.1d.neumanndirichlet
+   pinn_forward/poisson.1d.dirichletrobin
+   pinn_forward/poisson.1d.dirichletperiodic
+   pinn_forward/poisson.1d.multiscaleFourier
+   pinn_forward/poisson.Lshape
+   pinn_forward/laplace.disk
+   pinn_forward/eulerbeam
+   pinn_forward/helmholtz.2d.dirichlet
 
 Time-dependent PDEs
 -------------------
@@ -34,11 +34,11 @@ Time-dependent PDEs
 .. toctree::
    :maxdepth: 1
 
-   burgers
-   diffusion.1d
-   diffusion.1d.exactBC
-   diffusion.1d.resample
-   burgers.rar
+   pinn_forward/burgers
+   pinn_forward/diffusion.1d
+   pinn_forward/diffusion.1d.exactBC
+   pinn_forward/diffusion.1d.resample
+   pinn_forward/burgers.rar
 
 - `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_conduction_1d_uniform_bar.ipynb>`_
 - `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_reaction.py>`_

@@ -115,5 +115,5 @@ We then train the model for 20000 iterations:
 Complete code
 --------------
  
-.. literalinclude:: ../../examples/pinn_inverse/elliptic_inverse_field.py
+.. literalinclude:: ../../../examples/pinn_inverse/elliptic_inverse_field.py
   :language: python

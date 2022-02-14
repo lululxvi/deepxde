@@ -1,4 +1,4 @@
-Burgers equation with residual-based adaptive refinement
+Burgers equation 
 ================
 
 Problem setup
@@ -58,9 +58,9 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
 .. code-block:: python
 
     data = dde.data.TimePDE(geomtime, pde, [bc, ic], 
-                            num_domain=2500, num_boundary=100, num_initial=100)    
+                            num_domain=2540, num_boundary=80, num_initial=160)    
 
-The number 2500 is the number of training residual points sampled inside the domain, and the number 100 is the number of training points sampled on the boundary. We also include 100 initial residual points for the initial conditions.
+The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary. We also include 160 initial residual points for the initial conditions.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
@@ -76,11 +76,11 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
     model.compile("adam", lr=1e-3)
     
    
-We then train the model for 10000 iterations:
+We then train the model for 15000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=10000)
+    losshistory, train_state = model.train(epochs=15000)
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
@@ -89,45 +89,8 @@ After we train the network using Adam, we continue to train the network using L-
     model.compile("L-BFGS-B")
     losshistory, train_state = model.train()      
 
-Because we only use 2500 residual points for training, the accuracy is low. Next, we improve the accuracy by the residual-based adaptive refinement (RAR) method. Because the Burgers equation has a sharp front, intuitively, we should put more points near the sharp front. First, we randomly generate 100000 points from our domain to calculate the PDE residual.
-
-.. code-block:: python
-
-    X = geomtime.random_points(100000)
-    err = 1
-
-We will repeatedly add points while the mean residual is greater than 0.005. Each iteration, we use our model to generate predictions for inputs in ``X`` and compute the absolute values of the errors. We then print the mean residual. Next, we find the points where the residual is greatest and add these new points for training PDE loss. Furthermore, we define a callback function to check whether the network converges. If there is significant improvement in the model's accuracy, as judged by the callback function, we continue to train the model. As before, after we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
-
-.. code-block:: python
-
-    while err > 0.005:
-        f = model.predict(X, operator=pde)
-        err_eq = np.absolute(f)
-        err = np.mean(err_eq)
-        print("Mean residual: %.3e" % (err))
-
-        x_id = np.argmax(err_eq)
-        print("Adding new point:", X[x_id], "\n")
-        data.add_anchors(X[x_id])
-        early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
-        model.compile("adam", lr=1e-3)
-        model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
-        model.compile("L-BFGS")
-        losshistory, train_state = model.train()
-
-Finally, we display a graph depicting train loss and test loss over time, along with a graph displaying the predicted solution to the PDE.
-
-.. code-block:: python
-
-    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-    X, y_true = gen_testdata()
-    y_pred = model.predict(X)
-    print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
-
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/pinn_forward/Burgers_RAR.py
+.. literalinclude:: ../../../examples/pinn_forward/Burgers.py
   :language: python

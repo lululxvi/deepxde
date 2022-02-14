@@ -52,9 +52,9 @@ User guide
 .. toctree::
   :maxdepth: 1
 
-  demos/forward
-  demos/inverse
-  demos/func
+  demos/pinn_forward
+  demos/pinn_inverse
+  demos/function
   user/faq
 
 .. toctree::

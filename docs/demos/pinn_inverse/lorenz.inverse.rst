@@ -129,5 +129,5 @@ We then train the model for 60000 iterations:
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/pinn_inverse/Lorenz_inverse.py
+.. literalinclude:: ../../../examples/pinn_inverse/Lorenz_inverse.py
   :language: python

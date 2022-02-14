@@ -91,5 +91,5 @@ And then we train the model again using L-BFGS
 Complete code
 --------------
 
-.. literalinclude:: ../../examples/pinn_forward/Poisson_Lshape.py
+.. literalinclude:: ../../../examples/pinn_forward/Poisson_Lshape.py
   :language: python

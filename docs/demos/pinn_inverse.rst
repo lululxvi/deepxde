@@ -9,7 +9,7 @@ ODEs
 .. toctree::
    :maxdepth: 1
 
-   lorenz.inverse
+   pinn_inverse/lorenz.inverse
 
 - `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/Lorenz_inverse_forced.ipynb>`_
 
@@ -19,9 +19,9 @@ PDEs
 .. toctree::
    :maxdepth: 1
 
-   diffusion.1d.inverse
-   reaction.inverse
-   elliptic.inverse.field
+   pinn_inverse/diffusion.1d.inverse
+   pinn_inverse/reaction.inverse
+   pinn_inverse/elliptic.inverse.field
 
 fractional PDEs
 ---------------
