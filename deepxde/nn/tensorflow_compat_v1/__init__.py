@@ -1,6 +1,6 @@
 """Package for tensorflow.compat.v1 NN modules."""
 
-from .bionet import BiONet
+from .mionet import MIONet, MIONetCartesianProd
 from .deeponet import DeepONet, DeepONetCartesianProd, FourierDeepONetCartesianProd
 from .fnn import FNN, PFNN
 from .mfnn import MfNN
@@ -10,7 +10,8 @@ from .nn import NN
 from .resnet import ResNet
 
 __all__ = [
-    "BiONet",
+    "MIONet",
+    "MIONetCartesianProd",
     "DeepONet",
     "DeepONetCartesianProd",
     "FourierDeepONetCartesianProd",
