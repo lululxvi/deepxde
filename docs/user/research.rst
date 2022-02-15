@@ -30,9 +30,10 @@ PINN
 #. G. Pang, L. Lu, & G. E. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
 #. D. Zhang, L. Lu, L. Guo, & G. E. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
 
-DeepONet
---------
+DeepONet, MIONet, DeepM&Mnet
+----------------------------
 
+#. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://arxiv.org/abs/2202.06137>`_. *arXiv preprint arXiv:2202.06137*, 2022.
 #. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. E. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://arxiv.org/abs/2111.05512>`_. *arXiv preprint arXiv:2111.05512*, 2021.
 #. C. Lin, M. Maxey, Z. Li, & G. E. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
 #. Z. Mao, L. Lu, O. Marxen, T. A. Zaki, & G. E. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.

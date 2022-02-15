@@ -14,9 +14,8 @@ DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
 - solves forward and inverse fractional partial differential equations (fPDEs) via fractional PINN (fPINN),
-- approximates nonlinear operators via deep operator network (DeepONet),
-- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
-- approximates functions from a dataset with/without constraints.
+- approximates operators via deep operator network (DeepONet, MIONet, DeepM&Mnet),
+- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN).
 
 DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
@@ -28,7 +27,7 @@ DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow
 - Solving fPDEs via fPINN [[SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)]
 - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC) [[J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)]
 - Solving inverse design/topology optimization via PINN with hard constraints (hPINN) [[SIAM J. Sci. Comput.](https://doi.org/10.1137/21M1397908)]
-- Learning nonlinear operators via DeepONet [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5), [arXiv](https://arxiv.org/abs/2111.05512)], DeepM&Mnet [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
+- Learning operators via DeepONet [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5), [arXiv](https://arxiv.org/abs/2111.05512)], MIONet [[arXiv](https://arxiv.org/abs/2202.06137)], DeepM&Mnet [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
 - Learning from multi-fidelity data via MFNN [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://www.pnas.org/content/117/13/7052)]
 
 ## Features
