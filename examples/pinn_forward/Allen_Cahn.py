@@ -1,6 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-import numpy as np
 import deepxde as dde
+import numpy as np
 from scipy.io import loadmat
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
