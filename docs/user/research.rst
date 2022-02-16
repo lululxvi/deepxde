@@ -1,6 +1,12 @@
 Research
 ========
 
+DeepXDE has been used in
+
+- universities, e.g., `Massachusetts Institute of Technology <https://www.mit.edu>`_, `Stanford University <https://www.stanford.edu>`_, `University of Pennsylvania <https://www.upenn.edu>`_, `Brown University <https://www.brown.edu>`_, `Cornell University <https://www.cornell.edu>`_, `Boston University <https://www.bu.edu>`_, `Florida State University <https://www.fsu.edu>`_, `University of Johannesburg <https://www.uj.ac.za>`_
+- national labs, e.g., `Los Alamos National Laboratory <https://www.lanl.gov>`_, `Sandia National Laboratories <https://www.sandia.gov>`_
+- industry, e.g., `Ansys <https://www.ansys.com>`_, `Siemens <https://www.siemens.com>`_, `RocketML <https://www.rocketml.net>`_, `Anailytica <https://anailytica.com>`_
+
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
 
 PINN
