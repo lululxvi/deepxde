@@ -58,15 +58,15 @@ class MIONet(NN):
         self._inputs = [self.X_func1, self.X_func2, self.X_loc]
 
         # Branch net 1
-        y_func1 = self._branch_net(
+        y_func1 = self._net(
             self.X_func1, self.layer_branch1[1:], self.activation_branch1
         )
         # Branch net 2
-        y_func2 = self._branch_net(
+        y_func2 = self._net(
             self.X_func2, self.layer_branch2[1:], self.activation_branch2
         )
         # Trunk net
-        y_loc = self._trunk_net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
+        y_loc = self._net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
 
         # Dot product
         y_loc = tf.reshape(y_loc, (-1, self.layer_branch1[-1], self.layer_branch2[-1]))
@@ -79,46 +79,16 @@ class MIONet(NN):
         self.target = tf.placeholder(config.real(tf), [None, 1])
         self.built = True
 
-    def _branch_net(self, X_func, layer_branch, activation_branch):
-        y_func = X_func
-        for i in range(len(layer_branch) - 1):
-            y_func = self._dense(
-                y_func,
-                layer_branch[i],
-                activation=activation_branch,
-                regularizer=self.regularizer,
+    def _net(self, X, layer, activation):
+        output = X
+        for i in range(len(layer) - 1):
+            output = tf.layers.dense(
+                output,
+                layer[i],
+                activation=activation,
+                kernel_regularizer=self.regularizer,
             )
-        return self._dense(y_func, layer_branch[-1], regularizer=self.regularizer)
-
-    def _trunk_net(self, X_loc, layer_trunk, activation_trunk):
-        y_loc = X_loc
-        for i in range(len(layer_trunk) - 1):
-            y_loc = self._dense(
-                y_loc,
-                layer_trunk[i],
-                activation=activation_trunk,
-                regularizer=self.regularizer,
-            )
-        return self._dense(y_loc, layer_trunk[-1], regularizer=self.regularizer)
-
-    def _dense(
-        self,
-        inputs,
-        units,
-        activation=None,
-        use_bias=True,
-        regularizer=None,
-        trainable=True,
-    ):
-        return tf.layers.dense(
-            inputs,
-            units,
-            activation=activation,
-            use_bias=use_bias,
-            kernel_initializer=self.kernel_initializer,
-            kernel_regularizer=regularizer,
-            trainable=trainable,
-        )
+        return tf.layers.dense(output, layer[-1], kernel_regularizer=self.regularizer)
 
 
 class MIONetCartesianProd(MIONet):
@@ -134,15 +104,15 @@ class MIONetCartesianProd(MIONet):
         self._inputs = [self.X_func1, self.X_func2, self.X_loc]
 
         # Branch net 1
-        y_func1 = self._branch_net(
+        y_func1 = self._net(
             self.X_func1, self.layer_branch1[1:], self.activation_branch1
         )
         # Branch net 2
-        y_func2 = self._branch_net(
+        y_func2 = self._net(
             self.X_func2, self.layer_branch2[1:], self.activation_branch2
         )
         # Trunk net
-        y_loc = self._trunk_net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
+        y_loc = self._net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
 
         # Dot product
         self.y = tf.multiply(y_func1, y_func2)
