@@ -35,8 +35,7 @@ PINN
 #. L. Lu, X. Meng, Z. Mao, & G. E. Karniadakis. `DeepXDE: A deep learning library for solving differential equations <https://doi.org/10.1137/19M1274067>`_. *SIAM Review*, 63(1), 208--228, 2021. [`Code <https://github.com/lululxvi/deepxde/tree/master/examples>`_]
 #. V. Liu, & H. Yoon. `Prediction of Advection and Diffusion Transport using Physics Informed Neural Networks <https://www.osti.gov/servlets/purl/1833169>`_. *2020 AGU Fall Meeting*, 2020. 
 #. A. Yazdani, L. Lu, M. Raissi, & G. E. Karniadakis. `Systems biology informed deep learning for inferring parameters and hidden dynamics <https://doi.org/10.1371/journal.pcbi.1007575>`_. *PLoS Computational Biology*, 16(11), e1007575, 2020. [`Code <https://github.com/alirezayazdani1/SBINNs>`_]
-#. A. L. Kapetanović, A. Šušnjara, & D. Poljak. `Numerical Solution and Uncertainty Quantification of Bioheat Transfer Equation Using Neural Network Approach
- <https://ieeexplore.ieee.org/abstract/document/9243733>`_. 2020 5th International Conference on Smart and Sustainable Technologies (SpliTech)*, 2020. 
+#. A. L. Kapetanović, A. Šušnjara, & D. Poljak. `Numerical Solution and Uncertainty Quantification of Bioheat Transfer Equation Using Neural Network Approach <https://ieeexplore.ieee.org/abstract/document/9243733>`_. 2020 5th International Conference on Smart and Sustainable Technologies (SpliTech)*, 2020. 
 #. Q. Zhang, Y. Chen, & Z. Yang. `Data driven solutions and discoveries in mechanics using physics informed neural network <https://www.preprints.org/manuscript/202006.0258>`_. *Preprints*, 2020060258, 2020.
 #. W. Peng, W. Zhou, J. Zhang, & W. Yao. `Accelerating Physics-Informed Neural Network Training with Prior Dictionaries
   <https://arxiv.org/abs/2004.08151>`_. *arXiv preprint arXiv:2004.08151*, 2020.
