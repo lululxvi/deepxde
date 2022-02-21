@@ -17,7 +17,7 @@ DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a 
 - approximates operators via deep operator network (DeepONet, MIONet, DeepM&Mnet),
 - approximates functions from multi-fidelity data via multi-fidelity NN (MFNN).
 
-DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX (in development). For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13), [Video in Chinese](http://tianyuan.xmu.edu.cn/cn/minicourses/637.html)
 
@@ -52,8 +52,9 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
 - TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
-- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0 and [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
 - PyTorch: [PyTorch](https://pytorch.org/)
+- JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
 
 Then, you can install DeepXDE itself.
 

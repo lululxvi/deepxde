@@ -7,8 +7,9 @@ Installation
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
 - TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0
-- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0 and `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
+- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
 - PyTorch: `PyTorch <https://pytorch.org/>`_
+- JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
 
 Then, you can install DeepXDE itself.
 
@@ -52,7 +53,7 @@ $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 deepxd
 Working with different backends
 -------------------------------
 
-DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch backends. DeepXDE will choose the backend on the following options (high priority to low priority)
+DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX backends. DeepXDE will choose the backend on the following options (high priority to low priority)
 
 * Use the ``DDEBACKEND`` environment variable:
 
@@ -64,6 +65,8 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
     $ DDEBACKEND=pytorch python pde.py
 
+    $ DDEBACKEND=jax python pde.py
+
     - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
 
 * Modify the ``config.json`` file under "~/.deepxde":
@@ -71,7 +74,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
     - The file has the content such as ``{"backend": "tensorflow.compat.v1"}``
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
 
-Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), and "pytorch" (PyTorch). The default backend is TensorFlow 1.x.
+Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), and "jax" (JAX). The default backend is TensorFlow 1.x.
 
 Which backend should I choose?
 ``````````````````````````````
@@ -79,7 +82,7 @@ Which backend should I choose?
 Although TensorFlow 1.x is the default backend, it may not be your best choice. Here is a comparison between different backends:
 
 - Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error.
-    - Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch.
+    - Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch > JAX.
     - Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
 - Different backends have different computational speed, and switch to another backend if the speed is an issue in your case.
     - We find that there is no backend that is always faster than the others.
@@ -112,3 +115,8 @@ Export ``DDEBACKEND`` as ``pytorch`` to specify PyTorch backend. In addition, if
 
     if torch.cuda.is_available():
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
+
+JAX backend
+```````````
+
+Export ``DDEBACKEND`` as ``jax`` to specify JAX backend.
