@@ -34,16 +34,17 @@ DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.
 
 DeepXDE has implemented many algorithms as shown above and supports many features:
 
-- complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
-- multi-physics, i.e., (time-dependent) coupled PDEs.
-- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
-- different neural networks, such as (stacked/unstacked) fully connected neural network, residual neural network, and (spatio-temporal) multi-scale fourier feature networks.
-- 6 sampling methods: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
-- conveniently save the model during training, and load a trained model.
-- uncertainty quantification using dropout.
-- many different (weighted) losses, optimizers, learning rate schedules, metrics, etc.
-- callbacks to monitor the internal states and statistics of the model during training, such as early stopping.
 - enables the user code to be compact, resembling closely the mathematical formulation.
+- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
+- 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
+- different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale fourier feature networks, etc.
+- 6 **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
+- different **optimizers**: Adam, L-BFGS, etc.
+- conveniently **save** the model during training, and **load** a trained model.
+- **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
+- **uncertainty quantification** using dropout.
+- **float32** and **float64**.
+- many other useful features: different (weighted) losses, learning rate schedules, metrics, etc.
 
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
 
