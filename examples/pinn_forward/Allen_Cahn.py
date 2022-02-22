@@ -1,4 +1,7 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
+
+Implementation of Allen-Cahn equation example in paper https://arxiv.org/pdf/2111.02801.pdf.
+"""
 import deepxde as dde
 import numpy as np
 from scipy.io import loadmat
