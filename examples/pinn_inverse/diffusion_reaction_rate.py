@@ -1,12 +1,12 @@
 """Backend supported: tensorflow.compat.v1
 
-Implementation of the space-dependent reaction rate in a diffusion-reaction system in paper https://arxiv.org/abs/2111.02801.
+Implementation for the diffusion-reaction system with a space-dependent reaction rate in paper https://arxiv.org/abs/2111.02801.
 """
-import deepxde as dde 
-import numpy as np
-from scipy.integrate import solve_bvp
+import deepxde as dde
 import matplotlib.pyplot as plt
+import numpy as np
 from deepxde.backend import tf
+from scipy.integrate import solve_bvp
 
 l = 0.01
 def k(x):
