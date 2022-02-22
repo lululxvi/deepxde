@@ -1,4 +1,7 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow
+
+Implementation of Brinkman-Forchheimer equation example in paper https://arxiv.org/pdf/2111.02801.pdf.
+"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
