@@ -23,6 +23,8 @@ PDEs
    pinn_inverse/reaction.inverse
    pinn_inverse/elliptic.inverse.field
 
+- `Inverse problem for the reaction rate in a diffusion-reaction system <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/diffusion_reaction_rate.py>`_
+
 fractional PDEs
 ---------------
 
