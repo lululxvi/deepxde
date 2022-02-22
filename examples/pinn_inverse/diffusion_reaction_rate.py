@@ -61,7 +61,7 @@ data = dde.data.PDE(
     num_test=1000,
 )
 
-net = dde.maps.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
+net = dde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 
