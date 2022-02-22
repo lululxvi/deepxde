@@ -23,6 +23,8 @@ PDEs
    pinn_inverse/reaction.inverse
    pinn_inverse/elliptic.inverse.field
 
+- `Inverse problem for Brinkman-Forchheimer model <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/brinkman_forchheimer.py>`_
+
 fractional PDEs
 ---------------
 
