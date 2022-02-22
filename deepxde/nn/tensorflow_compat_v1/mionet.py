@@ -69,10 +69,9 @@ class MIONet(NN):
         y_loc = self._net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
 
         # Dot product
-        y_loc = tf.reshape(y_loc, (-1, self.layer_branch1[-1], self.layer_branch2[-1]))
-        self.y = tf.einsum("bji,bi->bj", y_loc, y_func2)
-        self.y = tf.einsum("bi,bi->b", self.y, y_func1)
-        self.y = tf.expand_dims(self.y, axis=1)
+        self.y = tf.multiply(y_func1, y_loc)
+        self.y = tf.multiply(self.y, y_func2)
+        self.y = tf.reduce_sum(self.y, 1, keepdims=True)
         b = tf.Variable(tf.zeros(1))
         self.y += b
 
