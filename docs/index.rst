@@ -22,6 +22,8 @@ DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (``tensorflow
 - Learning operators via DeepONet [`Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_, `arXiv <https://arxiv.org/abs/2111.05512>`_], MIONet [`arXiv <https://arxiv.org/abs/2202.06137>`_], DeepM&Mnet [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
 - Learning from multi-fidelity data via MFNN [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://www.pnas.org/content/117/13/7052>`_]
 
+.. image:: images/deepxde.png
+
 Features
 --------
 
