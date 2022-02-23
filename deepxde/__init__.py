@@ -7,12 +7,12 @@ from . import callbacks
 from . import data
 from . import geometry
 from . import gradients as grad
-from . import icbcs
+from . import icbc
 from . import nn
 from . import utils
 
 from .backend import Variable
-from .icbcs import (
+from .icbc import (
     DirichletBC,
     NeumannBC,
     OperatorBC,
@@ -33,7 +33,7 @@ __all__ = [
     "data",
     "geometry",
     "grad",
-    "icbcs",
+    "icbc",
     "maps",
     "nn",
     "utils",
