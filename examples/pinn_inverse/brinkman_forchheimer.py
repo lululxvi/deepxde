@@ -55,7 +55,7 @@ data = dde.data.PDE(
 net = dde.nn.FNN([1] + [20] * 3 + [1], "tanh", "Glorot uniform")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=[v_e, K])
 variable = dde.callbacks.VariableValue([v_e, K], period=200, filename="variables1.dat")
 
 losshistory, train_state = model.train(epochs=30000, callbacks=[variable])
