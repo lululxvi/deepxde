@@ -12,15 +12,15 @@ from .resnet import ResNet
 __all__ = [
     "DeepONet",
     "DeepONetCartesianProd",
-    "FourierDeepONetCartesianProd",
     "FNN",
-    "PFNN",
+    "FourierDeepONetCartesianProd",
     "MfNN",
     "MfONet",
     "MIONet",
     "MIONetCartesianProd",
     "MsFFN",
     "NN",
-    "STMsFFN",
+    "PFNN",
     "ResNet",
+    "STMsFFN",
 ]
