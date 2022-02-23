@@ -167,7 +167,7 @@ class DeepONet(NN):
         # Add bias
         if self.use_bias:
             b = tf.Variable(tf.zeros(1))
-            self.y += b
+            self.y += tf.cast(b, tf.float64)
 
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
