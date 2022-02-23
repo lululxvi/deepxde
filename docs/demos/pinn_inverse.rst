@@ -23,6 +23,7 @@ PDEs
    pinn_inverse/reaction.inverse
    pinn_inverse/elliptic.inverse.field
 
+- `Inverse problem for Brinkman-Forchheimer model <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/brinkman_forchheimer.py>`_
 - `Inverse problem for the diffusion-reaction system with a space-dependent reaction rate <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/diffusion_reaction_rate.py>`_
 
 fractional PDEs
