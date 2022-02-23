@@ -28,10 +28,12 @@ install:
 
   - conda install -c conda-forge scikit-optimize
   - pip install tensorflow tensorflow-probability
-  - conda install pytorch torchvision torchaudio cpuonly -c pytorch
+  - conda install pytorch cpuonly -c pytorch
+  - pip install jax flax optax
 
 script:
   # Your test script goes here
   - DDEBACKEND=tensorflow.compat.v1 python -c "import deepxde"
   - DDEBACKEND=tensorflow python -c "import deepxde"
   - DDEBACKEND=pytorch python -c "import deepxde"
+  - DDEBACKEND=jax python -c "import deepxde"
