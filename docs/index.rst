@@ -1,7 +1,7 @@
 DeepXDE
 =======
 
-DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
+`DeepXDE <https://github.com/lululxvi/deepxde>`_ is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
 
 - solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
