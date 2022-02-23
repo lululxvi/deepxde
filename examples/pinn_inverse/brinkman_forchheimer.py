@@ -2,10 +2,11 @@
 
 Implementation of Brinkman-Forchheimer equation example in paper https://arxiv.org/pdf/2111.02801.pdf.
 """
+import re
+
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-import re
 
 g = 1
 v = 1e-3
