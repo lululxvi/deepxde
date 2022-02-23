@@ -98,7 +98,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     layer_size = [1] + [50] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = dde.maps.FNN(layer_size, activation, initializer)
+    net = dde.nn.FNN(layer_size, activation, initializer)
 
 Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate:
 

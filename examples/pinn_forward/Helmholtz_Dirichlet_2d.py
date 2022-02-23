@@ -69,7 +69,7 @@ data = dde.data.PDE(
     num_test=nx_test ** 2,
 )
 
-net = dde.maps.FNN(
+net = dde.nn.FNN(
     [2] + [num_dense_nodes] * num_dense_layers + [1], activation, "Glorot uniform"
 )
 

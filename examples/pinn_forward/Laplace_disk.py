@@ -29,7 +29,7 @@ data = dde.data.PDE(
     geom, pde, bc_rad, num_domain=2540, num_boundary=80, solution=solution
 )
 
-net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
 # Use [r*sin(theta), r*cos(theta)] as features,
 # so that the network is automatically periodic along the theta coordinate.

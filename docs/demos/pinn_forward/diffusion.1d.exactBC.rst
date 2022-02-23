@@ -78,7 +78,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     layer_size = [2] + [32] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = dde.maps.FNN(layer_size, activation, initializer)
+    net = dde.nn.FNN(layer_size, activation, initializer)
 
 Then we construct a function that spontaneously satisfies both the initial and the boundary conditions to transform the network output. In this case, :math:`t(1-x^2)y + sin(\pi x)` is used. When :math:`t` is equal to 0, the initial condition :math:`sin(\pi x)` is recovered. When :math:`x` is equal to -1 or 1, the boundary condition :math:`y(-1, t) = y(1, t) = 0` is recovered. Hence the initial and boundary conditions are both hard conditions.
 

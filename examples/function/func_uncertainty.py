@@ -21,7 +21,7 @@ activation = "tanh"
 initializer = "Glorot uniform"
 regularization = ["l2", 1e-5]
 dropout_rate = 0.01
-net = dde.maps.FNN(
+net = dde.nn.FNN(
     layer_size,
     activation,
     initializer,

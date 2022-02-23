@@ -50,7 +50,7 @@ data = dde.data.FPDE(
     solution=func,
 )
 
-net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(
     lambda x, y: (1 - tf.reduce_sum(x ** 2, axis=1, keepdims=True)) * y
 )

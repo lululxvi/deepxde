@@ -161,7 +161,7 @@ data = dde.data.TimePDE(
     num_test=10000,
 )
 
-net = dde.maps.FNN([4] + 4 * [50] + [4], "tanh", "Glorot normal")
+net = dde.nn.FNN([4] + 4 * [50] + [4], "tanh", "Glorot normal")
 
 model = dde.Model(data, net)
 

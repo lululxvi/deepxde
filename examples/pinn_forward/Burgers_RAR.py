@@ -31,7 +31,7 @@ ic = dde.IC(
 data = dde.data.TimePDE(
     geomtime, pde, [bc, ic], num_domain=2500, num_boundary=100, num_initial=160
 )
-net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1.0e-3)

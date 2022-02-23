@@ -39,7 +39,7 @@ data = dde.data.TimePDE(geomtime, pde, [], num_domain=40, solution=func, num_tes
 layer_size = [2] + [32] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
-net = dde.maps.FNN(layer_size, activation, initializer)
+net = dde.nn.FNN(layer_size, activation, initializer)
 net.apply_output_transform(
     # Backend tensorflow.compat.v1 or tensorflow
     lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])

@@ -55,7 +55,7 @@ data = dde.data.FPDE(
     num_test=100,
 )
 
-net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(lambda x, y: (1 - x ** 2) * y)
 
 model = dde.Model(data, net)

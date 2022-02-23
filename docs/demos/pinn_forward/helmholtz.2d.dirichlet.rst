@@ -131,7 +131,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
 .. code-block:: python
 
-  net = dde.maps.FNN(
+  net = dde.nn.FNN(
     [2] + [num_dense_nodes] * num_dense_layers + [1], activation, "Glorot uniform"
   )
 

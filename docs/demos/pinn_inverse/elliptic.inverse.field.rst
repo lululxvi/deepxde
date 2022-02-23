@@ -97,7 +97,7 @@ Next, we choose the networks. We use two networks, one to train for ``u(x)`` and
  
 .. code-block:: python
  
-    net = dde.maps.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
+    net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
    
 Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer and learning rate.
  

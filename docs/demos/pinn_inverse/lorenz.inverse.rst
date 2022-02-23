@@ -108,7 +108,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
 .. code-block:: python
 
-    net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
+    net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
     
 Now that the PDE problem and network have been created, we build a ``Model`` and choose the optimizer, learning rate, and provide the trainable variables C1, C2, and C3:
 

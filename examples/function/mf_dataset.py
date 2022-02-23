@@ -17,7 +17,7 @@ data = dde.data.MfDataSet(
 activation = "tanh"
 initializer = "Glorot uniform"
 regularization = ["l2", 0.01]
-net = dde.maps.MfNN(
+net = dde.nn.MfNN(
     [1] + [20] * 4 + [1],
     [10] * 2 + [1],
     activation,
