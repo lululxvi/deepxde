@@ -92,7 +92,7 @@ Next, we choose the network. Here, we use a multi-scale Fourier feature networks
     layer_size = [1] + [100] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = dde.maps.MsFFN(layer_size, activation, initializer, sigmas=[1, 10])
+    net = dde.nn.MsFFN(layer_size, activation, initializer, sigmas=[1, 10])
 
 Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate:
 

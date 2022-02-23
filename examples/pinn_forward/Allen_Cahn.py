@@ -44,7 +44,7 @@ def output_transform(x, y):
 #     return x[:, 0:1]**2 * torch.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
 
 data = dde.data.TimePDE(geomtime, pde, [], num_domain=8000, num_boundary=400, num_initial=800)
-net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 

@@ -95,7 +95,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     layer_size = [2] + [32] * 3 + [1]
     activation = "tanh"
     initializer = "Glorot uniform"
-    net = dde.maps.FNN(layer_size, activation, initializer)
+    net = dde.nn.FNN(layer_size, activation, initializer)
 
 The following code is to apply mini-batch gradient descent sampling method. The period is the period of resamping. Here, the training points in the domain will be resampled every 100 iterations.
 

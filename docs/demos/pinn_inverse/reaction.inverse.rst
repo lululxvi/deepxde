@@ -133,7 +133,7 @@ Now, we create the network:
 
 .. code-block:: python
 
-    net = dde.maps.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
+    net = dde.nn.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
 
 This network has two inputs, one for the :math:`t`-coordinate and one for the :math:`x`-coordinate, and three hidden layers with 20 neurons each. The output layer has two outputs, one for :math:`C_A` and one for :math:`C_B`. We also choose ``tanh`` to be the activation function, and the initializer is ``Glorot uniform``.
 

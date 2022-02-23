@@ -56,7 +56,7 @@ data = dde.data.PDE(
     anchors=observe_t,
 )
 
-net = dde.maps.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
+net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 variable = dde.callbacks.VariableValue(

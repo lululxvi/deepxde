@@ -16,7 +16,7 @@ data = dde.data.DataSet(
 layer_size = [1] + [50] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot normal"
-net = dde.maps.FNN(layer_size, activation, initializer)
+net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])

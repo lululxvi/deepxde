@@ -47,7 +47,7 @@ data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test=3000)
 layer_size = [1] + [64] * 6 + [2]
 activation = "tanh"
 initializer = "Glorot normal"
-net = dde.maps.FNN(layer_size, activation, initializer)
+net = dde.nn.FNN(layer_size, activation, initializer)
 
 # Backend tensorflow.compat.v1 or tensorflow
 def input_transform(t):

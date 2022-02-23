@@ -64,7 +64,7 @@ data = dde.data.TimePDE(
     anchors=observe_x,
     num_test=50000,
 )
-net = dde.maps.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
+net = dde.nn.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[kf, D])

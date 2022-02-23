@@ -66,7 +66,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
 .. code-block:: python
 
-    net = dde.maps.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
+    net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
 Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate:
 

@@ -64,7 +64,7 @@ data = dde.data.TimeFPDE(
 #     num_test=50,
 # )
 
-net = dde.maps.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(
     lambda x, y: x[:, 0:1] * (1 - x[:, 0:1]) * x[:, 1:2] * y
     + x[:, 0:1] ** 3 * (1 - x[:, 0:1]) ** 3

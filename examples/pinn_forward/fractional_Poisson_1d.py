@@ -41,7 +41,7 @@ data = dde.data.FPDE(geom, fpde, alpha, bc, [101], meshtype="static", solution=f
 #     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test=100
 # )
 
-net = dde.maps.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
+net = dde.nn.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(lambda x, y: x * (1 - x) * y)
 
 model = dde.Model(data, net)
