@@ -4,13 +4,15 @@ from .sampler import BatchSampler
 
 class Quadruple(Data):
     """Dataset with each data point as a quadruple.
+    
     The couple of the first three elements are the input, and the fourth element is the
     output. This dataset can be used with the network ``MIONet`` for operator
     learning.
 
     Args:
         X_train: A tuple of three NumPy arrays.
-        y_train: A NumPy array."""
+        y_train: A NumPy array.
+    """
 
     def __init__(self, X_train, y_train, X_test, y_test):
         self.train_x = X_train
