@@ -65,8 +65,8 @@ Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here
 
 .. code-block:: python
 
-    bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-    ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
+    bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+    ic = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 
 The reference solution ``func`` is defined as:
 
@@ -80,7 +80,7 @@ In this problem, we provide extra information on some training points and the pa
 .. code-block:: python
 
     observe_x = np.vstack((np.linspace(-1, 1, num=10), np.full((10), 1))).T
-    observe_y = dde.PointSetBC(observe_x, func(observe_x), component=0)
+    observe_y = dde.icbc.PointSetBC(observe_x, func(observe_x), component=0)
 
 Now, we have specified the geometry, PDE residual, boundary/initial condition, and extra observations. We then define the ``TimePDE`` problem as
 

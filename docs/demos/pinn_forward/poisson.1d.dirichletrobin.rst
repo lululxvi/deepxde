@@ -75,13 +75,13 @@ Then, the Dirichlet boundary condition is
 
 .. code-block:: python
 
-    bc_l = dde.DirichletBC(geom, func, boundary_1)
+    bc_l = dde.icbc.DirichletBC(geom, func, boundary_1)
 
 For Robin boundary condition, rather than define a function to return the value of :math:`u(x)` on the boundary, we use a lambda function that maps ``x`` and ``y`` to ``y``, where x is the input and y is the output.  Then Robin boundary condition is defined
 
 .. code-block:: python
 
-    bc_r = dde.RobinBC(geom, lambda X, y: y, boundary_r)
+    bc_r = dde.icbc.RobinBC(geom, lambda X, y: y, boundary_r)
 
 Now, we have specified the geometry, PDE residual, Dirichlet boundary condition and Robin boundary condition. We then define the PDE problem as
 

@@ -68,9 +68,9 @@ Then the initial conditions are specified using the computational domain, initia
 
 .. code-block:: python
     
-    ic1 = dde.IC(geom, lambda X: -8, boundary, component=0)
-    ic2 = dde.IC(geom, lambda X: 7, boundary, component=1)
-    ic3 = dde.IC(geom, lambda X: 27, boundary, component=2)
+    ic1 = dde.icbc.IC(geom, lambda X: -8, boundary, component=0)
+    ic2 = dde.icbc.IC(geom, lambda X: 7, boundary, component=1)
+    ic3 = dde.icbc.IC(geom, lambda X: 27, boundary, component=2)
     
 Now me must assign the data from ``Lorenz.npz`` to the corresponding :math:`t`, :math:`x`, :math:`y`, and :math:`z` values for training. First we retrieve the data to train the model. The data is split into ``"t"`` and ``"y"``, which correspond to time datapoints and the cartesian coodrinate datapoints (x, y, and z), respectivly. 
 
@@ -85,9 +85,9 @@ Then we organize and assign the train data.
 .. code-block:: python
 
     observe_t, ob_y = gen_traindata()
-    observe_y0 = dde.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
-    observe_y1 = dde.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
-    observe_y2 = dde.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
+    observe_y0 = dde.icbc.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
+    observe_y1 = dde.icbc.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
+    observe_y2 = dde.icbc.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
   
 Now that the problem is fully setup, we define the PDE as: 
 

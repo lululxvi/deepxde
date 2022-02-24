@@ -47,9 +47,9 @@ def func(x):
 
 
 ob_x, ob_u = gen_traindata(num)
-observe_u = dde.PointSetBC(ob_x, ob_u, component=0)
+observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0)
 
-bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary, component=0)
+bc = dde.icbc.DirichletBC(geom, func, lambda _, on_boundary: on_boundary, component=0)
 
 data = dde.data.PDE(
     geom,

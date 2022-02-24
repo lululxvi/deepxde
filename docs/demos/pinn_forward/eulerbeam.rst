@@ -88,15 +88,15 @@ The Dirichlet boundary condition and the Neumann boundary condition on the left 
 
 .. code-block:: python
 
-    bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)
-    bc2 = dde.NeumannBC(geom, lambda x: 0, boundary_l)
+    bc1 = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_l)
+    bc2 = dde.icbc.NeumannBC(geom, lambda x: 0, boundary_l)
 
 The right boundaries in this problem are of higher order so that the Hessian matrix and the Jacobian maxtrix are utilized when calculating the right boundary conditions. The right boundary is defined as,
 
 .. code-block:: python
 
-    bc3 = dde.OperatorBC(geom, lambda x, y, _: ddy(x, y), boundary_r)
-    bc4 = dde.OperatorBC(geom, lambda x, y, _: dddy(x, y), boundary_r)
+    bc3 = dde.icbc.OperatorBC(geom, lambda x, y, _: ddy(x, y), boundary_r)
+    bc4 = dde.icbc.OperatorBC(geom, lambda x, y, _: dddy(x, y), boundary_r)
 
 Now, we have specified the geometry, PDE residual and boundary conditions. We then define the PDE problem as
 

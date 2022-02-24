@@ -41,18 +41,18 @@ geom = dde.geometry.Interval(0, 1)
 timedomain = dde.geometry.TimeDomain(0, 10)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-bc_a = dde.DirichletBC(
+bc_a = dde.icbc.DirichletBC(
     geomtime, fun_bc, lambda _, on_boundary: on_boundary, component=0
 )
-bc_b = dde.DirichletBC(
+bc_b = dde.icbc.DirichletBC(
     geomtime, fun_bc, lambda _, on_boundary: on_boundary, component=1
 )
-ic1 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=0)
-ic2 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
+ic1 = dde.icbc.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=0)
+ic2 = dde.icbc.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
 
 observe_x, Ca, Cb = gen_traindata()
-observe_y1 = dde.PointSetBC(observe_x, Ca, component=0)
-observe_y2 = dde.PointSetBC(observe_x, Cb, component=1)
+observe_y1 = dde.icbc.PointSetBC(observe_x, Ca, component=0)
+observe_y2 = dde.icbc.PointSetBC(observe_x, Cb, component=1)
 
 data = dde.data.TimePDE(
     geomtime,

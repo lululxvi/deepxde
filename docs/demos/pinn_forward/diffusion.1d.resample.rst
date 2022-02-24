@@ -60,8 +60,8 @@ Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here
 
 .. code-block:: python
 
-    bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-    ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
+    bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+    ic = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 
 The reference solution ``func`` is defined as:
 

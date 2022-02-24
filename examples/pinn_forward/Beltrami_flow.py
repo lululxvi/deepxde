@@ -124,23 +124,23 @@ spatial_domain = dde.geometry.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
 temporal_domain = dde.geometry.TimeDomain(0, 1)
 spatio_temporal_domain = dde.geometry.GeometryXTime(spatial_domain, temporal_domain)
 
-boundary_condition_u = dde.DirichletBC(
+boundary_condition_u = dde.icbc.DirichletBC(
     spatio_temporal_domain, u_func, lambda _, on_boundary: on_boundary, component=0
 )
-boundary_condition_v = dde.DirichletBC(
+boundary_condition_v = dde.icbc.DirichletBC(
     spatio_temporal_domain, v_func, lambda _, on_boundary: on_boundary, component=1
 )
-boundary_condition_w = dde.DirichletBC(
+boundary_condition_w = dde.icbc.DirichletBC(
     spatio_temporal_domain, w_func, lambda _, on_boundary: on_boundary, component=2
 )
 
-initial_condition_u = dde.IC(
+initial_condition_u = dde.icbc.IC(
     spatio_temporal_domain, u_func, lambda _, on_initial: on_initial, component=0
 )
-initial_condition_v = dde.IC(
+initial_condition_v = dde.icbc.IC(
     spatio_temporal_domain, v_func, lambda _, on_initial: on_initial, component=1
 )
-initial_condition_w = dde.IC(
+initial_condition_w = dde.icbc.IC(
     spatio_temporal_domain, w_func, lambda _, on_initial: on_initial, component=2
 )
 

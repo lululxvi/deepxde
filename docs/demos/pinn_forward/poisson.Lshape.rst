@@ -53,7 +53,7 @@ Then, the Dirichlet boundary condition is
 
 .. code-block:: python
 
-    bc = dde.DirichletBC(geom, lambda x: 0, boundary)
+    bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary)
 
 Now, we have specified the geometry, PDE residual, and Dirichlet boundary condition. We then define the PDE problem as
 

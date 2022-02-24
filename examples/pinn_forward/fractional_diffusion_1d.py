@@ -36,8 +36,8 @@ geom = dde.geometry.Interval(0, 1)
 timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
+bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+ic = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 
 # Static auxiliary points
 data = dde.data.TimeFPDE(

@@ -77,13 +77,13 @@ Then, the Dirichlet boundary condition is defined as
 
 .. code-block:: python
 
-    bc1 = dde.DirichletBC(geom, func, boundary_l)
+    bc1 = dde.icbc.DirichletBC(geom, func, boundary_l)
 
 and the Periodic boundary condition is
 
 .. code-block:: python
 
-    bc2 = dde.PeriodicBC(geom, 0, boundary_r)
+    bc2 = dde.icbc.PeriodicBC(geom, 0, boundary_r)
 
 Now, we have specified the geometry, PDE residual, Dirichlet boundary condition and Periodic boundary condition. We then define the PDE problem as
 

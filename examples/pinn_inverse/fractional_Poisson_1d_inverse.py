@@ -28,7 +28,7 @@ def func(x):
 geom = dde.geometry.Interval(-1, 1)
 
 observe_x = np.linspace(-1, 1, num=20)[:, None]
-observe_y = dde.PointSetBC(observe_x, func(observe_x))
+observe_y = dde.icbc.PointSetBC(observe_x, func(observe_x))
 
 # Static auxiliary points
 # data = dde.data.FPDE(

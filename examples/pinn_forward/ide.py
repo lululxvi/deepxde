@@ -22,7 +22,7 @@ def func(x):
 
 
 geom = dde.geometry.TimeDomain(0, 1)
-ic = dde.IC(geom, func, lambda _, on_initial: on_initial)
+ic = dde.icbc.IC(geom, func, lambda _, on_initial: on_initial)
 
 quad_deg = 16
 data = dde.data.IDE(geom, ide, ic, quad_deg, num_domain=16, num_boundary=2)

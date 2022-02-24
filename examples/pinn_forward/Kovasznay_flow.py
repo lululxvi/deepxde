@@ -52,13 +52,13 @@ def boundary_outflow(x, on_boundary):
 
 spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
 
-boundary_condition_u = dde.DirichletBC(
+boundary_condition_u = dde.icbc.DirichletBC(
     spatial_domain, u_func, lambda _, on_boundary: on_boundary, component=0
 )
-boundary_condition_v = dde.DirichletBC(
+boundary_condition_v = dde.icbc.DirichletBC(
     spatial_domain, v_func, lambda _, on_boundary: on_boundary, component=1
 )
-boundary_condition_right_p = dde.DirichletBC(
+boundary_condition_right_p = dde.icbc.DirichletBC(
     spatial_domain, p_func, boundary_outflow, component=2
 )
 

@@ -21,8 +21,8 @@ def func(x):
 
 
 geom = dde.geometry.Interval(-1, 1)
-bc_l = dde.DirichletBC(geom, func, boundary_l)
-bc_r = dde.NeumannBC(geom, lambda X: 2 * (X + 1), boundary_r)
+bc_l = dde.icbc.DirichletBC(geom, func, boundary_l)
+bc_r = dde.icbc.NeumannBC(geom, lambda X: 2 * (X + 1), boundary_r)
 data = dde.data.PDE(geom, pde, [bc_l, bc_r], 16, 2, solution=func, num_test=100)
 
 layer_size = [1] + [50] * 3 + [1]

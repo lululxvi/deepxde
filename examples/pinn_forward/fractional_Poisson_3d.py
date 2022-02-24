@@ -35,7 +35,7 @@ def func(x):
 
 
 geom = dde.geometry.Sphere([0, 0, 0], 1)
-bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
+bc = dde.icbc.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
 data = dde.data.FPDE(
     geom,

@@ -34,7 +34,7 @@ def func(x):
 
 
 geom = dde.geometry.Disk([0, 0], 1)
-bc = dde.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
+bc = dde.icbc.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 
 data = dde.data.FPDE(
     geom, fpde, alpha, bc, [8, 100], num_domain=100, num_boundary=1, solution=func

@@ -66,7 +66,7 @@ Notice that, as required, ``sol(-1) = sol(1) = 0``. Next, we define the boundary
  
 .. code-block:: python
    
-    bc = dde.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
+    bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
    
 Here, we pass in our computational geometry, the function ``sol`` to compute the boundary values, a function which returns ``True`` if a point is on a boundary and ``False`` otherwise, and the component axis on which the boundary is satisfied.
  
@@ -75,7 +75,7 @@ Now, we generate 100 points and assign the data to ``ob_x`` and ``ob_u``. We org
 .. code-block:: python
  
     ob_x, ob_u = gen_traindata(100)
-    observe_u = dde.PointSetBC(ob_x, ob_u, component=0)
+    observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0)
  
 Now that the problem is fully setup, we define the PDE as:
  

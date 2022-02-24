@@ -50,8 +50,8 @@ Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here
 
 .. code-block:: python
 
-    bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
-    ic = dde.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
+    bc = dde.icbc.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+    ic = dde.icbc.IC(geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial)
     
 Now, we have specified the geometry, PDE residual, and boundary/initial condition. We then define the ``TimePDE`` problem as
 

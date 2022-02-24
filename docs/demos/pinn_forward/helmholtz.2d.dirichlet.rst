@@ -110,7 +110,7 @@ For soft boundary conditions, we define the boundary and the Dirichlet boundary 
   if hard_constraint == True:
       bc = []
   else:
-      bc = dde.DirichletBC(geom, lambda x: 0, boundary)
+      bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary)
 
 
 Next, we generate the training and testing points.
