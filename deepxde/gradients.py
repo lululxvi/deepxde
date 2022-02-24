@@ -1,6 +1,6 @@
-from .backend import backend_name, tf, torch
-
 __all__ = ["clear", "hessian", "jacobian"]
+
+from .backend import backend_name, tf, torch
 
 
 class Jacobian(object):

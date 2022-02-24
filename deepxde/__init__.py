@@ -1,3 +1,16 @@
+__all__ = [
+    "backend",
+    "callbacks",
+    "data",
+    "geometry",
+    "grad",
+    "icbc",
+    "nn",
+    "utils",
+    "Model",
+    "Variable",
+]
+
 from .__about__ import __version__
 
 # Should import backend before importing anything else
@@ -12,6 +25,10 @@ from . import nn
 from . import utils
 
 from .backend import Variable
+from .model import Model
+from .postprocessing import saveplot
+
+# Backward compatibility
 from .icbc import (
     DirichletBC,
     NeumannBC,
@@ -21,22 +38,5 @@ from .icbc import (
     PointSetBC,
     IC,
 )
-from .model import Model
-from .postprocessing import saveplot
 
-# Backward compatibility
 maps = nn
-
-__all__ = [
-    "backend",
-    "callbacks",
-    "data",
-    "geometry",
-    "grad",
-    "icbc",
-    "maps",
-    "nn",
-    "utils",
-    "Model",
-    "Variable",
-]

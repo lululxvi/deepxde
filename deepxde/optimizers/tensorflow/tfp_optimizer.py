@@ -2,7 +2,6 @@
 
 __all__ = ["lbfgs_minimize"]
 
-
 # Possible solutions of L-BFGS
 # TensorFlow (waiting...)
 # - https://github.com/tensorflow/tensorflow/issues/48167
@@ -20,7 +19,6 @@ __all__ = ["lbfgs_minimize"]
 # - https://github.com/tensordiffeq/TensorDiffEq/blob/main/tensordiffeq/optimizers.py
 
 # Code below is modified from https://gist.github.com/piyueh/712ec7d4540489aad2dcfb80f9a54993
-
 
 import numpy as np
 import tensorflow as tf
