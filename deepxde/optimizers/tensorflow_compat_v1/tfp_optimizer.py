@@ -18,7 +18,7 @@ from matplotlib import pyplot
 tf.disable_v2_behavior()
 
 
-class LossAndFlatGradient(object):
+class LossAndFlatGradient:
     """A helper class to create a function required by tfp.optimizer.lbfgs_minimize.
 
     Args:

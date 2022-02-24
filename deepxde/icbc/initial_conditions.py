@@ -9,7 +9,7 @@ from .. import backend as bkd
 from .. import utils
 
 
-class IC(object):
+class IC:
     """Initial conditions: y([x, t0]) = func([x, t0])."""
 
     def __init__(self, geom, func, on_initial, component=0):

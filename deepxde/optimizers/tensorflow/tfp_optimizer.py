@@ -27,7 +27,7 @@ import tensorflow_probability as tfp
 from ..config import LBFGS_options
 
 
-class LossAndFlatGradient(object):
+class LossAndFlatGradient:
     """A helper class to create a function required by tfp.optimizer.lbfgs_minimize.
 
     Args:

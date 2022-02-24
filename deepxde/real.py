@@ -3,7 +3,7 @@ import numpy as np
 from . import backend as bkd
 
 
-class Real(object):
+class Real:
     def __init__(self, precision):
         self.precision = None
         self.reals = None

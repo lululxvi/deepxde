@@ -16,7 +16,7 @@ from .backend import backend_name, tf, torch, jax
 from .callbacks import CallbackList
 
 
-class Model(object):
+class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
     Args:
@@ -761,7 +761,7 @@ class Model(object):
             print(v)
 
 
-class TrainState(object):
+class TrainState:
     def __init__(self):
         self.epoch = 0
         self.step = 0
@@ -829,7 +829,7 @@ class TrainState(object):
         return X_train, y_train, X_test, y_test, best_y, best_ystd
 
 
-class LossHistory(object):
+class LossHistory:
     def __init__(self):
         self.steps = []
         self.loss_train = []

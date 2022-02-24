@@ -11,7 +11,7 @@ import numpy as np
 from ...backend import tf
 
 
-class ExternalOptimizerInterface(object):
+class ExternalOptimizerInterface:
     """Base class for interfaces with external optimization algorithms.
     Subclass this and implement `_minimize` in order to wrap a new optimization
     algorithm.

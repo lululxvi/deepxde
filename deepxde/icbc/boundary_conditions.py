@@ -150,7 +150,7 @@ class OperatorBC(BC):
         return self.func(inputs, outputs, X)[beg:end]
 
 
-class PointSetBC(object):
+class PointSetBC:
     """Dirichlet boundary condition for a set of points.
     Compare the output (that associates with `points`) with `values` (target data).
 

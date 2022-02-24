@@ -4,7 +4,7 @@ from .. import config
 from ..backend import backend_name, tf, torch
 
 
-class VarianceScalingStacked(object):
+class VarianceScalingStacked:
     """Initializer capable of adapting its scale to the shape of weights tensors.
 
     With `distribution="truncated_normal" or "untruncated_normal"`,

@@ -3,7 +3,7 @@ from ...backend import tf
 from ...utils import make_dict, timing
 
 
-class NN(object):
+class NN:
     """Base class for all neural network modules."""
 
     def __init__(self):

@@ -9,7 +9,7 @@ from .backend import backend_name
 from .utils import list_to_str, save_animation
 
 
-class Callback(object):
+class Callback:
     """Callback base class.
 
     Attributes:

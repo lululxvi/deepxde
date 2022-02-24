@@ -1,7 +1,7 @@
 import abc
 
 
-class Data(object):
+class Data:
     """Data base class."""
 
     def __init__(self):

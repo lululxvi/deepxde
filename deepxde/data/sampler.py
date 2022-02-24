@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class BatchSampler(object):
+class BatchSampler:
     """Samples a mini-batch of indices.
 
     The indices are repeated indefinitely. Has the same effect as:

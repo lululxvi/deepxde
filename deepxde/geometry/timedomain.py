@@ -16,7 +16,7 @@ class TimeDomain(Interval):
         return np.isclose(t, self.t0).flatten()
 
 
-class GeometryXTime(object):
+class GeometryXTime:
     def __init__(self, geometry, timedomain):
         self.geometry = geometry
         self.timedomain = timedomain

@@ -8,7 +8,7 @@ from ..backend import is_tensor, tf
 from ..utils import array_ops_compat, run_if_all_none
 
 
-class Scheme(object):
+class Scheme:
     """Fractional Laplacian discretization.
 
     Discretize fractional Laplacian uisng quadrature rule for the integral with respect to the directions
@@ -314,7 +314,7 @@ class TimeFPDE(FPDE):
         return int_mat
 
 
-class Fractional(object):
+class Fractional:
     """Fractional derivative.
 
     Args:
@@ -564,7 +564,7 @@ class Fractional(object):
         return int_mat
 
 
-class FractionalTime(object):
+class FractionalTime:
     """Fractional derivative with time.
 
     Args:

@@ -8,7 +8,7 @@ import scipy.spatial.distance
 from sklearn import preprocessing
 
 
-class PointSet(object):
+class PointSet:
     """A set of points.
 
     Args:
