@@ -71,7 +71,7 @@ class FPDE(PDE):
         self.disc = Scheme(meshtype, resolution)
         self.frac_train, self.frac_test = None, None
 
-        super(FPDE, self).__init__(
+        super().__init__(
             geometry,
             fpde,
             bcs,
@@ -209,7 +209,7 @@ class TimeFPDE(FPDE):
         num_test=None,
     ):
         self.num_initial = num_initial
-        super(TimeFPDE, self).__init__(
+        super().__init__(
             geometryxtime,
             fpde,
             alpha,
@@ -293,7 +293,7 @@ class TimeFPDE(FPDE):
         return self.test_x, self.test_y
 
     def train_points(self):
-        X = super(TimeFPDE, self).train_points()
+        X = super().train_points()
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)

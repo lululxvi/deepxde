@@ -120,7 +120,7 @@ class ModelCheckpoint(Callback):
     """
 
     def __init__(self, filepath, verbose=0, save_better_only=False, period=1):
-        super(ModelCheckpoint, self).__init__()
+        super().__init__()
         self.filepath = filepath
         self.verbose = verbose
         self.save_better_only = save_better_only
@@ -173,7 +173,7 @@ class EarlyStopping(Callback):
     """
 
     def __init__(self, min_delta=0, patience=0, baseline=None, monitor="loss_train"):
-        super(EarlyStopping, self).__init__()
+        super().__init__()
 
         self.baseline = baseline
         self.monitor = monitor
@@ -229,7 +229,7 @@ class Timer(Callback):
     """
 
     def __init__(self, available_time):
-        super(Timer, self).__init__()
+        super().__init__()
 
         self.threshold = available_time * 60  # convert to seconds
         self.t_start = None
@@ -259,7 +259,7 @@ class DropoutUncertainty(Callback):
     """
 
     def __init__(self, period=1000):
-        super(DropoutUncertainty, self).__init__()
+        super().__init__()
         self.period = period
         self.epochs_since_last = 0
 
@@ -293,7 +293,7 @@ class VariableValue(Callback):
     """
 
     def __init__(self, var_list, period=1, filename=None, precision=2):
-        super(VariableValue, self).__init__()
+        super().__init__()
         self.var_list = var_list if isinstance(var_list, list) else [var_list]
         self.period = period
         self.precision = precision
@@ -336,7 +336,7 @@ class OperatorPredictor(Callback):
     """
 
     def __init__(self, x, op):
-        super(OperatorPredictor, self).__init__()
+        super().__init__()
         self.x = x
         self.op = op
         self.tf_op = None
@@ -370,7 +370,7 @@ class FirstDerivative(OperatorPredictor):
         def first_derivative(x, y):
             return grad.jacobian(y, x, i=component_y, j=component_x)
 
-        super(FirstDerivative, self).__init__(x, first_derivative)
+        super().__init__(x, first_derivative)
 
 
 class MovieDumper(Callback):
@@ -391,7 +391,7 @@ class MovieDumper(Callback):
         save_spectrum=False,
         y_reference=None,
     ):
-        super(MovieDumper, self).__init__()
+        super().__init__()
         self.filename = filename
         x1 = np.array(x1)
         x2 = np.array(x2)
@@ -461,7 +461,7 @@ class PDEResidualResampler(Callback):
     """Resample the training points for PDE losses every given period."""
 
     def __init__(self, period=100):
-        super(PDEResidualResampler, self).__init__()
+        super().__init__()
         self.period = period
 
         self.num_bcs_initial = None

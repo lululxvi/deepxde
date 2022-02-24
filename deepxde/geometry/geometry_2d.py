@@ -12,9 +12,7 @@ class Disk(Geometry):
     def __init__(self, center, radius):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
-        super(Disk, self).__init__(
-            2, (self.center - radius, self.center + radius), 2 * radius
-        )
+        super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
 
         self._r2 = radius ** 2
 
@@ -77,7 +75,7 @@ class Rectangle(Hypercube):
     """
 
     def __init__(self, xmin, xmax):
-        super(Rectangle, self).__init__(xmin, xmax)
+        super().__init__(xmin, xmax)
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
         self.area = np.prod(self.xmax - self.xmin)
 
@@ -185,7 +183,7 @@ class Triangle(Geometry):
         self.n31_normal = clockwise_rotation_90(self.n31)
         self.perimeter = self.l12 + self.l23 + self.l31
 
-        super(Triangle, self).__init__(
+        super().__init__(
             2,
             (np.minimum(x1, np.minimum(x2, x3)), np.maximum(x1, np.maximum(x2, x3))),
             self.l12
@@ -334,7 +332,7 @@ class Polygon(Geometry):
         self.diagonals = spatial.distance.squareform(
             spatial.distance.pdist(self.vertices)
         )
-        super(Polygon, self).__init__(
+        super().__init__(
             2,
             (np.amin(self.vertices, axis=0), np.amax(self.vertices, axis=0)),
             np.max(self.diagonals),

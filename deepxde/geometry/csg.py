@@ -14,7 +14,7 @@ class CSGUnion(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGUnion, self).__init__(
+        super().__init__(
             geom1.dim,
             (
                 np.minimum(geom1.bbox[0], geom2.bbox[0]),
@@ -111,7 +111,7 @@ class CSGDifference(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGDifference, self).__init__(geom1.dim, geom1.bbox, geom1.diam)
+        super().__init__(geom1.dim, geom1.bbox, geom1.diam)
         self.geom1 = geom1
         self.geom2 = geom2
 
@@ -193,7 +193,7 @@ class CSGIntersection(geometry.Geometry):
                     geom1.idstr, geom2.idstr
                 )
             )
-        super(CSGIntersection, self).__init__(
+        super().__init__(
             geom1.dim,
             (
                 np.maximum(geom1.bbox[0], geom2.bbox[0]),

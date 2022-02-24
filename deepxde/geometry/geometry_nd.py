@@ -19,7 +19,7 @@ class Hypercube(Geometry):
         self.xmin = np.array(xmin, dtype=config.real(np))
         self.xmax = np.array(xmax, dtype=config.real(np))
         self.side_length = self.xmax - self.xmin
-        super(Hypercube, self).__init__(
+        super().__init__(
             len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.side_length)
         )
         self.volume = np.prod(self.side_length)
@@ -105,7 +105,7 @@ class Hypersphere(Geometry):
     def __init__(self, center, radius):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
-        super(Hypersphere, self).__init__(
+        super().__init__(
             len(center), (self.center - radius, self.center + radius), 2 * radius
         )
 

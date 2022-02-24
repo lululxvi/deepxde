@@ -29,7 +29,7 @@ class MsFFN(FNN):
         kernel_constraint=None,
         use_bias=True,
     ):
-        super(MsFFN, self).__init__(
+        super().__init__(
             layer_sizes,
             activation,
             kernel_initializer,
@@ -147,7 +147,7 @@ class STMsFFN(MsFFN):
         kernel_constraint=None,
         use_bias=True,
     ):
-        super(STMsFFN, self).__init__(
+        super().__init__(
             layer_sizes,
             activation,
             kernel_initializer,

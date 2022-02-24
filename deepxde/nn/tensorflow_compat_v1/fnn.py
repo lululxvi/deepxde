@@ -24,7 +24,7 @@ class FNN(NN):
         kernel_constraint=None,
         use_bias=True,
     ):
-        super(FNN, self).__init__()
+        super().__init__()
         self.layer_size = layer_sizes
         self.activation = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
@@ -201,7 +201,7 @@ class PFNN(FNN):
         dropout_rate=0,
         batch_normalization=None,
     ):
-        super(PFNN, self).__init__(
+        super().__init__(
             layer_sizes,
             activation,
             kernel_initializer,

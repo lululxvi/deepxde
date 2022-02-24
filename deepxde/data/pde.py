@@ -285,7 +285,7 @@ class TimePDE(PDE):
         auxiliary_var_function=None,
     ):
         self.num_initial = num_initial
-        super(TimePDE, self).__init__(
+        super().__init__(
             geometryxtime,
             pde,
             ic_bcs,
@@ -300,7 +300,7 @@ class TimePDE(PDE):
         )
 
     def train_points(self):
-        X = super(TimePDE, self).train_points()
+        X = super().train_points()
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)

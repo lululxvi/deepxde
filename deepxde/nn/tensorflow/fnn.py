@@ -16,7 +16,7 @@ class FNN(NN):
         regularization=None,
         dropout_rate=0,
     ):
-        super(FNN, self).__init__()
+        super().__init__()
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
 

@@ -5,7 +5,7 @@ class NN(tf.keras.Model):
     """Base class for all neural network modules."""
 
     def __init__(self):
-        super(NN, self).__init__()
+        super().__init__()
         self.training = True
         self.regularizer = None
         self._inputs = None

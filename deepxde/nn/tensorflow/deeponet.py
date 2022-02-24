@@ -27,7 +27,7 @@ class DeepONetCartesianProd(NN):
         activation,
         kernel_initializer,
     ):
-        super(DeepONetCartesianProd, self).__init__()
+        super().__init__()
         if isinstance(activation, dict):
             activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])

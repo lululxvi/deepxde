@@ -21,7 +21,7 @@ class MfNN(NN):
         trainable_low_fidelity=True,
         trainable_high_fidelity=True,
     ):
-        super(MfNN, self).__init__()
+        super().__init__()
         self.layer_size_lo = layer_sizes_low_fidelity
         self.layer_size_hi = layer_sizes_high_fidelity
         self.activation = activations.get(activation)

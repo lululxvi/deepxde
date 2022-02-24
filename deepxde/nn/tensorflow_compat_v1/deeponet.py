@@ -43,7 +43,7 @@ class DeepONet(NN):
         trainable_branch=True,
         trainable_trunk=True,
     ):
-        super(DeepONet, self).__init__()
+        super().__init__()
         if isinstance(trainable_trunk, (list, tuple)):
             if len(trainable_trunk) != len(layer_sizes_trunk) - 1:
                 raise ValueError("trainable_trunk does not match layer_size_trunk.")
@@ -269,7 +269,7 @@ class DeepONetCartesianProd(NN):
         kernel_initializer,
         regularization=None,
     ):
-        super(DeepONetCartesianProd, self).__init__()
+        super().__init__()
         self.layer_size_func = layer_size_branch
         self.layer_size_loc = layer_size_trunk
         if isinstance(activation, dict):
@@ -379,7 +379,7 @@ class FourierDeepONetCartesianProd(DeepONetCartesianProd):
         kernel_initializer,
         regularization=None,
     ):
-        super(FourierDeepONetCartesianProd, self).__init__(
+        super().__init__(
             layer_size_branch,
             layer_size_trunk,
             activation,
@@ -394,7 +394,7 @@ class FourierDeepONetCartesianProd(DeepONetCartesianProd):
         print("Building FourierDeepONetCartesianProd...")
         output_transform = self._output_transform
         self._output_transform = None
-        super(FourierDeepONetCartesianProd, self).build()
+        super().build()
 
         # Branch net for the Fourier trunk net
         y_func = self.X_func

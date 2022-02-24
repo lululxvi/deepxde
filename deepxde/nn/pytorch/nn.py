@@ -5,7 +5,7 @@ class NN(torch.nn.Module):
     """Base class for all neural network modules."""
 
     def __init__(self):
-        super(NN, self).__init__()
+        super().__init__()
         # torch.nn.Module has variable training
         self.inputs = None
         self._input_transform = None

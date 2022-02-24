@@ -19,7 +19,7 @@ class MIONet(NN):
         kernel_initializer,
         regularization=None,
     ):
-        super(MIONet, self).__init__()
+        super().__init__()
 
         self.layer_branch1 = layer_sizes_branch1
         self.layer_branch2 = layer_sizes_branch2

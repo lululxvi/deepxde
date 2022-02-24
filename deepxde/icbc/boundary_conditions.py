@@ -63,7 +63,7 @@ class DirichletBC(BC):
     """Dirichlet boundary conditions: y(x) = func(x)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(DirichletBC, self).__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end):
@@ -80,7 +80,7 @@ class NeumannBC(BC):
     """Neumann boundary conditions: dy/dn(x) = func(x)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(NeumannBC, self).__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end):
@@ -92,7 +92,7 @@ class RobinBC(BC):
     """Robin boundary conditions: dy/dn(x) = func(x, y)."""
 
     def __init__(self, geom, func, on_boundary, component=0):
-        super(RobinBC, self).__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component)
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end):
@@ -105,7 +105,7 @@ class PeriodicBC(BC):
     """Periodic boundary conditions on component_x."""
 
     def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
-        super(PeriodicBC, self).__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component)
         self.component_x = component_x
         self.derivative_order = derivative_order
         if derivative_order > 1:
@@ -143,7 +143,7 @@ class OperatorBC(BC):
     """
 
     def __init__(self, geom, func, on_boundary):
-        super(OperatorBC, self).__init__(geom, on_boundary, 0)
+        super().__init__(geom, on_boundary, 0)
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end):

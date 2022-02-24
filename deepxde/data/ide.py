@@ -36,7 +36,7 @@ class IDE(PDE):
         self.quad_x = self.quad_x.astype(config.real(np))
         self.quad_w = self.quad_w.astype(config.real(np))
 
-        super(IDE, self).__init__(
+        super().__init__(
             geometry,
             ide,
             bcs,

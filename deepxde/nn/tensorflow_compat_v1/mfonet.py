@@ -23,7 +23,7 @@ class MfONet(NN):
         trainable_low_fidelity=True,
         trainable_high_fidelity=True,
     ):
-        super(MfONet, self).__init__()
+        super().__init__()
 
         self.layer_branch_lo = layer_sizes_branch_low_fidelity
         self.layer_trunk_lo = layer_sizes_trunk_low_fidelity
