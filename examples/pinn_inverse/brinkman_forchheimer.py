@@ -39,7 +39,7 @@ def output_transform(x, y):
 
 geom = dde.geometry.Interval(0, 1)
 ob_x, ob_u = gen_traindata(5)
-observe_u = dde.PointSetBC(ob_x, ob_u, component=0)
+observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0)
 
 data = dde.data.PDE(
     geom,

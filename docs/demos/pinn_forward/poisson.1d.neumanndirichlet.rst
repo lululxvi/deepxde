@@ -81,13 +81,13 @@ Then, the Dirichlet boundary condition is
 
 .. code-block:: python
 
-    bc_l = dde.DirichletBC(geom, func, boundary_l)
+    bc_l = dde.icbc.DirichletBC(geom, func, boundary_l)
 
 For Neumann boundary condition, rather than define a function to return the value of :math:`u(x)` on the boundary, we use a lambda function and the Neumann boundary condition is defined
 
 .. code-block:: python
 
-    bc_r = dde.NeumannBC(geom, lambda X: 2*(X+1), boundary_r)
+    bc_r = dde.icbc.NeumannBC(geom, lambda X: 2*(X+1), boundary_r)
 
 Now, we have specified the geometry, PDE residual, Dirichlet boundary condition and Neumann boundary condition. We then define the PDE problem as
 

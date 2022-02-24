@@ -37,7 +37,7 @@ def func(x):
 geom = dde.geometry.Disk([0, 0], 1)
 
 observe_x = geom.random_points(30)
-observe_y = dde.PointSetBC(observe_x, func(observe_x))
+observe_y = dde.icbc.PointSetBC(observe_x, func(observe_x))
 
 data = dde.data.FPDE(
     geom,

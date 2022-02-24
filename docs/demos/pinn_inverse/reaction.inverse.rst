@@ -81,14 +81,14 @@ Now that these are defined, we apply them:
 
 .. code-block:: python
 
-    bc_a = dde.DirichletBC(
+    bc_a = dde.icbc.DirichletBC(
         geomtime, fun_bc, lambda _, on_boundary: on_boundary, component=0
     )
-    bc_b = dde.DirichletBC(
+    bc_b = dde.icbc.DirichletBC(
         geomtime, fun_bc, lambda _, on_boundary: on_boundary, component=1
     )
-    ic1 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=0)
-    ic2 = dde.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
+    ic1 = dde.icbc.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=0)
+    ic2 = dde.icbc.IC(geomtime, fun_init, lambda _, on_initial: on_initial, component=1)
 
 Now, we generate the training data by getting it from `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/reaction.npz>`_:
 
@@ -109,8 +109,8 @@ After generating the data, we organize it:
 .. code-block:: python
 
     observe_x, Ca, Cb = gen_traindata()
-    observe_y1 = dde.PointSetBC(observe_x, Ca, component=0)
-    observe_y2 = dde.PointSetBC(observe_x, Cb, component=1)
+    observe_y1 = dde.icbc.PointSetBC(observe_x, Ca, component=0)
+    observe_y2 = dde.icbc.PointSetBC(observe_x, Cb, component=1)
 
 Now, we can define the ``TimePDE`` problem as follows:
 

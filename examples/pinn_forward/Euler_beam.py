@@ -31,10 +31,10 @@ def func(x):
 
 geom = dde.geometry.Interval(0, 1)
 
-bc1 = dde.DirichletBC(geom, lambda x: 0, boundary_l)
-bc2 = dde.NeumannBC(geom, lambda x: 0, boundary_l)
-bc3 = dde.OperatorBC(geom, lambda x, y, _: ddy(x, y), boundary_r)
-bc4 = dde.OperatorBC(geom, lambda x, y, _: dddy(x, y), boundary_r)
+bc1 = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_l)
+bc2 = dde.icbc.NeumannBC(geom, lambda x: 0, boundary_l)
+bc3 = dde.icbc.OperatorBC(geom, lambda x, y, _: ddy(x, y), boundary_r)
+bc4 = dde.icbc.OperatorBC(geom, lambda x, y, _: dddy(x, y), boundary_r)
 
 data = dde.data.PDE(
     geom,

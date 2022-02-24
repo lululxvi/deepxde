@@ -62,7 +62,7 @@ Using a lambda funtion, the ``boundary`` we defined above can be passed to ``Dir
 
 .. code-block:: python
 
-    bc_rad = dde.DirichletBC(
+    bc_rad = dde.icbc.DirichletBC(
         geom,
         lambda x: np.cos(x[:, 1:2]),
         lambda x, on_boundary: on_boundary and np.isclose(x[0], 1),

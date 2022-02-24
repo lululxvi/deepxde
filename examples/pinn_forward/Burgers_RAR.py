@@ -23,8 +23,8 @@ geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 0.99)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-bc = dde.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
-ic = dde.IC(
+bc = dde.icbc.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
+ic = dde.icbc.IC(
     geomtime, lambda x: -np.sin(np.pi * x[:, 0:1]), lambda _, on_initial: on_initial
 )
 

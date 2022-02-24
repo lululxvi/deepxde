@@ -24,9 +24,9 @@ def sol(x):
 
 geom = dde.geometry.Interval(-1, 1)
 
-bc = dde.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
+bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
 ob_x, ob_u = gen_traindata(100)
-observe_u = dde.PointSetBC(ob_x, ob_u, component=0)
+observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0)
 
 data = dde.data.PDE(
     geom,

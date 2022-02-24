@@ -37,11 +37,11 @@ geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-ic = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
+bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+ic = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 
 observe_x = np.vstack((np.linspace(-1, 1, num=10), np.full((10), 1))).T
-observe_y = dde.PointSetBC(observe_x, func(observe_x), component=0)
+observe_y = dde.icbc.PointSetBC(observe_x, func(observe_x), component=0)
 
 data = dde.data.TimePDE(
     geomtime,

@@ -56,7 +56,7 @@ nx_test = int(1 / hx_test)
 if hard_constraint == True:
     bc = []
 else:
-    bc = dde.DirichletBC(geom, lambda x: 0, boundary)
+    bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary)
 
 
 data = dde.data.PDE(

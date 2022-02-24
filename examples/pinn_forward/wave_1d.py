@@ -35,10 +35,10 @@ geom = dde.geometry.Interval(0, 1)
 timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-bc = dde.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
-ic_1 = dde.IC(geomtime, func, lambda _, on_initial: on_initial)
+bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
+ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 # do not use dde.NeumannBC here, since `normal_derivative` does not work with temporal coordinate.
-ic_2 = dde.OperatorBC(
+ic_2 = dde.icbc.OperatorBC(
     geomtime,
     lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
     lambda x, _: np.isclose(x[1], 0),

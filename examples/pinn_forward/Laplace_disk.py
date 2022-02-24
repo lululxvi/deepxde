@@ -20,7 +20,7 @@ def solution(x):
 
 
 geom = dde.geometry.Rectangle(xmin=[0, 0], xmax=[1, 2 * np.pi])
-bc_rad = dde.DirichletBC(
+bc_rad = dde.icbc.DirichletBC(
     geom,
     lambda x: np.cos(x[:, 1:2]),
     lambda x, on_boundary: on_boundary and np.isclose(x[0], 1),
