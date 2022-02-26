@@ -166,7 +166,7 @@ class DeepONet(NN):
         self.y = tf.expand_dims(self.y, axis=1)
         # Add bias
         if self.use_bias:
-            b = tf.Variable(tf.zeros(1))
+            b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
             self.y += b
 
         if self._output_transform is not None:
@@ -343,7 +343,7 @@ class DeepONetCartesianProd(NN):
             )
         self.y = tf.einsum("bi,ni->bn", y_func, y_loc)
         # Add bias
-        b = tf.Variable(tf.zeros(1))
+        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
         self.y += b
 
         if self._output_transform is not None:
