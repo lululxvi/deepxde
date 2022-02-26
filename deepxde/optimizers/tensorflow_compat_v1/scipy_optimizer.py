@@ -247,7 +247,7 @@ class ExternalOptimizerInterface(object):
         elif len(tensors) == 1:
             return tf.reshape(tensors[0], [-1])
         else:
-            flattened = [tf.reshape(tf.cast(tensor, tf.float64), [-1]) for tensor in tensors]
+            flattened = [tf.reshape(tensor, [-1]) for tensor in tensors]
             return tf.concat(flattened, 0)
 
     def _make_eval_func(self, tensors, session, feed_dict, fetches, callback=None):
