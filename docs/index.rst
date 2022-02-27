@@ -1,9 +1,9 @@
 DeepXDE
 =======
 
-`DeepXDE <https://github.com/lululxvi/deepxde>`_ is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
+`DeepXDE <https://github.com/lululxvi/deepxde>`_ is a library for scientific machine learning and physics-informed learning. Use DeepXDE if you need a deep learning library that
 
-- solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
+- solves forward and inverse ordinary/partial differential equations (ODEs/PDEs) via physics-informed neural network (PINN),
 - solves forward and inverse integro-differential equations (IDEs) via PINN,
 - solves forward and inverse fractional partial differential equations (fPDEs) via fractional PINN (fPINN),
 - approximates operators via deep operator network (DeepONet, MIONet, DeepM&Mnet),
@@ -15,7 +15,7 @@ DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (``tensorflow
 
 **Papers on algorithms**
 
-- Solving PDEs and IDEs via PINN [`SIAM Rev. <https://doi.org/10.1137/19M1274067>`_], gradient-enhanced PINN (gPINN) [`arXiv <https://arxiv.org/abs/2111.02801>`_]
+- Solving ODEs, PDEs and IDEs via PINN [`SIAM Rev. <https://doi.org/10.1137/19M1274067>`_], gradient-enhanced PINN (gPINN) [`arXiv <https://arxiv.org/abs/2111.02801>`_]
 - Solving fPDEs via fPINN [`SIAM J. Sci. Comput. <https://epubs.siam.org/doi/abs/10.1137/18M1229845>`_]
 - Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC) [`J. Comput. Phys. <https://www.sciencedirect.com/science/article/pii/S0021999119305340>`_]
 - Solving inverse design/topology optimization via PINN with hard constraints (hPINN) [`SIAM J. Sci. Comput. <https://doi.org/10.1137/21M1397908>`_]
