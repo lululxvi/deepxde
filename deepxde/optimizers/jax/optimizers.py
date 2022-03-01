@@ -15,7 +15,7 @@ def get(optimizer, learning_rate=None, decay=None):
         return optimizer
     if is_external_optimizer(optimizer):
         raise NotImplementedError(f"{optimizer} to be implemented for backend jax.")
-    
+
     if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
 
@@ -28,6 +28,7 @@ def get(optimizer, learning_rate=None, decay=None):
         return optax.sgd(learning_rate=lr_schedule)
 
     raise NotImplementedError(f"{optimizer} to be implemented for backend jax.")
+
 
 def _get_learningrate(lr, decay):
     if decay is None:
