@@ -1,6 +1,7 @@
 __all__ = ["get", "is_external_optimizer"]
 
 import jax
+import optax
 
 
 def is_external_optimizer(optimizer):
@@ -8,7 +9,31 @@ def is_external_optimizer(optimizer):
     return False
 
 
-def get(params, optimizer, learning_rate=None, decay=None):
-    """Retrieves an Optimizer instance."""
-    # TODO: add optimizers for jax
+def get(optimizer, learning_rate=None, decay=None):
+    """Retrieves an optax Optimizer instance."""
+    if isinstance(optimizer, optax._src.base.GradientTransformation):
+        return optimizer
+    if is_external_optimizer(optimizer):
+        raise NotImplementedError(f"{optimizer} to be implemented for backend jax.")
+
+    if learning_rate is None:
+        raise ValueError("No learning rate for {}.".format(optimizer))
+
+    lr_schedule = _get_learningrate(learning_rate, decay)
+    if optimizer == "adam":
+        return optax.adam(learning_rate=lr_schedule)
+    if optimizer == "rmsprop":
+        return optax.rmsprop(learning_rate=lr_schedule)
+    if optimizer == "sgd":
+        return optax.sgd(learning_rate=lr_schedule)
+
     raise NotImplementedError(f"{optimizer} to be implemented for backend jax.")
+
+
+def _get_learningrate(lr, decay):
+    if decay is None:
+        return lr
+    # TODO: add optax's optimizer schedule
+    raise NotImplementedError(
+        f"{decay[0]} learning rate decay to be implemented for backend tensorflow."
+    )
