@@ -317,8 +317,8 @@ class Model:
                 self.net.params, self.opt_state, inputs, targets
             )
 
-        # TODO: add more optimizers by "optimizer" argument, decay
-        self.opt = optax.adam(learning_rate=lr)
+        # TODO: add decay
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.net.params)
 
         # Callables
