@@ -6,6 +6,9 @@ from flax import linen as nn
 class NN(nn.Module):
     """Base class for all neural network modules."""
 
+    layer_sizes: Any
+    activation: Any
+    kernel_initializer: Any
     training: Any = True
     params: Any = None
     _input_transform: Any = None
