@@ -1,7 +1,7 @@
 import math
 
 from .. import config
-from ..backend import backend_name, tf, torch
+from ..backend import backend_name, tf, torch, jax
 
 
 class VarianceScalingStacked:
@@ -137,10 +137,24 @@ def initializer_dict_torch():
     }
 
 
+def initializer_dict_jax():
+    return {
+        "Glorot normal": jax.nn.initializers.glorot_normal(),
+        "Glorot uniform": jax.nn.initializers.glorot_uniform(),
+        "He normal": jax.nn.initializers.he_normal(),
+        "He uniform": jax.nn.initializers.he_uniform(),
+        "Lecun normal": jax.nn.initializers.lecun_normal(),
+        "Lecun uniform": jax.nn.initializers.lecun_uniform(),
+        "zeros": jax.nn.initializers.zeros,
+    }
+
+
 if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     INITIALIZER_DICT = initializer_dict_tf()
 elif backend_name == "pytorch":
     INITIALIZER_DICT = initializer_dict_torch()
+elif backend_name == "jax":
+    INITIALIZER_DICT = initializer_dict_jax()
 
 
 def get(identifier):
