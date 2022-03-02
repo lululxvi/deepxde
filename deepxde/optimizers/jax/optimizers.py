@@ -1,7 +1,10 @@
-__all__ = ["get", "is_external_optimizer"]
+__all__ = ["get", "is_external_optimizer", "apply_updates"]
 
 import jax
 import optax
+
+
+apply_updates = optax.apply_updates
 
 
 def is_external_optimizer(optimizer):

@@ -269,8 +269,6 @@ class Model:
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
         """jax"""
-        import optax
-
         # initialize network's parameters
         # TODO: Init should move to network module, because we don't know how to init here, e.g., DeepONet has two inputs.
         #       random seed should use a random number, or be specified by users
@@ -303,7 +301,7 @@ class Model:
             )  # jax.value_and_grad seems to be slightly faster than jax.grad for function approximation
             grads = grad_fn(params)
             updates, new_opt_state = self.opt.update(grads, opt_state)
-            new_params = optax.apply_updates(params, updates)
+            new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
 
         def outputs(training, inputs):
