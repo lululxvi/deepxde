@@ -38,6 +38,8 @@ DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.
 
 ![](docs/images/deeponet.png)
 
+![](docs/images/mfnn.png)
+
 ![](docs/images/backend.png)
 
 ## Features
