@@ -1,22 +1,28 @@
-from typing import Any
+from typing import Any, Callable
 
 import jax
 from flax import linen as nn
 
 from .nn import NN
+from .. import activations
+from .. import initializers
 
 
 class FNN(NN):
     """Fully-connected neural network"""
 
-    layer_sizes: Any = None
-    activation: Any = None
-    kernel_initializer: Any = None
+    layer_sizes: Any
+    activation: Any
+    kernel_initializer: Any
+    training: bool = True
+    _input_transform: Callable = None
+    _output_transform: Callable = None
+    params: Any = None
 
     def setup(self):
-        # TODO: implement get activation, get initializer
-        self._activation = jax.nn.tanh
-        kernel_initializer = jax.nn.initializers.glorot_normal()
+        # TODO: implement get regularizer
+        self._activation = activations.get(self.activation)
+        kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
 
         self.denses = [
