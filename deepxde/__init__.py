@@ -6,6 +6,7 @@ __all__ = [
     "grad",
     "icbc",
     "nn",
+    "postprocessing",
     "utils",
     "Model",
     "Variable",
@@ -22,6 +23,7 @@ from . import geometry
 from . import gradients as grad
 from . import icbc
 from . import nn
+from . import postprocessing
 from . import utils
 
 from .backend import Variable

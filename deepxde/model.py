@@ -812,20 +812,6 @@ class TrainState:
     def disregard_best(self):
         self.best_loss_train = np.inf
 
-    def packed_data(self):
-        def merge_values(values):
-            if values is None:
-                return None
-            return np.hstack(values) if isinstance(values, (list, tuple)) else values
-
-        X_train = merge_values(self.X_train)
-        y_train = merge_values(self.y_train)
-        X_test = merge_values(self.X_test)
-        y_test = merge_values(self.y_test)
-        best_y = merge_values(self.best_y)
-        best_ystd = merge_values(self.best_ystd)
-        return X_train, y_train, X_test, y_test, best_y, best_ystd
-
 
 class LossHistory:
     def __init__(self):

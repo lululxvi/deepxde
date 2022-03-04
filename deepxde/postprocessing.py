@@ -15,7 +15,7 @@ def saveplot(
     test_fname="test.dat",
     output_dir=None,
 ):
-    """Save/plot the best trained result and loss history.
+    """Save/plot the loss history and best trained result.
 
     This function is used to quickly check your results. To better investigate your
     result, use ``save_loss_history()`` and ``save_best_state()``.
@@ -98,6 +98,19 @@ def save_loss_history(loss_history, fname):
     np.savetxt(fname, loss, header="step, loss_train, loss_test, metrics_test")
 
 
+def _pack_data(train_state):
+    def merge_values(values):
+        if values is None:
+            return None
+        return np.hstack(values) if isinstance(values, (list, tuple)) else values
+
+    y_train = merge_values(train_state.y_train)
+    y_test = merge_values(train_state.y_test)
+    best_y = merge_values(train_state.best_y)
+    best_ystd = merge_values(train_state.best_ystd)
+    return y_train, y_test, best_y, best_ystd
+
+
 def plot_best_state(train_state):
     """Plot the best result of the smallest training loss.
 
@@ -111,18 +124,24 @@ def plot_best_state(train_state):
         train_state: ``TrainState`` instance. The second variable returned from
             ``Model.train()``.
     """
-    X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
+    if isinstance(train_state.X_train, (list, tuple)):
+        print(
+            "Error: The network has multiple inputs, and plotting such result han't been implemented."
+        )
+        return
 
+    y_train, y_test, best_y, best_ystd = _pack_data(train_state)
     y_dim = best_y.shape[1]
 
     # Regression plot
-    if X_test.shape[1] == 1:
-        idx = np.argsort(X_test[:, 0])
-        X = X_test[idx, 0]
+    # 1D
+    if train_state.X_test.shape[1] == 1:
+        idx = np.argsort(train_state.X_test[:, 0])
+        X = train_state.X_test[idx, 0]
         plt.figure()
         for i in range(y_dim):
             if y_train is not None:
-                plt.plot(X_train[:, 0], y_train[:, i], "ok", label="Train")
+                plt.plot(train_state.X_train[:, 0], y_train[:, i], "ok", label="Train")
             if y_test is not None:
                 plt.plot(X, y_test[idx, i], "-k", label="True")
             plt.plot(X, best_y[idx, i], "--r", label="Prediction")
@@ -134,58 +153,75 @@ def plot_best_state(train_state):
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
-    elif X_test.shape[1] == 2:
+    # 2D
+    elif train_state.X_test.shape[1] == 2:
         for i in range(y_dim):
             plt.figure()
             ax = plt.axes(projection=Axes3D.name)
-            ax.plot3D(X_test[:, 0], X_test[:, 1], best_y[:, i], ".")
+            ax.plot3D(
+                train_state.X_test[:, 0],
+                train_state.X_test[:, 1],
+                best_y[:, i],
+                ".",
+            )
             ax.set_xlabel("$x_1$")
             ax.set_ylabel("$x_2$")
             ax.set_zlabel("$y_{}$".format(i + 1))
 
     # Residual plot
-    if y_test is not None:
-        plt.figure()
-        residual = y_test[:, 0] - best_y[:, 0]
-        plt.plot(best_y[:, 0], residual, "o", zorder=1)
-        plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
-        plt.xlabel("Predicted")
-        plt.ylabel("Residual = Observed - Predicted")
-        plt.tight_layout()
+    # Not necessary to plot
+    # if y_test is not None:
+    #     plt.figure()
+    #     residual = y_test[:, 0] - best_y[:, 0]
+    #     plt.plot(best_y[:, 0], residual, "o", zorder=1)
+    #     plt.hlines(0, plt.xlim()[0], plt.xlim()[1], linestyles="dashed", zorder=2)
+    #     plt.xlabel("Predicted")
+    #     plt.ylabel("Residual = Observed - Predicted")
+    #     plt.tight_layout()
 
-    if best_ystd is not None:
-        plt.figure()
-        for i in range(y_dim):
-            plt.plot(X_test[:, 0], best_ystd[:, i], "-b")
-            plt.plot(
-                X_train[:, 0],
-                np.interp(X_train[:, 0], X_test[:, 0], best_ystd[:, i]),
-                "ok",
-            )
-        plt.xlabel("x")
-        plt.ylabel("std(y)")
+    # Uncertainty plot
+    # Not necessary to plot
+    # if best_ystd is not None:
+    #     plt.figure()
+    #     for i in range(y_dim):
+    #         plt.plot(train_state.X_test[:, 0], best_ystd[:, i], "-b")
+    #         plt.plot(
+    #             train_state.X_train[:, 0],
+    #             np.interp(
+    #                 train_state.X_train[:, 0], train_state.X_test[:, 0], best_ystd[:, i]
+    #             ),
+    #             "ok",
+    #         )
+    #     plt.xlabel("x")
+    #     plt.ylabel("std(y)")
 
 
 def save_best_state(train_state, fname_train, fname_test):
     """Save the best result of the smallest training loss to a file."""
+    if isinstance(train_state.X_train, (list, tuple)):
+        print(
+            "Error: The network has multiple inputs, and saving such result han't been implemented."
+        )
+        return
+
     print("Saving training data to {} ...".format(fname_train))
-    X_train, y_train, X_test, y_test, best_y, best_ystd = train_state.packed_data()
+    y_train, y_test, best_y, best_ystd = _pack_data(train_state)
     if y_train is None:
-        np.savetxt(fname_train, X_train, header="x")
+        np.savetxt(fname_train, train_state.X_train, header="x")
     else:
-        train = np.hstack((X_train, y_train))
+        train = np.hstack((train_state.X_train, y_train))
         np.savetxt(fname_train, train, header="x, y")
 
     print("Saving test data to {} ...".format(fname_test))
     if y_test is None:
-        test = np.hstack((X_test, best_y))
+        test = np.hstack((train_state.X_test, best_y))
         if best_ystd is None:
             np.savetxt(fname_test, test, header="x, y_pred")
         else:
             test = np.hstack((test, best_ystd))
             np.savetxt(fname_test, test, header="x, y_pred, y_std")
     else:
-        test = np.hstack((X_test, y_test, best_y))
+        test = np.hstack((train_state.X_test, y_test, best_y))
         if best_ystd is None:
             np.savetxt(fname_test, test, header="x, y_true, y_pred")
         else:
