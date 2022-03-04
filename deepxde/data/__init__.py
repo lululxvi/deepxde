@@ -7,7 +7,6 @@ __all__ = [
     "IDE",
     "MfDataSet",
     "MfFunc",
-    "MfOpDataSet",
     "PDE",
     "Quadruple",
     "QuadrupleCartesianProd",
@@ -26,7 +25,6 @@ from .func_constraint import FuncConstraint
 from .ide import IDE
 from .mf import MfDataSet
 from .mf import MfFunc
-from .mfopdataset import MfOpDataSet
 from .pde import PDE
 from .pde import TimePDE
 from .quadruple import Quadruple, QuadrupleCartesianProd
