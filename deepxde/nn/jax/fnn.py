@@ -1,4 +1,4 @@
-from typing import Any, Optional, Callable
+from typing import Any, Callable
 
 import jax
 from flax import linen as nn
@@ -15,9 +15,9 @@ class FNN(NN):
     activation: Any
     kernel_initializer: Any
     training: bool = True
+    _input_transform: Callable = None
+    _output_transform: Callable = None
     params: Any = None
-    _input_transform: Optional[Callable] = None
-    _output_transform: Optional[Callable] = None
 
     def setup(self):
         # TODO: implement get regularizer
