@@ -12,7 +12,7 @@ from . import losses as losses_module
 from . import metrics as metrics_module
 from . import optimizers
 from . import utils
-from .backend import backend_name, tf, torch, jax
+from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 
 
@@ -112,7 +112,8 @@ class Model:
             self._compile_pytorch(lr, loss_fn, decay, loss_weights)
         elif backend_name == "jax":
             self._compile_jax(lr, loss_fn, decay, loss_weights)
-
+        elif backend_name == "paddlepaddle":
+            self._compile_paddlepaddle(lr, loss_fn, decay, loss_weights)
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
         metrics = metrics or []
@@ -267,6 +268,60 @@ class Model:
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 
+    def _compile_paddlepaddle(self, lr, loss_fn, decay, loss_weights):
+        """paddlepaddle"""
+
+        def outputs(training, inputs):
+            self.net.train(mode=training)
+            with paddle.no_grad():
+                return self.net(paddle.to_tensor(inputs))
+
+        def outputs_losses(training, inputs, targets):
+            self.net.train(mode=training)
+            self.net.inputs = paddle.to_tensor(inputs)
+            self.net.inputs.requires_grad_()
+            outputs_ = self.net(self.net.inputs)
+            # Data losses
+            if targets is not None:
+                targets = paddle.to_tensor(targets)
+            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            if not isinstance(losses, list):
+                losses = [losses]
+            # TODO: regularization
+            losses = paddle.stack(losses)
+            # Weighted losses
+            if loss_weights is not None:
+                losses *= paddle.to_tensor(loss_weights)
+                self.losshistory.set_loss_weights(loss_weights)
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
+            return outputs_, losses
+
+        # Another way is using per-parameter options
+        # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
+        # but not all optimizers (such as L-BFGS) support this.
+        trainable_variables = (
+            list(self.net.parameters()) + self.external_trainable_variables
+        )
+        self.opt = optimizers.get(
+            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+        )
+
+        def train_step(inputs, targets):
+            def closure():
+                losses = outputs_losses(True, inputs, targets)[1]
+                total_loss = paddle.sum(losses)
+                self.opt.zero_grad()
+                total_loss.backward()
+                return total_loss
+
+            self.opt.step(closure)
+
+        # Callables
+        self.outputs = outputs
+        self.outputs_losses = outputs_losses
+        self.train_step = train_step
+
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
         """jax"""
         # initialize network's parameters
@@ -346,6 +401,8 @@ class Model:
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             outs = self.outputs_losses(training, inputs, targets)
+        elif backend_name == "paddlepaddle":
+            outs = self.outputs_losses(training, inputs, targets)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -360,7 +417,9 @@ class Model:
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-
+        elif backend_name == "paddlepaddle":
+            self.train_step(inputs,targets)
+            
     @utils.timing
     def train(
         self,

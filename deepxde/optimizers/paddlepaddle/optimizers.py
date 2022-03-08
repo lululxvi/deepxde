@@ -36,6 +36,6 @@ def get(params, optimizer, learning_rate=None, decay=None):
         raise NotImplementedError(
             "learning rate decay to be implemented for backend pypaddle.")
     if optimizer == "adam":
-        return paddle.optimizer.Adam(params, lr=learning_rate)
+        return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
     raise NotImplementedError(
         f"{optimizer} to be implemented for backend pypaddle.")

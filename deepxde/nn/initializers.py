@@ -3,7 +3,7 @@ __all__ = ["get", "VarianceScalingStacked"]
 import math
 
 from .. import config
-from ..backend import backend_name, tf, torch, jax, paddlepaddle
+from ..backend import backend_name, tf, torch, jax, paddle
 
 
 class VarianceScalingStacked:
@@ -157,6 +157,7 @@ def initializer_dict_paddlepaddle():
         "Glorot uniform": paddle.nn.initializer.XavierUniform,
         "He normal": paddle.nn.initializer.KaimingNormal,
         "He uniform": paddle.nn.initializer.KaimingUniform,
+        "zeros": paddle.nn.initializer.Assign([0]),
     }
 
 if backend_name in ["tensorflow.compat.v1", "tensorflow"]:

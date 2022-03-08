@@ -20,7 +20,7 @@ lib = None
 tf = None
 torch = None
 jax = None
-
+paddle = None
 ###############################################################################
 # Tensor, data type and context interfaces
 
