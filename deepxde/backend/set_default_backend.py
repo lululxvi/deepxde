@@ -25,7 +25,7 @@ if __name__ == "__main__":
         "backend",
         nargs=1,
         type=str,
-        choices=["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"],
+        choices=["tensorflow.compat.v1", "tensorflow", "pytorch", "jax", "paddlepaddle"],
         help="Set default backend",
     )
     args = parser.parse_args()

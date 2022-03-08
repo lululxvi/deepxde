@@ -23,7 +23,7 @@ def _gen_missing_api(api, mod_name):
 
 
 def load_backend(mod_name):
-    if mod_name not in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"]:
+    if mod_name not in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax", "paddlepaddle"]:
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
     print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
@@ -72,7 +72,7 @@ def get_preferred_backend():
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"]:
+    if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax", "paddlepaddle"]:
         return backend_name
     print(
         "Deepxde backend not selected or invalid. Assuming tensorflow.compat.v1 for now.",
