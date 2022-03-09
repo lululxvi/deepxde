@@ -235,6 +235,7 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = torch.stack(losses)
+            print(losses.shape)
             # Weighted losses
             if loss_weights is not None:
                 losses *= torch.as_tensor(loss_weights)
@@ -277,9 +278,11 @@ class Model:
                 return self.net(paddle.to_tensor(inputs))
 
         def outputs_losses(training, inputs, targets):
-            self.net.train(mode=training)
-            self.net.inputs = paddle.to_tensor(inputs)
-            self.net.inputs.requires_grad_()
+            if training:
+                self.net.train()
+            else:
+                self.net.eval()
+            self.net.inputs = paddle.to_tensor(inputs, stop_gradient=False)
             outputs_ = self.net(self.net.inputs)
             # Data losses
             if targets is not None:
@@ -288,7 +291,7 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            losses = paddle.stack(losses)
+            losses = losses[0]
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
@@ -308,14 +311,12 @@ class Model:
         )
 
         def train_step(inputs, targets):
-            def closure():
-                losses = outputs_losses(True, inputs, targets)[1]
-                total_loss = paddle.sum(losses)
-                self.opt.zero_grad()
-                total_loss.backward()
-                return total_loss
-
-            self.opt.step(closure)
+            losses = outputs_losses(True, inputs, targets)[1]
+            total_loss = paddle.sum(losses)
+            total_loss.backward()
+            self.opt.step()
+            self.opt.clear_grad()
+            
 
         # Callables
         self.outputs = outputs
@@ -418,7 +419,7 @@ class Model:
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
         elif backend_name == "paddlepaddle":
-            self.train_step(inputs,targets)
+            self.train_step(inputs, targets)
             
     @utils.timing
     def train(
