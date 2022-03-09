@@ -6,7 +6,6 @@ __all__ = [
     "grad",
     "icbc",
     "nn",
-    "postprocessing",
     "utils",
     "Model",
     "Variable",
@@ -23,12 +22,11 @@ from . import geometry
 from . import gradients as grad
 from . import icbc
 from . import nn
-from . import postprocessing
 from . import utils
 
 from .backend import Variable
 from .model import Model
-from .postprocessing import saveplot
+from .utils import saveplot
 
 # Backward compatibility
 from .icbc import (
