@@ -214,7 +214,7 @@ def npfunc_range_autocache(func):
             cache[key] = func(X[beg:end])
         return cache[key]
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "paddlepaddle"]:
+    if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         return wrapper_nocache
-    if backend_name == "pytorch":
+    if backend_name == "pytorch" or backend_name == "paddlepaddle":
         return wrapper_cache

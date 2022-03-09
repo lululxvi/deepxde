@@ -272,7 +272,10 @@ class Model:
         """paddlepaddle"""
 
         def outputs(training, inputs):
-            self.net.train(mode=training)
+            if training:
+                self.net.train()
+            else:
+                self.net.eval()
             with paddle.no_grad():
                 return self.net(paddle.to_tensor(inputs))
 
@@ -300,9 +303,6 @@ class Model:
             grad.clear()
             return outputs_, losses
 
-        # Another way is using per-parameter options
-        # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
-        # but not all optimizers (such as L-BFGS) support this.
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
