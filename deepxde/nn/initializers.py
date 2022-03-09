@@ -153,11 +153,11 @@ def initializer_dict_jax():
 
 def initializer_dict_paddlepaddle():
     return {
-        "Glorot normal": paddle.nn.initializer.XavierNormal,
-        "Glorot uniform": paddle.nn.initializer.XavierUniform,
-        "He normal": paddle.nn.initializer.KaimingNormal,
-        "He uniform": paddle.nn.initializer.KaimingUniform,
-        "zeros": paddle.nn.initializer.Assign([0]),
+        "Glorot normal": paddle.nn.initializer.XavierNormal(),
+        "Glorot uniform": paddle.nn.initializer.XavierUniform(),
+        "He normal": paddle.nn.initializer.KaimingNormal(),
+        "He uniform": paddle.nn.initializer.KaimingUniform(),
+        "zeros": paddle.nn.initializer.Constant(0.0),
     }
 
 if backend_name in ["tensorflow.compat.v1", "tensorflow"]:

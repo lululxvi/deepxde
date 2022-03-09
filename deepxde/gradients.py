@@ -42,6 +42,7 @@ class Jacobian:
                 )[0]
             elif backend_name == "paddlepaddle":
                 self.J[i] = paddle.autograd.grad(y, self.xs, retain_graph=True)[0]
+                self.J[i].stop_gradient = False
                 
         return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
 

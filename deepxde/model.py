@@ -290,7 +290,8 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            losses = losses[0]
+            losses = paddle.stack(losses)
+            losses = losses[:, 0]
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
