@@ -41,7 +41,7 @@ class Jacobian:
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "paddlepaddle":
-                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True)[0]
+                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True, retain_graph=True)[0]
                 
         return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
 

@@ -1,10 +1,12 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddlepaddle"""
 import deepxde as dde
 import numpy as np
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
+# Import paddle if using backend paddlepaddle
+# import paddle
 
 
 def pde(x, y):
@@ -13,6 +15,8 @@ def pde(x, y):
     return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
     # Use torch.sin for backend pytorch
     # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
+    # Use paddle.sin for backend paddlepaddle
+    # return -dy_xx - np.pi ** 2 * paddle.sin(np.pi * x)
 
 
 def boundary_l(x, on_boundary):
@@ -30,7 +34,7 @@ def func(x):
 geom = dde.geometry.Interval(-1, 1)
 bc1 = dde.icbc.DirichletBC(geom, func, boundary_l)
 bc2 = dde.icbc.PeriodicBC(geom, 0, boundary_r)
-data = dde.icbc.data.PDE(geom, pde, [bc1, bc2], 16, 2, solution=func, num_test=100)
+data = dde.data.PDE(geom, pde, [bc1, bc2], 16, 2, solution=func, num_test=100)
 
 layer_size = [1] + [50] * 3 + [1]
 activation = "tanh"
