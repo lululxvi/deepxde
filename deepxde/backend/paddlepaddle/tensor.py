@@ -38,7 +38,7 @@ def shape(input_tensor):
 
 
 def ndim(input_tensor):
-    return input_tensor.rank()
+    return input_tensor.ndim
 
 
 def Variable(initial_value, dtype=None):

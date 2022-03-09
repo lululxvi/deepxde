@@ -1,6 +1,6 @@
 __all__ = ["clear", "hessian", "jacobian"]
 
-from .backend import backend_name, tf, torch
+from .backend import backend_name, tf, torch, paddle
 
 
 class Jacobian:
@@ -40,6 +40,9 @@ class Jacobian:
                 self.J[i] = torch.autograd.grad(
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
+            elif backend_name == "paddlepaddle":
+                self.J[i] = paddle.autograd.grad(y, self.xs, retain_graph=True)[0]
+                
         return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
 
 
@@ -100,6 +103,8 @@ class Jacobians:
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (ys.ref(), xs.ref())
         elif backend_name == "pytorch":
+            key = (ys, xs)
+        elif backend_name == "paddlepaddle":
             key = (ys, xs)
         if key not in self.Js:
             self.Js[key] = Jacobian(ys, xs)
@@ -192,6 +197,8 @@ class Hessians:
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (y.ref(), xs.ref(), component)
         elif backend_name == "pytorch":
+            key = (y, xs, component)
+        elif backend_name == "paddlepaddle":
             key = (y, xs, component)
         if key not in self.Hs:
             self.Hs[key] = Hessian(y, xs, component=component, grad_y=grad_y)

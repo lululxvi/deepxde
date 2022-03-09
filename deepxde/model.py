@@ -235,7 +235,6 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = torch.stack(losses)
-            print(losses.shape)
             # Weighted losses
             if loss_weights is not None:
                 losses *= torch.as_tensor(loss_weights)
