@@ -49,14 +49,6 @@ deepxde.model module
    :undoc-members:
    :show-inheritance:
 
-deepxde.postprocessing module
------------------------------
-
-.. automodule:: deepxde.postprocessing
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 deepxde.real module
 -------------------
 
