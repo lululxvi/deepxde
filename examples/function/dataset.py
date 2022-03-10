@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddlepaddle"""
 import deepxde as dde
 
 
