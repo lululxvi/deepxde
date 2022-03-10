@@ -1,14 +1,7 @@
 """paddle backend implementation"""
 import paddle
 
-# To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
-# paddle.device and then use it for all the tensors.
-# https://pypaddle.org/docs/stable/notes/cuda.html
-# >>> device = paddle.device("cuda" if paddle.cuda.is_available() else "cpu")
-# >>> tensor.to(device=device)
-# But, taking care of all tensors requires a lot of work.
-# An alternative way is to use GPU by default if GPU is available, which is similar to
-# TensorFlow.
+
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")
 
@@ -58,10 +51,6 @@ def as_tensor(data, dtype=None):
 
 
 def from_numpy(np_array):
-    # Both paddle.from_numpy and paddle.as_tensor work without memory copy.
-    # https://discuss.pypaddle.org/t/from-numpy-vs-as-tensor/79932
-    # https://stackoverflow.com/questions/48482787/pypaddle-memory-model-paddle-from-numpy-vs-paddle-tensor
-    # But paddle.from_numpy cannot handle device.
     return paddle.to_tensor(np_array)
 
 

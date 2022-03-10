@@ -316,7 +316,6 @@ class Model:
             total_loss.backward()
             self.opt.step()
             self.opt.clear_grad()
-            
 
         # Callables
         self.outputs = outputs

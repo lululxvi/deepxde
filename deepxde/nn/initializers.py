@@ -151,7 +151,7 @@ def initializer_dict_jax():
     }
 
 
-def initializer_dict_paddlepaddle():
+def initializer_dict_paddle():
     return {
         "Glorot normal": paddle.nn.initializer.XavierNormal(),
         "Glorot uniform": paddle.nn.initializer.XavierUniform(),
@@ -160,6 +160,7 @@ def initializer_dict_paddlepaddle():
         "zeros": paddle.nn.initializer.Constant(0.0),
     }
 
+
 if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     INITIALIZER_DICT = initializer_dict_tf()
 elif backend_name == "pytorch":
@@ -167,7 +168,8 @@ elif backend_name == "pytorch":
 elif backend_name == "jax":
     INITIALIZER_DICT = initializer_dict_jax()
 elif backend_name == "paddlepaddle":
-    INITIALIZER_DICT = initializer_dict_paddlepaddle()
+    INITIALIZER_DICT = initializer_dict_paddle()
+
 
 def get(identifier):
     """Retrieve an initializer by the identifier.

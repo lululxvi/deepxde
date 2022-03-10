@@ -15,7 +15,8 @@ def get(params, optimizer, learning_rate=None, decay=None):
         return optimizer
 
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
-        raise ValueError("Not support yet.")
+        # see issue https://github.com/PaddlePaddle/Paddle/issues/38444
+        raise ValueError("PaddlePaddle has no support.")
 
     if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
@@ -27,4 +28,4 @@ def get(params, optimizer, learning_rate=None, decay=None):
     if optimizer == "adam":
         return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
     raise NotImplementedError(
-        f"{optimizer} to be implemented for backend pypaddle.")
+        f"{optimizer} to be implemented for backend paddlepaddle.")

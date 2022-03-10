@@ -3,7 +3,7 @@ import random
 
 import numpy as np
 
-from .backend import backend_name, tf, torch
+from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
 
@@ -51,3 +51,5 @@ def set_random_seed(seed):
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
+    elif backend_name == "paddlepaddle":
+        paddle.seed(seed)

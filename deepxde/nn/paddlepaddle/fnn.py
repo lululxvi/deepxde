@@ -3,7 +3,6 @@ import paddle
 from .nn import NN
 from .. import activations
 from .. import initializers
-from ... import config
 
 
 class FNN(NN):
