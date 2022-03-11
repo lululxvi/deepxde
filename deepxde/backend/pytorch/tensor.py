@@ -1,6 +1,11 @@
 """pytorch backend implementation"""
+from distutils.version import LooseVersion
+
 import torch
 
+
+if LooseVersion(torch.__version__) < LooseVersion("1.9.0"):
+    raise RuntimeError("DeepXDE requires PyTorch>=1.9.0.")
 
 # To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
 # torch.device and then use it for all the tensors.

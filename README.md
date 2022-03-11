@@ -66,7 +66,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 
 - TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
-- PyTorch: [PyTorch](https://pytorch.org/)
+- PyTorch: [PyTorch](https://pytorch.org/)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
 
 Then, you can install DeepXDE itself.
