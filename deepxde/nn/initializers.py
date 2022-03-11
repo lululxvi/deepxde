@@ -167,7 +167,7 @@ elif backend_name == "pytorch":
     INITIALIZER_DICT = initializer_dict_torch()
 elif backend_name == "jax":
     INITIALIZER_DICT = initializer_dict_jax()
-elif backend_name == "paddlepaddle":
+elif backend_name == "paddle":
     INITIALIZER_DICT = initializer_dict_paddle()
 
 

@@ -51,5 +51,5 @@ def set_random_seed(seed):
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
-    elif backend_name == "paddlepaddle":
+    elif backend_name == "paddle":
         paddle.seed(seed)

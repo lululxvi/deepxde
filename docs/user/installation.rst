@@ -68,7 +68,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
     $ DDEBACKEND=jax python pde.py
 
-    $ DDEBACKEND=paddlepaddle python pde.py
+    $ DDEBACKEND=paddle python pde.py
 
     - Or ``export DDEBACKEND=BACKEND`` to set the global environment variable
 
@@ -77,7 +77,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
     - The file has the content such as ``{"backend": "tensorflow.compat.v1"}``
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
 
-Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch),"paddlepaddle" (PaddlePaddle), and "jax" (JAX). The default backend is TensorFlow 1.x.
+Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch),"paddle" (PaddlePaddle), and "jax" (JAX). The default backend is TensorFlow 1.x.
 
 Which backend should I choose?
 ``````````````````````````````
@@ -124,7 +124,7 @@ JAX backend
 
 Export ``DDEBACKEND`` as ``jax`` to specify JAX backend.
 
-PaddlePaddle backend
+Paddle backend
 ````````````````````
 
-Export ``DDEBACKEND`` as ``paddlepaddle`` to specify PaddlePaddle backend.
+Export ``DDEBACKEND`` as ``paddle`` to specify PaddlePaddle backend.

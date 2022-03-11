@@ -31,9 +31,9 @@ def shape(input_tensor):
 
 
 def ndim(input_tensor):
-    # TODO needs improvement
+    # TODO: needs improvement
     if input_tensor.ndim == 1:
-        # There are no zero-dimensional tensors in paddlepaddle
+        # There are no zero-dimensional tensors in paddle
         return 0
     return input_tensor.ndim
 

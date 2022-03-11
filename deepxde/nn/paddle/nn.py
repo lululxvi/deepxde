@@ -15,10 +15,12 @@ class NN(paddle.nn.Layer):
         """Compute the features by appling a transform to the network inputs, i.e.,
         features = transform(inputs). Then, outputs = network(features).
         """
+        # TODO: support input transform
         self._input_transform = transform
 
     def apply_output_transform(self, transform):
         """Apply a transform to the network outputs, i.e.,
         outputs = transform(inputs, outputs).
         """
+        # TODO: support output transform
         self._output_transform = transform

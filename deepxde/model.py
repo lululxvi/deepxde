@@ -112,8 +112,8 @@ class Model:
             self._compile_pytorch(lr, loss_fn, decay, loss_weights)
         elif backend_name == "jax":
             self._compile_jax(lr, loss_fn, decay, loss_weights)
-        elif backend_name == "paddlepaddle":
-            self._compile_paddlepaddle(lr, loss_fn, decay, loss_weights)
+        elif backend_name == "paddle":
+            self._compile_paddle(lr, loss_fn, decay, loss_weights)
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
         metrics = metrics or []
@@ -268,8 +268,8 @@ class Model:
         self.outputs_losses = outputs_losses
         self.train_step = train_step
 
-    def _compile_paddlepaddle(self, lr, loss_fn, decay, loss_weights):
-        """paddlepaddle"""
+    def _compile_paddle(self, lr, loss_fn, decay, loss_weights):
+        """paddle"""
 
         def outputs(training, inputs):
             if training:
@@ -401,7 +401,7 @@ class Model:
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             outs = self.outputs_losses(training, inputs, targets)
-        elif backend_name == "paddlepaddle":
+        elif backend_name == "paddle":
             outs = self.outputs_losses(training, inputs, targets)
         return utils.to_numpy(outs)
 
@@ -417,7 +417,7 @@ class Model:
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-        elif backend_name == "paddlepaddle":
+        elif backend_name == "paddle":
             self.train_step(inputs, targets)
             
     @utils.timing
@@ -715,7 +715,7 @@ class Model:
                     "Model.predict() with auxiliary variable hasn't been implemented for backend pytorch."
                 )
             y = utils.to_numpy(y)
-        elif backend_name == "paddlepaddle":
+        elif backend_name == "paddle":
             self.net.eval()
             inputs = paddle.to_tensor(x)
             inputs.stop_gradient = False
@@ -723,10 +723,10 @@ class Model:
             if utils.get_num_args(operator) == 2:
                 y = operator(inputs, outputs)
             elif utils.get_num_args(operator) == 3:
-                # TODO: PaddlePaddle backend Implementation of Auxiliary variables.
+                # TODO: Paddle backend Implementation of Auxiliary variables.
                 # y = operator(inputs, outputs, paddle.to_tensor(aux_vars))
                 raise NotImplementedError(
-                    "Model.predict() with auxiliary variable hasn't been implemented for backend paddlepaddle."
+                    "Model.predict() with auxiliary variable hasn't been implemented for backend paddle."
                 )
             y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
@@ -749,7 +749,7 @@ class Model:
                 destination[k] = v
         elif backend_name == "pytorch":
             destination = self.net.state_dict()
-        elif backend_name == "paddlepaddle":
+        elif backend_name == "paddle":
             destination = self.net.state_dict()
         else:
             raise NotImplementedError(
@@ -765,6 +765,7 @@ class Model:
             protocol (string): If `protocol` is "backend", save using the backend-specific method.
                 For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
                 For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
+                For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/save_cn.html#cn-api-paddle-framework-io-save>`
                 If `protocol` is "pickle", save using the Python pickle module.
                 Only the protocol "backend" supports ``restore()``.
 
@@ -788,7 +789,7 @@ class Model:
                     "optimizer_state_dict": self.opt.state_dict(),
                 }
                 torch.save(checkpoint, save_path)
-            elif backend_name == "paddlepaddle":
+            elif backend_name == "paddle":
                 save_path += ".pdparams"
                 checkpoint = {
                     'model': self.net.state_dict(),
@@ -822,7 +823,7 @@ class Model:
             checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
             self.opt.load_state_dict(checkpoint["optimizer_state_dict"])
-        elif backend_name == "paddlepaddle":
+        elif backend_name == "paddle":
             checkpoint = paddle.load(save_path)
             self.net.set_state_dict(checkpoint["model"])
             self.opt.set_state_dict(checkpoint["opt"])

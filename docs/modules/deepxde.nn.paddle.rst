@@ -1,18 +1,18 @@
-deepxde.nn.paddlepaddle
+deepxde.nn.paddle
 ==================
 
-deepxde.nn.paddlepaddle.fnn module
+deepxde.nn.paddle.fnn module
 -----------------------------
 
-.. automodule:: deepxde.nn.paddlepaddle.fnn
+.. automodule:: deepxde.nn.paddle.fnn
    :members:
    :undoc-members:
    :show-inheritance:
 
-deepxde.nn.paddlepaddle.nn module
+deepxde.nn.paddle.nn module
 ----------------------------
 
-.. automodule:: deepxde.nn.paddlepaddle.nn
+.. automodule:: deepxde.nn.paddle.nn
    :members:
    :undoc-members:
    :show-inheritance:
