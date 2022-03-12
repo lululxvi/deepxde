@@ -24,7 +24,7 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
     - [Slides](https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13), [Video in Chinese](http://tianyuan.xmu.edu.cn/cn/minicourses/637.html)
 - deep operator network (DeepONet)
     - learning operators [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5)]
-    - DeepONet extensions, e.g., POD-DeepONet [[arXiv](https://arxiv.org/abs/2111.05512)]
+    - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
     - MIONet: learning multiple-input operators [[arXiv](https://arxiv.org/abs/2202.06137)]
     - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
 - multifidelity neural network (MFNN)
@@ -66,7 +66,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 
 - TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
-- PyTorch: [PyTorch](https://pytorch.org/)
+- PyTorch: [PyTorch](https://pytorch.org/)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
 
 Then, you can install DeepXDE itself.
