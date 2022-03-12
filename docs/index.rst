@@ -16,7 +16,7 @@ DeepXDE
     - `Slides <https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_, `Video in Chinese <http://tianyuan.xmu.edu.cn/cn/minicourses/637.html>`_
 - deep operator network (DeepONet)
     - learning operators [`Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_]
-    - DeepONet extensions, e.g., POD-DeepONet [`arXiv <https://arxiv.org/abs/2111.05512>`_]
+    - DeepONet extensions, e.g., POD-DeepONet [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114778>`_]
     - MIONet: learning multiple-input operators [`arXiv <https://arxiv.org/abs/2202.06137>`_]
     - DeepM&Mnet: solving multiphysics and multiscale problems [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
 - multifidelity neural network (MFNN)
