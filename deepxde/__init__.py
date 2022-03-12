@@ -26,7 +26,7 @@ from . import utils
 
 from .backend import Variable
 from .model import Model
-from .postprocessing import saveplot
+from .utils import saveplot
 
 # Backward compatibility
 from .icbc import (

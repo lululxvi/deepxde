@@ -7,13 +7,17 @@ class Triple(Data):
 
     The couple of the first two elements are the input, and the third element is the
     output. This dataset can be used with the network ``DeepONet`` for operator
-    learning. Reference: `Lu et al. Learning nonlinear operators via DeepONet based on
-    the universal approximation theorem of operators. Nat Mach Intell, 2021.
-    <https://doi.org/10.1038/s42256-021-00302-5>`_
+    learning.
 
     Args:
         X_train: A tuple of two NumPy arrays.
         y_train: A NumPy array.
+
+    References:
+        `L. Lu, P. Jin, G. Pang, Z. Zhang, & G. E. Karniadakis. Learning nonlinear
+        operators via DeepONet based on the universal approximation theorem of
+        operators. Nature Machine Intelligence, 3, 218--229, 2021
+        <https://doi.org/10.1038/s42256-021-00302-5>`_.
     """
 
     def __init__(self, X_train, y_train, X_test, y_test):

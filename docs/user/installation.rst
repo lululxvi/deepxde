@@ -8,7 +8,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 
 - TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0
 - TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
-- PyTorch: `PyTorch <https://pytorch.org/>`_
+- PyTorch: `PyTorch <https://pytorch.org/>`_>=1.9.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
 
 Then, you can install DeepXDE itself.
@@ -109,7 +109,7 @@ Export ``DDEBACKEND`` as ``tensorflow`` to specify TensorFlow 2.x backend. The r
 PyTorch backend
 ```````````````
 
-Export ``DDEBACKEND`` as ``pytorch`` to specify PyTorch backend. In addition, if GPU is available, DeepXDE will set  the default tensor type to cuda, so that all the tensors will be created on GPU as default:
+Export ``DDEBACKEND`` as ``pytorch`` to specify PyTorch backend. The required PyTorch version is 1.9.0 or later. In addition, if GPU is available, DeepXDE will set  the default tensor type to cuda, so that all the tensors will be created on GPU as default:
 
 .. code:: python
 

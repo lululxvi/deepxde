@@ -1,3 +1,5 @@
+__all__ = ["Scheme", "FPDE", "TimeFPDE"]
+
 import math
 
 import numpy as np
@@ -18,6 +20,11 @@ class Scheme:
         meshtype (string): "static" or "dynamic".
         resolution: A list of integer. The first number is the number of quadrature points in the first direction, ...,
             and the last number is the GL parameter.
+
+    References:
+        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
+        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
+        <https://doi.org/10.1137/18M1229845>`_.
     """
 
     def __init__(self, meshtype, resolution):
@@ -50,6 +57,11 @@ class FPDE(PDE):
     This solver does not consider C(alpha, D) in the fractional Laplacian,
     and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
     D_theta^alpha is approximated by Grunwald-Letnikov formula.
+
+    References:
+        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
+        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
+        <https://doi.org/10.1137/18M1229845>`_.
     """
 
     def __init__(
@@ -190,6 +202,11 @@ class TimeFPDE(FPDE):
     This solver does not consider C(alpha, D) in the fractional Laplacian,
     and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
     D_theta^alpha is approximated by Grunwald-Letnikov formula.
+
+    References:
+        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
+        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
+        <https://doi.org/10.1137/18M1229845>`_.
     """
 
     def __init__(

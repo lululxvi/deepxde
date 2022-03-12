@@ -85,9 +85,10 @@ class PODDeepONet(NN):
             network. If ``None``, then only use POD basis as the trunk net.
 
     References:
-        L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. E. Karniadakis.
-            `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://arxiv.org/abs/2111.05512>`_.
-            arXiv preprint arXiv:2111.05512, 2021.
+        `L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. E. Karniadakis. A
+        comprehensive and fair comparison of two neural operators (with practical
+        extensions) based on FAIR data. arXiv preprint arXiv:2111.05512, 2021
+        <https://arxiv.org/abs/2111.05512>`_.
     """
 
     def __init__(

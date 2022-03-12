@@ -251,7 +251,10 @@ class Timer(Callback):
 class DropoutUncertainty(Callback):
     """Uncertainty estimation via MC dropout.
 
-    Reference: https://arxiv.org/abs/1506.02142
+    References:
+        `Y. Gal, & Z. Ghahramani. Dropout as a Bayesian approximation: Representing
+        model uncertainty in deep learning. International Conference on Machine
+        Learning, 2016 <https://arxiv.org/abs/1506.02142>`_.
 
     Warning:
         This cannot be used together with other techniques that have different behaviors

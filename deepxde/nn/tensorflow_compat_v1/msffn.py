@@ -6,14 +6,15 @@ from ...backend import tf
 class MsFFN(FNN):
     """Multi-scale fourier feature networks.
 
-    References:
-
-    - https://arxiv.org/abs/2012.10047
-    - https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
-
     Args:
         sigmas: List of standard deviation of the distribution of fourier feature
             embeddings.
+
+    References:
+        `S. Wang, H. Wang, & P. Perdikaris. On the eigenvector bias of Fourier feature
+        networks: From regression to solving multi-scale PDEs with physics-informed
+        neural networks. Computer Methods in Applied Mechanics and Engineering, 384,
+        113938, 2021 <https://doi.org/10.1016/j.cma.2021.113938>`_.
     """
 
     def __init__(
@@ -128,9 +129,10 @@ class STMsFFN(MsFFN):
     """Spatio-temporal multi-scale fourier feature networks.
 
     References:
-
-    - https://arxiv.org/abs/2012.10047
-    - https://github.com/PredictiveIntelligenceLab/MultiscalePINNs
+        `S. Wang, H. Wang, & P. Perdikaris. On the eigenvector bias of Fourier feature
+        networks: From regression to solving multi-scale PDEs with physics-informed
+        neural networks. Computer Methods in Applied Mechanics and Engineering, 384,
+        113938, 2021 <https://doi.org/10.1016/j.cma.2021.113938>`_.
     """
 
     def __init__(

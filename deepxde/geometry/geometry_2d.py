@@ -1,3 +1,5 @@
+__all__ = ["Disk", "Rectangle", "Triangle", "Polygon"]
+
 import numpy as np
 from scipy import spatial
 
