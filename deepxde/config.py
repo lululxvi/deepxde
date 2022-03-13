@@ -9,6 +9,10 @@ from .real import Real
 
 real = Real(32)
 
+if backend_name == "jax":
+    ii = np.iinfo(int)
+    jax_random_seed = random.randint(ii.min, ii.max)
+
 
 def default_float():
     """Returns the default float type, as a string."""
@@ -51,3 +55,6 @@ def set_random_seed(seed):
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
+    elif backend_name == "jax":
+        global jax_random_seed
+        jax_random_seed = seed

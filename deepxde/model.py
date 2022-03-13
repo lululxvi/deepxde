@@ -271,8 +271,7 @@ class Model:
         """jax"""
         # initialize network's parameters
         # TODO: Init should move to network module, because we don't know how to init here, e.g., DeepONet has two inputs.
-        #       random seed should use a random number, or be specified by users
-        key = jax.random.PRNGKey(seed=0)
+        key = jax.random.PRNGKey(config.jax_random_seed)
         x = jax.numpy.empty(shape=[1, self.net.layer_sizes[0]])
         self.net.params = self.net.init(key, x)
 
