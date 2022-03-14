@@ -62,7 +62,7 @@ class Jacobian:
 
                 def vgrad(x):
                     _, vjp_fn = jax.vjp(self.ys[1], x)
-                    return vjp_fn(v=jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1))[0]
+                    return vjp_fn(jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1))[0]
 
                 self.J[i] = (vgrad(self.xs), vgrad)
 
