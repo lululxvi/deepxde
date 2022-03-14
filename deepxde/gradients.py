@@ -49,7 +49,9 @@ class Jacobian:
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "jax":
-                # Here, jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
+                # Here, we follow "Vector-valued gradients with VJPs" section in
+                # https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
+                # and jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
                 # A similiar choice is to use jax.vjp to compute derivatives on single datapoint and then use
                 # jax.vmap to vectorize the computation for the whole batch.
                 # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned
