@@ -279,12 +279,13 @@ class Model:
             with paddle.no_grad():
                 return self.net(paddle.to_tensor(inputs))
 
-        def outputs_losses(training, inputs, targets):
+        def outputs_losses(training, inputs, targets, auxiliary_vars):
             if training:
                 self.net.train()
             else:
                 self.net.eval()
             self.net.inputs = paddle.to_tensor(inputs, stop_gradient=False)
+            self.net.auxiliary_vars = paddle.to_tensor(auxiliary_vars, stop_gradient=False)
             outputs_ = self.net(self.net.inputs)
             # Data losses
             if targets is not None:
@@ -310,8 +311,8 @@ class Model:
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
-        def train_step(inputs, targets):
-            losses = outputs_losses(True, inputs, targets)[1]
+        def train_step(inputs, targets, auxiliary_vars):
+            losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
             self.opt.step()
@@ -401,7 +402,7 @@ class Model:
             # TODO: auxiliary_vars
             outs = self.outputs_losses(training, inputs, targets)
         elif backend_name == "paddle":
-            outs = self.outputs_losses(training, inputs, targets)
+            outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -417,7 +418,7 @@ class Model:
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
         elif backend_name == "paddle":
-            self.train_step(inputs, targets)
+            self.train_step(inputs, targets, auxiliary_vars)
             
     @utils.timing
     def train(
