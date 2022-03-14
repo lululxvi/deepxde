@@ -50,15 +50,19 @@ class Jacobian:
                 )[0]
             elif backend_name == "jax":
                 # Here, jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
-                # Another option is to use jax.vjp to compute derivatives on single datapoint and then use
+                # A similiar choice is to use jax.vjp to compute derivatives on single datapoint and then use
                 # jax.vmap to vectorize the computation for the whole batch.
                 # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned
                 # out to be slightly faster than, if not equal to, jax.vjp+jax.vmap.
-                v = jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1)
+                # Other options are jax.jacrev+jax.vmap and jax.jacfwd+jax.vmap, which could be used to compute
+                # the full Jacobian matrix efficiently. In other words, instead of current lazy evaluation, which
+                # only computes and stores the i-th row of Jacobian matrix when needed, it computes and stores the
+                # whole Jacobian matrix on first called. This method may not be sufficient, if the considered PDE
+                # is not using most of elements in Jacobian matrix, which, however, is not common.
 
                 def vgrad(x):
                     _, vjp_fn = jax.vjp(self.ys[1], x)
-                    return vjp_fn(v)[0]
+                    return vjp_fn(v=jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1))[0]
 
                 self.J[i] = (vgrad(self.xs), vgrad)
 
