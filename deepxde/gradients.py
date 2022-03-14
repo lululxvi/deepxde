@@ -19,9 +19,9 @@ class Jacobian:
         self.xs = xs
 
         if backend_name == "jax":
-            # For backend jax, a tuple of a jax array and a callable is passed as one of 
-            # the arguments, since jax does not support computational graph explicitly. 
-            # The array is used to control the dimensions and the callable is used to 
+            # For backend jax, a tuple of a jax array and a callable is passed as one of
+            # the arguments, since jax does not support computational graph explicitly.
+            # The array is used to control the dimensions and the callable is used to
             # obtain the derivative function, which can be used to compute the derivatives.
             self.dim_y = ys[0].shape[1]
         else:
@@ -50,23 +50,34 @@ class Jacobian:
                 )[0]
             elif backend_name == "jax":
                 # Here, jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
-                # Another option is to use jax.vjp to compute derivatives on single datapoint and then use 
+                # Another option is to use jax.vjp to compute derivatives on single datapoint and then use
                 # jax.vmap to vectorize the computation for the whole batch.
-                # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned 
+                # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned
                 # out to be slightly faster than, if not equal to, jax.vjp+jax.vmap.
                 v = jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1)
+
                 def vgrad(x):
                     _, vjp_fn = jax.vjp(self.ys[1], x)
                     return vjp_fn(v)[0]
+
                 self.J[i] = (vgrad(self.xs), vgrad)
-                
+
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
-            return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
+            return (
+                self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
+            )
         if backend_name == "jax":
-            # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that 
+            # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that
             # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
             # e.g. Hessian.
-            return self.J[i] if j is None or self.dim_x == 1 else (self.J[i][0][:, j : j + 1], lambda x: self.J[i][1](x)[:, j : j+1])
+            return (
+                self.J[i]
+                if j is None or self.dim_x == 1
+                else (
+                    self.J[i][0][:, j : j + 1],
+                    lambda x: self.J[i][1](x)[:, j : j + 1],
+                )
+            )
 
 
 class Jacobians:
