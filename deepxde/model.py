@@ -285,7 +285,8 @@ class Model:
             else:
                 self.net.eval()
             self.net.inputs = paddle.to_tensor(inputs, stop_gradient=False)
-            self.net.auxiliary_vars = paddle.to_tensor(auxiliary_vars, stop_gradient=False)
+            if auxiliary_vars is not None:
+                self.net.auxiliary_vars = paddle.to_tensor(auxiliary_vars, stop_gradient=False)
             outputs_ = self.net(self.net.inputs)
             # Data losses
             if targets is not None:
