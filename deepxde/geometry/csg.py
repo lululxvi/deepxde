@@ -136,7 +136,7 @@ class CSGDifference(geometry.Geometry):
         )
 
     def random_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
             tmp = self.geom1.random_points(n, random=random)
@@ -149,7 +149,7 @@ class CSGDifference(geometry.Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
 
@@ -225,7 +225,7 @@ class CSGIntersection(geometry.Geometry):
         )
 
     def random_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
             tmp = self.geom1.random_points(n, random=random)
@@ -238,7 +238,7 @@ class CSGIntersection(geometry.Geometry):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
-        x = np.empty(shape=(n, self.dim))
+        x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
 
