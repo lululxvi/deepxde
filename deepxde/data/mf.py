@@ -109,7 +109,9 @@ class MfDataSet(Data):
 
     def losses(self, targets, outputs, loss, model):
         n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
-        loss_lo = loss(targets[0][:n], outputs[0][:n])
+        loss_lo = tf.cond(
+            n > 0, lambda: loss(targets[0][:n], outputs[0][:n]), lambda: 0.0
+        )
         loss_hi = loss(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
