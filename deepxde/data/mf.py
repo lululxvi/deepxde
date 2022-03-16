@@ -1,9 +1,8 @@
 import numpy as np
-from sklearn import preprocessing
 
 from .data import Data
 from ..backend import tf
-from ..utils import run_if_any_none
+from ..utils import run_if_any_none, standardize
 
 
 class MfFunc(Data):
@@ -81,6 +80,7 @@ class MfDataSet(Data):
         fname_hi_test=None,
         col_x=None,
         col_y=None,
+        standardize=False,
     ):
         if X_lo_train is not None:
             self.X_lo_train = X_lo_train
@@ -104,8 +104,10 @@ class MfDataSet(Data):
 
         self.X_train = None
         self.y_train = None
+
         self.scaler_x = None
-        self._standardize()
+        if standardize:
+            self._standardize()
 
     def losses(self, targets, outputs, loss, model):
         n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
@@ -129,7 +131,7 @@ class MfDataSet(Data):
         return self.X_hi_test, [self.y_hi_test, self.y_hi_test]
 
     def _standardize(self):
-        self.scaler_x = preprocessing.StandardScaler(with_mean=True, with_std=True)
-        self.X_lo_train = self.scaler_x.fit_transform(self.X_lo_train)
-        self.X_hi_train = self.scaler_x.transform(self.X_hi_train)
+        self.scaler_x, self.X_lo_train, self.X_hi_train = standardize(
+            self.X_lo_train, self.X_hi_train
+        )
         self.X_hi_test = self.scaler_x.transform(self.X_hi_test)
