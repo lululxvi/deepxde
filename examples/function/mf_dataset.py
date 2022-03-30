@@ -12,6 +12,7 @@ data = dde.data.MfDataSet(
     fname_hi_test=fname_hi_test,
     col_x=(0,),
     col_y=(1,),
+    standardize=True,
 )
 
 activation = "tanh"
