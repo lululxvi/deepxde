@@ -11,7 +11,7 @@ DeepXDE
         - NN-arbitrary polynomial chaos (NN-aPC): solving forward/inverse stochastic PDEs (sPDEs) [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.07.048>`_]
         - PINN with hard constraints (hPINN): solving inverse design/topology optimization [`SIAM J. Sci. Comput. <https://doi.org/10.1137/21M1397908>`_]
     - improving PINN accuracy
-        - gradient-enhanced PINN (gPINN) [`arXiv <https://arxiv.org/abs/2111.02801>`_]
+        - gradient-enhanced PINN (gPINN) [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114823>`_]
         - PINN with multi-scale Fourier features [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2021.113938>`_]
     - `Slides <https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_, `Video in Chinese <http://tianyuan.xmu.edu.cn/cn/minicourses/637.html>`_
 - deep operator network (DeepONet)
