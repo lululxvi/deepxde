@@ -1,6 +1,6 @@
 __all__ = ["clear", "hessian", "jacobian"]
 
-from .backend import backend_name, tf, torch, paddle
+from .backend import backend_name, tf, torch, jax, paddle
 
 
 class Jacobian:
@@ -18,7 +18,14 @@ class Jacobian:
         self.ys = ys
         self.xs = xs
 
-        self.dim_y = ys.shape[1]
+        if backend_name == "jax":
+            # For backend jax, a tuple of a jax array and a callable is passed as one of
+            # the arguments, since jax does not support computational graph explicitly.
+            # The array is used to control the dimensions and the callable is used to
+            # obtain the derivative function, which can be used to compute the derivatives.
+            self.dim_y = ys[0].shape[1]
+        else:
+            self.dim_y = ys.shape[1]
         self.dim_x = xs.shape[1]
         self.J = {}
 
@@ -32,17 +39,53 @@ class Jacobian:
             raise ValueError("j={} is not valid.".format(j))
         # Compute J[i]
         if i not in self.J:
-            y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
             if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = tf.gradients(y, self.xs)[0]
             elif backend_name == "pytorch":
                 # TODO: retain_graph=True has memory leak?
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = torch.autograd.grad(
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "paddle":
-                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True, retain_graph=True)[0]                
-        return self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
+                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True, retain_graph=True)[0]
+            elif backend_name == "jax":
+                # Here, we follow "Vector-valued gradients with VJPs" section in
+                # https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
+                # and jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
+                # A similiar choice is to use jax.vjp to compute derivatives on single datapoint and then use
+                # jax.vmap to vectorize the computation for the whole batch.
+                # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned
+                # out to be slightly faster than, if not equal to, jax.vjp+jax.vmap.
+                # Other options are jax.jacrev+jax.vmap and jax.jacfwd+jax.vmap, which could be used to compute
+                # the full Jacobian matrix efficiently. In other words, instead of current lazy evaluation, which
+                # only computes and stores the i-th row of Jacobian matrix when needed, it computes and stores the
+                # whole Jacobian matrix on first called. This method may not be sufficient, if the considered PDE
+                # is not using most of elements in Jacobian matrix, which, however, is not common.
+
+                def vgrad(x):
+                    _, vjp_fn = jax.vjp(self.ys[1], x)
+                    return vjp_fn(jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1))[0]
+
+                self.J[i] = (vgrad(self.xs), vgrad)
+
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+            return (
+                self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
+            )
+        if backend_name == "jax":
+            # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that
+            # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
+            # e.g. Hessian.
+            return (
+                self.J[i]
+                if j is None or self.dim_x == 1
+                else (
+                    self.J[i][0][:, j : j + 1],
+                    lambda x: self.J[i][1](x)[:, j : j + 1],
+                )
+            )
 
 
 class Jacobians:
@@ -105,6 +148,8 @@ class Jacobians:
             key = (ys, xs)
         elif backend_name == "paddle":
             key = (ys, xs)
+        elif backend_name == "jax":
+            key = (id(ys[0]), id(xs))
         if key not in self.Js:
             self.Js[key] = Jacobian(ys, xs)
         return self.Js[key](i, j)
