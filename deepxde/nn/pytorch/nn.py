@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 
 
@@ -21,4 +22,9 @@ class NN(torch.nn.Module):
         """Apply a transform to the network outputs, i.e.,
         outputs = transform(inputs, outputs).
         """
-        self._output_transform = transform
+        self._output_transform = ansform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN.
+        """
+        return np.sum(v.numel() for v in self.parameters())

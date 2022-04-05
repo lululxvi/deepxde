@@ -1,3 +1,5 @@
+import numpy as np
+
 from ... import config
 from ...backend import tf
 from ...utils import make_dict, timing
@@ -70,6 +72,13 @@ class NN:
         outputs = transform(inputs, outputs).
         """
         self._output_transform = transform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN.
+        """
+        return np.sum(
+            [np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]
+        )
 
     @timing
     def build(self):

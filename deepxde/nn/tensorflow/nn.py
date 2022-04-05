@@ -1,3 +1,5 @@
+import numpy as np
+
 from ...backend import tf
 
 
@@ -42,3 +44,10 @@ class NN(tf.keras.Model):
         outputs = transform(inputs, outputs).
         """
         self._output_transform = transform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN.
+        """
+        return np.sum(
+            [np.prod(v.get_shape().as_list()) for v in self.trainable_variables]
+        )
