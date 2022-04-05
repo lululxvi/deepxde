@@ -75,6 +75,7 @@ class NN:
 
     def num_trainable_parameters(self):
         """Evaluate the number of trainable parameters for the NN. 
+        
         Notice that the function returns the number of trainable parameters
         for the whole tf.Session, so that it will not be correct if several 
         nets are defined within the same tf.Session.
