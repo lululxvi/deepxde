@@ -53,6 +53,8 @@ class NN(tf.keras.Model):
         )
         if result == 0:
             print(
-                f"Warning: The net has to be trained first. You need to create a model and run model.compile() and model.train() in order to initialize the trainable_variables for the net."
+                f"Warning: The net has to be trained first. \
+                You need to create a model and run model.compile() and model.train() \
+                in order to initialize the trainable_variables for the net."
             )
         return result
