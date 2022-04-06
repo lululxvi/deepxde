@@ -73,7 +73,6 @@ def get_preferred_backend():
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
-
     if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"]:
         return backend_name
     print(

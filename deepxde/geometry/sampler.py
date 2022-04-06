@@ -4,6 +4,7 @@ import numpy as np
 import skopt
 
 from .. import config
+from .. import seed
 
 
 def sample(n_samples, dimension, sampler="pseudo"):
@@ -25,7 +26,7 @@ def sample(n_samples, dimension, sampler="pseudo"):
 
 def pseudo(n_samples, dimension):
     """Pseudo random."""
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed)
     return rng.random(size=(n_samples, dimension), dtype=config.real(np))
 
 
