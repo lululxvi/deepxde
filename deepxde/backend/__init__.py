@@ -67,6 +67,8 @@ def get_preferred_backend():
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
     if "DDEBACKEND" in os.environ:
         backend_name = os.getenv("DDEBACKEND")
+    elif "DDE_BACKEND" in os.environ:
+        backend_name = os.getenv("DDE_BACKEND")
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
