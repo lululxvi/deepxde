@@ -29,7 +29,7 @@ if "DDE_SEED" in os.environ:
     try:
         seed = int(seed)
         set_random_seed(seed)
-    except:
+    except ValueError:
         seed = None
     print("Using seed: %s\n" % seed, file=sys.stderr, flush=True)
 
