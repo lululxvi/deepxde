@@ -67,7 +67,7 @@ PINN
 - | **Q**: More details about DeepXDE source code, or I want to modify DeepXDE.
   | **A**: `#35`_, `#39`_, `#66`_, `#69`_, `#91`_, `#99`_, `#131`_, `#163`_, `#175`_, `#202`_, `#357`_
 - | **Q**: Examples collected from users.
-  | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_, `Shallow water equations <https://github.com/lululxvi/deepxde/issues/247>`_
+  | **A**: `Lotka–Volterra <https://github.com/lululxvi/deepxde/issues/85>`_, `Potential flow around a cylinder <https://github.com/lululxvi/deepxde/issues/49>`_, `Laminar Incompressible flow passing a step <https://github.com/lululxvi/deepxde/issues/80>`_, `Shallow water equations <https://github.com/lululxvi/deepxde/issues/247>`_, `2D time-dependent heat equation <https://github.com/lululxvi/deepxde/issues/61>`_
 
 Multi-fidelity NN
 -----------------
