@@ -515,25 +515,26 @@ def is_rectangle(vertices):
 
 
 def is_on_line_segment(P0, P1, P2):
-    """
-    Test if a point is on a line segment.
+    """Test if a point is between two other points on a line segment.
 
     Args:
         P0: One point in the line.
         P1: One point in the line.
         P2: The point to be tested.
+
+    References:
+        https://stackoverflow.com/questions/328107
     """
     v01 = P1 - P0
     v02 = P2 - P0
     v12 = P2 - P1
     return (
-        (
-            # check that P2 is almost on the line P10 P1
-            np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0)
-            # check that projection of P2 to line is between P0 and P21
-            and v01 @ v02 >= 0
-            and v01 @ v12 <= 0
-        )
-        or np.isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
-        or np.isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
+        # check that P2 is almost on the line P0 P1
+        np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0, atol=1e-6)
+        # check that projection of P2 to line is between P0 and P1
+        and v01 @ v02 >= 0
+        and v01 @ v12 <= 0
     )
+    # Not between P0 and P1, but close to P0 or P1
+    # or np.isclose(np.linalg.norm(v02), 0, atol=1e-6)  # check whether P2 is close to P0
+    # or np.isclose(np.linalg.norm(v12), 0, atol=1e-6)  # check whether P2 is close to P1
