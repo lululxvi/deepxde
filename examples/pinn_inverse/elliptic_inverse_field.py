@@ -19,7 +19,7 @@ def pde(x, y):
 
 def sol(x):
     # solution is u(x) = sin(pi*x), q(x) = -pi^2 * sin(pi*x)
-    return np.sin(np.pi * x ** 2)
+    return np.sin(np.pi * x)
 
 
 geom = dde.geometry.Interval(-1, 1)

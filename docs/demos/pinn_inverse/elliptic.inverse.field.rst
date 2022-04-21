@@ -1,8 +1,8 @@
 Inverse problem for the Poisson equation with unknown forcing field
-=====================================
+===================================================================
  
 Problem setup
---------------
+-------------
  
 We will solve
  
@@ -60,7 +60,7 @@ Next, we consider the boundary conditions. First, let us define the function ``s
 .. code-block:: python
  
     def sol(x):
-        return np.sin(np.pi * x ** 2)
+        return np.sin(np.pi * x)
  
 Notice that, as required, ``sol(-1) = sol(1) = 0``. Next, we define the boundary conditions using the built-in ``dde.DirichletBC`` function.
  
@@ -113,7 +113,7 @@ We then train the model for 20000 iterations:
     losshistory, train_state = model.train(epochs=20000)
  
 Complete code
---------------
+-------------
  
 .. literalinclude:: ../../../examples/pinn_inverse/elliptic_inverse_field.py
   :language: python
