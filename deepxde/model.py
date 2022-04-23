@@ -287,7 +287,7 @@ class Model:
             # TODO: add auxiliary vars, regularization loss, weighted losses
             _outputs = self.net.apply(params, inputs, training=training)
             # Data losses
-            # TODO: support passing auxiliary arguments to data.losses, for all data types. Note 
+            # TODO: support passing auxiliary arguments to data.losses, for all data types. Note
             # that this is particularly useful for jax backend, and is not the same as auxiliary_vars.
             # Possible auxiliary arguments are inputs, masks indicating whether current inputs are
             # at boundary/initial conditions.
@@ -295,11 +295,13 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             return _outputs, jax.numpy.stack(losses)
-        
+
         @jax.jit
         def inner_train_step(params, opt_state, inputs, targets):
             def loss_function(params):
-                return jax.numpy.sum(inner_outputs_losses(params, True, inputs, targets)[1], axis=0).reshape([])
+                return jax.numpy.sum(
+                    inner_outputs_losses(params, True, inputs, targets)[1], axis=0
+                ).reshape([])
 
             grad_fn = jax.grad(
                 loss_function
@@ -313,8 +315,12 @@ class Model:
             return inner_outputs(self.net.params, training, inputs)
 
         def outputs_losses(training, inputs, targets):
-            _outputs, _losses = inner_outputs_losses(self.net.params, training, inputs, targets)
-            return _outputs, jax.numpy.sum(_losses, axis=0) # sum over the first axis, because here _losses is a batch
+            _outputs, _losses = inner_outputs_losses(
+                self.net.params, training, inputs, targets
+            )
+            return _outputs, jax.numpy.sum(
+                _losses, axis=0
+            )  # sum over the first axis, because here _losses is a batch
 
         def train_step(inputs, targets):
             self.net.params, self.opt_state = inner_train_step(
