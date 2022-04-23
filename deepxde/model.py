@@ -1,5 +1,6 @@
 __all__ = ["Model", "TrainState", "LossHistory"]
 
+import functools
 import pickle
 from collections import OrderedDict
 
@@ -276,24 +277,31 @@ class Model:
         self.net.params = self.net.init(key, x)
 
         @jax.jit
+        @functools.partial(jax.vmap, in_axes=(None, None, 0), out_axes=0)
         def inner_outputs(params, training, inputs):
-            return self.net.apply(params, training, inputs)
+            return self.net.apply(params, inputs, training=training)
 
         @jax.jit
+        @functools.partial(jax.vmap, in_axes=(None, None, 0, 0), out_axes=(0, 0))
         def inner_outputs_losses(params, training, inputs, targets):
             # TODO: add auxiliary vars, regularization loss, weighted losses
-            outputs_ = self.net.apply(params, inputs, training=training)
+            _outputs = self.net.apply(params, inputs, training=training)
             # Data losses
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            # TODO: support passing auxiliary arguments to data.losses, for all data types. Note
+            # that this is particularly useful for jax backend, and is not the same as auxiliary_vars.
+            # Possible auxiliary arguments are inputs, masks indicating whether current inputs are
+            # at boundary/initial conditions.
+            losses = self.data.losses(targets, _outputs, loss_fn, self, aux=None)
             if not isinstance(losses, list):
                 losses = [losses]
-            return outputs_, losses
+            return _outputs, jax.numpy.stack(losses)
 
         @jax.jit
         def inner_train_step(params, opt_state, inputs, targets):
             def loss_function(params):
-                losses = inner_outputs_losses(params, True, inputs, targets)[1]
-                return jax.numpy.sum(jax.numpy.stack(losses))
+                return jax.numpy.sum(
+                    inner_outputs_losses(params, True, inputs, targets)[1], axis=0
+                ).reshape([])
 
             grad_fn = jax.grad(
                 loss_function
@@ -307,7 +315,12 @@ class Model:
             return inner_outputs(self.net.params, training, inputs)
 
         def outputs_losses(training, inputs, targets):
-            return inner_outputs_losses(self.net.params, training, inputs, targets)
+            _outputs, _losses = inner_outputs_losses(
+                self.net.params, training, inputs, targets
+            )
+            return _outputs, jax.numpy.sum(
+                _losses, axis=0
+            )  # sum over the first axis, because here _losses is a batch
 
         def train_step(inputs, targets):
             self.net.params, self.opt_state = inner_train_step(

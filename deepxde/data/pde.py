@@ -122,7 +122,7 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss, model, aux=None):
         f = []
         if self.pde is not None:
             if get_num_args(self.pde) == 2:
