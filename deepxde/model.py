@@ -1,7 +1,7 @@
 __all__ = ["Model", "TrainState", "LossHistory"]
 
-import pickle
 import functools
+import pickle
 from collections import OrderedDict
 
 import numpy as np
@@ -279,7 +279,7 @@ class Model:
         @jax.jit
         @functools.partial(jax.vmap, in_axes=(None, None, 0), out_axes=0)
         def inner_outputs(params, training, inputs):
-            return self.net.apply(params, training, inputs)
+            return self.net.apply(params, inputs, training=training)
 
         @jax.jit
         @functools.partial(jax.vmap, in_axes=(None, None, 0, 0), out_axes=(0, 0))
