@@ -1,4 +1,4 @@
-import sys 
+import sys
 import os
 import random
 
@@ -40,7 +40,8 @@ def set_default_float(value):
         real.set_float64()
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         tf.keras.backend.set_floatx(value)
-    
+
+
 def set_random_seed(seed):
     """Set the global random seeds of random, numpy, and backend.
 
