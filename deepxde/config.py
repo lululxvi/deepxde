@@ -7,9 +7,7 @@ import numpy as np
 from .backend import backend_name, tf, torch
 from .real import Real
 
-thismod = sys.modules[__name__]
-setattr(thismod, "random_seed", None)
-
+random_seed = None
 real = Real(32)
 
 if backend_name == "jax":
