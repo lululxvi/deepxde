@@ -59,5 +59,5 @@ def set_random_seed(seed):
     elif backend_name == "jax":
         global jax_random_seed
         jax_random_seed = seed
-    thismod = sys.modules[__name__]
-    setattr(thismod, "random_seed", seed)
+    global random_seed
+    random_seed = seed
