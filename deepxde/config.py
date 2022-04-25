@@ -1,3 +1,4 @@
+import sys 
 import os
 import random
 
@@ -6,6 +7,8 @@ import numpy as np
 from .backend import backend_name, tf, torch
 from .real import Real
 
+thismod = sys.modules[__name__]
+setattr(thismod, "random_seed", None)
 
 real = Real(32)
 
@@ -37,8 +40,7 @@ def set_default_float(value):
         real.set_float64()
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         tf.keras.backend.set_floatx(value)
-
-
+    
 def set_random_seed(seed):
     """Set the global random seeds of random, numpy, and backend.
 
@@ -58,3 +60,5 @@ def set_random_seed(seed):
     elif backend_name == "jax":
         global jax_random_seed
         jax_random_seed = seed
+    thismod = sys.modules[__name__]
+    setattr(thismod, "random_seed", seed)
