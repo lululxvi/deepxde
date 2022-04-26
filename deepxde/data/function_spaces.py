@@ -36,7 +36,7 @@ class FunctionSpace(abc.ABC):
             size (int): The number of random functions to generate.
 
         Returns:
-            features: A NumPy array of shape (`size`, n_features).
+            A NumPy array of shape (`size`, n_features).
         """
 
     @abc.abstractmethod
@@ -48,7 +48,7 @@ class FunctionSpace(abc.ABC):
             x: The point to be evaluated.
 
         Returns:
-            value (float): The function value at `x`.
+            float: The function value at `x`.
         """
 
     @abc.abstractmethod
@@ -62,7 +62,7 @@ class FunctionSpace(abc.ABC):
                 evaluated.
 
         Returns:
-            values: A NumPy array of shape (n_functions, n_points). The values of
+            A NumPy array of shape (n_functions, n_points). The values of
             different functions at different points.
         """
 
@@ -284,7 +284,7 @@ class GRF2D(FunctionSpace):
 
 
 def wasserstein2(space1, space2):
-    """Compute 2-Wasserstein (W2) metric to measure the distance between two ``GRF``s."""
+    """Compute 2-Wasserstein (W2) metric to measure the distance between two ``GRF``."""
     return (
         np.trace(space1.K + space2.K - 2 * linalg.sqrtm(space1.K @ space2.K)) ** 0.5
         / space1.N ** 0.5
