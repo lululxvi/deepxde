@@ -81,17 +81,17 @@ class PowerSeries(FunctionSpace):
         self.N = N
         self.M = M
 
-    def random(self, n):
-        return 2 * self.M * np.random.rand(n, self.N) - self.M
+    def random(self, size):
+        return 2 * self.M * np.random.rand(size, self.N) - self.M
 
-    def eval_one(self, a, x):
-        return np.dot(a, x ** np.arange(self.N))
+    def eval_one(self, feature, x):
+        return np.dot(feature, x ** np.arange(self.N))
 
-    def eval_batch(self, a, sensors):
-        mat = np.ones((self.N, len(sensors)))
+    def eval_batch(self, features, xs):
+        mat = np.ones((self.N, len(xs)))
         for i in range(1, self.N):
-            mat[i] = np.ravel(sensors ** i)
-        return np.dot(a, mat)
+            mat[i] = np.ravel(xs ** i)
+        return np.dot(features, mat)
 
 
 class Chebyshev(FunctionSpace):
@@ -110,14 +110,14 @@ class Chebyshev(FunctionSpace):
         self.N = N
         self.M = M
 
-    def random(self, n):
-        return 2 * self.M * np.random.rand(n, self.N) - self.M
+    def random(self, size):
+        return 2 * self.M * np.random.rand(size, self.N) - self.M
 
-    def eval_one(self, a, x):
-        return np.polynomial.chebyshev.chebval(2 * x - 1, a)
+    def eval_one(self, feature, x):
+        return np.polynomial.chebyshev.chebval(2 * x - 1, feature)
 
-    def eval_batch(self, a, sensors):
-        return np.polynomial.chebyshev.chebval(2 * np.ravel(sensors) - 1, a.T)
+    def eval_batch(self, features, xs):
+        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T)
 
 
 class GRF(FunctionSpace):
@@ -147,26 +147,26 @@ class GRF(FunctionSpace):
         self.K = K(self.x)
         self.L = np.linalg.cholesky(self.K + 1e-13 * np.eye(self.N))
 
-    def random(self, n):
-        u = np.random.randn(self.N, n)
+    def random(self, size):
+        u = np.random.randn(self.N, size)
         return np.dot(self.L, u).T
 
-    def eval_one(self, y, x):
+    def eval_one(self, feature, x):
         if self.interp == "linear":
-            return np.interp(x, np.ravel(self.x), y)
+            return np.interp(x, np.ravel(self.x), feature)
         f = interpolate.interp1d(
-            np.ravel(self.x), y, kind=self.interp, copy=False, assume_sorted=True
+            np.ravel(self.x), feature, kind=self.interp, copy=False, assume_sorted=True
         )
         return f(x)
 
-    def eval_batch(self, ys, sensors):
+    def eval_batch(self, features, xs):
         if self.interp == "linear":
-            return np.vstack([np.interp(sensors, np.ravel(self.x), y).T for y in ys])
+            return np.vstack([np.interp(xs, np.ravel(self.x), y).T for y in features])
         res = map(
             lambda y: interpolate.interp1d(
                 np.ravel(self.x), y, kind=self.interp, copy=False, assume_sorted=True
-            )(sensors).T,
-            ys,
+            )(xs).T,
+            features,
         )
         return np.vstack(list(res))
 
@@ -210,16 +210,16 @@ class GRF_KL(FunctionSpace):
         """Evaluate the eigenfunctions at a list of points `sensors`."""
         return np.array([np.ravel(f(sensors)) for f in self.eigfun])
 
-    def random(self, n):
-        return np.random.randn(n, self.num_eig)
+    def random(self, size):
+        return np.random.randn(size, self.num_eig)
 
-    def eval_one(self, y, x):
+    def eval_one(self, feature, x):
         eigfun = [f(x) for f in self.eigfun]
-        return np.sum(eigfun * y)
+        return np.sum(eigfun * feature)
 
-    def eval_batch(self, ys, sensors):
-        eigfun = np.array([np.ravel(f(sensors)) for f in self.eigfun])
-        return np.dot(ys, eigfun)
+    def eval_batch(self, features, xs):
+        eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun])
+        return np.dot(features, eigfun)
 
 
 class GRF2D(FunctionSpace):
@@ -268,20 +268,18 @@ class GRF2D(FunctionSpace):
         self.K = K(self.X)
         self.L = np.linalg.cholesky(self.K + 1e-12 * np.eye(self.N ** 2))
 
-    def random(self, n):
-        u = np.random.randn(self.N ** 2, n)
+    def random(self, size):
+        u = np.random.randn(self.N ** 2, size)
         return np.dot(self.L, u).T
 
-    def eval_one(self, y, x):
-        y = np.reshape(y, (self.N, self.N))
+    def eval_one(self, feature, x):
+        y = np.reshape(feature, (self.N, self.N))
         return interpolate.interpn((self.x, self.y), y, x, method=self.interp)[0]
 
-    def eval_batch(self, ys, sensors):
+    def eval_batch(self, features, xs):
         points = (self.x, self.y)
-        ys = np.reshape(ys, (-1, self.N, self.N))
-        res = map(
-            lambda y: interpolate.interpn(points, y, sensors, method=self.interp), ys
-        )
+        ys = np.reshape(features, (-1, self.N, self.N))
+        res = map(lambda y: interpolate.interpn(points, y, xs, method=self.interp), ys)
         return np.vstack(list(res))
 
 
