@@ -1,6 +1,7 @@
 __all__ = [
     "Chebyshev",
     "Constraint",
+    "Data",
     "DataSet",
     "FPDE",
     "Function",
@@ -23,6 +24,7 @@ __all__ = [
 ]
 
 from .constraint import Constraint
+from .data import Data
 from .dataset import DataSet
 from .fpde import FPDE, TimeFPDE
 from .function import Function
