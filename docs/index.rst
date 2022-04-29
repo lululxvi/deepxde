@@ -19,6 +19,7 @@ DeepXDE
     - DeepONet extensions, e.g., POD-DeepONet [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114778>`_]
     - MIONet: learning multiple-input operators [`arXiv <https://arxiv.org/abs/2202.06137>`_]
     - DeepM&Mnet: solving multiphysics and multiscale problems [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
+    - multifidelity DeepONet [`arXiv <https://arxiv.org/abs/2204.06684>`_]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://doi.org/10.1073/pnas.1922210117>`_]
 

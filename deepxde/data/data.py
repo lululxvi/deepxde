@@ -1,11 +1,8 @@
 import abc
 
 
-class Data:
+class Data(abc.ABC):
     """Data base class."""
-
-    def __init__(self):
-        pass
 
     @abc.abstractmethod
     def losses(self, targets, outputs, loss, model):
@@ -33,13 +30,10 @@ class Tuple(Data):
         self.test_y = test_y
 
     def losses(self, targets, outputs, loss, model):
-        """Return a list of losses, i.e., constraints."""
         return [loss(targets, outputs)]
 
     def train_next_batch(self, batch_size=None):
-        """Return a training dataset of the size `batch_size`."""
         return self.train_x, self.train_y
 
     def test(self):
-        """Return a test dataset."""
         return self.test_x, self.test_y

@@ -22,3 +22,8 @@ class NN(torch.nn.Module):
         outputs = transform(inputs, outputs).
         """
         self._output_transform = transform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN.
+        """
+        return sum(v.numel() for v in self.parameters() if v.requires_grad)

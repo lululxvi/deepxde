@@ -137,9 +137,16 @@ class OperatorBC(BC):
         geom: ``Geometry``.
         func: A function takes arguments (`inputs`, `outputs`, `X`)
             and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
-            `inputs` and `outputs` are the network input and output tensors, respectively;
-            `X` are the NumPy array of the `inputs`.
+            `inputs` and `outputs` are the network input and output tensors,
+            respectively; `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
+
+    Warning:
+        If you use `X` in `func`, then do not set ``num_test`` when you define
+        ``dde.data.PDE`` or ``dde.data.TimePDE``, otherwise DeepXDE would throw an
+        error. In this case, the training points will be used for testing, and this will
+        not affect the network training and training loss. This is a bug of DeepXDE,
+        which cannot be fixed in an easy way for all backends.
     """
 
     def __init__(self, geom, func, on_boundary):
@@ -152,10 +159,12 @@ class OperatorBC(BC):
 
 class PointSetBC:
     """Dirichlet boundary condition for a set of points.
+
     Compare the output (that associates with `points`) with `values` (target data).
 
     Args:
-        points: An array of points where the corresponding target values are known and used for training.
+        points: An array of points where the corresponding target values are known and
+            used for training.
         values: An array of values that gives the exact solution of the problem.
         component: The output component satisfying this BC.
     """
