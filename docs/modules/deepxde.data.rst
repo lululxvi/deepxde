@@ -89,6 +89,14 @@ deepxde.data.pde module
    :undoc-members:
    :show-inheritance:
 
+deepxde.data.pde\_operator module
+---------------------------------
+
+.. automodule:: deepxde.data.pde_operator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.data.quadruple module
 -----------------------------
 

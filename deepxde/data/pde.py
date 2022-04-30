@@ -24,9 +24,9 @@ class PDE(Data):
             `num_boundary` sampled points.
         exclusions: A Numpy array of points to be excluded for training.
         solution: The reference solution.
-        num_test: The number of points sampled inside the domain for testing. The testing
-            points on the boundary are the same set of points used for training. If
-            ``None``, then the training points will be used for testing.
+        num_test: The number of points sampled inside the domain for testing. The
+            testing points on the boundary are the same set of points used for training.
+            If ``None``, then the training points will be used for testing.
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs
             auxiliary variables.
 
@@ -53,19 +53,20 @@ class PDE(Data):
 
     Attributes:
         train_x_all: A Numpy array of all points for training. `train_x_all` is
-            unordered, and does not have duplication.
-        train_x: A Numpy array of the points fed into the network for training.
-            `train_x` is constructed from `train_x_all`, ordered from BCs to PDE, and
-            may have duplicate points.
+            unordered, and does not have duplication. If there is PDE, then
+            `train_x_all` is used as the training points of PDE.
         train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
             constructed from `train_x_all` at the first step of training, by default it
             won't be updated when `train_x_all` changes. To update `train_x_bc`, set it
             to `None` and call `bc_points`, and then update the loss function by
             ``model.compile()``.
         num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
+        train_x: A Numpy array of the points fed into the network for training.
+            `train_x` is ordered from BC points (`train_x_bc`) to PDE points
+            (`train_x_all`), and may have duplicate points.
+        train_aux_vars: Auxiliary variables that associate with `train_x`.
         test_x: A Numpy array of the points fed into the network for testing, ordered
             from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
-        train_aux_vars: Auxiliary variables that associate with `train_x`.
         test_aux_vars: Auxiliary variables that associate with `test_x`.
     """
 
