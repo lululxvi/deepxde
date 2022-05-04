@@ -41,12 +41,15 @@ class PDEOperator(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model):
-        f = self.pde.pde(model.net.inputs[1], outputs, model.net.inputs[2])
-        bcs_start = np.cumsum([0] + self.num_bcs)
-        error_f = f[bcs_start[-1] :]
+        f = []
+        if self.pde.pde is not None:
+            f = self.pde.pde(model.net.inputs[1], outputs, model.net.inputs[2])
+            if not isinstance(f, (list, tuple)):
+                f = [f]
 
-        # TODO Assume only 1 PDE
-        losses = [loss(bkd.zeros_like(error_f), error_f)]
+        bcs_start = np.cumsum([0] + self.num_bcs)
+        error_f = [fi[bcs_start[-1] :] for fi in f]
+        losses = [loss(bkd.zeros_like(error), error) for error in error_f]
         for i, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
@@ -76,9 +79,11 @@ class PDEOperator(Data):
             v_bc.append(np.repeat(v, num_bc, axis=0))
         v_bc = np.vstack(v_bc)
         # PDE
-        # TODO If no PDE
-        v_pde = np.repeat(v, len(self.pde.train_x_all), axis=0)
-        v = np.vstack((v_bc, v_pde))
+        if self.pde.pde is not None:
+            v_pde = np.repeat(v, len(self.pde.train_x_all), axis=0)
+            v = np.vstack((v_bc, v_pde))
+        else:
+            v = v_bc
 
         # Trunk input: x
         # BC
@@ -87,10 +92,11 @@ class PDEOperator(Data):
         for i, _ in enumerate(self.pde.num_bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             x_bc.append(np.tile(self.pde.train_x_bc[beg:end], (self.num_func, 1)))
-        x_bc = np.vstack(x_bc)
+        x = np.vstack(x_bc)
         # PDE
-        x_pde = np.tile(self.pde.train_x_all, (self.num_func, 1))
-        x = np.vstack((x_bc, x_pde))
+        if self.pde.pde is not None:
+            x_pde = np.tile(self.pde.train_x_all, (self.num_func, 1))
+            x = np.vstack((x, x_pde))
 
         # vx
         # TODO: Assume v is only a function of x1
@@ -104,12 +110,13 @@ class PDEOperator(Data):
                     func_feats, self.pde.train_x_bc[beg:end, :1]
                 ).reshape(-1, 1)
             )
-        vx_bc = np.vstack(vx_bc)
+        vx = np.vstack(vx_bc)
         # PDE
-        vx_pde = self.func_space.eval_batch(
-            func_feats, self.pde.train_x_all[:, :1]
-        ).reshape(-1, 1)
-        vx = np.vstack((vx_bc, vx_pde))
+        if self.pde.pde is not None:
+            vx_pde = self.func_space.eval_batch(
+                func_feats, self.pde.train_x_all[:, :1]
+            ).reshape(-1, 1)
+            vx = np.vstack((vx, vx_pde))
 
         self.train_x = (v, x, vx)
         self.train_y = None
