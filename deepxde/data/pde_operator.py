@@ -71,25 +71,44 @@ class PDEOperator(Data):
         # v2, x_bc1_1
         # ...
         # v2, x_bc1_N1
-        # TODO Assume only 1 BC
-        v_bc = np.repeat(v, self.pde.num_bcs[0], axis=0)
+        v_bc = []
+        for num_bc in self.pde.num_bcs:
+            v_bc.append(np.repeat(v, num_bc, axis=0))
+        v_bc = np.vstack(v_bc)
         # PDE
         # TODO If no PDE
         v_pde = np.repeat(v, len(self.pde.train_x_all), axis=0)
         v = np.vstack((v_bc, v_pde))
 
         # Trunk input: x
-        x_bc = np.tile(self.pde.train_x_bc, (self.num_func, 1))
+        # BC
+        x_bc = []
+        bcs_start = np.cumsum([0] + self.pde.num_bcs)
+        for i, _ in enumerate(self.pde.num_bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            x_bc.append(np.tile(self.pde.train_x_bc[beg:end], (self.num_func, 1)))
+        x_bc = np.vstack(x_bc)
+        # PDE
         x_pde = np.tile(self.pde.train_x_all, (self.num_func, 1))
         x = np.vstack((x_bc, x_pde))
 
         # vx
-        vx_bc = self.func_space.eval_batch(func_feats, self.pde.train_x_bc).reshape(
-            -1, 1
-        )
-        vx_pde = self.func_space.eval_batch(func_feats, self.pde.train_x_all).reshape(
-            -1, 1
-        )
+        # TODO: Assume v is only a function of x1
+        # BC
+        vx_bc = []
+        bcs_start = np.cumsum([0] + self.pde.num_bcs)
+        for i, _ in enumerate(self.pde.num_bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            vx_bc.append(
+                self.func_space.eval_batch(
+                    func_feats, self.pde.train_x_bc[beg:end, :1]
+                ).reshape(-1, 1)
+            )
+        vx_bc = np.vstack(vx_bc)
+        # PDE
+        vx_pde = self.func_space.eval_batch(
+            func_feats, self.pde.train_x_all[:, :1]
+        ).reshape(-1, 1)
         vx = np.vstack((vx_bc, vx_pde))
 
         self.train_x = (v, x, vx)
