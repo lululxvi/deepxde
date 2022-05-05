@@ -1,4 +1,4 @@
-__all__ = ["clear", "hessian", "jacobian"]
+__all__ = ["jacobian", "hessian"]
 
 from .backend import backend_name, tf, torch, jax
 
