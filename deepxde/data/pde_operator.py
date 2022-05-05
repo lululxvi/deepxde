@@ -74,7 +74,14 @@ class PDEOperator(Data):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             # TODO BC cannot have v
-            error = bc.error(self.train_x[1], model.net.inputs[1], outputs, beg, end)
+            error = bc.error(
+                self.train_x[1],
+                model.net.inputs[1],
+                outputs,
+                beg,
+                end,
+                aux_var=self.train_x[2],
+            )
             losses.append(loss(bkd.zeros_like(error), error))
         return losses
 
