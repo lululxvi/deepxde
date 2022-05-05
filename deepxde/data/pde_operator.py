@@ -15,6 +15,13 @@ class PDEOperator(Data):
             function sampled from `function_space` using pointwise evaluations at a set
             of points as the input of the branch net.
         num_function (int): The number of functions for training.
+        function_variables: ``None`` or a list of integers. The functions in the
+            `function_space` may not have the same domain as the PDE. For example, the
+            PDE is defined on a spatio-temporal domain (`x`, `t`), but the function is
+            IC, which is only a function of `x`. In this case, we need to specify the
+            variables of the function by `function_variables=[0]`, where `0` indicates
+            the first variable `x`. If ``None``, then we assume the domains of the
+            function and the PDE are the same.
 
     Attributes:
         train_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
@@ -26,11 +33,23 @@ class PDEOperator(Data):
         num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
     """
 
-    def __init__(self, pde, function_space, evaluation_points, num_function):
+    def __init__(
+        self,
+        pde,
+        function_space,
+        evaluation_points,
+        num_function,
+        function_variables=None,
+    ):
         self.pde = pde
         self.func_space = function_space
         self.eval_pts = evaluation_points
         self.num_func = num_function
+        self.func_vars = (
+            function_variables
+            if function_variables is not None
+            else list(range(pde.geom.dim))
+        )
 
         self.num_bcs = [n * self.num_func for n in self.pde.num_bcs]
         self.train_x = None
@@ -97,7 +116,6 @@ class PDEOperator(Data):
             x = np.vstack((x, x_pde))
 
         # vx
-        # TODO: Assume v is only a function of x1
         # BC
         vx_bc = []
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
@@ -105,14 +123,14 @@ class PDEOperator(Data):
             beg, end = bcs_start[i], bcs_start[i + 1]
             vx_bc.append(
                 self.func_space.eval_batch(
-                    func_feats, self.pde.train_x_bc[beg:end, :1]
+                    func_feats, self.pde.train_x_bc[beg:end, self.func_vars]
                 ).reshape(-1, 1)
             )
         vx = np.vstack(vx_bc)
         # PDE
         if self.pde.pde is not None:
             vx_pde = self.func_space.eval_batch(
-                func_feats, self.pde.train_x_all[:, :1]
+                func_feats, self.pde.train_x_all[:, self.func_vars]
             ).reshape(-1, 1)
             vx = np.vstack((vx, vx_pde))
 
