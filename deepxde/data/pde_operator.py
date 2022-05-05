@@ -11,9 +11,10 @@ class PDEOperator(Data):
     Args:
         pde: Instance of ``dde.data.PDE`` or ``dde.data.TimePDE``.
         function_space: Instance of ``dde.data.FunctionSpace``.
+        evaluation_points: A NumPy array of shape (n_points, dim). Discretize the input
+            function sampled from `function_space` using pointwise evaluations at a set
+            of points as the input of the branch net.
         num_function (int): The number of functions for training.
-        num_sensor (int): The number of sensors to evaluate the input function as the
-            input of the branch net.
 
     Attributes:
         train_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
@@ -25,11 +26,11 @@ class PDEOperator(Data):
         num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
     """
 
-    def __init__(self, pde, function_space, num_function, num_sensor):
+    def __init__(self, pde, function_space, evaluation_points, num_function):
         self.pde = pde
         self.func_space = function_space
+        self.eval_pts = evaluation_points
         self.num_func = num_function
-        self.num_sensor = num_sensor
 
         self.num_bcs = [n * self.num_func for n in self.pde.num_bcs]
         self.train_x = None
@@ -62,10 +63,7 @@ class PDEOperator(Data):
     def train_next_batch(self, batch_size=None):
         # Branch input: v
         func_feats = self.func_space.random(self.num_func)
-        # TODO FunctionSpace should have a domain variable via dde.geometry
-        # Assume v is in [0, 1]
-        xs = np.linspace(0, 1, num=self.num_sensor)[:, None]
-        v = self.func_space.eval_batch(func_feats, xs)
+        v = self.func_space.eval_batch(func_feats, self.eval_pts)
         # BC
         # Format:
         # v1, x_bc1_1
