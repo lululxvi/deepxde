@@ -74,7 +74,7 @@ class GeometryXTime:
     def random_points(self, n, random="pseudo"):
         x = self.geometry.random_points(n, random=random)
         t = self.timedomain.random_points(n, random=random)
-        t = np.random.default_rng().permutation(t)
+        t = np.random.permutation(t)
         return np.hstack((x, t))
 
     def uniform_boundary_points(self, n):
@@ -118,7 +118,7 @@ class GeometryXTime:
     def random_boundary_points(self, n, random="pseudo"):
         x = self.geometry.random_boundary_points(n, random=random)
         t = self.timedomain.random_points(n, random=random)
-        t = np.random.default_rng().permutation(t)
+        t = np.random.permutation(t)
         return np.hstack((x, t))
 
     def uniform_initial_points(self, n):
