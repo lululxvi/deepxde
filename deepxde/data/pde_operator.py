@@ -2,6 +2,7 @@ import numpy as np
 
 from .data import Data
 from .. import backend as bkd
+from .. import config
 from ..utils import run_if_all_none
 
 
@@ -119,6 +120,13 @@ class PDEOperator(Data):
         return self.test_x, self.test_y
 
     def bc_inputs(self, func_feats, func_vals):
+        if not self.pde.bcs:
+            self.train_x_bc = (
+                np.empty((0, len(self.eval_pts)), dtype=config.real(np)),
+                np.empty((0, self.pde.geom.dim), dtype=config.real(np)),
+                np.empty((0, 1), dtype=config.real(np)),
+            )
+            return self.train_x_bc
         # Format:
         # v1, x_bc1_1
         # ...
