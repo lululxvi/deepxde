@@ -200,7 +200,10 @@ class Hessian:
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        dim_y = y.shape[1]
+        if backend_name == "jax":
+            dim_y = y[0].shape[0]
+        else:
+            dim_y = y.shape[1]
         if dim_y > 1:
             if component is None:
                 raise ValueError("The component of y is missing.")
@@ -240,6 +243,8 @@ class Hessians:
             key = (y.ref(), xs.ref(), component)
         elif backend_name == "pytorch":
             key = (y, xs, component)
+        elif backend_name == "jax":
+            key = (id(y[0]), id(xs), component)
         if key not in self.Hs:
             self.Hs[key] = Hessian(y, xs, component=component, grad_y=grad_y)
         return self.Hs[key](i, j)
