@@ -49,7 +49,7 @@ class Jacobian:
                 # TODO: retain_graph=True has memory leak?
                 y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = torch.autograd.grad(
-                    y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True,
+                    y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "jax":
                 # Here, we use jax.grad to compute first-order gradient of a function. Non that, this is
