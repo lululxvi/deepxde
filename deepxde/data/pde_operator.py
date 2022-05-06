@@ -24,13 +24,15 @@ class PDEOperator(Data):
             function and the PDE are the same.
 
     Attributes:
+        train_x_bc: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
+            training BCs/ICs.
+        num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
         train_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
             training. v is the function input to the branch net; x is the point input to
             the trunk net; vx is the value of v evaluated at x, i.e., v(x). `train_x` is
-            ordered from BCs to PDE.
+            ordered from BCs/ICs (`train_x_bc`) to PDEs.
         test_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
             testing.
-        num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
     """
 
     def __init__(
@@ -52,6 +54,7 @@ class PDEOperator(Data):
         )
 
         self.num_bcs = [n * self.num_func for n in self.pde.num_bcs]
+        self.train_x_bc = None
         self.train_x = None
         self.train_y = None
         self.test_x = None
@@ -73,7 +76,6 @@ class PDEOperator(Data):
         for i, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
-            # TODO BC cannot have v
             error = bc.error(
                 self.train_x[1],
                 model.net.inputs[1],
@@ -87,55 +89,18 @@ class PDEOperator(Data):
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        # Branch input: v
         func_feats = self.func_space.random(self.num_func)
-        v = self.func_space.eval_batch(func_feats, self.eval_pts)
-        # BC
-        # Format:
-        # v1, x_bc1_1
-        # ...
-        # v1, x_bc1_N1
-        # v2, x_bc1_1
-        # ...
-        # v2, x_bc1_N1
-        v_bc = []
-        for num_bc in self.pde.num_bcs:
-            v_bc.append(np.repeat(v, num_bc, axis=0))
-        v_bc = np.vstack(v_bc)
-        # PDE
-        if self.pde.pde is not None:
-            v_pde = np.repeat(v, len(self.pde.train_x_all), axis=0)
-            v = np.vstack((v_bc, v_pde))
-        else:
-            v = v_bc
+        func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
 
-        # Trunk input: x
-        # BC
-        x_bc = []
-        bcs_start = np.cumsum([0] + self.pde.num_bcs)
-        for i, _ in enumerate(self.pde.num_bcs):
-            beg, end = bcs_start[i], bcs_start[i + 1]
-            x_bc.append(np.tile(self.pde.train_x_bc[beg:end], (self.num_func, 1)))
-        x = np.vstack(x_bc)
-        # PDE
+        v, x, vx = self.bc_inputs(func_feats, func_vals)
         if self.pde.pde is not None:
+            # Branch input: v
+            v_pde = np.repeat(func_vals, len(self.pde.train_x_all), axis=0)
+            v = np.vstack((v, v_pde))
+            # Trunk input: x
             x_pde = np.tile(self.pde.train_x_all, (self.num_func, 1))
             x = np.vstack((x, x_pde))
-
-        # vx
-        # BC
-        vx_bc = []
-        bcs_start = np.cumsum([0] + self.pde.num_bcs)
-        for i, _ in enumerate(self.pde.num_bcs):
-            beg, end = bcs_start[i], bcs_start[i + 1]
-            vx_bc.append(
-                self.func_space.eval_batch(
-                    func_feats, self.pde.train_x_bc[beg:end, self.func_vars]
-                ).reshape(-1, 1)
-            )
-        vx = np.vstack(vx_bc)
-        # PDE
-        if self.pde.pde is not None:
+            # vx
             vx_pde = self.func_space.eval_batch(
                 func_feats, self.pde.train_x_all[:, self.func_vars]
             ).reshape(-1, 1)
@@ -147,7 +112,33 @@ class PDEOperator(Data):
 
     @run_if_all_none("test_x", "test_y")
     def test(self):
+        # TODO: Use different BC data from self.train_x
         # TODO
         self.test_x = self.train_x
         self.test_y = self.train_y
         return self.test_x, self.test_y
+
+    def bc_inputs(self, func_feats, func_vals):
+        # Format:
+        # v1, x_bc1_1
+        # ...
+        # v1, x_bc1_N1
+        # v2, x_bc1_1
+        # ...
+        # v2, x_bc1_N1
+        v, x, vx = [], [], []
+        bcs_start = np.cumsum([0] + self.pde.num_bcs)
+        for i, num_bc in enumerate(self.pde.num_bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            # Branch input: v
+            v.append(np.repeat(func_vals, num_bc, axis=0))
+            # Trunk input: x
+            x.append(np.tile(self.pde.train_x_bc[beg:end], (self.num_func, 1)))
+            # vx
+            vx.append(
+                self.func_space.eval_batch(
+                    func_feats, self.pde.train_x_bc[beg:end, self.func_vars]
+                ).reshape(-1, 1)
+            )
+        self.train_x_bc = (np.vstack(v), np.vstack(x), np.vstack(vx))
+        return self.train_x_bc
