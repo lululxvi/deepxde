@@ -18,7 +18,10 @@ class Jacobian:
         self.ys = ys
         self.xs = xs
 
-        if backend_name == "jax":
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+            self.dim_y = ys.shape[1]
+            self.dim_x = xs.shape[1]
+        elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
             # The array is used to control the dimensions and the callable is used to
@@ -27,9 +30,7 @@ class Jacobian:
             # other backends, where `xs` and `ys` are batched tensors.
             self.dim_y = ys[0].shape[0]
             self.dim_x = xs.shape[0]
-        else:
-            self.dim_y = ys.shape[1]
-            self.dim_x = xs.shape[1]
+
         self.J = {}
 
     def __call__(self, i=0, j=None):
@@ -200,10 +201,11 @@ class Hessian:
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        if backend_name == "jax":
-            dim_y = y[0].shape[0]
-        else:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
             dim_y = y.shape[1]
+        elif backend_name == "jax":
+            dim_y = y[0].shape[0]
+
         if dim_y > 1:
             if component is None:
                 raise ValueError("The component of y is missing.")
