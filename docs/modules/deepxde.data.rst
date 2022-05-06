@@ -49,6 +49,14 @@ deepxde.data.function module
    :undoc-members:
    :show-inheritance:
 
+deepxde.data.function\_spaces module
+------------------------------------
+
+.. automodule:: deepxde.data.function_spaces
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.data.helper module
 --------------------------
 
@@ -77,6 +85,14 @@ deepxde.data.pde module
 -----------------------
 
 .. automodule:: deepxde.data.pde
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+deepxde.data.pde\_operator module
+---------------------------------
+
+.. automodule:: deepxde.data.pde_operator
    :members:
    :undoc-members:
    :show-inheritance:
