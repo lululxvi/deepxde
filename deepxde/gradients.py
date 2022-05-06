@@ -43,14 +43,13 @@ class Jacobian:
         # Compute J[i]
         if i not in self.J:
             if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-                self.J[i] = tf.gradients(self.ys[:, i : i + 1], self.xs)[0]
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
+                self.J[i] = tf.gradients(y, self.xs)[0]
             elif backend_name == "pytorch":
                 # TODO: retain_graph=True has memory leak?
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = torch.autograd.grad(
-                    self.ys[:, i : i + 1],
-                    self.xs,
-                    grad_outputs=torch.ones_like(y),
-                    create_graph=True,
+                    y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True,
                 )[0]
             elif backend_name == "jax":
                 # Here, we use jax.grad to compute first-order gradient of a function. Non that, this is
