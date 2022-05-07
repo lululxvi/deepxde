@@ -1,4 +1,4 @@
-# DeepXDE-add NS inverse code
+# DeepXDE
 
 [![Build Status](https://app.travis-ci.com/lululxvi/deepxde.svg?branch=master)](https://app.travis-ci.com/lululxvi/deepxde)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
