@@ -24,8 +24,8 @@ class PDE(Data):
             `num_boundary` sampled points.
         exclusions: A Numpy array of points to be excluded for training.
         solution: The reference solution.
-        num_test: The number of points sampled inside the domain for testing. The
-            testing points on the boundary are the same set of points used for training.
+        num_test: The number of points sampled inside the domain for testing PDE loss.
+            The testing points for BCs/ICs are the same set of points used for training.
             If ``None``, then the training points will be used for testing.
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs
             auxiliary variables.
