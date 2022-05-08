@@ -132,7 +132,7 @@ model.compile("adam", lr=1e-4, external_trainable_variables=[C1, C2])
 loss_history, train_state = model.train(epochs=10000, callbacks=[variable],
                                         display_every=1000, disregard_previous_best=True)
 dde.saveplot(loss_history, train_state, issave=True, isplot=True)
-model.save(save_path = "./NS_inverse_model/model")
+# model.save(save_path = "./NS_inverse_model/model")
 f = model.predict(ob_xyt, operator=Navier_Stokes_Equation)
 print("Mean residual:", np.mean(np.absolute(f)))
 
@@ -156,7 +156,7 @@ plt.title("Variables")
 plt.show()
 
 # Plot training result:
-for t in range(0, 7):
+for t in range(0, 8):
     [ob_x, ob_y, ob_t, ob_u, ob_v, ob_p] = load_training_data(num = 140000)
     xyt_pred = np.hstack((ob_x, ob_y, t * np.ones((len(ob_x), 1))))
     uvp_pred = model.predict(xyt_pred)
