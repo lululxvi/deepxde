@@ -340,9 +340,9 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        # tensorflow and pytorch
-        outs = self.outputs(training, inputs)
-        return utils.to_numpy(outs)
+        if backend_name in ["tensorflow", "pytorch", "jax"]:
+            outs = self.outputs(training, inputs)
+            return utils.to_numpy(outs)
 
     def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
