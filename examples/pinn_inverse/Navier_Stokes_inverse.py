@@ -155,7 +155,7 @@ plt.xlabel("Epochs")
 plt.title("Variables")
 plt.show()
 
-# Plot training result:
+# Plot trained flow field:
 for t in range(0, 8):
     [ob_x, ob_y, ob_t, ob_u, ob_v, ob_p] = load_training_data(num = 140000)
     xyt_pred = np.hstack((ob_x, ob_y, t * np.ones((len(ob_x), 1))))
@@ -171,7 +171,7 @@ for t in range(0, 8):
     cntr1 = ax[1].tricontourf(x_true, y_true, u_true, levels=80, cmap='rainbow')
     cb1 = plt.colorbar(cntr1, ax=ax[1])
     ax[0].set_title('u-PINN '+'(t='+ str(t) +')', fontsize = 9.5)
-    ax[0].axis('scaled')# 设置x轴和y轴相同的缩放比例
+    ax[0].axis('scaled')
     ax[0].set_xlabel('X', fontsize = 7.5, family = 'Arial')
     ax[0].set_ylabel('Y', fontsize = 7.5, family = 'Arial')
     ax[1].set_title('u-Reference solution '+'(t='+ str(t) +')', fontsize = 9.5)
