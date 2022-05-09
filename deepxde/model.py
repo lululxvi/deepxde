@@ -1,6 +1,5 @@
 __all__ = ["Model", "TrainState", "LossHistory"]
 
-import functools
 import pickle
 from collections import OrderedDict
 
@@ -273,6 +272,9 @@ class Model:
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
+        # TODO: learning rate decay
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
+        self.opt_state = self.opt.init(self.net.params)
 
         @jax.jit
         def outputs(params, training, inputs):
@@ -280,17 +282,21 @@ class Model:
 
         @jax.jit
         def outputs_losses(params, training, inputs, targets):
-            # TODO: add auxiliary vars, regularization loss, weighted losses
-            _outputs = self.net.apply(params, inputs, training=training)
+            # TODO: Add auxiliary vars
+            def outputs_fn(inputs):
+                return self.net.apply(params, inputs, training=training)
+
+            outputs_ = self.net.apply(params, inputs, training=training)
             # Data losses
-            # TODO: support passing auxiliary arguments to data.losses, for all data types. Note
-            # that this is particularly useful for jax backend, and is not the same as auxiliary_vars.
-            # Possible auxiliary arguments are inputs, masks indicating whether current inputs are
-            # at boundary/initial conditions.
-            losses = self.data.losses(targets, _outputs, loss_fn, self, aux=None)
+            # We use aux so that self.data.losses is a pure function.
+            losses = self.data.losses(
+                targets, outputs_, loss_fn, self, aux=(inputs, outputs_fn)
+            )
+            # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
                 losses = [losses]
-            return _outputs, jax.numpy.stack(losses)
+            losses = jax.numpy.asarray(losses)
+            return outputs_, losses
 
         @jax.jit
         def train_step(params, opt_state, inputs, targets):
@@ -303,11 +309,7 @@ class Model:
             new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
 
-        # TODO: learning rate decay
-        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
-        self.opt_state = self.opt.init(self.net.params)
-
-        # Callables
+        # Pure functions
         self.outputs = outputs
         self.outputs_losses = outputs_losses
         self.train_step = train_step

@@ -20,16 +20,14 @@ class Jacobian:
 
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
             self.dim_y = ys.shape[1]
-            self.dim_x = xs.shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
             # The array is used to control the dimensions and the callable is used to
-            # obtain the derivative function, which can be used to compute the derivatives.
-            # Note that `xs` and `ys[0]` are of 1-dimensional, which is different from
-            # other backends, where `xs` and `ys` are batched tensors.
-            self.dim_y = ys[0].shape[0]
-            self.dim_x = xs.shape[0]
+            # obtain the derivative function, which can be used to compute the
+            # derivatives.
+            self.dim_y = ys[0].shape[1]
+        self.dim_x = xs.shape[1]
 
         self.J = {}
 
@@ -53,23 +51,21 @@ class Jacobian:
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "jax":
-                # Here, we use jax.grad to compute first-order gradient of a function. Non that, this is
-                # different from Tensorflow and PyTorch that the input of a function is no longer a batch.
-                # Instead, it is a single point. Formally, backend jax computes gradients pointwisely and
-                # then vectorizes to batch, by jax.vmap. However, computationally, this is in fact done
-                # batchwisely and efficiently, once vectorization part is dealt with correctly. It is very
-                # important to note that, without jax.vmap, this can only deal with functions whose output is
-                # scalar and input is a single point.
-                # Other options are jax.jacrev+jax.vmap and jax.jacfwd+jax.vmap, which could be used to compute
-                # the full Jacobian matrix efficiently, if needed.
-                # Also, jax.vjp, jax.jvp will bring more flexibility and efficiency. jax.vjp+jax.vmap and/or
-                # jax.jvp+jax.vmap will be implemented in the future.
-
-                def fn_i(_x):
-                    return self.ys[1](_x)[i]
-
-                grad_fn = jax.grad(fn_i)
-                self.J[i] = (grad_fn(self.xs), grad_fn)
+                # Here, we use jax.grad to compute the gradient of a function. This is
+                # different from TensorFlow and PyTorch that the input of a function is
+                # no longer a batch. Instead, it is a single point. Formally, backend
+                # jax computes gradients pointwisely and then vectorizes to batch, by
+                # jax.vmap. However, computationally, this is in fact done batchwisely
+                # and efficiently. It is very important to note that, without jax.vmap,
+                # this can only deal with functions whose output is a scalar and input
+                # is a single point.
+                # Other options are jax.jacrev + jax.vmap or jax.jacfwd + jax.vmap,
+                # which could be used to compute the full Jacobian matrix efficiently,
+                # if needed. Also, jax.vjp, jax.jvp will bring more flexibility and
+                # efficiency. jax.vjp + jax.vmap or jax.jvp + jax.vmap will be
+                # implemented in the future.
+                grad_fn = jax.grad(lambda x: self.ys[1](x)[i])
+                self.J[i] = (jax.vmap(grad_fn)(self.xs), grad_fn)
 
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
             return (

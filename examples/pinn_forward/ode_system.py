@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax"""
 import deepxde as dde
 import numpy as np
 
@@ -8,9 +8,15 @@ def ode_system(x, y):
     dy1/dx = y2
     dy2/dx = -y1
     """
+    # Most backends
     y1, y2 = y[:, 0:1], y[:, 1:]
     dy1_x = dde.grad.jacobian(y, x, i=0)
     dy2_x = dde.grad.jacobian(y, x, i=1)
+    # Backend jax
+    # y_val, y_fn = y
+    # y1, y2 = y_val[:, 0:1], y_val[:, 1:]
+    # dy1_x, _ = dde.grad.jacobian(y, x, i=0)
+    # dy2_x, _ = dde.grad.jacobian(y, x, i=1)
     return [dy1_x - y2, dy2_x + y1]
 
 

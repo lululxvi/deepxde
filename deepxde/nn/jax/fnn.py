@@ -9,7 +9,7 @@ from .. import initializers
 
 
 class FNN(NN):
-    """Fully-connected neural network"""
+    """Fully-connected neural network."""
 
     layer_sizes: Any
     activation: Any

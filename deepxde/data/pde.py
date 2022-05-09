@@ -3,6 +3,7 @@ import numpy as np
 from .data import Data
 from .. import backend as bkd
 from .. import config
+from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none
 
 
@@ -124,14 +125,22 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss, model, aux=None):
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+            inputs = model.net.inputs
+            outputs_pde = outputs
+        elif backend_name == "jax":
+            # JAX requires pure functions
+            inputs = aux[0]
+            outputs_pde = (outputs, aux[1])
+
         f = []
         if self.pde is not None:
             if get_num_args(self.pde) == 2:
-                f = self.pde(model.net.inputs, outputs)
+                f = self.pde(inputs, outputs_pde)
             elif get_num_args(self.pde) == 3:
                 if self.auxiliary_var_fn is None:
                     raise ValueError("Auxiliary variable function not defined.")
-                f = self.pde(model.net.inputs, outputs, model.net.auxiliary_vars)
+                f = self.pde(inputs, outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -152,7 +161,7 @@ class PDE(Data):
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
-            error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
+            error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(loss[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 
