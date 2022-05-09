@@ -58,7 +58,6 @@ def load_training_data(num):
     p_train = data_domain[idx, 5:6]
     return [x_train, y_train, t_train, u_train, v_train, p_train]
 
-
 # Parameters to be identified
 C1 = dde.Variable(0.0)
 C2 = dde.Variable(0.0)
@@ -84,7 +83,6 @@ def Navier_Stokes_Equation(x, y):
     x_momentum = du_t + C1 * (u * du_x + v * du_y) + dp_x - C2 * (du_xx + du_yy)
     y_momentum = dv_t + C1 * (u * dv_x + v * dv_y) + dp_y - C2 * (dv_xx + dv_yy)
     return [continuity, x_momentum, y_momentum]
-
 
 # Define Spatio-temporal domain
 # Rectangular
