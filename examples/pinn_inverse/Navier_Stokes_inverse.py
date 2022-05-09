@@ -44,7 +44,7 @@ def load_training_data(num):
     data4 = data3[:, :][data3[:, 0] <= 8]
     data5 = data4[:, :][data4[:, 1] >= -2]
     data_domain = data5[:, :][data5[:, 1] <= 2]
-    # choose number of training datasets: num =7000
+    # choose number of training points: num =7000
     idx = np.random.choice(data_domain.shape[0], num, replace=False)
     x_train = data_domain[idx, 0:1]
     y_train = data_domain[idx, 1:2]
@@ -58,7 +58,7 @@ def load_training_data(num):
 C1 = dde.Variable(0.0)
 C2 = dde.Variable(0.0)
 
-# Define Navier Stokes Equation (Time-dependent PDE)
+# Define Navier Stokes Equations (Time-dependent PDEs)
 def Navier_Stokes_Equation(x, y):
     u = y[:, 0:1]
     v = y[:, 1:2]
@@ -157,7 +157,7 @@ plt.xlabel("Epochs")
 plt.title("Variables")
 plt.show()
 
-# Plot trained flow field:
+# Plot the velocity distribution of the flow field:
 for t in range(0, 8):
     [ob_x, ob_y, ob_t, ob_u, ob_v, ob_p] = load_training_data(num=140000)
     xyt_pred = np.hstack((ob_x, ob_y, t * np.ones((len(ob_x), 1))))
