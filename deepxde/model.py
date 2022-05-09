@@ -270,11 +270,9 @@ class Model:
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
         """jax"""
-        # initialize network's parameters
-        # TODO: Init should move to network module, because we don't know how to init here, e.g., DeepONet has two inputs.
+        # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
-        x = jax.numpy.empty(shape=[1, self.net.layer_sizes[0]])
-        self.net.params = self.net.init(key, x)
+        self.net.params = self.net.init(key, self.data.test()[0])
 
         @jax.jit
         def outputs(params, training, inputs):
@@ -299,15 +297,13 @@ class Model:
             def loss_function(params):
                 return jax.numpy.sum(outputs_losses(params, True, inputs, targets)[1])
 
-            grad_fn = jax.grad(
-                loss_function
-            )  # jax.value_and_grad seems to be slightly faster than jax.grad for function approximation
+            grad_fn = jax.grad(loss_function)
             grads = grad_fn(params)
             updates, new_opt_state = self.opt.update(grads, opt_state)
             new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
 
-        # TODO: add decay
+        # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.net.params)
 
