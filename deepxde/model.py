@@ -277,13 +277,11 @@ class Model:
         self.net.params = self.net.init(key, x)
 
         @jax.jit
-        @functools.partial(jax.vmap, in_axes=(None, None, 0), out_axes=0)
-        def inner_outputs(params, training, inputs):
+        def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
         @jax.jit
-        @functools.partial(jax.vmap, in_axes=(None, None, 0, 0), out_axes=(0, 0))
-        def inner_outputs_losses(params, training, inputs, targets):
+        def outputs_losses(params, training, inputs, targets):
             # TODO: add auxiliary vars, regularization loss, weighted losses
             _outputs = self.net.apply(params, inputs, training=training)
             # Data losses
@@ -297,11 +295,9 @@ class Model:
             return _outputs, jax.numpy.stack(losses)
 
         @jax.jit
-        def inner_train_step(params, opt_state, inputs, targets):
+        def train_step(params, opt_state, inputs, targets):
             def loss_function(params):
-                return jax.numpy.sum(
-                    inner_outputs_losses(params, True, inputs, targets)[1], axis=0
-                ).reshape([])
+                return jax.numpy.sum(outputs_losses(params, True, inputs, targets)[1])
 
             grad_fn = jax.grad(
                 loss_function
@@ -310,22 +306,6 @@ class Model:
             updates, new_opt_state = self.opt.update(grads, opt_state)
             new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
-
-        def outputs(training, inputs):
-            return inner_outputs(self.net.params, training, inputs)
-
-        def outputs_losses(training, inputs, targets):
-            _outputs, _losses = inner_outputs_losses(
-                self.net.params, training, inputs, targets
-            )
-            return _outputs, jax.numpy.sum(
-                _losses, axis=0
-            )  # sum over the first axis, because here _losses is a batch
-
-        def train_step(inputs, targets):
-            self.net.params, self.opt_state = inner_train_step(
-                self.net.params, self.opt_state, inputs, targets
-            )
 
         # TODO: add decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
@@ -340,9 +320,11 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        if backend_name in ["tensorflow", "pytorch", "jax"]:
+        if backend_name in ["tensorflow", "pytorch"]:
             outs = self.outputs(training, inputs)
-            return utils.to_numpy(outs)
+        if backend_name == "jax":
+            outs = self.outputs(self.net.params, training, inputs)
+        return utils.to_numpy(outs)
 
     def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
@@ -357,7 +339,7 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            outs = self.outputs_losses(training, inputs, targets)
+            outs = self.outputs_losses(self.net.params, training, inputs, targets)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -371,7 +353,9 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            self.train_step(inputs, targets)
+            self.net.params, self.opt_state = self.train_step(
+                self.net.params, self.opt_state, inputs, targets
+            )
 
     @utils.timing
     def train(
