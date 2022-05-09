@@ -6,10 +6,6 @@ References: https://doi.org/10.1016/j.jcp.2018.10.045 Section 4.1.1
 """
 
 import deepxde as dde
-
-# dde.backend.set_default_backend("tensorflow.compat.v1")
-dde.backend.set_default_backend("tensorflow")
-# dde.backend.set_default_backend("pytorch")
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
