@@ -32,6 +32,8 @@ Time-dependent PDEs
 
    pinn_inverse/diffusion.1d.inverse
    pinn_inverse/reaction.inverse
+   
+- `Inverse problem for the Navier-Stokes equation of incompressible flow around cylinder <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/Navier_Stokes_inverse.py>`_
 
 fractional PDEs
 ---------------
