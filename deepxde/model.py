@@ -322,7 +322,7 @@ class Model:
             return self.sess.run(self.outputs, feed_dict=feed_dict)
         if backend_name in ["tensorflow", "pytorch"]:
             outs = self.outputs(training, inputs)
-        if backend_name == "jax":
+        elif backend_name == "jax":
             outs = self.outputs(self.net.params, training, inputs)
         return utils.to_numpy(outs)
 
