@@ -79,7 +79,7 @@ class Jacobian:
                 self.J[i]
                 if j is None or self.dim_x == 1
                 else (
-                    self.J[i][0][j : j + 1],
+                    self.J[i][0][:, j : j + 1],
                     lambda inputs: self.J[i][1](inputs)[j : j + 1],
                 )
             )
