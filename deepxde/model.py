@@ -684,6 +684,7 @@ class Model:
             save_path (string): Prefix of filenames to save the model file.
             protocol (string): If `protocol` is "backend", save using the backend-specific method.
                 For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
                 For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
                 If `protocol` is "pickle", save using the Python pickle module.
                 Only the protocol "backend" supports ``restore()``.
@@ -701,6 +702,9 @@ class Model:
             if backend_name == "tensorflow.compat.v1":
                 save_path += ".ckpt"
                 self.saver.save(self.sess, save_path)
+            elif backend_name == "tensorflow":
+                save_path += ".ckpt"
+                self.net.save_weights(save_path)
             elif backend_name == "pytorch":
                 save_path += ".pt"
                 checkpoint = {
@@ -731,6 +735,8 @@ class Model:
             print("Restoring model from {} ...\n".format(save_path))
         if backend_name == "tensorflow.compat.v1":
             self.saver.restore(self.sess, save_path)
+        elif backend_name == "tensorflow":
+            self.net.load_weights(save_path)
         elif backend_name == "pytorch":
             checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
