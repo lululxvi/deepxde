@@ -684,7 +684,11 @@ class Model:
             save_path (string): Prefix of filenames to save the model file.
             protocol (string): If `protocol` is "backend", save using the backend-specific method.
                 For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+<<<<<<< HEAD
                 For "tensorflow", use tf.keras.models.save_model <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
+=======
+                For "tensorflow", use tf.keras.Model.save <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save>`_.
+>>>>>>> 819d772f4927d34e9f51050934e2de06508fe875
                 For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
                 If `protocol` is "pickle", save using the Python pickle module.
                 Only the protocol "backend" supports ``restore()``.
