@@ -6,7 +6,7 @@ import numpy as np
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
-
+random_seed = None
 real = Real(32)
 
 if backend_name == "jax":
@@ -60,3 +60,5 @@ def set_random_seed(seed):
     elif backend_name == "jax":
         global jax_random_seed
         jax_random_seed = seed
+    global random_seed
+    random_seed = seed
