@@ -65,7 +65,7 @@ class Model:
         Args:
             optimizer: String. Name of optimizer.
             lr: A Tensor or a floating point value. The learning rate. For L-BFGS, use
-                `dde.optimizers.set_LBFGS_options` to set the hyperparameters.
+                ``dde.optimizers.set_LBFGS_options`` to set the hyperparameters.
             loss: If the same loss is used for all errors, then `loss` is a String (name
                 of objective function) or objective function. If different errors use
                 different losses, then `loss` is a list whose size is equal to the
@@ -80,17 +80,17 @@ class Model:
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
-                weighted by the loss_weights coefficients.
-            external_trainable_variables: A trainable ``tf.Variable`` object or a list
-                of trainable ``tf.Variable`` objects. The unknown parameters in the
+                weighted by the `loss_weights` coefficients.
+            external_trainable_variables: A trainable ``dde.Variable`` object or a list
+                of trainable ``dde.Variable`` objects. The unknown parameters in the
                 physics systems that need to be recovered. If the backend is
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
-                trainable ``tf.Variable`` objects are automatically collected.
+                trainable ``dde.Variable`` objects are automatically collected.
         """
         print("Compiling model...")
-
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
+        self.losshistory.set_loss_weights(loss_weights)
         if external_trainable_variables is None:
             self.external_trainable_variables = []
         else:
@@ -139,7 +139,6 @@ class Model:
         # Weighted losses
         if loss_weights is not None:
             losses *= loss_weights
-            self.losshistory.set_loss_weights(loss_weights)
         total_loss = tf.math.reduce_sum(losses)
 
         # Tensors
@@ -176,7 +175,6 @@ class Model:
             # Weighted losses
             if loss_weights is not None:
                 losses *= loss_weights
-                self.losshistory.set_loss_weights(loss_weights)
             return outputs_, losses
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
@@ -238,7 +236,6 @@ class Model:
             # Weighted losses
             if loss_weights is not None:
                 losses *= torch.as_tensor(loss_weights)
-                self.losshistory.set_loss_weights(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -820,7 +817,7 @@ class LossHistory:
         self.loss_train = []
         self.loss_test = []
         self.metrics_test = []
-        self.loss_weights = 1
+        self.loss_weights = None
 
     def set_loss_weights(self, loss_weights):
         self.loss_weights = loss_weights
