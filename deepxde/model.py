@@ -701,6 +701,9 @@ class Model:
             if backend_name == "tensorflow.compat.v1":
                 save_path += ".ckpt"
                 self.saver.save(self.sess, save_path)
+            elif backend_name == "tensorflow":
+                save_path += ".ckpt"
+                self.net.save(save_path)
             elif backend_name == "pytorch":
                 save_path += ".pt"
                 checkpoint = {
@@ -731,6 +734,8 @@ class Model:
             print("Restoring model from {} ...\n".format(save_path))
         if backend_name == "tensorflow.compat.v1":
             self.saver.restore(self.sess, save_path)
+        elif backend_name == "tensorflow":
+            self.net.load_weights(save_path)
         elif backend_name == "pytorch":
             checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
