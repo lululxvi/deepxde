@@ -49,7 +49,8 @@ class Jacobian:
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "paddle":
-                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True, retain_graph=True)[0]
+                y = self.ys[:, i: i + 1] if self.dim_y > 1 else self.ys
+                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True)[0]
             elif backend_name == "jax":
                 # Here, we follow "Vector-valued gradients with VJPs" section in
                 # https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
@@ -70,7 +71,7 @@ class Jacobian:
 
                 self.J[i] = (vgrad(self.xs), vgrad)
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             return (
                 self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
             )
