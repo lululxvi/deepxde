@@ -287,7 +287,9 @@ class Model:
                 self.net.eval()
             self.net.inputs = paddle.to_tensor(inputs, stop_gradient=False)
             if auxiliary_vars is not None:
-                self.net.auxiliary_vars = paddle.to_tensor(auxiliary_vars, stop_gradient=False)
+                self.net.auxiliary_vars = paddle.to_tensor(
+                    auxiliary_vars, stop_gradient=False
+                )
             outputs_ = self.net(self.net.inputs)
             # Data losses
             if targets is not None:
@@ -395,13 +397,10 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-<<<<<<< HEAD
             outs = self.outputs_losses(training, inputs, targets)
         elif backend_name == "paddle":
             outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
-=======
             outs = self.outputs_losses(self.net.params, training, inputs, targets)
->>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -415,17 +414,12 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-<<<<<<< HEAD
-            self.train_step(inputs, targets)
-        elif backend_name == "paddle":
-            self.train_step(inputs, targets, auxiliary_vars)
-            
-=======
             self.net.params, self.opt_state = self.train_step(
                 self.net.params, self.opt_state, inputs, targets
             )
+        elif backend_name == "paddle":
+            self.train_step(inputs, targets, auxiliary_vars)
 
->>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
     @utils.timing
     def train(
         self,
@@ -798,8 +792,8 @@ class Model:
             elif backend_name == "paddle":
                 save_path += ".pdparams"
                 checkpoint = {
-                    'model': self.net.state_dict(),
-                    'opt': self.opt.state_dict()
+                    "model": self.net.state_dict(),
+                    "opt": self.opt.state_dict(),
                 }
                 paddle.save(checkpoint, save_path)
             else:

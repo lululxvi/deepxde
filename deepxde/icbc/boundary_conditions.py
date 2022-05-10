@@ -229,10 +229,9 @@ def npfunc_range_autocache(func):
             cache[key] = func(X[beg:end])
         return cache[key]
 
-<<<<<<< HEAD
     if backend_name in ["tensorflow.compat.v1", "tensorflow", "paddle"]:
         return wrapper_nocache
-=======
+
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
         key = (id(X), beg, end)
@@ -245,7 +244,7 @@ def npfunc_range_autocache(func):
             return wrapper_nocache
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
->>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
+
     if backend_name == "pytorch":
         if utils.get_num_args(func) == 1:
             return wrapper_cache
