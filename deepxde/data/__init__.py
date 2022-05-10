@@ -13,6 +13,7 @@ __all__ = [
     "MfDataSet",
     "MfFunc",
     "PDE",
+    "PDEOperator",
     "PowerSeries",
     "Quadruple",
     "QuadrupleCartesianProd",
@@ -33,5 +34,6 @@ from .func_constraint import FuncConstraint
 from .ide import IDE
 from .mf import MfDataSet, MfFunc
 from .pde import PDE, TimePDE
+from .pde_operator import PDEOperator
 from .quadruple import Quadruple, QuadrupleCartesianProd
 from .triple import Triple, TripleCartesianProd

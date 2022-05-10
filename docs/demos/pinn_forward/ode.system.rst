@@ -1,8 +1,8 @@
 A simple ODE system
-================
+===================
 
 Problem setup
---------------
+-------------
 
 We will solve a simple ODE system:
 
@@ -63,9 +63,9 @@ Then the initial conditions are specified using the computational domain, initia
 
 .. code-block:: python
 
-    ic1 = dde.icbc.IC(geom, np.sin, boundary, component=0)
-    ic2 = dde.icbc.IC(geom, np.cos, boundary, component=1)
-   
+    ic1 = dde.icbc.IC(geom, lambda x: 0, boundary, component=0)
+    ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
+
 Now, we have specified the geometry, ODEs, and initial conditions. Since ``PDE`` is also an ODE solver, we then define the ODE problem as
 
 .. code-block:: python
@@ -109,7 +109,7 @@ We also save and plot the best trained result and loss history.
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)  
 
 Complete code
---------------
+-------------
 
 .. literalinclude:: ../../../examples/pinn_forward/ode_system.py
   :language: python

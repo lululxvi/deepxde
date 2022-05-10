@@ -10,19 +10,9 @@ class NN(tf.keras.Model):
         super().__init__()
         self.training = True
         self.regularizer = None
-        self._inputs = None
         self._auxiliary_vars = None
         self._input_transform = None
         self._output_transform = None
-
-    @property
-    def inputs(self):
-        """Return the net inputs (Tensors)."""
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, value):
-        self._inputs = value
 
     @property
     def auxiliary_vars(self):
@@ -46,8 +36,7 @@ class NN(tf.keras.Model):
         self._output_transform = transform
 
     def num_trainable_parameters(self):
-        """Evaluate the number of trainable parameters for the NN.
-        """
+        """Evaluate the number of trainable parameters for the NN."""
         result = np.sum(
             [np.prod(v.get_shape().as_list()) for v in self.trainable_variables]
         )

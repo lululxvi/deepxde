@@ -5,7 +5,7 @@ class Data(abc.ABC):
     """Data base class."""
 
     @abc.abstractmethod
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         """Return a list of losses, i.e., constraints."""
 
     @abc.abstractmethod
@@ -29,7 +29,7 @@ class Tuple(Data):
         self.test_x = test_x
         self.test_y = test_y
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return [loss(targets, outputs)]
 
     def train_next_batch(self, batch_size=None):

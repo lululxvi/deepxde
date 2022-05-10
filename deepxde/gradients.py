@@ -1,4 +1,4 @@
-__all__ = ["clear", "hessian", "jacobian"]
+__all__ = ["jacobian", "hessian"]
 
 from .backend import backend_name, tf, torch, jax, paddle
 
@@ -18,15 +18,17 @@ class Jacobian:
         self.ys = ys
         self.xs = xs
 
-        if backend_name == "jax":
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+            self.dim_y = ys.shape[1]
+        elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
             # The array is used to control the dimensions and the callable is used to
-            # obtain the derivative function, which can be used to compute the derivatives.
+            # obtain the derivative function, which can be used to compute the
+            # derivatives.
             self.dim_y = ys[0].shape[1]
-        else:
-            self.dim_y = ys.shape[1]
         self.dim_x = xs.shape[1]
+
         self.J = {}
 
     def __call__(self, i=0, j=None):
@@ -49,27 +51,24 @@ class Jacobian:
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
             elif backend_name == "paddle":
-                y = self.ys[:, i: i + 1] if self.dim_y > 1 else self.ys
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True)[0]
             elif backend_name == "jax":
-                # Here, we follow "Vector-valued gradients with VJPs" section in
-                # https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
-                # and jax.vjp is directly used to compute derivatives alongside the first axis of mini-batch.
-                # A similiar choice is to use jax.vjp to compute derivatives on single datapoint and then use
-                # jax.vmap to vectorize the computation for the whole batch.
-                # In experiments so far, for computating first-order derivatives, directly using jax.vjp turned
-                # out to be slightly faster than, if not equal to, jax.vjp+jax.vmap.
-                # Other options are jax.jacrev+jax.vmap and jax.jacfwd+jax.vmap, which could be used to compute
-                # the full Jacobian matrix efficiently. In other words, instead of current lazy evaluation, which
-                # only computes and stores the i-th row of Jacobian matrix when needed, it computes and stores the
-                # whole Jacobian matrix on first called. This method may not be sufficient, if the considered PDE
-                # is not using most of elements in Jacobian matrix, which, however, is not common.
-
-                def vgrad(x):
-                    _, vjp_fn = jax.vjp(self.ys[1], x)
-                    return vjp_fn(jax.numpy.zeros_like(self.ys[0]).at[:, i].set(1))[0]
-
-                self.J[i] = (vgrad(self.xs), vgrad)
+                # Here, we use jax.grad to compute the gradient of a function. This is
+                # different from TensorFlow and PyTorch that the input of a function is
+                # no longer a batch. Instead, it is a single point. Formally, backend
+                # jax computes gradients pointwisely and then vectorizes to batch, by
+                # jax.vmap. However, computationally, this is in fact done batchwisely
+                # and efficiently. It is very important to note that, without jax.vmap,
+                # this can only deal with functions whose output is a scalar and input
+                # is a single point.
+                # Other options are jax.jacrev + jax.vmap or jax.jacfwd + jax.vmap,
+                # which could be used to compute the full Jacobian matrix efficiently,
+                # if needed. Also, jax.vjp, jax.jvp will bring more flexibility and
+                # efficiency. jax.vjp + jax.vmap or jax.jvp + jax.vmap will be
+                # implemented in the future.
+                grad_fn = jax.grad(lambda x: self.ys[1](x)[i])
+                self.J[i] = (jax.vmap(grad_fn)(self.xs), grad_fn)
 
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             return (
@@ -84,7 +83,7 @@ class Jacobian:
                 if j is None or self.dim_x == 1
                 else (
                     self.J[i][0][:, j : j + 1],
-                    lambda x: self.J[i][1](x)[:, j : j + 1],
+                    lambda inputs: self.J[i][1](inputs)[j : j + 1],
                 )
             )
 
@@ -203,7 +202,11 @@ class Hessian:
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        dim_y = y.shape[1]
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+            dim_y = y.shape[1]
+        elif backend_name == "jax":
+            dim_y = y[0].shape[0]
+
         if dim_y > 1:
             if component is None:
                 raise ValueError("The component of y is missing.")
@@ -245,6 +248,8 @@ class Hessians:
             key = (y, xs, component)
         elif backend_name == "paddle":
             key = (y, xs, component)
+        elif backend_name == "jax":
+            key = (id(y[0]), id(xs), component)
         if key not in self.Hs:
             self.Hs[key] = Hessian(y, xs, component=component, grad_y=grad_y)
         return self.Hs[key](i, j)

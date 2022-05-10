@@ -25,8 +25,11 @@ def sample(n_samples, dimension, sampler="pseudo"):
 
 def pseudo(n_samples, dimension):
     """Pseudo random."""
-    rng = np.random.default_rng(config.random_seed)
-    return rng.random(size=(n_samples, dimension), dtype=config.real(np))
+    # If random seed is set, then the rng based code always returns the same random
+    # number, which may not be what we expect.
+    # rng = np.random.default_rng(config.random_seed)
+    # return rng.random(size=(n_samples, dimension), dtype=config.real(np))
+    return np.random.random(size=(n_samples, dimension)).astype(config.real(np))
 
 
 def quasirandom(n_samples, dimension, sampler):

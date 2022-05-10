@@ -1,6 +1,5 @@
 __all__ = ["Model", "TrainState", "LossHistory"]
 
-import functools
 import pickle
 from collections import OrderedDict
 
@@ -129,7 +128,9 @@ class Model:
             self.saver = tf.train.Saver(max_to_keep=None)
 
         # Data losses
-        losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
+        losses = self.data.losses(
+            self.net.targets, self.net.outputs, loss_fn, self.net.inputs, self
+        )
         if not isinstance(losses, list):
             losses = [losses]
         # Regularization loss
@@ -161,13 +162,12 @@ class Model:
         @tf.function
         def outputs_losses(training, inputs, targets, auxiliary_vars):
             self.net.training = training
-            self.net.inputs = inputs
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
             outputs_ = self.net(inputs, training=training)
             # Data losses
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
@@ -225,13 +225,13 @@ class Model:
 
         def outputs_losses(training, inputs, targets):
             self.net.train(mode=training)
-            self.net.inputs = torch.as_tensor(inputs)
-            self.net.inputs.requires_grad_()
-            outputs_ = self.net(self.net.inputs)
+            inputs = torch.as_tensor(inputs)
+            inputs.requires_grad_()
+            outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
@@ -327,68 +327,47 @@ class Model:
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
         """jax"""
-        # initialize network's parameters
-        # TODO: Init should move to network module, because we don't know how to init here, e.g., DeepONet has two inputs.
+        # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
-        x = jax.numpy.empty(shape=[1, self.net.layer_sizes[0]])
-        self.net.params = self.net.init(key, x)
+        self.net.params = self.net.init(key, self.data.test()[0])
+        # TODO: learning rate decay
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
+        self.opt_state = self.opt.init(self.net.params)
 
         @jax.jit
-        @functools.partial(jax.vmap, in_axes=(None, None, 0), out_axes=0)
-        def inner_outputs(params, training, inputs):
+        def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
         @jax.jit
-        @functools.partial(jax.vmap, in_axes=(None, None, 0, 0), out_axes=(0, 0))
-        def inner_outputs_losses(params, training, inputs, targets):
-            # TODO: add auxiliary vars, regularization loss, weighted losses
-            _outputs = self.net.apply(params, inputs, training=training)
+        def outputs_losses(params, training, inputs, targets):
+            # TODO: Add auxiliary vars
+            def outputs_fn(inputs):
+                return self.net.apply(params, inputs, training=training)
+
+            outputs_ = self.net.apply(params, inputs, training=training)
             # Data losses
-            # TODO: support passing auxiliary arguments to data.losses, for all data types. Note
-            # that this is particularly useful for jax backend, and is not the same as auxiliary_vars.
-            # Possible auxiliary arguments are inputs, masks indicating whether current inputs are
-            # at boundary/initial conditions.
-            losses = self.data.losses(targets, _outputs, loss_fn, self, aux=None)
+            # We use aux so that self.data.losses is a pure function.
+            losses = self.data.losses(
+                targets, outputs_, loss_fn, inputs, self, aux=outputs_fn
+            )
+            # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
                 losses = [losses]
-            return _outputs, jax.numpy.stack(losses)
+            losses = jax.numpy.asarray(losses)
+            return outputs_, losses
 
         @jax.jit
-        def inner_train_step(params, opt_state, inputs, targets):
+        def train_step(params, opt_state, inputs, targets):
             def loss_function(params):
-                return jax.numpy.sum(
-                    inner_outputs_losses(params, True, inputs, targets)[1], axis=0
-                ).reshape([])
+                return jax.numpy.sum(outputs_losses(params, True, inputs, targets)[1])
 
-            grad_fn = jax.grad(
-                loss_function
-            )  # jax.value_and_grad seems to be slightly faster than jax.grad for function approximation
+            grad_fn = jax.grad(loss_function)
             grads = grad_fn(params)
             updates, new_opt_state = self.opt.update(grads, opt_state)
             new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
 
-        def outputs(training, inputs):
-            return inner_outputs(self.net.params, training, inputs)
-
-        def outputs_losses(training, inputs, targets):
-            _outputs, _losses = inner_outputs_losses(
-                self.net.params, training, inputs, targets
-            )
-            return _outputs, jax.numpy.sum(
-                _losses, axis=0
-            )  # sum over the first axis, because here _losses is a batch
-
-        def train_step(inputs, targets):
-            self.net.params, self.opt_state = inner_train_step(
-                self.net.params, self.opt_state, inputs, targets
-            )
-
-        # TODO: add decay
-        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
-        self.opt_state = self.opt.init(self.net.params)
-
-        # Callables
+        # Pure functions
         self.outputs = outputs
         self.outputs_losses = outputs_losses
         self.train_step = train_step
@@ -397,8 +376,10 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        # tensorflow and pytorch
-        outs = self.outputs(training, inputs)
+        if backend_name in ["tensorflow", "pytorch"]:
+            outs = self.outputs(training, inputs)
+        elif backend_name == "jax":
+            outs = self.outputs(self.net.params, training, inputs)
         return utils.to_numpy(outs)
 
     def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
@@ -414,9 +395,13 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
+<<<<<<< HEAD
             outs = self.outputs_losses(training, inputs, targets)
         elif backend_name == "paddle":
             outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
+=======
+            outs = self.outputs_losses(self.net.params, training, inputs, targets)
+>>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -430,10 +415,17 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
+<<<<<<< HEAD
             self.train_step(inputs, targets)
         elif backend_name == "paddle":
             self.train_step(inputs, targets, auxiliary_vars)
             
+=======
+            self.net.params, self.opt_state = self.train_step(
+                self.net.params, self.opt_state, inputs, targets
+            )
+
+>>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
     @utils.timing
     def train(
         self,

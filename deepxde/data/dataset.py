@@ -46,8 +46,8 @@ class DataSet(Data):
                 self.train_x, self.test_x
             )
 
-    def losses(self, targets, outputs, loss, model):
-        return [loss(targets, outputs)]
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         return self.train_x, self.train_y

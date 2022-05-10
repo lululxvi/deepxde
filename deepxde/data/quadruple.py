@@ -4,7 +4,7 @@ from .sampler import BatchSampler
 
 class Quadruple(Data):
     """Dataset with each data point as a quadruple.
-    
+
     The couple of the first three elements are the input, and the fourth element is the
     output. This dataset can be used with the network ``MIONet`` for operator
     learning.
@@ -22,8 +22,8 @@ class Quadruple(Data):
 
         self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
 
-    def losses(self, targets, outputs, loss, model):
-        return [loss(targets, outputs)]
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
@@ -74,8 +74,8 @@ class QuadrupleCartesianProd(Data):
 
         self.train_sampler = BatchSampler(len(X_train[0]), shuffle=True)
 
-    def losses(self, targets, outputs, loss, model):
-        return [loss(targets, outputs)]
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         if batch_size is None:

@@ -4,8 +4,7 @@ from flax import linen as nn
 class NN(nn.Module):
     """Base class for all neural network modules."""
 
-    # all sub-modules should have the following init-only variables:
-    # training: bool = True
+    # All sub-modules should have the following variables:
     # params: Any = None
     # _input_transform: Optional[Callable] = None
     # _output_transform: Optional[Callable] = None
