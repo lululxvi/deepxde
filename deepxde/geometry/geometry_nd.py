@@ -86,8 +86,7 @@ class Hypercube(Geometry):
     def random_boundary_points(self, n, random="pseudo"):
         x = sample(n, self.dim, random)
         # Randomly pick a dimension
-        rng = np.random.default_rng()
-        rand_dim = rng.integers(self.dim, size=n)
+        rand_dim = np.random.randint(self.dim, size=n)
         # Replace value of the randomly picked dimension with the nearest boundary value (0 or 1)
         x[np.arange(n), rand_dim] = np.round(x[np.arange(n), rand_dim])
         return (self.xmax - self.xmin) * x + self.xmin

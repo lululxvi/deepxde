@@ -24,9 +24,9 @@ class MfFunc(Data):
         self.X_test = None
         self.y_test = None
 
-    def losses(self, targets, outputs, loss, model):
-        loss_lo = loss(targets[0][: self.num_lo], outputs[0][: self.num_lo])
-        loss_hi = loss(targets[1][self.num_lo :], outputs[1][self.num_lo :])
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        loss_lo = loss_fn(targets[0][: self.num_lo], outputs[0][: self.num_lo])
+        loss_hi = loss_fn(targets[1][self.num_lo :], outputs[1][self.num_lo :])
         return [loss_lo, loss_hi]
 
     @run_if_any_none("X_train", "y_train")
@@ -109,12 +109,12 @@ class MfDataSet(Data):
         if standardize:
             self._standardize()
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
         loss_lo = tf.cond(
-            n > 0, lambda: loss(targets[0][:n], outputs[0][:n]), lambda: 0.0
+            n > 0, lambda: loss_fn(targets[0][:n], outputs[0][:n]), lambda: 0.0
         )
-        loss_hi = loss(targets[1][n:], outputs[1][n:])
+        loss_hi = loss_fn(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
 
     @run_if_any_none("X_train", "y_train")

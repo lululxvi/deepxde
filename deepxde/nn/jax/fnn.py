@@ -9,15 +9,15 @@ from .. import initializers
 
 
 class FNN(NN):
-    """Fully-connected neural network"""
+    """Fully-connected neural network."""
 
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
-    training: bool = True
+
+    params: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
-    params: Any = None
 
     def setup(self):
         # TODO: implement get regularizer
@@ -34,7 +34,7 @@ class FNN(NN):
             for unit in self.layer_sizes[1:]
         ]
 
-    def __call__(self, inputs, training=True):
+    def __call__(self, inputs, training=False):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)

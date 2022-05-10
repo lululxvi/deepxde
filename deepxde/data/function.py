@@ -41,8 +41,8 @@ class Function(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, targets, outputs, loss, model, aux=None):
-        return [loss(targets, outputs)]
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         if self.train_x is None or self.online:

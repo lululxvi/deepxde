@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+=======
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax"""
+>>>>>>> 8f4cc1505eaf121e59f844e66d5e712c6254f2fe
 import deepxde as dde
 import numpy as np
 
@@ -8,9 +12,15 @@ def ode_system(x, y):
     dy1/dx = y2
     dy2/dx = -y1
     """
+    # Most backends
     y1, y2 = y[:, 0:1], y[:, 1:]
     dy1_x = dde.grad.jacobian(y, x, i=0)
     dy2_x = dde.grad.jacobian(y, x, i=1)
+    # Backend jax
+    # y_val, y_fn = y
+    # y1, y2 = y_val[:, 0:1], y_val[:, 1:]
+    # dy1_x, _ = dde.grad.jacobian(y, x, i=0)
+    # dy2_x, _ = dde.grad.jacobian(y, x, i=1)
     return [dy1_x - y2, dy2_x + y1]
 
 
@@ -27,8 +37,8 @@ def func(x):
 
 
 geom = dde.geometry.TimeDomain(0, 10)
-ic1 = dde.icbc.IC(geom, np.sin, boundary, component=0)
-ic2 = dde.icbc.IC(geom, np.cos, boundary, component=1)
+ic1 = dde.icbc.IC(geom, lambda x: 0, boundary, component=0)
+ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
 
 layer_size = [1] + [50] * 3 + [2]

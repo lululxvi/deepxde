@@ -11,13 +11,13 @@ class Constraint(Data):
         self.train_x = train_x
         self.test_x = test_x
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         f = tf.cond(
             model.net.training,
-            lambda: self.constraint(model.net.inputs, outputs, self.train_x),
-            lambda: self.constraint(model.net.inputs, outputs, self.test_x),
+            lambda: self.constraint(inputs, outputs, self.train_x),
+            lambda: self.constraint(inputs, outputs, self.test_x),
         )
-        return loss(tf.zeros(tf.shape(f), dtype=config.real(tf)), f)
+        return loss_fn(tf.zeros(tf.shape(f), dtype=config.real(tf)), f)
 
     def train_next_batch(self, batch_size=None):
         return self.train_x, None
