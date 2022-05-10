@@ -161,7 +161,6 @@ class Model:
         @tf.function
         def outputs_losses(training, inputs, targets, auxiliary_vars):
             self.net.training = training
-            self.net.inputs = inputs
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
@@ -225,13 +224,13 @@ class Model:
 
         def outputs_losses(training, inputs, targets):
             self.net.train(mode=training)
-            self.net.inputs = torch.as_tensor(inputs)
-            self.net.inputs.requires_grad_()
-            outputs_ = self.net(self.net.inputs)
+            inputs = torch.as_tensor(inputs)
+            inputs.requires_grad_()
+            outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
-            losses = self.data.losses(targets, outputs_, loss_fn, self.net.inputs, self)
+            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization

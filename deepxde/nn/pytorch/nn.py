@@ -7,7 +7,6 @@ class NN(torch.nn.Module):
     def __init__(self):
         super().__init__()
         # torch.nn.Module has variable training
-        self.inputs = None
         self._input_transform = None
         self._output_transform = None
 
@@ -24,6 +23,5 @@ class NN(torch.nn.Module):
         self._output_transform = transform
 
     def num_trainable_parameters(self):
-        """Evaluate the number of trainable parameters for the NN.
-        """
+        """Evaluate the number of trainable parameters for the NN."""
         return sum(v.numel() for v in self.parameters() if v.requires_grad)
