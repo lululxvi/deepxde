@@ -127,7 +127,9 @@ class Model:
             self.saver = tf.train.Saver(max_to_keep=None)
 
         # Data losses
-        losses = self.data.losses(self.net.targets, self.net.outputs, loss_fn, self)
+        losses = self.data.losses(
+            self.net.targets, self.net.outputs, loss_fn, self.net.inputs, self
+        )
         if not isinstance(losses, list):
             losses = [losses]
         # Regularization loss
@@ -165,7 +167,7 @@ class Model:
             # gradient of outputs wrt inputs will be lost here.
             outputs_ = self.net(inputs, training=training)
             # Data losses
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
@@ -229,7 +231,7 @@ class Model:
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            losses = self.data.losses(targets, outputs_, loss_fn, self.net.inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
@@ -290,7 +292,7 @@ class Model:
             # Data losses
             # We use aux so that self.data.losses is a pure function.
             losses = self.data.losses(
-                targets, outputs_, loss_fn, self, aux=(inputs, outputs_fn)
+                targets, outputs_, loss_fn, inputs, self, aux=outputs_fn
             )
             # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):

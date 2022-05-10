@@ -69,28 +69,23 @@ class PDEOperator(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         f = []
         if self.pde.pde is not None:
-            f = self.pde.pde(model.net.inputs[1], outputs, model.net.inputs[2])
+            f = self.pde.pde(inputs[1], outputs, inputs[2])
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
         bcs_start = np.cumsum([0] + self.num_bcs)
         error_f = [fi[bcs_start[-1] :] for fi in f]
-        losses = [loss(bkd.zeros_like(error), error) for error in error_f]
+        losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
         for i, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(
-                self.train_x[1],
-                model.net.inputs[1],
-                outputs,
-                beg,
-                end,
-                aux_var=self.train_x[2],
+                self.train_x[1], inputs[1], outputs, beg, end, aux_var=self.train_x[2]
             )
-            losses.append(loss(bkd.zeros_like(error), error))
+            losses.append(loss_fn(bkd.zeros_like(error), error))
         return losses
 
     @run_if_all_none("train_x", "train_y")

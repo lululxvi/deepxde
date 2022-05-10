@@ -124,14 +124,12 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss, model, aux=None):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
-            inputs = model.net.inputs
             outputs_pde = outputs
         elif backend_name == "jax":
             # JAX requires pure functions
-            inputs = aux[0]
-            outputs_pde = (outputs, aux[1])
+            outputs_pde = (outputs, aux)
 
         f = []
         if self.pde is not None:
@@ -144,25 +142,25 @@ class PDE(Data):
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
-        if not isinstance(loss, (list, tuple)):
-            loss = [loss] * (len(f) + len(self.bcs))
-        elif len(loss) != len(f) + len(self.bcs):
+        if not isinstance(loss_fn, (list, tuple)):
+            loss_fn = [loss_fn] * (len(f) + len(self.bcs))
+        elif len(loss_fn) != len(f) + len(self.bcs):
             raise ValueError(
                 "There are {} errors, but only {} losses.".format(
-                    len(f) + len(self.bcs), len(loss)
+                    len(f) + len(self.bcs), len(loss_fn)
                 )
             )
 
         bcs_start = np.cumsum([0] + self.num_bcs)
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
+            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
         ]
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(self.train_x, inputs, outputs, beg, end)
-            losses.append(loss[len(error_f) + i](bkd.zeros_like(error), error))
+            losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
