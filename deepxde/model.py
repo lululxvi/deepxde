@@ -41,13 +41,14 @@ class Model:
         self.opt = None
         # Tensor or callable
         self.outputs = None
-        self.outputs_losses = None
+        self.outputs_losses_train = None
+        self.outputs_losses_test = None
         self.train_step = None
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
         elif backend_name == "jax":
-            self.opt_state = None  # TODO: to be removed to opt module
+            self.opt_state = None
 
     @utils.timing
     def compile(
@@ -278,8 +279,7 @@ class Model:
         def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
-        @jax.jit
-        def outputs_losses(params, training, inputs, targets):
+        def outputs_losses(params, training, inputs, targets, losses_fn):
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(params, inputs, training=training)
@@ -287,9 +287,7 @@ class Model:
             outputs_ = self.net.apply(params, inputs, training=training)
             # Data losses
             # We use aux so that self.data.losses is a pure function.
-            losses = self.data.losses(
-                targets, outputs_, loss_fn, inputs, self, aux=outputs_fn
-            )
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=outputs_fn)
             # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
                 losses = [losses]
@@ -297,9 +295,17 @@ class Model:
             return outputs_, losses
 
         @jax.jit
+        def outputs_losses_train(params, inputs, targets):
+            return outputs_losses(params, True, inputs, targets, self.data.losses_train)
+
+        @jax.jit
+        def outputs_losses_test(params, inputs, targets):
+            return outputs_losses(params, False, inputs, targets, self.data.losses_test)
+
+        @jax.jit
         def train_step(params, opt_state, inputs, targets):
             def loss_function(params):
-                return jax.numpy.sum(outputs_losses(params, True, inputs, targets)[1])
+                return jax.numpy.sum(outputs_losses_train(params, inputs, targets)[1])
 
             grad_fn = jax.grad(loss_function)
             grads = grad_fn(params)
@@ -309,7 +315,8 @@ class Model:
 
         # Pure functions
         self.outputs = outputs
-        self.outputs_losses = outputs_losses
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
     def _outputs(self, training, inputs):
@@ -335,7 +342,11 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            outs = self.outputs_losses(self.net.params, training, inputs, targets)
+            if training:
+                outputs_losses = self.outputs_losses_train
+            else:
+                outputs_losses = self.outputs_losses_test
+            outs = outputs_losses(self.net.params, inputs, targets)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):
