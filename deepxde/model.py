@@ -127,24 +127,30 @@ class Model:
             self.sess = tf.Session()
             self.saver = tf.train.Saver(max_to_keep=None)
 
-        # Data losses
-        losses = self.data.losses(
-            self.net.targets, self.net.outputs, loss_fn, self.net.inputs, self
-        )
-        if not isinstance(losses, list):
-            losses = [losses]
-        # Regularization loss
-        if self.net.regularizer is not None:
-            losses.append(tf.losses.get_regularization_loss())
-        losses = tf.convert_to_tensor(losses)
-        # Weighted losses
-        if loss_weights is not None:
-            losses *= loss_weights
-        total_loss = tf.math.reduce_sum(losses)
+        def losses(losses_fn):
+            # Data losses
+            losses = losses_fn(
+                self.net.targets, self.net.outputs, loss_fn, self.net.inputs, self
+            )
+            if not isinstance(losses, list):
+                losses = [losses]
+            # Regularization loss
+            if self.net.regularizer is not None:
+                losses.append(tf.losses.get_regularization_loss())
+            losses = tf.convert_to_tensor(losses)
+            # Weighted losses
+            if loss_weights is not None:
+                losses *= loss_weights
+            return losses
+
+        losses_train = losses(self.data.losses_train)
+        losses_test = losses(self.data.losses_test)
+        total_loss = tf.math.reduce_sum(losses_train)
 
         # Tensors
         self.outputs = self.net.outputs
-        self.outputs_losses = [self.net.outputs, losses]
+        self.outputs_losses_train = [self.net.outputs, losses_train]
+        self.outputs_losses_test = [self.net.outputs, losses_test]
         self.train_step = optimizers.get(
             total_loss, self.opt_name, learning_rate=lr, decay=decay
         )
@@ -331,8 +337,12 @@ class Model:
 
     def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
+            if training:
+                outputs_losses = self.outputs_losses_train
+            else:
+                outputs_losses = self.outputs_losses_test
             feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
-            return self.sess.run(self.outputs_losses, feed_dict=feed_dict)
+            return self.sess.run(outputs_losses, feed_dict=feed_dict)
         if backend_name == "tensorflow":
             outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
@@ -484,7 +494,7 @@ class Model:
         self.train_step.minimize(
             self.sess,
             feed_dict=feed_dict,
-            fetches=[self.outputs_losses[1]],
+            fetches=[self.outputs_losses_train[1]],
             loss_callback=loss_callback,
         )
         self._test()
