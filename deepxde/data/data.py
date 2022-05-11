@@ -38,7 +38,7 @@ class Tuple(Data):
         self.test_y = test_y
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return loss(targets, outputs)
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         return self.train_x, self.train_y
