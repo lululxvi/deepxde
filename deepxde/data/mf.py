@@ -109,13 +109,14 @@ class MfDataSet(Data):
         if standardize:
             self._standardize()
 
-    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
-        loss_lo = tf.cond(
-            n > 0, lambda: loss_fn(targets[0][:n], outputs[0][:n]), lambda: 0.0
-        )
+    def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        n = len(self.X_lo_train)
+        loss_lo = loss_fn(targets[0][:n], outputs[0][:n])
         loss_hi = loss_fn(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
+
+    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return [0, loss_fn(targets[1], outputs[1])]
 
     @run_if_any_none("X_train", "y_train")
     def train_next_batch(self, batch_size=None):
