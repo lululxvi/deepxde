@@ -159,7 +159,7 @@ class Model:
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        @tf.function
+        @tf.function(jit_compile=True)
         def outputs(training, inputs):
             return self.net(inputs, training=training)
 
@@ -181,13 +181,13 @@ class Model:
                 losses *= loss_weights
             return outputs_, losses
 
-        @tf.function
+        @tf.function(jit_compile=True)
         def outputs_losses_train(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 True, inputs, targets, auxiliary_vars, self.data.losses_train
             )
 
-        @tf.function
+        @tf.function(jit_compile=True)
         def outputs_losses_test(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
@@ -195,7 +195,7 @@ class Model:
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
-        @tf.function
+        @tf.function(jit_compile=True)
         def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:

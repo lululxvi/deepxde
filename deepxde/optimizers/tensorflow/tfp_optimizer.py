@@ -56,6 +56,7 @@ class LossAndFlatGradient:
             count += n
         self.partitions = tf.constant(self.partitions)
 
+    # @tf.function(jit_compile=True) has an error.
     @tf.function
     def __call__(self, weights_1d):
         """A function that can be used by tfp.optimizer.lbfgs_minimize.
