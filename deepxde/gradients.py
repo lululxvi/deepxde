@@ -144,9 +144,7 @@ class Jacobians:
         #     f(x)
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (ys.ref(), xs.ref())
-        elif backend_name == "pytorch":
-            key = (ys, xs)
-        elif backend_name == "paddle":
+        elif backend_name in ["pytorch", "paddle"]:
             key = (ys, xs)
         elif backend_name == "jax":
             key = (id(ys[0]), id(xs))
@@ -244,9 +242,7 @@ class Hessians:
     def __call__(self, y, xs, component=None, i=0, j=0, grad_y=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (y.ref(), xs.ref(), component)
-        elif backend_name == "pytorch":
-            key = (y, xs, component)
-        elif backend_name == "paddle":
+        elif backend_name in ["pytorch", "paddle"]:
             key = (y, xs, component)
         elif backend_name == "jax":
             key = (id(y[0]), id(xs), component)

@@ -319,7 +319,6 @@ class Model:
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
-                self.losshistory.set_loss_weights(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -430,7 +429,7 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            outs = self.outputs_losses(training, inputs, targets)
+            outs = outputs_losses(self.net.params, inputs, targets)
         elif backend_name == "paddle":
             outs = outputs_losses(inputs, targets)
         return utils.to_numpy(outs)
@@ -441,7 +440,7 @@ class Model:
             self.sess.run(self.train_step, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
             self.train_step(inputs, targets, auxiliary_vars)
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
         elif backend_name == "jax":
@@ -449,8 +448,6 @@ class Model:
             self.net.params, self.opt_state = self.train_step(
                 self.net.params, self.opt_state, inputs, targets
             )
-        elif backend_name == "paddle":
-            self.train_step(inputs, targets)
 
     @utils.timing
     def train(
@@ -779,9 +776,7 @@ class Model:
             values = self.sess.run(variables_names)
             for k, v in zip(variables_names, values):
                 destination[k] = v
-        elif backend_name == "pytorch":
-            destination = self.net.state_dict()
-        elif backend_name == "paddle":
+        elif backend_name in ["pytorch", "paddle"]:
             destination = self.net.state_dict()
         else:
             raise NotImplementedError(

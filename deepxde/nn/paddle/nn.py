@@ -6,7 +6,6 @@ class NN(paddle.nn.Layer):
 
     def __init__(self):
         super().__init__()
-        # paddle.nn.Module has variable training
         self._input_transform = None
         self._output_transform = None
 
