@@ -8,7 +8,6 @@ class NN(tf.keras.Model):
 
     def __init__(self):
         super().__init__()
-        self.training = True
         self.regularizer = None
         self._auxiliary_vars = None
         self._input_transform = None
