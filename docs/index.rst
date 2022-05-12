@@ -94,8 +94,8 @@ If you are looking for information on a specific function, class or method, this
   modules/deepxde.icbc
   modules/deepxde.nn
   modules/deepxde.nn.jax
-  modules/deepxde.nn.pytorch
   modules/deepxde.nn.paddle
+  modules/deepxde.nn.pytorch
   modules/deepxde.nn.tensorflow
   modules/deepxde.nn.tensorflow_compat_v1
   modules/deepxde.optimizers

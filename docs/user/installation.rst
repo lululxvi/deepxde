@@ -10,7 +10,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 - TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
 - PyTorch: `PyTorch <https://pytorch.org/>`_>=1.9.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
-- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn//>`_ develop version
+- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn>`_ develop version
 
 Then, you can install DeepXDE itself.
 
@@ -54,7 +54,7 @@ $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 deepxd
 Working with different backends
 -------------------------------
 
-DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch,PaddlePaddle and JAX backends. DeepXDE will choose the backend on the following options (high priority to low priority)
+DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, PaddlePaddle and JAX backends. DeepXDE will choose the backend on the following options (high priority to low priority)
 
 * Use the ``DDEBACKEND`` environment variable:
 
@@ -77,7 +77,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
     - The file has the content such as ``{"backend": "tensorflow.compat.v1"}``
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
 
-Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch),"paddle" (PaddlePaddle), and "jax" (JAX). The default backend is TensorFlow 1.x.
+Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "paddle" (PaddlePaddle), and "jax" (JAX). The default backend is TensorFlow 1.x.
 
 Which backend should I choose?
 ``````````````````````````````
@@ -125,6 +125,6 @@ JAX backend
 Export ``DDEBACKEND`` as ``jax`` to specify JAX backend.
 
 Paddle backend
-````````````````````
+``````````````
 
 Export ``DDEBACKEND`` as ``paddle`` to specify PaddlePaddle backend.

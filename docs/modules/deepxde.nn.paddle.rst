@@ -1,8 +1,8 @@
 deepxde.nn.paddle
-==================
+=================
 
 deepxde.nn.paddle.fnn module
------------------------------
+----------------------------
 
 .. automodule:: deepxde.nn.paddle.fnn
    :members:
@@ -10,7 +10,7 @@ deepxde.nn.paddle.fnn module
    :show-inheritance:
 
 deepxde.nn.paddle.nn module
-----------------------------
+---------------------------
 
 .. automodule:: deepxde.nn.paddle.nn
    :members:

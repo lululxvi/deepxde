@@ -1,11 +1,11 @@
 deepxde.backend.paddle package
-===============================
+==============================
 
 Submodules
 ----------
 
 deepxde.backend.paddle.tensor module
--------------------------------------
+------------------------------------
 
 .. automodule:: deepxde.backend.paddle.tensor
    :members:
