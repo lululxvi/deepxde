@@ -337,8 +337,8 @@ class Model:
         def outputs_losses_test(inputs, targets):
             return outputs_losses(False, inputs, targets, self.data.losses_test)
 
-        def train_step(inputs, targets, auxiliary_vars):
-            losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
+        def train_step(inputs, targets):
+            losses = outputs_losses_train(inputs, targets)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
             self.opt.step()
@@ -450,7 +450,7 @@ class Model:
                 self.net.params, self.opt_state, inputs, targets
             )
         elif backend_name == "paddle":
-            self.train_step(inputs, targets, auxiliary_vars)
+            self.train_step(inputs, targets)
 
     @utils.timing
     def train(
