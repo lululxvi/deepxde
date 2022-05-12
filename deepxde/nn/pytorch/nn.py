@@ -6,7 +6,6 @@ class NN(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
-        # torch.nn.Module has variable training
         self._input_transform = None
         self._output_transform = None
 
