@@ -18,7 +18,7 @@ class Jacobian:
         self.ys = ys
         self.xs = xs
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             self.dim_y = ys.shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
@@ -202,7 +202,7 @@ class Hessian:
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             dim_y = y.shape[1]
         elif backend_name == "jax":
             dim_y = y[0].shape[0]

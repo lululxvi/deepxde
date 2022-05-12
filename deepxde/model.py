@@ -300,21 +300,17 @@ class Model:
             with paddle.no_grad():
                 return self.net(paddle.to_tensor(inputs))
 
-        def outputs_losses(training, inputs, targets, auxiliary_vars):
+        def outputs_losses(training, inputs, targets, losses_fn):
             if training:
                 self.net.train()
             else:
                 self.net.eval()
-            self.net.inputs = paddle.to_tensor(inputs, stop_gradient=False)
-            if auxiliary_vars is not None:
-                self.net.auxiliary_vars = paddle.to_tensor(
-                    auxiliary_vars, stop_gradient=False
-                )
-            outputs_ = self.net(self.net.inputs)
+            inputs = paddle.to_tensor(inputs, stop_gradient=False)
+            outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
-            losses = self.data.losses(targets, outputs_, loss_fn, self)
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
@@ -335,6 +331,12 @@ class Model:
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
+        def outputs_losses_train(inputs, targets):
+            return outputs_losses(True, inputs, targets, self.data.losses_train)
+
+        def outputs_losses_test(inputs, targets):
+            return outputs_losses(False, inputs, targets, self.data.losses_test)
+
         def train_step(inputs, targets, auxiliary_vars):
             losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
@@ -344,7 +346,8 @@ class Model:
 
         # Callables
         self.outputs = outputs
-        self.outputs_losses = outputs_losses
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
@@ -429,7 +432,7 @@ class Model:
             # TODO: auxiliary_vars
             outs = self.outputs_losses(training, inputs, targets)
         elif backend_name == "paddle":
-            outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
+            outs = outputs_losses(inputs, targets)
         return utils.to_numpy(outs)
 
     def _train_step(self, inputs, targets, auxiliary_vars):

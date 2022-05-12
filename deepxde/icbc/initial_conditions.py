@@ -33,4 +33,4 @@ class IC:
                 "IC func should return an array of shape N by 1 for a single component."
                 "Use argument 'component' for different components."
             )
-        return outputs[beg:end, self.component : self.component + 1] - values
+        return outputs[int(beg):int(end), self.component : self.component + 1] - values
