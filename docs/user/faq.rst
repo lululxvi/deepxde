@@ -11,13 +11,13 @@ General usage
 - | **Q**: By default, DeepXDE uses ``float32``. How can I use ``float64``?
   | **A**: `#28`_
 - | **Q**: I want to set the global random seeds.
-  | **A**: `#353`_
+  | **A**: `#353`_, `#585`_, `#618`_
 - | **Q**: GPU.
   | **A**: `#464`_
 - | **Q**: How can I use a trained model for new predictions?
   | **A**: `#10`_, `#18`_, `#93`_, `#177`_
 - | **Q**: How can I save a trained model and then load the model later?
-  | **A**: `#54`_, `#57`_, `#58`_, `#63`_, `#103`_, `#206`_, `#254`_, `#468`_
+  | **A**: `#54`_, `#57`_, `#58`_, `#63`_, `#103`_, `#206`_, `#254`_, `#468`_, `#659`_
 - | **Q**: More details about DeepXDE source code, and want to modify DeepXDE.
   | **A**: `#68`_, `#346`_
 
@@ -241,3 +241,6 @@ Multi-fidelity NN
 .. _#487: https://github.com/lululxvi/deepxde/issues/487
 .. _#490: https://github.com/lululxvi/deepxde/issues/490
 .. _#504: https://github.com/lululxvi/deepxde/issues/504
+.. _#585: https://github.com/lululxvi/deepxde/issues/585
+.. _#618: https://github.com/lululxvi/deepxde/issues/618
+.. _#659: https://github.com/lululxvi/deepxde/issues/659
