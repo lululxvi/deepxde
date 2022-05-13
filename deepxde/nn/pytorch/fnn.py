@@ -39,21 +39,18 @@ class FNN(NN):
 
 class PFNN(FNN):
     """
-    Parallel fully-connected network that uses independent
-    sub-networks for each network output.
+    Parallel fully-connected network that uses independent sub-networks for each network output.
 
     Args:
-        layer_sizes: A nested list that defines the architecture
-            of the neural network (how the layers are connected).
+        layer_sizes: A nested list that defines the architecture of the neural network
+        (how the layers are connected).
 
-            If `layer_sizes[i]` is an int, it represents one layer
-            shared by all the outputs; if `layer_sizes[i]` is list,
-            it represents `len(layer_sizes[i])` sub-layers, each
-            of which is exclusively used by one output.
+        If `layer_sizes[i]` is an int, it represents one layer shared by all the
+        outputs; if `layer_sizes[i]` is a list, it represents `len(layer_sizes[i])`
+        sub-layers, each of which is exclusively used by one output.
 
-            Note that `len(layer_sizes[i])` should equal the number
-            of outputs. Every number specifies the number of neurons
-            in that layer.
+        Note that `len(layer_sizes[i])` should equal the number of outputs. Every
+        number specifies the number of neurons in that layer.
     """
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
@@ -67,7 +64,6 @@ class PFNN(FNN):
         assert isinstance(layer_sizes[0], int), "input size must be integer"
         assert isinstance(layer_sizes[-1], int), "output size must be integer"
 
-        n_input = layer_sizes[0]
         n_output = layer_sizes[-1]
 
         def make_linear(n_input, n_output):
