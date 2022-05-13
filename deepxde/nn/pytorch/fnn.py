@@ -47,7 +47,8 @@ class PFNN(FNN):
             of the neural network (how the layers are connected).
 
             If `layer_sizes[i]` is an int, it represents one layer
-            shared by all the outputs; if `layer_sizes[i]` is list,            it represents `len(layer_sizes[i])` sub-layers, each
+            shared by all the outputs; if `layer_sizes[i]` is list,
+            it represents `len(layer_sizes[i])` sub-layers, each
             of which is exclusively used by one output.
 
             Note that `len(layer_sizes[i])` should equal the number
