@@ -70,10 +70,10 @@ class DirichletBC(BC):
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
-        if bkd.ndim(values) > 0 and bkd.shape(values)[1] != 1:
+        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
-                "DirichletBC func should return an array of shape N by 1 for a single"
-                " component. Use argument 'component' for different components."
+                "DirichletBC function should return an array of shape N by 1 for each "
+                "component. Use argument 'component' for different output components."
             )
         return outputs[beg:end, self.component : self.component + 1] - values
 
@@ -175,7 +175,8 @@ class PointSetBC:
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
-                "PointSetBC should output 1D values. Use argument 'component' for different components."
+                "PointSetBC should output 1D values. Use argument 'component' for "
+                "different components."
             )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component

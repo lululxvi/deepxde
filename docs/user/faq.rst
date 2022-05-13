@@ -1,7 +1,7 @@
 FAQ
 ===
 
-If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following list of frequently asked DeepXDE questions. To get further help, you can open an issue in the GitHub "Issues" section.
+If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following list of frequently asked DeepXDE questions. To get further help, you can open a discussion in the GitHub `Discussions <https://github.com/lululxvi/deepxde/discussions>`_.
 
 General usage
 -------------

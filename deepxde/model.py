@@ -158,21 +158,17 @@ class Model:
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
-        @tf.function
+        @tf.function(jit_compile=True)
         def outputs(training, inputs):
             return self.net(inputs, training=training)
 
-        # TODO: Avoid creating multiple graphs by using tf.TensorSpec.
-        @tf.function
-        def outputs_losses(training, inputs, targets, auxiliary_vars):
-            self.net.training = training
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
             outputs_ = self.net(inputs, training=training)
             # Data losses
-            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
@@ -184,13 +180,25 @@ class Model:
                 losses *= loss_weights
             return outputs_, losses
 
+        @tf.function(jit_compile=True)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                True, inputs, targets, auxiliary_vars, self.data.losses_train
+            )
+
+        @tf.function(jit_compile=True)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                False, inputs, targets, auxiliary_vars, self.data.losses_test
+            )
+
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
-        @tf.function
+        @tf.function(jit_compile=True)
         def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
-                losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
@@ -202,7 +210,7 @@ class Model:
             inputs, targets, auxiliary_vars, previous_optimizer_results=None
         ):
             def build_loss():
-                losses = outputs_losses(True, inputs, targets, auxiliary_vars)[1]
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 return tf.math.reduce_sum(losses)
 
             trainable_variables = (
@@ -212,7 +220,8 @@ class Model:
 
         # Callables
         self.outputs = outputs
-        self.outputs_losses = outputs_losses
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
         self.train_step = (
             train_step
             if not optimizers.is_external_optimizer(self.opt_name)
@@ -227,7 +236,7 @@ class Model:
             with torch.no_grad():
                 return self.net(torch.as_tensor(inputs))
 
-        def outputs_losses(training, inputs, targets):
+        def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
             inputs = torch.as_tensor(inputs)
             inputs.requires_grad_()
@@ -235,7 +244,7 @@ class Model:
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
-            losses = self.data.losses(targets, outputs_, loss_fn, inputs, self)
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
@@ -246,6 +255,12 @@ class Model:
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
+
+        def outputs_losses_train(inputs, targets):
+            return outputs_losses(True, inputs, targets, self.data.losses_train)
+
+        def outputs_losses_test(inputs, targets):
+            return outputs_losses(False, inputs, targets, self.data.losses_test)
 
         # Another way is using per-parameter options
         # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
@@ -259,7 +274,7 @@ class Model:
 
         def train_step(inputs, targets):
             def closure():
-                losses = outputs_losses(True, inputs, targets)[1]
+                losses = outputs_losses_train(inputs, targets)[1]
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
                 total_loss.backward()
@@ -269,7 +284,8 @@ class Model:
 
         # Callables
         self.outputs = outputs
-        self.outputs_losses = outputs_losses
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
     def _compile_jax(self, lr, loss_fn, decay, loss_weights):
@@ -336,26 +352,22 @@ class Model:
         return utils.to_numpy(outs)
 
     def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
+        if training:
+            outputs_losses = self.outputs_losses_train
+        else:
+            outputs_losses = self.outputs_losses_test
         if backend_name == "tensorflow.compat.v1":
-            if training:
-                outputs_losses = self.outputs_losses_train
-            else:
-                outputs_losses = self.outputs_losses_test
             feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
             return self.sess.run(outputs_losses, feed_dict=feed_dict)
         if backend_name == "tensorflow":
-            outs = self.outputs_losses(training, inputs, targets, auxiliary_vars)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.net.requires_grad_(requires_grad=False)
-            outs = self.outputs_losses(training, inputs, targets)
+            outs = outputs_losses(inputs, targets)
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            if training:
-                outputs_losses = self.outputs_losses_train
-            else:
-                outputs_losses = self.outputs_losses_test
             outs = outputs_losses(self.net.params, inputs, targets)
         return utils.to_numpy(outs)
 
@@ -613,9 +625,9 @@ class Model:
                 to apply during prediction.
         """
         if isinstance(x, tuple):
-            x = tuple(np.array(xi, dtype=config.real(np)) for xi in x)
+            x = tuple(np.asarray(xi, dtype=config.real(np)) for xi in x)
         else:
-            x = np.array(x, dtype=config.real(np))
+            x = np.asarray(x, dtype=config.real(np))
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()

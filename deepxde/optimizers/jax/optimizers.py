@@ -24,11 +24,11 @@ def get(optimizer, learning_rate=None, decay=None):
 
     lr_schedule = _get_learningrate(learning_rate, decay)
     if optimizer == "adam":
-        return optax.adam(learning_rate=lr_schedule)
+        return optax.adam(lr_schedule)
     if optimizer == "rmsprop":
-        return optax.rmsprop(learning_rate=lr_schedule)
+        return optax.rmsprop(lr_schedule)
     if optimizer == "sgd":
-        return optax.sgd(learning_rate=lr_schedule)
+        return optax.sgd(lr_schedule)
 
     raise NotImplementedError(f"{optimizer} to be implemented for backend jax.")
 

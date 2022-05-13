@@ -49,8 +49,8 @@ def quasirandom(n_samples, dimension, sampler):
         else:
             sampler = skopt.sampler.Sobol(skip=0, randomize=False)
             space = [(0.0, 1.0)] * dimension
-            return np.array(
+            return np.asarray(
                 sampler.generate(space, n_samples + 2)[2:], dtype=config.real(np)
             )
     space = [(0.0, 1.0)] * dimension
-    return np.array(sampler.generate(space, n_samples), dtype=config.real(np))
+    return np.asarray(sampler.generate(space, n_samples), dtype=config.real(np))
