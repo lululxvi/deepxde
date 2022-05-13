@@ -14,6 +14,9 @@ class FNN(NN):
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
+        self.initialize_layers(layer_sizes, initializer, initializer_zero)
+
+    def initialize_layers(self, layer_sizes, weight_initializer, bias_initializer):
 
         self.linears = torch.nn.ModuleList()
         for i in range(1, len(layer_sizes)):
@@ -22,8 +25,8 @@ class FNN(NN):
                     layer_sizes[i - 1], layer_sizes[i], dtype=config.real(torch)
                 )
             )
-            initializer(self.linears[-1].weight)
-            initializer_zero(self.linears[-1].bias)
+            weight_initializer(self.linears[-1].weight)
+            bias_initializer(self.linears[-1].bias)
 
     def forward(self, inputs):
         x = inputs
@@ -53,12 +56,7 @@ class PFNN(FNN):
         number specifies the number of neurons in that layer.
     """
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
-        super(FNN, self).__init__()
-
-        self.activation = activations.get(activation)
-        initializer = initializers.get(kernel_initializer)
-        initializer_zero = initializers.get("zeros")
+    def initialize_layers(self, layer_sizes, weight_initializer, bias_initializer):
 
         assert len(layer_sizes) > 1, "must specify input and output sizes"
         assert isinstance(layer_sizes[0], int), "input size must be integer"
@@ -68,8 +66,8 @@ class PFNN(FNN):
 
         def make_linear(n_input, n_output):
             linear = torch.nn.Linear(n_input, n_output, config.real(torch))
-            initializer(linear.weight)
-            initializer_zero(linear.bias)
+            weight_initializer(linear.weight)
+            bias_initializer(linear.bias)
             return linear
 
         self.layers = torch.nn.ModuleList()
