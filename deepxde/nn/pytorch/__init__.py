@@ -2,4 +2,4 @@
 
 __all__ = ["FNN"]
 
-from .fnn import FNN
+from .fnn import FNN, PFNN
