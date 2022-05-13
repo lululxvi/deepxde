@@ -58,18 +58,18 @@ class PFNN(FNN):
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
         super(FNN, self).__init__()
-        
+
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
 
-        assert len(layer_sizes) > 1, 'must specify input and output sizes'
-        assert isinstance(layer_sizes[0], int), 'input size must be integer'
-        assert isinstance(layer_sizes[-1], int), 'output size must be integer'
-        
+        assert len(layer_sizes) > 1, "must specify input and output sizes"
+        assert isinstance(layer_sizes[0], int), "input size must be integer"
+        assert isinstance(layer_sizes[-1], int), "output size must be integer"
+
         n_input = layer_sizes[0]
         n_output = layer_sizes[-1]
-        
+
         def make_linear(n_input, n_output):
             linear = torch.nn.Linear(n_input, n_output, config.real(torch))
             initializer(linear.weight)
@@ -77,46 +77,58 @@ class PFNN(FNN):
             return linear
 
         self.layers = torch.nn.ModuleList()
-        for i in range(1, len(layer_sizes)-1):
+        for i in range(1, len(layer_sizes) - 1):
 
             prev_layer_size = layer_sizes[i - 1]
             curr_layer_size = layer_sizes[i]
 
             if isinstance(curr_layer_size, (list, tuple)):
-                assert len(curr_layer_size) == n_output, 'number of sub-layers should be equal to number of network outputs'
-                
-                if isinstance(prev_layer_size, (list, tuple)):
-                    
-                    # e.g. [8, 8, 8] -> [16, 16, 16]
-                    self.layers.append(torch.nn.ModuleList([
-                        make_linear(prev_layer_size[j], curr_layer_size[j])
-                            for j in range(n_output)
-                    ]))
-                    
-                else: # e.g. 64 -> [8, 8, 8]
-                    self.layers.append(torch.nn.ModuleList([
-                        make_linear(prev_layer_size, curr_layer_size[j])
-                            for j in range(n_output)
-                    ]))
+                error = "number of sub-layers should equal number of network outputs"
+                assert len(curr_layer_size) == n_output, error
 
-            else: # e.g. 64 -> 64
-                assert isinstance(prev_layer_size, int), 'cannot rejoin parallel subnetworks after splitting'
+                if isinstance(prev_layer_size, (list, tuple)):
+
+                    # e.g. [8, 8, 8] -> [16, 16, 16]
+                    self.layers.append(
+                        torch.nn.ModuleList(
+                            [
+                                make_linear(prev_layer_size[j], curr_layer_size[j])
+                                for j in range(n_output)
+                            ]
+                        )
+                    )
+
+                else:  # e.g. 64 -> [8, 8, 8]
+                    self.layers.append(
+                        torch.nn.ModuleList(
+                            [
+                                make_linear(prev_layer_size, curr_layer_size[j])
+                                for j in range(n_output)
+                            ]
+                        )
+                    )
+
+            else:  # e.g. 64 -> 64
+                error = "cannot rejoin parallel subnetworks after splitting"
+                assert isinstance(prev_layer_size, int), error
                 self.layers.append(make_linear(prev_layer_size, curr_layer_size))
-            
+
         # output layers
-        if isinstance(layer_sizes[-2], (list, tuple)): # e.g. [3, 3, 3] -> 3
-            self.layers.append(torch.nn.ModuleList([
-                make_linear(layer_sizes[-2][j], 1) for j in range(n_output)
-            ]))
+        if isinstance(layer_sizes[-2], (list, tuple)):  # e.g. [3, 3, 3] -> 3
+            self.layers.append(
+                torch.nn.ModuleList(
+                    [make_linear(layer_sizes[-2][j], 1) for j in range(n_output)]
+                )
+            )
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))
-            
+
     def forward(self, inputs):
-        
+
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
-            
+
         for layer in self.layers[:-1]:
             if isinstance(layer, torch.nn.ModuleList):
                 if isinstance(x, list):
@@ -125,7 +137,7 @@ class PFNN(FNN):
                     x = [self.activation(f(x)) for f in layer]
             else:
                 x = self.activation(layer(x))
-        
+
         # output layers
         if isinstance(x, list):
             x = torch.cat([f(x_) for f, x_ in zip(self.layers[-1], x)], dim=1)

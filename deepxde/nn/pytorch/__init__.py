@@ -4,4 +4,3 @@ __all__ = ["NN", "FNN", "PFNN"]
 
 from .nn import NN
 from .fnn import FNN, PFNN
-
