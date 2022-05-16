@@ -13,11 +13,12 @@ class Hypercube(Geometry):
     def __init__(self, xmin, xmax):
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
-        if np.any(np.array(xmin) >= np.array(xmax)):
-            raise ValueError("xmin >= xmax")
 
         self.xmin = np.array(xmin, dtype=config.real(np))
         self.xmax = np.array(xmax, dtype=config.real(np))
+        if np.any(self.xmin >= self.xmax):
+            raise ValueError("xmin >= xmax")
+
         self.side_length = self.xmax - self.xmin
         super().__init__(
             len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.side_length)

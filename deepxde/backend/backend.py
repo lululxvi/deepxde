@@ -69,7 +69,7 @@ def shape(input_tensor):
         input (Tensor): The input tensor.
 
     Returns:
-        list of ints: The tensor shape.
+        tuple or list of ints: The tensor shape.
     """
 
 

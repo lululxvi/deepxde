@@ -32,7 +32,7 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
-DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX (in development). For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io)
 
@@ -92,14 +92,6 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
-- Other dependencies
-
-  - [Matplotlib](https://matplotlib.org/)
-  - [NumPy](http://www.numpy.org/)
-  - [scikit-learn](https://scikit-learn.org)
-  - [scikit-optimize](https://scikit-optimize.github.io)
-  - [SciPy](https://www.scipy.org/)
-
 ## Explore more
 
 - [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
@@ -127,17 +119,15 @@ If you use DeepXDE for academic research, you are encouraged to cite the followi
 }
 ```
 
-Also, if you would like your paper to appear [here](https://deepxde.readthedocs.io/en/latest/user/research.html), open an issue in the GitHub "Issues" section.
-
 ## Contributing to DeepXDE
 
 First off, thanks for taking the time to contribute!
 
-- **Reporting bugs.** To report a bug, simply open an issue in the GitHub "Issues" section.
-- **Suggesting enhancements.** To submit an enhancement suggestion for DeepXDE, including completely new features and minor improvements to existing functionality, let us know by opening an issue.
+- **Reporting bugs.** To report a bug, simply open an issue in the GitHub [Issues](https://github.com/lululxvi/deepxde/issues).
+- **Suggesting enhancements.** To submit an enhancement suggestion for DeepXDE, including completely new features and minor improvements to existing functionality, let us know by opening an issue in the GitHub [Issues](https://github.com/lululxvi/deepxde/issues).
 - **Pull requests.** If you made improvements to DeepXDE, fixed a bug, or had a new example, feel free to send us a pull-request.
-- **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can as well open an issue.
-- **Answering questions.** If you know the answer to any question in the "Issues", you are welcomed to answer.
+- **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can open a discussion in the GitHub [Discussions](https://github.com/lululxvi/deepxde/discussions).
+- **Answering questions.** If you know the answer to any question in the [Discussions](https://github.com/lululxvi/deepxde/discussions), you are welcomed to answer.
 
 **Slack.** The DeepXDE Slack hosts a primary audience of moderate to experienced DeepXDE users and developers for general chat, online discussions, collaboration, etc. If you need a slack invite, please send me an email.
 
