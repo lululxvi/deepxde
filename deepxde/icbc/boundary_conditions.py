@@ -184,7 +184,7 @@ class PointSetBC:
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return outputs[beg:end, self.component : self.component + 1] - self.values
+        return outputs[int(beg):int(end), self.component : self.component + 1] - self.values
 
 
 def npfunc_range_autocache(func):
