@@ -27,14 +27,10 @@ def is_tensor(obj):
 
 
 def shape(input_tensor):
-    return list(input_tensor.shape)
+    return input_tensor.shape
 
 
 def ndim(input_tensor):
-    # TODO: needs improvement
-    if input_tensor.ndim == 1:
-        # There are no zero-dimensional tensors in paddle
-        return 0
     return input_tensor.ndim
 
 

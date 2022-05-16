@@ -152,7 +152,8 @@ class PDE(Data):
             )
 
         bcs_start = np.cumsum([0] + self.num_bcs)
-        error_f = [fi[int(bcs_start[-1]):] for fi in f]
+        bcs_start = list(map(int, bcs_start))
+        error_f = [fi[bcs_start[-1]:] for fi in f]
         losses = [
             loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
         ]

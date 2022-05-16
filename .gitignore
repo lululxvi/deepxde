@@ -10,6 +10,3 @@ docs/_build/
 
 # VSCode
 .vscode/
-
-# PyCharm
-.idea/
