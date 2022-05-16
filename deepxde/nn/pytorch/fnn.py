@@ -59,9 +59,12 @@ class PFNN(NN):
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
 
-        assert len(layer_sizes) > 1, "must specify input and output sizes"
-        assert isinstance(layer_sizes[0], int), "input size must be integer"
-        assert isinstance(layer_sizes[-1], int), "output size must be integer"
+        if len(layer_sizes) <= 1:
+            raise ValueError("must specify input and output sizes")
+        if not isinstance(layer_sizes[0], int):
+            raise ValueError("input size must be integer")
+        if not isinstance(layer_sizes[-1], int):
+            raise ValueError("output size must be integer")
 
         n_output = layer_sizes[-1]
 
@@ -79,7 +82,8 @@ class PFNN(NN):
 
             if isinstance(curr_layer_size, (list, tuple)):
                 error = "number of sub-layers should equal number of network outputs"
-                assert len(curr_layer_size) == n_output, error
+                if len(curr_layer_size) != n_output:
+                    raise ValueError(error)
 
                 if isinstance(prev_layer_size, (list, tuple)):
 
@@ -105,7 +109,8 @@ class PFNN(NN):
 
             else:  # e.g. 64 -> 64
                 error = "cannot rejoin parallel subnetworks after splitting"
-                assert isinstance(prev_layer_size, int), error
+                if not isinstance(prev_layer_size, int):
+                    raise ValueError(error)
                 self.layers.append(make_linear(prev_layer_size, curr_layer_size))
 
         # output layers
