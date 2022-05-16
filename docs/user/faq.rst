@@ -1,13 +1,13 @@
 FAQ
 ===
 
-If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following list of frequently asked DeepXDE questions. To get further help, you can open an issue in the GitHub "Issues" section.
+If you have any questions about DeepXDE, first read the papers/slides and watch the video at the `DeepXDE homepage <https://deepxde.readthedocs.io>`_ and also check the following list of frequently asked DeepXDE questions. To get further help, you can open a discussion in the GitHub `Discussions <https://github.com/lululxvi/deepxde/discussions>`_.
 
 General usage
 -------------
 
 - | **Q**: DeepXDE failed to run.
-  | **A**: `#2`_, `#3`_, `#5`_
+  | **A**: `#5`_
 - | **Q**: By default, DeepXDE uses ``float32``. How can I use ``float64``?
   | **A**: `#28`_
 - | **Q**: I want to set the global random seeds.
@@ -15,7 +15,7 @@ General usage
 - | **Q**: GPU.
   | **A**: `#464`_
 - | **Q**: How can I use a trained model for new predictions?
-  | **A**: `#10`_, `#18`_, `#93`_, `#177`_
+  | **A**: `#669`_, `#676`_, `#93`_, `#177`_
 - | **Q**: How can I save a trained model and then load the model later?
   | **A**: `#54`_, `#57`_, `#58`_, `#63`_, `#103`_, `#206`_, `#254`_, `#468`_
 - | **Q**: More details about DeepXDE source code, and want to modify DeepXDE.
@@ -25,21 +25,21 @@ PINN
 ----
 
 - | **Q**: What is the output of DeepXDE? How can I visualize the results?
-  | **A**: `#4`_, `#9`_, `#17`_, `#48`_, `#53`_, `#73`_, `#77`_, `#171`_, `#217`_, `#218`_, `#223`_, `#274`_, `#276`_
+  | **A**: `#668`_, `#9`_, `#675`_, `#48`_, `#53`_, `#73`_, `#77`_, `#171`_, `#217`_, `#218`_, `#223`_, `#274`_, `#276`_
 - | **Q**: More details and examples about geometry.
   | **A**: `#32`_, `#38`_, `#161`_, `#264`_, `#278`_, `#332`_
 - | **Q**: How can I implement new ODEs/PDEs, e.g., compute derivatives, complicated PDEs, complicated coefficients?
-  | **A**: `#12`_, `#13`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_, `#172`_, `#185`_, `#193`_, `#194`_, `#246`_, `#302`_, `#377`_, `#421`_, `#451`_, `#465`_, `#478`_, `#480`_
+  | **A**: `#670`_, `#21`_, `#22`_, `#74`_, `#78`_, `#79`_, `#124`_, `#172`_, `#185`_, `#193`_, `#194`_, `#246`_, `#302`_, `#377`_, `#421`_, `#451`_, `#465`_, `#478`_, `#480`_
 - | **Q**: More details and examples about initial conditions.
-  | **A**: `#19`_, `#75`_, `#104`_, `#134`_, `#398`_, `#485`_
+  | **A**: `#677`_, `#75`_, `#104`_, `#134`_, `#398`_, `#485`_
 - | **Q**: More details and examples about boundary conditions.
-  | **A**: `#6`_, `#10`_, `#15`_, `#16`_, `#22`_, `#26`_, `#33`_, `#38`_, `#40`_, `#44`_, `#49`_, `#115`_, `#140`_, `#156`_, `#352`_, `#365`_, `#457`_, `#475`_
+  | **A**: `#6`_, `#669`_, `#673`_, `#674`_, `#22`_, `#26`_, `#33`_, `#38`_, `#40`_, `#44`_, `#49`_, `#115`_, `#140`_, `#156`_, `#352`_, `#365`_, `#457`_, `#475`_
 - | **Q**: By default, initial/boundary conditions are enforced in DeepXDE as soft constraints. How can I enforce them as hard constraints?
   | **A**: `#36`_, `#90`_, `#92`_, `#252`_
 - | **Q**: How can I use a dataset of the solution?
   | **A**: `#362`_, `#487`_
 - | **Q**: I failed to train the network or get the right solution, e.g., large training loss, unbalanced losses.
-  | **A**: `#15`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_, `#188`_, `#247`_, `#305`_, `#321`_
+  | **A**: `#673`_, `#22`_, `#33`_, `#41`_, `#61`_, `#62`_, `#80`_, `#84`_, `#85`_, `#108`_, `#126`_, `#141`_, `#188`_, `#247`_, `#305`_, `#321`_
 - | **Q**: L-BFGS.
   | **A**: `#364`_, `#395`_
 - | **Q**: Implement certain features for the input, such as Fourier features.
@@ -87,20 +87,17 @@ Multi-fidelity NN
 - | **Q**: How can I use a trained model for new predictions?
   | **A**: `#324`_
 
-.. _#2: https://github.com/lululxvi/deepxde/issues/2
-.. _#3: https://github.com/lululxvi/deepxde/issues/3
-.. _#4: https://github.com/lululxvi/deepxde/issues/4
+.. _#668: https://github.com/lululxvi/deepxde/discussions/668
 .. _#5: https://github.com/lululxvi/deepxde/issues/5
 .. _#6: https://github.com/lululxvi/deepxde/issues/6
 .. _#9: https://github.com/lululxvi/deepxde/issues/9
-.. _#10: https://github.com/lululxvi/deepxde/issues/10
-.. _#12: https://github.com/lululxvi/deepxde/issues/12
-.. _#13: https://github.com/lululxvi/deepxde/issues/13
-.. _#15: https://github.com/lululxvi/deepxde/issues/15
-.. _#16: https://github.com/lululxvi/deepxde/issues/16
-.. _#17: https://github.com/lululxvi/deepxde/issues/17
-.. _#18: https://github.com/lululxvi/deepxde/issues/18
-.. _#19: https://github.com/lululxvi/deepxde/issues/19
+.. _#669: https://github.com/lululxvi/deepxde/discussions/669
+.. _#670: https://github.com/lululxvi/deepxde/discussions/670
+.. _#673: https://github.com/lululxvi/deepxde/discussions/673
+.. _#674: https://github.com/lululxvi/deepxde/discussions/674
+.. _#675: https://github.com/lululxvi/deepxde/discussions/675
+.. _#676: https://github.com/lululxvi/deepxde/discussions/676
+.. _#677: https://github.com/lululxvi/deepxde/discussions/677
 .. _#21: https://github.com/lululxvi/deepxde/issues/21
 .. _#22: https://github.com/lululxvi/deepxde/issues/22
 .. _#26: https://github.com/lululxvi/deepxde/issues/26

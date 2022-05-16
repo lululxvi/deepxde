@@ -688,9 +688,9 @@ class Model:
                 to apply during prediction.
         """
         if isinstance(x, tuple):
-            x = tuple(np.array(xi, dtype=config.real(np)) for xi in x)
+            x = tuple(np.asarray(xi, dtype=config.real(np)) for xi in x)
         else:
-            x = np.array(x, dtype=config.real(np))
+            x = np.asarray(x, dtype=config.real(np))
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         self.callbacks.on_predict_begin()

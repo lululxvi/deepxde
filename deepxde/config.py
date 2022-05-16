@@ -37,6 +37,10 @@ def set_default_float(value):
         real.set_float64()
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         tf.keras.backend.set_floatx(value)
+    # TODO: support jax.numpy.float64, which is not automatically enabled by default,
+    # and will be truncated to jax.numpy.float32 for now.
+    # - https://github.com/google/jax#current-gotchas
+    # - https://jax.readthedocs.io/en/latest/notebooks/Common_Gotchas_in_JAX.html#double-64bit-precision
 
 
 def set_random_seed(seed):
