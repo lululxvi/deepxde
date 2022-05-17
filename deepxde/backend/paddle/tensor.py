@@ -39,10 +39,10 @@ def Variable(initial_value, dtype=None):
 
 
 def as_tensor(data, dtype=None):
-    if isinstance(data, paddle.Tensor):
+    if isinstance(data, paddle.Tensor) or paddle.is_tensor(data):
         if dtype is None or data.dtype == dtype:
             return data
-        return data.astype(dtype=dtype)
+        return data.astype(dtype)
     return paddle.to_tensor(data, dtype=dtype)
 
 
@@ -87,7 +87,7 @@ def tanh(x):
 
 
 def mean(input_tensor, dim, keepdims=False):
-    return paddle.mean(input_tensor, dim, keepdim=keepdims)
+    return paddle.mean(input_tensor, axis=dim, keepdim=keepdims)
 
 
 def reduce_mean(input_tensor):
@@ -95,7 +95,7 @@ def reduce_mean(input_tensor):
 
 
 def sum(input_tensor, dim, keepdims=False):
-    return paddle.sum(input_tensor, dim, keepdim=keepdims)
+    return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
 
 
 def reduce_sum(input_tensor):

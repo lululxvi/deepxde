@@ -185,7 +185,7 @@ class PointSetBC:
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return outputs[int(beg):int(end), self.component : self.component + 1] - self.values
+        return outputs[beg:end, self.component : self.component + 1] - self.values
 
 
 def npfunc_range_autocache(func):
@@ -237,12 +237,12 @@ def npfunc_range_autocache(func):
             cache[key] = func(X[beg:end], aux_var[beg:end])
         return cache[key]
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax", "paddle"]:
+    if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]:
         if utils.get_num_args(func) == 1:
             return wrapper_nocache
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
-    if backend_name == "pytorch":
+    if backend_name in ["paddle", "pytorch"]:
         if utils.get_num_args(func) == 1:
             return wrapper_cache
         if utils.get_num_args(func) == 2:

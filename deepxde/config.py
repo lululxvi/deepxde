@@ -57,10 +57,10 @@ def set_random_seed(seed):
     elif backend_name == "tensorflow":
         tf.random.set_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
-    elif backend_name == "pytorch":
-        torch.manual_seed(seed)
     elif backend_name == "paddle":
         paddle.seed(seed)
+    elif backend_name == "pytorch":
+        torch.manual_seed(seed)
     elif backend_name == "jax":
         global jax_random_seed
         jax_random_seed = seed

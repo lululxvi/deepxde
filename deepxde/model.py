@@ -314,8 +314,7 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            losses = paddle.stack(losses)
-            losses = losses[:, 0]
+            losses = paddle.concat(losses, axis=0)
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
@@ -323,18 +322,18 @@ class Model:
             grad.clear()
             return outputs_, losses
 
+        def outputs_losses_train(inputs, targets):
+            return outputs_losses(True, inputs, targets, self.data.losses_train)
+
+        def outputs_losses_test(inputs, targets):
+            return outputs_losses(False, inputs, targets, self.data.losses_test)
+
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
         self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
-
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
-
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
 
         def train_step(inputs, targets):
             losses = outputs_losses_train(inputs, targets)[1]

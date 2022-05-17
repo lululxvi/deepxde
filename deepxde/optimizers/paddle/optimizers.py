@@ -2,8 +2,6 @@ __all__ = ["get", "is_external_optimizer"]
 
 import paddle
 
-from ..config import LBFGS_options
-
 
 def is_external_optimizer(optimizer):
     return optimizer in ["L-BFGS", "L-BFGS-B"]
@@ -24,8 +22,8 @@ def get(params, optimizer, learning_rate=None, decay=None):
     if decay is not None:
         # TODO: learning rate decay
         raise NotImplementedError(
-            "learning rate decay to be implemented for backend Paddle.")
+            "learning rate decay to be implemented for backend Paddle."
+        )
     if optimizer == "adam":
         return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
-    raise NotImplementedError(
-        f"{optimizer} to be implemented for backend Paddle.")
+    raise NotImplementedError(f"{optimizer} to be implemented for backend Paddle.")

@@ -16,8 +16,7 @@ class FNN(NN):
 
         self.linears = paddle.nn.LayerList()
         for i in range(1, len(layer_sizes)):
-            self.linears.append(
-                paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
+            self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
