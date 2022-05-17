@@ -745,8 +745,7 @@ class Model:
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
-            inputs = paddle.to_tensor(x)
-            inputs.stop_gradient = False
+            inputs = paddle.to_tensor(x, stop_gradient=False)
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
                 y = operator(inputs, outputs)

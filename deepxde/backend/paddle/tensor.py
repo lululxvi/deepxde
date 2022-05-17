@@ -39,7 +39,7 @@ def Variable(initial_value, dtype=None):
 
 
 def as_tensor(data, dtype=None):
-    if isinstance(data, paddle.Tensor) or paddle.is_tensor(data):
+    if paddle.is_tensor(data):
         if dtype is None or data.dtype == dtype:
             return data
         return data.astype(dtype)

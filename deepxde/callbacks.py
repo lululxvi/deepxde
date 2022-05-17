@@ -310,9 +310,7 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
-        elif backend_name == "pytorch":
-            self.value = [var.detach().item() for var in self.var_list]
-        elif backend_name == "paddle":
+        elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
         print(
             self.model.train_state.epoch,
