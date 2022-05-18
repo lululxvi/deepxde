@@ -131,5 +131,5 @@ Export ``DDEBACKEND`` as ``paddle`` to specify PaddlePaddle backend. In addition
 
 .. code:: python
 
-if paddle.device.is_compiled_with_cuda():
-    paddle.device.set_device("gpu")
+    if paddle.device.is_compiled_with_cuda():
+        paddle.device.set_device("gpu")
