@@ -125,7 +125,11 @@ class Model:
         if not self.net.built:
             self.net.build()
         if self.sess is None:
-            self.sess = tf.Session()
+            config = tf.ConfigProto()
+            config.graph_options.optimizer_options.global_jit_level = (
+                tf.OptimizerOptions.ON_2
+            )
+            self.sess = tf.Session(config=config)
             self.saver = tf.train.Saver(max_to_keep=None)
 
         def losses(losses_fn):
