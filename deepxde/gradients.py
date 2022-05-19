@@ -52,7 +52,7 @@ class Jacobian:
                 )[0]
             elif backend_name == "paddle":
                 y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
-                self.J[i] = paddle.autograd.grad(y, self.xs, create_graph=True)[0]
+                self.J[i] = paddle.grad(y, self.xs, create_graph=True)[0]
             elif backend_name == "jax":
                 # Here, we use jax.grad to compute the gradient of a function. This is
                 # different from TensorFlow and PyTorch that the input of a function is
