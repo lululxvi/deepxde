@@ -7,6 +7,7 @@ from .backend import backend_name, tf, torch
 from .real import Real
 
 random_seed = None
+hvd_dist = False
 real = Real(32)
 
 if backend_name == "jax":
@@ -64,3 +65,20 @@ def set_random_seed(seed):
         jax_random_seed = seed
     global random_seed
     random_seed = seed
+
+def set_hvd():
+    """Initialize horovod.
+    """
+    import horovod.tensorflow as hvd
+    # Initialize Horovod
+    hvd.init()
+
+    # Pin GPU to be used to process local rank (one GPU per process)
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+    if gpus:
+        tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+
+    global hvd_dist
+    hvd_dist = True

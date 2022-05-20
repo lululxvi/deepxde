@@ -90,6 +90,7 @@ class Model:
         """
         print("Compiling model...")
         self.opt_name = optimizer
+        self.first_batch = True
         loss_fn = losses_module.get(loss)
         self.losshistory.set_loss_weights(loss_weights)
         if external_trainable_variables is None:
@@ -162,7 +163,7 @@ class Model:
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        @tf.function(jit_compile=True)
+        @tf.function()
         def outputs(training, inputs):
             return self.net(inputs, training=training)
 
@@ -184,21 +185,25 @@ class Model:
                 losses *= loss_weights
             return outputs_, losses
 
-        @tf.function(jit_compile=True)
+        @tf.function
         def outputs_losses_train(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 True, inputs, targets, auxiliary_vars, self.data.losses_train
             )
 
-        @tf.function(jit_compile=True)
+        @tf.function
         def outputs_losses_test(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
-
+        if config.hvd_dist == True:
+            import horovod.tensorflow as hvd
+            #lr *= hvd.size()
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
+        
 
-        @tf.function(jit_compile=True)
+        #@tf.function(jit_compile=True)
+        @tf.function
         def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
@@ -207,8 +212,17 @@ class Model:
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
+            if config.hvd_dist == True:
+                tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
+            #if config.hvd_dist == True and self.first_batch == True:
+            if (config.hvd_dist == True) and (self.first_batch == True):
+                #hvd.broadcast_variables(self.net.variables, root_rank=0)
+                hvd.broadcast_variables(trainable_variables, root_rank=0)
+                hvd.broadcast_variables(opt.variables(), root_rank=0)
+                self.first_batch = False
+
 
         def train_step_tfp(
             inputs, targets, auxiliary_vars, previous_optimizer_results=None
@@ -456,14 +470,17 @@ class Model:
             self._train_sgd(epochs, display_every)
         self.callbacks.on_train_end()
 
-        print("")
         display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
     def _train_sgd(self, epochs, display_every):
+        # Change for hvd.side?
+        if config.hvd_dist == True:
+            import horovod.tensorflow as hvd
         for i in range(epochs):
+            
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
@@ -478,8 +495,14 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
+            
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
-                self._test()
+                if config.hvd_dist == False:
+                    self._test()
+                elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
+                    self._test()
+                    
+                
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
