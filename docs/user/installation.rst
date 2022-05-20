@@ -6,11 +6,11 @@ Installation
 
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
-- TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0
-- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org/>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
-- PyTorch: `PyTorch <https://pytorch.org/>`_>=1.9.0
+- TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org>`_>=2.2.0
+- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
+- PyTorch: `PyTorch <https://pytorch.org>`_>=1.9.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
-- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn>`_
+- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn>`_>=2.3.0
 
 Then, you can install DeepXDE itself.
 
@@ -54,7 +54,7 @@ $ nvidia-docker run -v $(pwd):/root/shared -w "/root/shared" -p 8888:8888 deepxd
 Working with different backends
 -------------------------------
 
-DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX and PaddlePaddle backends. DeepXDE will choose the backend on the following options (high priority to low priority)
+DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX, and PaddlePaddle backends. DeepXDE will choose the backend on the following options (high priority to low priority)
 
 * Use the ``DDEBACKEND`` environment variable:
 
@@ -124,8 +124,8 @@ JAX backend
 
 Export ``DDEBACKEND`` as ``jax`` to specify JAX backend.
 
-Paddle backend
-``````````````
+PaddlePaddle backend
+````````````````````
 
 Export ``DDEBACKEND`` as ``paddle`` to specify PaddlePaddle backend. In addition, if GPU is available, DeepXDE will set the default device to GPU, so that all the tensors will be created on GPU as default:
 
