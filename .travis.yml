@@ -30,6 +30,7 @@ install:
   - pip install tensorflow tensorflow-probability
   - conda install pytorch cpuonly -c pytorch
   - pip install jax flax optax
+  - pip install paddlepaddle
 
 script:
   # Your test script goes here
@@ -37,3 +38,4 @@ script:
   - DDEBACKEND=tensorflow python -c "import deepxde"
   - DDEBACKEND=pytorch python -c "import deepxde"
   - DDEBACKEND=jax python -c "import deepxde"
+  - DDEBACKEND=paddle python -c "import deepxde"
