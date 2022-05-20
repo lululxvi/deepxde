@@ -24,6 +24,7 @@ if os.environ.get("READTHEDOCS") == "True":
     # The backend should be tensorflow/tensorflow.compat.v1 to ensure backend.tf is not
     # None.
     from . import jax
+    from . import paddle    
     from . import pytorch
     from . import tensorflow
     from . import tensorflow_compat_v1

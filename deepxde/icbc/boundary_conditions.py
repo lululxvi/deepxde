@@ -242,7 +242,7 @@ def npfunc_range_autocache(func):
             return wrapper_nocache
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
-    if backend_name == "pytorch":
+    if backend_name in ["pytorch", "paddle"]:
         if utils.get_num_args(func) == 1:
             return wrapper_cache
         if utils.get_num_args(func) == 2:
