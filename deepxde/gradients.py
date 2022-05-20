@@ -1,6 +1,6 @@
 __all__ = ["jacobian", "hessian"]
 
-from .backend import backend_name, tf, torch, jax
+from .backend import backend_name, tf, torch, jax, paddle
 
 
 class Jacobian:
@@ -18,7 +18,7 @@ class Jacobian:
         self.ys = ys
         self.xs = xs
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             self.dim_y = ys.shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
@@ -50,6 +50,9 @@ class Jacobian:
                 self.J[i] = torch.autograd.grad(
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
+            elif backend_name == "paddle":
+                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
+                self.J[i] = paddle.grad(y, self.xs, create_graph=True)[0]
             elif backend_name == "jax":
                 # Here, we use jax.grad to compute the gradient of a function. This is
                 # different from TensorFlow and PyTorch that the input of a function is
@@ -67,7 +70,7 @@ class Jacobian:
                 grad_fn = jax.grad(lambda x: self.ys[1](x)[i])
                 self.J[i] = (jax.vmap(grad_fn)(self.xs), grad_fn)
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             return (
                 self.J[i] if j is None or self.dim_x == 1 else self.J[i][:, j : j + 1]
             )
@@ -141,7 +144,7 @@ class Jacobians:
         #     f(x)
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (ys.ref(), xs.ref())
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             key = (ys, xs)
         elif backend_name == "jax":
             key = (id(ys[0]), id(xs))
@@ -197,7 +200,7 @@ class Hessian:
     """
 
     def __init__(self, y, xs, component=None, grad_y=None):
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             dim_y = y.shape[1]
         elif backend_name == "jax":
             dim_y = y[0].shape[0]
@@ -239,7 +242,7 @@ class Hessians:
     def __call__(self, y, xs, component=None, i=0, j=0, grad_y=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
             key = (y.ref(), xs.ref(), component)
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             key = (y, xs, component)
         elif backend_name == "jax":
             key = (id(y[0]), id(xs), component)

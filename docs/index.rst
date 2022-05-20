@@ -24,7 +24,7 @@ DeepXDE
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://doi.org/10.1073/pnas.1922210117>`_]
 
-DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX. For how to select one, see `Working with different backends <https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends>`_.
+DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX and PaddlePaddle. For how to select one, see `Working with different backends <https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends>`_.
 
 **Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_
 
@@ -94,6 +94,7 @@ If you are looking for information on a specific function, class or method, this
   modules/deepxde.icbc
   modules/deepxde.nn
   modules/deepxde.nn.jax
+  modules/deepxde.nn.paddle
   modules/deepxde.nn.pytorch
   modules/deepxde.nn.tensorflow
   modules/deepxde.nn.tensorflow_compat_v1
