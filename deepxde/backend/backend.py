@@ -58,6 +58,14 @@ def data_type_dict():
     """
 
 
+def is_gpu_available():
+    """Returns a bool indicating if GPU is currently available.
+
+    Returns:
+        True if a GPU device is available.
+    """
+
+
 def is_tensor(obj):
     """Returns True if `obj` is a backend-native type tensor."""
 
