@@ -3,15 +3,18 @@ import random
 
 import numpy as np
 
+from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
-random_seed = None
 real = Real(32)
-
+random_seed = None
 if backend_name == "jax":
-    ii = np.iinfo(int)
-    jax_random_seed = random.randint(ii.min, ii.max)
+    iinfo = np.iinfo(int)
+    jax_random_seed = random.randint(iinfo.min, iinfo.max)
+xla_jit = None
+if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    xla_jit = bkd.is_gpu_available()
 
 
 def default_float():
@@ -66,3 +69,34 @@ def set_random_seed(seed):
         paddle.seed(seed)
     global random_seed
     random_seed = seed
+
+
+def enable_xla_jit(mode=True):
+    """Enables just-in-time compilation with XLA.
+
+    - For backend TensorFlow 1.x, by default, compiles with XLA when running on GPU.
+      XLA compilation can only be enabled when running on GPU.
+    - For backend TensorFlow 2.x, by default, compiles with XLA when running on GPU.
+    - Backend JAX always uses XLA.
+    - Backends PyTorch and PaddlePaddle do not support XLA.
+
+    Args:
+        mode (bool): Whether to enable just-in-time compilation with XLA (``True``) or
+            disable just-in-time compilation with XLA (``False``).
+    """
+    global xla_jit
+    xla_jit = mode
+
+
+def disable_xla_jit():
+    """Disables just-in-time compilation with XLA.
+
+    - For backend TensorFlow 1.x, by default, compiles with XLA when running on GPU.
+      XLA compilation can only be enabled when running on GPU.
+    - For backend TensorFlow 2.x, by default, compiles with XLA when running on GPU.
+    - Backend JAX always uses XLA.
+    - Backends PyTorch and PaddlePaddle do not support XLA.
+
+    This is equivalent with ``enable_xla_jit(False)``.
+    """
+    enable_xla_jit(False)
