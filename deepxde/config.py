@@ -55,11 +55,16 @@ def set_random_seed(seed):
     random.seed(seed)  # python random
     np.random.seed(seed)  # numpy
     if backend_name == "tensorflow.compat.v1":
+        import tensorflow as tf2
+
+        tf2.random.set_seed(seed)
         tf.set_random_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["PYTHONHASHSEED"] = str(seed)
     elif backend_name == "tensorflow":
         tf.random.set_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["PYTHONHASHSEED"] = str(seed)
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
     elif backend_name == "jax":
