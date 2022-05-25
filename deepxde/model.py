@@ -206,10 +206,6 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        if config.hvd_dist == True:
-            import horovod.tensorflow as hvd
-
-            # lr *= hvd.size()
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function(jit_compile=jit_compile)
@@ -225,9 +221,7 @@ class Model:
                 tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
-            # if config.hvd_dist == True and self.first_batch == True:
             if (config.hvd_dist == True) and (self.first_batch == True):
-                # hvd.broadcast_variables(self.net.variables, root_rank=0)
                 hvd.broadcast_variables(trainable_variables, root_rank=0)
                 hvd.broadcast_variables(opt.variables(), root_rank=0)
                 self.first_batch = False
@@ -401,7 +395,7 @@ class Model:
             losses = jax.numpy.asarray(losses)
             return outputs_, losses
 
-        @jax
+        @jax.jit
         def outputs_losses_train(params, inputs, targets):
             return outputs_losses(params, True, inputs, targets, self.data.losses_train)
 
@@ -524,7 +518,10 @@ class Model:
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        self._test()
+        if config.hvd_dist == False:
+            self._test()
+        elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
+            self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -545,11 +542,9 @@ class Model:
         return self.losshistory, self.train_state
 
     def _train_sgd(self, epochs, display_every):
-        # Change for hvd.side?
         if config.hvd_dist == True:
             import horovod.tensorflow as hvd
         for i in range(epochs):
-
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
