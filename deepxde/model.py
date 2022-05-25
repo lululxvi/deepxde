@@ -166,8 +166,13 @@ class Model:
 
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
+        
+        if config.hvd_dist == True:
+            jit_compile = None
+        else:
+            jit_compile = config.xla_jit
 
-        @tf.function(jit_compile=config.xla_jit)
+        @tf.function(jit_compile=jit_compile)
         def outputs(training, inputs):
             return self.net(inputs, training=training)
 
@@ -189,13 +194,13 @@ class Model:
                 losses *= loss_weights
             return outputs_, losses
 
-        @tf.function(jit_compile=config.xla_jit)
+        @tf.function(jit_compile=jit_compile)
         def outputs_losses_train(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 True, inputs, targets, auxiliary_vars, self.data.losses_train
             )
 
-        @tf.function(jit_compile=config.xla_jit)
+        @tf.function(jit_compile=jit_compile)
         def outputs_losses_test(inputs, targets, auxiliary_vars):
             return outputs_losses(
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
@@ -206,7 +211,7 @@ class Model:
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
         
 
-        @tf.function(jit_compile=config.xla_jit)
+        @tf.function(jit_compile=jit_compile)
         def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
@@ -396,7 +401,9 @@ class Model:
             losses = jax.numpy.asarray(losses)
             return outputs_, losses
 
-        @jax.jit
+        @jax
+        
+        
         def outputs_losses_train(params, inputs, targets):
             return outputs_losses(params, True, inputs, targets, self.data.losses_train)
 
