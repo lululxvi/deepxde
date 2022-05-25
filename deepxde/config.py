@@ -66,10 +66,9 @@ def set_random_seed(seed):
     np.random.seed(seed)  # numpy
     if backend_name == "tensorflow.compat.v1":
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
         tf.set_random_seed(seed)  # tf CPU seed
-        tf.config.threading.set_inter_op_parallelism_threads(1)
-        tf.config.threading.set_intra_op_parallelism_threads(1)
     elif backend_name == "tensorflow":
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
