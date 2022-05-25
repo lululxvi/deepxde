@@ -50,8 +50,9 @@ def set_random_seed(seed):
     """Set the global random seeds of random, numpy, and backend, so that your code runs deterministically.
 
     - For backend TensorFlow 2.x: Results might change if you run the model several times in the same terminal.
+
     Warning:
-    Note that determinism in general comes at the expense of lower performance and so your model may run slower when determinism is enabled.
+        Note that determinism in general comes at the expense of lower performance and so your model may run slower when determinism is enabled.
 
     Args:
         seed (int): The desired seed.
