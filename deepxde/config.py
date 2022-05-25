@@ -49,25 +49,29 @@ def set_default_float(value):
 def set_random_seed(seed):
     """Set the global random seeds of random, numpy, and backend.
 
+    - For backend TensorFlow 2.x: Works for version >=1.7. Results might change if you run the same model several times in the same terminal.
+
     Args:
         seed (int): The desired seed.
     """
     random.seed(seed)  # python random
     np.random.seed(seed)  # numpy
     if backend_name == "tensorflow.compat.v1":
-        # import tensorflow as tf2
-
-        # tf2.random.set_seed(seed)
         tf.set_random_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
         tf.config.threading.set_inter_op_parallelism_threads(1)
         tf.config.threading.set_intra_op_parallelism_threads(1)
-        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
     elif backend_name == "tensorflow":
         tf.random.set_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
+        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
+        tf.config.threading.set_inter_op_parallelism_threads(1)
+        tf.config.threading.set_intra_op_parallelism_threads(1)
+        tf.keras.utils.set_random_seed(seed)
+        tf.config.experimental.enable_op_determinism()
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
     elif backend_name == "jax":
