@@ -218,6 +218,7 @@ class Model:
                 self.net.trainable_variables + self.external_trainable_variables
             )
             if config.hvd_dist == True:
+                import horovod.tensorflow as hvd
                 tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
@@ -520,8 +521,10 @@ class Model:
         self.train_state.set_data_test(*self.data.test())
         if config.hvd_dist == False:
             self._test()
-        elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
-            self._test()
+        elif (config.hvd_dist == True):
+            import horovod.tensorflow as hvd
+            if hvd.local_rank() == 0:
+                self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -535,8 +538,10 @@ class Model:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
             self._train_sgd(epochs, display_every)
         self.callbacks.on_train_end()
-
-        display.training_display.summary(self.train_state)
+        if config.hvd_dist == False:
+            display.training_display.summary(self.train_state)
+        elif hvd.local_rank() == 0:
+            display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
