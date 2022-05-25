@@ -167,7 +167,7 @@ class Model:
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
 
-        if config.hvd_dist == True:
+        if config.hvd_dist:
             jit_compile = None
         else:
             jit_compile = config.xla_jit
@@ -217,7 +217,7 @@ class Model:
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
-            if config.hvd_dist == True:
+            if config.hvd_dist:
                 import horovod.tensorflow as hvd
                 tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
@@ -519,9 +519,9 @@ class Model:
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        if config.hvd_dist == False:
+        if not config.hvd_dist:
             self._test()
-        elif (config.hvd_dist == True):
+        else:
             import horovod.tensorflow as hvd
             if hvd.local_rank() == 0:
                 self._test()
@@ -538,7 +538,7 @@ class Model:
                 raise ValueError("No epochs for {}.".format(self.opt_name))
             self._train_sgd(epochs, display_every)
         self.callbacks.on_train_end()
-        if config.hvd_dist == False:
+        if not config.hvd_dist:
             display.training_display.summary(self.train_state)
         elif hvd.local_rank() == 0:
             display.training_display.summary(self.train_state)
@@ -566,7 +566,7 @@ class Model:
             self.train_state.step += 1
 
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
-                if config.hvd_dist == False:
+                if not config.hvd_dist:
                     self._test()
                 elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
                     self._test()
