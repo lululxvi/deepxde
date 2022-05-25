@@ -16,7 +16,7 @@ def _gen_missing_api(api, mod_name):
         raise ImportError(
             'API "%s" is not supported by backend "%s".'
             " You can switch to other backends by setting"
-            " the DDEBACKEND environment." % (api, mod_name)
+            " the DDE_BACKEND environment." % (api, mod_name)
         )
 
     return _missing_api
@@ -71,7 +71,10 @@ def load_backend(mod_name):
 def get_preferred_backend():
     backend_name = None
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
-    if "DDEBACKEND" in os.environ:
+    if "DDE_BACKEND" in os.environ:
+        backend_name = os.getenv("DDE_BACKEND")
+    # Backward compatibility
+    elif "DDEBACKEND" in os.environ:
         backend_name = os.getenv("DDEBACKEND")
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
