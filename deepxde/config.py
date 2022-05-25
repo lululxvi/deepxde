@@ -52,7 +52,10 @@ def set_random_seed(seed):
     You can use this to make the program fully deterministic. This means that if the program is run multiple times with the same
     inputs on the same hardware, it will have the exact same outputs each time. This is useful for debugging models, and for
     obtaining fully reproducible results.
-
+    
+    - For backend TensorFlow 1.x: Based on https://docs.nvidia.com/deeplearning/frameworks/tensorflow-release-notes/rel_19.06.html
+    if we set TF_DETERMINISTIC_OPS=1 then there is no need to also set TF_CUDNN_DETERMINISM=1. However, our experiment shows that
+    TF_CUDNN_DETERMINISM=1 is still required.
     - For backend TensorFlow 2.x: Results might change if you run the model several times in the same terminal.
 
     Warning:
