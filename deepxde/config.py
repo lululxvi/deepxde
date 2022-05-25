@@ -47,12 +47,11 @@ def set_default_float(value):
 
 
 def set_random_seed(seed):
-    """Sets all random seeds for the program (Python random, NumPy, and backend).
+    """Sets all random seeds for the program (Python random, NumPy, and backend), and configures the program to run deterministically.
 
-    You can use this to make the program fully deterministic. This means that if
-        the program is run multiple times with the same inputs on the same hardware,
-        it will have the exact same outputs each time. This is useful for debugging models,
-        and for obtaining fully reproducible results.
+    You can use this to make the program fully deterministic. This means that if the program is run multiple times with the same
+    inputs on the same hardware, it will have the exact same outputs each time. This is useful for debugging models, and for
+    obtaining fully reproducible results.
 
     - For backend TensorFlow 2.x: Results might change if you run the model several times in the same terminal.
 
@@ -66,17 +65,15 @@ def set_random_seed(seed):
     random.seed(seed)  # python random
     np.random.seed(seed)  # numpy
     if backend_name == "tensorflow.compat.v1":
-        tf.set_random_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
-        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
+        tf.set_random_seed(seed)  # tf CPU seed
         tf.config.threading.set_inter_op_parallelism_threads(1)
         tf.config.threading.set_intra_op_parallelism_threads(1)
     elif backend_name == "tensorflow":
-        tf.random.set_seed(seed)  # tf CPU seed
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
-        os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
         os.environ["PYTHONHASHSEED"] = str(seed)
+        tf.random.set_seed(seed)  # tf CPU seed
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
     elif backend_name == "jax":
