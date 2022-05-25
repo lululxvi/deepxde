@@ -49,12 +49,16 @@ def set_default_float(value):
 def set_random_seed(seed):
     """Sets all random seeds for the program (Python random, NumPy, and backend).
 
-    You can use this to make the program fully deterministic. This means that if the program is run multiple times with the same inputs on the same hardware, it will have the exact same outputs each time. This is useful for debugging models, and for obtaining fully reproducible results.
+    You can use this to make the program fully deterministic. This means that if
+        the program is run multiple times with the same inputs on the same hardware,
+        it will have the exact same outputs each time. This is useful for debugging models,
+        and for obtaining fully reproducible results.
 
     - For backend TensorFlow 2.x: Results might change if you run the model several times in the same terminal.
 
     Warning:
-        Note that determinism in general comes at the expense of lower performance and so your model may run slower when determinism is enabled.
+        Note that determinism in general comes at the expense of lower performance and so your model
+            may run slower when determinism is enabled.
 
     Args:
         seed (int): The desired seed.
