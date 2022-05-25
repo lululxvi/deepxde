@@ -7,8 +7,6 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
-
-random_seed = None
 hvd_dist = False
 real = Real(32)
 random_seed = None
