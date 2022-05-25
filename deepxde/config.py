@@ -67,12 +67,12 @@ def set_random_seed(seed):
     if backend_name == "tensorflow.compat.v1":
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
         os.environ["TF_CUDNN_DETERMINISTIC"] = "1"
-        tf.set_random_seed(seed)  # tf CPU seed
-    elif backend_name == "tensorflow":
-        os.environ["TF_DETERMINISTIC_OPS"] = "1"
         # Based on https://docs.nvidia.com/deeplearning/frameworks/tensorflow-release-notes/rel_19.06.html, 
         # if we set TF_DETERMINISTIC_OPS=1 then there is no need to also set TF_CUDNN_DETERMINISM=1. 
         # However, our experiment shows that TF_CUDNN_DETERMINISM=1 is still required.
+        tf.set_random_seed(seed)  # tf CPU seed
+    elif backend_name == "tensorflow":
+        os.environ["TF_DETERMINISTIC_OPS"] = "1"
         tf.random.set_seed(seed)  # tf CPU seed
     elif backend_name == "pytorch":
         torch.manual_seed(seed)
