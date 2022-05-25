@@ -27,6 +27,10 @@ def data_type_dict():
     }
 
 
+def is_gpu_available():
+    return bool(tf.config.list_physical_devices("GPU"))
+
+
 def is_tensor(obj):
     return tf.is_tensor(obj)
 

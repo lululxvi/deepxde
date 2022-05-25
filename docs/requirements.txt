@@ -12,7 +12,7 @@ tensorflow-probability>=0.10.0
 # PyTorch
 torch>=1.9.0
 # PaddlePaddle
-paddlepaddle
+paddlepaddle>=2.3.0
 # JAX
 jax
 flax

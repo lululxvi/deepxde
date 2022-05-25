@@ -8,3 +8,4 @@ deepxde.optimizers.config module
    :members:
    :undoc-members:
    :show-inheritance:
+

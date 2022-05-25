@@ -36,6 +36,10 @@ def data_type_dict():
     }
 
 
+def is_gpu_available():
+    return torch.cuda.is_available()
+
+
 def is_tensor(obj):
     return torch.is_tensor(obj)
 

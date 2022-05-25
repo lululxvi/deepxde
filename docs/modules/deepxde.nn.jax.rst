@@ -16,3 +16,4 @@ deepxde.nn.jax.nn module
    :members:
    :undoc-members:
    :show-inheritance:
+
