@@ -166,7 +166,7 @@ class Model:
 
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
-        
+
         if config.hvd_dist == True:
             jit_compile = None
         else:
@@ -205,11 +205,12 @@ class Model:
             return outputs_losses(
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
+
         if config.hvd_dist == True:
             import horovod.tensorflow as hvd
-            #lr *= hvd.size()
+
+            # lr *= hvd.size()
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
-        
 
         @tf.function(jit_compile=jit_compile)
         def train_step(inputs, targets, auxiliary_vars):
@@ -224,13 +225,12 @@ class Model:
                 tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
-            #if config.hvd_dist == True and self.first_batch == True:
+            # if config.hvd_dist == True and self.first_batch == True:
             if (config.hvd_dist == True) and (self.first_batch == True):
-                #hvd.broadcast_variables(self.net.variables, root_rank=0)
+                # hvd.broadcast_variables(self.net.variables, root_rank=0)
                 hvd.broadcast_variables(trainable_variables, root_rank=0)
                 hvd.broadcast_variables(opt.variables(), root_rank=0)
                 self.first_batch = False
-
 
         def train_step_tfp(
             inputs, targets, auxiliary_vars, previous_optimizer_results=None
@@ -402,8 +402,6 @@ class Model:
             return outputs_, losses
 
         @jax
-        
-        
         def outputs_losses_train(params, inputs, targets):
             return outputs_losses(params, True, inputs, targets, self.data.losses_train)
 
@@ -551,7 +549,7 @@ class Model:
         if config.hvd_dist == True:
             import horovod.tensorflow as hvd
         for i in range(epochs):
-            
+
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
@@ -566,14 +564,12 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            
+
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
                 if config.hvd_dist == False:
                     self._test()
                 elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
                     self._test()
-                    
-                
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
