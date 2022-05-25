@@ -57,7 +57,7 @@ def set_random_seed(seed):
 
     Warning:
         Note that determinism in general comes at the expense of lower performance and so your model
-            may run slower when determinism is enabled.
+        may run slower when determinism is enabled.
 
     Args:
         seed (int): The desired seed.
