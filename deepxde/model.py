@@ -215,7 +215,7 @@ class Model:
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
-        @tf.function(jit_compile=jit_compile)
+        @tf.function#(jit_compile=jit_compile)
         def train_step(inputs, targets, auxiliary_vars):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
@@ -536,7 +536,6 @@ class Model:
             self._test()
         else:
             import horovod.tensorflow as hvd
-
             if hvd.local_rank() == 0:
                 self._test()
         self.callbacks.on_train_begin()
@@ -582,7 +581,7 @@ class Model:
             if self.train_state.step % display_every == 0 or i + 1 == epochs:
                 if not config.hvd_dist:
                     self._test()
-                elif (config.hvd_dist == True) and (hvd.local_rank() == 0):
+                elif config.hvd_dist and (hvd.local_rank() == 0):
                     self._test()
 
             self.callbacks.on_batch_end()
