@@ -88,7 +88,14 @@ class Model:
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
         """
-        print("Compiling model...")
+        if not config.hvd_dist:
+            print("Compiling model...")
+        else:
+            import horovod.tensorflow as hvd
+
+            if hvd.local_rank() == 0:
+                print("Compiling model...")
+
         self.opt_name = optimizer
         self.first_batch = True
         loss_fn = losses_module.get(loss)
@@ -219,6 +226,7 @@ class Model:
             )
             if config.hvd_dist:
                 import horovod.tensorflow as hvd
+
                 tape = hvd.DistributedGradientTape(tape)
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
@@ -514,8 +522,13 @@ class Model:
 
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
+        if not config.hvd_dist:
+            print("Training model...\n")
+        else:
+            import horovod.tensorflow as hvd
 
-        print("Training model...\n")
+            if hvd.local_rank() == 0:
+                print("Training model...\n")
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
@@ -523,6 +536,7 @@ class Model:
             self._test()
         else:
             import horovod.tensorflow as hvd
+
             if hvd.local_rank() == 0:
                 self._test()
         self.callbacks.on_train_begin()

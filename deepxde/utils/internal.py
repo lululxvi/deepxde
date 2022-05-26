@@ -21,7 +21,14 @@ def timing(f):
         ts = timeit.default_timer()
         result = f(*args, **kwargs)
         te = timeit.default_timer()
-        print("%r took %f s\n" % (f.__name__, te - ts))
+        if not config.hvd_dist:
+            print("%r took %f s\n" % (f.__name__, te - ts))
+        else:
+            import horovod.tensorflow as hvd
+
+            if hvd.local_rank() == 0:
+                print("%r took %f s\n" % (f.__name__, te - ts))
+
         sys.stdout.flush()
         return result
 
