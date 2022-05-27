@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde as dde
-##from deepxde.backend import tf
+from deepxde.backend import tf
 
 def heat_eq_exact_solution(x, t):
     """
