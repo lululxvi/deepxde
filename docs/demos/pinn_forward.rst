@@ -35,12 +35,12 @@ Time-dependent PDEs
    :maxdepth: 1
 
    pinn_forward/burgers
+   pinn_forward/heat
    pinn_forward/diffusion.1d
    pinn_forward/diffusion.1d.exactBC
    pinn_forward/diffusion.1d.resample
    pinn_forward/burgers.rar
 
-- `Heat equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_conduction_1d_uniform_bar.ipynb>`_
 - `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_reaction.py>`_
 - `Allen-Cahn equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Allen_Cahn.py>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
