@@ -1,14 +1,14 @@
-Heat equation in 1D with Dirichilet boundary conditions and periodic(sinusoidal) initial conditions
-======================================================================================================
+Heat equation
+=============
 
 Problem setup
---------------
+-------------
 
 We will solve a Heat equation:
 
 .. math:: \alpha \frac{\partial^2u}{\partial x^2}-\frac{\partial u}{\partial t} = 0, \qquad x \in [-1, 1], \quad t \in [0, 1]
 
-where :math:`\alpha` is the thermal diffusivity constant.
+where :math:`\alpha=0.4` is the thermal diffusivity constant.
 
 With Dirichlet boundary conditions:
 
@@ -18,20 +18,20 @@ and periodic(sinusoidal) inital condition:
 
 .. math:: u(x,0) = \sin (\frac{n\pi x}{L}),\qquad 0<x<L, \quad n = 1,2,.....
 
-where :math:`L` is the length of the bar, :math:`n` is the frequency of the sinusoidal initial conditions.
+where :math:`L=1` is the length of the bar, :math:`n=1` is the frequency of the sinusoidal initial conditions.
 
-The exact solution is :math:`u(x,t) = \exp{\frac{-n ^2\pi ^2 \alpha t}{L^2}}\sin (\frac{n\pi x}{L}))`.
+The exact solution is :math:`u(x,t) = e^{\frac{-n ^2\pi ^2 \alpha t}{L^2}}\sin (\frac{n\pi x}{L})`.
 
 Implementation
------------------
+--------------
+
 This description goes through the implementation of a solver for the above described Heat equation step-by-step.
 
-First, the DeepXDE and TensorFlow (``tf``) modules are imported:
+First, the DeepXDE are imported:
 
 .. code-block:: python
 
     import deepxde as dde
-    from deepxde.backend import tf
 
 We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
@@ -56,7 +56,7 @@ Next, we express the PDE residual of the Heat equation:
     def pde(x, y):
         dy_t = dde.grad.jacobian(y, x, i=0, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-        return dy_t - a*dy_xx
+        return dy_t - a * dy_xx
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0]``) is :math:`x`-coordinate and the second componenet (``x[:,1]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,t)`, but here we use ``y`` as the name of the variable.
 
@@ -65,14 +65,24 @@ Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here
 .. code-block:: python
 
     bc = dde.icbc.DirichletBC(geomtime, lambda x: 0, lambda _, on_boundary: on_boundary)
-    ic = dde.icbc.IC(geomtime, lambda x: np.sin(n*np.pi*x[:, 0:1]/L), lambda _, on_initial: on_initial)
+    ic = dde.icbc.IC(
+        geomtime,
+        lambda x: np.sin(n * np.pi * x[:, 0:1] / L),
+        lambda _, on_initial: on_initial,
+    )
 
 Now, we have specified the geometry, PDE residual, and boundary/initial condition. We then define the ``TimePDE`` problem as
 
 .. code-block:: python
 
-     data = dde.data.TimePDE(
-        geomtime, pde, [bc, ic], num_domain=2540, num_boundary=80, num_initial=160, num_test=2540
+    data = dde.data.TimePDE(
+        geomtime,
+        pde,
+        [bc, ic],
+        num_domain=2540,
+        num_boundary=80,
+        num_initial=160,
+        num_test=2540,
     )
 
 The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary. We also include 160 initial residual points for the initial conditions.
@@ -105,7 +115,7 @@ After we train the network using Adam, we continue to train the network using L-
     losshistory, train_state = model.train() 
 
 Complete code
---------------
+-------------
 
-.. literalinclude:: ../../../examples/pinn_forward/Heat.py
+.. literalinclude:: ../../../examples/pinn_forward/heat.py
   :language: python
