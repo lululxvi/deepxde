@@ -47,6 +47,7 @@ Next, we define the parameters of the equation:
 
     a = 0.4
     L = 1
+    n = 1
 
 Next, we express the PDE residual of the Heat equation:
 
