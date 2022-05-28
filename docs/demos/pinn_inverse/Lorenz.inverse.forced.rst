@@ -19,7 +19,7 @@ Implementation
 
 This description goes through the implementation of a solver for the above Lorenz system step-by-step.
 
-First, the DeepXDE, NumPy (``np``) and Scipy (``sp``) modules are imported:
+First, the DeepXDE, Numpy (``np``) and Scipy (``sp``) modules are imported:
 
 .. code-block:: python
 
