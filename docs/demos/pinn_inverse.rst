@@ -10,8 +10,8 @@ ODEs
    :maxdepth: 1
 
    pinn_inverse/lorenz.inverse
+   pinn_inverse/lorenz with exogenous input.inverse
 
-- `Inverse problem for the Lorenz system with exogenous input <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/Lorenz_inverse_forced.py>`_
 
 Time-independent PDEs
 ---------------------
