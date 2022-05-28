@@ -10,8 +10,7 @@ ODEs
    :maxdepth: 1
 
    pinn_inverse/lorenz.inverse
-   pinn_inverse/lorenz_with_exogenous_input.inverse
-
+   pinn_inverse/Lorenz_inverse_forced
 
 Time-independent PDEs
 ---------------------
