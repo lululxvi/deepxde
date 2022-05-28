@@ -8,13 +8,13 @@ We will solve the Lorenz system:
 
 .. math:: \frac{dx}{dt} = \sigma(y-x), \quad \frac{dy}{dt} = x (\rho - z) - y, \quad \frac{dz}{dt} = x y - \beta z - f(t) \qquad t \in [0, 3]
 
-Where :math:`f(t)=10\sin(2\pi t)` is the exgoenous input.
+where :math:`f(t)=10\sin(2\pi t)` is the exgoenous input.
 
-with initial conditions 
+The initial condition is:
 
 .. math:: x(0) = -8, \quad y(0) = 7, \quad z(0) = 27.
 
-where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. And the :math:`\sin(2\pi t)` is the exogenous input.
+where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. 
 
 Implementation
 --------------
@@ -43,7 +43,7 @@ Now we can begin by creating a ``TimeDomain`` class.
     
     geom = dde.geometry.TimeDomain(0, 3)
 
-Next, we define the exogenous input :math:`f(t)`:
+Next, we assume that we don't know the formula of :math:`f(t)`, and we only know :math:`f(t)` at 200 points.
 
 .. code-block:: python
 
@@ -51,7 +51,7 @@ Next, we define the exogenous input :math:`f(t)`:
     time = np.linspace(0, maxtime, 200)
     ex_input = 10 * np.sin(2 * np.pi * time)
 
-Next, we can define the interpolation function of time and exogenous input:
+Next, we can define an interpolation function of :math:`f(t)` for any t:
 
 .. code-block:: python
 
@@ -116,7 +116,7 @@ Now that the problem is fully setup, we define the PDE as:
         auxiliary_var_function=ex_func2,
     )
 
-Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. ``auxiliary_var_function`` is the interpolation function of time and exogenous input we defined above.
+Where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training. ``auxiliary_var_function`` is the interpolation function of :math:`f(t)` we defined above.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 40:
 
