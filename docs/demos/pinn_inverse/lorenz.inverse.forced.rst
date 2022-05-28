@@ -53,26 +53,24 @@ Next, we can define the interpolation function of time and exogenous input:
 
 .. code-block:: python
 
-    def ex_func2(t):
-    spline = sp.interpolate.Rbf(
-        time, ex_input, function="thin_plate", smooth=0, episilon=0
-    )
-    return spline(t[:, 0:])
+    def ex_func(t):
+        spline = sp.interpolate.Rbf(
+            time, ex_input, function="thin_plate", smooth=0, episilon=0
+        )
+        return spline(t)
 
 Next, we create the Lorenz system to solve using the ``dde.grad.jacobian`` function.
 
 .. code-block:: python
 
-    def Lorenz_system(x, y, ex):
-    y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
-    dy1_x = dde.grad.jacobian(y, x, i=0)
-    dy2_x = dde.grad.jacobian(y, x, i=1)
-    dy3_x = dde.grad.jacobian(y, x, i=2)
-    return [
-        dy1_x - C1 * (y2 - y1),
-        dy2_x - y1 * (C2 - y3) + y2,
-        dy3_x - y1 * y2 + C3 * y3 - ex,
-    ]
+    def LorezODE(x, t):
+        x1, x2, x3 = x
+        dxdt = [
+            C1true * (x2 - x1),
+            x1 * (C2true - x3) - x2,
+            x1 * x2 - C3true * x3 + ex_func(t),
+        ]
+        return dxdt
 
 The first argument to ``Lorenz_system`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x,y,z)`, but here we use ``y1, y2, y3`` as the name of the coordinates x, y, and z, which correspond to the columns of datapoints in the 2D array, :math:`y`. And the third argument ``ex`` is the exogenous input.
 
