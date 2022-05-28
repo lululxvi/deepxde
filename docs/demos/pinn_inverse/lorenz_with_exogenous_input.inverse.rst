@@ -6,13 +6,13 @@ Problem setup
 
 We will solve the Lorenz system:
 
-.. math:: \frac{dx}{dt} = \sigma(y-x), \quad \frac{dy}{dt} = x (\rho - z) - y, \quad \frac{dz}{dt} = x y - \beta z - 10\sin{2\pi t} \qquad t \in [0, 3]
+.. math:: \frac{dx}{dt} = \sigma(y-x), \quad \frac{dy}{dt} = x (\rho - z) - y, \quad \frac{dz}{dt} = x y - \beta z - 10 \sin(2\pi t) \qquad t \in [0, 3]
 
 with initial conditions 
 
 .. math:: x(0) = -8, \quad y(0) = 7, \quad z(0) = 27.
 
-where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. And the :math:`\sin{2\pi t}` is the exogenous input.
+where the parameters :math:`\sigma`, :math:`\rho`, and :math:`\beta` are to be identified from observations of the system at certain times and whose true values are 10, 15, and 8/3, respectivly. And the :math:`\sin(2\pi t)` is the exogenous input.
 
 Implementation
 --------------
