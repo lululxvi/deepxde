@@ -255,6 +255,8 @@ class Model:
                     inputs_i.requires_grad_()
                     multi_inputs = (multi_inputs, inputs_i)
                 inputs = multi_inputs
+            #inputs = torch.as_tensor(inputs)
+            #inputs.requires_grad_()
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
@@ -419,7 +421,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        if backend_name in ["tensorflow", "pytorch", "paddle"]:
+        if backend_name in ["tensorflow", "pytorch"]:
             outs = self.outputs(training, inputs)
         elif backend_name == "jax":
             outs = self.outputs(self.net.params, training, inputs)
