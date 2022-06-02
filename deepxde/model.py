@@ -246,8 +246,15 @@ class Model:
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
-            inputs = torch.as_tensor(inputs)
-            inputs.requires_grad_()
+
+            if isinstance(inputs,tuple):
+                multi_inputs = torch.as_tensor(inputs[0])
+                inputs_num = len(inputs)
+                for i in range(1,inputs_num):
+                    inputs_i = torch.as_tensor(inputs[i])
+                    inputs_i.requires_grad_()
+                    multi_inputs = (multi_inputs, inputs_i)
+                inputs = multi_inputs
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
