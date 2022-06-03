@@ -247,13 +247,7 @@ class Model:
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
-                multi_inputs = [torch.as_tensor(inputs[0]).requires_grad_()]
-                inputs_num = len(inputs)
-                for i in range(1, inputs_num):
-                    inputs_i = torch.as_tensor(inputs[i])
-                    inputs_i.requires_grad_()
-                    multi_inputs.append(inputs_i)
-                inputs = multi_inputs
+                inputs = tuple(map(lambda x: torch.as_tensor(x).requires_grad_(), inputs))
             else:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
