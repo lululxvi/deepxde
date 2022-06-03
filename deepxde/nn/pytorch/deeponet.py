@@ -1,7 +1,8 @@
+import torch
+
 from .fnn import FNN
 from .nn import NN
 from .. import activations
-import torch
 
 
 class DeepONetCartesianProd(NN):
@@ -40,7 +41,6 @@ class DeepONetCartesianProd(NN):
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        # self.b = tf.Variable(tf.zeros(1))
         self.b = torch.tensor(0.0, requires_grad=True)
 
     def forward(self, inputs, training=False):
@@ -94,9 +94,9 @@ class PODDeepONet(NN):
         self,
         pod_basis,
         layer_sizes_branch,
-        layer_sizes_trunk,
         activation,
         kernel_initializer,
+        layer_sizes_trunk=None,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -105,9 +105,10 @@ class PODDeepONet(NN):
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
 
-        self.pod_basis = torch.tensor(
-            pod_basis, dtype=torch.float32, requires_grad=True
+        self.pod_basis = torch.as_tensor(
+            pod_basis, dtype=torch.float32
         )
+        self.pod_basis.requires_grad_()
         if callable(layer_sizes_branch[1]):
             # User-defined network
             self.branch = layer_sizes_branch[1]
