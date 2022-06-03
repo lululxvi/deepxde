@@ -243,7 +243,7 @@ class Model:
             self.net.train(mode=training)
             with torch.no_grad():
                 if isinstance(inputs, tuple):
-                    inputs = tuple(map(lambda x: torch.as_tensor(x), inputs))
+                    inputs = tuple(map(torch.as_tensor, inputs))
                 else:
                     inputs = torch.as_tensor(inputs)
                 return self.net(inputs)
