@@ -43,7 +43,7 @@ class DeepONetCartesianProd(NN):
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
 
-    def forward(self, inputs, training=False):
+    def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
         # Branch net to encode the input function
@@ -105,10 +105,7 @@ class PODDeepONet(NN):
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
 
-        self.pod_basis = torch.as_tensor(
-            pod_basis, dtype=torch.float32
-        )
-        self.pod_basis.requires_grad_()
+        self.pod_basis = torch.as_tensor(pod_basis, dtype=torch.float32)
         if callable(layer_sizes_branch[1]):
             # User-defined network
             self.branch = layer_sizes_branch[1]
@@ -122,7 +119,7 @@ class PODDeepONet(NN):
             )
             self.b = torch.tensor(0.0, requires_grad=True)
 
-    def forward(self, inputs, training=False):
+    def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
 
