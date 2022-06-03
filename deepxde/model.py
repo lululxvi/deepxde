@@ -285,7 +285,7 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        self.opt= optimizers.get(
+        self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
