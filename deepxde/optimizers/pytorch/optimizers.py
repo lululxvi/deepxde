@@ -54,12 +54,12 @@ def _get_learningrate_scheduler(optim, decay):
     if decay is None:
         return None
 
-    if decay[0] == "Step":
+    if decay[0] == "step":
         return torch.optim.lr_scheduler.StepLR(
             optim, step_size=decay[1], gamma=decay[2]
         )
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(
-        f"{decay[0]} learning rate scheduler to be implemented for backend tensorflow."
+        f"{decay[0]} learning rate scheduler to be implemented for backend pytorch."
     )
