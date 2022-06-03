@@ -12,14 +12,14 @@ def is_external_optimizer(optimizer):
 def get(params, optimizer, learning_rate=None, decay=None):
     """Retrieves an Optimizer instance."""
 
-    #Custom Optimizer
+    # Custom Optimizer
     if isinstance(optimizer, torch.optim.Optimizer):
-        optim =  optimizer
+        optim = optimizer
 
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
-        optim =  torch.optim.LBFGS(
+        optim = torch.optim.LBFGS(
             params,
             lr=1,
             max_iter=LBFGS_options["iter_per_step"],
@@ -33,16 +33,14 @@ def get(params, optimizer, learning_rate=None, decay=None):
     if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
 
-    # Default optimizer is Adam
-    optim = torch.optim.Adam(params, lr=learning_rate)
-
     if optimizer == "SGD":
-        optim = torch.optim.SGD(params, lr = learning_rate)
+        optim = torch.optim.SGD(params, lr=learning_rate)
+    elif optimizer == "RMSprop":
+        optim = torch.optim.RMSprop(params, lr=learning_rate)
+    elif optimizer == "adam":
+        optim = torch.optim.Adam(params, lr=learning_rate)
 
-    if optimizer == "RMSprop":
-        optim = torch.optim.RMSprop(params,lr=learning_rate)
-
-    if optimizer not in ["SGD","RMSprop","adam"]:
+    if optimizer not in ["SGD", "RMSprop", "adam"]:
         raise NotImplementedError(f"{optimizer} to be implemented for backend pytorch.")
 
     if decay is not None:
@@ -52,12 +50,15 @@ def get(params, optimizer, learning_rate=None, decay=None):
 
     return optim, lr_scheduler
 
+
 def _get_learningrate_scheduler(optim, decay):
     if decay is None:
         return None
 
     if decay[0] == "Step":
-        return torch.optim.lr_scheduler.StepLR(optim, step_size=decay[1], gamma=decay[2])
+        return torch.optim.lr_scheduler.StepLR(
+            optim, step_size=decay[1], gamma=decay[2]
+        )
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(

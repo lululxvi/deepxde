@@ -39,7 +39,6 @@ class Model:
 
         # Backend-dependent attributes
         self.opt = None
-        self.lr_scheduler = None
         # Tensor or callable
         self.outputs = None
         self.outputs_losses_train = None
@@ -50,6 +49,8 @@ class Model:
             self.saver = None
         elif backend_name == "jax":
             self.opt_state = None
+        elif backend_name == "pytorch":
+            self.lr_scheduler = None
 
     @utils.timing
     def compile(
@@ -252,7 +253,9 @@ class Model:
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
-                inputs = tuple(map(lambda x: torch.as_tensor(x).requires_grad_(), inputs))
+                inputs = tuple(
+                    map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                )
             else:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
