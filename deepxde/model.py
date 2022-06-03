@@ -47,10 +47,11 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "jax":
-            self.opt_state = None
         elif backend_name == "pytorch":
             self.lr_scheduler = None
+        elif backend_name == "jax":
+            self.opt_state = None
+
 
     @utils.timing
     def compile(
