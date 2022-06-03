@@ -39,6 +39,7 @@ class Model:
 
         # Backend-dependent attributes
         self.opt = None
+        self.lr_scheduler = None
         # Tensor or callable
         self.outputs = None
         self.outputs_losses_train = None
@@ -283,7 +284,7 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        self.opt = optimizers.get(
+        self.opt, self.lr_scheduler = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
@@ -296,6 +297,8 @@ class Model:
                 return total_loss
 
             self.opt.step(closure)
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
         # Callables
         self.outputs = outputs
