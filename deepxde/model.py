@@ -242,7 +242,11 @@ class Model:
         def outputs(training, inputs):
             self.net.train(mode=training)
             with torch.no_grad():
-                return self.net(torch.as_tensor(inputs))
+                if isinstance(inputs, tuple):
+                    inputs = tuple(map(lambda x: torch.as_tensor(x), inputs))
+                else:
+                    inputs = torch.as_tensor(inputs)
+                return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
