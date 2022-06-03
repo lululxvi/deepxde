@@ -115,6 +115,12 @@ def reduce_sum(input_tensor):
     return tf.math.reduce_sum(input_tensor)
 
 
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    if ord is None:
+        ord = "euclidean"
+    return tf.norm(tensor, ord=ord, axis=axis, keepdims=keepdims)
+
+
 def zeros(shape, dtype):
     return tf.zeros(shape, dtype=dtype)
 
