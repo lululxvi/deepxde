@@ -3,6 +3,7 @@ from .nn import NN
 from .. import activations
 import torch
 
+
 class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 
@@ -39,7 +40,7 @@ class DeepONetCartesianProd(NN):
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        #self.b = tf.Variable(tf.zeros(1))
+        # self.b = tf.Variable(tf.zeros(1))
         self.b = torch.tensor(0.0, requires_grad=True)
 
     def forward(self, inputs, training=False):
@@ -88,29 +89,33 @@ class PODDeepONet(NN):
         extensions) based on FAIR data. arXiv preprint arXiv:2111.05512, 2021
         <https://arxiv.org/abs/2111.05512>`_.
     """
+
+
+class PODDeepONet(NN):
     def __init__(
         self,
         pod_basis,
         layer_sizes_branch,
+        layer_sizes_trunk,
         activation,
         kernel_initializer,
-        layer_sizes_trunk=None,
     ):
         super().__init__()
-        self.pod_basis = torch.tensor(pod_basis, dtype=torch.float32, requires_grad=True)
         if isinstance(activation, dict):
             activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
 
+        self.pod_basis = torch.tensor(
+            pod_basis, dtype=torch.float32, requires_grad=True
+        )
         if callable(layer_sizes_branch[1]):
             # User-defined network
             self.branch = layer_sizes_branch[1]
         else:
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
-
         self.trunk = None
         if layer_sizes_trunk is not None:
             self.trunk = FNN(
@@ -122,9 +127,7 @@ class PODDeepONet(NN):
         x_func = inputs[0]
         x_loc = inputs[1]
 
-        # Branch net to encode the input function
         x_func = self.branch(x_func)
-        # Trunk net to encode the domain of the output function
         if self.trunk is None:
             # POD only
             x = torch.einsum("bi,ni->bn", x_func, self.pod_basis)
@@ -132,7 +135,6 @@ class PODDeepONet(NN):
             x_loc = self.activation_trunk(self.trunk(x_loc))
             x = torch.einsum("bi,ni->bn", x_func, torch.cat((self.pod_basis, x_loc), 1))
             x += self.b
-
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
