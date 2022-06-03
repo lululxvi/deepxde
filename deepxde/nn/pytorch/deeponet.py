@@ -90,8 +90,6 @@ class PODDeepONet(NN):
         <https://arxiv.org/abs/2111.05512>`_.
     """
 
-
-class PODDeepONet(NN):
     def __init__(
         self,
         pod_basis,
