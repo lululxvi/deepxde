@@ -52,7 +52,6 @@ class Model:
         elif backend_name == "jax":
             self.opt_state = None
 
-
     @utils.timing
     def compile(
         self,
