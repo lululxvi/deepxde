@@ -40,9 +40,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
             raise NotImplementedError(
                 f"{optimizer} to be implemented for backend pytorch."
             )
-
     lr_scheduler = _get_learningrate_scheduler(optim, decay)
-
     return optim, lr_scheduler
 
 
