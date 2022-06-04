@@ -75,15 +75,15 @@ class Model:
                 different losses, then `loss` is a list whose size is equal to the
                 number of errors.
             metrics: List of metrics to be evaluated by the model during training.
-            decay (Tuple): Name and parameters of decay to the initial learning rate. One
+            decay (tuple): Name and parameters of decay to the initial learning rate. One
                 of the following options:
 
-                - For backends TensorFlow 1.x:
+                - For backend TensorFlow 1.x:
 
                     - `inverse_time_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
                     - `cosine_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
 
-                - For backends TensorFlow 2.x:
+                - For backend TensorFlow 2.x:
 
                     - `InverseTimeDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
                     - `CosineDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
