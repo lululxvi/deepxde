@@ -11,13 +11,13 @@ def is_external_optimizer(optimizer):
 
 def get(params, optimizer, learning_rate=None, decay=None):
     """Retrieves an Optimizer instance."""
+    # Custom Optimizer
     if isinstance(optimizer, torch.optim.Optimizer):
-        return optimizer
-
-    if optimizer in ["L-BFGS", "L-BFGS-B"]:
+        optim = optimizer
+    elif optimizer in ["L-BFGS", "L-BFGS-B"]:
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
-        return torch.optim.LBFGS(
+        optim = torch.optim.LBFGS(
             params,
             lr=1,
             max_iter=LBFGS_options["iter_per_step"],
@@ -27,15 +27,33 @@ def get(params, optimizer, learning_rate=None, decay=None):
             history_size=LBFGS_options["maxcor"],
             line_search_fn=None,
         )
+    else:
+        if learning_rate is None:
+            raise ValueError("No learning rate for {}.".format(optimizer))
+        if optimizer == "sgd":
+            optim = torch.optim.SGD(params, lr=learning_rate)
+        elif optimizer == "rmsprop":
+            optim = torch.optim.RMSprop(params, lr=learning_rate)
+        elif optimizer == "adam":
+            optim = torch.optim.Adam(params, lr=learning_rate)
+        else:
+            raise NotImplementedError(
+                f"{optimizer} to be implemented for backend pytorch."
+            )
+    lr_scheduler = _get_learningrate_scheduler(optim, decay)
+    return optim, lr_scheduler
 
-    if learning_rate is None:
-        raise ValueError("No learning rate for {}.".format(optimizer))
 
-    if decay is not None:
-        # TODO: learning rate decay
-        raise NotImplementedError(
-            "learning rate decay to be implemented for backend pytorch."
+def _get_learningrate_scheduler(optim, decay):
+    if decay is None:
+        return None
+
+    if decay[0] == "step":
+        return torch.optim.lr_scheduler.StepLR(
+            optim, step_size=decay[1], gamma=decay[2]
         )
-    if optimizer == "adam":
-        return torch.optim.Adam(params, lr=learning_rate)
-    raise NotImplementedError(f"{optimizer} to be implemented for backend pytorch.")
+
+    # TODO: More learning rate scheduler
+    raise NotImplementedError(
+        f"{decay[0]} learning rate scheduler to be implemented for backend pytorch."
+    )

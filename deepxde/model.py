@@ -47,6 +47,8 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+        elif backend_name == "pytorch":
+            self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
 
@@ -251,7 +253,9 @@ class Model:
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
-                inputs = tuple(map(lambda x: torch.as_tensor(x).requires_grad_(), inputs))
+                inputs = tuple(
+                    map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                )
             else:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
@@ -283,7 +287,7 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        self.opt = optimizers.get(
+        self.opt, self.lr_scheduler = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
@@ -296,6 +300,8 @@ class Model:
                 return total_loss
 
             self.opt.step(closure)
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
         # Callables
         self.outputs = outputs
