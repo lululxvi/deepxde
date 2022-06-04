@@ -27,12 +27,11 @@ def get(params, optimizer, learning_rate=None, decay=None):
             history_size=LBFGS_options["maxcor"],
             line_search_fn=None,
         )
-
-    if learning_rate is None:
-        raise ValueError("No learning rate for {}.".format(optimizer))
     else:
-        if optimizer == "SGD":
-            optim = torch.optim.SGD(params, lr=learning_rate)
+        if learning_rate is None:
+            raise ValueError("No learning rate for {}.".format(optimizer))
+        elif optimizer == "SGD":
+                optim = torch.optim.SGD(params, lr=learning_rate)
         elif optimizer == "RMSprop":
             optim = torch.optim.RMSprop(params, lr=learning_rate)
         elif optimizer == "adam":
