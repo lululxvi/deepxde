@@ -38,5 +38,5 @@ def _get_learningrate(lr, decay):
         return lr
     # TODO: add optax's optimizer schedule
     raise NotImplementedError(
-        f"{decay[0]} learning rate decay to be implemented for backend tensorflow."
+        f"{decay[0]} learning rate decay to be implemented for backend jax."
     )
