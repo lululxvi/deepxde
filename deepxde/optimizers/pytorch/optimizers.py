@@ -31,7 +31,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
         if learning_rate is None:
             raise ValueError("No learning rate for {}.".format(optimizer))
         if optimizer == "sgd":
-                optim = torch.optim.SGD(params, lr=learning_rate)
+            optim = torch.optim.SGD(params, lr=learning_rate)
         elif optimizer == "rmsprop":
             optim = torch.optim.RMSprop(params, lr=learning_rate)
         elif optimizer == "adam":
