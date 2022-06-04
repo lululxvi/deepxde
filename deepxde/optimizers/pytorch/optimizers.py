@@ -11,12 +11,10 @@ def is_external_optimizer(optimizer):
 
 def get(params, optimizer, learning_rate=None, decay=None):
     """Retrieves an Optimizer instance."""
-
     # Custom Optimizer
     if isinstance(optimizer, torch.optim.Optimizer):
         optim = optimizer
-
-    if optimizer in ["L-BFGS", "L-BFGS-B"]:
+    elif optimizer in ["L-BFGS", "L-BFGS-B"]:
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         optim = torch.optim.LBFGS(
@@ -32,20 +30,19 @@ def get(params, optimizer, learning_rate=None, decay=None):
 
     if learning_rate is None:
         raise ValueError("No learning rate for {}.".format(optimizer))
-
-    if optimizer == "SGD":
-        optim = torch.optim.SGD(params, lr=learning_rate)
-    elif optimizer == "RMSprop":
-        optim = torch.optim.RMSprop(params, lr=learning_rate)
-    elif optimizer == "adam":
-        optim = torch.optim.Adam(params, lr=learning_rate)
     else:
-        raise NotImplementedError(f"{optimizer} to be implemented for backend pytorch.")
+        if optimizer == "SGD":
+            optim = torch.optim.SGD(params, lr=learning_rate)
+        elif optimizer == "RMSprop":
+            optim = torch.optim.RMSprop(params, lr=learning_rate)
+        elif optimizer == "adam":
+            optim = torch.optim.Adam(params, lr=learning_rate)
+        else:
+            raise NotImplementedError(
+                f"{optimizer} to be implemented for backend pytorch."
+            )
 
-    if decay is not None:
-        lr_scheduler = _get_learningrate_scheduler(optim, decay)
-    else:
-        lr_scheduler = None
+    lr_scheduler = _get_learningrate_scheduler(optim, decay)
 
     return optim, lr_scheduler
 
