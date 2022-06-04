@@ -219,6 +219,10 @@ def reduce_sum(input_tensor):
     """
 
 
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    """Computes a vector or matrix norm."""
+
+
 def zeros(shape, dtype):
     """Creates a tensor with all elements set to zero.
 

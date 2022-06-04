@@ -124,6 +124,10 @@ def reduce_sum(input_tensor):
     return torch.sum(input_tensor)
 
 
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    return torch.linalg.norm(tensor, ord=ord, dim=axis, keepdim=keepdims)
+
+
 def zeros(shape, dtype):
     return torch.zeros(shape, dtype=dtype)
 
