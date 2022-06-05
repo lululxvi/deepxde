@@ -1,4 +1,4 @@
-__all__ = ["Model", "TrainState", "LossHistory"]
+__all__ = ["LossHistory", "Model", "TrainState"]
 
 import pickle
 from collections import OrderedDict
@@ -66,19 +66,31 @@ class Model:
         """Configures the model for training.
 
         Args:
-            optimizer: String. Name of optimizer.
-            lr: A Tensor or a floating point value. The learning rate. For L-BFGS, use
+            optimizer: String name of an optimizer, or a backend optimizer class
+                instance.
+            lr (float): The learning rate. For L-BFGS, use
                 ``dde.optimizers.set_LBFGS_options`` to set the hyperparameters.
-            loss: If the same loss is used for all errors, then `loss` is a String (name
-                of objective function) or objective function. If different errors use
+            loss: If the same loss is used for all errors, then `loss` is a String name
+                of a loss function or a loss function. If different errors use
                 different losses, then `loss` is a list whose size is equal to the
                 number of errors.
             metrics: List of metrics to be evaluated by the model during training.
-            decay: Tuple. Name and parameters of decay to the initial learning rate. One
+            decay (tuple): Name and parameters of decay to the initial learning rate. One
                 of the following options:
 
-                - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
-                - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
+                - For backend TensorFlow 1.x:
+
+                    - `inverse_time_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
+                    - `cosine_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
+
+                - For backend TensorFlow 2.x:
+
+                    - `InverseTimeDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
+                    - `CosineDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
+
+                - For backend PyTorch:
+
+                    - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
@@ -309,6 +321,59 @@ class Model:
         self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
+    def _compile_jax(self, lr, loss_fn, decay, loss_weights):
+        """jax"""
+        # Initialize the network's parameters
+        key = jax.random.PRNGKey(config.jax_random_seed)
+        self.net.params = self.net.init(key, self.data.test()[0])
+        # TODO: learning rate decay
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
+        self.opt_state = self.opt.init(self.net.params)
+
+        @jax.jit
+        def outputs(params, training, inputs):
+            return self.net.apply(params, inputs, training=training)
+
+        def outputs_losses(params, training, inputs, targets, losses_fn):
+            # TODO: Add auxiliary vars
+            def outputs_fn(inputs):
+                return self.net.apply(params, inputs, training=training)
+
+            outputs_ = self.net.apply(params, inputs, training=training)
+            # Data losses
+            # We use aux so that self.data.losses is a pure function.
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=outputs_fn)
+            # TODO: Add regularization loss, weighted losses
+            if not isinstance(losses, list):
+                losses = [losses]
+            losses = jax.numpy.asarray(losses)
+            return outputs_, losses
+
+        @jax.jit
+        def outputs_losses_train(params, inputs, targets):
+            return outputs_losses(params, True, inputs, targets, self.data.losses_train)
+
+        @jax.jit
+        def outputs_losses_test(params, inputs, targets):
+            return outputs_losses(params, False, inputs, targets, self.data.losses_test)
+
+        @jax.jit
+        def train_step(params, opt_state, inputs, targets):
+            def loss_function(params):
+                return jax.numpy.sum(outputs_losses_train(params, inputs, targets)[1])
+
+            grad_fn = jax.grad(loss_function)
+            grads = grad_fn(params)
+            updates, new_opt_state = self.opt.update(grads, opt_state)
+            new_params = optimizers.apply_updates(params, updates)
+            return new_params, new_opt_state
+
+        # Pure functions
+        self.outputs = outputs
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
+        self.train_step = train_step
+
     def _compile_paddle(self, lr, loss_fn, decay, loss_weights):
         """paddle"""
 
@@ -363,59 +428,6 @@ class Model:
             self.opt.clear_grad()
 
         # Callables
-        self.outputs = outputs
-        self.outputs_losses_train = outputs_losses_train
-        self.outputs_losses_test = outputs_losses_test
-        self.train_step = train_step
-
-    def _compile_jax(self, lr, loss_fn, decay, loss_weights):
-        """jax"""
-        # Initialize the network's parameters
-        key = jax.random.PRNGKey(config.jax_random_seed)
-        self.net.params = self.net.init(key, self.data.test()[0])
-        # TODO: learning rate decay
-        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
-        self.opt_state = self.opt.init(self.net.params)
-
-        @jax.jit
-        def outputs(params, training, inputs):
-            return self.net.apply(params, inputs, training=training)
-
-        def outputs_losses(params, training, inputs, targets, losses_fn):
-            # TODO: Add auxiliary vars
-            def outputs_fn(inputs):
-                return self.net.apply(params, inputs, training=training)
-
-            outputs_ = self.net.apply(params, inputs, training=training)
-            # Data losses
-            # We use aux so that self.data.losses is a pure function.
-            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=outputs_fn)
-            # TODO: Add regularization loss, weighted losses
-            if not isinstance(losses, list):
-                losses = [losses]
-            losses = jax.numpy.asarray(losses)
-            return outputs_, losses
-
-        @jax.jit
-        def outputs_losses_train(params, inputs, targets):
-            return outputs_losses(params, True, inputs, targets, self.data.losses_train)
-
-        @jax.jit
-        def outputs_losses_test(params, inputs, targets):
-            return outputs_losses(params, False, inputs, targets, self.data.losses_test)
-
-        @jax.jit
-        def train_step(params, opt_state, inputs, targets):
-            def loss_function(params):
-                return jax.numpy.sum(outputs_losses_train(params, inputs, targets)[1])
-
-            grad_fn = jax.grad(loss_function)
-            grads = grad_fn(params)
-            updates, new_opt_state = self.opt.update(grads, opt_state)
-            new_params = optimizers.apply_updates(params, updates)
-            return new_params, new_opt_state
-
-        # Pure functions
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
@@ -482,22 +494,20 @@ class Model:
         """Trains the model for a fixed number of epochs (iterations on a dataset).
 
         Args:
-            epochs: Integer. Number of iterations to train the model. Note: It is the
-                number of iterations, not the number of epochs.
+            epochs (Integer): Number of iterations to train the model. Note: It is
+                actually the number of iterations, not the number of epochs.
             batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or
                 ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                 `dde.callbacks.PDEResidualResampler
                 <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
                 see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
-            display_every: Integer. Print the loss and metrics every this steps.
+            display_every (Integer): Print the loss and metrics every this steps.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 model.
             callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks
                 to apply during training.
-            model_restore_path: String. Path where parameters were previously saved.
-                See ``save_path`` in `tf.train.Saver.restore <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#restore>`_.
-            model_save_path: String. Prefix of filenames created for the checkpoint.
-                See ``save_path`` in `tf.train.Saver.save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#save>`_.
+            model_restore_path (String): Path where parameters were previously saved.
+            model_save_path (String): Prefix of filenames created for the checkpoint.
         """
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
@@ -816,7 +826,7 @@ class Model:
                 Only the protocol "backend" supports ``restore()``.
 
         Returns:
-            string. Path where model is saved.
+            string: Path where model is saved.
         """
         # TODO: backend tensorflow
         save_path = f"{save_path}-{self.train_state.epoch}"
