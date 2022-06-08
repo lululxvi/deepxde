@@ -49,6 +49,14 @@ deepxde.geometry.geometry\_nd module
    :undoc-members:
    :show-inheritance:
 
+deepxde.geometry.pointset module
+--------------------------------
+
+.. automodule:: deepxde.geometry.pointset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.geometry.sampler module
 -------------------------------
 

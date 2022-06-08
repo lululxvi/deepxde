@@ -1,4 +1,5 @@
 __all__ = [
+    "BatchSampler",
     "Chebyshev",
     "Constraint",
     "Data",
@@ -36,4 +37,5 @@ from .mf import MfDataSet, MfFunc
 from .pde import PDE, TimePDE
 from .pde_operator import PDEOperator
 from .quadruple import Quadruple, QuadrupleCartesianProd
+from .sampler import BatchSampler
 from .triple import Triple, TripleCartesianProd
