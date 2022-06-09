@@ -13,13 +13,14 @@ class PointSet(Geometry):
 
     def __init__(self, points):
         self.points = np.asarray(points)
+        self.num_points = len(points)
         super().__init__(
             len(points[0]),
             (np.amin(self.points, axis=0), np.amax(self.points, axis=0)),
             np.inf,
         )
 
-        self.sampler = BatchSampler(len(self.points), shuffle=True)
+        self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
         raise NotImplementedError("dde.geometry.PointSet doesn't support inside.")
@@ -28,11 +29,13 @@ class PointSet(Geometry):
         raise NotImplementedError("dde.geometry.PointSet doesn't support on_boundary.")
 
     def random_points(self, n, random="pseudo"):
-        if n > len(self.points):
-            raise ValueError(f"dde.geometry.PointSet doesn't have {n} points.")
+        if n <= self.num_points:
+            indices = self.sampler.get_next(n)
+            return self.points[indices]
 
-        indices = self.sampler.get_next(n)
-        return self.points[indices]
+        x = np.tile(self.points, (n // self.num_points, 1))
+        indices = self.sampler.get_next(n % self.num_points)
+        return np.vstack((x, self.points[indices]))
 
     def random_boundary_points(self, n, random="pseudo"):
         raise NotImplementedError(
