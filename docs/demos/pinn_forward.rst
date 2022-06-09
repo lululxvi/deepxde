@@ -40,6 +40,7 @@ Time-dependent PDEs
    pinn_forward/diffusion.1d.exactBC
    pinn_forward/diffusion.1d.resample
    pinn_forward/burgers.rar
+   pinn_forward/OperatorBC
 
 - `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_reaction.py>`_
 - `Allen-Cahn equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Allen_Cahn.py>`_
