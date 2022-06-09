@@ -49,10 +49,10 @@ deepxde.geometry.geometry\_nd module
    :undoc-members:
    :show-inheritance:
 
-deepxde.geometry.pointset module
---------------------------------
+deepxde.geometry.pointcloud module
+----------------------------------
 
-.. automodule:: deepxde.geometry.pointset
+.. automodule:: deepxde.geometry.pointcloud
    :members:
    :undoc-members:
    :show-inheritance:

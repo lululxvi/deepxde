@@ -9,7 +9,7 @@ __all__ = [
     "Hypercube",
     "Hypersphere",
     "Interval",
-    "PointSet",
+    "PointCloud",
     "Polygon",
     "Rectangle",
     "Sphere",
@@ -24,6 +24,6 @@ from .geometry_1d import Interval
 from .geometry_2d import Disk, Polygon, Rectangle, Triangle
 from .geometry_3d import Cuboid, Sphere
 from .geometry_nd import Hypercube, Hypersphere
-from .pointset import PointSet
+from .pointcloud import PointCloud
 from .sampler import sample
 from .timedomain import GeometryXTime, TimeDomain

@@ -4,11 +4,11 @@ from .geometry import Geometry
 from ..data import BatchSampler
 
 
-class PointSet(Geometry):
-    """A geometry defined by a set of points.
+class PointCloud(Geometry):
+    """A geometry represented by a point cloud, i.e., a set of points in space.
 
     Args:
-        points: A NumPy array of shape (`N`, `dx`). A list of `dx`-dim points.
+        points: A NumPy array of shape (`N`, `d`). A list of `d`-dim points.
     """
 
     def __init__(self, points):
