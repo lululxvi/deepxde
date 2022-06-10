@@ -87,7 +87,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We build a ``Model``, choose the optimizer and learning rate and train it for 15000 iterations. We set the weight of the first boundary condition 0.01, and the weight of the second boundary condition and the PDE residual loss to 1. We also compute the :math:`L^2` relative error as a metric during training.
+Now, we have the PDE problem and the network. We build a ``Model``, choose the optimizer and learning rate and train it for 15000 iterations. We set the weight of the first boundary condition 0.001, and the weight of the second boundary condition and the PDE residual loss to 1. We also compute the :math:`L^2` relative error as a metric during training.
 
 .. code-block:: python
 
