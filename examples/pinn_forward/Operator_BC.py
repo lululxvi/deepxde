@@ -21,12 +21,11 @@ def bc_func1(inputs, outputs, X):
 def bc_func2(inputs, outputs, X):
     return dde.grad.jacobian(outputs, inputs, i=0, j=None) - 2
 
-bc1 = dde.icbc.OperatorBC(geom, bc_func1, boundary_l)
-bc2 = dde.icbc.OperatorBC(geom, bc_func2, boundary_l)
-#bc = dde.icbc.DirichletBC(geomtime, func, boundary)
+ic = dde.icbc.IC(geom, lambda x: -1, lambda _, on_initial: on_initial)
+bc = dde.icbc.OperatorBC(geom, bc_func2, boundary_l)
 
 data = dde.data.TimePDE(
-    geom, ode, [bc1, bc2], 16, 2, solution=func, num_test=100
+    geom, ode, [ic, bc], 16, 2, solution=func, num_test=500
 )
 layer_size = [1] + [50]*3 + [1]
 activation = "tanh"
@@ -34,9 +33,6 @@ initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
-
-# model.compile("adam", lr=.01, metrics=["l2 relative error"])
-# losshistory, train_state = model.train(epochs=30000)
 model.compile("adam", lr=.001, metrics=["l2 relative error"], loss_weights=[0.01,1,1])
 losshistory, train_state = model.train(epochs=15000)
 
