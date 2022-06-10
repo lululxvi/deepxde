@@ -68,7 +68,7 @@ Then, the second boundary condition is defined by
 
 .. code-block:: python
 
-    bc2 = dde.icbc.OperatorBC(geom, error_2, boundary_l)
+    bc = dde.icbc.OperatorBC(geom, error_2, boundary_l)
 
 Now, we have specified the geometry, PDE residual, the initial condition and the boundary condition. We then define the PDE problem. Note: If you use `X` in `func`, then do not set ``num_test`` when you define ``dde.data.PDE`` or ``dde.data.TimePDE``, otherwise DeepXDE would throw an error. In this case, the training points will be used for testing, and this will not affect the network training and training loss. This is a bug of DeepXDE, which cannot be fixed in an easy way for all backends.
 
