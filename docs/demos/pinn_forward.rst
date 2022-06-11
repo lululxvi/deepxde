@@ -11,7 +11,7 @@ ODEs
 
    pinn_forward/ode.system
    pinn_forward/lotka.volterra
-   pinn_forward/OperatorBC
+   pinn_forward/ode.2nd
 
 Time-independent PDEs
 ---------------------
