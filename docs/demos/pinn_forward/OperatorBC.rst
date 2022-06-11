@@ -1,4 +1,4 @@
-ODE in 1D with boundary conditions created with OperatorBC
+Second order ODE
 =================================================================
 
 Problem setup
