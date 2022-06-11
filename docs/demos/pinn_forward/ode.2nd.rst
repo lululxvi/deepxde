@@ -36,9 +36,9 @@ Next, we express the ODE residual of the ODE:
 .. code-block:: python
 
     def ode(t, y):
-    	dy_dt = dde.grad.jacobian(y, t)
-   	d2y_dt2 = dde.grad.hessian(y, t)
-    	return d2y_dt2 - 10 * dy_dt + 9 * y - 5 * t
+        dy_dt = dde.grad.jacobian(y, t)
+        d2y_dt2 = dde.grad.hessian(y, t)
+        return d2y_dt2 - 10 * dy_dt + 9 * y - 5 * t
 
 The first argument to ``ode`` is the network input, i.e., the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(t)`, but here we use ``y`` as the name of the variable.
 
@@ -62,7 +62,7 @@ Now we define a function that returns the error of the boundry condition, :math:
 .. code-block:: python
 
     def error_2(inputs, outputs, X):
-    	return dde.grad.jacobian(outputs, inputs, i=0, j=None) - 2
+        return dde.grad.jacobian(outputs, inputs, i=0, j=None) - 2
 
 Then, the boundary condition is defined by
 
@@ -91,9 +91,9 @@ Now, we have the PDE problem and the network. We build a ``Model``, choose the o
 
 .. code-block:: python
 
-    	model = dde.Model(data, net)
-	model.compile("adam", lr=.001, metrics=["l2 relative error"], loss_weights=[0.01,1,1])
-	losshistory, train_state = model.train(epochs=15000)
+    model = dde.Model(data, net)
+    model.compile("adam", lr=.001, metrics=["l2 relative error"], loss_weights=[0.01,1,1])
+    losshistory, train_state = model.train(epochs=15000)
 
 
 Complete code
