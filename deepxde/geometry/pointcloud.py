@@ -1,6 +1,7 @@
 import numpy as np
 
 from .geometry import Geometry
+from .. import config
 from ..data import BatchSampler
 
 
@@ -12,7 +13,7 @@ class PointCloud(Geometry):
     """
 
     def __init__(self, points):
-        self.points = np.asarray(points)
+        self.points = np.asarray(points, dtype=config.real(np))
         self.num_points = len(points)
         super().__init__(
             len(points[0]),
