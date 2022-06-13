@@ -31,7 +31,7 @@ We begin by defining a computational geometry. We can use a built-in class ``Tim
 
     geom = dde.geometry.TimeDomain(0, 0.25)
 
-Next, we express the ODE residual of the ODE:
+Next, we express the residual of the ODE:
 
 .. code-block:: python
 
