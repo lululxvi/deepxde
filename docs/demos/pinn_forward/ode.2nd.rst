@@ -8,7 +8,7 @@ We will solve an ODE:
 
 .. math:: y''(t)-10y'(t)+9y(t) = 5t
 
-with boundary conditions
+with initial conditions
 
 .. math:: y(0)=-1,  y'(0)=2
 
