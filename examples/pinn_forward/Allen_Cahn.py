@@ -2,13 +2,21 @@
 
 Implementation of Allen-Cahn equation example in paper https://arxiv.org/abs/2111.02801.
 """
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 from scipy.io import loadmat
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
+from deepxde.optimizers import set_LBFGS_options
 # Import torch if using backend pytorch
 # import torch
+
+
+train_steps = get_steps(40000)
+set_LBFGS_options(maxiter=get_steps(15000))
+report_flag = get_save_flag(1)
 
 
 def gen_testdata():
@@ -47,16 +55,17 @@ data = dde.data.TimePDE(geomtime, pde, [], num_domain=8000, num_boundary=400, nu
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
-
 model.compile("adam", lr=1e-3)
-model.train(epochs=40000)
+model.train(epochs=train_steps)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
 
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+
+if report_flag:
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
