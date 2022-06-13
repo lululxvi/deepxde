@@ -97,7 +97,7 @@ Now, we have the PDE problem and the network. We build a ``Model``, choose the o
 
 
 Complete code
---------------
+-------------
 
 .. literalinclude:: ../../../examples/pinn_forward/ode_2nd.py
   :language: python
