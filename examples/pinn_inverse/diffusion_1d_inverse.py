@@ -1,4 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
@@ -7,6 +9,10 @@ from deepxde.backend import tf
 # import torch
 # Backend paddle
 # import paddle
+
+
+train_steps = get_steps(50000)
+report_flag = get_save_flag(1)
 
 
 C = dde.Variable(2.0)
@@ -75,6 +81,6 @@ model.compile(
     "adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=C
 )
 variable = dde.callbacks.VariableValue(C, period=1000)
-losshistory, train_state = model.train(epochs=50000, callbacks=[variable])
+losshistory, train_state = model.train(epochs=train_steps, callbacks=[variable])
 
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

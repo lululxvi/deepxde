@@ -9,13 +9,11 @@ import numpy as np
 from scipy.io import loadmat
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
-from deepxde.optimizers import set_LBFGS_options
 # Import torch if using backend pytorch
 # import torch
 
 
 train_steps = get_steps(40000)
-set_LBFGS_options(maxiter=get_steps(15000))
 report_flag = get_save_flag(1)
 
 

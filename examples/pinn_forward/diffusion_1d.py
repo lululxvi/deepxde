@@ -1,4 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
@@ -7,6 +9,11 @@ from deepxde.backend import tf
 # import torch
 # Backend paddle
 # import paddle
+
+
+train_steps = get_steps(10000)
+report_flag = get_save_flag(1)
+
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, j=1)
@@ -63,6 +70,6 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=10000)
+losshistory, train_state = model.train(epochs=train_steps)
 
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

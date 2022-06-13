@@ -1,8 +1,14 @@
 """Backend supported: tensorflow.compat.v1"""
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
+
+
+train_steps = get_steps(10000)
+report_flag = get_save_flag(1)
 
 
 alpha0 = 1.8
@@ -58,5 +64,5 @@ net.apply_output_transform(
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, loss_weights=[1, 100])
 variable = dde.callbacks.VariableValue(alpha, period=1000)
-losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+losshistory, train_state = model.train(epochs=train_steps, callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

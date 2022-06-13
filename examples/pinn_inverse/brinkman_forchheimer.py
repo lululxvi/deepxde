@@ -2,11 +2,18 @@
 
 Implementation of Brinkman-Forchheimer equation example in paper https://arxiv.org/pdf/2111.02801.pdf.
 """
+from test_param import *
+
 import re
 
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+train_steps = get_steps(30000)
+report_flag = get_save_flag(1)
+
 
 g = 1
 v = 1e-3
@@ -56,52 +63,54 @@ net = dde.nn.FNN([1] + [20] * 3 + [1], "tanh", "Glorot uniform")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=[v_e, K])
-variable = dde.callbacks.VariableValue([v_e, K], period=200, filename="variables1.dat")
+fnamevar = "variables1.dat" if report_flag else None
+variable = dde.callbacks.VariableValue([v_e, K], period=200, filename=fnamevar)
 
-losshistory, train_state = model.train(epochs=30000, callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+losshistory, train_state = model.train(epochs=train_steps, callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
 
-lines = open("variables1.dat", "r").readlines()
-vkinfer = np.array(
-    [
-        np.fromstring(
-            min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
-            sep=",",
-        )
-        for line in lines
-    ]
-)
+if report_flag:
+    lines = open(fnamevar, "r").readlines()
+    vkinfer = np.array(
+        [
+            np.fromstring(
+                min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
+                sep=",",
+            )
+            for line in lines
+        ]
+    )
 
-l, c = vkinfer.shape
-v_etrue = 1e-3
-ktrue = 1e-3
+    l, c = vkinfer.shape
+    v_etrue = 1e-3
+    ktrue = 1e-3
 
-plt.figure()
-plt.plot(
-    range(0, 200 * l, 200),
-    np.ones(vkinfer[:, 0].shape) * v_etrue,
-    color="black",
-    label="Exact",
-)
-plt.plot(range(0, 200 * l, 200), vkinfer[:, 0], "b--", label="Pred")
-plt.xlabel("Epoch")
-plt.yscale("log")
-plt.ylim(top=1e-1)
-plt.legend(frameon=False)
-plt.ylabel(r"$\nu_e$")
+    plt.figure()
+    plt.plot(
+        range(0, 200 * l, 200),
+        np.ones(vkinfer[:, 0].shape) * v_etrue,
+        color="black",
+        label="Exact",
+    )
+    plt.plot(range(0, 200 * l, 200), vkinfer[:, 0], "b--", label="Pred")
+    plt.xlabel("Epoch")
+    plt.yscale("log")
+    plt.ylim(top=1e-1)
+    plt.legend(frameon=False)
+    plt.ylabel(r"$\nu_e$")
 
-plt.figure()
-plt.plot(
-    range(0, 200 * l, 200),
-    np.ones(vkinfer[:, 1].shape) * ktrue,
-    color="black",
-    label="Exact",
-)
-plt.plot(range(0, 200 * l, 200), vkinfer[:, 1], "b--", label="Pred")
-plt.xlabel("Epoch")
-plt.yscale("log")
-plt.ylim(ymax=1e-1)
-plt.legend(frameon=False)
-plt.ylabel(r"$K$")
+    plt.figure()
+    plt.plot(
+        range(0, 200 * l, 200),
+        np.ones(vkinfer[:, 1].shape) * ktrue,
+        color="black",
+        label="Exact",
+    )
+    plt.plot(range(0, 200 * l, 200), vkinfer[:, 1], "b--", label="Pred")
+    plt.xlabel("Epoch")
+    plt.yscale("log")
+    plt.ylim(ymax=1e-1)
+    plt.legend(frameon=False)
+    plt.ylabel(r"$K$")
 
-plt.show()
+    plt.show()

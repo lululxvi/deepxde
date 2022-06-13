@@ -1,10 +1,16 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Backend pytorch
 # import torch
+
+
+train_steps = get_steps(2000)
+report_flag = get_save_flag(1)
 
 
 def pde(x, y):
@@ -57,6 +63,6 @@ model = dde.Model(data, net)
 
 resampler = dde.callbacks.PDEResidualResampler(period=100)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=2000, callbacks=[resampler])
+losshistory, train_state = model.train(epochs=train_steps, callbacks=[resampler])
 
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

@@ -1,6 +1,12 @@
+from test_param import *
+
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+train_steps = get_steps(20000)
+report_flag = get_save_flag(1)
 
 
 def heat_eq_exact_solution(x, t):
@@ -33,10 +39,11 @@ def gen_exact_solution():
         for j in range(t_dim):
             usol[i][j] = heat_eq_exact_solution(x[i], t[j])
 
-    # Save solution:
-    np.savez("heat_eq_data", x=x, t=t, usol=usol)
-    # Load solution:
-    data = np.load("heat_eq_data.npz")
+    if report_flag:
+        # Save solution:
+        np.savez("heat_eq_data", x=x, t=t, usol=usol)
+        # Load solution:
+        data = np.load("heat_eq_data.npz")
 
 
 def gen_testdata():
@@ -96,15 +103,17 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=20000)
+model.train(epochs=train_steps)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
 # Plot/print the results
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+
+if report_flag:
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

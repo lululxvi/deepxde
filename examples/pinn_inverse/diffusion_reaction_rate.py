@@ -2,10 +2,17 @@
 
 Implementation for the diffusion-reaction system with a space-dependent reaction rate in paper https://arxiv.org/abs/2111.02801.
 """
+from test_param import *
+
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
+
+
+train_steps = get_steps(20000)
+report_flag = get_save_flag(1)
+
 
 l = 0.01
 
@@ -64,7 +71,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 
-losshistory, train_state = model.train(epochs=20000)
+losshistory, train_state = model.train(epochs=train_steps)
 
 x = geom.uniform_points(500)
 yhat = model.predict(x)
@@ -73,17 +80,19 @@ uhat, khat = yhat[:, 0:1], yhat[:, 1:2]
 ktrue = k(x)
 print("l2 relative error for k: " + str(dde.metrics.l2_relative_error(khat, ktrue)))
 
-plt.figure()
-plt.plot(x, ktrue, "-", label="k_true")
-plt.plot(x, khat, "--", label="k_NN")
-plt.legend()
-plt.show()
+if report_flag:
+    plt.figure()
+    plt.plot(x, ktrue, "-", label="k_true")
+    plt.plot(x, khat, "--", label="k_NN")
+    plt.legend()
+    plt.show()
 
 utrue = res.sol(x)[0]
 print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(uhat, utrue)))
 
-plt.figure()
-plt.plot(x, utrue, "-", label="u_true")
-plt.plot(x, uhat, "--", label="u_NN")
-plt.legend()
-plt.show()
+if report_flag:
+    plt.figure()
+    plt.plot(x, utrue, "-", label="u_true")
+    plt.plot(x, uhat, "--", label="u_NN")
+    plt.legend()
+    plt.show()

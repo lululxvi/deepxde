@@ -1,5 +1,11 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+from test_param import *
+
 import deepxde as dde
+
+
+train_steps = get_steps(50000)
+report_flag = get_save_flag(1)
 
 
 def pde(x, y):
@@ -20,7 +26,7 @@ net = dde.nn.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-model.train(epochs=50000)
+model.train(epochs=train_steps)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

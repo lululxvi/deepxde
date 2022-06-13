@@ -1,5 +1,11 @@
 """Backend supported: tensorflow.compat.v1"""
+from test_param import *
+
 import deepxde as dde
+
+
+train_steps = get_steps(80000)
+report_flag = get_save_flag(1)
 
 
 fname_lo_train = "../dataset/mf_lo_train.dat"
@@ -28,6 +34,6 @@ net = dde.nn.MfNN(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=80000)
+losshistory, train_state = model.train(epochs=train_steps)
 
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)

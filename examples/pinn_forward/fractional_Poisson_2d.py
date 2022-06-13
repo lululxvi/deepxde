@@ -1,8 +1,14 @@
 """Backend supported: tensorflow.compat.v1"""
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
+
+
+train_steps = get_steps(20000)
+report_flag = get_save_flag(1)
 
 
 alpha = 1.8
@@ -47,11 +53,13 @@ net.apply_output_transform(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
-losshistory, train_state = model.train(epochs=20000)
-dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+losshistory, train_state = model.train(epochs=train_steps)
+dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
 
 X = geom.random_points(1000)
 y_true = func(X)
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+
+if report_flag:
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

@@ -1,8 +1,13 @@
 """Backend supported: tensorflow.compat.v1"""
+from test_param import *
+
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
+
+
+report_flag = get_save_flag(1)
 
 
 def ide(x, y, int_mat):
@@ -48,8 +53,9 @@ y_true = func(X)
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-plt.figure()
-plt.plot(X, y_true, "-")
-plt.plot(X, y_pred, "o")
-plt.show()
-np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+if report_flag:
+    plt.figure()
+    plt.plot(X, y_true, "-")
+    plt.plot(X, y_pred, "o")
+    plt.show()
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

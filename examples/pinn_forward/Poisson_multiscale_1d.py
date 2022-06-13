@@ -4,9 +4,16 @@ Implementation of the Poisson 1D example in paper https://arxiv.org/abs/2012.100
 References:
     https://github.com/PredictiveIntelligenceLab/MultiscalePINNs.
 """
+from test_param import *
+
 import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
+
+
+train_steps = get_steps(20000)
+report_flag = get_save_flag(1)
+
 
 A = 2
 B = 50
@@ -52,6 +59,6 @@ model.compile(
 )
 
 pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
-model.train(epochs=20000, callbacks=[pde_residual_resampler])
+model.train(epochs=train_steps, callbacks=[pde_residual_resampler])
 
-dde.saveplot(model.losshistory, model.train_state, issave=True, isplot=True)
+dde.saveplot(model.losshistory, model.train_state, issave=report_flag, isplot=report_flag)

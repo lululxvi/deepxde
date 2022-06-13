@@ -3,6 +3,8 @@
 Identification of the parameters of the modified Lorenz attractor (with exogenous input)
 see https://github.com/lululxvi/deepxde/issues/79
 """
+from test_param import *
+
 import re
 
 import deepxde as dde
@@ -10,6 +12,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from scipy.integrate import odeint
+
+
+train_steps = get_steps(60000)
+report_flag = get_save_flag(1)
 
 
 # Generate data
@@ -48,11 +54,12 @@ x0 = [-8, 7, 27]
 # solve ODE
 x = odeint(LorezODE, x0, time)
 
-# plot results
-plt.plot(time, x, time, ex_input)
-plt.xlabel("time")
-plt.ylabel("x(t)")
-plt.show()
+if report_flag:
+    # plot results
+    plt.plot(time, x, time, ex_input)
+    plt.xlabel("time")
+    plt.ylabel("x(t)")
+    plt.show()
 
 time = time.reshape(-1, 1)
 
@@ -117,11 +124,12 @@ data = dde.data.PDE(
     auxiliary_var_function=ex_func2,
 )
 
-plt.plot(observe_t, ob_y)
-plt.xlabel("Time")
-plt.legend(["x", "y", "z"])
-plt.title("Training data")
-plt.show()
+if report_flag:
+    plt.plot(observe_t, ob_y)
+    plt.xlabel("Time")
+    plt.legend(["x", "y", "z"])
+    plt.title("Training data")
+    plt.show()
 
 # define FNN architecture and compile
 net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
@@ -129,10 +137,10 @@ model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 
 # callbacks for storing results
-fnamevar = "variables.dat"
+fnamevar = "variables.dat" if report_flag else None
 variable = dde.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
 
-model.train(epochs=60000, callbacks=[variable])
+model.train(epochs=train_steps, callbacks=[variable])
 
 # Plots
 # reopen saved data using callbacks in fnamevar
@@ -149,19 +157,21 @@ Chat = np.array(
 )
 
 l, c = Chat.shape
-plt.plot(range(l), Chat[:, 0], "r-")
-plt.plot(range(l), Chat[:, 1], "k-")
-plt.plot(range(l), Chat[:, 2], "g-")
-plt.plot(range(l), np.ones(Chat[:, 0].shape) * C1true, "r--")
-plt.plot(range(l), np.ones(Chat[:, 1].shape) * C2true, "k--")
-plt.plot(range(l), np.ones(Chat[:, 2].shape) * C3true, "g--")
-plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="right")
-plt.xlabel("Epoch")
+if report_flag:
+    plt.plot(range(l), Chat[:, 0], "r-")
+    plt.plot(range(l), Chat[:, 1], "k-")
+    plt.plot(range(l), Chat[:, 2], "g-")
+    plt.plot(range(l), np.ones(Chat[:, 0].shape) * C1true, "r--")
+    plt.plot(range(l), np.ones(Chat[:, 1].shape) * C2true, "k--")
+    plt.plot(range(l), np.ones(Chat[:, 2].shape) * C3true, "g--")
+    plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="right")
+    plt.xlabel("Epoch")
 
 yhat = model.predict(observe_t)
-plt.figure()
-plt.plot(observe_t, ob_y, "-", observe_t, yhat, "--")
-plt.xlabel("Time")
-plt.legend(["x", "y", "z", "xh", "yh", "zh"])
-plt.title("Training data")
-plt.show()
+if report_flag:
+    plt.figure()
+    plt.plot(observe_t, ob_y, "-", observe_t, yhat, "--")
+    plt.xlabel("Time")
+    plt.legend(["x", "y", "z", "xh", "yh", "zh"])
+    plt.title("Training data")
+    plt.show()
