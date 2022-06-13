@@ -57,7 +57,7 @@ The location of the boundary conditions is defined by a simple Python function. 
     def boundary_l(t, on_boundary):
         return on_boundary and np.isclose(t[0], 0)
 
-Now we define a function that returns the error of the boundry condition, :math:`y'(0)=2`, which is the difference between the derivative of the output of the network at 0, and 2. The function takes arguments (``inputs``, ``outputs``, ``X``) and outputs a tensor of size ``N x 1``, where ``N`` is the length of ``inputs``. ``inputs`` and ``outputs`` are the network input and output tensors, respectively; ``X`` are the NumPy array of the ``inputs``.
+Now we define a function that returns the error of the boundry condition, :math:`y'(0)=2`, which is the difference between the derivative of the output of the network at 0, and 2. The function takes arguments (``inputs``, ``outputs``, ``X``) and outputs a tensor of size ``N x 1``, where ``N`` is the length of ``inputs``. ``inputs`` and ``outputs`` are the network input and output tensors, respectively; ``X`` is the NumPy array of the ``inputs``.
 
 .. code-block:: python
 
