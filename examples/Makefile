@@ -1,17 +1,28 @@
-DDE_TEST_ENV = DDE_INTEGRATION_TEST=1 PYTHONPATH=..:../..
+# Directories where to look for *.py example scripts
+EXAMPLE_DIRECTORIES := function pinn_forward pinn_inverse
+
+# Environment variables for the scripts
+# Note that the PYTHONPATH is relative to each example subdirectory, not the
+#    directory where the Makefile resides
+DDE_TEST_ENV := DDE_INTEGRATION_TEST=1 PYTHONPATH=..:../..
 
 
-run_examples: function pinn_forward pinn_inverse
-	@for dir in $^; do                                                   \
-	    cd $$dir;                                                        \
-		for file in *.py; do                                             \
-		    echo -----------------------------------------------------;  \
-			echo $$dir/$$file;                                           \
-			echo -----------------------------------------------------;  \
-			$(DDE_TEST_ENV) python $$file || exit 1;                     \
-			echo;                                                        \
-			echo;                                                        \
-			echo;                                                        \
-		done;                                                            \
-		cd ..;                                                           \
-	done;
+
+.PHONY: _run_one_example run_all_examples
+
+# List every Python script in the example directories
+# NB: notebooks are ignored
+example_files := $(foreach dir,$(EXAMPLE_DIRECTORIES),$(wildcard $(dir)/*.py))
+
+# Default rule -- run everything
+run_all_examples: $(example_files)
+
+# Run matching Python files
+%.py: _run_one_example
+	@echo -----------------------------------------------------
+	@echo $@
+	@echo -----------------------------------------------------
+	@cd $(dir $@) && $(DDE_TEST_ENV) python $(notdir $@)
+	@echo
+	@echo
+	@cd ..
