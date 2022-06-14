@@ -46,7 +46,7 @@ PINN
 DeepONet
 --------
 
-#. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://arxiv.org/abs/2204.06684>`_. *arXiv preprint arXiv:2204.06684*, 2022.
+#. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://doi.org/10.1103/PhysRevResearch.4.023210>`_. *Physical Review Research*, 4(2), 023210, 2022.
 #. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://doi.org/10.1016/j.cma.2022.114778>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114778, 2022.
 #. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://arxiv.org/abs/2202.06137>`_. *arXiv preprint arXiv:2202.06137*, 2022.
 #. C. Lin, M. Maxey, Z. Li, & G. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
