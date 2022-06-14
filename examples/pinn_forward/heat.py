@@ -1,12 +1,9 @@
-from test_param import *
-
+from telnetlib import TN3270E
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-train_steps = get_steps(20000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def heat_eq_exact_solution(x, t):
@@ -39,17 +36,16 @@ def gen_exact_solution():
         for j in range(t_dim):
             usol[i][j] = heat_eq_exact_solution(x[i], t[j])
 
-    if report_flag:
-        # Save solution:
-        np.savez("heat_eq_data", x=x, t=t, usol=usol)
-        # Load solution:
-        data = np.load("heat_eq_data.npz")
+    # Return solution:
+    return {
+        'x': x,
+        't': t,
+        'usol': usol
+    }
 
 
-def gen_testdata():
+def gen_testdata(data):
     """Import and preprocess the dataset with the exact solution."""
-    # Load the data:
-    data = np.load("heat_eq_data.npz")
     # Obtain the values for t, x, and the excat solution:
     t, x, exact = data["t"], data["x"], data["usol"].T
     # Process the data and flatten it out (like labels and features):
@@ -65,7 +61,7 @@ L = 1  # Length of the bar
 n = 1  # Frequency of the sinusoidal initial conditions
 
 # Generate a dataset with the exact solution (if you dont have one):
-gen_exact_solution()
+solution_data = gen_exact_solution()
 
 
 def pde(x, y):
@@ -103,17 +99,17 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=train_steps)
+model.train(epochs=get_number_of_steps(20000))
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
 # Plot/print the results
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
-X, y_true = gen_testdata()
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+X, y_true = gen_testdata(solution_data)
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-if report_flag:
+if is_interactive():
     np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

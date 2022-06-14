@@ -1,6 +1,4 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-from test_param import *
-
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,9 +8,7 @@ from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
 
-
-train_steps = get_steps(50000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 ub = 200
@@ -96,15 +92,15 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(epochs=train_steps)
+losshistory, train_state = model.train(epochs=get_number_of_steps(50000))
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
 
 t = np.linspace(0, 1, 100)
 x_true, y_true = gen_truedata()
 
-if report_flag:
+if is_interactive():
     plt.xlabel("t")
     plt.ylabel("population")
     plt.plot(t, x_true, color="black", label="x_true")
@@ -115,7 +111,7 @@ sol_pred = model.predict(t)
 x_pred = sol_pred[:, 0:1]
 y_pred = sol_pred[:, 1:2]
 
-if report_flag:
+if is_interactive():
     plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
     plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")
     plt.legend()

@@ -1,12 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(30000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def func(x):
@@ -38,6 +34,6 @@ net = dde.nn.FNN(
 model = dde.Model(data, net)
 uncertainty = dde.callbacks.DropoutUncertainty(period=1000)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=train_steps, callbacks=[uncertainty])
+losshistory, train_state = model.train(epochs=get_number_of_steps(30000), callbacks=[uncertainty])
 
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())

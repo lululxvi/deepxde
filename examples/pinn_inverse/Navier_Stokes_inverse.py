@@ -4,17 +4,13 @@ An inverse problem of the Navier-Stokes equation of incompressible flow around c
 
 References: https://doi.org/10.1016/j.jcp.2018.10.045 Section 4.1.1
 """
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
 import re
 
-
-train_steps = get_steps(10000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 # true values
@@ -122,40 +118,40 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 
 # callbacks for storing results
-fnamevar = "variables.dat" if report_flag else None
+fnamevar = "variables.dat" if is_interactive() else None
 variable = dde.callbacks.VariableValue([C1, C2], period=100, filename=fnamevar)
 
 # Compile, train and save model
 model.compile("adam", lr=1e-3, external_trainable_variables=[C1, C2])
 loss_history, train_state = model.train(
-    epochs=train_steps, callbacks=[variable], display_every=1000, disregard_previous_best=True
+    epochs=get_number_of_steps(10000), callbacks=[variable], display_every=1000, disregard_previous_best=True
 )
-dde.saveplot(loss_history, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(loss_history, train_state, issave=is_interactive(), isplot=is_interactive())
 model.compile("adam", lr=1e-4, external_trainable_variables=[C1, C2])
 loss_history, train_state = model.train(
-    epochs=train_steps, callbacks=[variable], display_every=1000, disregard_previous_best=True
+    epochs=get_number_of_steps(10000), callbacks=[variable], display_every=1000, disregard_previous_best=True
 )
-dde.saveplot(loss_history, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(loss_history, train_state, issave=is_interactive(), isplot=is_interactive())
 # model.save(save_path = "./NS_inverse_model/model")
 f = model.predict(ob_xyt, operator=Navier_Stokes_Equation)
 print("Mean residual:", np.mean(np.absolute(f)))
 
-# Plot Variables:
-# reopen saved data using callbacks in fnamevar
-lines = open(fnamevar, "r").readlines()
-# read output data in fnamevar
-Chat = np.array(
-    [
-        np.fromstring(
-            min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
-            sep=",",
-        )
-        for line in lines
-    ]
-)
-l, c = Chat.shape
+if is_interactive():
+    # Plot Variables:
+    # reopen saved data using callbacks in fnamevar
+    lines = open(fnamevar, "r").readlines()
+    # read output data in fnamevar
+    Chat = np.array(
+        [
+            np.fromstring(
+                min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
+                sep=",",
+            )
+            for line in lines
+        ]
+    )
+    l, c = Chat.shape
 
-if report_flag:
     plt.semilogy(range(0, l * 100, 100), Chat[:, 0], "r-")
     plt.semilogy(range(0, l * 100, 100), Chat[:, 1], "k-")
     plt.semilogy(range(0, l * 100, 100), np.ones(Chat[:, 0].shape) * C1true, "r--")

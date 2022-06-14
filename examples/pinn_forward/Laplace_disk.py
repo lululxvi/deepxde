@@ -1,6 +1,4 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
@@ -8,9 +6,7 @@ from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
 
-
-train_steps = get_steps(15000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def pde(x, y):
@@ -54,5 +50,5 @@ net.apply_feature_transform(feature_transform)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=train_steps)
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+losshistory, train_state = model.train(epochs=get_number_of_steps(15000))
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())

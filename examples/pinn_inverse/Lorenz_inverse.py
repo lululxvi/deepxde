@@ -1,12 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(60000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def gen_traindata():
@@ -65,9 +61,9 @@ data = dde.data.PDE(
 net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
-fnamevar = "variables.dat" if report_flag else None
+fnamevar = "variables.dat" if is_interactive() else None
 variable = dde.callbacks.VariableValue(
     [C1, C2, C3], period=600, filename=fnamevar
 )
-losshistory, train_state = model.train(epochs=train_steps, callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+losshistory, train_state = model.train(epochs=get_number_of_steps(60000), callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())

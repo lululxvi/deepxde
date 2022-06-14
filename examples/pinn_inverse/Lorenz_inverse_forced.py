@@ -3,8 +3,6 @@
 Identification of the parameters of the modified Lorenz attractor (with exogenous input)
 see https://github.com/lululxvi/deepxde/issues/79
 """
-from test_param import *
-
 import re
 
 import deepxde as dde
@@ -13,9 +11,7 @@ import numpy as np
 import scipy as sp
 from scipy.integrate import odeint
 
-
-train_steps = get_steps(60000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 # Generate data
@@ -54,7 +50,7 @@ x0 = [-8, 7, 27]
 # solve ODE
 x = odeint(LorezODE, x0, time)
 
-if report_flag:
+if is_interactive():
     # plot results
     plt.plot(time, x, time, ex_input)
     plt.xlabel("time")
@@ -124,7 +120,7 @@ data = dde.data.PDE(
     auxiliary_var_function=ex_func2,
 )
 
-if report_flag:
+if is_interactive():
     plt.plot(observe_t, ob_y)
     plt.xlabel("Time")
     plt.legend(["x", "y", "z"])
@@ -137,27 +133,27 @@ model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 
 # callbacks for storing results
-fnamevar = "variables.dat" if report_flag else None
+fnamevar = "variables.dat" if is_interactive() else None
 variable = dde.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
 
-model.train(epochs=train_steps, callbacks=[variable])
+model.train(epochs=get_number_of_steps(60000), callbacks=[variable])
 
-# Plots
-# reopen saved data using callbacks in fnamevar
-lines = open(fnamevar, "r").readlines()
-# read output data in fnamevar (this line is a long story...)
-Chat = np.array(
-    [
-        np.fromstring(
-            min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
-            sep=",",
-        )
-        for line in lines
-    ]
-)
+if is_interactive():
+    # Plots
+    # reopen saved data using callbacks in fnamevar
+    lines = open(fnamevar, "r").readlines()
+    # read output data in fnamevar (this line is a long story...)
+    Chat = np.array(
+        [
+            np.fromstring(
+                min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
+                sep=",",
+            )
+            for line in lines
+        ]
+    )
 
-l, c = Chat.shape
-if report_flag:
+    l, c = Chat.shape
     plt.plot(range(l), Chat[:, 0], "r-")
     plt.plot(range(l), Chat[:, 1], "k-")
     plt.plot(range(l), Chat[:, 2], "g-")
@@ -167,8 +163,7 @@ if report_flag:
     plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="right")
     plt.xlabel("Epoch")
 
-yhat = model.predict(observe_t)
-if report_flag:
+    yhat = model.predict(observe_t)
     plt.figure()
     plt.plot(observe_t, ob_y, "-", observe_t, yhat, "--")
     plt.xlabel("Time")

@@ -1,12 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(10000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def gen_testdata():
@@ -41,14 +37,14 @@ net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1.0e-3)
-model.train(epochs=train_steps)
+model.train(epochs=get_number_of_steps(10000))
 model.compile("L-BFGS")
 model.train()
 
 X = geomtime.random_points(100000)
 err = 1
 iterations = 0
-while err > 0.005 and iterations < train_steps:
+while err > 0.005 and iterations < get_number_of_steps(10000):
     f = model.predict(X, operator=pde)
     err_eq = np.absolute(f)
     err = np.mean(err_eq)
@@ -59,16 +55,16 @@ while err > 0.005 and iterations < train_steps:
     data.add_anchors(X[x_id])
     early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
     model.compile("adam", lr=1e-3)
-    model.train(epochs=train_steps, disregard_previous_best=True, callbacks=[early_stopping])
+    model.train(epochs=get_number_of_steps(10000), disregard_previous_best=True, callbacks=[early_stopping])
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
     iterations += 1
     
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
 
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-if report_flag:
+if is_interactive():
     np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

@@ -1,14 +1,14 @@
-DDE_TEST_ENV = DDE_STEPS_OVERRIDE=1 DDE_SAVE_RESULTS=0 PYTHONPATH=..:../..
+DDE_TEST_ENV = DDE_INTEGRATION_TEST=1 PYTHONPATH=..:../..
 
 
-examples: pinn_inverse
+run_examples: function pinn_forward pinn_inverse
 	@for dir in $^; do                                                   \
 	    cd $$dir;                                                        \
 		for file in *.py; do                                             \
 		    echo -----------------------------------------------------;  \
 			echo $$dir/$$file;                                           \
 			echo -----------------------------------------------------;  \
-			$(DDE_TEST_ENV) python $$file;                               \
+			$(DDE_TEST_ENV) python $$file || exit 1;                     \
 			echo;                                                        \
 			echo;                                                        \
 			echo;                                                        \

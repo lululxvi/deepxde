@@ -4,14 +4,10 @@ Implementation of the wave propagation example in paper https://arxiv.org/abs/20
 References:
     https://github.com/PredictiveIntelligenceLab/MultiscalePINNs.
 """
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(10000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 A = 2
@@ -80,7 +76,7 @@ model.compile(
 )
 pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
 losshistory, train_state = model.train(
-    epochs=train_steps, callbacks=[pde_residual_resampler], display_every=500
+    epochs=get_number_of_steps(10000), callbacks=[pde_residual_resampler], display_every=500
 )
 
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())

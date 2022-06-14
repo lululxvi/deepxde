@@ -1,12 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(15000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 def gen_testdata():
@@ -41,10 +37,10 @@ net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
-model.train(epochs=train_steps)
+model.train(epochs=get_number_of_steps(15000))
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
 
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
@@ -52,5 +48,5 @@ f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-if report_flag:
+if is_interactive():
     np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

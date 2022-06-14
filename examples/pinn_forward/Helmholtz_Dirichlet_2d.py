@@ -1,12 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
-from test_param import *
-
 import deepxde as dde
 import numpy as np
 
-
-train_steps = get_steps(5000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 # General parameters
@@ -15,7 +11,7 @@ precision_train = 10
 precision_test = 30
 hard_constraint = True
 weights = 100  # if hard_constraint == False
-epochs = train_steps
+epochs = get_number_of_steps(5000)
 parameters = [1e-3, 3, 150, "sin"]
 
 # Define sine function
@@ -98,4 +94,4 @@ else:
 
 
 losshistory, train_state = model.train(epochs=epochs)
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())

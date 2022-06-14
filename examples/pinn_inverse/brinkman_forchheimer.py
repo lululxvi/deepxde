@@ -2,17 +2,13 @@
 
 Implementation of Brinkman-Forchheimer equation example in paper https://arxiv.org/pdf/2111.02801.pdf.
 """
-from test_param import *
-
 import re
 
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-train_steps = get_steps(30000)
-report_flag = get_save_flag(1)
+from examples.example_utils import *
 
 
 g = 1
@@ -63,13 +59,13 @@ net = dde.nn.FNN([1] + [20] * 3 + [1], "tanh", "Glorot uniform")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=[v_e, K])
-fnamevar = "variables1.dat" if report_flag else None
+fnamevar = "variables1.dat" if is_interactive() else None
 variable = dde.callbacks.VariableValue([v_e, K], period=200, filename=fnamevar)
 
-losshistory, train_state = model.train(epochs=train_steps, callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=report_flag, isplot=report_flag)
+losshistory, train_state = model.train(epochs=get_number_of_steps(30000), callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
 
-if report_flag:
+if is_interactive():
     lines = open(fnamevar, "r").readlines()
     vkinfer = np.array(
         [
