@@ -4,8 +4,6 @@ import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
 
-from examples.example_utils import *
-
 
 alpha = 1.5
 
@@ -49,5 +47,5 @@ net.apply_output_transform(lambda x, y: x * (1 - x) * y)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
-losshistory, train_state = model.train(epochs=get_number_of_steps(10000))
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+losshistory, train_state = model.train(epochs=10000)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

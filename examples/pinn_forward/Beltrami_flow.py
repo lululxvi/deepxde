@@ -2,8 +2,6 @@
 import deepxde as dde
 import numpy as np
 
-from examples.example_utils import *
-
 
 a = 1
 d = 1
@@ -168,7 +166,7 @@ net = dde.nn.FNN([4] + 4 * [50] + [4], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3, loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
-model.train(epochs=get_number_of_steps(30000))
+model.train(epochs=30000)
 model.compile("L-BFGS", loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
 losshistory, train_state = model.train()
 

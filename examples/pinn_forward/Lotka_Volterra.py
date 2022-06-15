@@ -8,9 +8,6 @@ from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
 
-from examples.example_utils import *
-
-
 ub = 200
 rb = 20
 
@@ -92,27 +89,25 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(epochs=get_number_of_steps(50000))
+losshistory, train_state = model.train(epochs=50000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
+plt.xlabel("t")
+plt.ylabel("population")
 
 t = np.linspace(0, 1, 100)
 x_true, y_true = gen_truedata()
-
-if is_interactive():
-    plt.xlabel("t")
-    plt.ylabel("population")
-    plt.plot(t, x_true, color="black", label="x_true")
-    plt.plot(t, y_true, color="blue", label="y_true")
+plt.plot(t, x_true, color="black", label="x_true")
+plt.plot(t, y_true, color="blue", label="y_true")
 
 t = t.reshape(100, 1)
 sol_pred = model.predict(t)
 x_pred = sol_pred[:, 0:1]
 y_pred = sol_pred[:, 1:2]
 
-if is_interactive():
-    plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
-    plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")
-    plt.legend()
-    plt.show()
+plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
+plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")
+plt.legend()
+plt.show()

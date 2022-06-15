@@ -7,8 +7,6 @@ References:
 import deepxde as dde
 import numpy as np
 
-from examples.example_utils import *
-
 
 A = 2
 C = 10
@@ -76,7 +74,7 @@ model.compile(
 )
 pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
 losshistory, train_state = model.train(
-    epochs=get_number_of_steps(10000), callbacks=[pde_residual_resampler], display_every=500
+    epochs=10000, callbacks=[pde_residual_resampler], display_every=500
 )
 
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

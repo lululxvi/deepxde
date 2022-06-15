@@ -9,8 +9,6 @@ from deepxde.backend import tf
 # Import paddle if using backend paddle
 # import paddle
 
-from examples.example_utils import *
-
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
@@ -42,7 +40,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
-losshistory, train_state = model.train(epochs=get_number_of_steps(10000))
+losshistory, train_state = model.train(epochs=10000)
 # Optional: Save the model during training.
 # checkpointer = dde.callbacks.ModelCheckpoint(
 #     "model/model", verbose=1, save_better_only=True
@@ -54,17 +52,15 @@ losshistory, train_state = model.train(epochs=get_number_of_steps(10000))
 # )
 # losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
 
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # Optional: Restore the saved model with the smallest training loss
 # model.restore(f"model/model-{train_state.best_step}.ckpt", verbose=1)
 # Plot PDE residual
 x = geom.uniform_points(1000, True)
 y = model.predict(x, operator=pde)
-
-if is_interactive():
-    plt.figure()
-    plt.plot(x, y)
-    plt.xlabel("x")
-    plt.ylabel("PDE residual")
-    plt.show()
+plt.figure()
+plt.plot(x, y)
+plt.xlabel("x")
+plt.ylabel("PDE residual")
+plt.show()

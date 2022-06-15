@@ -6,8 +6,6 @@ from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
 
-from examples.example_utils import *
-
 
 def pde(x, y):
     dy_r = dde.grad.jacobian(y, x, i=0, j=0)
@@ -50,5 +48,5 @@ net.apply_feature_transform(feature_transform)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=get_number_of_steps(15000))
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+losshistory, train_state = model.train(epochs=15000)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

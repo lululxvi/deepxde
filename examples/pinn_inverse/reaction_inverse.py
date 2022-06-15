@@ -2,8 +2,6 @@
 import deepxde as dde
 import numpy as np
 
-from examples.example_utils import *
-
 
 def gen_traindata():
     data = np.load("../dataset/reaction.npz")
@@ -70,7 +68,6 @@ net = dde.nn.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[kf, D])
-fnamevar = "variables.dat" if is_interactive() else None
-variable = dde.callbacks.VariableValue([kf, D], period=1000, filename=fnamevar)
-losshistory, train_state = model.train(epochs=get_number_of_steps(80000), callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+variable = dde.callbacks.VariableValue([kf, D], period=1000, filename="variables.dat")
+losshistory, train_state = model.train(epochs=80000, callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

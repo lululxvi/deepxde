@@ -11,8 +11,6 @@ import numpy as np
 import scipy as sp
 from scipy.integrate import odeint
 
-from examples.example_utils import *
-
 
 # Generate data
 # true values, see p. 15 in https://arxiv.org/abs/1907.04502
@@ -50,12 +48,11 @@ x0 = [-8, 7, 27]
 # solve ODE
 x = odeint(LorezODE, x0, time)
 
-if is_interactive():
-    # plot results
-    plt.plot(time, x, time, ex_input)
-    plt.xlabel("time")
-    plt.ylabel("x(t)")
-    plt.show()
+# plot results
+plt.plot(time, x, time, ex_input)
+plt.xlabel("time")
+plt.ylabel("x(t)")
+plt.show()
 
 time = time.reshape(-1, 1)
 
@@ -120,12 +117,11 @@ data = dde.data.PDE(
     auxiliary_var_function=ex_func2,
 )
 
-if is_interactive():
-    plt.plot(observe_t, ob_y)
-    plt.xlabel("Time")
-    plt.legend(["x", "y", "z"])
-    plt.title("Training data")
-    plt.show()
+plt.plot(observe_t, ob_y)
+plt.xlabel("Time")
+plt.legend(["x", "y", "z"])
+plt.title("Training data")
+plt.show()
 
 # define FNN architecture and compile
 net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
@@ -133,40 +129,39 @@ model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 
 # callbacks for storing results
-fnamevar = "variables.dat" if is_interactive() else None
+fnamevar = "variables.dat"
 variable = dde.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
 
-model.train(epochs=get_number_of_steps(60000), callbacks=[variable])
+model.train(epochs=60000, callbacks=[variable])
 
-if is_interactive():
-    # Plots
-    # reopen saved data using callbacks in fnamevar
-    lines = open(fnamevar, "r").readlines()
-    # read output data in fnamevar (this line is a long story...)
-    Chat = np.array(
-        [
-            np.fromstring(
-                min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
-                sep=",",
-            )
-            for line in lines
-        ]
-    )
+# Plots
+# reopen saved data using callbacks in fnamevar
+lines = open(fnamevar, "r").readlines()
+# read output data in fnamevar (this line is a long story...)
+Chat = np.array(
+    [
+        np.fromstring(
+            min(re.findall(re.escape("[") + "(.*?)" + re.escape("]"), line), key=len),
+            sep=",",
+        )
+        for line in lines
+    ]
+)
 
-    l, c = Chat.shape
-    plt.plot(range(l), Chat[:, 0], "r-")
-    plt.plot(range(l), Chat[:, 1], "k-")
-    plt.plot(range(l), Chat[:, 2], "g-")
-    plt.plot(range(l), np.ones(Chat[:, 0].shape) * C1true, "r--")
-    plt.plot(range(l), np.ones(Chat[:, 1].shape) * C2true, "k--")
-    plt.plot(range(l), np.ones(Chat[:, 2].shape) * C3true, "g--")
-    plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="right")
-    plt.xlabel("Epoch")
+l, c = Chat.shape
+plt.plot(range(l), Chat[:, 0], "r-")
+plt.plot(range(l), Chat[:, 1], "k-")
+plt.plot(range(l), Chat[:, 2], "g-")
+plt.plot(range(l), np.ones(Chat[:, 0].shape) * C1true, "r--")
+plt.plot(range(l), np.ones(Chat[:, 1].shape) * C2true, "k--")
+plt.plot(range(l), np.ones(Chat[:, 2].shape) * C3true, "g--")
+plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="right")
+plt.xlabel("Epoch")
 
-    yhat = model.predict(observe_t)
-    plt.figure()
-    plt.plot(observe_t, ob_y, "-", observe_t, yhat, "--")
-    plt.xlabel("Time")
-    plt.legend(["x", "y", "z", "xh", "yh", "zh"])
-    plt.title("Training data")
-    plt.show()
+yhat = model.predict(observe_t)
+plt.figure()
+plt.plot(observe_t, ob_y, "-", observe_t, yhat, "--")
+plt.xlabel("Time")
+plt.legend(["x", "y", "z", "xh", "yh", "zh"])
+plt.title("Training data")
+plt.show()

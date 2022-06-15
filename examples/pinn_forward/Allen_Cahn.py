@@ -10,8 +10,6 @@ from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
 
-from examples.example_utils import *
-
 
 def gen_testdata():
     data = loadmat("../dataset/Allen_Cahn.mat")
@@ -49,17 +47,16 @@ data = dde.data.TimePDE(geomtime, pde, [], num_domain=8000, num_boundary=400, nu
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
+
 model.compile("adam", lr=1e-3)
-model.train(epochs=get_number_of_steps(40000))
+model.train(epochs=40000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X, y_true = gen_testdata()
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-
-if is_interactive():
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

@@ -2,8 +2,6 @@
 import deepxde as dde
 import numpy as np
 
-from examples.example_utils import *
-
 
 def func_lo(x):
     A, B, C = 0.5, 10, -5
@@ -31,6 +29,6 @@ net = dde.nn.MfNN(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=get_number_of_steps(80000))
+losshistory, train_state = model.train(epochs=80000)
 
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

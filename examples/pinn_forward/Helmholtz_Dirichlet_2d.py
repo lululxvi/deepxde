@@ -2,16 +2,13 @@
 import deepxde as dde
 import numpy as np
 
-from examples.example_utils import *
-
-
 # General parameters
 n = 2
 precision_train = 10
 precision_test = 30
 hard_constraint = True
 weights = 100  # if hard_constraint == False
-epochs = get_number_of_steps(5000)
+epochs = 5000
 parameters = [1e-3, 3, 150, "sin"]
 
 # Define sine function
@@ -94,4 +91,4 @@ else:
 
 
 losshistory, train_state = model.train(epochs=epochs)
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
 
-from examples.example_utils import *
-
 
 def ide(x, y, int_mat):
     """int_0^x y(t)dt"""
@@ -36,16 +34,15 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001)
-model.train(epochs=get_number_of_steps(10000))
+model.train(epochs=10000)
 
 X = geom.uniform_points(100, True)
 y_true = func(X)
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-if is_interactive():
-    plt.figure()
-    plt.plot(X, y_true, "-")
-    plt.plot(X, y_pred, "o")
-    plt.show()
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+plt.figure()
+plt.plot(X, y_true, "-")
+plt.plot(X, y_pred, "o")
+plt.show()
+np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

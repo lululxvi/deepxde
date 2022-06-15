@@ -8,9 +8,6 @@ import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
 
-from examples.example_utils import *
-
-
 A = 2
 B = 50
 
@@ -55,6 +52,6 @@ model.compile(
 )
 
 pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
-model.train(epochs=get_number_of_steps(20000), callbacks=[pde_residual_resampler])
+model.train(epochs=20000, callbacks=[pde_residual_resampler])
 
-dde.saveplot(model.losshistory, model.train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(model.losshistory, model.train_state, issave=True, isplot=True)

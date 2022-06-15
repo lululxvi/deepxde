@@ -6,8 +6,6 @@ from deepxde.backend import tf
 # Backend pytorch
 # import torch
 
-from examples.example_utils import *
-
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
@@ -59,6 +57,6 @@ model = dde.Model(data, net)
 
 resampler = dde.callbacks.PDEResidualResampler(period=100)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=get_number_of_steps(2000), callbacks=[resampler])
+losshistory, train_state = model.train(epochs=2000, callbacks=[resampler])
 
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

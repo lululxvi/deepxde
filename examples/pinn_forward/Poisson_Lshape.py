@@ -1,8 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 
-from examples.example_utils import *
-
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
@@ -22,7 +20,7 @@ net = dde.nn.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-model.train(epochs=get_number_of_steps(50000))
+model.train(epochs=50000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

@@ -1,9 +1,6 @@
-from telnetlib import TN3270E
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
-from examples.example_utils import *
 
 
 def heat_eq_exact_solution(x, t):
@@ -36,16 +33,16 @@ def gen_exact_solution():
         for j in range(t_dim):
             usol[i][j] = heat_eq_exact_solution(x[i], t[j])
 
-    # Return solution:
-    return {
-        'x': x,
-        't': t,
-        'usol': usol
-    }
+    # Save solution:
+    np.savez("heat_eq_data", x=x, t=t, usol=usol)
+    # Load solution:
+    data = np.load("heat_eq_data.npz")
 
 
-def gen_testdata(data):
+def gen_testdata():
     """Import and preprocess the dataset with the exact solution."""
+    # Load the data:
+    data = np.load("heat_eq_data.npz")
     # Obtain the values for t, x, and the excat solution:
     t, x, exact = data["t"], data["x"], data["usol"].T
     # Process the data and flatten it out (like labels and features):
@@ -61,7 +58,7 @@ L = 1  # Length of the bar
 n = 1  # Frequency of the sinusoidal initial conditions
 
 # Generate a dataset with the exact solution (if you dont have one):
-solution_data = gen_exact_solution()
+gen_exact_solution()
 
 
 def pde(x, y):
@@ -99,17 +96,15 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=get_number_of_steps(20000))
+model.train(epochs=20000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
 # Plot/print the results
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
-X, y_true = gen_testdata(solution_data)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+X, y_true = gen_testdata()
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-
-if is_interactive():
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

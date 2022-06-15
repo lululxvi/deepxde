@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
 
-from examples.example_utils import *
-
-
 l = 0.01
 
 
@@ -67,7 +64,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 
-losshistory, train_state = model.train(epochs=get_number_of_steps(20000))
+losshistory, train_state = model.train(epochs=20000)
 
 x = geom.uniform_points(500)
 yhat = model.predict(x)
@@ -76,19 +73,17 @@ uhat, khat = yhat[:, 0:1], yhat[:, 1:2]
 ktrue = k(x)
 print("l2 relative error for k: " + str(dde.metrics.l2_relative_error(khat, ktrue)))
 
-if is_interactive():
-    plt.figure()
-    plt.plot(x, ktrue, "-", label="k_true")
-    plt.plot(x, khat, "--", label="k_NN")
-    plt.legend()
-    plt.show()
+plt.figure()
+plt.plot(x, ktrue, "-", label="k_true")
+plt.plot(x, khat, "--", label="k_NN")
+plt.legend()
+plt.show()
 
 utrue = res.sol(x)[0]
 print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(uhat, utrue)))
 
-if is_interactive():
-    plt.figure()
-    plt.plot(x, utrue, "-", label="u_true")
-    plt.plot(x, uhat, "--", label="u_NN")
-    plt.legend()
-    plt.show()
+plt.figure()
+plt.plot(x, utrue, "-", label="u_true")
+plt.plot(x, uhat, "--", label="u_NN")
+plt.legend()
+plt.show()

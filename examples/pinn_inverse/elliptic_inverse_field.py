@@ -3,8 +3,6 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 
-from examples.example_utils import *
-
 
 def gen_traindata(num):
     # generate num equally-spaced points from -1 to 1
@@ -44,8 +42,8 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform"
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
-losshistory, train_state = model.train(epochs=get_number_of_steps(20000))
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+losshistory, train_state = model.train(epochs=20000)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # view results
 x = geom.uniform_points(500)
@@ -54,18 +52,16 @@ uhat, qhat = yhat[:, 0:1], yhat[:, 1:2]
 
 utrue = np.sin(np.pi * x)
 print("l2 relative error for u: " + str(dde.metrics.l2_relative_error(utrue, uhat)))
-if is_interactive():
-    plt.figure()
-    plt.plot(x, utrue, "-", label="u_true")
-    plt.plot(x, uhat, "--", label="u_NN")
-    plt.legend()
+plt.figure()
+plt.plot(x, utrue, "-", label="u_true")
+plt.plot(x, uhat, "--", label="u_NN")
+plt.legend()
 
 qtrue = -np.pi ** 2 * np.sin(np.pi * x)
 print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
-if is_interactive():
-    plt.figure()
-    plt.plot(x, qtrue, "-", label="q_true")
-    plt.plot(x, qhat, "--", label="q_NN")
-    plt.legend()
+plt.figure()
+plt.plot(x, qtrue, "-", label="q_true")
+plt.plot(x, qhat, "--", label="q_NN")
+plt.legend()
 
-    plt.show()
+plt.show()

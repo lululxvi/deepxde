@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
 
-from examples.example_utils import *
-
 
 def ide(x, y, int_mat):
     rhs = tf.matmul(int_mat, y)
@@ -50,9 +48,8 @@ y_true = func(X)
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 
-if is_interactive():
-    plt.figure()
-    plt.plot(X, y_true, "-")
-    plt.plot(X, y_pred, "o")
-    plt.show()
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+plt.figure()
+plt.plot(X, y_true, "-")
+plt.plot(X, y_pred, "o")
+plt.show()
+np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

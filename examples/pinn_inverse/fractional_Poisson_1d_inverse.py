@@ -4,8 +4,6 @@ import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
 
-from examples.example_utils import *
-
 
 alpha0 = 1.8
 alpha = tf.Variable(1.5)
@@ -64,5 +62,5 @@ model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3, loss_weights=[1, 100])
 variable = dde.callbacks.VariableValue(alpha, period=1000)
-losshistory, train_state = model.train(epochs=get_number_of_steps(10000), callbacks=[variable])
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

@@ -4,8 +4,6 @@ import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
 
-from examples.example_utils import *
-
 
 alpha = 1.8
 
@@ -49,13 +47,11 @@ net.apply_output_transform(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
-losshistory, train_state = model.train(epochs=get_number_of_steps(20000))
-dde.saveplot(losshistory, train_state, issave=is_interactive(), isplot=is_interactive())
+losshistory, train_state = model.train(epochs=20000)
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X = geom.random_points(1000)
 y_true = func(X)
 y_pred = model.predict(X)
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
-
-if is_interactive():
-    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
