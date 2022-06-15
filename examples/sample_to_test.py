@@ -11,7 +11,7 @@ import re
 import sys
 
 
-EPOCHS_RE = re.compile(r'^(.*)epochs\s*=\s*(\d+)(.*)$', re.DOTALL)
+EPOCHS_RE = re.compile(r"^(.*)epochs\s*=\s*(\d+)(.*)$", re.DOTALL)
 
 PROLOG = """
 from deepxde.optimizers import set_LBFGS_options
@@ -28,22 +28,24 @@ def transform(line, file_name):
     """
     m = re.match(EPOCHS_RE, line)
     if m is not None:
-        line = m.expand(r'\1epochs=1\3')
+        line = m.expand(r"\1epochs=1\3")
 
     # Burgers_RAR.py has an additional convergence loop: force 1 single pass
-    if line.startswith('while') and 'Burgers_RAR.py' in file_name:
-        line = \
-            'first_iteration = True\n' + \
-            line[:-2] + ' and first_iteration:\n' + \
-            '    first_iteration = False\n'
+    if line.startswith("while") and "Burgers_RAR.py" in file_name:
+        line = (
+            "first_iteration = True\n"
+            + line[:-2]
+            + " and first_iteration:\n"
+            + "    first_iteration = False\n"
+        )
 
     return line
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     file_name = sys.argv[1]
 
     print(PROLOG)
-    with open(file_name, 'r') as input:
+    with open(file_name, "r") as input:
         for line in input:
             sys.stdout.write(transform(line, file_name))
