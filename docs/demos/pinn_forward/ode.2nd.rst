@@ -87,12 +87,12 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We build a ``Model``, choose the optimizer, set the learning rate to 0.001, and train the network for 15000 iterations. We set the weight of the first initial condition to 0.01, and the weight of the second initial condition and the PDE residual loss to 1. We also compute the :math:`L^2` relative error as a metric during training.
+Now, we have the PDE problem and the network. We build a ``Model``, choose the optimizer, set the learning rate to 0.001, and train the network for 15000 iterations. We set the weight of the ODE loss to 0.01, and the weights of the two ICs to 1. We also compute the :math:`L^2` relative error as a metric during training.
 
 .. code-block:: python
 
     model = dde.Model(data, net)
-    model.compile("adam", lr=.001, metrics=["l2 relative error"], loss_weights=[0.01,1,1])
+    model.compile("adam", lr=.001, loss_weights=[0.01, 1, 1], metrics=["l2 relative error"])
     losshistory, train_state = model.train(epochs=15000)
 
 
