@@ -23,15 +23,13 @@ matplotlib.use('template')
 
 
 def transform(line, file_name):
-    """
-    Apply transformations to line
-    """
+    """Apply transformations to line."""
     m = re.match(EPOCHS_RE, line)
     if m is not None:
         line = m.expand(r"\1epochs=1\3")
 
     # Burgers_RAR.py has an additional convergence loop: force 1 single pass
-    if line.startswith("while") and "Burgers_RAR.py" in file_name:
+    if file_name == "Burgers_RAR.py" and line.startswith("while"):
         line = (
             "first_iteration = True\n"
             + line[:-2]
