@@ -28,7 +28,6 @@ First, the DeepXDE, NumPy (``np``), Scipy, and TensorFlow (``tf``) modules are i
     import deepxde as dde
     import numpy as np
     from scipy.io import loadmat
-    # Import tf if using backend tensorflow.compat.v1 or tensorflow
     from deepxde.backend import tf
     
 We then begin by defining a computational geometry and a time domain. We can use a built-in class ``Interval`` and ``TimeDomain``, and we can combine both of the domains using ``GeometryXTime``.
@@ -51,7 +50,7 @@ Now, we express the PDE residual of the Allen-Cahn equation:
         
 The first argument to ``pde`` is a 2-dimensional vector where the first component(``x[:, 0]``) is :math:`x`-coordinate and the second component (``x[:, 1]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x, t)`, but here we use ``y`` as the name of the variable.
 
-Now that we have specified the geometry and PDE residual, we can define the TimePDE problem as the following:
+Now that we have specified the geometry and PDE residual, we can define the ``TimePDE`` problem as the following:
 
 .. code-block:: python
 
