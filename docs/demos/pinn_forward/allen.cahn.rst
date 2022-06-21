@@ -1,7 +1,7 @@
-Allen-Cahn Equation
+Allen-Cahn equation
 ================
 
-Problem Setup
+Problem setup
 --------------
 
 We will solve an Allen-Cahn equation:
@@ -66,7 +66,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
     net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
     
-Next, we consider the initial conditions and boundary constraints, defining the transformation of the output and applying it to the network. In this case, ``x^2\cos(\pi x) + t(1 - x^2)y`` is used. When ``t=0``, the initial condition ``x^2\cos(\pi x)`` is satisfied. When ``x=-1`` or ``x=-1``, the boundary condition ``y(-1, t) = y(1, t) = -1`` is satisfied. This demonstrates that the initial condition and the boundary constraint are both hard conditions.
+Next, we consider the initial conditions and boundary constraints, defining the transformation of the output and applying it to the network. In this case, :math:`x^2\cos(\pi x) + t(1 - x^2)y` is used. When :math:`t=0`, the initial condition :math:`x^2\cos(\pi x)` is satisfied. When :math:`x=1`` or :math:`x=-1`, the boundary condition :math:`y(-1, t) = y(1, t) = -1` is satisfied. This demonstrates that the initial condition and the boundary constraint are both hard conditions.
 
 .. code-block:: python
 
