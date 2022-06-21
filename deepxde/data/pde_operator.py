@@ -189,11 +189,11 @@ class PDEOperatorCartesianProd(Data):
             training functions will be used for testing.
 
     Attributes:
-        train_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
-            training. v is the function input to the branch net and has the shape (`N1`,
-            `dim1`); x is the point input to the trunk net and has the shape (`N2`,
-            `dim2`); vx is the value of v evaluated at x, i.e., v(x), and has the shape
-            (`N1`, `N2`).
+        train_x: A tuple of two Numpy arrays (v, x) fed into PIDeepONet for training. v
+            is the function input to the branch net and has the shape (`N1`, `dim1`); x
+            is the point input to the trunk net and has the shape (`N2`, `dim2`).
+        train_aux_vars: v(x), i.e., the value of v evaluated at x, has the shape (`N1`,
+            `N2`).
     """
 
     def __init__(
@@ -218,13 +218,15 @@ class PDEOperatorCartesianProd(Data):
 
         self.train_x = None
         self.train_y = None
+        self.train_aux_vars = None
         self.test_x = None
         self.test_y = None
+        self.test_aux_vars = None
 
         self.train_next_batch()
         self.test()
 
-    def _losses(self, outputs, loss_fn, inputs, num_func):
+    def _losses(self, outputs, loss_fn, inputs, model, num_func):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
 
         losses = []
@@ -233,7 +235,7 @@ class PDEOperatorCartesianProd(Data):
 
             f = []
             if self.pde.pde is not None:
-                f = self.pde.pde(inputs[1], out, inputs[2][i][:, None])
+                f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])
                 if not isinstance(f, (list, tuple)):
                     f = [f]
             error_f = [fi[bcs_start[-1] :] for fi in f]
@@ -248,7 +250,7 @@ class PDEOperatorCartesianProd(Data):
                     out,
                     beg,
                     end,
-                    aux_var=self.train_x[2][i][:, None],
+                    aux_var=self.train_aux_vars[i][:, None],
                 )
                 losses_i.append(loss_fn(bkd.zeros_like(error), error))
 
@@ -259,28 +261,31 @@ class PDEOperatorCartesianProd(Data):
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return self._losses(outputs, loss_fn, inputs, self.num_func)
+        return self._losses(outputs, loss_fn, inputs, model, self.num_func)
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return self._losses(outputs, loss_fn, inputs, len(self.test_x[0]))
+        return self._losses(outputs, loss_fn, inputs, model, len(self.test_x[0]))
 
-    @run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         func_feats = self.func_space.random(self.num_func)
         func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
         vx = self.func_space.eval_batch(func_feats, self.pde.train_x[:, self.func_vars])
-        self.train_x = (func_vals, self.pde.train_x, vx)
-        return self.train_x, None
+        self.train_x = (func_vals, self.pde.train_x)
+        self.train_aux_vars = vx
+        return self.train_x, self.train_y, self.train_aux_vars
 
-    @run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x
+            self.test_aux_vars = self.train_aux_vars
         else:
             func_feats = self.func_space.random(self.num_test)
             func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
             vx = self.func_space.eval_batch(
                 func_feats, self.pde.test_x[:, self.func_vars]
             )
-            self.test_x = (func_vals, self.pde.test_x, vx)
-        return self.test_x, None
+            self.test_x = (func_vals, self.pde.test_x)
+            self.test_aux_vars = vx
+        return self.test_x, self.test_y, self.test_aux_vars
