@@ -10,7 +10,7 @@ We will solve an Allen-Cahn equation with hard initial and boundary conditions:
 
 The initial condition is defined as the following:
 
-.. math:: u(x, 0) = \quad x^2\cos(\pi x)
+.. math:: u(x, 0) = x^2\cos(\pi x)
 
 And the boundary condition is defined:
 
@@ -95,9 +95,22 @@ We then save and plot the best trained result and the loss history of the model.
     
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
-Finally, we test the model and display a graph containing both training loss and testing loss over time. We also display a graph containing the predicted solution to the PDE.
+Next, we load and prepare the dataset with ``gen_testdata()``. Finally, we test the model and display a graph containing both training loss and testing loss over time. We also display a graph containing the predicted solution to the PDE.
 
 .. code-block:: python
+
+    def gen_testdata():
+        data = loadmat("../dataset/Allen_Cahn.mat")
+
+        t = data["t"]
+        x = data["x"]
+        u = data["u"]
+
+        dt = dx = 0.01
+        xx, tt = np.meshgrid(x, t)
+        X = np.vstack((np.ravel(xx), np.ravel(tt))).T
+        y = u.flatten()[:, None]
+        return X, y
     
     X, y_true = gen_testdata()
     y_pred = model.predict(X)
