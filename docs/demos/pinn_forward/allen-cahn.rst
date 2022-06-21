@@ -4,13 +4,17 @@ Allen-Cahn Equation
 Problem Setup
 --------------
 
-We will solve an Allen-Cahn equation:
+We will solve an Allen-Cahn equation with hard initial and boundary conditions:
 
-.. math:: \frac{\partial u}{\partial t} = d\frac{\partial^2u}{\partial x^2} + 5(u - u^3), \qquad x \in [-1, 1], \quad t \in [0, 1]
+.. math:: \frac{\partial u}{\partial t} = d\frac{\partial^2u}{\partial x^2} + 5(u - u^3), \quad x \in [-1, 1], \quad t \in [0, 1]
 
-with initial and boundary conditions
+The initial condition is defined as the following:
 
-.. math:: u(-1, t) = u(1, t) = -1, \quad u(x, 0) = x^2\cos(\pi x).
+.. math:: u(x, 0) = \quad x^2\cos(\pi x)
+
+And the boundary condition is defined:
+
+.. math::  u(-1, t) = u(1, t) = -1
 
 Implementation
 --------------
@@ -27,7 +31,7 @@ First, the DeepXDE, NumPy (``np``), Scipy, and TensorFlow (``tf``) modules are i
     # Import tf if using backend tensorflow.compat.v1 or tensorflow
     from deepxde.backend import tf
     
-We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime``.
+We then begin by defining a computational geometry and a time domain. We can use a built-in class ``Interval`` and ``TimeDomain``, and we can combine both of the domains using ``GeometryXTime``.
     
 .. code-block:: python
     
@@ -36,7 +40,7 @@ We begin by defining a computational geometry and time domain. We can use a buil
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
     d = 0.001
         
-Now, we express the PDE residual of the Allen-Cahn equation as follows
+Now, we express the PDE residual of the Allen-Cahn equation:
 
 .. code-block:: python
 
@@ -47,30 +51,26 @@ Now, we express the PDE residual of the Allen-Cahn equation as follows
         
 The first argument to ``pde`` is a 2-dimensional vector where the first component(``x[:, 0]``) is :math:`x`-coordinate and the second component (``x[:, 1]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x, t)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the initial conditions and boundary constraints, defining the transformation of the output as follows
-
-.. code-block:: python
-
-    def output_transform(x, y):
-      return x[:, 0:1]**2 * tf.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
-
-Now, we have specified the geometry, PDE residual, boundary and initial conditions. We then define the TimePDE problem as
+Now that we have specified the geometry and PDE residual, we can define the TimePDE problem as the following:
 
 .. code-block:: python
 
     data = dde.data.TimePDE(geomtime, pde, [], num_domain=8000, num_boundary=400, num_initial=800)
     
-The number 8000 is the number of training residual points sampled inside the domain, and the number 400 is the number of training points sampled on the boundary. We also include 800 initial residual points for the initial conditions.
+The parameter ``num_domain=8000`` is the number of training residual points sampled inside the domain, and the parameter ``num_boundary=400`` is the number of training points sampled on the boundary. We also include the parameter ``num_initial=800``, which represents the number of initial residual points for the initial conditions.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
     
 .. code-block:: python
 
     net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
-
-We add the ouput transformation layer:
+    
+Next, we consider the initial conditions and boundary constraints, defining the transformation of the output and applying it to the network.
 
 .. code-block:: python
+
+    def output_transform(x, y):
+      return x[:, 0:1]**2 * tf.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
 
     net.apply_output_transform(output_transform)
     
@@ -88,6 +88,23 @@ After we train the network using Adam, we continue to train the network using L-
 
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
+    
+We then save and plot the best trained result and the loss history of the model.
+
+.. code-block:: python
+    
+    dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
+Finally, we test the model and display a graph containing both training loss and testing loss over time. We also display a graph containing the predicted solution to the PDE.
+
+.. code-block:: python
+    
+    X, y_true = gen_testdata()
+    y_pred = model.predict(X)
+    f = model.predict(X, operator=pde)
+    print("Mean residual:", np.mean(np.absolute(f)))
+    print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
+    np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
 
 Complete Code
 --------------
