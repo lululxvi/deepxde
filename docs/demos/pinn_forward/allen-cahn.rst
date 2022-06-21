@@ -38,12 +38,12 @@ We then begin by defining a computational geometry and a time domain. We can use
     geom = dde.geometry.Interval(-1, 1)
     timedomain = dde.geometry.TimeDomain(0, 1)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
-    d = 0.001
-        
+       
 Now, we express the PDE residual of the Allen-Cahn equation:
 
 .. code-block:: python
 
+    d = 0.001
     def pde(x, y):
         dy_t = dde.grad.jacobian(y, x, i=0, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
@@ -65,7 +65,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
 
     net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
     
-Next, we consider the initial conditions and boundary constraints, defining the transformation of the output and applying it to the network.
+Next, we consider the initial conditions and boundary constraints, defining the transformation of the output and applying it to the network. In this case, ``x^2\cos(\pi x) + t(1 - x^2)y`` is used. When ``t=0``, the initial condition ``x^2\cos(\pi x)`` is satisfied. When ``x=-1`` or ``x=-1``, the boundary condition ``y(-1, t) = y(1, t) = -1`` is satisfied. This demonstrates that the initial condition and the boundary constraint are both hard conditions.
 
 .. code-block:: python
 
