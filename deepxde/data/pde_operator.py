@@ -28,15 +28,13 @@ class PDEOperator(Data):
             training functions will be used for testing.
 
     Attributes:
-        train_x_bc: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
+        train_bc: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
             training BCs/ICs.
         num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
-        train_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
-            training. v is the function input to the branch net; x is the point input to
-            the trunk net; vx is the value of v evaluated at x, i.e., v(x). `train_x` is
-            ordered from BCs/ICs (`train_x_bc`) to PDEs.
-        test_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
-            testing.
+        train_x: A tuple of two Numpy arrays (v, x) fed into PIDeepONet for training. v
+            is the function input to the branch net; x is the point input to
+            the trunk net. `train_x` is ordered from BCs/ICs (`train_bc`) to PDEs.
+        train_aux_vars: v(x), i.e., the value of v evaluated at x.
     """
 
     def __init__(
@@ -60,11 +58,13 @@ class PDEOperator(Data):
         self.num_test = num_test
 
         self.num_bcs = [n * self.num_func for n in self.pde.num_bcs]
-        self.train_x_bc = None
+        self.train_bc = None
         self.train_x = None
         self.train_y = None
+        self.train_aux_vars = None
         self.test_x = None
         self.test_y = None
+        self.test_aux_vars = None
 
         self.train_next_batch()
         self.test()
@@ -72,7 +72,7 @@ class PDEOperator(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         f = []
         if self.pde.pde is not None:
-            f = self.pde.pde(inputs[1], outputs, inputs[2])
+            f = self.pde.pde(inputs[1], outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -83,12 +83,17 @@ class PDEOperator(Data):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(
-                self.train_x[1], inputs[1], outputs, beg, end, aux_var=self.train_x[2]
+                self.train_x[1],
+                inputs[1],
+                outputs,
+                beg,
+                end,
+                aux_var=self.train_aux_vars,
             )
             losses.append(loss_fn(bkd.zeros_like(error), error))
         return losses
 
-    @run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         func_feats = self.func_space.random(self.num_func)
         func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
@@ -100,19 +105,20 @@ class PDEOperator(Data):
             v = np.vstack((v, v_pde))
             x = np.vstack((x, x_pde))
             vx = np.vstack((vx, vx_pde))
-        self.train_x = (v, x, vx)
-        self.train_y = None
-        return self.train_x, self.train_y
+        self.train_x = (v, x)
+        self.train_aux_vars = vx
+        return self.train_x, self.train_y, self.train_aux_vars
 
-    @run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x
+            self.test_aux_vars = self.train_aux_vars
         else:
             func_feats = self.func_space.random(self.num_test)
             func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
             # TODO: Use different BC data from self.train_x
-            v, x, vx = self.train_x_bc
+            v, x, vx = self.train_bc
             if self.pde.pde is not None:
                 v_pde, x_pde, vx_pde = self.gen_inputs(
                     func_feats, func_vals, self.pde.test_x[sum(self.pde.num_bcs) :]
@@ -120,9 +126,9 @@ class PDEOperator(Data):
                 v = np.vstack((v, v_pde))
                 x = np.vstack((x, x_pde))
                 vx = np.vstack((vx, vx_pde))
-            self.test_x = (v, x, vx)
-        self.test_y = None
-        return self.test_x, self.test_y
+            self.test_x = (v, x)
+            self.test_aux_vars = vx
+        return self.test_x, self.test_y, self.test_aux_vars
 
     def gen_inputs(self, func_feats, func_vals, points):
         # Format:
@@ -141,12 +147,12 @@ class PDEOperator(Data):
 
     def bc_inputs(self, func_feats, func_vals):
         if not self.pde.bcs:
-            self.train_x_bc = (
+            self.train_bc = (
                 np.empty((0, len(self.eval_pts)), dtype=config.real(np)),
                 np.empty((0, self.pde.geom.dim), dtype=config.real(np)),
                 np.empty((0, 1), dtype=config.real(np)),
             )
-            return self.train_x_bc
+            return self.train_bc
         v, x, vx = [], [], []
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
         for i, _ in enumerate(self.pde.num_bcs):
@@ -157,8 +163,8 @@ class PDEOperator(Data):
             v.append(vi)
             x.append(xi)
             vx.append(vxi)
-        self.train_x_bc = (np.vstack(v), np.vstack(x), np.vstack(vx))
-        return self.train_x_bc
+        self.train_bc = (np.vstack(v), np.vstack(x), np.vstack(vx))
+        return self.train_bc
 
 
 class PDEOperatorCartesianProd(Data):
@@ -188,8 +194,6 @@ class PDEOperatorCartesianProd(Data):
             `dim1`); x is the point input to the trunk net and has the shape (`N2`,
             `dim2`); vx is the value of v evaluated at x, i.e., v(x), and has the shape
             (`N1`, `N2`).
-        test_x: A triple of three Numpy arrays (v, x, vx) fed into PIDeepONet for
-            testing.
     """
 
     def __init__(
