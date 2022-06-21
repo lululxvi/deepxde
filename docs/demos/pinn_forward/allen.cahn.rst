@@ -4,7 +4,7 @@ Allen-Cahn Equation
 Problem Setup
 --------------
 
-We will solve an Allen-Cahn equation with hard initial and boundary conditions:
+We will solve an Allen-Cahn equation:
 
 .. math:: \frac{\partial u}{\partial t} = d\frac{\partial^2u}{\partial x^2} + 5(u - u^3), \quad x \in [-1, 1], \quad t \in [0, 1]
 
@@ -15,6 +15,8 @@ The initial condition is defined as the following:
 And the boundary condition is defined:
 
 .. math::  u(-1, t) = u(1, t) = -1
+
+The reference solution is `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/Allen_Cahn.mat>`_.
 
 Implementation
 --------------
@@ -69,7 +71,7 @@ Next, we consider the initial conditions and boundary constraints, defining the 
 .. code-block:: python
 
     def output_transform(x, y):
-      return x[:, 0:1]**2 * tf.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
+        return x[:, 0:1]**2 * tf.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
 
     net.apply_output_transform(output_transform)
     
