@@ -33,6 +33,14 @@ def ndim(input_array):
     return input_array.ndim
 
 
+def transpose(tensor, axes=None):
+    return jnp.transpose(tensor, axes=axes)
+
+
+def reshape(tensor, shape):
+    return jnp.reshape(tensor, shape)
+
+
 def Variable(initial_value, dtype=None):
     # TODO
     raise NotImplementedError("Variable to be implemented for jax backend")

@@ -43,6 +43,14 @@ def ndim(input_tensor):
     return len(input_tensor.shape)
 
 
+def transpose(tensor, axes=None):
+    return tf.transpose(tensor, perm=axes)
+
+
+def reshape(tensor, shape):
+    return tf.reshape(tensor, shape)
+
+
 def Variable(initial_value, dtype=None):
     return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
 

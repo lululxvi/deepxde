@@ -39,6 +39,16 @@ def ndim(input_tensor):
     return input_tensor.ndim
 
 
+def transpose(tensor, axes=None):
+    if axes is None:
+        axes = tuple(range(tensor.ndim)[::-1])
+    return paddle.transpose(x, axes)
+
+
+def reshape(tensor, shape):
+    return paddle.reshape(x, shape)
+
+
 def Variable(initial_value, dtype=None):
     return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
 
