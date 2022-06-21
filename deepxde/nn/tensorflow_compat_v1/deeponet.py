@@ -385,3 +385,26 @@ class DeepONetCartesianProd(NN):
 
         self.target = tf.placeholder(config.real(tf), [None, None])
         self.built = True
+
+
+class PIDeepONetCartesianProd(DeepONetCartesianProd):
+    def __init__(
+        self,
+        layer_sizes_branch,
+        layer_sizes_trunk,
+        activation,
+        kernel_initializer,
+        regularization=None,
+    ):
+        super().__init__(
+            layer_sizes_branch,
+            layer_sizes_trunk,
+            activation,
+            kernel_initializer,
+            regularization=regularization,
+        )
+
+    def build(self):
+        super().build()
+        self.X_func_loc = tf.placeholder(config.real(tf), [None, None])
+        self._inputs.append(self.X_func_loc)
