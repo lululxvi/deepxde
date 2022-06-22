@@ -1,6 +1,7 @@
 import numpy as np
 
 from .data import Data
+from .sampler import BatchSampler
 from .. import backend as bkd
 from .. import config
 from ..utils import run_if_all_none
@@ -187,6 +188,7 @@ class PDEOperatorCartesianProd(Data):
         num_test: The number of functions for testing PDE loss. The testing functions
             for BCs/ICs are the same functions used for training. If ``None``, then the
             training functions will be used for testing.
+        batch_size: Integer or ``None``.
 
     Attributes:
         train_x: A tuple of two Numpy arrays (v, x) fed into PIDeepONet for training. v
@@ -204,6 +206,7 @@ class PDEOperatorCartesianProd(Data):
         num_function,
         function_variables=None,
         num_test=None,
+        batch_size=None,
     ):
         self.pde = pde
         self.func_space = function_space
@@ -215,6 +218,7 @@ class PDEOperatorCartesianProd(Data):
             else list(range(pde.geom.dim))
         )
         self.num_test = num_test
+        self.batch_size = batch_size
 
         self.train_x = None
         self.train_y = None
@@ -223,6 +227,7 @@ class PDEOperatorCartesianProd(Data):
         self.test_y = None
         self.test_aux_vars = None
 
+        self.train_sampler = BatchSampler(self.num_func, shuffle=True)
         self.train_next_batch()
         self.test()
 
@@ -250,7 +255,7 @@ class PDEOperatorCartesianProd(Data):
                     out,
                     beg,
                     end,
-                    aux_var=self.train_aux_vars[i][:, None],
+                    aux_var=model.net.auxiliary_vars[i][:, None],
                 )
                 losses_i.append(loss_fn(bkd.zeros_like(error), error))
 
@@ -261,19 +266,28 @@ class PDEOperatorCartesianProd(Data):
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return self._losses(outputs, loss_fn, inputs, model, self.num_func)
+        num_func = self.num_func if self.batch_size is None else self.batch_size
+        return self._losses(outputs, loss_fn, inputs, model, num_func)
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return self._losses(outputs, loss_fn, inputs, model, len(self.test_x[0]))
 
-    @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        func_feats = self.func_space.random(self.num_func)
-        func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
-        vx = self.func_space.eval_batch(func_feats, self.pde.train_x[:, self.func_vars])
-        self.train_x = (func_vals, self.pde.train_x)
-        self.train_aux_vars = vx
-        return self.train_x, self.train_y, self.train_aux_vars
+        if self.train_x is None:
+            func_feats = self.func_space.random(self.num_func)
+            func_vals = self.func_space.eval_batch(func_feats, self.eval_pts)
+            vx = self.func_space.eval_batch(
+                func_feats, self.pde.train_x[:, self.func_vars]
+            )
+            self.train_x = (func_vals, self.pde.train_x)
+            self.train_aux_vars = vx
+
+        if self.batch_size is None:
+            return self.train_x, self.train_y, self.train_aux_vars
+
+        indices = self.train_sampler.get_next(self.batch_size)
+        traix_x = (self.train_x[0][indices], self.train_x[1])
+        return traix_x, self.train_y, self.train_aux_vars[indices]
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):

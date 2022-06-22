@@ -4,10 +4,10 @@ __all__ = [
     "BC",
     "DirichletBC",
     "NeumannBC",
-    "RobinBC",
-    "PeriodicBC",
     "OperatorBC",
+    "PeriodicBC",
     "PointSetBC",
+    "RobinBC",
 ]
 
 import numbers
@@ -232,6 +232,7 @@ def npfunc_range_autocache(func):
 
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
+        # Even if X is the same one, aux_var could be different
         key = (id(X), beg, end)
         if key not in cache:
             cache[key] = func(X[beg:end], aux_var[beg:end])
@@ -246,4 +247,4 @@ def npfunc_range_autocache(func):
         if utils.get_num_args(func) == 1:
             return wrapper_cache
         if utils.get_num_args(func) == 2:
-            return wrapper_cache_auxiliary
+            return wrapper_nocache_auxiliary
