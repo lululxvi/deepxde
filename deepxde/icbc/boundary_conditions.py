@@ -8,7 +8,7 @@ __all__ = [
     "PeriodicBC",
     "OperatorBC",
     "PointSetBC",
-    "BatchPointSetBC"
+    "BatchPointSetBC",
 ]
 
 import numbers
@@ -191,6 +191,19 @@ class PointSetBC:
 
 
 class BatchPointSetBC(PointSetBC):
+    """Dirichlet boundary condition for a set of points, with support for minibatch
+    training.
+
+    Compare the output (that associates with `points`) with `values` (target data).
+
+    Args:
+        points: An array of points where the corresponding target values are known and
+            used for training.
+        values: An array of values that gives the exact solution of the problem.
+        batch_size: The number of points per minibatch.
+        component: The output component satisfying this BC.
+        shuffle: Randomize the order on each pass through the data.
+    """
 
     def __init__(self, points, values, batch_size, component=0, shuffle=True):
         super().__init__(points, values, component)
@@ -209,9 +222,10 @@ class BatchPointSetBC(PointSetBC):
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return (
-            outputs[beg:end,self.component:self.component + 1] -
-            self.values[self.batch_indices]
+            outputs[beg:end, self.component : self.component + 1]
+            - self.values[self.batch_indices]
         )
+
 
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
