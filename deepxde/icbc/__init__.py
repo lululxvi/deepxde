@@ -19,5 +19,6 @@ from .boundary_conditions import (
     PeriodicBC,
     OperatorBC,
     PointSetBC,
+    BatchPointSetBC
 )
 from .initial_conditions import IC

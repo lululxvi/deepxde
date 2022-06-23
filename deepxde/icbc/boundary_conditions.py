@@ -8,6 +8,7 @@ __all__ = [
     "PeriodicBC",
     "OperatorBC",
     "PointSetBC",
+    "BatchPointSetBC"
 ]
 
 import numbers
@@ -17,6 +18,7 @@ from functools import wraps
 import numpy as np
 
 from .. import backend as bkd
+from .. import data
 from .. import config
 from .. import gradients as grad
 from .. import utils
@@ -187,6 +189,29 @@ class PointSetBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return outputs[beg:end, self.component : self.component + 1] - self.values
 
+
+class BatchPointSetBC(PointSetBC):
+
+    def __init__(self, points, values, batch_size, component=0, shuffle=True):
+        super().__init__(points, values, component)
+
+        # batch iterator and state
+        self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle)
+        self.batch_size = batch_size
+        self.batch_indices = None
+
+    def __len__(self):
+        return self.points.shape[0]
+
+    def collocation_points(self, X):
+        self.batch_indices = self.batch_sampler.get_next(self.batch_size)
+        return self.points[self.batch_indices]
+
+    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        return (
+            outputs[beg:end,self.component:self.component + 1] -
+            self.values[self.batch_indices]
+        )
 
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
