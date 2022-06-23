@@ -15,7 +15,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
     if isinstance(optimizer, torch.optim.Optimizer):
         optim = optimizer
     elif optimizer in ["L-BFGS", "L-BFGS-B"]:
-        if learning_rate is not None or decay is not None:
+        if learning_rate is not None or decay["lr"] is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         optim = torch.optim.LBFGS(
             params,
@@ -31,18 +31,18 @@ def get(params, optimizer, learning_rate=None, decay=None):
         if learning_rate is None:
             raise ValueError("No learning rate for {}.".format(optimizer))
         if optimizer == "sgd":
-            optim = torch.optim.SGD(params, lr=learning_rate)
+            optim = torch.optim.SGD(params, lr=learning_rate, weight_decay = decay["regular"])
         elif optimizer == "rmsprop":
-            optim = torch.optim.RMSprop(params, lr=learning_rate)
+            optim = torch.optim.RMSprop(params, lr=learning_rate, weight_decay = decay["regular"])
         elif optimizer == "adam":
-            optim = torch.optim.Adam(params, lr=learning_rate)
+            optim = torch.optim.Adam(params, lr=learning_rate, weight_decay = decay["regular"])
         elif optimizer == "adamw":
-            optim = torch.optim.AdamW(params, lr=learning_rate)
+            optim = torch.optim.AdamW(params, lr=learning_rate, weight_decay = decay["regular"])
         else:
             raise NotImplementedError(
                 f"{optimizer} to be implemented for backend pytorch."
             )
-    lr_scheduler = _get_learningrate_scheduler(optim, decay)
+    lr_scheduler = _get_learningrate_scheduler(optim, decay["lr"])
     return optim, lr_scheduler
 
 

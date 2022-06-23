@@ -124,7 +124,11 @@ class Model:
         elif backend_name == "tensorflow":
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
-            self._compile_pytorch(lr, loss_fn, decay, loss_weights)
+            if decay == None:
+                decay = {"lr":None, "regular": 0}
+                self._compile_pytorch(lr, loss_fn, decay, loss_weights)
+            else:
+                self._compile_pytorch(lr, loss_fn,decay,loss_weights)
         elif backend_name == "jax":
             self._compile_jax(lr, loss_fn, decay, loss_weights)
         elif backend_name == "paddle":
@@ -252,7 +256,6 @@ class Model:
 
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
-
         def outputs(training, inputs):
             self.net.train(mode=training)
             with torch.no_grad():
@@ -278,7 +281,6 @@ class Model:
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
-            # TODO: regularization
             losses = torch.stack(losses)
             # Weighted losses
             if loss_weights is not None:
