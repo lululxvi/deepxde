@@ -36,6 +36,8 @@ def get(params, optimizer, learning_rate=None, decay=None):
             optim = torch.optim.RMSprop(params, lr=learning_rate)
         elif optimizer == "adam":
             optim = torch.optim.Adam(params, lr=learning_rate)
+        elif optimizer == "adamw":
+            optim = torch.optim.AdamW(params, lr=learning_rate)
         else:
             raise NotImplementedError(
                 f"{optimizer} to be implemented for backend pytorch."
