@@ -3,6 +3,7 @@ import torch
 from .fnn import FNN
 from .nn import NN
 from .. import activations
+from ..import regularizers
 
 
 class DeepONetCartesianProd(NN):
@@ -27,6 +28,7 @@ class DeepONetCartesianProd(NN):
         layer_sizes_trunk,
         activation,
         kernel_initializer,
+        regularization=None
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -42,6 +44,7 @@ class DeepONetCartesianProd(NN):
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
+        self.regularization = regularizers.get(regularization)
 
     def forward(self, inputs):
         x_func = inputs[0]
@@ -97,6 +100,7 @@ class PODDeepONet(NN):
         activation,
         kernel_initializer,
         layer_sizes_trunk=None,
+        regularization = None
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -118,6 +122,7 @@ class PODDeepONet(NN):
                 layer_sizes_trunk, self.activation_trunk, kernel_initializer
             )
             self.b = torch.tensor(0.0, requires_grad=True)
+        self.regularization = regularizers.get(regularization)
 
     def forward(self, inputs):
         x_func = inputs[0]

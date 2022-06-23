@@ -26,6 +26,7 @@ class DeepONetCartesianProd(NN):
         layer_sizes_trunk,
         activation,
         kernel_initializer,
+        regularization=None
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -39,8 +40,8 @@ class DeepONetCartesianProd(NN):
             self.branch = layer_sizes_branch[1]
         else:
             # Fully connected network
-            self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
-        self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
+            self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer, regularization)
+        self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer, regularization)
         self.b = tf.Variable(tf.zeros(1))
 
     def call(self, inputs, training=False):
@@ -98,6 +99,7 @@ class PODDeepONet(NN):
         activation,
         kernel_initializer,
         layer_sizes_trunk=None,
+        regularization=None,
     ):
         super().__init__()
         self.pod_basis = tf.convert_to_tensor(pod_basis, dtype=tf.float32)
@@ -112,12 +114,12 @@ class PODDeepONet(NN):
             self.branch = layer_sizes_branch[1]
         else:
             # Fully connected network
-            self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
+            self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer, regularization)
 
         self.trunk = None
         if layer_sizes_trunk is not None:
             self.trunk = FNN(
-                layer_sizes_trunk, self.activation_trunk, kernel_initializer
+                layer_sizes_trunk, self.activation_trunk, kernel_initializer, regularization
             )
             self.b = tf.Variable(tf.zeros(1))
 

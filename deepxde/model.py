@@ -124,11 +124,7 @@ class Model:
         elif backend_name == "tensorflow":
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
-            if decay == None:
-                decay = {"lr":None, "regular": 0}
-                self._compile_pytorch(lr, loss_fn, decay, loss_weights)
-            else:
-                self._compile_pytorch(lr, loss_fn,decay,loss_weights)
+            self._compile_pytorch(lr, loss_fn, decay, loss_weights)
         elif backend_name == "jax":
             self._compile_jax(lr, loss_fn, decay, loss_weights)
         elif backend_name == "paddle":
@@ -276,6 +272,7 @@ class Model:
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
             # Data losses
+            # TODO: l1 regularization and l1+l2 regularizaiton
             if targets is not None:
                 targets = torch.as_tensor(targets)
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
@@ -301,9 +298,21 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        self.opt, self.lr_scheduler = optimizers.get(
-            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-        )
+        if self.net.regularization is None:
+            self.opt, self.lr_scheduler = optimizers.get(
+                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+            )
+        else:
+            if self.net.regularization[0] is 'l2':
+                self.opt, self.lr_scheduler = optimizers.get(
+                    trainable_variables, self.opt_name, learning_rate=lr,
+                    decay=decay, weight_decay=self.net.regularization[1]
+                )
+            else:
+                raise NotImplementedError(
+                    f"{self.net.regularization[0]} regularizaiton to be implemented for backend pytorch."
+                )
+
 
         def train_step(inputs, targets):
             def closure():

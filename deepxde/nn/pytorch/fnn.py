@@ -3,14 +3,16 @@ import torch
 from .nn import NN
 from .. import activations
 from .. import initializers
+from .. import regularizers
 from ... import config
 
 
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
+    def __init__(self, layer_sizes, activation, kernel_initializer, regularization=None,):
         super().__init__()
+        self.regularizer = regularizers.get(regularization)
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
