@@ -1,11 +1,10 @@
-from ..backend import backend_name, tf
+from ..backend import tf
+
 
 def get(identifier):
     # TODO: other backends
     if identifier is None:
         return None
-    if backend_name == "pytorch":
-        return identifier
     name, scales = identifier[0], identifier[1:]
     return (
         tf.keras.regularizers.l1(l=scales[0])
