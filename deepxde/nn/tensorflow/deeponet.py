@@ -44,10 +44,13 @@ class DeepONetCartesianProd(NN):
                 layer_sizes_branch,
                 activation_branch,
                 kernel_initializer,
-                regularization,
+                regularization=regularization,
             )
         self.trunk = FNN(
-            layer_sizes_trunk, self.activation_trunk, kernel_initializer, regularization
+            layer_sizes_trunk,
+            self.activation_trunk,
+            kernel_initializer,
+            regularization=regularization,
         )
         self.b = tf.Variable(tf.zeros(1))
 
@@ -125,7 +128,7 @@ class PODDeepONet(NN):
                 layer_sizes_branch,
                 activation_branch,
                 kernel_initializer,
-                regularization,
+                regularization=regularization,
             )
 
         self.trunk = None
@@ -134,7 +137,7 @@ class PODDeepONet(NN):
                 layer_sizes_trunk,
                 self.activation_trunk,
                 kernel_initializer,
-                regularization,
+                regularization=regularization,
             )
             self.b = tf.Variable(tf.zeros(1))
 

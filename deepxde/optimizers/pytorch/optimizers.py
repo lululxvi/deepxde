@@ -15,6 +15,8 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
     if isinstance(optimizer, torch.optim.Optimizer):
         optim = optimizer
     elif optimizer in ["L-BFGS", "L-BFGS-B"]:
+        if weight_decay > 0:
+            raise ValueError("L-BFGS optimizer doesn't require weight_decay > 0")
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         optim = torch.optim.LBFGS(
