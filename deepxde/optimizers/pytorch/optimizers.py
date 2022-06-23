@@ -37,7 +37,7 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
         elif optimizer == "adam":
             optim = torch.optim.Adam(params, lr=learning_rate, weight_decay = weight_decay)
         elif optimizer == "adamw":
-            if weight_decay is 0:
+            if weight_decay == 0:
                 raise ValueError("AdamW optimizer requires non-zero weight decay")
             optim = torch.optim.AdamW(params, lr=learning_rate, weight_decay = weight_decay)
         else:

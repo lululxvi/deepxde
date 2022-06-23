@@ -3,7 +3,6 @@ import torch
 from .fnn import FNN
 from .nn import NN
 from .. import activations
-from ..import regularizers
 
 
 class DeepONetCartesianProd(NN):
