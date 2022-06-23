@@ -303,7 +303,7 @@ class Model:
                 trainable_variables, self.opt_name, learning_rate=lr, decay=decay
             )
         else:
-            if self.net.regularization[0] is 'l2':
+            if self.net.regularization[0] == 'l2':
                 self.opt, self.lr_scheduler = optimizers.get(
                     trainable_variables, self.opt_name, learning_rate=lr,
                     decay=decay, weight_decay=self.net.regularization[1]
