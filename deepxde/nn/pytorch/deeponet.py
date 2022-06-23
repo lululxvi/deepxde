@@ -27,7 +27,7 @@ class DeepONetCartesianProd(NN):
         layer_sizes_trunk,
         activation,
         kernel_initializer,
-        regularization=None
+        regularization=None,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -99,7 +99,7 @@ class PODDeepONet(NN):
         activation,
         kernel_initializer,
         layer_sizes_trunk=None,
-        regularization = None
+        regularization=None,
     ):
         super().__init__()
         if isinstance(activation, dict):

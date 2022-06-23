@@ -252,6 +252,7 @@ class Model:
 
     def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
         """pytorch"""
+
         def outputs(training, inputs):
             self.net.train(mode=training)
             with torch.no_grad():
