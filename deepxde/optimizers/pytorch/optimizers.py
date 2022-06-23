@@ -9,12 +9,14 @@ def is_external_optimizer(optimizer):
     return optimizer in ["L-BFGS", "L-BFGS-B"]
 
 
-def get(params, optimizer, learning_rate=None, decay=None):
+def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
     """Retrieves an Optimizer instance."""
     # Custom Optimizer
     if isinstance(optimizer, torch.optim.Optimizer):
         optim = optimizer
     elif optimizer in ["L-BFGS", "L-BFGS-B"]:
+        if weight_decay > 0:
+            raise ValueError("L-BFGS optimizer doesn't support weight_decay > 0")
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         optim = torch.optim.LBFGS(
@@ -31,11 +33,21 @@ def get(params, optimizer, learning_rate=None, decay=None):
         if learning_rate is None:
             raise ValueError("No learning rate for {}.".format(optimizer))
         if optimizer == "sgd":
-            optim = torch.optim.SGD(params, lr=learning_rate)
+            optim = torch.optim.SGD(params, lr=learning_rate, weight_decay=weight_decay)
         elif optimizer == "rmsprop":
-            optim = torch.optim.RMSprop(params, lr=learning_rate)
+            optim = torch.optim.RMSprop(
+                params, lr=learning_rate, weight_decay=weight_decay
+            )
         elif optimizer == "adam":
-            optim = torch.optim.Adam(params, lr=learning_rate)
+            optim = torch.optim.Adam(
+                params, lr=learning_rate, weight_decay=weight_decay
+            )
+        elif optimizer == "adamw":
+            if weight_decay == 0:
+                raise ValueError("AdamW optimizer requires non-zero weight decay")
+            optim = torch.optim.AdamW(
+                params, lr=learning_rate, weight_decay=weight_decay
+            )
         else:
             raise NotImplementedError(
                 f"{optimizer} to be implemented for backend pytorch."
