@@ -273,7 +273,6 @@ class Model:
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
             # Data losses
-            # TODO: l1 regularization and l1+l2 regularizaiton
             if targets is not None:
                 targets = torch.as_tensor(targets)
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
