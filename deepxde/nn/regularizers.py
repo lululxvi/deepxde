@@ -16,6 +16,3 @@ def get(identifier):
         if name == "l1+l2"
         else None
     )
-
-
-
