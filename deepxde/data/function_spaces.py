@@ -14,6 +14,8 @@ import numpy as np
 from scipy import linalg, interpolate
 from sklearn import gaussian_process as gp
 
+from .. import config
+
 
 class FunctionSpace(abc.ABC):
     """Function space base class.
@@ -172,7 +174,7 @@ class GRF(FunctionSpace):
             )(xs).T,
             features,
         )
-        return np.vstack(list(res))
+        return np.vstack(list(res)).astype(config.real(np))
 
 
 class GRF_KL(FunctionSpace):
