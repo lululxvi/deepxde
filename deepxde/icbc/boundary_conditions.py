@@ -4,10 +4,10 @@ __all__ = [
     "BC",
     "DirichletBC",
     "NeumannBC",
-    "RobinBC",
-    "PeriodicBC",
     "OperatorBC",
+    "PeriodicBC",
     "PointSetBC",
+    "RobinBC",
     "BatchPointSetBC",
 ]
 
@@ -271,6 +271,7 @@ def npfunc_range_autocache(func):
 
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
+        # Even if X is the same one, aux_var could be different
         key = (id(X), beg, end)
         if key not in cache:
             cache[key] = func(X[beg:end], aux_var[beg:end])
@@ -281,8 +282,8 @@ def npfunc_range_autocache(func):
             return wrapper_nocache
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
-    if backend_name == "pytorch":
+    if backend_name in ["pytorch", "paddle"]:
         if utils.get_num_args(func) == 1:
             return wrapper_cache
         if utils.get_num_args(func) == 2:
-            return wrapper_cache_auxiliary
+            return wrapper_nocache_auxiliary

@@ -8,6 +8,7 @@ __all__ = [
     "PeriodicBC",
     "OperatorBC",
     "PointSetBC",
+    "BatchPointSetBC",
     "IC",
 ]
 

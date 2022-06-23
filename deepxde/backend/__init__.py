@@ -16,14 +16,20 @@ def _gen_missing_api(api, mod_name):
         raise ImportError(
             'API "%s" is not supported by backend "%s".'
             " You can switch to other backends by setting"
-            " the DGLBACKEND environment." % (api, mod_name)
+            " the DDE_BACKEND environment." % (api, mod_name)
         )
 
     return _missing_api
 
 
 def load_backend(mod_name):
-    if mod_name not in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"]:
+    if mod_name not in [
+        "tensorflow.compat.v1",
+        "tensorflow",
+        "pytorch",
+        "jax",
+        "paddle",
+    ]:
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
     print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
@@ -65,17 +71,26 @@ def load_backend(mod_name):
 def get_preferred_backend():
     backend_name = None
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
-    if "DDEBACKEND" in os.environ:
+    if "DDE_BACKEND" in os.environ:
+        backend_name = os.getenv("DDE_BACKEND")
+    # Backward compatibility
+    elif "DDEBACKEND" in os.environ:
         backend_name = os.getenv("DDEBACKEND")
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax"]:
+    if backend_name in [
+        "tensorflow.compat.v1",
+        "tensorflow",
+        "pytorch",
+        "jax",
+        "paddle",
+    ]:
         return backend_name
     print(
-        "Deepxde backend not selected or invalid. Assuming tensorflow.compat.v1 for now.",
+        "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
         file=sys.stderr,
     )
     set_default_backend("tensorflow.compat.v1")

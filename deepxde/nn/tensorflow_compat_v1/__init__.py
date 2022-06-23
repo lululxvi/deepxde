@@ -10,12 +10,11 @@ __all__ = [
     "MsFFN",
     "NN",
     "PFNN",
-    "PIDeepONet",
     "ResNet",
     "STMsFFN",
 ]
 
-from .deeponet import DeepONet, DeepONetCartesianProd, PIDeepONet
+from .deeponet import DeepONet, DeepONetCartesianProd
 from .fnn import FNN, PFNN
 from .mfnn import MfNN
 from .mionet import MIONet, MIONetCartesianProd

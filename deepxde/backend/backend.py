@@ -20,6 +20,7 @@ lib = None
 tf = None
 torch = None
 jax = None
+paddle = None
 
 ###############################################################################
 # Tensor, data type and context interfaces
@@ -57,6 +58,14 @@ def data_type_dict():
     """
 
 
+def is_gpu_available():
+    """Returns a bool indicating if GPU is currently available.
+
+    Returns:
+        True if a GPU device is available.
+    """
+
+
 def is_tensor(obj):
     """Returns True if `obj` is a backend-native type tensor."""
 
@@ -80,6 +89,33 @@ def ndim(input_tensor):
 
     Returns:
         int: The number of dimensions.
+    """
+
+
+def transpose(tensor, axes=None):
+    """Reverse or permute the axes of a tensor; returns the modified array.
+
+    For a tensor with two axes, transpose gives the matrix transpose.
+
+    Args:
+        tensor (Tensor): Input tensor.
+        axes (tuple of ints): A permutation of the dimensions.
+
+    Returns:
+        A tensor with its axes permuted. A view is returned whenever possible.
+    """
+
+
+def reshape(tensor, shape):
+    """Gives a new shape to a tensor without changing its data.
+
+    Args:
+        tensor (Tensor): The tensor to be reshaped.
+        shape (tuple of ints): The new shape should be compatible with the original
+            shape.
+
+    Returns:
+        Reshaped tensor. This will be a new view object if possible.
     """
 
 
@@ -208,6 +244,10 @@ def reduce_sum(input_tensor):
     Returns:
         Tensor.
     """
+
+
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    """Computes a vector or matrix norm."""
 
 
 def zeros(shape, dtype):

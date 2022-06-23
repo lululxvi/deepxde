@@ -20,7 +20,7 @@ tensorflow.compat.v1:
 	@echo "#            Step 1: Building TensorFlow.compat.v1 tutorials     #"
 	@echo "#                                                                #"
 	@echo "##################################################################"
-	@DDEBACKEND=tensorflow.compat.v1 $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@DDE_BACKEND=tensorflow.compat.v1 $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 tensorflow:
 	@echo "##################################################################"
@@ -28,7 +28,7 @@ tensorflow:
 	@echo "#            Step 2: Building TensorFlow tutorials               #"
 	@echo "#                                                                #"
 	@echo "##################################################################"
-	@DDEBACKEND=tensorflow $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@DDE_BACKEND=tensorflow $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 pytorch:
 	@echo "##################################################################"
@@ -36,7 +36,7 @@ pytorch:
 	@echo "#            Step 3: Building PyTorch tutorials                  #"
 	@echo "#                                                                #"
 	@echo "##################################################################"
-	@DDEBACKEND=pytorch $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@DDE_BACKEND=pytorch $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 html: Makefile tensorflow.compat.v1 tensorflow pytorch
 

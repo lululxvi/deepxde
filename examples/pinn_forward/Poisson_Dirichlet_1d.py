@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,6 +6,8 @@ import numpy as np
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
+# Import paddle if using backend paddle
+# import paddle
 
 
 def pde(x, y):
@@ -14,6 +16,8 @@ def pde(x, y):
     return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
     # Use torch.sin for backend pytorch
     # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
+    # Use paddle.sin for backend paddle
+    # return -dy_xx - np.pi ** 2 * paddle.sin(np.pi * x)
 
 
 def boundary(x, on_boundary):

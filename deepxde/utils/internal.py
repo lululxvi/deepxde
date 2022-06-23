@@ -166,7 +166,36 @@ def get_num_args(func):
 
     - https://stackoverflow.com/questions/847936/how-can-i-find-the-number-of-arguments-of-a-python-function
     """
-    if sys.version_info[0] == 2:
-        return len(inspect.getargspec(func).args)
-    sig = inspect.signature(func)
-    return len(sig.parameters)
+    # If the function is a class method decorated with functools.wraps, then "self" will
+    # be in parameters, as inspect.signature follows wrapper chains by default, see
+    # https://stackoverflow.com/questions/308999/what-does-functools-wraps-do
+    #
+    # Example:
+    #
+    # import inspect
+    # from functools import wraps
+    #
+    # def dummy(f):
+    #     print(f)
+    #     print(inspect.signature(f))
+    #
+    #     @wraps(f)
+    #     def wrapper(*args, **kwargs):
+    #         f(*args, **kwargs)
+    #
+    #     print(wrapper)
+    #     print(inspect.signature(wrapper))
+    #     return wrapper
+    #
+    # class A:
+    #     @dummy  # See the difference by commenting out this line
+    #     def f(self, x):
+    #         pass
+    #
+    # print(A.f)
+    # print(inspect.signature(A.f))
+    #
+    # a = A()
+    # g = dummy(a.f)
+    params = inspect.signature(func).parameters
+    return len(params) - ("self" in params)

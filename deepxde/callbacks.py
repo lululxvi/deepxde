@@ -5,8 +5,8 @@ import numpy as np
 
 from . import config
 from . import gradients as grad
-from .backend import backend_name
-from .utils import list_to_str, save_animation
+from . import utils
+from .backend import backend_name, tf, torch, paddle
 
 
 class Callback:
@@ -310,11 +310,11 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
         print(
             self.model.train_state.epoch,
-            list_to_str(self.value, precision=self.precision),
+            utils.list_to_str(self.value, precision=self.precision),
             file=self.file,
         )
         self.file.flush()
@@ -342,21 +342,45 @@ class OperatorPredictor(Callback):
         super().__init__()
         self.x = x
         self.op = op
-        self.tf_op = None
         self.value = None
-        # TODO: other backends
-        if backend_name != "tensorflow.compat.v1":
+
+    def init(self):
+        if backend_name == "tensorflow.compat.v1":
+            self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
+        elif backend_name == "tensorflow":
+
+            @tf.function
+            def op(inputs):
+                y = self.model.net(inputs)
+                return self.op(inputs, y)
+
+            self.tf_op = op
+        elif backend_name == "pytorch":
+            self.x = torch.as_tensor(self.x)
+            self.x.requires_grad_()
+        elif backend_name == "paddle":
+            self.x = paddle.to_tensor(self.x, stop_gradient=False)
+
+    def on_predict_end(self):
+        if backend_name == "tensorflow.compat.v1":
+            self.value = self.model.sess.run(
+                self.tf_op, feed_dict=self.model.net.feed_dict(False, self.x)
+            )
+        elif backend_name == "tensorflow":
+            self.value = utils.to_numpy(self.tf_op(self.x))
+        elif backend_name == "pytorch":
+            self.model.net.eval()
+            outputs = self.model.net(self.x)
+            self.value = utils.to_numpy(self.op(self.x, outputs))
+        elif backend_name == "paddle":
+            self.model.net.eval()
+            outputs = self.model.net(self.x)
+            self.value = utils.to_numpy(self.op(self.x, outputs))
+        else:
+            # TODO: other backends
             raise NotImplementedError(
                 f"OperatorPredictor not implemented for backend {backend_name}."
             )
-
-    def init(self):
-        self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
-
-    def on_predict_end(self):
-        self.value = self.model.sess.run(
-            self.tf_op, feed_dict=self.model.net.feed_dict(False, False, 2, self.x)
-        )
 
     def get_value(self):
         return self.value
@@ -434,10 +458,10 @@ class MovieDumper(Callback):
         np.savetxt(fname_x, self.x)
         np.savetxt(fname_y, np.array(self.y))
         if self.y_reference is None:
-            save_animation(fname_movie, np.ravel(self.x), self.y)
+            utils.save_animation(fname_movie, np.ravel(self.x), self.y)
         else:
             y_reference = np.ravel(self.y_reference(self.x))
-            save_animation(
+            utils.save_animation(
                 fname_movie, np.ravel(self.x), self.y, y_reference=y_reference
             )
 
@@ -452,10 +476,10 @@ class MovieDumper(Callback):
             np.savetxt(fname_spec, np.array(self.spectrum))
             xdata = np.arange(len(self.spectrum[0]))
             if self.y_reference is None:
-                save_animation(fname_movie, xdata, self.spectrum, logy=True)
+                utils.save_animation(fname_movie, xdata, self.spectrum, logy=True)
             else:
                 A = np.fft.rfft(y_reference)
-                save_animation(
+                utils.save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
 

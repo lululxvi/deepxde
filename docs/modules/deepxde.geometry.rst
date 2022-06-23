@@ -49,6 +49,14 @@ deepxde.geometry.geometry\_nd module
    :undoc-members:
    :show-inheritance:
 
+deepxde.geometry.pointcloud module
+----------------------------------
+
+.. automodule:: deepxde.geometry.pointcloud
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.geometry.sampler module
 -------------------------------
 

@@ -19,12 +19,12 @@ DeepXDE
     - DeepONet extensions, e.g., POD-DeepONet [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114778>`_]
     - physics-informed DeepONet [`Sci. Adv. <https://doi.org/10.1126/sciadv.abi8605>`_]
     - MIONet: learning multiple-input operators [`arXiv <https://arxiv.org/abs/2202.06137>`_]
+    - multifidelity DeepONet [`Phys. Rev. Research <https://doi.org/10.1103/PhysRevResearch.4.023210>`_]
     - DeepM&Mnet: solving multiphysics and multiscale problems [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
-    - multifidelity DeepONet [`arXiv <https://arxiv.org/abs/2204.06684>`_]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://doi.org/10.1073/pnas.1922210117>`_]
 
-DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX. For how to select one, see `Working with different backends <https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends>`_.
+DeepXDE supports five tensor libraries as backends: TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX, and PaddlePaddle. For how to select one, see `Working with different backends <https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends>`_.
 
 **Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_
 
@@ -42,7 +42,7 @@ Features
 DeepXDE has implemented many algorithms as shown above and supports many features:
 
 - enables the user code to be compact, resembling closely the mathematical formulation.
-- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
+- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
 - 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - 6 **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
@@ -94,6 +94,7 @@ If you are looking for information on a specific function, class or method, this
   modules/deepxde.icbc
   modules/deepxde.nn
   modules/deepxde.nn.jax
+  modules/deepxde.nn.paddle
   modules/deepxde.nn.pytorch
   modules/deepxde.nn.tensorflow
   modules/deepxde.nn.tensorflow_compat_v1

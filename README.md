@@ -27,12 +27,12 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
     - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
     - physics-informed DeepONet [[Sci. Adv.](https://doi.org/10.1126/sciadv.abi8605)]
     - MIONet: learning multiple-input operators [[arXiv](https://arxiv.org/abs/2202.06137)]
+    - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
     - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
-    - multifidelity DeepONet [[arXiv](https://arxiv.org/abs/2204.06684)]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
-DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, and JAX. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+DeepXDE supports five tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX, and PaddlePaddle. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
 **Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io)
 
@@ -49,7 +49,7 @@ DeepXDE supports four tensor libraries as backends: TensorFlow 1.x (`tensorflow.
 DeepXDE has implemented many algorithms as shown above and supports many features:
 
 - enables the user code to be compact, resembling closely the mathematical formulation.
-- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
+- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
 - 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - 6 **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
@@ -67,10 +67,11 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
-- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
-- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
-- PyTorch: [PyTorch](https://pytorch.org/)>=1.9.0
+- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
+- PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
+- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn)>=2.3.0
 
 Then, you can install DeepXDE itself.
 
