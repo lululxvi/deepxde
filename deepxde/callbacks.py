@@ -510,3 +510,12 @@ class PDEResidualResampler(Callback):
             raise ValueError(
                 "`num_bcs` changed! Please update the loss function by `model.compile`."
             )
+
+
+class BatchResampler(Callback):
+    """Resample the training points for both PDE and boundary condition losses after
+    each step."""
+
+    def on_batch_end(self):
+        self.model.data.train_x_bc = None
+        self.model.data.resample_train_points()
