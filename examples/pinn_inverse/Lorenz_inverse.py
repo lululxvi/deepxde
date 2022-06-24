@@ -31,7 +31,7 @@ def Lorenz_system(x, y):
 
 
 # Backend JAX
-# def Lorenz_system(x, y, unknowns):
+# def Lorenz_system(x, y, unknowns=[C1, C2, C3]):
 #     C1, C2, C3 = unknowns
 #     y_val, y_fn = y
 #     y1, y2, y3 = y_val[:, 0:1], y_val[:, 1:2], y_val[:, 2:3]
