@@ -51,7 +51,7 @@ class Model:
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
-            self.all_params = []
+            self.params = None
 
     @utils.timing
     def compile(
@@ -340,31 +340,32 @@ class Model:
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
-        self.all_params = [self.net.params] + self.external_trainable_variables
+        self.params = [self.net.params] + self.external_trainable_variables
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
-        self.opt_state = self.opt.init(self.all_params)
+        self.opt_state = self.opt.init(self.params)
 
         @jax.jit
         def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
-        def outputs_losses(params, training, inputs, targets, losses_fn, unknowns=None):
+        def outputs_losses(params, training, inputs, targets, losses_fn):
+            nn_params, ext_params = params[0], params[1:]
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
-                return self.net.apply(params, inputs, training=training)
+                return self.net.apply(nn_params, inputs, training=training)
 
-            outputs_ = self.net.apply(params, inputs, training=training)
+            outputs_ = self.net.apply(nn_params, inputs, training=training)
             # Data losses
             # We use aux so that self.data.losses is a pure function.
+            aux = [outputs_fn, ext_params] if len(ext_params) > 0 else [outputs_fn]
             losses = losses_fn(
                 targets,
                 outputs_,
                 loss_fn,
                 inputs,
                 self,
-                aux=outputs_fn,
-                unknowns=unknowns,
+                aux=aux,
             )
             # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
@@ -373,30 +374,22 @@ class Model:
             return outputs_, losses
 
         @jax.jit
-        def outputs_losses_train(params, inputs, targets, unknowns=None):
-            return outputs_losses(
-                params, True, inputs, targets, self.data.losses_train, unknowns
-            )
+        def outputs_losses_train(params, inputs, targets):
+            return outputs_losses(params, True, inputs, targets, self.data.losses_train)
 
         @jax.jit
-        def outputs_losses_test(params, inputs, targets, unknowns=None):
-            return outputs_losses(
-                params, False, inputs, targets, self.data.losses_test, unknowns
-            )
+        def outputs_losses_test(params, inputs, targets):
+            return outputs_losses(params, False, inputs, targets, self.data.losses_test)
 
         @jax.jit
-        def train_step(all_params, opt_state, inputs, targets):
-            def loss_function(all_params):
-                # split all_params into internal trainable variables (for NN) and external ones (unknowns)
-                params, ext_params = all_params[0], all_params[1:]
-                return jax.numpy.sum(
-                    outputs_losses_train(params, inputs, targets, ext_params)[1]
-                )
+        def train_step(params, opt_state, inputs, targets):
+            def loss_function(params):
+                return jax.numpy.sum(outputs_losses_train(params, inputs, targets)[1])
 
             grad_fn = jax.grad(loss_function)
-            grads = grad_fn(all_params)
+            grads = grad_fn(params)
             updates, new_opt_state = self.opt.update(grads, opt_state)
-            new_params = optimizers.apply_updates(all_params, updates)
+            new_params = optimizers.apply_updates(params, updates)
             return new_params, new_opt_state
 
         # Pure functions
@@ -491,8 +484,7 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            ext_params = self.all_params[1:]
-            outs = outputs_losses(self.all_params[0], inputs, targets, ext_params)
+            outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
             outs = outputs_losses(inputs, targets)
         return utils.to_numpy(outs)
@@ -508,12 +500,11 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            self.all_params, self.opt_state = self.train_step(
-                self.all_params, self.opt_state, inputs, targets
+            self.params, self.opt_state = self.train_step(
+                self.params, self.opt_state, inputs, targets
             )
-            self.net.params = self.all_params[0]
-            if len(self.all_params) > 1:
-                self.external_trainable_variables = []
+            self.net.params = self.params[0]
+            self.external_trainable_variables = self.params[1:]
 
     @utils.timing
     def train(

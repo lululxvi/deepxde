@@ -124,12 +124,12 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None, unknowns=[]):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             outputs_pde = outputs
         elif backend_name == "jax":
             # JAX requires pure functions
-            outputs_pde = (outputs, aux)
+            outputs_pde = (outputs, aux[0])
 
         f = []
         if self.pde is not None:
@@ -137,10 +137,10 @@ class PDE(Data):
                 f = self.pde(inputs, outputs_pde)
             elif get_num_args(self.pde) == 3:
                 if self.auxiliary_var_fn is None:
-                    if unknowns is []:
+                    if aux is None or len(aux) == 1:
                         raise ValueError("Auxiliary variable function not defined.")
                     else:
-                        f = self.pde(inputs, outputs_pde, unknowns)
+                        f = self.pde(inputs, outputs_pde, unknowns=aux[1])
                 else:
                     f = self.pde(inputs, outputs_pde, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
