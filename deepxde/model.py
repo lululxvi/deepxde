@@ -340,7 +340,7 @@ class Model:
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
-        self.params = [self.net.params] + self.external_trainable_variables
+        self.params = [self.net.params, self.external_trainable_variables]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
@@ -350,7 +350,7 @@ class Model:
             return self.net.apply(params, inputs, training=training)
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
-            nn_params, ext_params = params[0], params[1:]
+            nn_params, ext_params = params
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(nn_params, inputs, training=training)
@@ -496,8 +496,7 @@ class Model:
             self.params, self.opt_state = self.train_step(
                 self.params, self.opt_state, inputs, targets
             )
-            self.net.params = self.params[0]
-            self.external_trainable_variables = self.params[1:]
+            self.net.params, self.external_trainable_variables = self.params
 
     @utils.timing
     def train(

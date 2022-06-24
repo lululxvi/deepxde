@@ -139,8 +139,7 @@ class PDE(Data):
                 if self.auxiliary_var_fn is None:
                     if aux is None or len(aux) == 1:
                         raise ValueError("Auxiliary variable function not defined.")
-                    else:
-                        f = self.pde(inputs, outputs_pde, unknowns=aux[1])
+                    f = self.pde(inputs, outputs_pde, unknowns=aux[1])
                 else:
                     f = self.pde(inputs, outputs_pde, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
