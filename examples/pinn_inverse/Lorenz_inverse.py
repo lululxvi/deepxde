@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle, jax"""
 import deepxde as dde
 import numpy as np
 
@@ -12,17 +12,27 @@ C1 = dde.Variable(1.0)
 C2 = dde.Variable(1.0)
 C3 = dde.Variable(1.0)
 
-
+# Most backends
 def Lorenz_system(x, y):
+    # Backend JAX
+    # def Lorenz_system(x, y, unknowns):
     """Lorenz system.
     dy1/dx = 10 * (y2 - y1)
     dy2/dx = y1 * (15 - y3) - y2
     dy3/dx = y1 * y2 - 8/3 * y3
     """
+    # Most backends
     y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
     dy1_x = dde.grad.jacobian(y, x, i=0)
     dy2_x = dde.grad.jacobian(y, x, i=1)
     dy3_x = dde.grad.jacobian(y, x, i=2)
+    # Backend jax
+    # C1, C2, C3 = unknowns
+    # y_val, y_fn = y
+    # y1, y2, y3 = y_val[:, 0:1], y_val[:, 1:2], y_val[:, 2:3]
+    # dy1_x, _ = dde.grad.jacobian(y, x, i=0)
+    # dy2_x, _ = dde.grad.jacobian(y, x, i=1)
+    # dy3_x, _ = dde.grad.jacobian(y, x, i=2)
     return [
         dy1_x - C1 * (y2 - y1),
         dy2_x - y1 * (C2 - y3) + y2,
