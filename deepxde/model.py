@@ -359,14 +359,7 @@ class Model:
             # Data losses
             # We use aux so that self.data.losses is a pure function.
             aux = [outputs_fn, ext_params] if len(ext_params) > 0 else [outputs_fn]
-            losses = losses_fn(
-                targets,
-                outputs_,
-                loss_fn,
-                inputs,
-                self,
-                aux=aux,
-            )
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
                 losses = [losses]
