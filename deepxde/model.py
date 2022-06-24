@@ -51,6 +51,7 @@ class Model:
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
+            self.params = None
 
     @utils.timing
     def compile(
@@ -339,23 +340,26 @@ class Model:
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
+        self.params = [self.net.params, self.external_trainable_variables]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
-        self.opt_state = self.opt.init(self.net.params)
+        self.opt_state = self.opt.init(self.params)
 
         @jax.jit
         def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
+            nn_params, ext_params = params
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
-                return self.net.apply(params, inputs, training=training)
+                return self.net.apply(nn_params, inputs, training=training)
 
-            outputs_ = self.net.apply(params, inputs, training=training)
+            outputs_ = self.net.apply(nn_params, inputs, training=training)
             # Data losses
             # We use aux so that self.data.losses is a pure function.
-            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=outputs_fn)
+            aux = [outputs_fn, ext_params] if ext_params else [outputs_fn]
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             # TODO: Add regularization loss, weighted losses
             if not isinstance(losses, list):
                 losses = [losses]
@@ -473,7 +477,7 @@ class Model:
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            outs = outputs_losses(self.net.params, inputs, targets)
+            outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
             outs = outputs_losses(inputs, targets)
         return utils.to_numpy(outs)
@@ -489,9 +493,10 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
-            self.net.params, self.opt_state = self.train_step(
-                self.net.params, self.opt_state, inputs, targets
+            self.params, self.opt_state = self.train_step(
+                self.params, self.opt_state, inputs, targets
             )
+            self.net.params, self.external_trainable_variables = self.params
 
     @utils.timing
     def train(
