@@ -93,7 +93,7 @@ Now, we have the PDE problem and the network. We build a ``Model``, choose the o
 
     model = dde.Model(data, net)
     model.compile("adam", lr=.001, loss_weights=[0.01, 1, 1], metrics=["l2 relative error"])
-    losshistory, train_state = model.train(epochs=15000)
+    losshistory, train_state = model.train(iterations=15000)
 
 
 Complete code
