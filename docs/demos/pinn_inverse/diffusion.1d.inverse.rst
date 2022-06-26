@@ -117,12 +117,12 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
     model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=C)
     
    
-We then train the model for 50000 iterations. During the training process, we output the value of :math:`C` every 1000 epochs:
+We then train the model for 50000 iterations. During the training process, we output the value of :math:`C` every 1000 iterations:
 
 .. code-block:: python
 
     variable = dde.callbacks.VariableValue(C, period=1000)
-    losshistory, train_state = model.train(epochs=50000, callbacks=[variable])
+    losshistory, train_state = model.train(iterations=50000, callbacks=[variable])
     
 We also save and plot the best trained result and loss history.
 
