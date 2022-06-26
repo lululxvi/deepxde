@@ -20,7 +20,7 @@ net = dde.nn.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-model.train(epochs=50000)
+model.train(iterations=50000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
