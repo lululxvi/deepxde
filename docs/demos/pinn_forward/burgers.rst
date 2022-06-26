@@ -80,7 +80,7 @@ We then train the model for 15000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=15000)
+    losshistory, train_state = model.train(iterations=15000)
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
