@@ -124,12 +124,14 @@ def enable_xla_jit(mode=True):
         if not mode:
             mode = None
     elif backend_name == "pytorch":
-        raise ValueError("Backend PyTorch does not support XLA.")
+        if mode:
+            raise ValueError("Backend PyTorch does not support XLA.")
     elif backend_name == "jax":
         if not mode:
             raise ValueError("Backend JAX always uses XLA.")
     elif backend_name == "paddle":
-        raise ValueError("Backend PaddlePaddle does not support XLA.")
+        if mode:
+            raise ValueError("Backend PaddlePaddle does not support XLA.")
 
     global xla_jit
     xla_jit = mode
