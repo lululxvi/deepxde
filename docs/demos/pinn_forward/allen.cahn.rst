@@ -81,7 +81,7 @@ Now that we have defined the neural network, we build a ``Model``, choose the op
 
     model = dde.Model(data, net)
     model.compile("adam", lr=1e-3)
-    model.train(epochs=40000)
+    model.train(iterations=40000)
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 

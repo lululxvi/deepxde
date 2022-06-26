@@ -89,7 +89,7 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(epochs=50000)
+losshistory, train_state = model.train(iterations=50000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

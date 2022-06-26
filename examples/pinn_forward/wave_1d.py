@@ -74,7 +74,7 @@ model.compile(
 )
 pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
 losshistory, train_state = model.train(
-    epochs=10000, callbacks=[pde_residual_resampler], display_every=500
+    iterations=10000, callbacks=[pde_residual_resampler], display_every=500
 )
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

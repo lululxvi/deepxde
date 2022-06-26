@@ -96,7 +96,7 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=20000)
+model.train(iterations=20000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 

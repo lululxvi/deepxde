@@ -132,7 +132,7 @@ model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 fnamevar = "variables.dat"
 variable = dde.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
 
-model.train(epochs=60000, callbacks=[variable])
+model.train(iterations=60000, callbacks=[variable])
 
 # Plots
 # reopen saved data using callbacks in fnamevar

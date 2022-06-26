@@ -77,5 +77,5 @@ model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2, C3])
 variable = dde.callbacks.VariableValue(
     [C1, C2, C3], period=600, filename="variables.dat"
 )
-losshistory, train_state = model.train(epochs=60000, callbacks=[variable])
+losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
