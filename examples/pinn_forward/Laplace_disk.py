@@ -48,5 +48,5 @@ net.apply_feature_transform(feature_transform)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=15000)
+losshistory, train_state = model.train(iterations=15000)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
