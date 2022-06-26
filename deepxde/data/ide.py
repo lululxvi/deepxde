@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .helper import one_function
@@ -40,7 +36,7 @@ class IDE(PDE):
         self.quad_x = self.quad_x.astype(config.real(np))
         self.quad_w = self.quad_w.astype(config.real(np))
 
-        super(IDE, self).__init__(
+        super().__init__(
             geometry,
             ide,
             bcs,
@@ -52,36 +48,33 @@ class IDE(PDE):
             num_test=num_test,
         )
 
-    def losses(self, targets, outputs, loss, model):
-        def losses_train():
-            bcs_start = np.cumsum([0] + self.num_bcs)
-            int_mat = self.get_int_matrix(True)
-            f = self.pde(model.net.inputs, outputs, int_mat)
-            if not isinstance(f, (list, tuple)):
-                f = [f]
-            f = [fi[bcs_start[-1] :] for fi in f]
-            losses = [
-                loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
-            ]
+    def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        bcs_start = np.cumsum([0] + self.num_bcs)
+        int_mat = self.get_int_matrix(True)
+        f = self.pde(inputs, outputs, int_mat)
+        if not isinstance(f, (list, tuple)):
+            f = [f]
+        f = [fi[bcs_start[-1] :] for fi in f]
+        losses = [
+            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+        ]
 
-            for i, bc in enumerate(self.bcs):
-                beg, end = bcs_start[i], bcs_start[i + 1]
-                error = bc.error(self.train_x, model.net.inputs, outputs, beg, end)
-                losses.append(
-                    loss(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
-                )
-            return losses
+        for i, bc in enumerate(self.bcs):
+            beg, end = bcs_start[i], bcs_start[i + 1]
+            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            losses.append(
+                loss_fn(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+            )
+        return losses
 
-        def losses_test():
-            int_mat = self.get_int_matrix(False)
-            f = self.pde(model.net.inputs, outputs, int_mat)
-            if not isinstance(f, (list, tuple)):
-                f = [f]
-            return [
-                loss(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
-            ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
-
-        return tf.cond(model.net.training, losses_train, losses_test)
+    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        int_mat = self.get_int_matrix(False)
+        f = self.pde(inputs, outputs, int_mat)
+        if not isinstance(f, (list, tuple)):
+            f = [f]
+        return [
+            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+        ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

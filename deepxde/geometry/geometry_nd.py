@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import itertools
 
 import numpy as np
@@ -17,13 +13,14 @@ class Hypercube(Geometry):
     def __init__(self, xmin, xmax):
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
-        if np.any(np.array(xmin) >= np.array(xmax)):
-            raise ValueError("xmin >= xmax")
 
         self.xmin = np.array(xmin, dtype=config.real(np))
         self.xmax = np.array(xmax, dtype=config.real(np))
+        if np.any(self.xmin >= self.xmax):
+            raise ValueError("xmin >= xmax")
+
         self.side_length = self.xmax - self.xmin
-        super(Hypercube, self).__init__(
+        super().__init__(
             len(xmin), (self.xmin, self.xmax), np.linalg.norm(self.side_length)
         )
         self.volume = np.prod(self.side_length)
@@ -61,12 +58,20 @@ class Hypercube(Geometry):
         for i in range(self.dim):
             ni = int(np.ceil(self.side_length[i] / dx))
             if boundary:
-                xi.append(np.linspace(self.xmin[i], self.xmax[i], num=ni))
+                xi.append(
+                    np.linspace(
+                        self.xmin[i], self.xmax[i], num=ni, dtype=config.real(np)
+                    )
+                )
             else:
                 xi.append(
-                    np.linspace(self.xmin[i], self.xmax[i], num=ni + 1, endpoint=False)[
-                        1:
-                    ]
+                    np.linspace(
+                        self.xmin[i],
+                        self.xmax[i],
+                        num=ni + 1,
+                        endpoint=False,
+                        dtype=config.real(np),
+                    )[1:]
                 )
         x = np.array(list(itertools.product(*xi)))
         if n != len(x):
@@ -82,8 +87,7 @@ class Hypercube(Geometry):
     def random_boundary_points(self, n, random="pseudo"):
         x = sample(n, self.dim, random)
         # Randomly pick a dimension
-        rng = np.random.default_rng()
-        rand_dim = rng.integers(self.dim, size=n)
+        rand_dim = np.random.randint(self.dim, size=n)
         # Replace value of the randomly picked dimension with the nearest boundary value (0 or 1)
         x[np.arange(n), rand_dim] = np.round(x[np.arange(n), rand_dim])
         return (self.xmax - self.xmin) * x + self.xmin
@@ -101,7 +105,7 @@ class Hypersphere(Geometry):
     def __init__(self, center, radius):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
-        super(Hypersphere, self).__init__(
+        super().__init__(
             len(center), (self.center - radius, self.center + radius), 2 * radius
         )
 

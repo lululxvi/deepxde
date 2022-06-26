@@ -1,13 +1,8 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
-from sklearn import preprocessing
 
 from .data import Data
 from ..backend import tf
-from ..utils import run_if_any_none
+from ..utils import run_if_any_none, standardize
 
 
 class MfFunc(Data):
@@ -29,9 +24,9 @@ class MfFunc(Data):
         self.X_test = None
         self.y_test = None
 
-    def losses(self, targets, outputs, loss, model):
-        loss_lo = loss(targets[0][: self.num_lo], outputs[0][: self.num_lo])
-        loss_hi = loss(targets[1][self.num_lo :], outputs[1][self.num_lo :])
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        loss_lo = loss_fn(targets[0][: self.num_lo], outputs[0][: self.num_lo])
+        loss_hi = loss_fn(targets[1][self.num_lo :], outputs[1][self.num_lo :])
         return [loss_lo, loss_hi]
 
     @run_if_any_none("X_train", "y_train")
@@ -85,6 +80,7 @@ class MfDataSet(Data):
         fname_hi_test=None,
         col_x=None,
         col_y=None,
+        standardize=False,
     ):
         if X_lo_train is not None:
             self.X_lo_train = X_lo_train
@@ -108,14 +104,19 @@ class MfDataSet(Data):
 
         self.X_train = None
         self.y_train = None
-        self.scaler_x = None
-        self._standardize()
 
-    def losses(self, targets, outputs, loss, model):
-        n = tf.cond(model.net.training, lambda: len(self.X_lo_train), lambda: 0)
-        loss_lo = loss(targets[0][:n], outputs[0][:n])
-        loss_hi = loss(targets[1][n:], outputs[1][n:])
+        self.scaler_x = None
+        if standardize:
+            self._standardize()
+
+    def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        n = len(self.X_lo_train)
+        loss_lo = loss_fn(targets[0][:n], outputs[0][:n])
+        loss_hi = loss_fn(targets[1][n:], outputs[1][n:])
         return [loss_lo, loss_hi]
+
+    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return [0, loss_fn(targets[1], outputs[1])]
 
     @run_if_any_none("X_train", "y_train")
     def train_next_batch(self, batch_size=None):
@@ -131,50 +132,7 @@ class MfDataSet(Data):
         return self.X_hi_test, [self.y_hi_test, self.y_hi_test]
 
     def _standardize(self):
-        self.scaler_x = preprocessing.StandardScaler(with_mean=True, with_std=True)
-        self.X_lo_train = self.scaler_x.fit_transform(self.X_lo_train)
-        self.X_hi_train = self.scaler_x.transform(self.X_hi_train)
+        self.scaler_x, self.X_lo_train, self.X_hi_train = standardize(
+            self.X_lo_train, self.X_hi_train
+        )
         self.X_hi_test = self.scaler_x.transform(self.X_hi_test)
-
-
-# class DataMF(Data):
-#     """Multifidelity function approximation with uncertainty quantification (legacy version).
-#     """
-
-#     def __init__(self, flow, fhi, geom):
-#         self.flow, self.fhi = flow, fhi
-#         self.geom = geom
-
-#         self.train_x, self.train_y = None, None
-#         self.test_x, self.test_y = None, None
-
-#     def train_next_batch(self, batch_size):
-#         keeps = [0, 2, 5, 8, 10]
-#         x = self.geom.uniform_points(batch_size, True)
-#         self.train_x = np.empty((0, 1))
-#         self.train_y = np.empty((0, 2))
-#         for _ in range(10):
-#             ylow = self.flow(x)
-#             yhi = self.fhi(x)
-#             for i in range(batch_size):
-#                 if i not in keeps:
-#                     yhi[i, 0] = ylow[i, 0] + 2*np.random.randn()
-#             self.train_x = np.vstack((self.train_x, x))
-#             self.train_y = np.vstack((self.train_y, np.hstack((ylow, yhi))))
-
-#         x = x[keeps]
-#         ylow = self.flow(x)
-#         yhi = self.fhi(x)
-#         for _ in range(500):
-#             self.train_x = np.vstack((self.train_x, x))
-#             self.train_y = np.vstack((self.train_y, np.hstack((ylow, yhi))))
-
-#         return self.train_x, self.train_y
-
-#     @run_if_any_none('test_x', 'test_y')
-#     def test(self, n):
-#         self.test_x = self.geom.uniform_points(n, True)
-#         ylow = self.flow(self.test_x)
-#         yhi = self.fhi(self.test_x)
-#         self.test_y = np.hstack((ylow, yhi))
-#         return self.test_x, self.test_y

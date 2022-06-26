@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import itertools
 
 import numpy as np
@@ -18,7 +14,7 @@ class Cuboid(Hypercube):
     """
 
     def __init__(self, xmin, xmax):
-        super(Cuboid, self).__init__(xmin, xmax)
+        super().__init__(xmin, xmax)
         dx = self.xmax - self.xmin
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
 
@@ -79,4 +75,4 @@ class Sphere(Hypersphere):
     """
 
     def __init__(self, center, radius):
-        super(Sphere, self).__init__(center, radius)
+        super().__init__(center, radius)

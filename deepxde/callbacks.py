@@ -1,18 +1,15 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import sys
 import time
 
 import numpy as np
 
+from . import config
 from . import gradients as grad
-from .backend import backend_name
-from .utils import list_to_str, save_animation
+from . import utils
+from .backend import backend_name, tf, torch, paddle
 
 
-class Callback(object):
+class Callback:
     """Callback base class.
 
     Attributes:
@@ -114,7 +111,7 @@ class ModelCheckpoint(Callback):
     """Save the model after every epoch.
 
     Args:
-        filepath (string): Path to save the model file.
+        filepath (string): Prefix of filenames to save the model file.
         verbose: Verbosity mode, 0 or 1.
         save_better_only: If True, only save a better model according to the quantity
             monitored. Model is only checked at validation step according to
@@ -123,7 +120,7 @@ class ModelCheckpoint(Callback):
     """
 
     def __init__(self, filepath, verbose=0, save_better_only=False, period=1):
-        super(ModelCheckpoint, self).__init__()
+        super().__init__()
         self.filepath = filepath
         self.verbose = verbose
         self.save_better_only = save_better_only
@@ -142,24 +139,24 @@ class ModelCheckpoint(Callback):
         if self.save_better_only:
             current = self.model.train_state.best_loss_train
             if self.monitor_op(current, self.best):
+                save_path = self.model.save(self.filepath, verbose=0)
                 if self.verbose > 0:
                     print(
-                        "Epoch {epoch}: {} improved from {:.2e} to {:.2e}, saving model to {}-{epoch} ...\n".format(
+                        "Epoch {}: {} improved from {:.2e} to {:.2e}, saving model to {} ...\n".format(
+                            self.model.train_state.epoch,
                             self.monitor,
                             self.best,
                             current,
-                            self.filepath,
-                            epoch=self.model.train_state.epoch,
+                            save_path,
                         )
                     )
                 self.best = current
-                self.model.save(self.filepath, verbose=0)
         else:
             self.model.save(self.filepath, verbose=self.verbose)
 
 
 class EarlyStopping(Callback):
-    """Stop training when a monitored quantity (training loss) has stopped improving.
+    """Stop training when a monitored quantity (training or testing loss) has stopped improving.
     Only checked at validation step according to ``display_every`` in ``Model.train``.
 
     Args:
@@ -172,12 +169,14 @@ class EarlyStopping(Callback):
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
             over the baseline.
+        monitor: The loss function that is monitored. Either 'loss_train' or 'loss_test'
     """
 
-    def __init__(self, min_delta=0, patience=0, baseline=None):
-        super(EarlyStopping, self).__init__()
+    def __init__(self, min_delta=0, patience=0, baseline=None, monitor="loss_train"):
+        super().__init__()
 
         self.baseline = baseline
+        self.monitor = monitor
         self.patience = patience
         self.min_delta = min_delta
         self.wait = 0
@@ -211,7 +210,14 @@ class EarlyStopping(Callback):
             print("Epoch {}: early stopping".format(self.stopped_epoch))
 
     def get_monitor_value(self):
-        return sum(self.model.train_state.loss_train)
+        if self.monitor == "loss_train":
+            result = sum(self.model.train_state.loss_train)
+        elif self.monitor == "loss_test":
+            result = sum(self.model.train_state.loss_test)
+        else:
+            raise ValueError("The specified monitor function is incorrect.")
+
+        return result
 
 
 class Timer(Callback):
@@ -223,7 +229,7 @@ class Timer(Callback):
     """
 
     def __init__(self, available_time):
-        super(Timer, self).__init__()
+        super().__init__()
 
         self.threshold = available_time * 60  # convert to seconds
         self.t_start = None
@@ -245,7 +251,10 @@ class Timer(Callback):
 class DropoutUncertainty(Callback):
     """Uncertainty estimation via MC dropout.
 
-    Reference: https://arxiv.org/abs/1506.02142
+    References:
+        `Y. Gal, & Z. Ghahramani. Dropout as a Bayesian approximation: Representing
+        model uncertainty in deep learning. International Conference on Machine
+        Learning, 2016 <https://arxiv.org/abs/1506.02142>`_.
 
     Warning:
         This cannot be used together with other techniques that have different behaviors
@@ -253,7 +262,7 @@ class DropoutUncertainty(Callback):
     """
 
     def __init__(self, period=1000):
-        super(DropoutUncertainty, self).__init__()
+        super().__init__()
         self.period = period
         self.epochs_since_last = 0
 
@@ -287,7 +296,7 @@ class VariableValue(Callback):
     """
 
     def __init__(self, var_list, period=1, filename=None, precision=2):
-        super(VariableValue, self).__init__()
+        super().__init__()
         self.var_list = var_list if isinstance(var_list, list) else [var_list]
         self.period = period
         self.precision = precision
@@ -301,11 +310,11 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
         print(
             self.model.train_state.epoch,
-            list_to_str(self.value, precision=self.precision),
+            utils.list_to_str(self.value, precision=self.precision),
             file=self.file,
         )
         self.file.flush()
@@ -330,24 +339,48 @@ class OperatorPredictor(Callback):
     """
 
     def __init__(self, x, op):
-        super(OperatorPredictor, self).__init__()
+        super().__init__()
         self.x = x
         self.op = op
-        self.tf_op = None
         self.value = None
-        # TODO: other backends
-        if backend_name != "tensorflow.compat.v1":
+
+    def init(self):
+        if backend_name == "tensorflow.compat.v1":
+            self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
+        elif backend_name == "tensorflow":
+
+            @tf.function
+            def op(inputs):
+                y = self.model.net(inputs)
+                return self.op(inputs, y)
+
+            self.tf_op = op
+        elif backend_name == "pytorch":
+            self.x = torch.as_tensor(self.x)
+            self.x.requires_grad_()
+        elif backend_name == "paddle":
+            self.x = paddle.to_tensor(self.x, stop_gradient=False)
+
+    def on_predict_end(self):
+        if backend_name == "tensorflow.compat.v1":
+            self.value = self.model.sess.run(
+                self.tf_op, feed_dict=self.model.net.feed_dict(False, self.x)
+            )
+        elif backend_name == "tensorflow":
+            self.value = utils.to_numpy(self.tf_op(self.x))
+        elif backend_name == "pytorch":
+            self.model.net.eval()
+            outputs = self.model.net(self.x)
+            self.value = utils.to_numpy(self.op(self.x, outputs))
+        elif backend_name == "paddle":
+            self.model.net.eval()
+            outputs = self.model.net(self.x)
+            self.value = utils.to_numpy(self.op(self.x, outputs))
+        else:
+            # TODO: other backends
             raise NotImplementedError(
                 f"OperatorPredictor not implemented for backend {backend_name}."
             )
-
-    def init(self):
-        self.tf_op = self.op(self.model.net.inputs, self.model.net.outputs)
-
-    def on_predict_end(self):
-        self.value = self.model.sess.run(
-            self.tf_op, feed_dict=self.model.net.feed_dict(False, False, 2, self.x)
-        )
 
     def get_value(self):
         return self.value
@@ -364,7 +397,7 @@ class FirstDerivative(OperatorPredictor):
         def first_derivative(x, y):
             return grad.jacobian(y, x, i=component_y, j=component_x)
 
-        super(FirstDerivative, self).__init__(x, first_derivative)
+        super().__init__(x, first_derivative)
 
 
 class MovieDumper(Callback):
@@ -385,11 +418,13 @@ class MovieDumper(Callback):
         save_spectrum=False,
         y_reference=None,
     ):
-        super(MovieDumper, self).__init__()
+        super().__init__()
         self.filename = filename
         x1 = np.array(x1)
         x2 = np.array(x2)
-        self.x = x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        self.x = (
+            x1 + (x2 - x1) / (num_points - 1) * np.arange(num_points)[:, None]
+        ).astype(dtype=config.real(np))
         self.period = period
         self.component = component
         self.save_spectrum = save_spectrum
@@ -399,18 +434,8 @@ class MovieDumper(Callback):
         self.spectrum = []
         self.epochs_since_last_save = 0
 
-        # TODO: support other backends
-        if backend_name != "tensorflow.compat.v1":
-            raise RuntimeError(
-                "MovieDumper only supports backend tensorflow.compat.v1."
-            )
-
-    def init(self):
-        self.tf_op = self.model.net.outputs[:, self.component]
-        self.feed_dict = self.model.net.feed_dict(False, False, 2, self.x)
-
     def on_train_begin(self):
-        self.y.append(self.model.sess.run(self.tf_op, feed_dict=self.feed_dict))
+        self.y.append(self.model._outputs(False, self.x)[:, self.component])
         if self.save_spectrum:
             A = np.fft.rfft(self.y[-1])
             self.spectrum.append(np.abs(A))
@@ -433,10 +458,10 @@ class MovieDumper(Callback):
         np.savetxt(fname_x, self.x)
         np.savetxt(fname_y, np.array(self.y))
         if self.y_reference is None:
-            save_animation(fname_movie, np.ravel(self.x), self.y)
+            utils.save_animation(fname_movie, np.ravel(self.x), self.y)
         else:
             y_reference = np.ravel(self.y_reference(self.x))
-            save_animation(
+            utils.save_animation(
                 fname_movie, np.ravel(self.x), self.y, y_reference=y_reference
             )
 
@@ -451,10 +476,10 @@ class MovieDumper(Callback):
             np.savetxt(fname_spec, np.array(self.spectrum))
             xdata = np.arange(len(self.spectrum[0]))
             if self.y_reference is None:
-                save_animation(fname_movie, xdata, self.spectrum, logy=True)
+                utils.save_animation(fname_movie, xdata, self.spectrum, logy=True)
             else:
                 A = np.fft.rfft(y_reference)
-                save_animation(
+                utils.save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
 
@@ -463,7 +488,7 @@ class PDEResidualResampler(Callback):
     """Resample the training points for PDE losses every given period."""
 
     def __init__(self, period=100):
-        super(PDEResidualResampler, self).__init__()
+        super().__init__()
         self.period = period
 
         self.num_bcs_initial = None

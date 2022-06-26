@@ -25,6 +25,14 @@ deepxde.nn.tensorflow\_compat\_v1.mfnn module
    :undoc-members:
    :show-inheritance:
 
+deepxde.nn.tensorflow\_compat\_v1.mionet module
+-----------------------------------------------
+
+.. automodule:: deepxde.nn.tensorflow_compat_v1.mionet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.nn.tensorflow\_compat\_v1.msffn module
 ----------------------------------------------
 

@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .geometry import Geometry
@@ -11,7 +7,7 @@ from .. import config
 
 class Interval(Geometry):
     def __init__(self, l, r):
-        super(Interval, self).__init__(1, (np.array([l]), np.array([r])), r - l)
+        super().__init__(1, (np.array([l]), np.array([r])), r - l)
         self.l, self.r = l, r
 
     def inside(self, x):

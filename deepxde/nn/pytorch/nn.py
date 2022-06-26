@@ -5,9 +5,8 @@ class NN(torch.nn.Module):
     """Base class for all neural network modules."""
 
     def __init__(self):
-        super(NN, self).__init__()
-        # torch.nn.Module has variable training
-        self.inputs = None
+        super().__init__()
+        self.regularizer = None
         self._input_transform = None
         self._output_transform = None
 
@@ -22,3 +21,7 @@ class NN(torch.nn.Module):
         outputs = transform(inputs, outputs).
         """
         self._output_transform = transform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN."""
+        return sum(v.numel() for v in self.parameters() if v.requires_grad)

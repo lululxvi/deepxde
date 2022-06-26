@@ -1,20 +1,18 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+import numpy as np
 
 from ... import config
 from ...backend import tf
 from ...utils import make_dict, timing
 
 
-class NN(object):
+class NN:
     """Base class for all neural network modules."""
 
     def __init__(self):
         self.training = tf.placeholder(tf.bool)
         self.regularizer = None
 
-        self._auxiliary_vars = tf.placeholder(config.real(tf))
+        self._auxiliary_vars = tf.placeholder(config.real(tf), [None, None])
         self._input_transform = None
         self._output_transform = None
         self._built = False  # The property will be set upon call of self.build()
@@ -74,6 +72,17 @@ class NN(object):
         outputs = transform(inputs, outputs).
         """
         self._output_transform = transform
+
+    def num_trainable_parameters(self):
+        """Evaluate the number of trainable parameters for the NN.
+
+        Notice that the function returns the number of trainable parameters for the
+        whole tf.Session, so that it will not be correct if several nets are defined
+        within the same tf.Session.
+        """
+        return np.sum(
+            [np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]
+        )
 
     @timing
     def build(self):

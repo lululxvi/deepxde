@@ -5,4 +5,5 @@ pep257:
 
 pylint:
   disable:
+    - consider-using-f-string
     - too-many-arguments

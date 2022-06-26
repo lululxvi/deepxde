@@ -7,46 +7,59 @@
 [![PyPI Downloads](https://pepy.tech/badge/deepxde)](https://pepy.tech/project/deepxde)
 [![Conda Version](https://anaconda.org/conda-forge/deepxde/badges/version.svg)](https://anaconda.org/conda-forge/deepxde)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/lululxvi/deepxde)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
 
-[**Voting on whether we should have a Slack channel for discussion.**](https://github.com/lululxvi/deepxde/issues/371)
+DeepXDE is a library for scientific machine learning and physics-informed learning. DeepXDE includes the following algorithms:
 
-DeepXDE is a library for scientific machine learning. Use DeepXDE if you need a deep learning library that
+- physics-informed neural network (PINN)
+    - solving different problems
+        - solving forward/inverse ordinary/partial differential equations (ODEs/PDEs) [[SIAM Rev.](https://doi.org/10.1137/19M1274067)]
+        - solving forward/inverse integro-differential equations (IDEs) [[SIAM Rev.](https://doi.org/10.1137/19M1274067)]
+        - fPINN: solving forward/inverse fractional PDEs (fPDEs) [[SIAM J. Sci. Comput.](https://doi.org/10.1137/18M1229845)]
+        - NN-arbitrary polynomial chaos (NN-aPC): solving forward/inverse stochastic PDEs (sPDEs) [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.07.048)]
+        - PINN with hard constraints (hPINN): solving inverse design/topology optimization [[SIAM J. Sci. Comput.](https://doi.org/10.1137/21M1397908)]
+    - improving PINN accuracy
+        - gradient-enhanced PINN (gPINN) [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114823)]
+        - PINN with multi-scale Fourier features [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2021.113938)]
+    - [Slides](https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13), [Video in Chinese](http://tianyuan.xmu.edu.cn/cn/minicourses/637.html)
+- (physics-informed) deep operator network (DeepONet)
+    - DeepONet: learning operators [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5)]
+    - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
+    - physics-informed DeepONet [[Sci. Adv.](https://doi.org/10.1126/sciadv.abi8605)]
+    - MIONet: learning multiple-input operators [[arXiv](https://arxiv.org/abs/2202.06137)]
+    - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
+    - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
+- multifidelity neural network (MFNN)
+    - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
-- solves forward and inverse partial differential equations (PDEs) via physics-informed neural network (PINN),
-- solves forward and inverse integro-differential equations (IDEs) via PINN,
-- solves forward and inverse fractional partial differential equations (fPDEs) via fractional PINN (fPINN),
-- approximates nonlinear operators via deep operator network (DeepONet),
-- approximates functions from multi-fidelity data via multi-fidelity NN (MFNN),
-- approximates functions from a dataset with/without constraints.
+DeepXDE supports five tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX, and PaddlePaddle. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
 
-DeepXDE supports three tensor libraries as backends: TensorFlow 1.x (`tensorflow.compat.v1` in TensorFlow 2.x), TensorFlow 2.x, and PyTorch. For how to select one, see [Working with different backends](https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends).
+**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io)
 
-**Documentation**: [ReadTheDocs](https://deepxde.readthedocs.io/), [SIAM Rev.](https://doi.org/10.1137/19M1274067), [Slides](https://lululxvi.github.io/files/talks/2020SIAMMDS_MS70.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13)
+![](docs/images/pinn.png)
 
-**Papers on algorithms**
+![](docs/images/deeponet.png)
 
-- Solving PDEs and IDEs via PINN: [SIAM Rev.](https://doi.org/10.1137/19M1274067), gradient-enhanced PINN (gPINN): [arXiv](https://arxiv.org/abs/2111.02801)
-- Solving fPDEs via fPINN: [SIAM J. Sci. Comput.](https://epubs.siam.org/doi/abs/10.1137/18M1229845)
-- Solving stochastic PDEs via NN-arbitrary polynomial chaos (NN-aPC): [J. Comput. Phys.](https://www.sciencedirect.com/science/article/pii/S0021999119305340)
-- Solving inverse design/topology optimization via PINN with hard constraints (hPINN): [arXiv](https://arxiv.org/abs/2102.04626)
-- Learning nonlinear operators via DeepONet: [Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)
-- Learning from multi-fidelity data via MFNN: [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://www.pnas.org/content/117/13/7052)
+![](docs/images/mfnn.png)
+
+![](docs/images/backend.png)
 
 ## Features
 
 DeepXDE has implemented many algorithms as shown above and supports many features:
 
-- complex domain geometries without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, and sphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection.
-- multi-physics, i.e., (time-dependent) coupled PDEs.
-- 5 types of boundary conditions (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
-- different neural networks, such as (stacked/unstacked) fully connected neural network, residual neural network, and (spatio-temporal) multi-scale fourier feature networks.
-- 6 sampling methods: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
-- conveniently save the model during training, and load a trained model.
-- uncertainty quantification using dropout.
-- many different (weighted) losses, optimizers, learning rate schedules, metrics, etc.
-- callbacks to monitor the internal states and statistics of the model during training, such as early stopping.
 - enables the user code to be compact, resembling closely the mathematical formulation.
+- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
+- 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
+- different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
+- 6 **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
+- 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
+- different **optimizers**: Adam, L-BFGS, etc.
+- conveniently **save** the model during training, and **load** a trained model.
+- **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
+- **uncertainty quantification** using dropout.
+- **float32** and **float64**.
+- many other useful features: different (weighted) losses, learning rate schedules, metrics, etc.
 
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
 
@@ -54,9 +67,11 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
-- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0
-- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org/)>=2.2.0 and [TensorFlow Probability](https://www.tensorflow.org/probability)
-- PyTorch: [PyTorch](https://pytorch.org/)
+- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
+- PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
+- JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
+- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn)>=2.3.0
 
 Then, you can install DeepXDE itself.
 
@@ -78,20 +93,12 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
-- Other dependencies
-
-  - [Matplotlib](https://matplotlib.org/)
-  - [NumPy](http://www.numpy.org/)
-  - [scikit-learn](https://scikit-learn.org)
-  - [scikit-optimize](https://scikit-optimize.github.io)
-  - [SciPy](https://www.scipy.org/)
-
 ## Explore more
 
 - [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
-- [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/forward.html)
-- [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/inverse.html)
-- [Demos of function approximation](https://deepxde.readthedocs.io/en/latest/demos/func.html)
+- [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_forward.html)
+- [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_inverse.html)
+- [Demos of function approximation](https://deepxde.readthedocs.io/en/latest/demos/function.html)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
 - [API](https://deepxde.readthedocs.io/en/latest/modules/deepxde.html)
@@ -113,24 +120,24 @@ If you use DeepXDE for academic research, you are encouraged to cite the followi
 }
 ```
 
-Also, if you would like your paper to appear [here](https://deepxde.readthedocs.io/en/latest/user/research.html), open an issue in the GitHub "Issues" section.
-
 ## Contributing to DeepXDE
 
 First off, thanks for taking the time to contribute!
 
-- **Reporting bugs.** To report a bug, simply open an issue in the GitHub "Issues" section.
-- **Suggesting enhancements.** To submit an enhancement suggestion for DeepXDE, including completely new features and minor improvements to existing functionality, let us know by opening an issue.
+- **Reporting bugs.** To report a bug, simply open an issue in the GitHub [Issues](https://github.com/lululxvi/deepxde/issues).
+- **Suggesting enhancements.** To submit an enhancement suggestion for DeepXDE, including completely new features and minor improvements to existing functionality, let us know by opening an issue in the GitHub [Issues](https://github.com/lululxvi/deepxde/issues).
 - **Pull requests.** If you made improvements to DeepXDE, fixed a bug, or had a new example, feel free to send us a pull-request.
-- **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can as well open an issue.
-- **Answering questions.** If you know the answer to any question in the "Issues", you are welcomed to answer.
+- **Asking questions.** To get help on how to use DeepXDE or its functionalities, you can open a discussion in the GitHub [Discussions](https://github.com/lululxvi/deepxde/discussions).
+- **Answering questions.** If you know the answer to any question in the [Discussions](https://github.com/lululxvi/deepxde/discussions), you are welcomed to answer.
+
+**Slack.** The DeepXDE Slack hosts a primary audience of moderate to experienced DeepXDE users and developers for general chat, online discussions, collaboration, etc. If you need a slack invite, please send me an email.
 
 ## The Team
 
-DeepXDE was originally developed by [Lu Lu](https://lu.seas.upenn.edu) at [Brown University](https://www.brown.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) from 2018 to 2020, supported by [PhILMs](https://www.pnnl.gov/computing/philms/).
+DeepXDE was developed by [Lu Lu](https://lu.seas.upenn.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from the summer of 2018 to 2020, supported by [PhILMs](https://www.pnnl.gov/computing/philms). DeepXDE was originally self-hosted in Subversion at Brown University, under the name SciCoNet (Scientific Computing Neural Networks). On Feb 7, 2019, SciCoNet was moved from Subversion to GitHub, renamed to DeepXDE.
 
-DeepXDE is currently maintained by [Lu Group](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu/) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Shunyuan Mao](https://github.com/smao-astro), [Zongren Zou](https://github.com/ZongrenZou).
+DeepXDE is currently maintained by [Lu Lu](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Zongren Zou](https://github.com/ZongrenZou), [Shunyuan Mao](https://github.com/smao-astro).
 
 ## License
 
-[Apache license 2.0](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+[LGPL-2.1 License](https://github.com/lululxvi/deepxde/blob/master/LICENSE)

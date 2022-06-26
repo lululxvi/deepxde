@@ -1,8 +1,7 @@
 """Package for tensorflow NN modules."""
-from __future__ import absolute_import
 
-from .deeponet import DeepONetCartesianProd
-from .fnn import FNN
+__all__ = ["DeepONetCartesianProd", "FNN", "NN", "PFNN", "PODDeepONet"]
+
+from .deeponet import DeepONetCartesianProd, PODDeepONet
+from .fnn import FNN, PFNN
 from .nn import NN
-
-__all__ = ["DeepONetCartesianProd", "FNN", "NN"]

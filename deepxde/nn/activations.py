@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name, tf
@@ -23,7 +19,11 @@ def layer_wise_locally_adaptive(activation, n=1):
         n = 10
         activation = f"LAAF-{n} relu"  # "LAAF-10 relu"
 
-    References: `Jagtap et al., 2019 <https://arxiv.org/abs/1909.12228>`_.
+    References:
+        `A. D. Jagtap, K. Kawaguchi, & G. E. Karniadakis. Locally adaptive activation
+        functions with slope recovery for deep and physics-informed neural networks.
+        Proceedings of the Royal Society A, 476(2239), 20200334, 2020
+        <https://doi.org/10.1098/rspa.2020.0334>`_.
     """
     # TODO: other backends
     if backend_name != "tensorflow.compat.v1":

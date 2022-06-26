@@ -1,0 +1,11 @@
+ipython
+scipy
+sklearn
+matplotlib
+scikit-optimize
+tensorflow-probability==0.12.2
+jupyter
+jupyterlab
+notebook
+pandas
+deepxde

@@ -2,7 +2,6 @@
 
 __all__ = ["lbfgs_minimize"]
 
-
 # Possible solutions of L-BFGS
 # TensorFlow (waiting...)
 # - https://github.com/tensorflow/tensorflow/issues/48167
@@ -21,7 +20,6 @@ __all__ = ["lbfgs_minimize"]
 
 # Code below is modified from https://gist.github.com/piyueh/712ec7d4540489aad2dcfb80f9a54993
 
-
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -29,7 +27,7 @@ import tensorflow_probability as tfp
 from ..config import LBFGS_options
 
 
-class LossAndFlatGradient(object):
+class LossAndFlatGradient:
     """A helper class to create a function required by tfp.optimizer.lbfgs_minimize.
 
     Args:
@@ -58,6 +56,7 @@ class LossAndFlatGradient(object):
             count += n
         self.partitions = tf.constant(self.partitions)
 
+    # @tf.function(jit_compile=True) has an error.
     @tf.function
     def __call__(self, weights_1d):
         """A function that can be used by tfp.optimizer.lbfgs_minimize.

@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from .nn import NN
 from .. import activations
 from .. import initializers
@@ -24,7 +20,7 @@ class ResNet(NN):
         kernel_initializer,
         regularization=None,
     ):
-        super(ResNet, self).__init__()
+        super().__init__()
         self.input_size = input_size
         self.output_size = output_size
         self.num_neurons = num_neurons

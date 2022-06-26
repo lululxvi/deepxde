@@ -7,3 +7,6 @@ docs/_build/
 
 # Jupyter notebook
 .ipynb_checkpoints
+
+# VSCode
+.vscode/

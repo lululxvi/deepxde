@@ -1,6 +1,11 @@
 """pytorch backend implementation"""
+from distutils.version import LooseVersion
+
 import torch
 
+
+if LooseVersion(torch.__version__) < LooseVersion("1.9.0"):
+    raise RuntimeError("DeepXDE requires PyTorch>=1.9.0.")
 
 # To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
 # torch.device and then use it for all the tensors.
@@ -31,6 +36,10 @@ def data_type_dict():
     }
 
 
+def is_gpu_available():
+    return torch.cuda.is_available()
+
+
 def is_tensor(obj):
     return torch.is_tensor(obj)
 
@@ -41,6 +50,16 @@ def shape(input_tensor):
 
 def ndim(input_tensor):
     return input_tensor.dim()
+
+
+def transpose(tensor, axes=None):
+    if axes is None:
+        axes = tuple(range(tensor.dim())[::-1])
+    return torch.permute(tensor, axes)
+
+
+def reshape(tensor, shape):
+    return torch.reshape(tensor, shape)
 
 
 def Variable(initial_value, dtype=None):
@@ -113,6 +132,10 @@ def sum(input_tensor, dim, keepdims=False):
 
 def reduce_sum(input_tensor):
     return torch.sum(input_tensor)
+
+
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    return torch.linalg.norm(tensor, ord=ord, dim=axis, keepdim=keepdims)
 
 
 def zeros(shape, dtype):

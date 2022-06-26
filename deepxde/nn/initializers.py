@@ -1,14 +1,12 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+__all__ = ["get", "VarianceScalingStacked"]
 
 import math
 
 from .. import config
-from ..backend import backend_name, tf, torch
+from ..backend import backend_name, tf, torch, jax, paddle
 
 
-class VarianceScalingStacked(object):
+class VarianceScalingStacked:
     """Initializer capable of adapting its scale to the shape of weights tensors.
 
     With `distribution="truncated_normal" or "untruncated_normal"`,
@@ -141,10 +139,36 @@ def initializer_dict_torch():
     }
 
 
+def initializer_dict_jax():
+    return {
+        "Glorot normal": jax.nn.initializers.glorot_normal(),
+        "Glorot uniform": jax.nn.initializers.glorot_uniform(),
+        "He normal": jax.nn.initializers.he_normal(),
+        "He uniform": jax.nn.initializers.he_uniform(),
+        "Lecun normal": jax.nn.initializers.lecun_normal(),
+        "Lecun uniform": jax.nn.initializers.lecun_uniform(),
+        "zeros": jax.nn.initializers.zeros,
+    }
+
+
+def initializer_dict_paddle():
+    return {
+        "Glorot normal": paddle.nn.initializer.XavierNormal(),
+        "Glorot uniform": paddle.nn.initializer.XavierUniform(),
+        "He normal": paddle.nn.initializer.KaimingNormal(),
+        "He uniform": paddle.nn.initializer.KaimingUniform(),
+        "zeros": paddle.nn.initializer.Constant(0.0),
+    }
+
+
 if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     INITIALIZER_DICT = initializer_dict_tf()
 elif backend_name == "pytorch":
     INITIALIZER_DICT = initializer_dict_torch()
+elif backend_name == "jax":
+    INITIALIZER_DICT = initializer_dict_jax()
+elif backend_name == "paddle":
+    INITIALIZER_DICT = initializer_dict_paddle()
 
 
 def get(identifier):

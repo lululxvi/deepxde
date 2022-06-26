@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 from .data import Data
@@ -27,7 +23,7 @@ class FuncConstraint(Data):
         self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
 
-    def losses(self, targets, outputs, loss, model):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         self.train_next_batch()
         self.test()
 
@@ -37,12 +33,12 @@ class FuncConstraint(Data):
 
         f = tf.cond(
             model.net.training,
-            lambda: self.constraint(model.net.inputs, outputs, self.train_x),
-            lambda: self.constraint(model.net.inputs, outputs, self.test_x),
+            lambda: self.constraint(inputs, outputs, self.train_x),
+            lambda: self.constraint(inputs, outputs, self.test_x),
         )
         return [
-            loss(targets[:n], outputs[:n]),
-            loss(tf.zeros(tf.shape(f), dtype=config.real(tf)), f),
+            loss_fn(targets[:n], outputs[:n]),
+            loss_fn(tf.zeros(tf.shape(f), dtype=config.real(tf)), f),
         ]
 
     @run_if_any_none("train_x", "train_y")

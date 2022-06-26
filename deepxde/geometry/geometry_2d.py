@@ -1,6 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+__all__ = ["Disk", "Rectangle", "Triangle", "Polygon"]
 
 import numpy as np
 from scipy import spatial
@@ -16,9 +14,7 @@ class Disk(Geometry):
     def __init__(self, center, radius):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
-        super(Disk, self).__init__(
-            2, (self.center - radius, self.center + radius), 2 * radius
-        )
+        super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
 
         self._r2 = radius ** 2
 
@@ -81,7 +77,7 @@ class Rectangle(Hypercube):
     """
 
     def __init__(self, xmin, xmax):
-        super(Rectangle, self).__init__(xmin, xmax)
+        super().__init__(xmin, xmax)
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
         self.area = np.prod(self.xmax - self.xmin)
 
@@ -189,7 +185,7 @@ class Triangle(Geometry):
         self.n31_normal = clockwise_rotation_90(self.n31)
         self.perimeter = self.l12 + self.l23 + self.l31
 
-        super(Triangle, self).__init__(
+        super().__init__(
             2,
             (np.minimum(x1, np.minimum(x2, x3)), np.maximum(x1, np.maximum(x2, x3))),
             self.l12
@@ -338,7 +334,7 @@ class Polygon(Geometry):
         self.diagonals = spatial.distance.squareform(
             spatial.distance.pdist(self.vertices)
         )
-        super(Polygon, self).__init__(
+        super().__init__(
             2,
             (np.amin(self.vertices, axis=0), np.amax(self.vertices, axis=0)),
             np.max(self.diagonals),
@@ -519,25 +515,26 @@ def is_rectangle(vertices):
 
 
 def is_on_line_segment(P0, P1, P2):
-    """
-    Test if a point is on a line segment.
+    """Test if a point is between two other points on a line segment.
 
     Args:
         P0: One point in the line.
         P1: One point in the line.
         P2: The point to be tested.
+
+    References:
+        https://stackoverflow.com/questions/328107
     """
     v01 = P1 - P0
     v02 = P2 - P0
     v12 = P2 - P1
     return (
-        (
-            # check that P2 is almost on the line P10 P1
-            np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0)
-            # check that projection of P2 to line is between P0 and P21
-            and v01 @ v02 >= 0
-            and v01 @ v12 <= 0
-        )
-        or np.isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
-        or np.isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
+        # check that P2 is almost on the line P0 P1
+        np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0, atol=1e-6)
+        # check that projection of P2 to line is between P0 and P1
+        and v01 @ v02 >= 0
+        and v01 @ v12 <= 0
     )
+    # Not between P0 and P1, but close to P0 or P1
+    # or np.isclose(np.linalg.norm(v02), 0, atol=1e-6)  # check whether P2 is close to P0
+    # or np.isclose(np.linalg.norm(v12), 0, atol=1e-6)  # check whether P2 is close to P1

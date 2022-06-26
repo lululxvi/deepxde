@@ -1,4 +1,15 @@
-from __future__ import absolute_import
+__all__ = [
+    "backend",
+    "callbacks",
+    "data",
+    "geometry",
+    "grad",
+    "icbc",
+    "nn",
+    "utils",
+    "Model",
+    "Variable",
+]
 
 from .__about__ import __version__
 
@@ -9,12 +20,16 @@ from . import callbacks
 from . import data
 from . import geometry
 from . import gradients as grad
-from . import icbcs
+from . import icbc
 from . import nn
 from . import utils
 
 from .backend import Variable
-from .icbcs import (
+from .model import Model
+from .utils import saveplot
+
+# Backward compatibility
+from .icbc import (
     DirichletBC,
     NeumannBC,
     OperatorBC,
@@ -23,22 +38,5 @@ from .icbcs import (
     PointSetBC,
     IC,
 )
-from .model import Model
-from .postprocessing import saveplot
 
-# Backward compatibility
 maps = nn
-
-__all__ = [
-    "backend",
-    "callbacks",
-    "data",
-    "geometry",
-    "grad",
-    "icbcs",
-    "maps",
-    "nn",
-    "utils",
-    "Model",
-    "Variable",
-]

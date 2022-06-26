@@ -7,6 +7,8 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   deepxde.backend.jax
+   deepxde.backend.paddle
    deepxde.backend.pytorch
    deepxde.backend.tensorflow
    deepxde.backend.tensorflow_compat_v1

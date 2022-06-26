@@ -2,11 +2,13 @@
 from distutils.version import LooseVersion
 
 import tensorflow as tf
+import tensorflow_probability as tfp
 
 
 if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
-    raise RuntimeError("DeepXDE requires tensorflow>=2.2.0.")
-
+    raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
+if LooseVersion(tfp.__version__) < LooseVersion("0.10.0"):
+    raise RuntimeError("DeepXDE requires TensorFlow Probability>=0.10.0.")
 
 lib = tf
 
@@ -25,6 +27,10 @@ def data_type_dict():
     }
 
 
+def is_gpu_available():
+    return bool(tf.config.list_physical_devices("GPU"))
+
+
 def is_tensor(obj):
     return tf.is_tensor(obj)
 
@@ -35,6 +41,14 @@ def shape(input_tensor):
 
 def ndim(input_tensor):
     return len(input_tensor.shape)
+
+
+def transpose(tensor, axes=None):
+    return tf.transpose(tensor, perm=axes)
+
+
+def reshape(tensor, shape):
+    return tf.reshape(tensor, shape)
 
 
 def Variable(initial_value, dtype=None):
@@ -107,6 +121,12 @@ def sum(input_tensor, dim, keepdims=False):
 
 def reduce_sum(input_tensor):
     return tf.math.reduce_sum(input_tensor)
+
+
+def norm(tensor, ord=None, axis=None, keepdims=False):
+    if ord is None:
+        ord = "euclidean"
+    return tf.norm(tensor, ord=ord, axis=axis, keepdims=keepdims)
 
 
 def zeros(shape, dtype):

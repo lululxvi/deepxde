@@ -1,12 +1,8 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from ..backend import tf
 
 
 def get(identifier):
-    # TODO: pytorch
+    # TODO: other backends
     if identifier is None:
         return None
     name, scales = identifier[0], identifier[1:]

@@ -1,6 +1,7 @@
 """Package for pytorch NN modules."""
-from __future__ import absolute_import
 
-from .fnn import FNN
+__all__ = ["DeepONetCartesianProd", "FNN", "NN", "PFNN", "PODDeepONet"]
 
-__all__ = ["FNN"]
+from .deeponet import DeepONetCartesianProd, PODDeepONet
+from .fnn import FNN, PFNN
+from .nn import NN
