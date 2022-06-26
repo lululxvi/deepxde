@@ -80,7 +80,7 @@ We then train the model for 10000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=10000)
+    losshistory, train_state = model.train(iterations=10000)
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
@@ -111,7 +111,7 @@ We will repeatedly add points while the mean residual is greater than 0.005. Eac
         data.add_anchors(X[x_id])
         early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
         model.compile("adam", lr=1e-3)
-        model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
+        model.train(iterations=10000, disregard_previous_best=True, callbacks=[early_stopping])
         model.compile("L-BFGS")
         losshistory, train_state = model.train()
 
