@@ -76,8 +76,8 @@ class Model:
                 different losses, then `loss` is a list whose size is equal to the
                 number of errors.
             metrics: List of metrics to be evaluated by the model during training.
-            decay (tuple): Name and parameters of decay to the initial learning rate. One
-                of the following options:
+            decay (tuple): Name and parameters of decay to the initial learning rate.
+                One of the following options:
 
                 - For backend TensorFlow 1.x:
 
@@ -314,7 +314,8 @@ class Model:
                 )
             else:
                 raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularizaiton to be implemented for backend pytorch."
+                    f"{self.net.regularizer[0]} regularizaiton to be implemented for "
+                    "backend pytorch."
                 )
 
         def train_step(inputs, targets):
@@ -501,19 +502,20 @@ class Model:
     @utils.timing
     def train(
         self,
-        epochs=None,
+        iterations=None,
         batch_size=None,
         display_every=1000,
         disregard_previous_best=False,
         callbacks=None,
         model_restore_path=None,
         model_save_path=None,
+        epochs=None,
     ):
-        """Trains the model for a fixed number of epochs (iterations on a dataset).
+        """Trains the model.
 
         Args:
-            epochs (Integer): Number of iterations to train the model. Note: It is
-                actually the number of iterations, not the number of epochs.
+            iterations (Integer): Number of iterations to train the model, i.e., number
+                of times the network weights are updated.
             batch_size: Integer or ``None``. If you solve PDEs via ``dde.data.PDE`` or
                 ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                 `dde.callbacks.PDEResidualResampler
@@ -526,7 +528,16 @@ class Model:
                 to apply during training.
             model_restore_path (String): Path where parameters were previously saved.
             model_save_path (String): Prefix of filenames created for the checkpoint.
+            epochs (Integer): Deprecated alias to `iterations`. This will be removed in
+                a future version.
         """
+        if iterations is None and epochs is not None:
+            print(
+                "Warning: epochs is deprecated and will be removed in a future version."
+                " Use iterations instead."
+            )
+            iterations = epochs
+
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
@@ -557,9 +568,9 @@ class Model:
             elif backend_name == "pytorch":
                 self._train_pytorch_lbfgs()
         else:
-            if epochs is None:
-                raise ValueError("No epochs for {}.".format(self.opt_name))
-            self._train_sgd(epochs, display_every)
+            if iterations is None:
+                raise ValueError("No iterations for {}.".format(self.opt_name))
+            self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
         print("")
@@ -568,8 +579,8 @@ class Model:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
-    def _train_sgd(self, epochs, display_every):
-        for i in range(epochs):
+    def _train_sgd(self, iterations, display_every):
+        for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
@@ -584,7 +595,7 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            if self.train_state.step % display_every == 0 or i + 1 == epochs:
+            if self.train_state.step % display_every == 0 or i + 1 == iterations:
                 self._test()
 
             self.callbacks.on_batch_end()
@@ -788,7 +799,8 @@ class Model:
                 # TODO: Pytorch backend Implementation of Auxiliary variables.
                 # y = operator(inputs, outputs, torch.as_tensor(aux_vars))
                 raise NotImplementedError(
-                    "Model.predict() with auxiliary variable hasn't been implemented for backend pytorch."
+                    "Model.predict() with auxiliary variable hasn't been implemented "
+                    "for backend pytorch."
                 )
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
@@ -801,7 +813,8 @@ class Model:
                 # TODO: Paddle backend Implementation of Auxiliary variables.
                 # y = operator(inputs, outputs, paddle.to_tensor(aux_vars))
                 raise NotImplementedError(
-                    "Model.predict() with auxiliary variable hasn't been implemented for backend paddle."
+                    "Model.predict() with auxiliary variable hasn't been implemented "
+                    "for backend paddle."
                 )
             y = utils.to_numpy(y)
         self.callbacks.on_predict_end()
@@ -835,13 +848,16 @@ class Model:
 
         Args:
             save_path (string): Prefix of filenames to save the model file.
-            protocol (string): If `protocol` is "backend", save using the backend-specific method.
-                For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
-                For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
-                For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
-                For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/save_cn.html#cn-api-paddle-framework-io-save>`_.
-                If `protocol` is "pickle", save using the Python pickle module.
-                Only the protocol "backend" supports ``restore()``.
+            protocol (string): If `protocol` is "backend", save using the
+                backend-specific method.
+
+                - For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+                - For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
+                - For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
+                - For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/save_cn.html#cn-api-paddle-framework-io-save>`_.
+
+                If `protocol` is "pickle", save using the Python pickle module. Only the
+                protocol "backend" supports ``restore()``.
 
         Returns:
             string: Path where model is saved.
