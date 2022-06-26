@@ -64,7 +64,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 
-losshistory, train_state = model.train(epochs=20000)
+losshistory, train_state = model.train(iterations=20000)
 
 x = geom.uniform_points(500)
 yhat = model.predict(x)
