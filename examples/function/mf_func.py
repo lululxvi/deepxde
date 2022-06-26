@@ -29,6 +29,6 @@ net = dde.nn.MfNN(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=80000)
+losshistory, train_state = model.train(iterations=80000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
