@@ -142,7 +142,7 @@ We then train the model for 60000 iterations:
 
 .. code-block:: python
 
-    model.train(epochs=60000, callbacks=[variable])
+    model.train(iterations=60000, callbacks=[variable])
 
 Complete code
 -------------

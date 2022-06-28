@@ -42,8 +42,7 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
-    # TODO
-    raise NotImplementedError("Variable to be implemented for jax backend")
+    return jnp.array(initial_value, dtype=dtype)
 
 
 def as_tensor(data, dtype=None):

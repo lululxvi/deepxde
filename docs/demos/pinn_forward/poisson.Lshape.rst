@@ -79,7 +79,7 @@ We first train the model for 50000 iterations with Adam optimizer:
 
 .. code-block:: python
 
-    model.train(epochs=50000)
+    model.train(iterations=50000)
 
 And then we train the model again using L-BFGS
 

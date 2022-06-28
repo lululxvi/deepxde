@@ -58,5 +58,5 @@ net.apply_output_transform(
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, loss_weights=[1, 100])
 variable = dde.callbacks.VariableValue(alpha, period=1000)
-losshistory, train_state = model.train(epochs=10000, callbacks=[variable])
+losshistory, train_state = model.train(iterations=10000, callbacks=[variable])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

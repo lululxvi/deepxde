@@ -40,7 +40,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
-losshistory, train_state = model.train(epochs=10000)
+losshistory, train_state = model.train(iterations=10000)
 # Optional: Save the model during training.
 # checkpointer = dde.callbacks.ModelCheckpoint(
 #     "model/model", verbose=1, save_better_only=True
@@ -50,7 +50,7 @@ losshistory, train_state = model.train(epochs=10000)
 # movie = dde.callbacks.MovieDumper(
 #     "model/movie", [-1], [1], period=100, save_spectrum=True, y_reference=func
 # )
-# losshistory, train_state = model.train(epochs=10000, callbacks=[checkpointer, movie])
+# losshistory, train_state = model.train(iterations=10000, callbacks=[checkpointer, movie])
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 

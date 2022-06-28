@@ -100,7 +100,7 @@ We then train the model for 20000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=20000)
+    losshistory, train_state = model.train(iterations=20000)
     
 We also save and plot the best trained result and loss history.
 

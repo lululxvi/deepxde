@@ -117,7 +117,7 @@ We then train the model for 10000 iterations:
 .. code-block:: python
 
     losshistory, train_state = model.train(
-        epochs=10000, callbacks=[checkpointer, movie]
+        iterations=10000, callbacks=[checkpointer, movie]
     )
 
 Complete code
