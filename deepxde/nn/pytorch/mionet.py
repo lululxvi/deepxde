@@ -47,10 +47,10 @@ class MIONetCartesianProd(NN):
         self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
 
-    def forward(self, input):
-        x_func1 = input[0]
-        x_func2 = input[1]
-        x_loc = input[2]
+    def forward(self, inputs):
+        x_func1 = inputs[0]
+        x_func2 = inputs[1]
+        x_loc = inputs[2]
         # Branch net to encode the input function
         y_func1 = self.branch1(x_func1)
         y_func2 = self.branch2(x_func2)
@@ -72,7 +72,7 @@ class MIONetCartesianProd(NN):
         # Add bias
         y += self.b
         if self._output_transform is not None:
-            y = self._output_transform(input, y)
+            y = self._output_transform(inputs, y)
         return y
 
 
@@ -124,10 +124,10 @@ class PODMIONet(NN):
             self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
 
-    def forward(self, input):
-        x_func1 = input[0]
-        x_func2 = input[1]
-        x_loc = input[2]
+    def forward(self, inputs):
+        x_func1 = inputs[0]
+        x_func2 = inputs[1]
+        x_loc = inputs[2]
         # Branch net to encode the input function
         y_func1 = self.branch1(x_func1)
         y_func2 = self.branch2(x_func2)
@@ -145,5 +145,5 @@ class PODMIONet(NN):
             y = torch.einsum("bi,ni->bn", y_func, torch.cat((self.pod_basis, y_loc), 1))
             y += self.b
         if self._output_transform is not None:
-            y = self._output_transform(input, y)
+            y = self._output_transform(inputs, y)
         return y
