@@ -142,7 +142,7 @@ class PODMIONet(NN):
             # POD only
             y = torch.einsum("bi,ni->bn", y_func, self.pod_basis)
         else:
-            y_loc = self.activation_trunk(self.trunk(x_loc))
+            y_loc = self.trunk(x_loc)
             y = torch.einsum("bi,ni->bn", y_func, torch.cat((self.pod_basis, y_loc), 1))
             y += self.b
         if self._output_transform is not None:
