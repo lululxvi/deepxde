@@ -1,11 +1,8 @@
 import torch
+
 from .nn import NN
 from .fnn import FNN
 from .. import activations
-from .. import initializers
-from .. import regularizers
-from ... import config
-from ...utils import timing
 
 
 class MIONetCartesianProd(NN):
@@ -47,7 +44,6 @@ class MIONetCartesianProd(NN):
                 layer_sizes_branch2, self.activation_branch2, kernel_initializer
             )
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.kernel_initializer = initializers.get(kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
 

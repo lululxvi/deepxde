@@ -1,6 +1,14 @@
 """Package for pytorch NN modules."""
 
-__all__ = ["DeepONetCartesianProd", "FNN", "NN", "PFNN", "PODDeepONet","PODMIONet","MIONetCartesianProd"]
+__all__ = [
+    "DeepONetCartesianProd",
+    "FNN",
+    "NN",
+    "PFNN",
+    "PODDeepONet",
+    "PODMIONet",
+    "MIONetCartesianProd",
+]
 
 from .deeponet import DeepONetCartesianProd, PODDeepONet
 from .mionet import MIONetCartesianProd, PODMIONet
