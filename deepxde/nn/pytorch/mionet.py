@@ -63,7 +63,6 @@ class MIONetCartesianProd(NN):
             y_loc = self._input_transform(x_loc)
         y_loc = self.activation_trunk(self.trunk(x_loc))
         # Dot product
-        # Dot product
         if y_func1.shape[-1] != y_func2.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch1 net and branch2 net do not match."
