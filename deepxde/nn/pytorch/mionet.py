@@ -6,7 +6,7 @@ from .. import activations
 
 
 class MIONetCartesianProd(NN):
-    """MIONet with two input functions and proper orthogonal decomposition (POD) for Cartesian product format."""
+    """MIONet with two input functions for Cartesian product format."""
 
     def __init__(
         self,
@@ -77,7 +77,8 @@ class MIONetCartesianProd(NN):
 
 
 class PODMIONet(NN):
-    """MIONet with two input functions for Cartesian product format."""
+    """MIONet with two input functions and proper orthogonal decomposition (POD)
+    for Cartesian product format."""
 
     def __init__(
         self,

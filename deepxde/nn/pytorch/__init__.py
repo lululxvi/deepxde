@@ -3,11 +3,11 @@
 __all__ = [
     "DeepONetCartesianProd",
     "FNN",
+    "MIONetCartesianProd",
     "NN",
     "PFNN",
     "PODDeepONet",
     "PODMIONet",
-    "MIONetCartesianProd",
 ]
 
 from .deeponet import DeepONetCartesianProd, PODDeepONet
