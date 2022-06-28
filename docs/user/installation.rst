@@ -77,10 +77,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
     - The file has the content such as ``{"backend": "tensorflow.compat.v1"}``
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
-    - In Windows, you can find ``config.json`` file under "C:/Users/Username/.deepxde" directory.
-
-
-
+    - In Windows, you can find ``config.json`` file under "C:/Users/Username/.deepxde" directory
 
 Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "jax" (JAX), and "paddle" (PaddlePaddle). The default backend is TensorFlow 1.x.
 
