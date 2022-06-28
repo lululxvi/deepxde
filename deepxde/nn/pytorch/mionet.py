@@ -61,7 +61,7 @@ class MIONetCartesianProd(NN):
         # Dot product
         if y_func1.shape[-1] != y_func2.shape[-1]:
             raise AssertionError(
-                "Output sizes of branch1 net and branch2 net do not match."
+                "Output sizes of branch net1 and branch net2 do not match."
             )
         y = torch.mul(y_func1, y_func2)
         if y.shape[-1] != y_loc.shape[-1]:
