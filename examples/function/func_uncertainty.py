@@ -32,6 +32,6 @@ net = dde.nn.FNN(
 model = dde.Model(data, net)
 uncertainty = dde.callbacks.DropoutUncertainty(period=1000)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(epochs=30000, callbacks=[uncertainty])
+losshistory, train_state = model.train(iterations=30000, callbacks=[uncertainty])
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

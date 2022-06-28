@@ -6,6 +6,7 @@ class NN(torch.nn.Module):
 
     def __init__(self):
         super().__init__()
+        self.regularizer = None
         self._input_transform = None
         self._output_transform = None
 

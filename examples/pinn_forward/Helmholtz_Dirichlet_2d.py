@@ -8,7 +8,7 @@ precision_train = 10
 precision_test = 30
 hard_constraint = True
 weights = 100  # if hard_constraint == False
-epochs = 5000
+iterations = 5000
 parameters = [1e-3, 3, 150, "sin"]
 
 # Define sine function
@@ -90,5 +90,5 @@ else:
     )
 
 
-losshistory, train_state = model.train(epochs=epochs)
+losshistory, train_state = model.train(iterations=iterations)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

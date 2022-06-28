@@ -58,7 +58,7 @@ model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"], external_trainable_variables=[v_e, K])
 variable = dde.callbacks.VariableValue([v_e, K], period=200, filename="variables1.dat")
 
-losshistory, train_state = model.train(epochs=30000, callbacks=[variable])
+losshistory, train_state = model.train(iterations=30000, callbacks=[variable])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 lines = open("variables1.dat", "r").readlines()

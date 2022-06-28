@@ -245,40 +245,6 @@ class DeepONet(NN):
         return outputs
 
 
-class PIDeepONet(DeepONet):
-    def __init__(
-        self,
-        layer_sizes_branch,
-        layer_sizes_trunk,
-        activation,
-        kernel_initializer,
-        regularization=None,
-        use_bias=True,
-        stacked=False,
-        trainable_branch=True,
-        trainable_trunk=True,
-    ):
-        super().__init__(
-            layer_sizes_branch,
-            layer_sizes_trunk,
-            activation,
-            kernel_initializer,
-            regularization=regularization,
-            use_bias=use_bias,
-            stacked=stacked,
-            trainable_branch=trainable_branch,
-            trainable_trunk=trainable_trunk,
-        )
-
-    def _feed_dict_inputs(self, inputs):
-        return dict(zip(self.inputs, inputs))
-
-    def build(self):
-        super().build()
-        self.X_func_loc = tf.placeholder(config.real(tf), [None, 1])
-        self._inputs.append(self.X_func_loc)
-
-
 class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 

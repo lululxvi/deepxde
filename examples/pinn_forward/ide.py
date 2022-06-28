@@ -34,7 +34,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001)
-model.train(epochs=10000)
+model.train(iterations=10000)
 
 X = geom.uniform_points(100, True)
 y_true = func(X)

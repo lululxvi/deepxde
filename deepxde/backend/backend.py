@@ -92,6 +92,33 @@ def ndim(input_tensor):
     """
 
 
+def transpose(tensor, axes=None):
+    """Reverse or permute the axes of a tensor; returns the modified array.
+
+    For a tensor with two axes, transpose gives the matrix transpose.
+
+    Args:
+        tensor (Tensor): Input tensor.
+        axes (tuple of ints): A permutation of the dimensions.
+
+    Returns:
+        A tensor with its axes permuted. A view is returned whenever possible.
+    """
+
+
+def reshape(tensor, shape):
+    """Gives a new shape to a tensor without changing its data.
+
+    Args:
+        tensor (Tensor): The tensor to be reshaped.
+        shape (tuple of ints): The new shape should be compatible with the original
+            shape.
+
+    Returns:
+        Reshaped tensor. This will be a new view object if possible.
+    """
+
+
 def Variable(initial_value, dtype=None):
     """Return a trainable variable.
 

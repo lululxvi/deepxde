@@ -72,7 +72,7 @@ net.apply_output_transform(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
-losshistory, train_state = model.train(epochs=10000)
+losshistory, train_state = model.train(iterations=10000)
 dde.saveplot(losshistory, train_state, issave=False, isplot=True)
 
 X = geomtime.random_points(1000)

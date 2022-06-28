@@ -52,6 +52,16 @@ def ndim(input_tensor):
     return input_tensor.dim()
 
 
+def transpose(tensor, axes=None):
+    if axes is None:
+        axes = tuple(range(tensor.dim())[::-1])
+    return torch.permute(tensor, axes)
+
+
+def reshape(tensor, shape):
+    return torch.reshape(tensor, shape)
+
+
 def Variable(initial_value, dtype=None):
     return torch.tensor(initial_value, dtype=dtype, requires_grad=True)
 
