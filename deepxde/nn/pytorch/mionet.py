@@ -57,7 +57,7 @@ class MIONetCartesianProd(NN):
         # Trunk net to encode the domain of the output function
         if self._input_transform is not None:
             y_loc = self._input_transform(x_loc)
-        y_loc = self.activation_trunk(self.trunk(x_loc))
+        y_loc = self.trunk(x_loc)
         # Dot product
         if y_func1.shape[-1] != y_func2.shape[-1]:
             raise AssertionError(
