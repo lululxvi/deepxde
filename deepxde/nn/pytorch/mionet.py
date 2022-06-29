@@ -60,7 +60,7 @@ class MIONetCartesianProd(NN):
         if self._input_transform is not None:
             y_loc = self._input_transform(x_loc)
         y_loc = self.trunk(x_loc)
-        if self.trunk_last_activation:
+        if self.trunk_activation:
             y_loc = self.activation_trunk(y_loc)
         # Dot product
         if y_func1.shape[-1] != y_func2.shape[-1]:
@@ -149,7 +149,7 @@ class PODMIONet(NN):
             y = torch.einsum("bi,ni->bn", y_func, self.pod_basis)
         else:
             y_loc = self.trunk(x_loc)
-            if self.trunk_last_activation:
+            if self.trunk_activation:
                 y_loc = self.activation_trunk(y_loc)
             y = torch.einsum("bi,ni->bn", y_func, torch.cat((self.pod_basis, y_loc), 1))
             y += self.b
