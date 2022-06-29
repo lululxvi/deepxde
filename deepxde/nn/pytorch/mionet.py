@@ -16,7 +16,7 @@ class MIONetCartesianProd(NN):
         activation,
         kernel_initializer,
         regularization=None,
-        trunk_activation=False,
+        trunk_last_activation=False,
     ):
         super().__init__()
 
@@ -47,7 +47,7 @@ class MIONetCartesianProd(NN):
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
-        self.trunk_activation = trunk_activation
+        self.trunk_last_activation = trunk_last_activation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
@@ -59,10 +59,9 @@ class MIONetCartesianProd(NN):
         # Trunk net to encode the domain of the output function
         if self._input_transform is not None:
             y_loc = self._input_transform(x_loc)
+        y_loc = self.trunk(x_loc)
         if self.trunk_activation:
-            y_loc = self.activation_trunk(self.trunk(x_loc))
-        else:
-            y_loc = self.trunk(x_loc)
+            y_loc = self.activation_trunk(y_loc)
         # Dot product
         if y_func1.shape[-1] != y_func2.shape[-1]:
             raise AssertionError(
@@ -94,7 +93,7 @@ class PODMIONet(NN):
         kernel_initializer,
         layer_sizes_trunk=None,
         regularization=None,
-        trunk_activaiton=False,
+        trunk_last_activation=False,
     ):
         super().__init__()
 
@@ -130,7 +129,7 @@ class PODMIONet(NN):
             )
             self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
-        self.trunk_activation = trunk_activaiton
+        self.trunk_last_activation = trunk_last_activation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
