@@ -5,13 +5,13 @@ Problem setup
 --------------
 We will solve a Poisson equation:
 
-.. math:: -\Delta u = \sum_{i=1}^4 [\frac{\sin(ix)}{i}] + 8\sin(8x), \qquad x \in [0, \pi]
+.. math:: -\Delta u = \sum_{i=1}^4 i\sin(ix) + 8\sin(8x), \qquad x \in [0, \pi]
 
 with the Dirichlet boundary conditions
 
 .. math:: u(x = 0) = 0, u(x = \pi) = \pi.
 
-The exact solution is :math:`u(x) = x + \sum_{i=1}^4 [\frac{\sin(ix)}{i}] + \frac{\sin(8x)}{8}`
+The exact solution is :math:`u(x) = x + \sum_{i=1}^4 \frac{\sin(ix)}{i} + \frac{\sin(8x)}{8}`.
 
 Implementation
 --------------
@@ -56,7 +56,7 @@ Now, we have specified the geometry and PDE residual. We then define the PDE pro
 
     data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=400)
     
-The number 64 is the number of training residual points sampled inside the domain. The argument solution=func is the reference solution to compute the error of our solution, and can be ignored if we don’t have a reference solution. We use 400 residual points for testing the PDE residual.
+The number 64 is the number of training residual points sampled inside the domain. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don’t have a reference solution. We use 400 residual points for testing the PDE residual.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50.
 
