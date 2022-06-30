@@ -26,16 +26,15 @@ geom = dde.geometry.Interval(-1, 1)
 
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
 ob_x, ob_u = gen_traindata(100000)
-observe_u = dde.icbc.BatchPointSetBC(ob_x, ob_u, batch_size=100, component=0)
+observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0, batch_size=100)
 batch_resampler = dde.callbacks.BatchResampler()
 
 data = dde.data.PDE(
     geom,
     pde,
     [bc, observe_u],
-    num_domain=200,
+    num_domain=300,
     num_boundary=2,
-    anchors=ob_x,
     num_test=1000,
 )
 
