@@ -1,17 +1,17 @@
 Poisson equation in 1D with hard boundary conditions
 ================
 
-Problem Setup
+Problem setup
 --------------
 We will solve a Poisson equation:
 
 .. math:: -\Delta u = \sum{i=1}^{4}[i\sin(ix)] + 8\sin(8x), \qquad x \in [0, \pi]
 
-with the Dirichlet boundary conditions.
+with the Dirichlet boundary conditions
 
-.. math:: u(x = 0) = 0, u(x = \pi) = \pi
+.. math:: u(x = 0) = 0, u(x = \pi) = \pi.
 
-The exact solution is :math:`u(x) = x + \sum{i=1}^{4}[\frac{\sin(ix)}{i}] + \frac{\sin(8x)}{8}`
+The exact solution is :math:`u(x) = x + \sum_{i=1}^4 [\frac{\sin(ix)}{i}] + \frac{\sin(8x)}{8}`
 
 Implementation
 --------------
@@ -98,7 +98,7 @@ Finally, we save and plot the best trained result and the loss history of the mo
 
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
     
-Complete Code
+Complete code
 --------------
 .. literalinclude:: ../../../examples/pinn_forward/Poisson_Dirichlet_1d_exactBC.py
-  :language: python
+  :language: python.
