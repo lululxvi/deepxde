@@ -54,9 +54,9 @@ Now, we have specified the geometry and PDE residual. We then define the PDE pro
 
 .. code-block:: python
 
-    data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=250)
+    data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=400)
     
-The number 64 is the number of training residual points sampled inside the domain. The argument solution=func is the reference solution to compute the error of our solution, and can be ignored if we don’t have a reference solution. We use 250 residual points for testing the PDE residual.
+The number 64 is the number of training residual points sampled inside the domain. The argument solution=func is the reference solution to compute the error of our solution, and can be ignored if we don’t have a reference solution. We use 400 residual points for testing the PDE residual.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50.
 
@@ -67,7 +67,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = 'Glorot uniform'
     net = dde.nn.FNN(layer_size, activation, initializer)
     
-Next, instead of using a loss function for the Dirichlet boundary conditions, we enforce them by defining the transformation of the output and applying it to the network. When :math:`x=0`, the boundary condition :math:`u(x = 0) = 0` is satisfied. When :math:`x=\pi`, the boundary condition :math:`u(x = \pi) = \pi` is satisfied. 
+Next, we enforce a loss term for the Dirichlet bounadry conditions by defining the transformation of the output and applying it to the network. When :math:`x=0`, the boundary condition :math:`u(x = 0) = 0` is satisfied. When :math:`x=\pi`, the boundary condition :math:`u(x = \pi) = \pi` is satisfied. 
 This demonstrates that both ends of the boundary constraint are hard conditions.
 
 .. code-block:: python
