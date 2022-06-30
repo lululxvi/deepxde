@@ -17,7 +17,7 @@ def func(x):
     summation = sum([np.sin(i * x) / i for i in range(1, 5)])
     return x + summation + np.sin(8 * x) / 8
 
-data = dde.data.PDE(geom, pde, [], 64, 8, solution=func, num_test=250)
+data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=250)
 
 layer_size = [1] + [50] * 3 + [1]
 activation = 'tanh'
@@ -32,6 +32,6 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-4, decay = ("inverse time", 1000, 0.3), metrics=["l2 relative error"])
 
-losshistory, train_state = model.train(epochs=30000)
+losshistory, train_state = model.train(iterations=30000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
