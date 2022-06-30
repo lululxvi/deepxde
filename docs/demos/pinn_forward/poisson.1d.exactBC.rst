@@ -5,7 +5,7 @@ Problem setup
 --------------
 We will solve a Poisson equation:
 
-.. math:: -\Delta u = \sum{i=1}^{4}[i\sin(ix)] + 8\sin(8x), \qquad x \in [0, \pi]
+.. math:: -\Delta u = \sum_{i=1}^4 [\frac{\sin(ix)}{i}] + 8\sin(8x), \qquad x \in [0, \pi]
 
 with the Dirichlet boundary conditions
 
