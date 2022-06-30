@@ -17,7 +17,7 @@ def func(x):
     summation = sum([np.sin(i * x) / i for i in range(1, 5)])
     return x + summation + np.sin(8 * x) / 8
 
-data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=250)
+data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=400)
 
 layer_size = [1] + [50] * 3 + [1]
 activation = 'tanh'
