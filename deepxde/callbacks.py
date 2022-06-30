@@ -502,7 +502,7 @@ class PDEResidualResampler(Callback):
         if self.epochs_since_last_resample < self.period:
             return
         self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points()
+        self.model.data.resample_pde_points()
 
         if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
@@ -517,5 +517,4 @@ class BatchResampler(Callback):
     each step."""
 
     def on_batch_end(self):
-        self.model.data.train_x_bc = None
         self.model.data.resample_train_points()
