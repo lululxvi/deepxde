@@ -67,8 +67,7 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = 'Glorot uniform'
     net = dde.nn.FNN(layer_size, activation, initializer)
     
-Next, we enforce a loss term for the Dirichlet bounadry conditions by defining the transformation of the output and applying it to the network. When :math:`x=0`, the boundary condition :math:`u(x = 0) = 0` is satisfied. When :math:`x=\pi`, the boundary condition :math:`u(x = \pi) = \pi` is satisfied. 
-This demonstrates that both ends of the boundary constraint are hard conditions.
+Next, we define the transformation of the output and apply it to the network. When :math:`x=0`, the boundary condition :math:`u(x = 0) = 0` is satisfied. When :math:`x=\pi`, the boundary condition :math:`u(x = \pi) = \pi` is satisfied. This demonstrates that both ends of the boundary constraint are hard conditions.
 
 .. code-block:: python
 
