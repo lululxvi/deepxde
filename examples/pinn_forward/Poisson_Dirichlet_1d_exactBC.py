@@ -2,6 +2,7 @@
 Implementation of the 1D Poisson equation (Section 3.2.1) in paper https://arxiv.org/abs/2111.02801.
 """
 
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 from deepxde.backend import tf
 import numpy as np
