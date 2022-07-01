@@ -53,18 +53,18 @@ class PDE(Data):
             error= dde.metrics.l2_relative_error(y_true, y_pred)
 
     Attributes:
-        train_x_pde: A Numpy array of points for PDE training. `train_x_pde` is
-            unordered, and does not have duplication. If there is a PDE, then
-            `train_x_pde` is used as the training points of the PDE.
+        train_x_all: A Numpy array of points for PDE training. `train_x_all` is
+            unordered, and does not have duplication. If there is PDE, then
+            `train_x_all` is used as the training points of PDE.
         train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
-            constructed from `train_x_pde` at the first step of training, by default it
-            won't be updated when `train_x_pde` changes. To update `train_x_bc`, set it
+            constructed from `train_x_all` at the first step of training, by default it
+            won't be updated when `train_x_all` changes. To update `train_x_bc`, set it
             to `None` and call `bc_points`, and then update the loss function by
             ``model.compile()``.
         num_bcs (list): `num_bcs[i]` is the number of points for `bcs[i]`.
         train_x: A Numpy array of the points fed into the network for training.
             `train_x` is ordered from BC points (`train_x_bc`) to PDE points
-            (`train_x_pde`), and may have duplicate points.
+            (`train_x_all`), and may have duplicate points.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
         test_x: A Numpy array of the points fed into the network for testing, ordered
             from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
@@ -113,7 +113,9 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
-        self.train_x_pde = None
+        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde 
+        # explicitly.
+        self.train_x_all = None
         self.train_x_bc = None
         self.num_bcs = None
 
@@ -167,10 +169,10 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        self.train_x_pde = self.pde_points()
+        self.train_x_all = self.train_points()
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_pde))
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
@@ -193,13 +195,13 @@ class PDE(Data):
 
     def resample_train_points(self):
         """Resample the training points for both PDE and BC."""
-        self.train_x_pde, self.train_x_bc = None, None
+        self.train_x_all, self.train_x_bc = None, None
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
     def resample_pde_points(self):
         """Resample the training points for PDEs. The BC points will not be updated."""
-        self.train_x_pde = None
+        self.train_x_all = None
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
@@ -216,10 +218,10 @@ class PDE(Data):
             self.anchors = anchors
         else:
             self.anchors = np.vstack((anchors, self.anchors))
-        self.train_x_pde = np.vstack((anchors, self.train_x_pde))
+        self.train_x_all = np.vstack((anchors, self.train_x_all))
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_pde))
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
@@ -229,18 +231,18 @@ class PDE(Data):
     def replace_with_anchors(self, anchors):
         """Replace the current PDE training points with anchors. The BC points will not be changed."""
         self.anchors = anchors.astype(config.real(np))
-        self.train_x_pde = self.anchors
+        self.train_x_all = self.anchors
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_pde))
+            self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
                 config.real(np)
             )
 
-    @run_if_all_none("train_x_pde")
-    def pde_points(self):
+    @run_if_all_none("train_x_all")
+    def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
             if self.train_distribution == "uniform":
@@ -265,17 +267,17 @@ class PDE(Data):
                 return not np.any([np.allclose(x, y) for y in self.exclusions])
 
             X = np.array(list(filter(is_not_excluded, X)))
-        self.train_x_pde = X
+        self.train_x_all = X
         return X
 
     @run_if_all_none("train_x_bc")
     def bc_points(self):
-        x_bcs = [bc.collocation_points(self.train_x_pde) for bc in self.bcs]
+        x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
         self.train_x_bc = (
             np.vstack(x_bcs)
             if x_bcs
-            else np.empty([0, self.train_x_pde.shape[-1]], dtype=config.real(np))
+            else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
         )
         return self.train_x_bc
 
@@ -324,8 +326,8 @@ class TimePDE(PDE):
             auxiliary_var_function=auxiliary_var_function,
         )
 
-    def pde_points(self):
-        X = super().pde_points()
+    def train_points(self):
+        X = super().train_points()
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
@@ -340,5 +342,5 @@ class TimePDE(PDE):
 
                 tmp = np.array(list(filter(is_not_excluded, tmp)))
             X = np.vstack((tmp, X))
-        self.train_x_pde = X
+        self.train_x_all = X
         return X
