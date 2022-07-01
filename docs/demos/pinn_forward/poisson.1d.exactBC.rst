@@ -100,4 +100,4 @@ Finally, we save and plot the best trained result and the loss history of the mo
 Complete code
 --------------
 .. literalinclude:: ../../../examples/pinn_forward/Poisson_Dirichlet_1d_exactBC.py
-  :language: python.
+  :language: python
