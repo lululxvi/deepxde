@@ -513,8 +513,17 @@ class PDEResidualResampler(Callback):
 
 
 class BatchResampler(Callback):
-    """Resample the training points for both PDE and boundary condition losses after
-    each step."""
+    """Resample the training points for both PDE and boundary condition losses every 
+    given period."""
 
-    def on_batch_end(self):
+    def __init__(self, period=100):
+        super().__init__()
+        self.period = period
+        self.epochs_since_last_resample = 0
+
+    def on_epoch_end(self):
+        self.epochs_since_last_resample += 1
+        if self.epochs_since_last_resample < self.period:
+            return
+        self.epochs_since_last_resample = 0
         self.model.data.resample_train_points()
