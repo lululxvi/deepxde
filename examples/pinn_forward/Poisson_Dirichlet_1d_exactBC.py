@@ -4,8 +4,8 @@ Implementation of the 1D Poisson equation (Section 3.2.1) in paper https://arxiv
 
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
-from deepxde.backend import tf
 import numpy as np
+from deepxde.backend import tf
 
 geom = dde.geometry.Interval(0, np.pi)
 
