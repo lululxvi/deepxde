@@ -23,7 +23,7 @@ Time-independent PDEs
    pinn_forward/poisson.1d.neumanndirichlet
    pinn_forward/poisson.1d.dirichletrobin
    pinn_forward/poisson.1d.dirichletperiodic
-   pinn_forward/poisson.1d.exactBC
+   pinn_forward/poisson.1d.exactbc
    pinn_forward/poisson.1d.multiscaleFourier
    pinn_forward/poisson.Lshape
    pinn_forward/laplace.disk
@@ -39,7 +39,7 @@ Time-dependent PDEs
    pinn_forward/burgers
    pinn_forward/heat
    pinn_forward/diffusion.1d
-   pinn_forward/diffusion.1d.exactbc
+   pinn_forward/diffusion.1d.exactBC
    pinn_forward/diffusion.1d.resample
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
