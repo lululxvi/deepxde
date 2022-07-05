@@ -17,8 +17,8 @@ from functools import wraps
 import numpy as np
 
 from .. import backend as bkd
-from .. import data
 from .. import config
+from .. import data
 from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
