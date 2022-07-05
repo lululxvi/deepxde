@@ -7,7 +7,7 @@ Problem setup
 The purposes of this tutorial are the following: 
 
 * Using a manufactured solution in order to compare the PINNs to a reference solution for different boundary conditions
-* Definying analytic Neumann boundary conditions
+* Defining analytic Neumann boundary conditions
 * Working on a domain with a hole and plot the solution
 
 The computational domain :math:`\Omega` is a :math:`dim_x = 1`-length square to which we remove a :math:`R = 1/4` radius circle.
@@ -55,7 +55,7 @@ First, the DeepXDE, Numpy and Matplotlib modules are imported:
   import numpy as np
   import matplotlib.pyplot as plt
 
-We begin by definying the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function. Moreover, we import the cosine function.
+We begin by defining the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function. Moreover, we import the cosine function.
 
 .. code-block:: python
 
