@@ -52,8 +52,8 @@ First, the DeepXDE, Numpy and Matplotlib modules are imported:
 .. code-block:: python
 
   import deepxde as dde
-  import numpy as np
   import matplotlib.pyplot as plt
+  import numpy as np
 
 We begin by defining the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function. Moreover, we import the cosine function.
 
@@ -69,20 +69,22 @@ We begin by defining the general parameters for the problem. We use a collocatio
   weight_inner = 10
   weight_outer = 100
   epochs = 5000
-  parameters = [1e-3, 3, 350, "sin"]
+  learning_rate = 1e-3
+  num_dense_layers = 3
+  num_dense_nodes = 350
+  activation = "sin"  
 
   k0 = 2 * np.pi * n
   wave_len = 1 / n
 
   # Define sine function
   if dde.backend.backend_name == "pytorch":
-      sin = dde.backend.pytorch.sin
-  else:
+      import torch
+      sin = torch.sin
+  elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
       from deepxde.backend import tf
 
       sin = tf.sin
-
-  learning_rate, num_dense_layers, num_dense_nodes, activation = parameters
 
 Next, we express the PDE residual of the Helmholtz equation:
 
@@ -105,11 +107,11 @@ We introduce the exact solution and the inner (resp. outer) boundary.
       return np.sin(k0 * x[:, 0:1]) * np.sin(k0 * x[:, 1:2])
 
 
-  def boundary_outer(_, on_boundary):
+  def boundary_outer(x, on_boundary):
       return on_boundary and outer.on_boundary(_)
 
 
-  def boundary_inner(_, on_boundary):
+  def boundary_inner(x, on_boundary):
       return on_boundary and inner.on_boundary(_)
 
 
@@ -138,7 +140,7 @@ Now, we define the geometry and evaluate the number of training and test random 
   outer = dde.geometry.Rectangle([-dim_x / 2.0, -dim_x / 2.0], [dim_x / 2.0, dim_x / 2.0])
   inner = dde.geometry.Disk([0, 0], R)
 
-  geom = dde.geometry.CSGDifference(outer, inner)
+  geom = outer - inner
 
   hx_train = wave_len / precision_train
   nx_train = int(1 / hx_train)

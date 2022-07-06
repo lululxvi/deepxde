@@ -1,7 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 # General parameters
 n = 1
@@ -14,20 +15,23 @@ precision_test = 30
 weight_inner = 10
 weight_outer = 100
 epochs = 5000
-parameters = [1e-3, 3, 350, "sin"]
+learning_rate = 1e-3
+num_dense_layers = 3
+num_dense_nodes = 350
+activation = "sin"
 
 k0 = 2 * np.pi * n
 wave_len = 1 / n
 
 # Define sine function
 if dde.backend.backend_name == "pytorch":
-    sin = dde.backend.pytorch.sin
-else:
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
     sin = tf.sin
-
-learning_rate, num_dense_layers, num_dense_nodes, activation = parameters
 
 
 def pde(x, y):
@@ -64,15 +68,15 @@ outer = dde.geometry.Rectangle([-dim_x / 2.0, -dim_x / 2.0], [dim_x / 2.0, dim_x
 inner = dde.geometry.Disk([0, 0], R)
 
 
-def boundary_outer(_, on_boundary):
+def boundary_outer(x, on_boundary):
     return on_boundary and outer.on_boundary(_)
 
 
-def boundary_inner(_, on_boundary):
+def boundary_inner(x, on_boundary):
     return on_boundary and inner.on_boundary(_)
 
 
-geom = dde.geometry.CSGDifference(outer, inner)
+geom = outer - inner
 
 hx_train = wave_len / precision_train
 nx_train = int(1 / hx_train)
