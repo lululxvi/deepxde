@@ -6,15 +6,15 @@ import numpy as np
 
 # General parameters
 n = 1
-dim_x = 1
-R = 1 / 4.0
+length = 1
+R = 1 / 4
 
 precision_train = 15
 precision_test = 30
 
 weight_inner = 10
 weight_outer = 100
-epochs = 5000
+iterations = 5000
 learning_rate = 1e-3
 num_dense_layers = 3
 num_dense_nodes = 350
@@ -35,9 +35,12 @@ elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
 
 
 def pde(x, y):
+
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     dy_yy = dde.grad.hessian(y, x, i=1, j=1)
+
     f = k0**2 * sin(k0 * x[:, 0:1]) * sin(k0 * x[:, 1:2])
+
     return -dy_xx - dy_yy - k0**2 * y - f
 
 
@@ -59,14 +62,11 @@ def neumann(x):
 
     normal = -inner.boundary_normal(x)
     normal = np.array([normal]).T
-    if dde.backend.backend_name == "pytorch":
-        result = np.sum(grad * normal, axis=0)
-    elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-        result = tf.math.reduce_sum(grad * normal, axis=0)
+    result = np.sum(grad * normal, axis=0)
     return result
 
 
-outer = dde.geometry.Rectangle([-dim_x / 2.0, -dim_x / 2.0], [dim_x / 2.0, dim_x / 2.0])
+outer = dde.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
 inner = dde.geometry.Disk([0, 0], R)
 
 
@@ -110,7 +110,7 @@ model.compile(
     "adam", lr=learning_rate, metrics=["l2 relative error"], loss_weights=loss_weights
 )
 
-losshistory, train_state = model.train(epochs=epochs)
+losshistory, train_state = model.train(iterations=iterations)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # Plot the solution over a square grid with 100 points per wavelength in each direction
@@ -118,7 +118,7 @@ Nx = int(np.ceil(wave_len * 100))
 Ny = Nx
 
 # Grid points
-xmin, xmax, ymin, ymax = [-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0]
+xmin, xmax, ymin, ymax = [-length / 2, length / 2, -length / 2, length / 2]
 plot_grid = np.mgrid[xmin : xmax : Nx * 1j, ymin : ymax : Ny * 1j]
 points = np.vstack(
     (plot_grid[0].ravel(), plot_grid[1].ravel(), np.zeros(plot_grid[0].size))
@@ -145,7 +145,7 @@ matrix = np.fliplr(u).T
 matrix = np.ma.masked_where(ide, matrix)
 pcm = ax1.imshow(
     matrix,
-    extent=[-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0],
+    extent=[-length / 2, length / 2, -length / 2, length / 2],
     cmap=plt.cm.get_cmap("seismic"),
     interpolation="spline16",
     label="PINN",
@@ -157,7 +157,7 @@ matrix = np.fliplr(u_exact).T
 matrix = np.ma.masked_where(ide, matrix)
 pcm = ax2.imshow(
     matrix,
-    extent=[-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0],
+    extent=[-length / 2, length / 2, -length / 2, length / 2],
     cmap=plt.cm.get_cmap("seismic"),
     interpolation="spline16",
     label="Exact",

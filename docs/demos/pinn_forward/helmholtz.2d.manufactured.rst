@@ -60,15 +60,15 @@ We begin by defining the general parameters for the problem. We use a collocatio
 .. code-block:: python
 
   n = 1
-  dim_x = 1
-  R = 1/4.
+  length = 1
+  R = 1 / 4
 
   precision_train = 15
   precision_test = 30
 
   weight_inner = 10
   weight_outer = 100
-  epochs = 5000
+  iterations = 5000
   learning_rate = 1e-3
   num_dense_layers = 3
   num_dense_nodes = 350
@@ -129,10 +129,7 @@ We set the Neumann boundary conditions. The ``reduce_sum`` operation allows to e
 
     normal = -inner.boundary_normal(x)
     normal = np.array([normal]).T
-    if dde.backend.backend_name == "pytorch":
-        result = np.sum(grad * normal, axis=0)
-    elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:    
-        result = tf.math.reduce_sum(grad * normal, axis=0)
+    result = np.sum(grad * normal, axis=0)
     return result
     
 Now, we define the geometry and evaluate the number of training and test random collocation points. We define the boundary conditions.
@@ -184,7 +181,7 @@ We compile the model and train it for 5000 iterations with Adam optimizer:
     "adam", lr=learning_rate, metrics=["l2 relative error"], loss_weights=loss_weights
   )
   
-  losshistory, train_state = model.train(epochs=epochs)
+  losshistory, train_state = model.train(iterations=iterations)
   
 Now, we save the model, and plot the PINN and the solution over a square grid with 100 points per wavelength in each direction. We use masks to remove the points lying inside the :math:`R`-radius circle:
 
@@ -197,7 +194,7 @@ Now, we save the model, and plot the PINN and the solution over a square grid wi
   Ny = Nx
 
   # Grid points
-  xmin, xmax, ymin, ymax = [-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0]
+  xmin, xmax, ymin, ymax = [-length / 2, length / 2, -length / 2, length / 2]
   plot_grid = np.mgrid[xmin : xmax : Nx * 1j, ymin : ymax : Ny * 1j]
   points = np.vstack(
       (plot_grid[0].ravel(), plot_grid[1].ravel(), np.zeros(plot_grid[0].size))
@@ -224,7 +221,7 @@ Now, we save the model, and plot the PINN and the solution over a square grid wi
   matrix = np.ma.masked_where(ide, matrix)
   pcm = ax1.imshow(
       matrix,
-      extent=[-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0],
+      extent=[-length / 2, length / 2, -length / 2, length / 2],
       cmap=plt.cm.get_cmap("seismic"),
       interpolation="spline16",
       label="PINN",
@@ -236,7 +233,7 @@ Now, we save the model, and plot the PINN and the solution over a square grid wi
   matrix = np.ma.masked_where(ide, matrix)
   pcm = ax2.imshow(
       matrix,
-      extent=[-dim_x / 2.0, dim_x / 2.0, -dim_x / 2.0, dim_x / 2.0],
+      extent=[-length / 2, length / 2, -length / 2, length / 2],
       cmap=plt.cm.get_cmap("seismic"),
       interpolation="spline16",
       label="Exact",
