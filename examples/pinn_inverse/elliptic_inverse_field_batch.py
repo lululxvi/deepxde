@@ -27,7 +27,7 @@ geom = dde.geometry.Interval(-1, 1)
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
 ob_x, ob_u = gen_traindata(10000)
 observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0, batch_size=100)
-pde_resampler = dde.callbacks.PDEResampler()
+pde_resampler = dde.callbacks.PDEPointResampler()
 
 data = dde.data.PDE(
     geom,

@@ -484,11 +484,11 @@ class MovieDumper(Callback):
                 )
 
 
-class PDEResampler(Callback):
+class PDEPointResampler(Callback):
     """Resample the training points for PDE and/or BC losses every given period.
 
     Args:
-        period: How often to resample the training points (default is 100 epochs).
+        period: How often to resample the training points (default is 100 iterations).
         pde_points: If True, resample the training points for PDE losses.
         bc_points: If True, resample the training points for BC losses.
     """
