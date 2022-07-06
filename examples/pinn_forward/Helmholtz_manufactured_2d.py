@@ -69,11 +69,11 @@ inner = dde.geometry.Disk([0, 0], R)
 
 
 def boundary_outer(x, on_boundary):
-    return on_boundary and outer.on_boundary(_)
+    return on_boundary and outer.on_boundary(x)
 
 
 def boundary_inner(x, on_boundary):
-    return on_boundary and inner.on_boundary(_)
+    return on_boundary and inner.on_boundary(x)
 
 
 geom = outer - inner

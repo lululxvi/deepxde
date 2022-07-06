@@ -108,11 +108,11 @@ We introduce the exact solution and the inner (resp. outer) boundary.
 
 
   def boundary_outer(x, on_boundary):
-      return on_boundary and outer.on_boundary(_)
+      return on_boundary and outer.on_boundary(x)
 
 
   def boundary_inner(x, on_boundary):
-      return on_boundary and inner.on_boundary(_)
+      return on_boundary and inner.on_boundary(x)
 
 
 We set the Neumann boundary conditions. The ``reduce_sum`` operation allows to evaluate the inner product over all collocation points. We use the ``normal = -inner.boundary_normal(x)`` in order to obtain normal vectors pointed toward the exterior of :math:`\Omega`.
