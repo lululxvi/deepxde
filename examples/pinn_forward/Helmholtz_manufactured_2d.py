@@ -59,8 +59,10 @@ def neumann(x):
 
     normal = -inner.boundary_normal(x)
     normal = np.array([normal]).T
-
-    result = tf.math.reduce_sum(grad * normal, axis=0)
+    if dde.backend.backend_name == "pytorch":
+        result = np.sum(grad * normal, axis=0)
+    elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        result = tf.math.reduce_sum(grad * normal, axis=0)
     return result
 
 
