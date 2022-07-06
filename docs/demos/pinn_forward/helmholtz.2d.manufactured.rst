@@ -129,10 +129,12 @@ We set the Neumann boundary conditions. The ``reduce_sum`` operation allows to e
 
     normal = -inner.boundary_normal(x)
     normal = np.array([normal]).T
-
-    result = tf.math.reduce_sum(grad * normal, axis=0)
+    if dde.backend.backend_name == "pytorch":
+        result = np.sum(grad * normal, axis=0)
+    elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:    
+        result = tf.math.reduce_sum(grad * normal, axis=0)
     return result
-
+    
 Now, we define the geometry and evaluate the number of training and test random collocation points. We define the boundary conditions.
 
 .. code-block:: python
