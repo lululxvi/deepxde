@@ -194,7 +194,6 @@ class PointSetBC:
 
     def collocation_points(self, X):
         if self.batch_size is not None:
-            print('resampling batch')
             self.batch_indices = self.batch_sampler.get_next(self.batch_size)
             return self.points[self.batch_indices]
         return self.points

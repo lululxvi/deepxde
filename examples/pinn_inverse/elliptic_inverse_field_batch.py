@@ -25,15 +25,15 @@ def sol(x):
 geom = dde.geometry.Interval(-1, 1)
 
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
-ob_x, ob_u = gen_traindata(100000)
+ob_x, ob_u = gen_traindata(10000)
 observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0, batch_size=100)
-batch_resampler = dde.callbacks.BatchResampler()
+pde_resampler = dde.callbacks.PDEResampler()
 
 data = dde.data.PDE(
     geom,
     pde,
     [bc, observe_u],
-    num_domain=300,
+    num_domain=200,
     num_boundary=2,
     num_test=1000,
 )
@@ -42,7 +42,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform"
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
-losshistory, train_state = model.train(epochs=20000, callbacks=[batch_resampler])
+losshistory, train_state = model.train(epochs=20000, callbacks=[pde_resampler])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # view results

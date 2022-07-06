@@ -484,12 +484,20 @@ class MovieDumper(Callback):
                 )
 
 
-class PDEResidualResampler(Callback):
-    """Resample the training points for PDE losses every given period."""
+class PDEResampler(Callback):
+    """Resample the training points for PDE and/or BC losses every given period.
 
-    def __init__(self, period=100):
+    Args:
+        period: How often to resample the training points (default is 100 epochs).
+        pde_points: If True, resample the training points for PDE losses.
+        bc_points: If True, resample the training points for BC losses.
+    """
+
+    def __init__(self, period=100, pde_points=True, bc_points=True):
         super().__init__()
         self.period = period
+        self.pde_points = pde_points
+        self.bc_points = bc_points
 
         self.num_bcs_initial = None
         self.epochs_since_last_resample = 0
@@ -502,7 +510,7 @@ class PDEResidualResampler(Callback):
         if self.epochs_since_last_resample < self.period:
             return
         self.epochs_since_last_resample = 0
-        self.model.data.resample_pde_points()
+        self.model.data.resample_train_points(self.pde_points, self.bc_points)
 
         if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
@@ -510,20 +518,3 @@ class PDEResidualResampler(Callback):
             raise ValueError(
                 "`num_bcs` changed! Please update the loss function by `model.compile`."
             )
-
-
-class BatchResampler(Callback):
-    """Resample the training points for both PDE and boundary condition losses every 
-    given period."""
-
-    def __init__(self, period=100):
-        super().__init__()
-        self.period = period
-        self.epochs_since_last_resample = 0
-
-    def on_epoch_end(self):
-        self.epochs_since_last_resample += 1
-        if self.epochs_since_last_resample < self.period:
-            return
-        self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points()

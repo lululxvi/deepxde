@@ -193,21 +193,12 @@ class PDE(Data):
             )
         return self.test_x, self.test_y, self.test_aux_vars
 
-    def resample_train_points(self):
-        """Resample the training points for both PDE and BC."""
-        self.train_x_all, self.train_x_bc = None, None
-        self.train_x, self.train_y, self.train_aux_vars = None, None, None
-        self.train_next_batch()
-
-    def resample_pde_points(self):
-        """Resample the training points for PDEs. The BC points will not be updated."""
-        self.train_x_all = None
-        self.train_x, self.train_y, self.train_aux_vars = None, None, None
-        self.train_next_batch()
-
-    def resample_bc_points(self):
-        """Resample the training points for BCs. The PDE points will not be updated."""
-        self.train_x_bc = None
+    def resample_train_points(self, pde_points=True, bc_points=True):
+        """Resample the training points for PDE and/or BC."""
+        if pde_points:
+            self.train_x_all = None
+        if bc_points:
+            self.train_x_bc = None
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
@@ -326,6 +317,7 @@ class TimePDE(PDE):
             auxiliary_var_function=auxiliary_var_function,
         )
 
+    @run_if_all_none("train_x_all")
     def train_points(self):
         X = super().train_points()
         if self.num_initial > 0:
