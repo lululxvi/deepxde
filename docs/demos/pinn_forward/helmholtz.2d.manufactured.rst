@@ -94,7 +94,7 @@ Next, we express the PDE residual of the Helmholtz equation:
       dy_xx = dde.grad.hessian(y, x, i=0, j=0)
       dy_yy = dde.grad.hessian(y, x, i=1, j=1)
       f = k0**2 * sin(k0 * x[:, 0:1]) * sin(k0 * x[:, 1:2])
-      return -dy_xx - dy_yy - k0**2 * y - f
+      return -dy_xx - dy_yy - k0 ** 2 * y - f
 
 
 The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`y`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
