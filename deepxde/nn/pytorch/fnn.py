@@ -66,7 +66,7 @@ class PFNN(NN):
         n_output = layer_sizes[-1]
 
         def make_linear(n_input, n_output):
-            linear = torch.nn.Linear(n_input, n_output, config.real(torch))
+            linear = torch.nn.Linear(n_input, n_output, dtype=config.real(torch))
             initializer(linear.weight)
             initializer_zero(linear.bias)
             return linear
