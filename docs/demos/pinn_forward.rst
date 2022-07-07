@@ -28,7 +28,7 @@ Time-independent PDEs
    pinn_forward/laplace.disk
    pinn_forward/eulerbeam
    pinn_forward/helmholtz.2d.dirichlet
-   pinn_forward/helmholtz.2d.manufactured.rst
+   pinn_forward/helmholtz.2d.neumann.hole.rst
 
 Time-dependent PDEs
 -------------------
