@@ -9,11 +9,11 @@ The purposes of this tutorial are the following:
 * Defining Neumann boundary conditions
 * Working on a domain with a hole
 
-The computational domain :math:`\Omega` is a :math:`L = 1`-length square to which we remove a :math:`R = 1/4` radius circle.
+The computational domain :math:`\Omega` is a :math:`L`-length square, :math:`L=1`, to which we remove a :math:`R = 1/4` radius circle.
 
 For a wavenumber :math:`k_0 = 2 \pi n` with :math:`n = 1`, we solve a Helmholtz equation:
 
-.. math:: - u_{xx}-u_{yy} - k_0^2 u = f, \qquad  \Omega 
+.. math:: - u_{xx}-u_{yy} - k_0^2 u = f \qquad  \text{in} \qquad \Omega 
 
 with a source term :math:`f = k_0^2 \sin(k_0 x)\sin(k_0 y)`.
 
@@ -33,13 +33,13 @@ In the same fashion, notice that for :math:`(x,y) \in \Gamma_{inner}` there hold
    :nowrap:
 
    \begin{align*}
-   \nabla u(x,y) \cdot n &= [k_0 \cos(k_0 x)\sin(k_0 y), k_0\sin(k_0 x)\cos(k_0 y)]\cdot n\\
-   &=  g
+   (\nabla u |_{\Gamma_{inner}}\cdot n)(x,y) &= [k_0 \cos(k_0 x)\sin(k_0 y), k_0\sin(k_0 x)\cos(k_0 y)]\cdot n\\
+   &=  g(x,y)
    \end{align*}
 
 with :math:`n` the normal exterior vector. Therefore, we set the following Neumann boundary conditions
 
-.. math:: \nabla u(x,y) \cdot n = g
+.. math:: \nabla u| _{\Gamma_{inner}}\cdot n = g
 
 Implementation
 --------------
@@ -55,6 +55,7 @@ First, the DeepXDE, Numpy and Matplotlib modules are imported:
   import numpy as np
 
 We begin by defining the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function.
+
 .. code-block:: python
 
   n = 1
@@ -78,6 +79,7 @@ We begin by defining the general parameters for the problem. We use a collocatio
 Next, we import the ``sin`` function and we express the PDE residual of the Helmholtz equation:
 
 .. code-block:: python
+
   if dde.backend.backend_name == "pytorch":
       import torch
       sin = torch.sin
@@ -93,7 +95,7 @@ Next, we import the ``sin`` function and we express the PDE residual of the Helm
       return -dy_xx - dy_yy - k0 ** 2 * y - f
 
 
-The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`y`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
+The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate and :math:`y`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x,y)`, but here we use ``y`` as the name of the variable.
 
 We introduce the exact solution and the inner (resp. outer) boundary.
 
@@ -111,7 +113,7 @@ We introduce the exact solution and the inner (resp. outer) boundary.
       return on_boundary and inner.on_boundary(x)
 
 
-We set the Neumann boundary conditions. The ``reduce_sum`` operation allows to evaluate the inner product over all collocation points. We use the ``normal = -inner.boundary_normal(x)`` in order to obtain normal vectors pointed toward the exterior of :math:`\Omega`.
+We set the Neumann boundary conditions. The ``reduce_sum`` operation allows to evaluate the inner product over all collocation points. We use the ``normal = -inner.boundary_normal(x)`` in order to obtain normal vectors pointed toward the exterior of the computational domain.
 
 .. code-block:: python
 
