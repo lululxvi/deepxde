@@ -255,5 +255,5 @@ Finally, we represent the boundary normal vectors for the circle and save the pl
 Complete code
 --------------
 
-.. literalinclude:: ../../../examples/pinn_forward/Helmholtz_manufactured_2d.py
+.. literalinclude:: ../../../examples/pinn_forward/Helmholtz_Neumann_2d_hole.py
   :language: python
