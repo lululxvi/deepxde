@@ -10,7 +10,7 @@ epochs = 10000
 learning_rate = 1e-3
 num_dense_layers = 3
 num_dense_nodes = 350
-activation = "sin"
+activation = "tanh"
 
 # Problem parameters
 k0 = 2
@@ -126,7 +126,7 @@ data = dde.data.PDE(
     solution=sol,
 )
 net = dde.maps.FNN(
-    [2] + [num_dense_nodes] * num_dense_layers + [2], "tanh", "Glorot uniform"
+    [2] + [num_dense_nodes] * num_dense_layers + [2], activation, "Glorot uniform"
 )
 model = dde.Model(data, net)
 
