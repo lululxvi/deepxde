@@ -76,7 +76,7 @@ Next, we define the transformation of the output and apply it to the network. Wh
 
     net.apply_output_transform(output_transform)
     
-Now, we have the PDE problem and the network. We bulid a ``Model`` and choose the optimizer and learning rate. We also implement a learning rate decay to reduce overfitting of the model.
+Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate. We also implement a learning rate decay to reduce overfitting of the model.
 
 .. code-block:: python
 
