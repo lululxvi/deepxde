@@ -77,7 +77,6 @@ We set the physical parameters for the problem.
 
 .. code-block:: python
 
-  # Problem parameters
   k0 = 2
   wave_len = 2 * np.pi / k0
   dim_x = 2 * np.pi
@@ -120,7 +119,6 @@ Next, we express the PDE residual of the Helmholtz equation:
 
 .. code-block:: python
 
-  #Definition of the pde
   def pde(x, y):
       y0, y1 = y[:, 0:1], y[:, 1:2]
       
@@ -144,7 +142,6 @@ Then, we introduce the exact solution and both Neumann and Robin boundary condit
       imag = np.imag(result)
       return np.hstack((real, imag))
 
-  #Boundary conditions
   def boundary(x, on_boundary):
       return on_boundary
 
@@ -173,8 +170,7 @@ Then, we introduce the exact solution and both Neumann and Robin boundary condit
       normal = outer.boundary_normal(x)
       result =  k0 * y[:, 0:1]
       return result
-   
-  #ABC 
+    
   bc0_inner = dde.NeumannBC(geom, func0_inner, boundary_inner, component = 0)
   bc1_inner = dde.NeumannBC(geom, func1_inner, boundary_inner, component = 1)
 
