@@ -32,7 +32,7 @@ First, the DeepXDE and Numpy modules are imported:
   import deepxde as dde
   import numpy as np
 
-We begin by definying the general parameters for the problem. We use a collocation points density of 10 (resp. 30) points per wavelength for the training (resp. testing) data along each direction.
+We begin by defining the general parameters for the problem. We use a collocation points density of 10 (resp. 30) points per wavelength for the training (resp. testing) data along each direction.
 This code allows to use both soft and hard boundary conditions. 
 
 .. code-block:: python

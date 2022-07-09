@@ -23,11 +23,13 @@ Time-independent PDEs
    pinn_forward/poisson.1d.neumanndirichlet
    pinn_forward/poisson.1d.dirichletrobin
    pinn_forward/poisson.1d.dirichletperiodic
+   pinn_forward/poisson.dirichlet.1d.exactbc.rst
    pinn_forward/poisson.1d.multiscaleFourier
    pinn_forward/poisson.Lshape
    pinn_forward/laplace.disk
    pinn_forward/eulerbeam
    pinn_forward/helmholtz.2d.dirichlet
+   pinn_forward/helmholtz.2d.neumann.hole.rst
 
 Time-dependent PDEs
 -------------------
