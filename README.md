@@ -96,9 +96,10 @@ $ git clone https://github.com/lululxvi/deepxde.git
 ## Explore more
 
 - [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
+- [Demos of function approximation](https://deepxde.readthedocs.io/en/latest/demos/function.html)
 - [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_forward.html)
 - [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_inverse.html)
-- [Demos of function approximation](https://deepxde.readthedocs.io/en/latest/demos/function.html)
+- [Demos of Operator Learning](https://deepxde.readthedocs.io/en/latest/demos/operator.html)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
 - [API](https://deepxde.readthedocs.io/en/latest/modules/deepxde.html)

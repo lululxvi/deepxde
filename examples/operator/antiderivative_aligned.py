@@ -28,7 +28,7 @@ model = dde.Model(data, net)
 
 # Compile and Train
 model.compile("adam", lr=0.001, metrics=["mean l2 relative error"])
-losshistory, train_state = model.train(epochs=10000)
+losshistory, train_state = model.train(iterations=10000)
 
 # Plot the loss trajectory
 dde.utils.plot_loss_history(losshistory)
