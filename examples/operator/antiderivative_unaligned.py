@@ -5,9 +5,11 @@ import numpy as np
 
 # Load dataset
 d = np.load("antiderivative_unaligned_train.npz", allow_pickle=True)
-X_train, y_train = (d["X_train0"], d["X_train1"]), d["y_train"]
+X_train = (d["X_train0"].astype(np.float32), d["X_train1"].astype(np.float32))
+y_train = d["y_train"].astype(np.float32)
 d = np.load("antiderivative_unaligned_test.npz", allow_pickle=True)
-X_test, y_test = (d["X_test0"], d["X_test1"]), d["y_test"]
+X_test = (d["X_test0"].astype(np.float32), d["X_test1"].astype(np.float32))
+y_test = d["y_test"].astype(np.float32)
 
 data = dde.data.Triple(X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
 
