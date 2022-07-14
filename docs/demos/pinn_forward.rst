@@ -30,6 +30,7 @@ Time-independent PDEs
    pinn_forward/eulerbeam
    pinn_forward/helmholtz.2d.dirichlet
    pinn_forward/helmholtz.2d.neumann.hole.rst
+   pinn_forward/klein.gordon.rst
 
 Time-dependent PDEs
 -------------------
