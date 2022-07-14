@@ -1,4 +1,4 @@
-__all__ = ["Disk", "Rectangle", "Triangle", "Polygon"]
+__all__ = ["Disk", "Polygon", "Rectangle", "Triangle"]
 
 import numpy as np
 from scipy import spatial
@@ -16,7 +16,7 @@ class Disk(Geometry):
         self.radius = radius
         super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
 
-        self._r2 = radius ** 2
+        self._r2 = radius**2
 
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
@@ -25,10 +25,10 @@ class Disk(Geometry):
         return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
-        """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection"""
+        # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return -ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
+        return -ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -43,7 +43,7 @@ class Disk(Geometry):
         return _n
 
     def random_points(self, n, random="pseudo"):
-        """http://mathworld.wolfram.com/DiskPointPicking.html"""
+        # http://mathworld.wolfram.com/DiskPointPicking.html
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = np.cos(theta), np.sin(theta)
@@ -156,8 +156,8 @@ class Rectangle(Hypercube):
 class Triangle(Geometry):
     """Triangle.
 
-    The order of vertices can be in a clockwise or counterclockwise direction.
-    The vertices will be re-ordered in counterclockwise (right hand rule).
+    The order of vertices can be in a clockwise or counterclockwise direction. The
+    vertices will be re-ordered in counterclockwise (right hand rule).
     """
 
     def __init__(self, x1, x2, x3):
@@ -201,8 +201,7 @@ class Triangle(Geometry):
         )
 
     def inside(self, x):
-        """See https://stackoverflow.com/a/2049593/12679294"""
-
+        # https://stackoverflow.com/a/2049593/12679294
         _sign = np.hstack(
             [
                 np.cross(self.v12, x - self.x1)[:, np.newaxis],
@@ -210,7 +209,6 @@ class Triangle(Geometry):
                 np.cross(self.v31, x - self.x3)[:, np.newaxis],
             ]
         )
-
         return ~np.logical_and(np.any(_sign > 0, axis=-1), np.any(_sign < 0, axis=-1))
 
     def on_boundary(self, x):
@@ -218,7 +216,11 @@ class Triangle(Geometry):
         l2 = np.linalg.norm(x - self.x2, axis=-1)
         l3 = np.linalg.norm(x - self.x3, axis=-1)
         return np.any(
-            np.isclose([l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31], 0),
+            np.isclose(
+                [l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31],
+                0,
+                atol=1e-6,
+            ),
             axis=0,
         )
 
@@ -226,33 +228,26 @@ class Triangle(Geometry):
         l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
         l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
         l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
-        _on12 = np.isclose(l1 + l2, self.l12)
-        _on23 = np.isclose(l2 + l3, self.l23)
-        _on31 = np.isclose(l3 + l1, self.l31)
+        on12 = np.isclose(l1 + l2, self.l12)
+        on23 = np.isclose(l2 + l3, self.l23)
+        on31 = np.isclose(l3 + l1, self.l31)
         # Check points on the vertexes
-        if np.any(np.count_nonzero(np.hstack([_on12, _on23, _on31]), axis=-1) > 1):
+        if np.any(np.count_nonzero(np.hstack([on12, on23, on31]), axis=-1) > 1):
             raise ValueError(
-                "{}: Method `boundary_normal` do not accept points on the vertexes.".format(
+                "{}.boundary_normal do not accept points on the vertexes.".format(
                     self.__class__.__name__
                 )
             )
-        return (
-            self.n12_normal * _on12 + self.n23_normal * _on23 + self.n31_normal * _on31
-        )
+        return self.n12_normal * on12 + self.n23_normal * on23 + self.n31_normal * on31
 
     def random_points(self, n, random="pseudo"):
-        """There are two methods for triangle point picking.
-
-        Method 1 (used here):
-
-        - https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle
-
-        Method 2:
-
-        - http://mathworld.wolfram.com/TrianglePointPicking.html
-        - https://hbfs.wordpress.com/2010/10/05/random-points-in-a-triangle-generating-random-sequences-ii/
-        - https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
-        """
+        # There are two methods for triangle point picking.
+        # Method 1 (used here):
+        # - https://math.stackexchange.com/questions/18686/uniform-random-point-in-triangle
+        # Method 2:
+        # - http://mathworld.wolfram.com/TrianglePointPicking.html
+        # - https://hbfs.wordpress.com/2010/10/05/random-points-in-a-triangle-generating-random-sequences-ii/
+        # - https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
         sqrt_r1 = np.sqrt(np.random.rand(n, 1))
         r2 = np.random.rand(n, 1)
         return (
@@ -314,8 +309,9 @@ class Polygon(Geometry):
     """Simple polygon.
 
     Args:
-        vertices: The order of vertices can be in a clockwise or counterclockwise direction. The vertices will be
-            re-ordered in counterclockwise (right hand rule).
+        vertices: The order of vertices can be in a clockwise or counterclockwise
+            direction. The vertices will be re-ordered in counterclockwise (right hand
+            rule).
     """
 
     def __init__(self, vertices):
@@ -355,6 +351,7 @@ class Polygon(Geometry):
     def inside(self, x):
         def wn_PnPoly(P, V):
             """Winding number algorithm.
+
             https://en.wikipedia.org/wiki/Point_in_polygon
             http://geomalgorithms.com/a03-_inclusion.html
 
@@ -468,8 +465,8 @@ class Polygon(Geometry):
 def polygon_signed_area(vertices):
     """The (signed) area of a simple polygon.
 
-    If the vertices are in the counterclockwise direction, then the area is positive; if they are in the clockwise
-    direction, the area is negative.
+    If the vertices are in the counterclockwise direction, then the area is positive; if
+    they are in the clockwise direction, the area is negative.
 
     Shoelace formula: https://en.wikipedia.org/wiki/Shoelace_formula
     """
@@ -486,6 +483,7 @@ def clockwise_rotation_90(v):
 
 def is_left(P0, P1, P2):
     """Test if a point is Left|On|Right of an infinite line.
+
     See: the January 2001 Algorithm "Area of 2D and 3D Triangles and Polygons".
 
     Args:
@@ -494,13 +492,15 @@ def is_left(P0, P1, P2):
         P2: A array of point to be tested.
 
     Returns:
-        >0 if P2 left of the line through P0 and P1, =0 if P2 on the line, <0 if P2 right of the line.
+        >0 if P2 left of the line through P0 and P1, =0 if P2 on the line, <0 if P2
+        right of the line.
     """
     return np.cross(P1 - P0, P2 - P0, axis=-1).reshape((-1, 1))
 
 
 def is_rectangle(vertices):
     """Check if the geometry is a rectangle.
+
     https://stackoverflow.com/questions/2303278/find-if-4-points-on-a-plane-form-a-rectangle/2304031
 
     1. Find the center of mass of corner points: cx=(x1+x2+x3+x4)/4, cy=(y1+y2+y3+y4)/4
