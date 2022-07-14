@@ -186,6 +186,8 @@ class PointSetBC:
         self.batch_size = batch_size
 
         if batch_size is not None: # batch iterator and state
+            if backend_name != "pytorch":
+                raise RuntimeError("batch_size only implemented for pytorch backend")
             self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle=shuffle)
             self.batch_indices = None
 
@@ -200,13 +202,9 @@ class PointSetBC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         if self.batch_size is not None:
-            if backend_name == "tensorflow.compat.v1":
-                batch_values = bkd.tf.gather(self.values, self.batch_indices)
-            else:
-                batch_values = self.values[self.batch_indices]
             return (
                 outputs[beg:end, self.component : self.component + 1]
-                - batch_values
+                - self.values[self.batch_indices]
             )
         return outputs[beg:end, self.component : self.component + 1] - self.values
 
