@@ -1,5 +1,5 @@
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -35,8 +35,6 @@ def gen_exact_solution():
 
     # Save solution:
     np.savez("heat_eq_data", x=x, t=t, usol=usol)
-    # Load solution:
-    data = np.load("heat_eq_data.npz")
 
 
 def gen_testdata():
@@ -96,7 +94,7 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=20000)
+model.train(iterations=20000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 

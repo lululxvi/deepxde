@@ -145,11 +145,11 @@ Now, we create the ``Model`` and specify the optimizer, learning rate, and ``ext
     model.compile("adam", lr=0.001, external_trainable_variables=[kf, D])
     variable = dde.callbacks.VariableValue([kf, D], period=1000, filename="variables.dat")
 
-Lastly, we train this network for 80000 epochs:
+Lastly, we train this network for 80000 iterations:
 
 .. code-block:: python 
     
-    losshistory, train_state = model.train(epochs=80000, callbacks=[variable])
+    losshistory, train_state = model.train(iterations=80000, callbacks=[variable])
     dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 Complete Code

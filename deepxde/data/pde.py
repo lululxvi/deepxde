@@ -132,7 +132,7 @@ class PDE(Data):
             outputs_pde = outputs
         elif backend_name == "jax":
             # JAX requires pure functions
-            outputs_pde = (outputs, aux)
+            outputs_pde = (outputs, aux[0])
 
         f = []
         if self.pde is not None:
@@ -140,8 +140,11 @@ class PDE(Data):
                 f = self.pde(inputs, outputs_pde)
             elif get_num_args(self.pde) == 3:
                 if self.auxiliary_var_fn is None:
-                    raise ValueError("Auxiliary variable function not defined.")
-                f = self.pde(inputs, outputs, model.net.auxiliary_vars)
+                    if aux is None or len(aux) == 1:
+                        raise ValueError("Auxiliary variable function not defined.")
+                    f = self.pde(inputs, outputs_pde, unknowns=aux[1])
+                else:
+                    f = self.pde(inputs, outputs_pde, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 

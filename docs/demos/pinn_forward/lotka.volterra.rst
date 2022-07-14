@@ -125,7 +125,7 @@ Now that we have defined the neural network, we build a ``Model``, choose the op
 
     model = dde.Model(data, net)
     model.compile("adam", lr=0.001)
-    losshistory, train_state = model.train(epochs=50000)
+    losshistory, train_state = model.train(iterations=50000)
 
 After training with Adam, we continue with L-BFGS to have an even smaller loss:
 

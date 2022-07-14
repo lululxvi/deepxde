@@ -76,7 +76,7 @@ net = dde.nn.FNN([2] + 4 * [50] + [3], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
-model.train(epochs=30000)
+model.train(iterations=30000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 

@@ -32,7 +32,7 @@ First, the DeepXDE and Numpy modules are imported:
   import deepxde as dde
   import numpy as np
 
-We begin by definying the general parameters for the problem. We use a collocation points density of 10 (resp. 30) points per wavelength for the training (resp. testing) data along each direction.
+We begin by defining the general parameters for the problem. We use a collocation points density of 10 (resp. 30) points per wavelength for the training (resp. testing) data along each direction.
 This code allows to use both soft and hard boundary conditions. 
 
 .. code-block:: python
@@ -43,11 +43,11 @@ This code allows to use both soft and hard boundary conditions.
   hard_constraint = True
   weights = 100  # if hard_constraint == False
 
-The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function. Moreover, we import the sine function.
+The PINN will be trained over 5000 iterations. We define the learning rate, the number of dense layers and nodes, and the activation function. Moreover, we import the sine function.
 
 .. code-block:: python
 
-  epochs = 5000
+  iterations = 5000
   parameters = [1e-3, 3, 150, "sin"]
 
   # Define sine function
@@ -164,7 +164,7 @@ We first train the model for 5000 iterations with Adam optimizer:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=epochs)
+    losshistory, train_state = model.train(iterations=iterations)
     
 Complete code
 --------------

@@ -35,7 +35,7 @@ net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1.0e-3)
-model.train(epochs=10000)
+model.train(iterations=10000)
 model.compile("L-BFGS")
 model.train()
 

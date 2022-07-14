@@ -49,11 +49,3 @@ deepxde.model module
    :undoc-members:
    :show-inheritance:
 
-deepxde.real module
--------------------
-
-.. automodule:: deepxde.real
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
