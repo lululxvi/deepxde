@@ -1,5 +1,5 @@
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -35,8 +35,6 @@ def gen_exact_solution():
 
     # Save solution:
     np.savez("heat_eq_data", x=x, t=t, usol=usol)
-    # Load solution:
-    data = np.load("heat_eq_data.npz")
 
 
 def gen_testdata():
