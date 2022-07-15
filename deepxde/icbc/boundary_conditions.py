@@ -171,6 +171,7 @@ class PointSetBC:
         values: An array of values that gives the exact solution of the problem.
         component: The output component satisfying this BC.
         batch_size: The number of points per minibatch, or `None` to return all points.
+            This is only supported for the backend PyTorch.
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
