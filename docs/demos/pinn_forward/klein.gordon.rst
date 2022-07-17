@@ -5,21 +5,19 @@ Problem setup
 --------------
 We will solve a Klein-Gordon equation:
 
-.. math:: \frac{\partial^2y}{\partial t^2} + \Alpha \frac{\partial^2y}{\partial x^2} + \Beta y + \Gamma y^k = -x\cos(t) + x^2\cos^2(t), \qquad x \in [-1, 1], \quad t \in [0, 10]
+.. math:: \frac{\partial^2y}{\partial t^2} + \alpha \frac{\partial^2y}{\partial x^2} + \beta y + \gamma y^k = -x\cos(t) + x^2\cos^2(t), \qquad x \in [-1, 1], \quad t \in [0, 10]
 
 with initial conditions
 
-.. math:: y(x, 0) = x, \frac{\partial y}{\partial t}(x, 0) = 0
+.. math:: y(x, 0) = x, \quad \frac{\partial y}{\partial t}(x, 0) = 0
 
-and Dirichlet boundary conditions.
+and Dirichlet boundary conditions
 
-.. math:: y(-1, t) = -\cos(t), y(1, t) = \cos(t).
+.. math:: y(-1, t) = -\cos(t), \quad y(1, t) = \cos(t)
 
 We also specify the following parameters for the equation:
 
-.. code-block:: python
-
-    alpha, beta, gamma, k = -1, 0, 1, 2
+.. math:: \alpha = -1, \beta = 0, \gamma = 1, k = 2.
 
 The reference solution is :math:`y(x, t) = x\cos(t)`.
 
@@ -50,6 +48,7 @@ Next, we express the PDE residual of the Klein-Gordon equation:
 
 .. code-block:: python
 
+    alpha, beta, gamma, k = -1, 0, 1, 2
     def pde(x, y):
         dy_tt = dde.grad.hessian(y, x, i=1, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
@@ -110,7 +109,7 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
     model = dde.Model(data, net)
     model.compile('adam', lr=0.001, metrics=['l2 relative error'], decay=("inverse time", 3000, 0.9))
     
-We also compute the ``L^2`` relative error as a metric during training.
+We also compute the :math:`L^2` relative error as a metric during training.
 
 We then train the model for 20000 iterations.
 
