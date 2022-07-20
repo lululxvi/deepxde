@@ -30,12 +30,11 @@ First, the DeepXDE, NumPy, TensorFlow, Maplotlib, and SciPy modules are imported
 .. code-block:: python
 
     import deepxde as dde
+    import matplotlib.pyplot as plt
     import numpy as np
     from deepxde.backend import tf
-    import matplotlib.pyplot as plt
     from scipy.interpolate import griddata
 
-    
 We begin by defining computational geometries. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
 
 .. code-block:: python
