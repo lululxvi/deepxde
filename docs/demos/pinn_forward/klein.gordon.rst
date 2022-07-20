@@ -3,6 +3,7 @@ Klein-Gordon equation
 
 Problem setup
 --------------
+
 We will solve a Klein-Gordon equation:
 
 .. math:: \frac{\partial^2y}{\partial t^2} + \alpha \frac{\partial^2y}{\partial x^2} + \beta y + \gamma y^k = -x\cos(t) + x^2\cos^2(t), \qquad x \in [-1, 1], \quad t \in [0, 10]
@@ -79,7 +80,7 @@ Next, we consider the boundary/initial conditions. ``on_boundary`` is chosen her
     ic_2 = dde.icbc.OperatorBC(
         geomtime,
         lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-        lambda x, _: np.isclose(x[1], 0),
+        lambda _, on_initial: on_initial,
     )
     
 Now, we have specified the geometry, PDE residual, and the boundary/initial conditions. We then define the ``TimePDE`` problem as the following.
