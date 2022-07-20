@@ -33,7 +33,7 @@ ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 ic_2 = dde.icbc.OperatorBC(
     geomtime,
     lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-    lambda x, _: np.isclose(x[1], 0),
+    lambda _, on_initial: on_initial,
 )
 
 data = dde.data.TimePDE(
