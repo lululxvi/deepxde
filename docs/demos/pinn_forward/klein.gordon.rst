@@ -47,12 +47,19 @@ Next, we express the PDE residual of the Klein-Gordon equation:
 
 .. code-block:: python
 
-    alpha, beta, gamma, k = -1, 0, 1, 2
     def pde(x, y):
+        alpha, beta, gamma, k = -1, 0, 1, 2
         dy_tt = dde.grad.hessian(y, x, i=1, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         x, t = x[:, 0:1], x[:, 1:2]
-        return dy_tt + alpha * dy_xx + beta * y + gamma * (y**k) + x * tf.cos(t) - (x**2) * (tf.cos(t)**2)
+        return (
+            dy_tt
+            + alpha * dy_xx
+            + beta * y
+            + gamma * (y ** k)
+            + x * tf.cos(t)
+            - (x ** 2) * (tf.cos(t) ** 2)
+        )
         
 The first argument to ``pde`` is a 2-dimensional vector where the first component(``x[:, 0:1]``) is the :math:`x`-coordinate and the second component (``x[:, 1:2]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
 
@@ -67,7 +74,7 @@ Next, we consider the boundary/initial conditions. ``on_boundary`` is chosen her
 
 .. code-block:: python
 
-    bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary : on_boundary)
+    bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
     ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
     ic_2 = dde.icbc.OperatorBC(
         geomtime,
@@ -106,7 +113,9 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
 .. code-block:: python
 
     model = dde.Model(data, net)
-    model.compile('adam', lr=0.001, metrics=['l2 relative error'], decay=("inverse time", 3000, 0.9))
+    model.compile(
+        "adam", lr=0.001, metrics=["l2 relative error"], decay=("inverse time", 3000, 0.9)
+    )
     
 We also compute the :math:`L^2` relative error as a metric during training.
 
