@@ -8,24 +8,34 @@ geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 10)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
+
 def pde(x, y):
     alpha, beta, gamma, k = -1, 0, 1, 2
     dy_tt = dde.grad.hessian(y, x, i=1, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     x, t = x[:, 0:1], x[:, 1:2]
-    return dy_tt + alpha * dy_xx + beta * y + gamma * (y**k) + x * tf.cos(t) - (x**2) * (tf.cos(t)**2)
+    return (
+        dy_tt
+        + alpha * dy_xx
+        + beta * y
+        + gamma * (y ** k)
+        + x * tf.cos(t)
+        - (x ** 2) * (tf.cos(t) ** 2)
+    )
+
 
 def func(x):
     return x[:, 0:1] * np.cos(x[:, 1:2])
 
-bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary : on_boundary)
+
+bc = dde.icbc.DirichletBC(geomtime, func, lambda _, on_boundary: on_boundary)
 ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 ic_2 = dde.icbc.OperatorBC(
-     geomtime,
-     lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-     lambda x, _: np.isclose(x[1], 0),
+    geomtime,
+    lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
+    lambda x, _: np.isclose(x[1], 0),
 )
-    
+
 data = dde.data.TimePDE(
     geomtime,
     pde,
@@ -34,18 +44,20 @@ data = dde.data.TimePDE(
     num_boundary=1500,
     num_initial=1500,
     solution=func,
-    num_test=6000, 
+    num_test=6000,
 )
 
 layer_size = [2] + [40] * 2 + [1]
-activation = 'tanh'
-initializer = 'Glorot uniform'
+activation = "tanh"
+initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
-model.compile('adam', lr=0.001, metrics=['l2 relative error'], decay=("inverse time", 3000, 0.9))
+model.compile(
+    "adam", lr=0.001, metrics=["l2 relative error"], decay=("inverse time", 3000, 0.9)
+)
 model.train(iterations=20000)
-model.compile('L-BFGS', metrics=['l2 relative error'])
+model.compile("L-BFGS", metrics=["l2 relative error"])
 losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
@@ -56,8 +68,8 @@ X, T = np.meshgrid(x, t)
 X_star = np.hstack((X.flatten()[:, None], T.flatten()[:, None]))
 prediction = model.predict(X_star, operator=None)
 
-v = griddata(X_star, prediction[:, 0], (X, T), method='cubic')
-    
+v = griddata(X_star, prediction[:, 0], (X, T), method="cubic")
+
 fig, ax = plt.subplots(1)
 ax[0].set_title("Results")
 ax[0].set_ylabel("Prediciton")
