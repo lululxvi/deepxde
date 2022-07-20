@@ -1,7 +1,7 @@
 import deepxde as dde
+import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
-import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 
 geom = dde.geometry.Interval(-1, 1)
