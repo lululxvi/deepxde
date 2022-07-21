@@ -1,3 +1,4 @@
+"""Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -70,10 +71,10 @@ prediction = model.predict(X_star, operator=None)
 
 v = griddata(X_star, prediction[:, 0], (X, T), method="cubic")
 
-fig, ax = plt.subplots(1)
-ax[0].set_title("Results")
-ax[0].set_ylabel("Prediciton")
-ax[0].imshow(
+fig, ax = plt.subplots()
+ax.set_title("Results")
+ax.set_ylabel("Prediciton")
+ax.imshow(
     v.T,
     interpolation="nearest",
     cmap="viridis",
