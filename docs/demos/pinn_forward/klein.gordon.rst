@@ -24,6 +24,7 @@ The reference solution is :math:`y(x, t) = x\cos(t)`.
 
 Implementation
 --------------
+
 This description goes through the implementation of a solver for the above described Klein-Gordon equation step-by-step.
 
 First, the DeepXDE, NumPy, TensorFlow, Maplotlib, and SciPy modules are imported.
@@ -152,10 +153,10 @@ Finally, we use the trained model to plot the predicted solution of the Klein-Go
 
     v = griddata(X_star, prediction[:, 0], (X, T), method='cubic')
 
-    fig, ax = plt.subplots(1)
-    ax[0].set_title("Results")
-    ax[0].set_ylabel("Prediction")
-    ax[0].imshow(
+    fig, ax = plt.subplots()
+    ax.set_title("Results")
+    ax.set_ylabel("Prediction")
+    ax.imshow(
         v.T,
         interpolation="nearest",
         cmap="viridis",
@@ -167,5 +168,6 @@ Finally, we use the trained model to plot the predicted solution of the Klein-Go
     
 Complete code
 --------------
+
 .. literalinclude:: ../../../examples/pinn_forward/Klein_Gordon.py
   :language: python
