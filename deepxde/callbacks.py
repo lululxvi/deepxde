@@ -324,6 +324,9 @@ class VariableValue(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.on_train_begin()
+    
+    def on_train_end(self):
+        self.on_train_begin()
 
     def get_value(self):
         """Return the variable values."""
