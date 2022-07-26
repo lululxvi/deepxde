@@ -16,6 +16,7 @@ from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
 
+
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -616,21 +617,25 @@ class Model:
                     self.train_state.step, self.train_state.loss_train, None, None
                 )
                 display.training_display(self.train_state)
-        
+
         def ext_var_callback(y):
-            if len(self.external_trainable_variables)>0: # activated only for external optimizers since it is done adam already
+            # check if external variables are defined
+            if len(self.external_trainable_variables) > 0:
                 cb = self.callbacks.callbacks[0]
                 cb.epochs_since_last += 1
-                
+
                 if cb.epochs_since_last >= cb.period:
                     cb.epochs_since_last = 0
 
                     print(
-                    cb.model.train_state.epoch,
-                    list_to_str(y[:len(self.external_trainable_variables)], precision=cb.precision),
-                    file=cb.file,
+                        cb.model.train_state.epoch,
+                        list_to_str(
+                            y[: len(self.external_trainable_variables)],
+                            precision=cb.precision,
+                        ),
+                        file=cb.file,
                     )
-                    
+
                     cb.file.flush()
 
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
@@ -645,7 +650,7 @@ class Model:
             feed_dict=feed_dict,
             fetches=[self.outputs_losses_train[1]],
             loss_callback=loss_callback,
-            step_callback=ext_var_callback
+            step_callback=ext_var_callback,
         )
         self._test()
 
