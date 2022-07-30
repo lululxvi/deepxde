@@ -1,5 +1,5 @@
 matplotlib
 numpy
 scikit-learn
-scikit-optimize
+scikit-optimize>=0.9.0
 scipy

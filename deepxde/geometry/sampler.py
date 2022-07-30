@@ -1,7 +1,5 @@
 __all__ = ["sample"]
 
-from distutils.version import LooseVersion
-
 import numpy as np
 import skopt
 
@@ -35,24 +33,31 @@ def pseudorandom(n_samples, dimension):
 
 
 def quasirandom(n_samples, dimension, sampler):
+    # Certain points should be removed:
+    # - Boundary points such as [..., 0, ...]
+    # - Special points [0, 0, 0, ...] and [0.5, 0.5, 0.5, ...], which cause error in
+    #   Hypersphere.random_points() and Hypersphere.random_boundary_points()
+    skip = 0
     if sampler == "LHS":
-        sampler = skopt.sampler.Lhs(
-            lhs_type="centered", criterion="maximin", iterations=1000
-        )
+        sampler = skopt.sampler.Lhs()
     elif sampler == "Halton":
-        sampler = skopt.sampler.Halton(min_skip=-1, max_skip=-1)
+        # 1st point: [0, 0, ...]
+        sampler = skopt.sampler.Halton(min_skip=1, max_skip=1)
     elif sampler == "Hammersley":
-        sampler = skopt.sampler.Hammersly(min_skip=-1, max_skip=-1)
-    elif sampler == "Sobol":
-        # Remove the first point [0, 0, ...] and the second point [0.5, 0.5, ...], which
-        # are too special and may cause some error.
-        if LooseVersion(skopt.__version__) < LooseVersion("0.9"):
-            sampler = skopt.sampler.Sobol(min_skip=2, max_skip=2, randomize=False)
+        # 1st point: [0, 0, ...]
+        if dimension == 1:
+            sampler = skopt.sampler.Hammersly(min_skip=1, max_skip=1)
         else:
-            sampler = skopt.sampler.Sobol(skip=0, randomize=False)
-            space = [(0.0, 1.0)] * dimension
-            return np.asarray(
-                sampler.generate(space, n_samples + 2)[2:], dtype=config.real(np)
-            )
+            sampler = skopt.sampler.Hammersly()
+            skip = 1
+    elif sampler == "Sobol":
+        # 1st point: [0, 0, ...], 2nd point: [0.5, 0.5, ...]
+        sampler = skopt.sampler.Sobol(randomize=False)
+        if dimension < 3:
+            skip = 1
+        else:
+            skip = 2
     space = [(0.0, 1.0)] * dimension
-    return np.asarray(sampler.generate(space, n_samples), dtype=config.real(np))
+    return np.asarray(
+        sampler.generate(space, n_samples + skip)[skip:], dtype=config.real(np)
+    )
