@@ -78,7 +78,7 @@ class PDE(Data):
         bcs,
         num_domain=0,
         num_boundary=0,
-        train_distribution="Sobol",
+        train_distribution="Hammersley",
         anchors=None,
         exclusions=None,
         solution=None,
@@ -91,19 +91,6 @@ class PDE(Data):
 
         self.num_domain = num_domain
         self.num_boundary = num_boundary
-        if train_distribution not in [
-            "uniform",
-            "pseudo",
-            "LHS",
-            "Halton",
-            "Hammersley",
-            "Sobol",
-        ]:
-            raise ValueError(
-                "train_distribution == {} is not available choices.".format(
-                    train_distribution
-                )
-            )
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
@@ -289,7 +276,7 @@ class TimePDE(PDE):
         num_domain=0,
         num_boundary=0,
         num_initial=0,
-        train_distribution="Sobol",
+        train_distribution="Hammersley",
         anchors=None,
         exclusions=None,
         solution=None,

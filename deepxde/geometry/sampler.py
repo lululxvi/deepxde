@@ -1,3 +1,5 @@
+__all__ = ["sample"]
+
 from distutils.version import LooseVersion
 
 import numpy as np
@@ -7,7 +9,7 @@ from .. import config
 
 
 def sample(n_samples, dimension, sampler="pseudo"):
-    """Generate random or quasirandom samples in [0, 1]^dimension.
+    """Generate pseudorandom or quasirandom samples in [0, 1]^dimension.
 
     Args:
         n_samples (int): The number of samples.
@@ -17,13 +19,13 @@ def sample(n_samples, dimension, sampler="pseudo"):
             sequence), or "Sobol" (Sobol sequence).
     """
     if sampler == "pseudo":
-        return pseudo(n_samples, dimension)
+        return pseudorandom(n_samples, dimension)
     if sampler in ["LHS", "Halton", "Hammersley", "Sobol"]:
         return quasirandom(n_samples, dimension, sampler)
-    raise ValueError("f{sampler} sampler is not available.")
+    raise ValueError("f{sampler} sampling is not available.")
 
 
-def pseudo(n_samples, dimension):
+def pseudorandom(n_samples, dimension):
     """Pseudo random."""
     # If random seed is set, then the rng based code always returns the same random
     # number, which may not be what we expect.
