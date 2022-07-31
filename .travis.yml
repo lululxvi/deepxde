@@ -22,7 +22,8 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
 
-  - conda install libgcc-ng libstdcxx-ng matplotlib numpy scikit-learn scipy
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
+  - conda install matplotlib numpy scikit-learn scipy
   - conda install -c conda-forge scikit-optimize
   - pip install tensorflow tensorflow-probability
   - conda install pytorch cpuonly -c pytorch
