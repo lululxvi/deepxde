@@ -91,10 +91,10 @@ class PODMIONet(NN):
         layer_sizes_branch2,
         activation,
         kernel_initializer,
-        merge_operation="mul",
         layer_sizes_trunk=None,
         regularization=None,
         trunk_last_activation=False,
+        merge_operation="mul",
         layer_sizes_merger=None,
     ):
         super().__init__()
