@@ -1,6 +1,7 @@
 from .fnn import FNN
 from .nn import NN
 from .. import activations
+from ... import config
 from ...backend import tf
 
 
@@ -52,7 +53,7 @@ class DeepONetCartesianProd(NN):
             kernel_initializer,
             regularization=regularization,
         )
-        self.b = tf.Variable(tf.zeros(1))
+        self.b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
 
     def call(self, inputs, training=False):
         x_func = inputs[0]
@@ -139,7 +140,7 @@ class PODDeepONet(NN):
                 kernel_initializer,
                 regularization=regularization,
             )
-            self.b = tf.Variable(tf.zeros(1))
+            self.b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
 
     def call(self, inputs, training=False):
         x_func = inputs[0]

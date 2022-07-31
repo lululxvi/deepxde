@@ -11,6 +11,7 @@ DeepXDE
         - NN-arbitrary polynomial chaos (NN-aPC): solving forward/inverse stochastic PDEs (sPDEs) [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.07.048>`_]
         - PINN with hard constraints (hPINN): solving inverse design/topology optimization [`SIAM J. Sci. Comput. <https://doi.org/10.1137/21M1397908>`_]
     - improving PINN accuracy
+        - residual-based adaptive sampling [`SIAM Rev. <https://doi.org/10.1137/19M1274067>`_, `arXiv <https://arxiv.org/abs/2207.10289>`_]
         - gradient-enhanced PINN (gPINN) [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114823>`_]
         - PINN with multi-scale Fourier features [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2021.113938>`_]
     - `Slides <https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf>`_, `Video <https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13>`_, `Video in Chinese <http://tianyuan.xmu.edu.cn/cn/minicourses/637.html>`_
@@ -45,7 +46,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
 - 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
-- 6 **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled every certain iterations.
+- many **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled (adaptively) every certain iterations.
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
 - different **optimizers**: Adam, L-BFGS, etc.
 - conveniently **save** the model during training, and **load** a trained model.
@@ -67,9 +68,10 @@ User guide
 .. toctree::
   :maxdepth: 1
 
+  demos/function
   demos/pinn_forward
   demos/pinn_inverse
-  demos/function
+  demos/operator
   user/faq
 
 .. toctree::

@@ -43,12 +43,14 @@ class FuncConstraint(Data):
 
     @run_if_any_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        if self.dist_train == "log uniform":
-            self.train_x = self.geom.log_uniform_points(self.num_train, False)
-        elif self.dist_train == "random":
-            self.train_x = self.geom.random_points(self.num_train, "Sobol")
-        else:
+        if self.dist_train == "uniform":
             self.train_x = self.geom.uniform_points(self.num_train, False)
+        elif self.dist_train == "log uniform":
+            self.train_x = self.geom.log_uniform_points(self.num_train, False)
+        else:
+            self.train_x = self.geom.random_points(
+                self.num_train, random=self.dist_train
+            )
         if self.anchors is not None:
             self.train_x = np.vstack((self.anchors, self.train_x))
         self.train_y = self.func(self.train_x)

@@ -481,7 +481,7 @@ class Model:
             outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
             outs = outputs_losses(inputs, targets)
-        return utils.to_numpy(outs)
+        return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
 
     def _train_step(self, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":

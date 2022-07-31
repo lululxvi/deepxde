@@ -58,13 +58,21 @@ class MIONet(NN):
         self._inputs = [self.X_func1, self.X_func2, self.X_loc]
 
         # Branch net 1
-        y_func1 = self._net(
-            self.X_func1, self.layer_branch1[1:], self.activation_branch1
-        )
+        if callable(self.layer_branch1[1]):
+            # User-defined network
+            y_func1 = self.layer_branch1[1](self.X_func1)
+        else:
+            y_func1 = self._net(
+                self.X_func1, self.layer_branch1[1:], self.activation_branch1
+            )
         # Branch net 2
-        y_func2 = self._net(
-            self.X_func2, self.layer_branch2[1:], self.activation_branch2
-        )
+        if callable(self.layer_branch2[1]):
+            # User-defined network
+            y_func2 = self.layer_branch2[1](self.X_func2)
+        else:
+            y_func2 = self._net(
+                self.X_func2, self.layer_branch2[1:], self.activation_branch2
+            )
         # Trunk net
         y_loc = self._net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
 
@@ -103,13 +111,21 @@ class MIONetCartesianProd(MIONet):
         self._inputs = [self.X_func1, self.X_func2, self.X_loc]
 
         # Branch net 1
-        y_func1 = self._net(
-            self.X_func1, self.layer_branch1[1:], self.activation_branch1
-        )
+        if callable(self.layer_branch1[1]):
+            # User-defined network
+            y_func1 = self.layer_branch1[1](self.X_func1)
+        else:
+            y_func1 = self._net(
+                self.X_func1, self.layer_branch1[1:], self.activation_branch1
+            )
         # Branch net 2
-        y_func2 = self._net(
-            self.X_func2, self.layer_branch2[1:], self.activation_branch2
-        )
+        if callable(self.layer_branch2[1]):
+            # User-defined network
+            y_func2 = self.layer_branch2[1](self.X_func2)
+        else:
+            y_func2 = self._net(
+                self.X_func2, self.layer_branch2[1:], self.activation_branch2
+            )
         # Trunk net
         y_loc = self._net(self.X_loc, self.layer_trunk[1:], self.activation_trunk)
 
