@@ -91,7 +91,7 @@ class PODMIONet(NN):
         layer_sizes_branch2,
         activation,
         kernel_initializer,
-        connect_method="mul",
+        merge_operation="mul",
         layer_sizes_trunk=None,
         regularization=None,
         trunk_last_activation=False,
@@ -144,7 +144,7 @@ class PODMIONet(NN):
             self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
-        self.connect_method = connect_method
+        self.merge_operation = merge_operation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
@@ -154,20 +154,20 @@ class PODMIONet(NN):
         y_func1 = self.branch1(x_func1)
         y_func2 = self.branch2(x_func2)
         # connect two branch outputs
-        if self.connect_method == "cat":
+        if self.merge_operation == "cat":
             x_merger = torch.cat((y_func1, y_func2), 1)
         else:
             if y_func1.shape[-1] != y_func2.shape[-1]:
                 raise AssertionError(
                     "Output sizes of branch1 net and branch2 net do not match."
                 )
-            if self.connect_method == "sum":
+            if self.merge_operation == "sum":
                 x_merger = y_func1 + y_func2
-            elif self.connect_method == "mul":
+            elif self.merge_operation == "mul":
                 x_merger = torch.mul(y_func1, y_func2)
             else:
                 raise NotImplementedError(
-                    f"{self.connect_method} method to be implimented"
+                    f"{self.merge_operation} operation to be implimented"
                 )
         # Optional merger net
         if self.merger is not None:
