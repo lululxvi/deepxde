@@ -95,7 +95,7 @@ class PODMIONet(NN):
         layer_sizes_trunk=None,
         regularization=None,
         trunk_last_activation=False,
-        layer_sizes_merger=None
+        layer_sizes_merger=None,
     ):
         super().__init__()
 
