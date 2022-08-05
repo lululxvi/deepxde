@@ -80,7 +80,7 @@ We set the physical parameters for the problem.
   k0 = 2
   wave_len = 2 * np.pi / k0
   length = 2 * np.pi
-  R = np.pi / 4.0
+  R = np.pi / 4
   n_wave = 20
   h_elem = wave_len / n_wave
   nx = int(length / h_elem)
@@ -90,7 +90,7 @@ We define the geometry (inner and outer domains):
 
 .. code-block:: python
 
-  outer = dde.geometry.Rectangle([-length / 2.0, -length / 2.0], [length / 2.0, length / 2.0])
+  outer = dde.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
   inner = dde.geometry.Disk([0, 0], R)
 
   geom = outer - inner
