@@ -3,6 +3,9 @@ import itertools
 import numpy as np
 
 from .geometry_1d import Interval
+from .geometry_2d import Rectangle
+from .geometry_3d import Cuboid
+from .geometry_nd import Hypercube
 from .. import config
 
 
@@ -72,6 +75,27 @@ class GeometryXTime:
         return xt
 
     def random_points(self, n, random="pseudo"):
+        if isinstance(self.geometry, Interval):
+            geom = Rectangle(
+                [self.geometry.l, self.timedomain.t0],
+                [self.geometry.r, self.timedomain.t1],
+            )
+            return geom.random_points(n, random=random)
+
+        if isinstance(self.geometry, Rectangle):
+            geom = Cuboid(
+                [self.geometry.xmin[0], self.geometry.xmin[1], self.timedomain.t0],
+                [self.geometry.xmax[0], self.geometry.xmax[1], self.timedomain.t1],
+            )
+            return geom.random_points(n, random=random)
+
+        if isinstance(self.geometry, (Cuboid, Hypercube)):
+            geom = Hypercube(
+                np.append(self.geometry.xmin, self.timedomain.t0),
+                np.append(self.geometry.xmax, self.timedomain.t1),
+            )
+            return geom.random_points(n, random=random)
+
         x = self.geometry.random_points(n, random=random)
         t = self.timedomain.random_points(n, random=random)
         t = np.random.permutation(t)

@@ -94,6 +94,8 @@ class PODMIONet(NN):
         layer_sizes_trunk=None,
         regularization=None,
         trunk_last_activation=False,
+        merge_operation="mul",
+        layer_sizes_merger=None,
     ):
         super().__init__()
 
@@ -101,6 +103,7 @@ class PODMIONet(NN):
             self.activation_branch1 = activations.get(activation["branch1"])
             self.activation_branch2 = activations.get(activation["branch2"])
             self.activation_trunk = activations.get(activation["trunk"])
+            self.activation_merger = activations.get(activation["merger"])
         else:
             self.activation_branch1 = (
                 self.activation_branch2
@@ -122,6 +125,17 @@ class PODMIONet(NN):
             self.branch2 = FNN(
                 layer_sizes_branch2, self.activation_branch2, kernel_initializer
             )
+        if layer_sizes_merger is not None:
+            if callable(layer_sizes_merger[1]):
+                # User-defined network
+                self.merger = layer_sizes_merger[1]
+            else:
+                # Fully connected network
+                self.merger = FNN(
+                    layer_sizes_merger, self.activation_merger, kernel_initializer
+                )
+        else:
+            self.merger = None
         self.trunk = None
         if layer_sizes_trunk is not None:
             self.trunk = FNN(
@@ -130,6 +144,7 @@ class PODMIONet(NN):
             self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
+        self.merge_operation = merge_operation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
@@ -138,12 +153,28 @@ class PODMIONet(NN):
         # Branch net to encode the input function
         y_func1 = self.branch1(x_func1)
         y_func2 = self.branch2(x_func2)
+        # connect two branch outputs
+        if self.merge_operation == "cat":
+            x_merger = torch.cat((y_func1, y_func2), 1)
+        else:
+            if y_func1.shape[-1] != y_func2.shape[-1]:
+                raise AssertionError(
+                    "Output sizes of branch1 net and branch2 net do not match."
+                )
+            if self.merge_operation == "sum":
+                x_merger = y_func1 + y_func2
+            elif self.merge_operation == "mul":
+                x_merger = torch.mul(y_func1, y_func2)
+            else:
+                raise NotImplementedError(
+                    f"{self.merge_operation} operation to be implimented"
+                )
+        # Optional merger net
+        if self.merger is not None:
+            y_func = self.merger(x_merger)
+        else:
+            y_func = x_merger
         # Dot product
-        if y_func1.shape[-1] != y_func2.shape[-1]:
-            raise AssertionError(
-                "Output sizes of branch1 net and branch2 net do not match."
-            )
-        y_func = torch.mul(y_func1, y_func2)
         if self.trunk is None:
             # POD only
             y = torch.einsum("bi,ni->bn", y_func, self.pod_basis)

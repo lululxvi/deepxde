@@ -9,11 +9,7 @@ python:
 install:
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - bash miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
   - hash -r
@@ -23,9 +19,11 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy scikit-learn scipy
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
 
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
+  - conda install matplotlib numpy scikit-learn scipy
   - conda install -c conda-forge scikit-optimize
   - pip install tensorflow tensorflow-probability
   - conda install pytorch cpuonly -c pytorch
@@ -34,8 +32,8 @@ install:
 
 script:
   # Your test script goes here
-  - DDEBACKEND=tensorflow.compat.v1 python -c "import deepxde"
-  - DDEBACKEND=tensorflow python -c "import deepxde"
-  - DDEBACKEND=pytorch python -c "import deepxde"
-  - DDEBACKEND=jax python -c "import deepxde"
-  - DDEBACKEND=paddle python -c "import deepxde"
+  - DDE_BACKEND=tensorflow.compat.v1 python -c "import deepxde"
+  - DDE_BACKEND=tensorflow python -c "import deepxde"
+  - DDE_BACKEND=pytorch python -c "import deepxde"
+  - DDE_BACKEND=jax python -c "import deepxde"
+  - DDE_BACKEND=paddle python -c "import deepxde"

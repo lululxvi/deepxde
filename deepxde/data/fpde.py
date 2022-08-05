@@ -74,7 +74,7 @@ class FPDE(PDE):
         meshtype="dynamic",
         num_domain=0,
         num_boundary=0,
-        train_distribution="Sobol",
+        train_distribution="Hammersley",
         anchors=None,
         solution=None,
         num_test=None,
@@ -217,7 +217,7 @@ class TimeFPDE(FPDE):
         num_domain=0,
         num_boundary=0,
         num_initial=0,
-        train_distribution="Sobol",
+        train_distribution="Hammersley",
         anchors=None,
         solution=None,
         num_test=None,
@@ -312,7 +312,9 @@ class TimeFPDE(FPDE):
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
             else:
-                tmp = self.geom.random_initial_points(self.num_initial, random="Sobol")
+                tmp = self.geom.random_initial_points(
+                    self.num_initial, random=self.train_distribution
+                )
             X = np.vstack((tmp, X))
         return X
 

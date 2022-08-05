@@ -45,6 +45,7 @@ Time-dependent PDEs
    pinn_forward/diffusion.1d.resample
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
+   pinn_forward/klein.gordon
 
 - `Diffusion-reaction equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_reaction.py>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_

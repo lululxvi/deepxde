@@ -41,8 +41,8 @@ class MfFunc(Data):
         else:
             self.X_train = np.vstack(
                 (
-                    self.geom.random_points(self.num_lo, "Sobol"),
-                    self.geom.random_points(self.num_hi, "Sobol"),
+                    self.geom.random_points(self.num_lo, random=self.dist_train),
+                    self.geom.random_points(self.num_hi, random=self.dist_train),
                 )
             )
         y_lo_train = self.func_lo(self.X_train)
