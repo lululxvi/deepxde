@@ -20,7 +20,7 @@ with the Neumann boundary conditions
 
 with :math:`n`, and suitable radiation conditions at infinity. The analytical formula for the scattered field is given by Bessel function (refer to `waves-fenicsx <https://github.com/samuelpgroth/waves-fenicsx/tree/master/frequency>`_).
 
-We decide to truncate the domain and we approximate the radiation conditions by absorbing boundary conditions (ABCs), on a ``dim_x`` square :math:`\Gamma^{out}`. Refer to this recent `study <https://arxiv.org/pdf/2101.02154.pdf>`_ for the wavenumber analysis error.
+We decide to truncate the domain and we approximate the radiation conditions by absorbing boundary conditions (ABCs), on a ``length`` square :math:`\Gamma^{out}`. Refer to this recent `study <https://arxiv.org/pdf/2101.02154.pdf>`_ for the wavenumber analysis error.
 
 Projection to the real and imaginary axes for :math:`u = u_0+ \imath * u_1` leads to:
 
@@ -79,7 +79,7 @@ We set the physical parameters for the problem.
 
   k0 = 2
   wave_len = 2 * np.pi / k0
-  dim_x = 2 * np.pi
+  length = 2 * np.pi
   R = np.pi / 4.0
   n_wave = 20
   h_elem = wave_len / n_wave
@@ -90,7 +90,7 @@ We define the geometry (inner and outer domains):
 
 .. code-block:: python
 
-  outer = dde.geometry.Rectangle([-dim_x / 2.0, -dim_x / 2.0], [dim_x / 2.0, dim_x / 2.0])
+  outer = dde.geometry.Rectangle([-length / 2.0, -length / 2.0], [length / 2.0, length / 2.0])
   inner = dde.geometry.Disk([0, 0], R)
 
   geom = outer - inner
