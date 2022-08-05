@@ -1,5 +1,5 @@
-Helmholtz sound-hard problem with absorbing boundary conditions
-===================================================================================
+Helmholtz sound-hard scattering problem with absorbing boundary conditions
+=====================================================================================
 
 This example allows to solve the 2d Helmholtz sound-hard (scattering) problem by a R-radius circle. It is useful to understand how to:
 
