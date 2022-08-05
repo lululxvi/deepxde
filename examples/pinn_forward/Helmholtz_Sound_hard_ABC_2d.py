@@ -15,14 +15,14 @@ activation = "tanh"
 # Problem parameters
 k0 = 2
 wave_len = 2 * np.pi / k0
-dim_x = 2 * np.pi
+length = 2 * np.pi
 R = np.pi / 4.0
 n_wave = 20
 h_elem = wave_len / n_wave
-nx = int(dim_x / h_elem)
+nx = int(length / h_elem)
 
 # Computational domain
-outer = dde.geometry.Rectangle([-dim_x / 2.0, -dim_x / 2.0], [dim_x / 2.0, dim_x / 2.0])
+outer = dde.geometry.Rectangle([-length / 2.0, -length / 2.0], [length / 2.0, length / 2.0])
 inner = dde.geometry.Disk([0, 0], R)
 
 geom = outer - inner
