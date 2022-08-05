@@ -12,7 +12,7 @@ Problem setup
 
 For a wavenumber :math:`k_0= 2`, we will solve a sound-hard scattering problem for :math:`u = u^{scat} =  u_0 + \imath u_1:``
 
-.. math:: - u_{xx}-u_{yy} - k_0^2 u = 0, \qquad  \Omega = B(0,R)^c
+.. math:: - u_{xx}-u_{yy} - k_0^2 u = 0, \qquad  \Omega = \overline{B(0,R)}^c
 
 with the Neumann boundary conditions
 
