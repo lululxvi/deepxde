@@ -83,7 +83,7 @@ We set the physical parameters for the problem.
   R = np.pi / 4.0
   n_wave = 20
   h_elem = wave_len / n_wave
-  nx = int(dim_x / h_elem)
+  nx = int(length / h_elem)
 
 
 We define the geometry (inner and outer domains):
