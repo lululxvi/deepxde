@@ -32,7 +32,7 @@ and
 
 The boundary conditions read:
 
-.. math::\gamma_1 u =  - \gamma_1 u^{inc} \qquad \text{on} \qquad\Gamma^{in}
+.. math:: \gamma_1 u =  - \gamma_1 u^{inc} \qquad \text{on} \qquad\Gamma^{in}
 .. math:: \gamma_1 u - \imath k_0 \gamma_0 = 0 \qquad \text{on} \qquad \Gamma^{out}.
 
 Absorbing boundary conditions rewrite:
@@ -179,26 +179,38 @@ Then, we introduce the exact solution and both Neumann and Robin boundary condit
 
   bcs = [bc0_inner, bc1_inner, bc0_outer, bc1_outer]
 
-
+ 
 Next, we define the weights for the loss function and generate the training and testing points.
 
 .. code-block:: python
 
   loss_weights = [1, 1, weights, weights, weights, weights]
-  data = dde.data.PDE(geom, pde, bcs, num_domain= nx**2, num_boundary= 8 * nx, num_test= 5 * nx ** 2, solution = sol)
+  data = dde.data.PDE(
+      geom,
+      pde,
+      bcs,
+      num_domain= nx**2,
+      num_boundary= 8 * nx,
+      num_test= 5 * nx ** 2,
+      solution = sol
+  )
 
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 50. Besides, we choose sin as activation function and Glorot uniform as initializer :
 
 .. code-block:: python
 
-  net = dde.maps.FNN([2] + [num_dense_nodes] * num_dense_layers + [2], activation, "Glorot uniform")
+  net = dde.maps.FNN(
+      [2] + [num_dense_nodes] * num_dense_layers + [2], activation, "Glorot uniform"
+  )
 
 Now, we have the PDE problem and the network. We build a ``Model`` and define the optimizer and learning rate.
 
 .. code-block:: python
 
-  model.compile("adam", lr=learning_rate, loss_weights=loss_weights , metrics=["l2 relative error"])
+  model.compile(
+      "adam", lr=learning_rate, loss_weights=loss_weights , metrics=["l2 relative error"]
+  )
 
 We first train the model for 5000 iterations with Adam optimizer:
 
