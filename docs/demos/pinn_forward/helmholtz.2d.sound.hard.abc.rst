@@ -189,10 +189,10 @@ Next, we define the weights for the loss function and generate the training and 
       geom,
       pde,
       bcs,
-      num_domain= nx**2,
-      num_boundary= 8 * nx,
-      num_test= 5 * nx ** 2,
-      solution = sol
+      num_domain=nx**2,
+      num_boundary=8 * nx,
+      num_test=5 * nx **2,
+      solution=sol
   )
 
 
