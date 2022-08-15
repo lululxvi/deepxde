@@ -17,6 +17,10 @@ class MIONetCartesianProd(NN):
         kernel_initializer,
         regularization=None,
         trunk_last_activation=False,
+        merge_operation="mul",
+        layer_sizes_merger=None,
+        output_merge_operation="mul",
+        layer_sizes_output_merger=None,
     ):
         super().__init__()
 
@@ -44,10 +48,38 @@ class MIONetCartesianProd(NN):
             self.branch2 = FNN(
                 layer_sizes_branch2, self.activation_branch2, kernel_initializer
             )
+        if layer_sizes_merger is not None:
+            self.activation_merger = activations.get(activation["merger"])
+            if callable(layer_sizes_merger[1]):
+                # User-defined network
+                self.merger = layer_sizes_merger[1]
+            else:
+                # Fully connected network
+                self.merger = FNN(
+                    layer_sizes_merger, self.activation_merger, kernel_initializer
+                )
+        else:
+            self.merger = None
+        if layer_sizes_output_merger is not None:
+            self.activation_output_merger = activations.get(activation["output merger"])
+            if callable(layer_sizes_output_merger[1]):
+                # User-defined network
+                self.output_merger = layer_sizes_output_merger[1]
+            else:
+                # Fully connected network
+                self.output_merger = FNN(
+                    layer_sizes_output_merger,
+                    self.activation_output_merger,
+                    kernel_initializer,
+                )
+        else:
+            self.output_merger = None
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
+        self.merge_operation = merge_operation
+        self.output_merge_operation = output_merge_operation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
@@ -56,6 +88,26 @@ class MIONetCartesianProd(NN):
         # Branch net to encode the input function
         y_func1 = self.branch1(x_func1)
         y_func2 = self.branch2(x_func2)
+        if self.merge_operation == "cat":
+            x_merger = torch.cat((y_func1, y_func2), 1)
+        else:
+            if y_func1.shape[-1] != y_func2.shape[-1]:
+                raise AssertionError(
+                    "Output sizes of branch1 net and branch2 net do not match."
+                )
+            if self.merge_operation == "sum":
+                x_merger = y_func1 + y_func2
+            elif self.merge_operation == "mul":
+                x_merger = torch.mul(y_func1, y_func2)
+            else:
+                raise NotImplementedError(
+                    f"{self.merge_operation} operation to be implimented"
+                )
+        # Optional merger net
+        if self.merger is not None:
+            y_func = self.merger(x_merger)
+        else:
+            y_func = x_merger
         # Trunk net to encode the domain of the output function
         if self._input_transform is not None:
             y_loc = self._input_transform(x_loc)
@@ -63,16 +115,29 @@ class MIONetCartesianProd(NN):
         if self.trunk_last_activation:
             y_loc = self.activation_trunk(y_loc)
         # Dot product
-        if y_func1.shape[-1] != y_func2.shape[-1]:
+        if y_func.shape[-1] != y_loc.shape[-1]:
             raise AssertionError(
-                "Output sizes of branch net1 and branch net2 do not match."
+                "Output sizes of merger net and trunk net do not match."
             )
-        y = torch.mul(y_func1, y_func2)
-        if y.shape[-1] != y_loc.shape[-1]:
-            raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
-            )
-        y = torch.einsum("ip,jp->ij", y, y_loc)
+        # output merger net
+        if self.output_merger is None:
+            y = torch.einsum("ip,jp->ij", y_func, y_loc)
+        else:
+            y_func = y_func[:, None, :]
+            y_loc = y_loc[None, :]
+            if self.output_merge_operation == "mul":
+                y = torch.mul(y_func, y_loc)
+            elif self.output_merge_operation == "sum":
+                y = y_func + y_loc
+            elif self.output_merge_operation == "cat":
+                y_func = y_func.repeat(1, y_loc.shape[1], 1)
+                y_loc = y_loc.repeat(y_func.shape[0], 1, 1)
+                y = torch.cat((y_func, y_loc), dim=2)
+            shape0 = y.shape[0]
+            shape1 = y.shape[1]
+            y = y.reshape(shape0 * shape1, -1)
+            y = self.output_merger(y)
+            y.reshape(shape0, shape1)
         # Add bias
         y += self.b
         if self._output_transform is not None:
