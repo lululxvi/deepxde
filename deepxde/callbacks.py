@@ -117,6 +117,7 @@ class ModelCheckpoint(Callback):
             monitored. Model is only checked at validation step according to
             ``display_every`` in ``Model.train``.
         period: Interval (number of epochs) between checkpoints.
+        monitor: The loss function that is monitored. Either 'train loss' or 'test loss'
     """
 
     def __init__(
@@ -163,9 +164,9 @@ class ModelCheckpoint(Callback):
 
     def get_monitor_value(self):
         if self.monitor == "train loss":
-            result = sum(self.model.train_state.best_loss_train)
+            result = sum(self.model.train_state.loss_train)
         elif self.monitor == "test loss":
-            result = sum(self.model.train_state.best_loss_test)
+            result = sum(self.model.train_state.loss_test)
         else:
             raise ValueError("The specified monitor function is incorrect.")
 
