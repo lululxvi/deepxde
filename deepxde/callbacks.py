@@ -117,7 +117,7 @@ class ModelCheckpoint(Callback):
             monitored. Model is only checked at validation step according to
             ``display_every`` in ``Model.train``.
         period: Interval (number of epochs) between checkpoints.
-        monitor: The loss function that is monitored. Either 'train loss' or 'test loss'
+        monitor: The loss function that is monitored. Either 'train loss' or 'test loss.'
     """
 
     def __init__(
