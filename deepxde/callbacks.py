@@ -119,14 +119,21 @@ class ModelCheckpoint(Callback):
         period: Interval (number of epochs) between checkpoints.
     """
 
-    def __init__(self, filepath, verbose=0, save_better_only=False, period=1):
+    def __init__(
+        self,
+        filepath,
+        verbose=0,
+        save_better_only=False,
+        period=1,
+        monitor="train loss",
+    ):
         super().__init__()
         self.filepath = filepath
         self.verbose = verbose
         self.save_better_only = save_better_only
         self.period = period
 
-        self.monitor = "train loss"
+        self.monitor = monitor
         self.monitor_op = np.less
         self.epochs_since_last_save = 0
         self.best = np.Inf
@@ -137,7 +144,7 @@ class ModelCheckpoint(Callback):
             return
         self.epochs_since_last_save = 0
         if self.save_better_only:
-            current = self.model.train_state.best_loss_train
+            current = self.get_monitor_value()
             if self.monitor_op(current, self.best):
                 save_path = self.model.save(self.filepath, verbose=0)
                 if self.verbose > 0:
@@ -153,6 +160,16 @@ class ModelCheckpoint(Callback):
                 self.best = current
         else:
             self.model.save(self.filepath, verbose=self.verbose)
+
+    def get_monitor_value(self):
+        if self.monitor == "train loss":
+            result = sum(self.model.train_state.best_loss_train)
+        elif self.monitor == "test loss":
+            result = sum(self.model.train_state.best_loss_test)
+        else:
+            raise ValueError("The specified monitor function is incorrect.")
+
+        return result
 
 
 class EarlyStopping(Callback):
