@@ -128,7 +128,7 @@ class MIONetCartesianProd(NN):
             if self.output_merge_operation == "mul":
                 y = torch.mul(y_func, y_loc)
             elif self.output_merge_operation == "sum":
-                y = y_func + yloc
+                y = y_func + y_loc
             elif self.output_merge_operation == "cat":
                 y_func = y_func.repeat(1, y_loc.shape[1], 1)
                 y_loc = y_loc.repeat(y_func.shape[0], 1, 1)
