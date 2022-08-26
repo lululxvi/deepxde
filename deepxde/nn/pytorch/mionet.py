@@ -95,7 +95,7 @@ class MIONetCartesianProd(NN):
                 raise AssertionError(
                     "Output sizes of branch1 net and branch2 net do not match."
                 )
-            if self.merge_operation == "sum":
+            if self.merge_operation == "add":
                 x_merger = y_func1 + y_func2
             elif self.merge_operation == "mul":
                 x_merger = torch.mul(y_func1, y_func2)
@@ -127,7 +127,7 @@ class MIONetCartesianProd(NN):
             y_loc = y_loc[None, :]
             if self.output_merge_operation == "mul":
                 y = torch.mul(y_func, y_loc)
-            elif self.output_merge_operation == "sum":
+            elif self.output_merge_operation == "add":
                 y = y_func + y_loc
             elif self.output_merge_operation == "cat":
                 y_func = y_func.repeat(1, y_loc.shape[1], 1)
@@ -226,7 +226,7 @@ class PODMIONet(NN):
                 raise AssertionError(
                     "Output sizes of branch1 net and branch2 net do not match."
                 )
-            if self.merge_operation == "sum":
+            if self.merge_operation == "add":
                 x_merger = y_func1 + y_func2
             elif self.merge_operation == "mul":
                 x_merger = torch.mul(y_func1, y_func2)
