@@ -401,6 +401,10 @@ class Model:
             else:
                 self.net.eval()
             with paddle.no_grad():
+                if isinstance(inputs, tuple):
+                    inputs = tuple(map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs))
+                else:
+                    inputs = paddle.to_tensor(inputs, stop_gradient=False)
                 return self.net(paddle.to_tensor(inputs))
 
         def outputs_losses(training, inputs, targets, losses_fn):
@@ -409,21 +413,8 @@ class Model:
             else:
                 self.net.eval()
 
-            def is_diff_shape(inputs):
-                shape = inputs[0].shape
-                for i in range(len(inputs)):
-                    if inputs[i].shape != shape:
-                        return True 
-                return False
-
-            # Since paddle's to_tensor only supports fixed-length shapes, such as [[1,2],[1,2]]. 
-            # For non-fixed-length shapes, such as [[1],[1,2],[1,2,3]], 
-            # it needs to be converted into a list of multiple tensors
-            if is_diff_shape(inputs) is True:
-                inputs_tmp = []
-                for i in range(len(inputs)):
-                    inputs_tmp.append(paddle.to_tensor(inputs[i], stop_gradient=False))
-                inputs = inputs_tmp
+            if isinstance(inputs, tuple):
+                inputs = tuple(map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs))
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
 
