@@ -2,5 +2,5 @@
 
 __all__ = ["DeepONetCartesianProd", "FNN"]
 
-from .fnn import FNN
 from .deeponet import DeepONetCartesianProd
+from .fnn import FNN

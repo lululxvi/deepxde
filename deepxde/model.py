@@ -408,11 +408,12 @@ class Model:
                 self.net.train()
             else:
                 self.net.eval()
-            #inputs = paddle.to_tensor(inputs, stop_gradient=False)
-            inputs_tmp = []
-            inputs_tmp.append(paddle.to_tensor(inputs[0], stop_gradient=False))
-            inputs_tmp.append(paddle.to_tensor(inputs[1], stop_gradient=False))
-            inputs = inputs_tmp
+            inputs = paddle.to_tensor(inputs, stop_gradient=False)
+            if len(inputs) != 1:
+                inputs_tmp = []
+                for i in range(len(inputs)):
+                    inputs_tmp.append(paddle.to_tensor(inputs[i], stop_gradient=False))
+                inputs = inputs_tmp
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
