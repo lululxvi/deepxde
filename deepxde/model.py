@@ -408,12 +408,25 @@ class Model:
                 self.net.train()
             else:
                 self.net.eval()
-            inputs = paddle.to_tensor(inputs, stop_gradient=False)
-            if len(inputs) != 1:
+
+            def is_diff_shape(inputs):
+                shape = inputs[0].shape
+                for i in range(len(inputs)):
+                    if inputs[i].shape != shape:
+                        return True 
+                return False
+
+            # Since paddle's to_tensor only supports fixed-length shapes, such as [[1,2],[1,2]]. 
+            # For non-fixed-length shapes, such as [[1],[1,2],[1,2,3]], 
+            # it needs to be converted into a list of multiple tensors
+            if is_diff_shape(inputs) is True:
                 inputs_tmp = []
                 for i in range(len(inputs)):
                     inputs_tmp.append(paddle.to_tensor(inputs[i], stop_gradient=False))
                 inputs = inputs_tmp
+            else:
+                inputs = paddle.to_tensor(inputs, stop_gradient=False)
+
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
