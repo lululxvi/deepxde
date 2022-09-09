@@ -405,7 +405,7 @@ class Model:
                     inputs = tuple(map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs))
                 else:
                     inputs = paddle.to_tensor(inputs, stop_gradient=False)
-                return self.net(paddle.to_tensor(inputs))
+                return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             if training:
