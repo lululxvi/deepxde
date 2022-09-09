@@ -401,14 +401,27 @@ class Model:
             else:
                 self.net.eval()
             with paddle.no_grad():
-                return self.net(paddle.to_tensor(inputs))
+                if isinstance(inputs, tuple):
+                    inputs = tuple(
+                        map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs)
+                    )
+                else:
+                    inputs = paddle.to_tensor(inputs, stop_gradient=False)
+                return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             if training:
                 self.net.train()
             else:
                 self.net.eval()
-            inputs = paddle.to_tensor(inputs, stop_gradient=False)
+
+            if isinstance(inputs, tuple):
+                inputs = tuple(
+                    map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs)
+                )
+            else:
+                inputs = paddle.to_tensor(inputs, stop_gradient=False)
+
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
