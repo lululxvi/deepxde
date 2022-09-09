@@ -4,6 +4,7 @@ from .fnn import FNN
 from .nn import NN
 from .. import activations
 
+
 class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 

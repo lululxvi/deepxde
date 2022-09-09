@@ -402,7 +402,9 @@ class Model:
                 self.net.eval()
             with paddle.no_grad():
                 if isinstance(inputs, tuple):
-                    inputs = tuple(map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs))
+                    inputs = tuple(
+                        map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs)
+                    )
                 else:
                     inputs = paddle.to_tensor(inputs, stop_gradient=False)
                 return self.net(inputs)
@@ -414,7 +416,9 @@ class Model:
                 self.net.eval()
 
             if isinstance(inputs, tuple):
-                inputs = tuple(map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs))
+                inputs = tuple(
+                    map(lambda x: paddle.to_tensor(x, stop_gradient=False), inputs)
+                )
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
 
