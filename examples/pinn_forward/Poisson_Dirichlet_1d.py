@@ -9,7 +9,7 @@ import numpy as np
 # Import paddle if using backend paddle
 import paddle
 paddle.enable_static()
-# paddle.incubate.autograd.enable_prim()
+paddle.incubate.autograd.enable_prim()
 
 def pde(x, y):
     print("")
@@ -41,7 +41,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 
-losshistory, train_state = model.train(iterations=1)
+losshistory, train_state = model.train(iterations=10)
 # Optional: Save the model during training.
 # checkpointer = dde.callbacks.ModelCheckpoint(
 #     "model/model", verbose=1, save_better_only=True

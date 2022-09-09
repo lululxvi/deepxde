@@ -94,9 +94,8 @@ def sin(x):
 
 
 def square(x):
-    return paddle.pow(x, paddle.full(x.shape, 2.0, x.dtype))
-    #return paddle.square(x)
-    #return x * x
+    return paddle.pow(x, paddle.full_like(x, 2.0, x.dtype))
+    
 
 def norm(x, p=None, axis=None, keepdims=False):
     return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
@@ -126,5 +125,5 @@ def zeros(shape, dtype):
     return paddle.zeros(shape, dtype=dtype)
 
 def zeros_like(input_tensor):
-    return paddle.zeros_like(input_tensor)
+    return paddle.full_like(input_tensor, 0.0)
     #return paddle.zeros(input_tensor.shape,input_tensor.dtype)

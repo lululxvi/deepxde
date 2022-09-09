@@ -57,19 +57,17 @@ class Model:
                 self.static_start_up = None
                 self.exe = None
                 self.start_up_program = None
-                
+                self.feeds = dict()
+                self.fetches = dict()
+
                 #train elements
                 self.train_program = None
-                self.train_feeds = dict()
-                self.train_fetches = dict()
                 self.train_targets = dict()
                 self.train_losses = None
                 self.train_outputs = None
 
                 # test elements
                 self.test_program = None
-                self.test_feeds = dict()
-                self.test_fetches = dict()
                 self.test_targets = dict()
                 self.test_losses = None
                 self.test_outputs = None
@@ -494,14 +492,14 @@ class Model:
 
         """ paddle static train start_up program """
         def static_start_up(train_inputs, train_targets, test_inputs, test_targets, losses_fn, test_losses_fn):
-            # init train program
+            print("oldAD init train program")
             train_inputs_shape = list(train_inputs.shape)
             train_inputs_shape[0] = None
             if train_targets is not None: 
                 train_targets_shape = list(train_targets.shape)
                 train_targets_shape[0] = None
-            self.train_program = paddle.static.Program()
-            self.start_up_program = paddle.static.Program()
+            self.train_program = paddle.static.default_main_program()
+            self.start_up_program = paddle.static.default_startup_program()
 
             with paddle.static.program_guard(self.train_program,
                                              self.start_up_program):
@@ -528,7 +526,7 @@ class Model:
                 if not isinstance(self.train_losses, list):
                     self.train_losses = [self.train_losses]
                 self.train_losses = paddle.concat(self.train_losses, axis=0)
-                
+
                 # Weighted losses
                 if loss_weights is not None:
                     print("loss_weights:",loss_weights)
@@ -556,16 +554,17 @@ class Model:
             print("newAD init train program")
             train_shape_0 = train_inputs.shape[0]
             test_shape_0 = test_inputs.shape[0]
+            self.train_program = paddle.static.default_main_program()
+            self.test_program = self.train_program.clone()
+            self.start_up_program  = paddle.static.default_startup_program()
 
-            def build_net(batch_size, inputs, targets, losses_fn):
-                main_program = paddle.static.Program()
-                start_up_program = paddle.static.Program()
+            def build_net(batch_size, main_program, start_up_program, inputs, targets, losses_fn):
                 inputs_shape = list(inputs.shape)
                 inputs_shape[0] = batch_size
                 targets_shape = list(targets.shape)
                 targets_shape[0] = batch_size
                 with paddle.fluid.unique_name.guard():
-                    with paddle.static.program_guard(main_program,start_up_program):
+                    with paddle.static.program_guard(main_program, start_up_program):
                         inputs_buffer = paddle.static.data(name='inputs', 
                                             shape=inputs_shape,
                                             dtype=inputs.dtype)
@@ -578,11 +577,12 @@ class Model:
                             targets_buffer.stop_gradient = False
                             print("targets_buffer shape :", targets_buffer.shape)
                         outputs = self.net(inputs_buffer)
-                        print("11111111111111111111")
+                        print("outputs shape :", outputs.shape)
+                        
                         losses = losses_fn(targets_buffer, outputs, loss_fn, inputs_buffer, self)
                         if not isinstance(losses, list):
                             losses = [losses]
-
+                        print("11111111111111111111")
                         losses = paddle.concat(losses, axis=0)
                         # Weighted losses
                         if loss_weights is not None:
@@ -590,28 +590,39 @@ class Model:
                                             shape=loss_weights.shape,
                                             dtype=loss_weights.dtype)
                             loss_weights_buffer.stop_gradient = False
-
                             losses *= loss_weights_buffer
+                        
                         grad.clear()
-                        print("3333333333333333")
                         total_loss = paddle.sum(losses)
-
+                        print("999999999999999999")
                         paddle.incubate.autograd.prim2orig()
-                return main_program, start_program, outputs, losses, total_loss
+                        print("555555555555555555")
+                return outputs, losses, total_loss
 
-            (self.train_program, 
-             self.start_up_program, 
-             self.train_outputs, 
+            (self.train_outputs, 
              self.train_loss, 
-             scaler_loss) = build_net(train_shape_0, train_inputs, train_targets, train_losses_fn)
+             scaler_loss,) = build_net(train_shape_0,
+                                    self.train_program, 
+                                    self.start_up_program, 
+                                    train_inputs, 
+                                    train_targets, 
+                                    train_losses_fn,)
             print("*******************")
-            self.opt.minimize(scaler_loss)
-            (self.test_program, 
-             _, 
-             self.test_outputs, 
+            print(self.train_program)
+            
+
+            (self.test_outputs, 
              self.test_loss, 
-             _) = build_net(test_shape_0, test_inputs, test_targets, test_losses_fn)
+             _,) = build_net(test_shape_0, 
+                            self.test_program, 
+                            self.start_up_program,
+                            test_inputs, 
+                            test_targets, 
+                            test_losses_fn,)
             print("*******************")
+            
+            # supplement train_program
+            self.opt.minimize(scaler_loss)
             paddle.incubate.autograd.prim2orig()
             
             import os
@@ -625,88 +636,30 @@ class Model:
             self.exe.run(self.start_up_program)
             print("newAD build end")
 
-            # init test program
-            # with paddle.static.program_guard(self.test_program,
-            #                                  self.train_start_up_program):
-            #     test_inputs_buffer = paddle.static.data(name='test_inputs', 
-            #                         shape=test_inputs.shape,
-            #                         dtype=test_inputs.dtype)
-            #     test_inputs_buffer.stop_gradient = False
-            #     print("test_inputs_buffer shape :", test_inputs_buffer.shape)
-            #     if train_targets is not None: 
-            #         test_targets_buffer = paddle.static.data(name='train_targets', 
-            #                         shape=test_targets.shape,
-            #                         dtype=test_targets.dtype)
-            #         test_targets_buffer.stop_gradient = False
-            #         print("test_inputs_buffer shape :", test_targets_buffer.shape)
-            #     self.test_outputs = self.net(test_inputs_buffer)
-                
-            #     self.test_losses = test_losses_fn(test_targets_buffer, self.test_outputs, loss_fn, test_inputs_buffer, self)
-            #     if not isinstance(self.test_losses, list):
-            #         self.test_losses = [self.test_losses]
-
-            #     self.test_losses = paddle.concat(self.test_losses, axis=0)
-            #     # Weighted losses
-            #     if loss_weights is not None:
-            #         loss_weights_buffer = paddle.static.data(name='loss_weights', 
-            #                         shape=loss_weights.shape,
-            #                         dtype=loss_weights.dtype)
-            #         loss_weights_buffer.stop_gradient = False
-
-            #         self.test_losses *= loss_weights_buffer
-            #     grad.clear()
-                
-            #     total_loss = paddle.sum(self.test_losses)
-            
-            #     # self.test_program = self.train_program.clone(for_test=True)
-            #     # self.opt.minimize(total_loss)
-
-            #     # if paddle.incubate.autograd.prim_enabled() and not cinn_enabled():
-            #     #     paddle.incubate.autograd.prim2orig()
-            # import os
-            # f = open('newAD_test_program.log','w')
-            # print (self.train_program,file=f)
-            # f.close()
-            
-            # self.exe.run(self.test_start_up_program)
         def outputs(training, inputs):
             self.feeds['inputs'] = inputs
             if loss_weights is not None:
                 self.feeds['loss_weights'] = loss_weights
             self.feeds['targets'] = []
             
-            if training: 
+            if training : 
                 self.fetches = [self.train_losses.name]
                 self.fetches.append(self.train_outputs.name)
                 self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
             else:
-                self.fetches = [self.test_losses.name]
-                self.fetches.append(self.test_outputs.name)
-                self.exe.run(self.test_program, feed=self.feeds,
+                if paddle.incubate.autograd.enable_prim():
+                    self.fetches = [self.test_losses.name]
+                    self.fetches.append(self.test_outputs.name)
+                    self.exe.run(self.test_program, feed=self.feeds,
+                            fetch_list=self.fetches)
+                else:
+                    self.fetches = [self.train_losses.name]
+                    self.fetches.append(self.train_outputs.name)
+                    self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
                 
-        # def outputs(training, inputs):
-            
-        #     if not training and paddle.incubate.autograd.prim_enabled():
-        #         self.test_feeds['test_inputs'] = inputs
-        #         if loss_weights is not None:
-        #             self.test_feeds['loss_weights'] = loss_weights
-        #         self.test_targets['test_targets'] = []
-        #         self.fetches = [self.test_losses.name]
-        #         self.fetches.append(self.test_outputs.name)
-        #         self.exe.run(self.test_program, feed=self.test_feeds,
-        #                     fetch_list=self.fetches)
                 
-        #     else:
-        #         self.train_feeds['train_inputs'] = inputs
-        #         if loss_weights is not None:
-        #             self.train_feeds['loss_weights'] = loss_weights
-        #         self.train_targets['train_targets'] = []
-        #         self.fetches = [self.train_losses.name]
-        #         self.fetches.append(self.train_outputs.name)
-        #         self.exe.run(self.train_program, feed=self.train_feeds,
-        #                     fetch_list=self.fetches)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.feeds['inputs'] = inputs
@@ -721,42 +674,21 @@ class Model:
                 static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
             else:
-                self.fetches = [self.test_losses.name]
-                self.fetches.append(self.test_outputs.name)
-                static_out = self.exe.run(self.test_program, feed=self.feeds,
+                if paddle.incubate.autograd.enable_prim():
+                    self.fetches = [self.test_losses.name]
+                    self.fetches.append(self.test_outputs.name)
+                    static_out = self.exe.run(self.test_program, feed=self.feeds,
+                            fetch_list=self.fetches)
+                else:
+                    self.fetches = [self.train_losses.name]
+                    self.fetches.append(self.train_outputs.name)
+                    static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
 
             outputs_ = static_out[1]
             # Data losses
             losses = static_out[0]
             return outputs_, losses
-
-        # def outputs_losses(training, inputs, targets, losses_fn):
-
-        #     if not training and paddle.incubate.autograd.prim_enabled():
-        #         self.test_feeds['test_inputs'] = inputs
-        #         if loss_weights is not None:
-        #             self.test_feeds['loss_weights'] = loss_weights
-        #         self.test_targets['test_targets'] = targets
-        #         self.fetches = [self.test_losses.name]
-        #         self.fetches.append(self.test_outputs.name)
-        #         static_out = self.exe.run(self.test_program, feed=self.test_feeds,
-        #                     fetch_list=self.fetches)
-                
-        #     else:
-        #         self.train_feeds['train_inputs'] = inputs
-        #         if loss_weights is not None:
-        #             self.train_feeds['loss_weights'] = loss_weights
-        #         self.train_targets['train_targets'] = targets
-        #         self.fetches = [self.train_losses.name]
-        #         self.fetches.append(self.train_outputs.name)
-        #         static_out = self.exe.run(self.train_program, feed=self.train_feeds,
-        #                         fetch_list=self.fetches)
-            
-        #     outputs_ = static_out[1]
-        #     # Data losses
-        #     losses = static_out[0]
-        #     return outputs_, losses
 
         def outputs_losses_train(inputs, targets):
             return outputs_losses(True, inputs, targets, self.data.losses_train)
