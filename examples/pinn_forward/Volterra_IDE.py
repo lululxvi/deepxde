@@ -3,13 +3,17 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
-
+import paddle
 
 def ide(x, y, int_mat):
-    rhs = tf.matmul(int_mat, y)
-    lhs1 = tf.gradients(y, x)[0]
-    return (lhs1 + y)[: tf.size(rhs)] - rhs
+    rhs = paddle.matmul(int_mat, y)
+    lhs1 = paddle.grad(y, x)[0]
+    return (lhs1 + y)[: paddle.size(rhs)] - rhs
 
+# def ide(x, y, int_mat):
+#     rhs = tf.matmul(int_mat, y)
+#     lhs1 = tf.gradients(y, x)[0]
+#     return (lhs1 + y)[: tf.size(rhs)] - rhs
 
 def kernel(x, s):
     return np.exp(s - x)
@@ -33,7 +37,7 @@ data = dde.data.IDE(
     num_boundary=2,
     train_distribution="uniform",
 )
-
+print("*********************")
 layer_size = [1] + [20] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"

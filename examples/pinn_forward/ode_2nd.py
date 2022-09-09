@@ -1,7 +1,9 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
-
+import paddle
+paddle.enable_static()
+# paddle.incubate.autograd.enable_prim()
 
 def ode(t, y):
     dy_dt = dde.grad.jacobian(y, t)

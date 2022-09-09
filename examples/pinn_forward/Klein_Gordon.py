@@ -2,7 +2,8 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+# from deepxde.backend import tf
+import paddle
 from scipy.interpolate import griddata
 
 geom = dde.geometry.Interval(-1, 1)
@@ -15,15 +16,22 @@ def pde(x, y):
     dy_tt = dde.grad.hessian(y, x, i=1, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     x, t = x[:, 0:1], x[:, 1:2]
+    # return (
+    #     dy_tt
+    #     + alpha * dy_xx
+    #     + beta * y
+    #     + gamma * (y ** k)
+    #     + x * tf.cos(t)
+    #     - (x ** 2) * (tf.cos(t) ** 2)
+    # )
     return (
         dy_tt
         + alpha * dy_xx
         + beta * y
         + gamma * (y ** k)
-        + x * tf.cos(t)
-        - (x ** 2) * (tf.cos(t) ** 2)
+        + x * paddle.cos(t)
+        - (x ** 2) * (paddle.cos(t) ** 2)
     )
-
 
 def func(x):
     return x[:, 0:1] * np.cos(x[:, 1:2])

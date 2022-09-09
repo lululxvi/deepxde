@@ -20,8 +20,9 @@ def mean_squared_error(y_true, y_pred):
     # - Do not use ``tf.keras.losses.MeanSquaredError()``, which casts loss to ``float32``
     #     when calling ``compute_weighted_loss()`` calling ``scale_losses_by_sample_weight()``,
     #     although it finally casts loss back to the original type.
-    return bkd.reduce_mean(bkd.square(y_true - y_pred))
-
+    # return bkd.reduce_mean(bkd.square(y_true - y_pred))
+    # return bkd.reduce_sum(bkd.square(y_true - y_pred)) / (y_true - y_pred).numel()
+    return bkd.reduce_sum(bkd.square(y_true - y_pred))
 
 def mean_l2_relative_error(y_true, y_pred):
     return bkd.reduce_mean(bkd.norm(y_true - y_pred, axis=1) / bkd.norm(y_true, axis=1))

@@ -4,7 +4,7 @@ from distutils.version import LooseVersion
 import paddle
 
 
-if LooseVersion(paddle.__version__) < LooseVersion("2.3.0"):
+if LooseVersion(paddle.__version__) < LooseVersion("2.3.0") and LooseVersion(paddle.__version__) != LooseVersion("0.0.0") :
     raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
 
 if paddle.device.is_compiled_with_cuda():
@@ -94,7 +94,12 @@ def sin(x):
 
 
 def square(x):
-    return paddle.square(x)
+    return paddle.pow(x, paddle.full(x.shape, 2.0, x.dtype))
+    #return paddle.square(x)
+    #return x * x
+
+def norm(x, p=None, axis=None, keepdims=False):
+    return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
 
 
 def tanh(x):
@@ -120,6 +125,6 @@ def reduce_sum(input_tensor):
 def zeros(shape, dtype):
     return paddle.zeros(shape, dtype=dtype)
 
-
 def zeros_like(input_tensor):
     return paddle.zeros_like(input_tensor)
+    #return paddle.zeros(input_tensor.shape,input_tensor.dtype)

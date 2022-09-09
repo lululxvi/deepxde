@@ -1,0 +1,387 @@
+config.py:        tf.keras.backend.set_floatx(value)
+config.py:        tf.set_random_seed(seed)
+config.py:        tf.random.set_seed(seed)
+utils/array_ops_compat.py:        return tf.convert_to_tensor(value, dtype=config.real(tf))
+utils/array_ops_compat.py:            tup[0] = tf.convert_to_tensor([], dtype=config.real(tf))
+utils/array_ops_compat.py:    return tf.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup)
+utils/array_ops_compat.py:    return tf.roll(a, shift, axis) if is_tensor(a) else np.roll(a, shift, axis=axis)
+utils/array_ops_compat.py:        return tf.pad(array, tf.constant(pad_width))
+utils/tensorflow_compat_v1.py:    name_to_var = {v.op.name: v for v in tf.global_variables() + tf.local_variables()}
+utils/tensorflow_compat_v1.py:        for name in session.run(tf.report_uninitialized_variables(var_list))
+utils/tensorflow_compat_v1.py:    session.run(tf.variables_initializer(uninitialized_variables))
+backend/backend.py:        >>>     return {'float16': tf.float16, 'float32': tf.float32, ...}
+backend/backend.py:        >>> bkd.float16  # this will point to tf.float16
+backend/tensorflow/tensor.py:if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
+backend/tensorflow/tensor.py:        "float16": tf.float16,
+backend/tensorflow/tensor.py:        "float32": tf.float32,
+backend/tensorflow/tensor.py:        "float64": tf.float64,
+backend/tensorflow/tensor.py:        "uint8": tf.uint8,
+backend/tensorflow/tensor.py:        "int8": tf.int8,
+backend/tensorflow/tensor.py:        "int16": tf.int16,
+backend/tensorflow/tensor.py:        "int32": tf.int32,
+backend/tensorflow/tensor.py:        "int64": tf.int64,
+backend/tensorflow/tensor.py:        "bool": tf.bool,
+backend/tensorflow/tensor.py:    return bool(tf.config.list_physical_devices("GPU"))
+backend/tensorflow/tensor.py:    return tf.is_tensor(obj)
+backend/tensorflow/tensor.py:    return tf.transpose(tensor, perm=axes)
+backend/tensorflow/tensor.py:    return tf.reshape(tensor, shape)
+backend/tensorflow/tensor.py:    return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
+backend/tensorflow/tensor.py:    if tf.is_tensor(data):
+backend/tensorflow/tensor.py:        return tf.cast(data, dtype)
+backend/tensorflow/tensor.py:    return tf.convert_to_tensor(data, dtype=dtype)
+backend/tensorflow/tensor.py:    return tf.convert_to_tensor(np_array)
+backend/tensorflow/tensor.py:    return tf.nn.elu(x)
+backend/tensorflow/tensor.py:    return tf.nn.relu(x)
+backend/tensorflow/tensor.py:    return tf.nn.selu(x)
+backend/tensorflow/tensor.py:    return tf.math.sigmoid(x)
+backend/tensorflow/tensor.py:    return tf.keras.activations.swish(x)
+backend/tensorflow/tensor.py:    return tf.math.sin(x)
+backend/tensorflow/tensor.py:    return tf.math.square(x)
+backend/tensorflow/tensor.py:    return tf.math.tanh(x)
+backend/tensorflow/tensor.py:    return tf.math.reduce_mean(input_tensor, axis=dim, keepdims=keepdims)
+backend/tensorflow/tensor.py:    return tf.math.reduce_mean(input_tensor)
+backend/tensorflow/tensor.py:    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
+backend/tensorflow/tensor.py:    return tf.math.reduce_sum(input_tensor)
+backend/tensorflow/tensor.py:    return tf.norm(tensor, ord=ord, axis=axis, keepdims=keepdims)
+backend/tensorflow/tensor.py:    return tf.zeros(shape, dtype=dtype)
+backend/tensorflow/tensor.py:    return tf.zeros_like(input_tensor)
+Binary file backend/__pycache__/backend.cpython-37.pyc matches
+backend/tensorflow_compat_v1/tensor.py:if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
+backend/tensorflow_compat_v1/tensor.py:# 6. Some internal uses of tf.data symbols
+backend/tensorflow_compat_v1/tensor.py:tf.disable_v2_behavior()
+backend/tensorflow_compat_v1/tensor.py:tf.enable_v2_tensorshape()
+backend/tensorflow_compat_v1/tensor.py:# tf.disable_eager_execution()
+backend/tensorflow_compat_v1/tensor.py:# tf.disable_tensor_equality()
+backend/tensorflow_compat_v1/tensor.py:# tf.disable_resource_variables()
+backend/tensorflow_compat_v1/tensor.py:# tf.disable_control_flow_v2()
+backend/tensorflow_compat_v1/tensor.py:        "float16": tf.float16,
+backend/tensorflow_compat_v1/tensor.py:        "float32": tf.float32,
+backend/tensorflow_compat_v1/tensor.py:        "float64": tf.float64,
+backend/tensorflow_compat_v1/tensor.py:        "uint8": tf.uint8,
+backend/tensorflow_compat_v1/tensor.py:        "int8": tf.int8,
+backend/tensorflow_compat_v1/tensor.py:        "int16": tf.int16,
+backend/tensorflow_compat_v1/tensor.py:        "int32": tf.int32,
+backend/tensorflow_compat_v1/tensor.py:        "int64": tf.int64,
+backend/tensorflow_compat_v1/tensor.py:        "bool": tf.bool,
+backend/tensorflow_compat_v1/tensor.py:    return bool(tf.config.list_physical_devices("GPU"))
+backend/tensorflow_compat_v1/tensor.py:    return tf.is_tensor(obj)
+backend/tensorflow_compat_v1/tensor.py:    return tf.transpose(tensor, perm=axes)
+backend/tensorflow_compat_v1/tensor.py:    return tf.reshape(tensor, shape)
+backend/tensorflow_compat_v1/tensor.py:    return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
+backend/tensorflow_compat_v1/tensor.py:    if tf.is_tensor(data):
+backend/tensorflow_compat_v1/tensor.py:        return tf.cast(data, dtype)
+backend/tensorflow_compat_v1/tensor.py:    return tf.convert_to_tensor(data, dtype=dtype)
+backend/tensorflow_compat_v1/tensor.py:    return tf.convert_to_tensor(np_array)
+backend/tensorflow_compat_v1/tensor.py:    return tf.nn.elu(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.nn.relu(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.nn.selu(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.sigmoid(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.keras.activations.swish(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.sin(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.square(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.tanh(x)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.reduce_mean(input_tensor, axis=dim, keepdims=keepdims)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.reduce_mean(input_tensor)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
+backend/tensorflow_compat_v1/tensor.py:    return tf.math.reduce_sum(input_tensor)
+backend/tensorflow_compat_v1/tensor.py:    return tf.norm(tensor, ord=ord, axis=axis, keepdims=keepdims)
+backend/tensorflow_compat_v1/tensor.py:    return tf.zeros(shape, dtype=dtype)
+backend/tensorflow_compat_v1/tensor.py:    return tf.zeros_like(input_tensor)
+Binary file data/__pycache__/sampler.cpython-37.pyc matches
+data/constraint.py:        f = tf.cond(
+data/constraint.py:        return loss_fn(tf.zeros(tf.shape(f), dtype=config.real(tf)), f)
+data/func_constraint.py:        f = tf.cond(
+data/func_constraint.py:            loss_fn(tf.zeros(tf.shape(f), dtype=config.real(tf)), f),
+data/fpde.py:            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+data/fpde.py:                loss_fn(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+data/fpde.py:            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+data/fpde.py:        ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
+data/fpde.py:        int_mat = tf.zeros((1, self.disc.resolution[0]), dtype=config.real(tf))
+data/fpde.py:                row = tf.concat(
+data/fpde.py:                        tf.zeros(1, dtype=config.real(tf)),
+data/fpde.py:                        tf.reverse(self.get_weight(i), [0]),
+data/fpde.py:                        tf.zeros(
+data/fpde.py:                row += tf.concat(
+data/fpde.py:                        tf.zeros(i - 1, dtype=config.real(tf)),
+data/fpde.py:                        tf.zeros(1, dtype=config.real(tf)),
+data/fpde.py:                row = tf.concat(
+data/fpde.py:                        tf.reverse(self.get_weight(i), [0]),
+data/fpde.py:                        tf.zeros(self.disc.resolution[0] - i - 1),
+data/fpde.py:                row += tf.concat(
+data/fpde.py:                    [tf.zeros(i), self.get_weight(self.disc.resolution[0] - 1 - i)], 0
+data/fpde.py:            row = tf.expand_dims(row, 0)
+data/fpde.py:            int_mat = tf.concat([int_mat, row], 0)
+data/fpde.py:        int_mat = tf.concat(
+data/fpde.py:            [int_mat, tf.zeros([1, self.disc.resolution[0]], dtype=config.real(tf))], 0
+data/sampler.py:        indices = tf.data.Dataset.range(num_samples)
+data/sampler.py:    However, ``tf.data.Dataset.__iter__()`` is only supported inside of ``tf.function`` or when eager execution is
+data/sampler.py:    enabled. ``tf.data.Dataset.make_one_shot_iterator()`` supports graph mode, but is too slow.
+data/ide.py:            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+data/ide.py:                loss_fn(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+data/ide.py:            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+data/ide.py:        ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
+nn/activations.py:    a = tf.Variable(1 / n, dtype=config.real(tf))
+nn/tensorflow/fnn.py:                tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:                self.denses.append(tf.keras.layers.Dropout(rate=self.dropout_rate))
+nn/tensorflow/fnn.py:            tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:                        tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:                    tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:                    tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:                tf.keras.layers.Dense(
+nn/tensorflow/fnn.py:            y = tf.concat(y, 1)
+nn/tensorflow/deeponet.py:        self.b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+nn/tensorflow/deeponet.py:        x = tf.einsum("bi,ni->bn", x_func, x_loc)
+nn/tensorflow/deeponet.py:        self.pod_basis = tf.convert_to_tensor(pod_basis, dtype=tf.float32)
+nn/tensorflow/deeponet.py:            self.b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+nn/tensorflow/deeponet.py:            x = tf.einsum("bi,ni->bn", x_func, self.pod_basis)
+nn/tensorflow/deeponet.py:            x = tf.einsum("bi,ni->bn", x_func, tf.concat((self.pod_basis, x_loc), 1))
+nn/tensorflow/nn.py:class NN(tf.keras.Model):
+Binary file nn/__pycache__/initializers.cpython-37.pyc matches
+nn/regularizers.py:        tf.keras.regularizers.l1(l=scales[0])
+nn/regularizers.py:        else tf.keras.regularizers.l2(l=scales[0])
+nn/regularizers.py:        else tf.keras.regularizers.l1_l2(l1=scales[0], l2=scales[1])
+nn/tensorflow_compat_v1/fnn.py:        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+nn/tensorflow_compat_v1/fnn.py:                y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.training)
+nn/tensorflow_compat_v1/fnn.py:        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+nn/tensorflow_compat_v1/fnn.py:        # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to
+nn/tensorflow_compat_v1/fnn.py:        # some differences. One difference is that tf.layers.dense() will add
+nn/tensorflow_compat_v1/fnn.py:        # tf.keras.layers.Dense() will not. Hence, tf.losses.get_regularization_loss()
+nn/tensorflow_compat_v1/fnn.py:        # cannot be used for tf.keras.layers.Dense().
+nn/tensorflow_compat_v1/fnn.py:        return tf.layers.dense(
+nn/tensorflow_compat_v1/fnn.py:        W = tf.Variable(tf.random_normal([fan_in, units], stddev=math.sqrt(2 / fan_in)))
+nn/tensorflow_compat_v1/fnn.py:        g = tf.Variable(tf.ones(units))
+nn/tensorflow_compat_v1/fnn.py:        W = tf.nn.l2_normalize(W, axis=0) * g
+nn/tensorflow_compat_v1/fnn.py:        y = tf.matmul(inputs, W)
+nn/tensorflow_compat_v1/fnn.py:            b = tf.Variable(tf.zeros(units))
+nn/tensorflow_compat_v1/fnn.py:        y = tf.layers.batch_normalization(y, training=self.training)
+nn/tensorflow_compat_v1/fnn.py:        return tf.layers.batch_normalization(y, training=self.training)
+nn/tensorflow_compat_v1/fnn.py:        with tf.variable_scope("layer_norm"):
+nn/tensorflow_compat_v1/fnn.py:            mean, var = tf.nn.moments(inputs, axes=[1], keepdims=True)
+nn/tensorflow_compat_v1/fnn.py:                gamma = tf.Variable(
+nn/tensorflow_compat_v1/fnn.py:                    initial_value=tf.constant_initializer(1.0)(shape=[1, 1]),
+nn/tensorflow_compat_v1/fnn.py:                beta = tf.Variable(
+nn/tensorflow_compat_v1/fnn.py:                    initial_value=tf.constant_initializer(0.0)(shape=[1, 1]),
+nn/tensorflow_compat_v1/fnn.py:            return tf.nn.batch_normalization(
+nn/tensorflow_compat_v1/fnn.py:                _y = tf.layers.dropout(_y, rate=net.dropout_rate, training=net.training)
+nn/tensorflow_compat_v1/fnn.py:        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+nn/tensorflow_compat_v1/fnn.py:            self.y = tf.concat(y, axis=1)
+nn/tensorflow_compat_v1/fnn.py:        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+nn/tensorflow_compat_v1/mionet.py:        self.X_func1 = tf.placeholder(config.real(tf), [None, self.layer_branch1[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.X_func2 = tf.placeholder(config.real(tf), [None, self.layer_branch2[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_trunk[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.y = tf.multiply(y_func1, y_loc)
+nn/tensorflow_compat_v1/mionet.py:        self.y = tf.multiply(self.y, y_func2)
+nn/tensorflow_compat_v1/mionet.py:        self.y = tf.reduce_sum(self.y, 1, keepdims=True)
+nn/tensorflow_compat_v1/mionet.py:        b = tf.Variable(tf.zeros(1))
+nn/tensorflow_compat_v1/mionet.py:        self.target = tf.placeholder(config.real(tf), [None, 1])
+nn/tensorflow_compat_v1/mionet.py:            output = tf.layers.dense(
+nn/tensorflow_compat_v1/mionet.py:        return tf.layers.dense(output, layer[-1], kernel_regularizer=self.regularizer)
+nn/tensorflow_compat_v1/mionet.py:        self.X_func1 = tf.placeholder(config.real(tf), [None, self.layer_branch1[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.X_func2 = tf.placeholder(config.real(tf), [None, self.layer_branch2[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_trunk[0]])
+nn/tensorflow_compat_v1/mionet.py:        self.y = tf.multiply(y_func1, y_func2)
+nn/tensorflow_compat_v1/mionet.py:        self.y = tf.einsum("ip,jp->ij", self.y, y_loc)
+nn/tensorflow_compat_v1/mionet.py:        b = tf.Variable(tf.zeros(1))
+nn/tensorflow_compat_v1/mionet.py:        self.target = tf.placeholder(config.real(tf), [None, None])
+nn/tensorflow_compat_v1/deeponet.py:        self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
+nn/tensorflow_compat_v1/deeponet.py:        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
+nn/tensorflow_compat_v1/deeponet.py:        self.y = tf.einsum("bi,bi->b", y_func, y_loc)
+nn/tensorflow_compat_v1/deeponet.py:        self.y = tf.expand_dims(self.y, axis=1)
+nn/tensorflow_compat_v1/deeponet.py:            b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+nn/tensorflow_compat_v1/deeponet.py:        self.target = tf.placeholder(config.real(tf), [None, 1])
+nn/tensorflow_compat_v1/deeponet.py:        return tf.layers.dense(
+nn/tensorflow_compat_v1/deeponet.py:            W = tf.Variable(
+nn/tensorflow_compat_v1/deeponet.py:            outputs = tf.einsum("bi,nij->bnj", inputs, W)
+nn/tensorflow_compat_v1/deeponet.py:            W = tf.Variable(
+nn/tensorflow_compat_v1/deeponet.py:            outputs = tf.einsum("bni,ni->bn", inputs, W)
+nn/tensorflow_compat_v1/deeponet.py:            W = tf.Variable(
+nn/tensorflow_compat_v1/deeponet.py:            outputs = tf.einsum("bni,nij->bnj", inputs, W)
+nn/tensorflow_compat_v1/deeponet.py:                b = tf.Variable(tf.zeros(stack_size), trainable=trainable)
+nn/tensorflow_compat_v1/deeponet.py:                b = tf.Variable(tf.zeros([stack_size, units]), trainable=trainable)
+nn/tensorflow_compat_v1/deeponet.py:        self.X_func = tf.placeholder(config.real(tf), [None, self.layer_size_func[0]])
+nn/tensorflow_compat_v1/deeponet.py:        self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
+nn/tensorflow_compat_v1/deeponet.py:                y_func = tf.layers.dense(
+nn/tensorflow_compat_v1/deeponet.py:            y_func = tf.layers.dense(
+nn/tensorflow_compat_v1/deeponet.py:            y_loc = tf.layers.dense(
+nn/tensorflow_compat_v1/deeponet.py:        self.y = tf.einsum("bi,ni->bn", y_func, y_loc)
+nn/tensorflow_compat_v1/deeponet.py:        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+nn/tensorflow_compat_v1/deeponet.py:        self.target = tf.placeholder(config.real(tf), [None, None])
+Binary file nn/tensorflow_compat_v1/__pycache__/nn.cpython-37.pyc matches
+nn/tensorflow_compat_v1/resnet.py:        self.x = tf.placeholder(config.real(tf), [None, self.input_size])
+nn/tensorflow_compat_v1/resnet.py:        self.y_ = tf.placeholder(config.real(tf), [None, self.output_size])
+nn/tensorflow_compat_v1/resnet.py:        return tf.layers.dense(
+nn/tensorflow_compat_v1/mfnn.py:        self.X = tf.placeholder(config.real(tf), [None, self.layer_size_lo[0]])
+nn/tensorflow_compat_v1/mfnn.py:        X_hi = tf.concat([self.X, self.y_lo], 1)
+nn/tensorflow_compat_v1/mfnn.py:            alpha = tf.Variable(0, dtype=config.real(tf), trainable=self.trainable_hi)
+nn/tensorflow_compat_v1/mfnn.py:            alpha1 = tf.Variable(0, dtype=config.real(tf), trainable=self.trainable_hi)
+nn/tensorflow_compat_v1/mfnn.py:            alpha2 = tf.Variable(0, dtype=config.real(tf), trainable=self.trainable_hi)
+nn/tensorflow_compat_v1/mfnn.py:        self.target_lo = tf.placeholder(config.real(tf), [None, self.layer_size_lo[-1]])
+nn/tensorflow_compat_v1/mfnn.py:        self.target_hi = tf.placeholder(config.real(tf), [None, self.layer_size_hi[-1]])
+nn/tensorflow_compat_v1/mfnn.py:        return tf.layers.dense(
+nn/tensorflow_compat_v1/msffn.py:        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+nn/tensorflow_compat_v1/msffn.py:        y = tf.concat(y, axis=1)
+nn/tensorflow_compat_v1/msffn.py:        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+nn/tensorflow_compat_v1/msffn.py:        b = tf.Variable(
+nn/tensorflow_compat_v1/msffn.py:            tf.random_normal(
+nn/tensorflow_compat_v1/msffn.py:        y = tf.concat(
+nn/tensorflow_compat_v1/msffn.py:                tf.cos(tf.matmul(y, b)),
+nn/tensorflow_compat_v1/msffn.py:                tf.sin(tf.matmul(y, b)),
+nn/tensorflow_compat_v1/msffn.py:        with tf.variable_scope("fully_connected", reuse=tf.AUTO_REUSE):
+nn/tensorflow_compat_v1/msffn.py:                    y = tf.layers.dropout(
+nn/tensorflow_compat_v1/msffn.py:        self.x = tf.placeholder(config.real(tf), [None, self.layer_size[0]])
+nn/tensorflow_compat_v1/msffn.py:        y = [tf.multiply(_y_x, _y_t) for _y_x in y_x for _y_t in y_t]
+nn/tensorflow_compat_v1/msffn.py:        y = tf.concat(y, axis=1)
+nn/tensorflow_compat_v1/msffn.py:        self.y_ = tf.placeholder(config.real(tf), [None, self.layer_size[-1]])
+nn/tensorflow_compat_v1/nn.py:        self.training = tf.placeholder(tf.bool)
+nn/tensorflow_compat_v1/nn.py:        self._auxiliary_vars = tf.placeholder(config.real(tf), [None, None])
+nn/tensorflow_compat_v1/nn.py:        """Return the net outputs (tf.Tensor)."""
+nn/tensorflow_compat_v1/nn.py:        whole tf.Session, so that it will not be correct if several nets are defined
+nn/tensorflow_compat_v1/nn.py:        within the same tf.Session.
+nn/tensorflow_compat_v1/nn.py:            [np.prod(v.get_shape().as_list()) for v in tf.trainable_variables()]
+nn/initializers.py:            `tf.set_random_seed`
+nn/initializers.py:            return tf.truncated_normal(shape, 0.0, stddev, dtype, seed=self.seed)
+nn/initializers.py:            return tf.random_normal(shape, 0.0, stddev, dtype, seed=self.seed)
+nn/initializers.py:            return tf.random_uniform(shape, -limit, limit, dtype, seed=self.seed)
+nn/initializers.py:        "Glorot normal": tf.keras.initializers.glorot_normal(),
+nn/initializers.py:        "Glorot uniform": tf.keras.initializers.glorot_uniform(),
+nn/initializers.py:        "He normal": tf.keras.initializers.he_normal(),
+nn/initializers.py:        "He uniform": tf.keras.initializers.he_uniform(),
+nn/initializers.py:        "LeCun normal": tf.keras.initializers.lecun_normal(),
+nn/initializers.py:        "LeCun uniform": tf.keras.initializers.lecun_uniform(),
+nn/initializers.py:        "Orthogonal": tf.keras.initializers.Orthogonal(),
+nn/initializers.py:        "zeros": tf.zeros_initializer(),
+losses.py:    return tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
+losses.py:    return tf.keras.losses.MeanAbsolutePercentageError()(y_true, y_pred)
+losses.py:    # - Do not use ``tf.losses.mean_squared_error``, which casts `y_true` and `y_pred` to ``float32``.
+losses.py:    # - Do not use ``tf.keras.losses.MSE``, which computes the mean value over the last dimension.
+losses.py:    # - Do not use ``tf.keras.losses.MeanSquaredError()``, which casts loss to ``float32``
+losses.py:    return tf.keras.losses.CategoricalCrossentropy(from_logits=True)(y_true, y_pred)
+losses.py:    return tf.constant(0, dtype=config.real(tf))
+Binary file __pycache__/gradients.cpython-37.pyc matches
+Binary file __pycache__/model.cpython-37.pyc matches
+optimizers/tensorflow/optimizers.py:    if isinstance(optimizer, tf.keras.optimizers.Optimizer):
+optimizers/tensorflow/optimizers.py:        return tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+optimizers/tensorflow/optimizers.py:        return tf.keras.optimizers.Nadam(learning_rate=lr_schedule)
+optimizers/tensorflow/optimizers.py:        return tf.keras.optimizers.SGD(learning_rate=lr_schedule)
+optimizers/tensorflow/optimizers.py:        return tf.keras.optimizers.schedules.InverseTimeDecay(lr, decay[1], decay[2])
+optimizers/tensorflow/optimizers.py:        return tf.keras.optimizers.schedules.CosineDecay(lr, decay[1], alpha=decay[2])
+optimizers/tensorflow/tfp_optimizer.py:        self.shapes = tf.shape_n(trainable_variables)
+optimizers/tensorflow/tfp_optimizer.py:        # Information for tf.dynamic_stitch and tf.dynamic_partition later
+optimizers/tensorflow/tfp_optimizer.py:                tf.reshape(tf.range(count, count + n, dtype=tf.int32), shape)
+optimizers/tensorflow/tfp_optimizer.py:        self.partitions = tf.constant(self.partitions)
+optimizers/tensorflow/tfp_optimizer.py:    # @tf.function(jit_compile=True) has an error.
+optimizers/tensorflow/tfp_optimizer.py:    @tf.function
+optimizers/tensorflow/tfp_optimizer.py:           weights_1d: a 1D tf.Tensor.
+optimizers/tensorflow/tfp_optimizer.py:        with tf.GradientTape() as tape:
+optimizers/tensorflow/tfp_optimizer.py:        # Calculate gradients and convert to 1D tf.Tensor
+optimizers/tensorflow/tfp_optimizer.py:        grads = tf.dynamic_stitch(self.indices, grads)
+optimizers/tensorflow/tfp_optimizer.py:        """Sets the weights with a 1D tf.Tensor.
+optimizers/tensorflow/tfp_optimizer.py:            weights_1d: a 1D tf.Tensor representing the trainable variables.
+optimizers/tensorflow/tfp_optimizer.py:        weights = tf.dynamic_partition(weights_1d, self.partitions, self.n_tensors)
+optimizers/tensorflow/tfp_optimizer.py:            self.trainable_variables[i].assign(tf.reshape(param, shape))
+optimizers/tensorflow/tfp_optimizer.py:        """Returns a 1D tf.Tensor representing the `weights`.
+optimizers/tensorflow/tfp_optimizer.py:            weights: A list of tf.Tensor representing the weights.
+optimizers/tensorflow/tfp_optimizer.py:            A 1D tf.Tensor representing the `weights`.
+optimizers/tensorflow/tfp_optimizer.py:        return tf.dynamic_stitch(self.indices, weights)
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:# because the ``tf.contrib`` module is not included in TensorFlow 2.
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:            self._vars = tf.trainable_variables()
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:        self._update_placeholders = [tf.placeholder(var.dtype) for var in self._vars]
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:            var.assign(tf.reshape(placeholder, _get_shape_tuple(var)))
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:        session = session or tf.get_default_session()
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:            return tf.reshape(tensors[0], [-1])
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:            flattened = [tf.reshape(tensor, [-1]) for tensor in tensors]
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:            return tf.concat(flattened, 0)
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    """Wrapper allowing `scipy.optimize.minimize` to operate a `tf.compat.v1.Session`.
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    vector = tf.Variable([7., 7.], 'vector')
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    loss = tf.reduce_sum(tf.square(vector))
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    with tf.compat.v1.Session() as session:
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    vector = tf.Variable([7., 7.], 'vector')
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    loss = tf.reduce_sum(tf.square(vector))
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    with tf.compat.v1.Session() as session:
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    vector = tf.Variable([7., 7.], 'vector')
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    loss = tf.reduce_sum(tf.square(vector))
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    with tf.compat.v1.Session() as session:
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:        tf.logging.info("\n".join(message_lines), *message_args)
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    grads = tf.gradients(tensor, var_list)
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:    # tf.gradients sometimes returns `None` when it should return 0.
+optimizers/tensorflow_compat_v1/scipy_optimizer.py:        grad if grad is not None else tf.zeros_like(var)
+optimizers/tensorflow_compat_v1/optimizers.py:    if isinstance(optimizer, tf.train.AdamOptimizer):
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.GradientDescentOptimizer(lr)
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True)
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.AdagradOptimizer(0.01)
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.AdadeltaOptimizer()
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.RMSPropOptimizer(lr)
+optimizers/tensorflow_compat_v1/optimizers.py:            optim = tf.train.AdamOptimizer(lr)
+optimizers/tensorflow_compat_v1/optimizers.py:    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+optimizers/tensorflow_compat_v1/optimizers.py:    with tf.control_dependencies(update_ops):
+optimizers/tensorflow_compat_v1/optimizers.py:    global_step = tf.Variable(0, trainable=False)
+optimizers/tensorflow_compat_v1/optimizers.py:        lr = tf.train.inverse_time_decay(lr, global_step, decay[1], decay[2])
+optimizers/tensorflow_compat_v1/optimizers.py:        lr = tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2])
+Binary file optimizers/tensorflow_compat_v1/__pycache__/scipy_optimizer.cpython-37.pyc matches
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:tf.disable_v2_behavior()
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        self.shapes = [v.get_shape().as_list() for v in tf.trainable_variables()]
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        # Information for tf.dynamic_stitch and tf.dynamic_partition later
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:                tf.reshape(tf.range(count, count + n, dtype=tf.int32), shape)
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        self.partitions = tf.constant(self.partitions)
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:           weights_1d: a 1D tf.Tensor.
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        with tf.control_dependencies([update_ops]):
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        # Calculate gradients and convert to 1D tf.Tensor
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        grads = tf.gradients(loss, tf.trainable_variables())
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        grads = tf.dynamic_stitch(self.indices, grads)
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        """Sets the weights with a 1D tf.Tensor.
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            weights_1d: a 1D tf.Tensor representing the trainable variables.
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            A ``tf.Operation``.
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        weights = tf.dynamic_partition(weights_1d, self.partitions, self.n_tensors)
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        variables = tf.trainable_variables()
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            update_ops.append(variables[i].assign(tf.reshape(param, shape)))
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:        return tf.group(*update_ops)
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    sess = tf.keras.backend.get_session()
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    # tf.keras.backend.set_floatx("float64")
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    train_x = tf.placeholder(tf.float32, [None, 2])
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    train_y = tf.placeholder(tf.float32, [None, 1])
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    loss_fun = tf.keras.losses.MeanSquaredError()
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    model = tf.keras.Sequential(
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            tf.keras.Input(shape=[2]),
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            tf.keras.layers.Dense(64, "tanh"),
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            tf.keras.layers.Dense(64, "tanh"),
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:            tf.keras.layers.Dense(1, None),
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    # W = tf.Variable(tf.random_normal([2, 1]))
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    # b = tf.Variable(tf.zeros(1))
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    # y = tf.matmul(train_x, W) + b
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    # convert initial model parameters to a 1D tf.Tensor
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    params = tf.dynamic_stitch(func.indices, tf.trainable_variables())
+optimizers/tensorflow_compat_v1/tfp_optimizer.py:    sess.run(tf.global_variables_initializer())
+model.py:                    "``tf.Variable`` objects are automatically collected."
+model.py:                cfg = tf.ConfigProto()
+model.py:                    tf.OptimizerOptions.ON_2
+model.py:                self.sess = tf.Session(config=cfg)
+model.py:                self.sess = tf.Session()
+model.py:            self.saver = tf.train.Saver(max_to_keep=None)
+model.py:                losses.append(tf.losses.get_regularization_loss())
+model.py:            losses = tf.convert_to_tensor(losses)
+model.py:        total_loss = tf.math.reduce_sum(losses_train)
+model.py:        @tf.function(jit_compile=config.xla_jit)
+model.py:            # Don't call outputs() decorated by @tf.function above, otherwise the
+model.py:                losses += [tf.math.reduce_sum(self.net.losses)]
+model.py:            losses = tf.convert_to_tensor(losses)
+model.py:        @tf.function(jit_compile=config.xla_jit)
+model.py:        @tf.function(jit_compile=config.xla_jit)
+model.py:        @tf.function(jit_compile=config.xla_jit)
+model.py:            with tf.GradientTape() as tape:
+model.py:                total_loss = tf.math.reduce_sum(losses)
+model.py:                return tf.math.reduce_sum(losses)
+model.py:                self.sess.run(tf.global_variables_initializer())
+model.py:                @tf.function
+model.py:                @tf.function
+model.py:            variables_names = [v.name for v in tf.global_variables()]
+model.py:                - For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
+model.py:                - For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
+model.py:        variables_names = [v.name for v in tf.trainable_variables()]
+gradients.py:                self.J[i] = tf.gradients(y, self.xs)[0]
+gradients.py:        # @tf.function
+gradients.py:        #     tf.print(mydict)  # always {}
+gradients.py:        #     tf.print(hash(y.ref()), hash(x.ref()))  # Doesn't change
+gradients.py:        #     tf.print(mydict)
+gradients.py:    Use this function to compute first-order derivatives instead of ``tf.gradients()``
+gradients.py:    Use this function to compute second-order derivatives instead of ``tf.gradients()``
+callbacks.py:            @tf.function

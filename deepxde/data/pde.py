@@ -111,6 +111,13 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
+    def error_numel(error):
+        shape = error.shape()
+        size = 1
+        for i in range(shape.size()):
+            size *= shape[i]
+        return size
+
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             outputs_pde = outputs
@@ -140,7 +147,6 @@ class PDE(Data):
                     len(f) + len(self.bcs), len(loss_fn)
                 )
             )
-
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]

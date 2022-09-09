@@ -10,16 +10,16 @@ def func(x):
     """
     return x * np.sin(5 * x)
 
-
+print("-----------geom------------")
 geom = dde.geometry.Interval(-1, 1)
 num_train = 16
 num_test = 100
 data = dde.data.Function(geom, func, num_train, num_test)
-
+print("-----------net------------")
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN([1] + [20] * 3 + [1], activation, initializer)
-
+print("-----------model------------")
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 losshistory, train_state = model.train(iterations=10000)
