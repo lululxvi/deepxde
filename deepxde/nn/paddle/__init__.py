@@ -1,5 +1,6 @@
 """Package for paddle NN modules."""
 
-__all__ = ["FNN"]
+__all__ = ["DeepONetCartesianProd", "FNN"]
 
+from .deeponet import DeepONetCartesianProd
 from .fnn import FNN
