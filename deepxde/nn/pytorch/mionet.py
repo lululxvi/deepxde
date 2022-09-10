@@ -137,7 +137,7 @@ class MIONetCartesianProd(NN):
             shape1 = y.shape[1]
             y = y.reshape(shape0 * shape1, -1)
             y = self.output_merger(y)
-            y.reshape(shape0, shape1)
+            y = y.reshape(shape0, shape1)
         # Add bias
         y += self.b
         if self._output_transform is not None:
