@@ -5,6 +5,7 @@ from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none
+import paddle
 
 
 class PDE(Data):
@@ -151,8 +152,8 @@ class PDE(Data):
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
-        ]
+            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)    
+        ] 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.

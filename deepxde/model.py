@@ -582,7 +582,7 @@ class Model:
                         losses = losses_fn(targets_buffer, outputs, loss_fn, inputs_buffer, self)
                         if not isinstance(losses, list):
                             losses = [losses]
-                        print("11111111111111111111")
+                        print("loss compute end")
                         losses = paddle.concat(losses, axis=0)
                         # Weighted losses
                         if loss_weights is not None:
@@ -594,9 +594,9 @@ class Model:
                         
                         grad.clear()
                         total_loss = paddle.sum(losses)
-                        print("999999999999999999")
+                        self.opt.minimize(total_loss)
                         paddle.incubate.autograd.prim2orig()
-                        print("555555555555555555")
+                        
                 return outputs, losses, total_loss
 
             (self.train_outputs, 
@@ -607,9 +607,17 @@ class Model:
                                     train_inputs, 
                                     train_targets, 
                                     train_losses_fn,)
-            print("*******************")
-            print(self.train_program)
+            import os
+            f = open('newAD_train_program.log','w')
+            print (self.train_program,file=f)
+            print('before ad', scaler_loss.block, flush=1)
+            #print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
+            f.close()
+            with paddle.static.program_guard(self.train_program,
+                                             self.start_up_program):
+                self.opt.minimize(scaler_loss)
             
+            print("train_program success")
 
             (self.test_outputs, 
              self.test_loss, 
@@ -619,10 +627,10 @@ class Model:
                             test_inputs, 
                             test_targets, 
                             test_losses_fn,)
-            print("*******************")
+            print("test_program success")
             
             # supplement train_program
-            self.opt.minimize(scaler_loss)
+            
             paddle.incubate.autograd.prim2orig()
             
             import os

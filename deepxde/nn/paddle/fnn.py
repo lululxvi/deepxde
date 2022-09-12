@@ -7,7 +7,7 @@ from .. import initializers
 
 class FNN(NN):
     """Fully-connected neural network."""
-
+    
     def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
         self.activation = activations.get(activation)
