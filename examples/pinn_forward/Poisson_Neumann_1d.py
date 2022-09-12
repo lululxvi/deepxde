@@ -1,7 +1,9 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-
+import paddle
+paddle.enable_static()
+# paddle.incubate.autograd.enable_prim()
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)

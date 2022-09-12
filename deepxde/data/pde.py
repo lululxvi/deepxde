@@ -5,6 +5,7 @@ from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none
+import paddle
 
 
 class PDE(Data):
@@ -111,6 +112,13 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
+    def error_numel(error):
+        shape = error.shape()
+        size = 1
+        for i in range(shape.size()):
+            size *= shape[i]
+        return size
+
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             outputs_pde = outputs
@@ -140,13 +148,12 @@ class PDE(Data):
                     len(f) + len(self.bcs), len(loss_fn)
                 )
             )
-
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
-        ]
+            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)    
+        ] 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.

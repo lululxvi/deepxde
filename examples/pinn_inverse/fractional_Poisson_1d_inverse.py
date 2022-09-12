@@ -3,23 +3,35 @@ import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
 from scipy.special import gamma
+import paddle
 
 
 alpha0 = 1.8
-alpha = tf.Variable(1.5)
+#alpha = tf.Variable(1.5)
+alpha = paddle.var(paddle.to_tensor(1.5))
 
+# def fpde(x, y, int_mat):
+#     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
+#     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+#         int_mat = tf.SparseTensor(*int_mat)
+#         lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
+#     else:
+#         lhs = tf.matmul(int_mat, y)
+#     lhs /= 2 * tf.cos(alpha * np.pi / 2)
+#     rhs = gamma(alpha0 + 2) * x
+#     return lhs - rhs[: tf.size(lhs)]
 
 def fpde(x, y, int_mat):
     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
-    if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = tf.SparseTensor(*int_mat)
-        lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
+    int_mat_ = paddle.to_tensor(int_mat)
+    if isinstance(int_mat_, (list, tuple)) and len(int_mat_) == 3:
+        int_mat_ = paddle.SparseTensor(*int_mat_)
+        lhs = paddle.sparse_tensor_dense_matmul(int_mat_, y)
     else:
-        lhs = tf.matmul(int_mat, y)
-    lhs /= 2 * tf.cos(alpha * np.pi / 2)
+        lhs = paddle.matmul(int_mat_, y)
+    lhs /= 2 * paddle.cos(alpha * np.pi / 2)
     rhs = gamma(alpha0 + 2) * x
-    return lhs - rhs[: tf.size(lhs)]
-
+    return lhs - rhs[: paddle.numel(lhs)]
 
 def func(x):
     return x * (np.abs(1 - x ** 2)) ** (alpha0 / 2)

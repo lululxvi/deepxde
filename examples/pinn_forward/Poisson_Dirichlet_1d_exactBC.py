@@ -1,14 +1,16 @@
 """Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
-
+# from deepxde.backend import tf
+import paddle
 geom = dde.geometry.Interval(0, np.pi)
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
-    summation = sum([i * tf.sin(i * x) for i in range(1, 5)])
-    return -dy_xx - summation - 8 * tf.sin(8 * x)
+    # summation = sum([i * tf.sin(i * x) for i in range(1, 5)])
+    # return -dy_xx - summation - 8 * tf.sin(8 * x)
+    summation = sum([i * paddle.sin(i * x) for i in range(1, 5)])
+    return -dy_xx - summation - 8 * paddle.sin(8 * x)
 
 def func(x):
     summation = sum([np.sin(i * x) / i for i in range(1, 5)])

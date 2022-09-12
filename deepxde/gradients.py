@@ -19,6 +19,8 @@ class Jacobian:
         self.xs = xs
 
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
+            # print("xs.name = ",xs.name,"xs.shape = ",xs.shape)
+            # print("ys.name = ",ys.name,"ys.shape = ",ys.shape)
             self.dim_y = ys.shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
@@ -52,7 +54,10 @@ class Jacobian:
                 )[0]
             elif backend_name == "paddle":
                 y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
-                self.J[i] = paddle.grad(y, self.xs, create_graph=True)[0]
+                if paddle.in_dynamic_mode():
+                    self.J[i] = paddle.grad(y, self.xs, create_graph=True)[0]
+                else:
+                    self.J[i] = paddle.incubate.autograd.grad(y, self.xs)
             elif backend_name == "jax":
                 # Here, we use jax.grad to compute the gradient of a function. This is
                 # different from TensorFlow and PyTorch that the input of a function is

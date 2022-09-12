@@ -7,7 +7,9 @@ import re
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
+import paddle
+paddle.enable_static()
+# paddle.incubate.autograd.enable_prim()
 g = 1
 v = 1e-3
 e = 0.4
