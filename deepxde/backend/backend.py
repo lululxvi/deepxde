@@ -271,3 +271,10 @@ def zeros_like(input_tensor):
     Returns:
         Tensor: The result.
     """
+
+def control_seed(number):
+    """set all the global random number seed as the same number 
+
+    Args:
+        number (int)
+    """
