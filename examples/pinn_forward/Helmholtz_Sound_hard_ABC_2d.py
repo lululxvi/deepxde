@@ -3,6 +3,9 @@ import deepxde as dde
 import numpy as np
 import scipy
 from scipy.special import jv, hankel1
+import paddle
+paddle.enable_static()
+# paddle.incubate.autograd.enable_prim()
 
 # General parameters
 weights = 1

@@ -2,21 +2,24 @@
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
+# from deepxde.backend import tf
 # Backend pytorch
 # import torch
-
+# Backend paddle
+import paddle
+paddle.enable_static()
+# paddle.incubate.autograd.enable_prim()
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     # Backend tensorflow.compat.v1 or tensorflow
-    return (
-        dy_t
-        - dy_xx
-        + tf.exp(-x[:, 1:])
-        * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
-    )
+    # return (
+    #     dy_t
+    #     - dy_xx
+    #     + tf.exp(-x[:, 1:])
+    #     * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
+    # )
     # Backend pytorch
     # return (
     #     dy_t
@@ -24,7 +27,13 @@ def pde(x, y):
     #     + torch.exp(-x[:, 1:])
     #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
     # )
-
+    # Backend paddle
+    return (
+        dy_t
+        - dy_xx
+        + paddle.exp(-x[:, 1:])
+        * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
+    )
 
 def func(x):
     return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])

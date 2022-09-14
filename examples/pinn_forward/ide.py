@@ -3,15 +3,22 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.backend import tf
+import paddle
 
+# def ide(x, y, int_mat):
+#     """int_0^x y(t)dt"""
+#     lhs1 = tf.matmul(int_mat, y)
+#     lhs2 = tf.gradients(y, x)[0]
+#     rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
+#     return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
 
 def ide(x, y, int_mat):
     """int_0^x y(t)dt"""
-    lhs1 = tf.matmul(int_mat, y)
-    lhs2 = tf.gradients(y, x)[0]
-    rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
-    return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
-
+    int_mat_ = paddle.to_tensor(int_mat)
+    lhs1 = paddle.matmul(int_mat_, y)
+    lhs2 = paddle.grad(y, x)[0]
+    rhs = 2 * np.pi * paddle.cos(2 * np.pi * x) + paddle.sin(np.pi * x) ** 2 / np.pi
+    return lhs1 + (lhs2 - rhs)[: paddle.numel(lhs1)]
 
 def func(x):
     """

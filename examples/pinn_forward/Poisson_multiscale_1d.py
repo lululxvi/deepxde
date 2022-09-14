@@ -6,7 +6,8 @@ References:
 """
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
+# from deepxde.backend import tf
+import paddle
 
 A = 2
 B = 50
@@ -14,10 +15,15 @@ B = 50
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
+    # return (
+    #     dy_xx
+    #     + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
+    #     + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
+    # )
     return (
         dy_xx
-        + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
-        + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
+        + (np.pi * A) ** 2 * paddle.sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * paddle.sin(np.pi * B * x)
     )
 
 
