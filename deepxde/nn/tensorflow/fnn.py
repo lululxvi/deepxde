@@ -13,8 +13,10 @@ class FNN(NN):
         layer_sizes,
         activation,
         kernel_initializer,
+        w_array,
         regularization=None,
         dropout_rate=0,
+        use_bias = True,
     ):
         super().__init__()
         self.regularizer = regularizers.get(regularization)
@@ -24,14 +26,25 @@ class FNN(NN):
         activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         for units in layer_sizes[1:-1]:
+        #for i in range(1,len(layer_sizes)):
+            #units = layer_sizes[i]
             self.denses.append(
                 tf.keras.layers.Dense(
                     units,
                     activation=activation,
                     kernel_initializer=initializer,
                     kernel_regularizer=self.regularizer,
+                    use_bias = use_bias,
                 )
+                # tf.keras.layers.Dense(
+                #     units,
+                #     activation=activation,
+                #     kernel_initializer=tf.constant_initializer(w_array[i-1]),
+                #     kernel_regularizer=self.regularizer,
+                #     use_bias = use_bias,
+                # )
             )
+            
             if self.dropout_rate > 0:
                 self.denses.append(tf.keras.layers.Dropout(rate=self.dropout_rate))
 

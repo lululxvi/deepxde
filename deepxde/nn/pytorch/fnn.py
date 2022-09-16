@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 from .nn import NN
 from .. import activations
 from .. import initializers
@@ -9,7 +9,7 @@ from ... import config
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
+    def __init__(self, layer_sizes, activation, kernel_initializer,w_array):
         super().__init__()
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
@@ -17,13 +17,30 @@ class FNN(NN):
 
         self.linears = torch.nn.ModuleList()
         for i in range(1, len(layer_sizes)):
+            print("init i :", i, "self.linears :", self.linears)
             self.linears.append(
                 torch.nn.Linear(
                     layer_sizes[i - 1], layer_sizes[i], dtype=config.real(torch)
                 )
             )
-            initializer(self.linears[-1].weight)
+            self.linears[-1].weight = torch.nn.parameter.Parameter(torch.Tensor(w_array[i-1]).transpose(0,1))
+            print("len_w_array[{}] = {} ".format(i,w_array[i-1].shape))
+            print("linear.weight_shape :", self.linears[-1].weight.shape)
+            #initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
+        # debug info
+        import os
+        f = open('pytorch_param.log','ab')
+        for linear in self.linears:
+            # general initilizer :
+            tmp0 = linear.weight.cpu().detach().numpy()
+            tmp0 = np.transpose(tmp0)
+            tmp1 = linear.bias.cpu().detach().numpy()
+            tmp1 = np.transpose(tmp1)
+            np.savetxt(f,tmp0.reshape(1,-1),delimiter=",")
+            np.savetxt(f,tmp1.reshape(1,-1),delimiter=",")
+        f.close()
+        # debug info end
 
     def forward(self, inputs):
         x = inputs
