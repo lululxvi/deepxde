@@ -256,13 +256,14 @@ class Model:
 
         def outputs(training, inputs):
             self.net.train(mode=training)
-            if isinstance(inputs, tuple):
-                inputs = tuple(
-                    map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
-                )
-            else:
-                inputs = torch.as_tensor(inputs)
-                inputs.requires_grad_()
+            with torch.no_grad():
+                if isinstance(inputs, tuple):
+                    inputs = tuple(
+                        map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                    )
+                else:
+                    inputs = torch.as_tensor(inputs)
+                    inputs.requires_grad_()
             return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
