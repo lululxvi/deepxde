@@ -258,10 +258,13 @@ class Model:
             self.net.train(mode=training)
             with torch.no_grad():
                 if isinstance(inputs, tuple):
-                    inputs = tuple(map(torch.as_tensor, inputs))
+                    inputs = tuple(
+                        map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                    )
                 else:
                     inputs = torch.as_tensor(inputs)
-                return self.net(inputs)
+                    inputs.requires_grad_()
+            return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
