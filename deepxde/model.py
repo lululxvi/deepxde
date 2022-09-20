@@ -762,13 +762,13 @@ class Model:
             x = tuple(np.asarray(xi, dtype=config.real(np)) for xi in x)
         else:
             x = np.asarray(x, dtype=config.real(np))
-        self.callbacks = CallbackList(callbacks=callbacks)
-        self.callbacks.set_model(self)
-        self.callbacks.on_predict_begin()
+        callbacks = CallbackList(callbacks=callbacks)
+        callbacks.set_model(self)
+        callbacks.on_predict_begin()
 
         if operator is None:
             y = self._outputs(False, x)
-            self.callbacks.on_predict_end()
+            callbacks.on_predict_end()
             return y
 
         # operator is not None
@@ -830,7 +830,7 @@ class Model:
                     "for backend paddle."
                 )
             y = utils.to_numpy(y)
-        self.callbacks.on_predict_end()
+        callbacks.on_predict_end()
         return y
 
     # def evaluate(self, x, y, callbacks=None):
