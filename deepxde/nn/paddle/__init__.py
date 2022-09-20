@@ -3,4 +3,5 @@
 __all__ = ["DeepONetCartesianProd", "FNN"]
 
 from .deeponet import DeepONetCartesianProd
+from .deeponet import DeepONet
 from .fnn import FNN

@@ -9,6 +9,8 @@ if LooseVersion(paddle.__version__) < LooseVersion("2.3.0"):
 
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")
+else:
+    paddle.device.set_device("cpu")
 
 lib = paddle
 
