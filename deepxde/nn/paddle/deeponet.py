@@ -3,7 +3,7 @@ import paddle
 from .fnn import FNN
 from .nn import NN
 from .. import activations
-from ..import initializers
+from .. import initializers
 
 
 class DeepONet(NN):
@@ -36,7 +36,6 @@ class DeepONet(NN):
         kernel_initializer,
         regularization=None,
         use_bias=True,
-        stacked=False,
         trainable_branch=True,
         trainable_trunk=True,
     ):
@@ -51,11 +50,6 @@ class DeepONet(NN):
             activation_branch = self.activation_trunk = activations.get(activation)
 
         self.kernel_initializer = initializers.get(kernel_initializer)
-        self.stacked = stacked
-        if stacked:
-            self.kernel_initializer_stacked = initializers.get(
-                kernel_initializer + "stacked"
-            )
 
         if callable(layer_sizes_branch[1]):
             # User-defined network
