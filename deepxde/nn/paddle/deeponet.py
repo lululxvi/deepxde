@@ -3,6 +3,7 @@ import paddle
 from .fnn import FNN
 from .nn import NN
 from .. import activations
+from .. import initializers
 
 
 class DeepONetCartesianProd(NN):
@@ -42,7 +43,11 @@ class DeepONetCartesianProd(NN):
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.b = paddle.to_tensor(0.0, stop_gradient=False)
+        # register bias to parameter for updating in optimizer and storage
+        self.b = self.create_parameter(
+            shape=(1, ),
+            default_initializer=initializers.get("zeros")
+        )
         self.regularizer = regularization
 
     def forward(self, inputs):
