@@ -24,8 +24,6 @@ class DeepONet(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        trainable_branch: Boolean.
-        trainable_trunk: Boolean or a list of booleans.
     """
 
     def __init__(
@@ -36,8 +34,6 @@ class DeepONet(NN):
         kernel_initializer,
         regularization=None,
         use_bias=True,
-        trainable_branch=True,
-        trainable_trunk=True,
     ):
         super().__init__()
         self.layer_sizes_func = layer_sizes_branch
@@ -65,8 +61,6 @@ class DeepONet(NN):
                 shape=(1, ),
                 default_initializer=initializers.get("zeros")
             )
-        self.trainable_branch = trainable_branch
-        self.trainable_trunk = trainable_trunk
         self.regularizer = regularization
 
     def forward(self, inputs):
