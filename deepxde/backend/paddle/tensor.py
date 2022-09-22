@@ -2,7 +2,8 @@
 from distutils.version import LooseVersion
 
 import paddle
-
+import random 
+import numpy
 
 if LooseVersion(paddle.__version__) < LooseVersion("2.3.0") and LooseVersion(paddle.__version__) != LooseVersion("0.0.0") :
     raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
@@ -97,11 +98,13 @@ def sin(x):
 
 
 def square(x):
-    #return paddle.square()
+    if paddle.in_dynamic_mode():
+        return paddle.square(x)
     if paddle.incubate.autograd.prim_enabled():
         return x * x
     else:
-        return paddle.pow(x, paddle.full_like(x, 2.0, x.dtype))
+        return paddle.square(x)
+        # return paddle.pow(x, paddle.full_like(x, 2.0, x.dtype))
 
 def norm(x, p=None, axis=None, keepdims=False):
     return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
@@ -131,9 +134,16 @@ def zeros(shape, dtype):
     return paddle.zeros(shape, dtype=dtype)
 
 def zeros_like(input_tensor):
+    if paddle.in_dynamic_mode():
+        return paddle.full_like(input_tensor, 0.0)
     if paddle.incubate.autograd.prim_enabled():
         # This ugly trick should be fixed when we support fill_any_like in prim.
         return paddle.full(input_tensor.shape, 0.0, input_tensor.dtype)
     else:
         return paddle.full_like(input_tensor, 0.0)
     #return paddle.zeros(input_tensor.shape,input_tensor.dtype)
+
+def control_seed(number):
+    paddle.seed(number)
+    numpy.random.seed(number)
+    random.seed(number)

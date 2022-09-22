@@ -151,7 +151,7 @@ def _save_animation(filename, xdata, ydata, y_reference=None, logy=False):
     plt.close()
 
 
-def list_to_str(nums, precision=2):
+def list_to_str(nums, precision=6):
     if nums is None:
         return ""
     if not isinstance(nums, (list, tuple, np.ndarray)):

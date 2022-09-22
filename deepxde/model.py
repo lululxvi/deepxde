@@ -297,7 +297,17 @@ class Model:
             else:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
+            
+            # file_name1 = 'pytorch_net_input'
+            # with open(file_name1,'ab') as f1:
+            #     np.savetxt(f1,utils.to_numpy(inputs),delimiter=",")
+
             outputs_ = self.net(inputs)
+            
+            # file_name = 'pytorch_net_output'
+            # with open(file_name,'ab') as f:
+            #     np.savetxt(f,utils.to_numpy(outputs_),delimiter=",")
+
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -305,6 +315,10 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             losses = torch.stack(losses)
+
+            file_name2 = 'pytorch_lossed'
+            with open(file_name2,'ab') as f2:
+                np.savetxt(f2,utils.to_numpy(losses),delimiter=",")
             # Weighted losses
             if loss_weights is not None:
                 losses *= torch.as_tensor(loss_weights)
@@ -434,7 +448,16 @@ class Model:
             else:
                 self.net.eval()
             inputs = paddle.to_tensor(inputs, stop_gradient=False)
+            # file_name1 = 'paddle_dygraph_net_input'
+            # with open(file_name1,'ab') as f1:
+            #     np.savetxt(f1,utils.to_numpy(inputs),delimiter=",")
+
             outputs_ = self.net(inputs)
+
+            # file_name = 'paddle_dygraph_net_output'
+            # with open(file_name,'ab') as f:
+            #     np.savetxt(f,utils.to_numpy(outputs_),delimiter=",")
+
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
@@ -443,6 +466,11 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = paddle.concat(losses, axis=0)
+
+            # file_name = 'paddle_dygraph_losses'
+            # with open(file_name,'ab') as f:
+            #     np.savetxt(f,utils.to_numpy(losses),delimiter=",")
+
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
@@ -727,7 +755,9 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        if backend_name in ["tensorflow", "pytorch", "paddle"]:
+        if backend_name in ["tensorflow", "pytorch"]:
+            outs = self.outputs(training, inputs)
+        elif backend_name == "paddle":
             outs = self.outputs(training, inputs)
             if not paddle.in_dynamic_mode():
                 return outs
@@ -847,7 +877,6 @@ class Model:
                                     self.data.losses_test)
         print("start_up_program end ...")
         self._test()
-        print("_test end ...")
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -859,7 +888,6 @@ class Model:
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
-            print("_train_sgd begin ...")
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
@@ -986,14 +1014,12 @@ class Model:
             self.train_state.y_train,
             self.train_state.train_aux_vars,
         )
-        print("_test train end ")
         self.train_state.y_pred_test, self.train_state.loss_test = self._outputs_losses(
             False,
             self.train_state.X_test,
             self.train_state.y_test,
             self.train_state.test_aux_vars,
         )
-        print("_test test end ")
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
                 m(self.train_state.y_test[i], self.train_state.y_pred_test[i])
@@ -1095,7 +1121,7 @@ class Model:
                 )
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
-            if paddle.in_dygraph_mode():
+            if paddle.in_dynamic_mode():
                 self.net.eval()
                 inputs = paddle.to_tensor(x, stop_gradient=False)
                 outputs = self.net(inputs)

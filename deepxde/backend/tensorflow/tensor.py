@@ -1,6 +1,8 @@
 """tensorflow backend implementation"""
 from distutils.version import LooseVersion
 
+import numpy
+import random
 import tensorflow as tf
 import tensorflow_probability as tfp
 
@@ -135,3 +137,9 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return tf.zeros_like(input_tensor)
+
+
+def control_seed(number):
+    tf.random.set_seed(number)
+    numpy.random.seed(number)
+    random.seed(number)
