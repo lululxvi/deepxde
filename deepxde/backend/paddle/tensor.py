@@ -50,7 +50,10 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
-    return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
+    if paddle.in_dynamic_mode():
+        return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
+    else:
+        return paddle.static.create_parameter(shape=[1], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=initial_value))
 
 
 def as_tensor(data, dtype=None):

@@ -156,8 +156,13 @@ def list_to_str(nums, precision=2):
         return ""
     if not isinstance(nums, (list, tuple, np.ndarray)):
         return "{:.{}e}".format(nums, precision)
-    return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
-
+    if bkd.backend_name not in ['paddle']:
+        return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
+    else:
+        if not bkd.paddle.in_dynamic_mode():
+           return "{:s}".format(", ".join(str(x) for x in nums))
+        else:
+            return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums])) 
 
 def get_num_args(func):
     """Get the number of arguments of a Python function.

@@ -71,6 +71,8 @@ class Model:
                 self.test_targets = dict()
                 self.test_losses = None
                 self.test_outputs = None
+                self.var_list = []
+                self.extra_fetch_var = []
                 
                 
     @utils.timing
@@ -607,12 +609,12 @@ class Model:
                                     train_inputs, 
                                     train_targets, 
                                     train_losses_fn,)
-            import os
-            f = open('newAD_train_program.log','w')
-            print (self.train_program,file=f)
-            print('before ad', scaler_loss.block, flush=1)
-            #print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
-            f.close()
+            # import os
+            # f = open('newAD_train_program.log','w')
+            # print (self.train_program,file=f)
+            # print('before ad', scaler_loss.block, flush=1)
+            # #print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
+            # f.close()
             with paddle.static.program_guard(self.train_program,
                                              self.start_up_program):
                 self.opt.minimize(scaler_loss)
@@ -675,14 +677,15 @@ class Model:
                 self.feeds['loss_weights'] = loss_weights
             if targets is not None:
                 self.feeds['targets'] = targets
-
+            self.extra_fetch_var = []
             if training:
                 self.fetches = [self.train_losses.name]
                 self.fetches.append(self.train_outputs.name)
+                self.fetches.append(self.var_list)
                 static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
             else:
-                if paddle.incubate.autograd.enable_prim():
+                if paddle.incubate.autograd.prim_enabled():
                     self.fetches = [self.test_losses.name]
                     self.fetches.append(self.test_outputs.name)
                     static_out = self.exe.run(self.test_program, feed=self.feeds,
@@ -690,12 +693,15 @@ class Model:
                 else:
                     self.fetches = [self.train_losses.name]
                     self.fetches.append(self.train_outputs.name)
+                    self.fetches.append(self.var_list)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
 
             outputs_ = static_out[1]
             # Data losses
             losses = static_out[0]
+            for i in range(len(self.var_list)):
+                self.extra_fetch_var.append(static_out[i+2])
             return outputs_, losses
 
         def outputs_losses_train(inputs, targets):
@@ -1108,7 +1114,7 @@ class Model:
                     self.feeds['x' + str(i)] = x[i]
                 self.exe.run(self.test_program, feed=self.feeds,
                                 fetch_list=self.fetches)
-                outputs = self.fetches[1:]
+                outputs = self.fetches[4:]
                 if utils.get_num_args(operator) == 2:
                     y = operator(x, outputs)
                 elif utils.get_num_args(operator) == 3:
