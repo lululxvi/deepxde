@@ -53,7 +53,7 @@ class PDE(Data):
             error= dde.metrics.l2_relative_error(y_true, y_pred)
 
     Attributes:
-        train_x_all: A Numpy array of all points for training. `train_x_all` is
+        train_x_all: A Numpy array of points for PDE training. `train_x_all` is
             unordered, and does not have duplication. If there is PDE, then
             `train_x_all` is used as the training points of PDE.
         train_x_bc: A Numpy array of the training points for BCs. `train_x_bc` is
@@ -100,11 +100,14 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
-        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde explicitly.
+        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde 
+        # explicitly.
         self.train_x_all = None
-        self.train_x, self.train_y = None, None
         self.train_x_bc = None
         self.num_bcs = None
+
+        # these include both BC and PDE points
+        self.train_x, self.train_y = None, None
         self.test_x, self.test_y = None, None
         self.train_aux_vars, self.test_aux_vars = None, None
 
@@ -180,8 +183,12 @@ class PDE(Data):
             )
         return self.test_x, self.test_y, self.test_aux_vars
 
-    def resample_train_points(self):
-        """Resample the training points for PDEs. The BC points will not be updated."""
+    def resample_train_points(self, pde_points=True, bc_points=True):
+        """Resample the training points for PDE and/or BC."""
+        if pde_points:
+            self.train_x_all = None
+        if bc_points:
+            self.train_x_bc = None
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
 
@@ -215,6 +222,7 @@ class PDE(Data):
                 config.real(np)
             )
 
+    @run_if_all_none("train_x_all")
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
@@ -240,6 +248,7 @@ class PDE(Data):
                 return not np.any([np.allclose(x, y) for y in self.exclusions])
 
             X = np.array(list(filter(is_not_excluded, X)))
+        self.train_x_all = X
         return X
 
     @run_if_all_none("train_x_bc")
@@ -298,6 +307,7 @@ class TimePDE(PDE):
             auxiliary_var_function=auxiliary_var_function,
         )
 
+    @run_if_all_none("train_x_all")
     def train_points(self):
         X = super().train_points()
         if self.num_initial > 0:
@@ -314,4 +324,5 @@ class TimePDE(PDE):
 
                 tmp = np.array(list(filter(is_not_excluded, tmp)))
             X = np.vstack((tmp, X))
+        self.train_x_all = X
         return X
