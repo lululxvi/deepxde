@@ -489,11 +489,13 @@ class PDEPointResampler(Callback):
 
     Args:
         period: How often to resample the training points (default is 100 iterations).
-        pde_points: If True, resample the training points for PDE losses.
-        bc_points: If True, resample the training points for BC losses.
+        pde_points: If True, resample the training points for PDE losses (default is 
+            True).
+        bc_points: If True, resample the training points for BC losses (default is 
+            False; only supported by pytorch backend currently).
     """
 
-    def __init__(self, period=100, pde_points=True, bc_points=True):
+    def __init__(self, period=100, pde_points=True, bc_points=False):
         super().__init__()
         self.period = period
         self.pde_points = pde_points
