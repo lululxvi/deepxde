@@ -32,7 +32,6 @@ class DeepONet(NN):
         layer_sizes_trunk,
         activation,
         kernel_initializer,
-        regularization=None,
         use_bias=True,
     ):
         super().__init__()
@@ -61,7 +60,6 @@ class DeepONet(NN):
                 shape=(1, ),
                 default_initializer=initializers.get("zeros")
             )
-        self.regularizer = regularization
 
     def forward(self, inputs):
         x_func = inputs[0]
@@ -77,13 +75,13 @@ class DeepONet(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        x = paddle.einsum("bi,bi->b", x_func, x_loc)
+        x = paddle.einsum("bi,bi->b", x_func, x_loc)  # [batch_size, ]
         # Add bias
         if self.use_bias:
             x += self.b
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
-        # Avoid incorrect shape broadcast when calculating loss
+        # reshape [batch_size, ] to [batch_size, 1]
         if x.ndim == 1:
             x = paddle.reshape(x, [-1, 1])
         return x
