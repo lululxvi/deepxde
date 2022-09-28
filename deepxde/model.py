@@ -258,10 +258,13 @@ class Model:
             self.net.train(mode=training)
             with torch.no_grad():
                 if isinstance(inputs, tuple):
-                    inputs = tuple(map(torch.as_tensor, inputs))
+                    inputs = tuple(
+                        map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                    )
                 else:
                     inputs = torch.as_tensor(inputs)
-                return self.net(inputs)
+                    inputs.requires_grad_()
+            return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.net.train(mode=training)
@@ -762,13 +765,13 @@ class Model:
             x = tuple(np.asarray(xi, dtype=config.real(np)) for xi in x)
         else:
             x = np.asarray(x, dtype=config.real(np))
-        self.callbacks = CallbackList(callbacks=callbacks)
-        self.callbacks.set_model(self)
-        self.callbacks.on_predict_begin()
+        callbacks = CallbackList(callbacks=callbacks)
+        callbacks.set_model(self)
+        callbacks.on_predict_begin()
 
         if operator is None:
             y = self._outputs(False, x)
-            self.callbacks.on_predict_end()
+            callbacks.on_predict_end()
             return y
 
         # operator is not None
@@ -830,7 +833,7 @@ class Model:
                     "for backend paddle."
                 )
             y = utils.to_numpy(y)
-        self.callbacks.on_predict_end()
+        callbacks.on_predict_end()
         return y
 
     # def evaluate(self, x, y, callbacks=None):

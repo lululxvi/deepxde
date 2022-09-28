@@ -18,6 +18,7 @@ import numpy as np
 
 from .. import backend as bkd
 from .. import config
+from .. import data
 from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
@@ -169,9 +170,12 @@ class PointSetBC:
             used for training.
         values: An array of values that gives the exact solution of the problem.
         component: The output component satisfying this BC.
+        batch_size: The number of points per minibatch, or `None` to return all points.
+            This is only supported for the backend PyTorch.
+        shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, component=0):
+    def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError(
@@ -180,11 +184,29 @@ class PointSetBC:
             )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
+        self.batch_size = batch_size
+
+        if batch_size is not None: # batch iterator and state
+            if backend_name != "pytorch":
+                raise RuntimeError("batch_size only implemented for pytorch backend")
+            self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle=shuffle)
+            self.batch_indices = None
+
+    def __len__(self):
+        return self.points.shape[0]
 
     def collocation_points(self, X):
+        if self.batch_size is not None:
+            self.batch_indices = self.batch_sampler.get_next(self.batch_size)
+            return self.points[self.batch_indices]
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        if self.batch_size is not None:
+            return (
+                outputs[beg:end, self.component : self.component + 1]
+                - self.values[self.batch_indices]
+            )
         return outputs[beg:end, self.component : self.component + 1] - self.values
 
 
