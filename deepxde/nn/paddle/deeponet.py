@@ -17,9 +17,9 @@ class DeepONet(NN):
         layer_sizes_branch: A list of integers as the width of a fully connected
             network, or `(dim, f)` where `dim` is the input dimension and `f` is a
             network function. The width of the last layer in the branch and trunk net
-            should be equal.[100, 40, 40]
+            should be equal.
         layer_sizes_trunk (list): A list of integers as the width of a fully connected
-            network.[1, 40, 40]
+            network.
         activation: If `activation` is a ``string``, then the same activation is used in
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
@@ -76,14 +76,12 @@ class DeepONet(NN):
                 "Output sizes of branch net and trunk net do not match."
             )
         x = paddle.einsum("bi,bi->b", x_func, x_loc)  # [batch_size, ]
+        x = paddle.reshape(x, [-1, 1])  # reshape [batch_size, ] to [batch_size, 1]
         # Add bias
         if self.use_bias:
             x += self.b
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
-        # reshape [batch_size, ] to [batch_size, 1]
-        if x.ndim == 1:
-            x = paddle.reshape(x, [-1, 1])
         return x
 
 
