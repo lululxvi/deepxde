@@ -69,7 +69,7 @@ def u_func(x):
             np.exp(a * x[:, 0:1]) * np.sin(a * x[:, 1:2] + d * x[:, 2:3])
             + np.exp(a * x[:, 2:3]) * np.cos(a * x[:, 0:1] + d * x[:, 1:2])
         )
-        * np.exp(-(d ** 2) * x[:, 3:4])
+        * np.exp(-(d**2) * x[:, 3:4])
     )
 
 
@@ -80,7 +80,7 @@ def v_func(x):
             np.exp(a * x[:, 1:2]) * np.sin(a * x[:, 2:3] + d * x[:, 0:1])
             + np.exp(a * x[:, 0:1]) * np.cos(a * x[:, 1:2] + d * x[:, 2:3])
         )
-        * np.exp(-(d ** 2) * x[:, 3:4])
+        * np.exp(-(d**2) * x[:, 3:4])
     )
 
 
@@ -91,14 +91,14 @@ def w_func(x):
             np.exp(a * x[:, 2:3]) * np.sin(a * x[:, 0:1] + d * x[:, 1:2])
             + np.exp(a * x[:, 1:2]) * np.cos(a * x[:, 2:3] + d * x[:, 0:1])
         )
-        * np.exp(-(d ** 2) * x[:, 3:4])
+        * np.exp(-(d**2) * x[:, 3:4])
     )
 
 
 def p_func(x):
     return (
         -0.5
-        * a ** 2
+        * a**2
         * (
             np.exp(2 * a * x[:, 0:1])
             + np.exp(2 * a * x[:, 1:2])
@@ -116,8 +116,12 @@ def p_func(x):
             * np.cos(a * x[:, 1:2] + d * x[:, 2:3])
             * np.exp(a * (x[:, 0:1] + x[:, 1:2]))
         )
-        * np.exp(-2 * d ** 2 * x[:, 3:4])
+        * np.exp(-2 * d**2 * x[:, 3:4])
     )
+
+
+def sol(x):
+    return np.hstack((u_func(x), v_func(x), w_func(x), p_func(x)))
 
 
 spatial_domain = dde.geometry.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
@@ -159,13 +163,19 @@ data = dde.data.TimePDE(
     num_boundary=5000,
     num_initial=5000,
     num_test=10000,
+    solution=sol,
 )
 
 net = dde.nn.FNN([4] + 4 * [50] + [4], "tanh", "Glorot normal")
 
 model = dde.Model(data, net)
 
-model.compile("adam", lr=1e-3, loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
+model.compile(
+    "adam",
+    lr=1e-3,
+    loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100],
+    metrics=["l2 relative error"],
+)
 model.train(epochs=30000)
 model.compile("L-BFGS", loss_weights=[1, 1, 1, 1, 100, 100, 100, 100, 100, 100])
 losshistory, train_state = model.train()
