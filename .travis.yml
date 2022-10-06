@@ -33,6 +33,7 @@ install:
 
 script:
   # Your test script goes here
+  - python -c "print('Hello World')"
   # - DDE_BACKEND=tensorflow.compat.v1 python -c "import deepxde"
   # - DDE_BACKEND=tensorflow python -c "import deepxde"
   # - DDE_BACKEND=pytorch python -c "import deepxde"
