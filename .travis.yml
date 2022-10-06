@@ -19,9 +19,10 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy scikit-learn scipy
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - conda activate test-environment
 
+  - conda install matplotlib numpy scikit-learn scipy
   - conda install -c conda-forge scikit-optimize
   # - pip install tensorflow tensorflow-probability
   # - conda install pytorch cpuonly -c pytorch
@@ -32,7 +33,6 @@ install:
 
 script:
   # Your test script goes here
-  - python -c "import sklearn"
   # - DDE_BACKEND=tensorflow.compat.v1 python -c "import deepxde"
   # - DDE_BACKEND=tensorflow python -c "import deepxde"
   # - DDE_BACKEND=pytorch python -c "import deepxde"
