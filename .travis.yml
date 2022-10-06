@@ -26,14 +26,14 @@ install:
   - conda install matplotlib numpy scikit-learn scipy
   - conda install -c conda-forge scikit-optimize
   - pip install tensorflow tensorflow-probability
-  - conda install pytorch cpuonly -c pytorch
-  - pip install jax flax optax
-  - pip install paddlepaddle
+  # - conda install pytorch cpuonly -c pytorch
+  # - pip install jax flax optax
+  # - pip install paddlepaddle
 
 script:
   # Your test script goes here
   - DDE_BACKEND=tensorflow.compat.v1 python -c "import deepxde"
   - DDE_BACKEND=tensorflow python -c "import deepxde"
-  - DDE_BACKEND=pytorch python -c "import deepxde"
-  - DDE_BACKEND=jax python -c "import deepxde"
-  - DDE_BACKEND=paddle python -c "import deepxde"
+  # - DDE_BACKEND=pytorch python -c "import deepxde"
+  # - DDE_BACKEND=jax python -c "import deepxde"
+  # - DDE_BACKEND=paddle python -c "import deepxde"
