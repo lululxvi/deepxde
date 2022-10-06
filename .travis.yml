@@ -19,10 +19,9 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy scikit-learn scipy
   - conda activate test-environment
 
-  - conda install matplotlib numpy scikit-learn scipy
   - conda install -c conda-forge scikit-optimize
   # - pip install tensorflow tensorflow-probability
   # - conda install pytorch cpuonly -c pytorch
