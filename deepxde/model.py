@@ -448,15 +448,7 @@ class Model:
             else:
                 self.net.eval()
             inputs = paddle.to_tensor(inputs, stop_gradient=False)
-            # file_name1 = 'paddle_dygraph_net_input'
-            # with open(file_name1,'ab') as f1:
-            #     np.savetxt(f1,utils.to_numpy(inputs),delimiter=",")
-
             outputs_ = self.net(inputs)
-
-            # file_name = 'paddle_dygraph_net_output'
-            # with open(file_name,'ab') as f:
-            #     np.savetxt(f,utils.to_numpy(outputs_),delimiter=",")
 
             # Data losses
             if targets is not None:
@@ -467,16 +459,11 @@ class Model:
             # TODO: regularization
             losses = paddle.concat(losses, axis=0)
 
-            # file_name = 'paddle_dygraph_losses'
-            # with open(file_name,'ab') as f:
-            #     np.savetxt(f,utils.to_numpy(losses),delimiter=",")
-
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
-            # print("dygraph output : ", outputs_, "dygraph losses :", losses)
             
             return outputs_, losses
 
@@ -624,8 +611,7 @@ class Model:
                         
                         grad.clear()
                         total_loss = paddle.sum(losses)
-                        self.opt.minimize(total_loss)
-                        paddle.incubate.autograd.prim2orig()
+                        
                         
                 return outputs, losses, total_loss
 
@@ -637,16 +623,19 @@ class Model:
                                     train_inputs, 
                                     train_targets, 
                                     train_losses_fn,)
-            # import os
-            # f = open('newAD_train_program.log','w')
-            # print (self.train_program,file=f)
+            
+            print("build_net end")
+
+            import os
+            f = open('newAD_train_program.log','w')
+            print (self.train_program,file=f)
             # print('before ad', scaler_loss.block, flush=1)
-            # #print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
-            # f.close()
+            # print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
+            f.close()
             with paddle.static.program_guard(self.train_program,
                                              self.start_up_program):
-                self.opt.minimize(scaler_loss)
-            
+                self.opt.minimize(scaler_loss, startup_program=self.start_up_program)
+                paddle.incubate.autograd.prim2orig()
             print("train_program success")
 
             (self.test_outputs, 
@@ -657,11 +646,14 @@ class Model:
                             test_inputs, 
                             test_targets, 
                             test_losses_fn,)
+            with paddle.static.program_guard(self.train_program,
+                                             self.start_up_program):
+                paddle.incubate.autograd.prim2orig()
             print("test_program success")
             
             # supplement train_program
             
-            paddle.incubate.autograd.prim2orig()
+           
             
             import os
             f = open('newAD_train_program.log','w')

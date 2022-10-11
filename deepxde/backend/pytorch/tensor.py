@@ -2,8 +2,6 @@
 from distutils.version import LooseVersion
 
 import torch
-import random
-import numpy
 
 
 if LooseVersion(torch.__version__) < LooseVersion("1.9.0"):
@@ -147,9 +145,3 @@ def zeros(shape, dtype):
 def zeros_like(input_tensor):
     return torch.zeros_like(input_tensor)
 
-
-def control_seed(number):
-    torch.manual_seed(number)
-    torch.cuda.manual_seed(number)
-    numpy.random.seed(number)
-    random.seed(number)
