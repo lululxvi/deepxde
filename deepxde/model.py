@@ -574,13 +574,13 @@ class Model:
             self.train_program = paddle.static.default_main_program()
             self.test_program = self.train_program.clone()
             self.start_up_program  = paddle.static.default_startup_program()
-
+            train_guard = paddle.fluid.unique_name.UniqueNameGenerator('xxx')
             def build_net(batch_size, main_program, start_up_program, inputs, targets, losses_fn):
                 inputs_shape = list(inputs.shape)
                 inputs_shape[0] = batch_size
                 targets_shape = list(targets.shape)
                 targets_shape[0] = batch_size
-                with paddle.fluid.unique_name.guard():
+                with paddle.fluid.unique_name.guard(train_guard):
                     with paddle.static.program_guard(main_program, start_up_program):
                         inputs_buffer = paddle.static.data(name='inputs', 
                                             shape=inputs_shape,
@@ -616,7 +616,7 @@ class Model:
                 return outputs, losses, total_loss
 
             (self.train_outputs, 
-             self.train_loss, 
+             self.train_losses, 
              scaler_loss,) = build_net(train_shape_0,
                                     self.train_program, 
                                     self.start_up_program, 
@@ -632,24 +632,25 @@ class Model:
             # print('before ad', scaler_loss.block, flush=1)
             # print("===", scaler_loss, id(scaler_loss.block),  id(scaler_loss.block) == id(self.train_program.blocks[0]), flush=1)
             f.close()
-            with paddle.static.program_guard(self.train_program,
-                                             self.start_up_program):
-                self.opt.minimize(scaler_loss, startup_program=self.start_up_program)
-                paddle.incubate.autograd.prim2orig()
+            with paddle.fluid.unique_name.guard(train_guard):
+                with paddle.static.program_guard(self.train_program,
+                                                self.start_up_program):
+                    self.opt.minimize(scaler_loss, startup_program=self.start_up_program)
+                    paddle.incubate.autograd.prim2orig()
             print("train_program success")
 
-            (self.test_outputs, 
-             self.test_loss, 
-             _,) = build_net(test_shape_0, 
-                            self.test_program, 
-                            self.start_up_program,
-                            test_inputs, 
-                            test_targets, 
-                            test_losses_fn,)
-            with paddle.static.program_guard(self.train_program,
-                                             self.start_up_program):
-                paddle.incubate.autograd.prim2orig()
-            print("test_program success")
+            # (self.test_outputs, 
+            #  self.test_losses, 
+            #  _,) = build_net(test_shape_0, 
+            #                 self.test_program, 
+            #                 self.start_up_program,
+            #                 test_inputs, 
+            #                 test_targets, 
+            #                 test_losses_fn,)
+            # with paddle.static.program_guard(self.train_program,
+            #                                  self.start_up_program):
+            #     paddle.incubate.autograd.prim2orig()
+            # print("test_program success")
             
             # supplement train_program
             
@@ -659,9 +660,9 @@ class Model:
             f = open('newAD_train_program.log','w')
             print (self.train_program,file=f)
             f.close()
-            s = open('newAD_test_program.log','w')
-            print (self.test_program,file=s)
-            s.close()
+            # s = open('newAD_test_program.log','w')
+            # print (self.test_program,file=s)
+            # s.close()
             
             self.exe.run(self.start_up_program)
             print("newAD build end")
@@ -716,10 +717,9 @@ class Model:
                     self.fetches.append(self.var_list)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
-
-            outputs_ = static_out[1]
             # Data losses
             losses = static_out[0]
+            outputs_ = static_out[1]
             for i in range(len(self.var_list)):
                 self.extra_fetch_var.append(static_out[i+2])
             return outputs_, losses
@@ -731,7 +731,15 @@ class Model:
             return outputs_losses(False, inputs, targets, self.data.losses_test)
         
         def train_step(inputs, targets):
-            outputs_losses_train(inputs, targets)
+            _, loss = outputs_losses_train(inputs, targets)
+            if paddle.incubate.autograd.prim_enabled():
+                filename = 'newAD_static_loss.log'
+            else:
+                filename = 'oldAD_static_loss.log'
+            f = open(filename,'ab')
+            np.savetxt(f, loss, delimiter=',')
+            #print (loss.encode('utf-8'), file=f)
+            f.close()
             
         # Callables
         self.outputs = outputs
@@ -868,7 +876,7 @@ class Model:
                                     self.data.losses_train,
                                     self.data.losses_test)
         print("start_up_program end ...")
-        self._test()
+        # self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -905,8 +913,8 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self._test()
+            # if self.train_state.step % display_every == 0 or i + 1 == iterations:
+            #     self._test()
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
