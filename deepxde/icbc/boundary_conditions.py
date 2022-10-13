@@ -225,10 +225,13 @@ def npfunc_range_autocache(func):
 
     @wraps(func)
     def wrapper_cache(X, beg, end, _):
-        key = (id(X), beg, end)
-        if key not in cache:
-            cache[key] = func(X[beg:end])
-        return cache[key]
+        if not backend_name == "paddle":
+            key = (id(X), beg, end)
+            if key not in cache:
+                cache[key] = func(X[beg:end])
+            return cache[key]
+        else:
+            return func(X[beg:end])
 
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
