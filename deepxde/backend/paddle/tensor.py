@@ -95,8 +95,13 @@ def sin(x):
     return paddle.sin(x)
 
 
+def exp(x):
+    return paddle.exp(x)
+
+
 def square(x):
     return paddle.square(x)
+
 
 def norm(x, p=None, axis=None, keepdims=False):
     return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)

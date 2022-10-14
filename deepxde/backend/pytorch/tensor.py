@@ -110,6 +110,10 @@ def sin(x):
     return torch.sin(x)
 
 
+def exp(x):
+    return torch.exp(x)
+
+
 def square(x):
     return torch.square(x)
 

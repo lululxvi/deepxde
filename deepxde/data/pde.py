@@ -155,9 +155,6 @@ class PDE(Data):
             loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)    
         ]
         from paddle.fluid.framework import default_main_program
-        s = open('loss_program_1.log','w')
-        print (default_main_program(),file=s)
-        s.close()
 
         for i, bc in enumerate(self.bcs):
             
@@ -166,10 +163,6 @@ class PDE(Data):
             error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         
-        s = open('loss_program_2.log','w')
-        print (default_main_program(),file=s)
-        s.close()
-
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")

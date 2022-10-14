@@ -674,7 +674,6 @@ class Model:
                 self.feeds['train_inputs'] = inputs
                 if loss_weights is not None:
                     self.feeds['loss_weights'] = loss_weights
-                self.feeds['train_targets'] = []
 
                 self.fetches = [self.train_losses.name]
                 self.fetches.append(self.train_outputs.name)
@@ -685,7 +684,6 @@ class Model:
                     self.feeds['test_inputs'] = inputs
                     if loss_weights is not None:
                         self.feeds['loss_weights'] = loss_weights
-                    self.feeds['test_targets'] = []
 
                     self.fetches = [self.test_losses.name]
                     self.fetches.append(self.test_outputs.name)
@@ -695,7 +693,6 @@ class Model:
                     self.feeds['train_inputs'] = inputs
                     if loss_weights is not None:
                         self.feeds['loss_weights'] = loss_weights
-                    self.feeds['train_targets'] = []
 
                     self.fetches = [self.train_losses.name]
                     self.fetches.append(self.train_outputs.name)
