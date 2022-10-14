@@ -304,6 +304,7 @@ class VariableValue(Callback):
         self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
         self.epochs_since_last = 0
+        self.epochs_counter = 0
 
     def on_train_begin(self):
         if backend_name == "tensorflow.compat.v1":
@@ -321,9 +322,11 @@ class VariableValue(Callback):
 
     def on_epoch_end(self):
         self.epochs_since_last += 1
+        self.epochs_counter += 1
         if self.epochs_since_last >= self.period:
-            self.epochs_since_last = 0
-            self.on_train_begin()
+            if not (self.epochs_counter == self.model.num_iterations):
+                self.epochs_since_last = 0
+                self.on_train_begin()
 
     def on_train_end(self):
         self.on_train_begin()
