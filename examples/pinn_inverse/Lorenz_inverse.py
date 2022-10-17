@@ -86,7 +86,7 @@ model.compile(
 losshistory, train_state = model.train(iterations=20000, callbacks=[variable])
 
 # train lbfgs
-model.compile("L-BFGS-B", external_trainable_variables=external_trainable_variables)
+model.compile("L-BFGS", external_trainable_variables=external_trainable_variables)
 losshistory, train_state = model.train(callbacks=[variable])
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

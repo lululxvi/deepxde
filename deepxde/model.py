@@ -30,7 +30,6 @@ class Model:
         self.net = net
 
         self.opt_name = None
-        self.num_iterations = None
         self.batch_size = None
         self.callbacks = None
         self.metrics = None
@@ -539,7 +538,6 @@ class Model:
                 " Use iterations instead."
             )
             iterations = epochs
-        self.num_iterations = iterations
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
@@ -620,22 +618,7 @@ class Model:
                 display.training_display(self.train_state)
 
             if self.external_trainable_variables:
-                cb = self.callbacks.callbacks[0]
-                cb.epochs_since_last += 1
-
-                if cb.epochs_since_last >= cb.period:
-                    cb.epochs_since_last = 0
-
-                    print(
-                        cb.model.train_state.epoch,
-                        list_to_str(
-                            [float(arg) for arg in args],
-                            precision=cb.precision,
-                        ),
-                        file=cb.file,
-                    )
-                    cb.file.flush()
-
+                self.callbacks.on_epoch_end()
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
             True,
