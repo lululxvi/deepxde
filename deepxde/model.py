@@ -483,7 +483,13 @@ class Model:
         def train_step(inputs, targets):
             losses = outputs_losses_train(inputs, targets)[1]
             total_loss = paddle.sum(losses)
+            
+            file_name3 = 'paddle_dygraph_loss.log'
+            with open(file_name3, 'ab') as f3:
+                np.savetxt(f3, utils.to_numpy(total_loss), delimiter=",")
+            
             total_loss.backward()
+            print(f"{total_loss.item(0):.10f}")
             self.opt.step()
             self.opt.clear_grad()
 
@@ -593,7 +599,10 @@ class Model:
                                         dtype=train_targets.dtype)
                         targets_buffer.stop_gradient = False
                         print("train_targets_buffer shape :", targets_buffer.shape)
-
+                    else:
+                        targets_buffer = paddle.static.data(name='train_targets',
+                                                            shape=train_inputs.shape,
+                                                            dtype=train_inputs.dtype)
                     self.train_outputs = self.net(inputs_buffer)
                     print("train_outputs shape :", self.train_outputs.shape)
 
@@ -637,7 +646,10 @@ class Model:
                                         dtype=test_targets.dtype)
                         targets_buffer_.stop_gradient = False
                         print("test_targets_buffer shape :", targets_buffer_.shape)
-
+                    else:
+                        targets_buffer_ = paddle.static.data(name='test_targets',
+                                                             shape=inputs_buffer_.dtype,
+                                                             dtype=inputs_buffer_.dtype)
                     self.test_outputs = self.net(inputs_buffer_)
                     print("outputs shape :", self.test_outputs.shape)
 
@@ -670,7 +682,7 @@ class Model:
 
         def outputs(training, inputs):
 
-            if training :
+            if training:
                 self.feeds['train_inputs'] = inputs
                 if loss_weights is not None:
                     self.feeds['loss_weights'] = loss_weights
@@ -711,7 +723,7 @@ class Model:
                 if targets is not None:
                     self.feeds['train_targets'] = targets
 
-                self.fetches = [self.train_losses.name]
+                self.fetches = [self.total_loss.name]
                 self.fetches.append(self.train_outputs.name)
                 self.fetches.append(self.var_list)
                 static_out = self.exe.run(self.train_program, feed=self.feeds,
@@ -735,13 +747,17 @@ class Model:
                     if targets is not None:
                         self.feeds['train_targets'] = targets
 
-                    self.fetches = [self.train_losses.name]
+                    self.fetches = [self.total_loss.name]
                     self.fetches.append(self.train_outputs.name)
                     self.fetches.append(self.var_list)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
             # Data losses
             losses = static_out[0]
+            if losses.size == 1:
+                total_loss = losses.item()
+                if isinstance(total_loss, float):
+                    print(f"{total_loss:.10f}")
             outputs_ = static_out[1]
             for i in range(len(self.var_list)):
                 self.extra_fetch_var.append(static_out[i+2])
@@ -898,7 +914,7 @@ class Model:
                                     self.data.losses_train,
                                     self.data.losses_test)
         print("start_up_program end ...")
-        self._test()
+        # self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -914,9 +930,9 @@ class Model:
         self.callbacks.on_train_end()
 
         print("")
-        display.training_display.summary(self.train_state)
-        if model_save_path is not None:
-            self.save(model_save_path, verbose=1)
+        # display.training_display.summary(self.train_state)
+        # if model_save_path is not None:
+            # self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
     def _train_sgd(self, iterations, display_every):
@@ -935,8 +951,8 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self._test()
+            # if self.train_state.step % display_every == 0 or i + 1 == iterations:
+            #     self._test()
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -1067,7 +1083,7 @@ class Model:
             or np.isnan(self.train_state.loss_test).any()
         ):
             self.stop_training = True
-        display.training_display(self.train_state)
+        # display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,
