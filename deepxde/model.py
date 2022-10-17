@@ -14,7 +14,6 @@ from . import optimizers
 from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
-from .utils import list_to_str
 
 
 class Model:
@@ -617,7 +616,7 @@ class Model:
                 )
                 display.training_display(self.train_state)
 
-            if self.external_trainable_variables:
+                self.callbacks.on_batch_end()
                 self.callbacks.on_epoch_end()
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
@@ -634,7 +633,7 @@ class Model:
             self.sess,
             feed_dict=feed_dict,
             fetches=fetches,
-            loss_callback=loss_callback
+            loss_callback=loss_callback,
         )
         self._test()
 
