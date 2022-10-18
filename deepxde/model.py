@@ -605,25 +605,26 @@ class Model:
                 break
 
     def _train_tensorflow_compat_v1_scipy(self, display_every):
-        def loss_callback(loss_train, *args):
+        def loss_callback(loss_train, loss_test, *args):
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0:
                 self.train_state.loss_train = loss_train
-                self.train_state.loss_test = None
+                self.train_state.loss_test = loss_test
                 self.train_state.metrics_test = None
                 self.losshistory.append(
-                    self.train_state.step, self.train_state.loss_train, None, None
+                    self.train_state.step,
+                    self.train_state.loss_train,
+                    self.train_state.loss_test,
+                    None,
                 )
                 display.training_display(self.train_state)
             for cb in self.callbacks.callbacks:
-                if type(cb).__name__=="VariableValue":
-                    cb = self.callbacks.callbacks[0]
+                if type(cb).__name__ == "VariableValue":
                     cb.epochs_since_last += 1
-
                     if cb.epochs_since_last >= cb.period:
                         cb.epochs_since_last = 0
-                        
+
                         print(
                             cb.model.train_state.epoch,
                             list_to_str(
@@ -633,6 +634,7 @@ class Model:
                             file=cb.file,
                         )
                         cb.file.flush()
+
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
             True,
@@ -641,9 +643,12 @@ class Model:
             self.train_state.train_aux_vars,
         )
         if self.external_trainable_variables:
-            fetches = [self.outputs_losses_train[1]] + self.external_trainable_variables
+            fetches = [
+                self.outputs_losses_train[1],
+                self.outputs_losses_test[1],
+            ] + self.external_trainable_variables
         else:
-            fetches = [self.outputs_losses_train[1]]
+            fetches = [self.outputs_losses_train[1], self.outputs_losses_test[1]]
         self.train_step.minimize(
             self.sess,
             feed_dict=feed_dict,
