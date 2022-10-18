@@ -14,6 +14,7 @@ from . import optimizers
 from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
+from .utils import list_to_str
 
 
 class Model:
@@ -615,9 +616,23 @@ class Model:
                     self.train_state.step, self.train_state.loss_train, None, None
                 )
                 display.training_display(self.train_state)
+            for cb in self.callbacks.callbacks:
+                if type(cb).__name__=="VariableValue":
+                    cb = self.callbacks.callbacks[0]
+                    cb.epochs_since_last += 1
 
-                self.callbacks.on_batch_end()
-                self.callbacks.on_epoch_end()
+                    if cb.epochs_since_last >= cb.period:
+                        cb.epochs_since_last = 0
+                        
+                        print(
+                            cb.model.train_state.epoch,
+                            list_to_str(
+                                [float(arg) for arg in args],
+                                precision=cb.precision,
+                            ),
+                            file=cb.file,
+                        )
+                        cb.file.flush()
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         feed_dict = self.net.feed_dict(
             True,
