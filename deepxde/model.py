@@ -642,13 +642,9 @@ class Model:
             self.train_state.y_train,
             self.train_state.train_aux_vars,
         )
+        fetches = [self.outputs_losses_train[1], self.outputs_losses_test[1]]
         if self.external_trainable_variables:
-            fetches = [
-                self.outputs_losses_train[1],
-                self.outputs_losses_test[1],
-            ] + self.external_trainable_variables
-        else:
-            fetches = [self.outputs_losses_train[1], self.outputs_losses_test[1]]
+            fetches += self.external_trainable_variables
         self.train_step.minimize(
             self.sess,
             feed_dict=feed_dict,
