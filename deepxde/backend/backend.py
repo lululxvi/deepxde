@@ -199,10 +199,10 @@ def sin(x):
     """Computes sine of x element-wise."""
 
 
-def sin(x):
-    """Computes sine of x element-wise."""
+def exp(x):
+    """Computes exp of x element-wise."""
 
-    
+
 def square(x):
     """Returns the square of the elements of input."""
 
