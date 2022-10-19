@@ -498,6 +498,7 @@ class Model:
             
             total_loss.backward()
             print(f"{total_loss.item():.10f}")
+
             self.opt.step()
             self.opt.clear_grad()
 
@@ -737,7 +738,7 @@ class Model:
                 if targets is not None:
                     self.feeds['train_targets'] = targets
 
-                self.fetches = [self.train_losses.name]
+                self.fetches = [self.total_loss.name]
                 self.fetches.append(self.train_outputs.name)
                 self.fetches.append(self.var_list)
                 static_out = self.exe.run(self.train_program, feed=self.feeds,
@@ -762,7 +763,7 @@ class Model:
                     if targets is not None:
                         self.feeds['train_targets'] = targets
 
-                    self.fetches = [self.train_losses.name]
+                    self.fetches = [self.total_loss.name]
                     self.fetches.append(self.train_outputs.name)
                     self.fetches.append(self.var_list)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
@@ -1102,7 +1103,7 @@ class Model:
             or np.isnan(self.train_state.loss_test).any()
         ):
             self.stop_training = True
-        display.training_display(self.train_state)
+        # display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,

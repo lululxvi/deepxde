@@ -14,6 +14,7 @@ import os
 # paddle.set_default_dtype("float64")
 # dde.config.set_default_float('float64')
 
+<<<<<<< HEAD
 import argparse
 import paddle
 import random
@@ -36,6 +37,25 @@ if args.static is True:
         print("============= prim prim prim prim prim  =============")
 else:
     print("============= 动态图动态图动态图动态图动态图 =============")
+=======
+# import argparse
+# parser = argparse.ArgumentParser()
+# parser.add_argument(
+    # '--static', default=False, action="store_true")
+# args = parser.parse_args()
+
+
+# paddle.enable_static()
+
+# paddle.incubate.autograd.enable_prim()
+# from deepxde.backend import backend_name, tf, torch, jax, paddle
+
+
+# bkd.control_seed(100)
+np.random.seed(0)
+random.seed(0)
+paddle.seed(0)
+>>>>>>> db74721081032a442de162a6c6c31541c3868dd5
 
 
 task_name = os.path.basename(__file__).split(".")[0]
@@ -75,7 +95,11 @@ net = dde.nn.FNN(layer_size, activation, initializer, task_name)
 
 # new_save = False
 # for name, param in net.named_parameters():
+<<<<<<< HEAD
 #     if os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/Poisson_Dirichlet_1d/{name}.npy"):
+=======
+#     if os.path.exists(f"/workspace/hesensen/paddlescience_project/deepxde_wrt_new/Poisson_Dirichlet_1d/{name}.npy"):
+>>>>>>> db74721081032a442de162a6c6c31541c3868dd5
 #         continue
 #     new_save = True
 #     np.save(f"/workspace/hesensen/paddlescience_project/deepxde_wrt_new/Poisson_Dirichlet_1d/{name}.npy", param.numpy())
