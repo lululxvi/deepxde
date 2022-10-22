@@ -72,7 +72,7 @@ class QuadrupleCartesianProd(Data):
         self.train_x, self.train_y = X_train, y_train
         self.test_x, self.test_y = X_test, y_test
 
-        self.train_sampler = BatchSampler(len(X_train[0]), shuffle=True)
+        self.branch_sampler = BatchSampler(len(X_train[0]), shuffle=True)
         self.trunk_sampler = BatchSampler(len(X_train[2]), shuffle=True)
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
@@ -81,15 +81,15 @@ class QuadrupleCartesianProd(Data):
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
             return self.train_x, self.train_y
-        if len(batch_size) == 2:
-            indices = self.train_sampler.get_next(batch_size[0])
+        if isinstance(batch_size, tuple) or isinstance(batch_size,list):
+            indices = self.branch_sampler.get_next(batch_size[0])
             minibatch_indices = self.trunk_sampler.get_next(batch_size[1])
             return (
                        self.train_x[0][indices],
                        self.train_x[1][indices],
                        self.train_x[2][minibatch_indices],
                    ), self.train_y[indices,minibatch_indices]
-        indices = self.train_sampler.get_next(batch_size)
+        indices = self.branch_sampler.get_next(batch_size)
         return (
             self.train_x[0][indices],
             self.train_x[1][indices],
