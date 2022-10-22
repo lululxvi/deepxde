@@ -535,7 +535,7 @@ class Model:
                 of times the network weights are updated.
             batch_size: Integer, tuple, or ``None``.
 
-                - If you solve PDEs via ``dde.data.PDE`` or``dde.data.TimePDE``, do not use `batch_size`,and instead use
+                - If you solve PDEs via ``dde.data.PDE`` or``dde.data.TimePDE``, do not use `batch_size`, and instead use
                 `dde.callbacks.PDEResidualResampler
                 <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
                 see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.

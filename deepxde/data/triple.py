@@ -54,8 +54,7 @@ class TripleCartesianProd(Data):
 
     Args:
         X_train: A tuple of two NumPy arrays. The first element has the shape (`N1`,
-            `dim1`), and the second element has the shape (`N2`, `dim2`). The mini-batch
-            is applied to `N1` and `N2`.
+            `dim1`), and the second element has the shape (`N2`, `dim2`).
         y_train: A NumPy array of shape (`N1`, `N2`).
     """
 
