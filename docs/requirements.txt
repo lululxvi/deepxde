@@ -6,7 +6,7 @@ scipy
 docutils<0.18  # https://github.com/readthedocs/readthedocs.org/issues/8616
 
 # TensorFlow 1.x
-tensorflow>=2.2.0
+tensorflow>=2.7.0
 # TensorFlow 2.x
 tensorflow-probability>=0.10.0
 # PyTorch

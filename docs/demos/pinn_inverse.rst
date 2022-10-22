@@ -20,6 +20,7 @@ Time-independent PDEs
 
    pinn_inverse/elliptic.inverse.field
 
+- `Inverse problem for the Poisson equation with unknown forcing field with training points resampling <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/elliptic_inverse_field_batch.py>`_
 - `Inverse problem for Brinkman-Forchheimer model <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/brinkman_forchheimer.py>`_
 - `Inverse problem for the diffusion-reaction system with a space-dependent reaction rate <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_inverse/diffusion_reaction_rate.py>`_
 

@@ -343,6 +343,10 @@ class VariableValue(Callback):
             self.epochs_since_last = 0
             self.on_train_begin()
 
+    def on_train_end(self):
+        if not self.epochs_since_last == 0:
+            self.on_train_begin()
+
     def get_value(self):
         """Return the variable values."""
         return self.value
@@ -502,12 +506,22 @@ class MovieDumper(Callback):
                 )
 
 
-class PDEResidualResampler(Callback):
-    """Resample the training points for PDE losses every given period."""
+class PDEPointResampler(Callback):
+    """Resample the training points for PDE and/or BC losses every given period.
 
-    def __init__(self, period=100):
+    Args:
+        period: How often to resample the training points (default is 100 iterations).
+        pde_points: If True, resample the training points for PDE losses (default is 
+            True).
+        bc_points: If True, resample the training points for BC losses (default is 
+            False; only supported by pytorch backend currently).
+    """
+
+    def __init__(self, period=100, pde_points=True, bc_points=False):
         super().__init__()
         self.period = period
+        self.pde_points = pde_points
+        self.bc_points = bc_points
 
         self.num_bcs_initial = None
         self.epochs_since_last_resample = 0
@@ -520,7 +534,7 @@ class PDEResidualResampler(Callback):
         if self.epochs_since_last_resample < self.period:
             return
         self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points()
+        self.model.data.resample_train_points(self.pde_points, self.bc_points)
 
         if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
