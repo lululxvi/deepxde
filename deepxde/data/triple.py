@@ -54,8 +54,7 @@ class TripleCartesianProd(Data):
 
     Args:
         X_train: A tuple of two NumPy arrays. The first element has the shape (`N1`,
-            `dim1`), and the second element has the shape (`N2`, `dim2`). The mini-batch
-            is only applied to `N1`.
+            `dim1`), and the second element has the shape (`N2`, `dim2`).
         y_train: A NumPy array of shape (`N1`, `N2`).
     """
 
@@ -71,7 +70,8 @@ class TripleCartesianProd(Data):
         self.train_x, self.train_y = X_train, y_train
         self.test_x, self.test_y = X_test, y_test
 
-        self.train_sampler = BatchSampler(len(X_train[0]), shuffle=True)
+        self.branch_sampler = BatchSampler(len(X_train[0]), shuffle=True)
+        self.trunk_sampler = BatchSampler(len(X_train[1]), shuffle=True)
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return loss_fn(targets, outputs)
@@ -79,8 +79,15 @@ class TripleCartesianProd(Data):
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
             return self.train_x, self.train_y
-        indices = self.train_sampler.get_next(batch_size)
-        return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+        if not isinstance(batch_size, (tuple, list)):
+            indices = self.branch_sampler.get_next(batch_size)
+            return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+        indices_branch = self.branch_sampler.get_next(batch_size[0])
+        indices_trunk = self.trunk_sampler.get_next(batch_size[1])
+        return (
+            self.train_x[0][indices_branch],
+            self.train_x[1][indices_trunk],
+        ), self.train_y[indices_branch, indices_trunk]
 
     def test(self):
         return self.test_x, self.test_y
