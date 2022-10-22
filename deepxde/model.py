@@ -536,14 +536,13 @@ class Model:
             batch_size: Integer, tuple, or ``None``.
 
                 - If you solve PDEs via ``dde.data.PDE`` or``dde.data.TimePDE``, do not use `batch_size`, and instead use
-                `dde.callbacks.PDEResidualResampler
-                <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
-                see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
+                    `dde.callbacks.PDEResidualResampler<https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
+                    see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
 
                 - For DeepONet in the format of Cartesian product, if `batch_size` is an Integer,
-                then it is the batch size for the branch input; if you want to also use mini-batch for the trunk net input,
-                set `batch_size` as a tuple, where the fist number is the batch size for the branch net input
-                and the second number is the batch size for the trunk net input.
+                    then it is the batch size for the branch input; if you want to also use mini-batch for the trunk net input,
+                    set `batch_size` as a tuple, where the fist number is the batch size for the branch net input
+                    and the second number is the batch size for the trunk net input.
             display_every (Integer): Print the loss and metrics every this steps.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 model.
