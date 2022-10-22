@@ -533,11 +533,10 @@ class Model:
         Args:
             iterations (Integer): Number of iterations to train the model, i.e., number
                 of times the network weights are updated.
-            batch_size: Integer, turple, or ``None``. if you want to use minibatch for trunk net input,
-                set `batch_size` as a turple, fist location is the batch size and second location is minibatch size.
+            batch_size: Integer, tuple, or ``None``. if you want to use minibatch for trunk net input,
+                set `batch_size` as a tuple, fist location is the batch size and second location is minibatch size.
                 If you solve PDEs via ``dde.data.PDE`` or``dde.data.TimePDE``,do not use `batch_size`,
-                and instead use `dde.callbacks.PDEResidualResampler<https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
-                see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
+                and instead use `dde.callbacks.PDEResidualResampler<https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
             display_every (Integer): Print the loss and metrics every this steps.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 model.

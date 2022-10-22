@@ -80,15 +80,15 @@ class TripleCartesianProd(Data):
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
             return self.train_x, self.train_y
-        if isinstance(batch_size, (tuple,list)):
-            indices = self.branch_sampler.get_next(batch_size[0])
-            minibatch_indices = self.trunk_sampler.get_next(batch_size[1])
-            return (
-                self.train_x[0][indices],
-                self.train_x[1][minibatch_indices],
-            ), self.train_y[indices, minibatch_indices]
-        indices = self.branch_sampler.get_next(batch_size)
-        return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+        if not isinstance(batch_size, (tuple, list)):
+            indices = self.branch_sampler.get_next(batch_size)
+            return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+        indices = self.branch_sampler.get_next(batch_size[0])
+        minibatch_indices = self.trunk_sampler.get_next(batch_size[1])
+        return (
+            self.train_x[0][indices],
+            self.train_x[1][minibatch_indices],
+        ), self.train_y[indices, minibatch_indices]
 
     def test(self):
         return self.test_x, self.test_y
