@@ -64,7 +64,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
-#. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://arxiv.org/abs/2207.10289>`_. *arXiv preprint arXiv:2207.10289*, 2022.
+#. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. Y. Wang, X. Han, C. Chang, D. Zha, U. Braga-Neto, & X. Hu. `Auto-PINN: Understanding and optimizing physics-informed neural architecture <https://arxiv.org/abs/2205.13748>`_. *arXiv preprint arXiv:2205.13748*, 2022.
 #. X. Wang, J. Li, & J. Li. `A deep learning based numerical PDE method for option pricing <https://link.springer.com/article/10.1007/s10614-022-10279-x>`_. *Computational Economics*, 1-16, 2022.
 #. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://www.researchgate.net/profile/Alexandra-Serebrennikova/publication/360717115_Transport_of_organic_volatiles_through_paper_physics-informed_neural_networks_for_solving_inverse_and_forward_problems/links/6286753e8ecbaa07fcc19c64/Transport-of-organic-volatiles-through-paper-physics-informed-neural-networks-for-solving-inverse-and-forward-problems.pdf>`_. 2022.
