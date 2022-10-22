@@ -31,10 +31,11 @@ class Triple(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return loss_fn(targets, outputs)
 
-    def train_next_batch(self, batch_size=None):
+    def train_next_batch(self, batch_size=None, minibatch=None):
         if batch_size is None:
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
+        # TODO: minibatch
         return (
             (self.train_x[0][indices], self.train_x[1][indices]),
             self.train_y[indices],
@@ -72,15 +73,17 @@ class TripleCartesianProd(Data):
         self.test_x, self.test_y = X_test, y_test
 
         self.train_sampler = BatchSampler(len(X_train[0]), shuffle=True)
+        self.trunk_sampler = BatchSampler(len(X_train[2]), shuffle=True)
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return loss_fn(targets, outputs)
 
-    def train_next_batch(self, batch_size=None):
+    def train_next_batch(self, batch_size=None, minibatch=None):
         if batch_size is None:
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
-        return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+        minibatch_indices = self.trunk_sampler.get_next(minibatch)
+        return (self.train_x[0][indices], self.train_x[1][minibatch_indices]), self.train_y[indices,minibatch_indices]
 
     def test(self):
         return self.test_x, self.test_y

@@ -521,6 +521,7 @@ class Model:
         self,
         iterations=None,
         batch_size=None,
+        minibatch=None,
         display_every=1000,
         disregard_previous_best=False,
         callbacks=None,
@@ -555,6 +556,7 @@ class Model:
             )
             iterations = epochs
         self.batch_size = batch_size
+        self.minibatch = minibatch
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
         if disregard_previous_best:
@@ -572,7 +574,7 @@ class Model:
 
         print("Training model...\n")
         self.stop_training = False
-        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
+        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size,self.minibatch))
         self.train_state.set_data_test(*self.data.test())
         self._test()
         self.callbacks.on_train_begin()
@@ -601,7 +603,7 @@ class Model:
             self.callbacks.on_batch_begin()
 
             self.train_state.set_data_train(
-                *self.data.train_next_batch(self.batch_size)
+                *self.data.train_next_batch(self.batch_size,self.minibatch)
             )
             self._train_step(
                 self.train_state.X_train,
@@ -651,7 +653,7 @@ class Model:
                         )
                         cb.file.flush()
 
-        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
+        self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size,self.minibatch))
         feed_dict = self.net.feed_dict(
             True,
             self.train_state.X_train,
@@ -677,7 +679,7 @@ class Model:
         n_iter = 0
         while n_iter < optimizers.LBFGS_options["maxiter"]:
             self.train_state.set_data_train(
-                *self.data.train_next_batch(self.batch_size)
+                *self.data.train_next_batch(self.batch_size,self.minibatch)
             )
             results = self.train_step(
                 self.train_state.X_train,
@@ -699,7 +701,7 @@ class Model:
             self.callbacks.on_batch_begin()
 
             self.train_state.set_data_train(
-                *self.data.train_next_batch(self.batch_size)
+                *self.data.train_next_batch(self.batch_size,self.minibatch)
             )
             self._train_step(
                 self.train_state.X_train,
