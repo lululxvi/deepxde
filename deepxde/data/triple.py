@@ -73,7 +73,7 @@ class TripleCartesianProd(Data):
         self.test_x, self.test_y = X_test, y_test
 
         self.train_sampler = BatchSampler(len(X_train[0]), shuffle=True)
-        self.trunk_sampler = BatchSampler(len(X_train[2]), shuffle=True)
+        self.trunk_sampler = BatchSampler(len(X_train[1]), shuffle=True)
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return loss_fn(targets, outputs)
