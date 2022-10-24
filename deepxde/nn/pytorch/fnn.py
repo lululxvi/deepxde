@@ -23,12 +23,13 @@ class FNN(NN):
                     layer_sizes[i - 1], layer_sizes[i], dtype=config.real(torch)
                 )
             )
+
             if isinstance(task_name, str) and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy"):
                 print("load param from file")
                 weight = np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy")
                 bias = np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy")
-                print("linear.weight_shape :", torch.Tensor(weight).shape)
-                print("linear.bias_shape :", torch.Tensor(bias).shape)
+                # print("linear.weight_shape :", torch.Tensor(weight).shape)
+                # print("linear.bias_shape :", torch.Tensor(bias).shape)
                 self.linears[-1].weight = torch.nn.parameter.Parameter(torch.Tensor(weight).transpose(0,1))
                 self.linears[-1].bias = torch.nn.parameter.Parameter(torch.Tensor(bias))
             else:
@@ -36,7 +37,7 @@ class FNN(NN):
                 initializer(self.linears[-1].weight)
                 initializer_zero(self.linears[-1].bias)
 
-            print("linear.weight_shape :", self.linears[-1].weight.shape)
+            # print("linear.weight_shape :", self.linears[-1].weight.shape)
         
         # debug info
         f = open('pytorch_param.log','ab')

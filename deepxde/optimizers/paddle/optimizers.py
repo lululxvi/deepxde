@@ -13,7 +13,6 @@ def get(params, optimizer, learning_rate=None, decay=None):
         return optimizer
 
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
-        # TODO: add support for L-BFGS and L-BFGS-B
         raise ValueError("L-BFGS to be implemented for backend Paddle.")
 
     if learning_rate is None:

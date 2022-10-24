@@ -23,14 +23,14 @@ class FNN(NN):
             # weight_attr_ = paddle.ParamAttr(initializer = paddle.nn.initializer.Assign(w_array[i-1]))
             # self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i],weight_attr=weight_attr_))
             # self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
-
-            if isinstance(task_name, str) and os.path.exists(f"/workspace/hesensen/paddlescience_project/deepxde_wrt_new/{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"/workspace/hesensen/paddlescience_project/deepxde_wrt_new/{task_name}/linears.{i-1}.bias.npy"):
+            print("task_name:", task_name)
+            
+            if isinstance(task_name, str) and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy"):
                 print("load param from file")
                 self.linears.append(
                     paddle.nn.Linear(
                         layer_sizes[i - 1],
                         layer_sizes[i],
-
                         weight_attr=ParamAttr(initializer=Assign(np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy"))),
                         bias_attr=ParamAttr(initializer=Assign(np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy")))
 

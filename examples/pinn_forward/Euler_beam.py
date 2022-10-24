@@ -1,7 +1,8 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import numpy as np
-
+import paddle
+paddle.enable_static()
 
 def ddy(x, y):
     return dde.grad.hessian(y, x)
