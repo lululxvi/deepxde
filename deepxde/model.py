@@ -368,8 +368,6 @@ class Model:
                 # with open(file_name3, 'ab') as f3:
                 #     np.savetxt(f3, utils.to_numpy(total_loss).reshape(1,-1), delimiter=",")
                 
-                total_loss.backward()
-                
                 self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
