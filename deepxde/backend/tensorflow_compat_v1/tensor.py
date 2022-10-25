@@ -120,6 +120,10 @@ def sin(x):
     return tf.math.sin(x)
 
 
+def exp(x):
+    return tf.math.exp(x)
+
+
 def square(x):
     return tf.math.square(x)
 
