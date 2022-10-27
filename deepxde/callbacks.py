@@ -344,9 +344,6 @@ class VariableValue(Callback):
             self.on_train_begin()
 
     def on_train_end(self):
-        self.on_train_begin()
-
-    def on_train_end(self):
         if not self.epochs_since_last == 0:
             self.on_train_begin()
 
