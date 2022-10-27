@@ -330,6 +330,8 @@ class VariableValue(Callback):
             self.value = [var.numpy() for var in self.var_list]
         elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
+        if self.file.name == "<stdout>":
+            print(f"Results from {type(self).__name__} callback:")
         print(
             self.model.train_state.epoch,
             utils.list_to_str(self.value, precision=self.precision),
@@ -414,7 +416,10 @@ class OperatorPredictor(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.on_train_begin()
-
+            if self.file.name == "<stdout>":
+                print(
+                    f"Results {self.op.__name__} operator from {type(self).__name__} callback:"
+                )
             print(
                 self.model.train_state.epoch,
                 utils.list_to_str(
@@ -534,9 +539,9 @@ class PDEPointResampler(Callback):
 
     Args:
         period: How often to resample the training points (default is 100 iterations).
-        pde_points: If True, resample the training points for PDE losses (default is 
+        pde_points: If True, resample the training points for PDE losses (default is
             True).
-        bc_points: If True, resample the training points for BC losses (default is 
+        bc_points: If True, resample the training points for BC losses (default is
             False; only supported by pytorch backend currently).
     """
 
