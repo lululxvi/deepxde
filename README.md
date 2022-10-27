@@ -19,7 +19,7 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
         - NN-arbitrary polynomial chaos (NN-aPC): solving forward/inverse stochastic PDEs (sPDEs) [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.07.048)]
         - PINN with hard constraints (hPINN): solving inverse design/topology optimization [[SIAM J. Sci. Comput.](https://doi.org/10.1137/21M1397908)]
     - improving PINN accuracy
-        - residual-based adaptive sampling [[SIAM Rev.](https://doi.org/10.1137/19M1274067), [arXiv](https://arxiv.org/abs/2207.10289)]
+        - residual-based adaptive sampling [[SIAM Rev.](https://doi.org/10.1137/19M1274067), [Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.115671)]
         - gradient-enhanced PINN (gPINN) [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114823)]
         - PINN with multi-scale Fourier features [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2021.113938)]
     - [Slides](https://github.com/lululxvi/tutorials/blob/master/20211210_pinn/pinn.pdf), [Video](https://www.youtube.com/watch?v=Wfgr1pMA9fY&list=PL1e3Jic2_DwwJQ528agJYMEpA0oMaDSA9&index=13), [Video in Chinese](http://tianyuan.xmu.edu.cn/cn/minicourses/637.html)
@@ -68,7 +68,7 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
-- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0
+- TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org)>=2.7.0
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
 - PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
@@ -138,7 +138,7 @@ First off, thanks for taking the time to contribute!
 
 DeepXDE was developed by [Lu Lu](https://lu.seas.upenn.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from the summer of 2018 to 2020, supported by [PhILMs](https://www.pnnl.gov/computing/philms). DeepXDE was originally self-hosted in Subversion at Brown University, under the name SciCoNet (Scientific Computing Neural Networks). On Feb 7, 2019, SciCoNet was moved from Subversion to GitHub, renamed to DeepXDE.
 
-DeepXDE is currently maintained by [Lu Lu](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Zongren Zou](https://github.com/ZongrenZou), [Shunyuan Mao](https://github.com/smao-astro).
+DeepXDE is currently maintained by [Lu Lu](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Zongren Zou](https://github.com/ZongrenZou), [Zhongyi Jiang](https://github.com/Jerry-Jzy), [Shunyuan Mao](https://github.com/smao-astro), [Paul Escapil-Inchauspé](https://github.com/pescap).
 
 ## License
 

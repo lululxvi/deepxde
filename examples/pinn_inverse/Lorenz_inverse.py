@@ -74,15 +74,19 @@ data = dde.data.PDE(
 net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 
-external_trainable_variables=[C1, C2, C3]
-variable = dde.callbacks.VariableValue(external_trainable_variables, period=600, filename="variables.dat")
+external_trainable_variables = [C1, C2, C3]
+variable = dde.callbacks.VariableValue(
+    external_trainable_variables, period=600, filename="variables.dat"
+)
 
 # train adam
-model.compile("adam", lr=0.001, external_trainable_variables=external_trainable_variables)
+model.compile(
+    "adam", lr=0.001, external_trainable_variables=external_trainable_variables
+)
 losshistory, train_state = model.train(iterations=20000, callbacks=[variable])
 
 # train lbfgs
-model.compile("L-BFGS-B", external_trainable_variables=external_trainable_variables)
+model.compile("L-BFGS", external_trainable_variables=external_trainable_variables)
 losshistory, train_state = model.train(callbacks=[variable])
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

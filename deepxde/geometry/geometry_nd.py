@@ -118,7 +118,7 @@ class Hypersphere(Geometry):
         return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
-        """https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection"""
+        # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
         return -ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
@@ -136,24 +136,24 @@ class Hypersphere(Geometry):
         return _n
 
     def random_points(self, n, random="pseudo"):
-        """https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability"""
+        # https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         if random == "pseudo":
             U = np.random.rand(n, 1)
             X = np.random.normal(size=(n, self.dim))
         else:
             rng = sample(n, self.dim + 1, random)
-            U, X = rng[:, 0:1], rng[:, 1:]
+            U, X = rng[:, 0:1], rng[:, 1:]  # Error if X = [0, 0, ...]
             X = stats.norm.ppf(X)
         X = preprocessing.normalize(X)
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
-        """http://mathworld.wolfram.com/HyperspherePointPicking.html"""
+        # http://mathworld.wolfram.com/HyperspherePointPicking.html
         if random == "pseudo":
             X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
-            U = sample(n, self.dim, random)
+            U = sample(n, self.dim, random)  # Error for [0, 0, ...] or [0.5, 0.5, ...]
             X = stats.norm.ppf(U)
         X = preprocessing.normalize(X)
         return self.radius * X + self.center

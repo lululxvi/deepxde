@@ -117,16 +117,24 @@ class ModelCheckpoint(Callback):
             monitored. Model is only checked at validation step according to
             ``display_every`` in ``Model.train``.
         period: Interval (number of epochs) between checkpoints.
+        monitor: The loss function that is monitored. Either 'train loss' or 'test loss'.
     """
 
-    def __init__(self, filepath, verbose=0, save_better_only=False, period=1):
+    def __init__(
+        self,
+        filepath,
+        verbose=0,
+        save_better_only=False,
+        period=1,
+        monitor="train loss",
+    ):
         super().__init__()
         self.filepath = filepath
         self.verbose = verbose
         self.save_better_only = save_better_only
         self.period = period
 
-        self.monitor = "train loss"
+        self.monitor = monitor
         self.monitor_op = np.less
         self.epochs_since_last_save = 0
         self.best = np.Inf
@@ -137,7 +145,7 @@ class ModelCheckpoint(Callback):
             return
         self.epochs_since_last_save = 0
         if self.save_better_only:
-            current = self.model.train_state.best_loss_train
+            current = self.get_monitor_value()
             if self.monitor_op(current, self.best):
                 save_path = self.model.save(self.filepath, verbose=0)
                 if self.verbose > 0:
@@ -153,6 +161,16 @@ class ModelCheckpoint(Callback):
                 self.best = current
         else:
             self.model.save(self.filepath, verbose=self.verbose)
+
+    def get_monitor_value(self):
+        if self.monitor == "train loss":
+            result = sum(self.model.train_state.loss_train)
+        elif self.monitor == "test loss":
+            result = sum(self.model.train_state.loss_test)
+        else:
+            raise ValueError("The specified monitor function is incorrect.")
+
+        return result
 
 
 class EarlyStopping(Callback):
@@ -328,6 +346,10 @@ class VariableValue(Callback):
     def on_train_end(self):
         self.on_train_begin()
 
+    def on_train_end(self):
+        if not self.epochs_since_last == 0:
+            self.on_train_begin()
+
     def get_value(self):
         """Return the variable values."""
         return self.value
@@ -487,12 +509,22 @@ class MovieDumper(Callback):
                 )
 
 
-class PDEResidualResampler(Callback):
-    """Resample the training points for PDE losses every given period."""
+class PDEPointResampler(Callback):
+    """Resample the training points for PDE and/or BC losses every given period.
 
-    def __init__(self, period=100):
+    Args:
+        period: How often to resample the training points (default is 100 iterations).
+        pde_points: If True, resample the training points for PDE losses (default is 
+            True).
+        bc_points: If True, resample the training points for BC losses (default is 
+            False; only supported by pytorch backend currently).
+    """
+
+    def __init__(self, period=100, pde_points=True, bc_points=False):
         super().__init__()
         self.period = period
+        self.pde_points = pde_points
+        self.bc_points = bc_points
 
         self.num_bcs_initial = None
         self.epochs_since_last_resample = 0
@@ -505,7 +537,7 @@ class PDEResidualResampler(Callback):
         if self.epochs_since_last_resample < self.period:
             return
         self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points()
+        self.model.data.resample_train_points(self.pde_points, self.bc_points)
 
         if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
