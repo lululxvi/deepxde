@@ -342,7 +342,7 @@ class VariableValue(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.on_train_begin()
-    
+
     def on_train_end(self):
         self.on_train_begin()
 
@@ -363,11 +363,16 @@ class OperatorPredictor(Callback):
         op: The operator with inputs (x, y).
     """
 
-    def __init__(self, x, op):
+    def __init__(self, x, op, period=1, filename=None, precision=2):
         super().__init__()
         self.x = x
         self.op = op
+        self.period = period
+        self.precision = precision
+
+        self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
+        self.epochs_since_last = 0
 
     def init(self):
         if backend_name == "tensorflow.compat.v1":
@@ -386,7 +391,7 @@ class OperatorPredictor(Callback):
         elif backend_name == "paddle":
             self.x = paddle.to_tensor(self.x, stop_gradient=False)
 
-    def on_predict_end(self):
+    def on_train_begin(self):
         if backend_name == "tensorflow.compat.v1":
             self.value = self.model.sess.run(
                 self.tf_op, feed_dict=self.model.net.feed_dict(False, self.x)
@@ -406,6 +411,24 @@ class OperatorPredictor(Callback):
             raise NotImplementedError(
                 f"OperatorPredictor not implemented for backend {backend_name}."
             )
+
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.period:
+            self.epochs_since_last = 0
+            self.on_train_begin()
+
+            print(
+                self.model.train_state.epoch,
+                utils.list_to_str(
+                    (self.value.flatten()).tolist(), precision=self.precision
+                ),
+                file=self.file,
+            )
+            self.file.flush()
+
+    def on_predict_end(self):
+        self.on_train_begin()
 
     def get_value(self):
         return self.value

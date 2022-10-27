@@ -210,6 +210,33 @@ class PointSetBC:
         return outputs[beg:end, self.component : self.component + 1] - self.values
 
 
+class PointSetOperatorBC:
+    """General operator boundary conditions for a set of points.
+    Compare the function output, func, (that associates with `points`) with `values` (target data).
+
+    Args:
+        points: An array of points where the corresponding target values are known and used for training.
+        values: An array of values which output of function should fulfill
+        func: A function takes arguments (`inputs`, `outputs`, `X`)
+            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+            `inputs` and `outputs` are the network input and output tensors,
+            respectively; `X` are the NumPy array of the `inputs`.
+    """
+
+    def __init__(self, points, values, func):
+        self.points = np.array(points, dtype=config.real(np))
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+            raise RuntimeError("PointSetBC should output 1D values")
+        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+        self.func = func
+
+    def collocation_points(self, X):
+        return self.points
+
+    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        return self.func(inputs, outputs, X)[beg:end] - self.values
+
+
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
 
