@@ -15,7 +15,7 @@ from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 
-LOSS_FLAG = False
+LOSS_FLAG = True
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -633,14 +633,18 @@ class Model:
                     grad.clear()
                     self.train_losses = paddle.sum(losses)
 
+                    f = open('prim_train_program_1.log','w')
+                    print (self.train_program,file=f)
+                    f.close()
+
                     self.opt.minimize(self.train_losses, startup_program=self.start_up_program)
                     paddle.incubate.autograd.prim2orig()
 
                     print("train_program success")
 
-            # f = open('prim_train_program.log','w')
-            # print (self.train_program,file=f)
-            # f.close()
+            f = open('prim_train_program.log','w')
+            print (self.train_program,file=f)
+            f.close()
 
             # build the test_program
             with paddle.fluid.unique_name.guard("rename"):
@@ -686,9 +690,9 @@ class Model:
 
                     print("test_program success")
 
-            # s = open('prim_test_program.log','w')
-            # print (self.test_program,file=s)
-            # s.close()
+            s = open('prim_test_program.log','w')
+            print (self.test_program,file=s)
+            s.close()
 
             self.exe.run(self.start_up_program)
             print("prim build end")
@@ -713,8 +717,8 @@ class Model:
                         self.feeds['loss_weights'] = loss_weights
 
                     self.fetches = [self.test_losses.name]
-                    self.fetches.append(self.test_outputs.name)
                     self.fetches.append(self.var_list)
+                    self.fetches.append(self.test_outputs.name)
                     static_out = self.exe.run(self.test_program, feed=self.feeds,
                             fetch_list=self.fetches)
                 else:
@@ -723,13 +727,15 @@ class Model:
                         self.feeds['loss_weights'] = loss_weights
 
                     self.fetches = [self.train_losses.name]
-                    self.fetches.append(self.train_outputs.name)
                     self.fetches.append(self.var_list)
+                    self.fetches.append(self.train_outputs.name)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
+                    
             
             for i in range(len(self.var_list)):
-                self.extra_fetch_var.append(static_out[i+2])    
+                self.extra_fetch_var.append(static_out[i+1])   
+            return static_out[-1] 
                 
 
         def outputs_losses(training, inputs, targets, losses_fn):
