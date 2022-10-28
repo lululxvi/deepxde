@@ -330,8 +330,6 @@ class VariableValue(Callback):
             self.value = [var.numpy() for var in self.var_list]
         elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
-        if self.file.name == "<stdout>":
-            print(f"Results from {type(self).__name__} callback:")
         print(
             self.model.train_state.epoch,
             utils.list_to_str(self.value, precision=self.precision),
@@ -416,10 +414,6 @@ class OperatorPredictor(Callback):
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.on_train_begin()
-            if self.file.name == "<stdout>":
-                print(
-                    f"Results {self.op.__name__} operator from {type(self).__name__} callback:"
-                )
             print(
                 self.model.train_state.epoch,
                 utils.list_to_str(
@@ -430,7 +424,8 @@ class OperatorPredictor(Callback):
             self.file.flush()
 
     def on_predict_end(self):
-        self.on_train_begin()
+        if not self.epochs_since_last == 0:
+            self.on_train_begin()
 
     def get_value(self):
         return self.value
