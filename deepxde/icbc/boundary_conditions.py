@@ -225,21 +225,24 @@ def npfunc_range_autocache(func):
 
     @wraps(func)
     def wrapper_cache(X, beg, end, _):
-        if not backend_name == "paddle":
+        if backend_name == "paddle" and paddle.incubate.autograd.prim_enabled():
+            return func(X[beg:end])
+        else:
             key = (id(X), beg, end)
             if key not in cache:
                 cache[key] = func(X[beg:end])
             return cache[key]
-        else:
-            return func(X[beg:end])
 
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
         # Even if X is the same one, aux_var could be different
-        key = (id(X), beg, end)
-        if key not in cache:
-            cache[key] = func(X[beg:end], aux_var[beg:end])
-        return cache[key]
+        if backend_name == "paddle" and paddle.incubate.autograd.prim_enabled():
+            return func(X[beg:end], aux_var[beg:end])
+        else:
+            key = (id(X), beg, end)
+            if key not in cache:
+                cache[key] = func(X[beg:end], aux_var[beg:end])
+            return cache[key]
 
     if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]:
         if utils.get_num_args(func) == 1:
