@@ -223,10 +223,15 @@ def npfunc_range_autocache(func):
     def wrapper_nocache_auxiliary(X, beg, end, aux_var):
         return func(X[beg:end], aux_var[beg:end])
 
-    @wraps(func)
     def wrapper_cache(X, beg, end, _):
-        if backend_name == "paddle" and paddle.incubate.autograd.prim_enabled():
-            return func(X[beg:end])
+        if backend_name == "paddle": 
+            if paddle.in_dynamic_mode():
+                key = (id(X), beg, end)
+                if key not in cache:
+                    cache[key] = func(X[beg:end])
+                return cache[key]
+            else:
+                return func(X[beg:end])
         else:
             key = (id(X), beg, end)
             if key not in cache:
@@ -236,8 +241,14 @@ def npfunc_range_autocache(func):
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
         # Even if X is the same one, aux_var could be different
-        if backend_name == "paddle" and paddle.incubate.autograd.prim_enabled():
-            return func(X[beg:end], aux_var[beg:end])
+        if backend_name == "paddle" :
+            if paddle.in_dynamic_mode():
+                key = (id(X), beg, end)
+                if key not in cache:
+                    cache[key] = func(X[beg:end], aux_var[beg:end])
+                return cache[key]
+            else:
+                return func(X[beg:end], aux_var[beg:end])
         else:
             key = (id(X), beg, end)
             if key not in cache:
