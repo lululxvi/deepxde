@@ -358,6 +358,11 @@ class OperatorPredictor(Callback):
     Args:
         x: The input data.
         op: The operator with inputs (x, y).
+        period (int): Interval (number of epochs) between checking values.
+        filename (string): Output the values to the file `filename`.
+            The file is kept open to allow instances to be re-used.
+            If ``None``, output to the screen.
+        precision (int): The precision of variables to display.
     """
 
     def __init__(self, x, op, period=1, filename=None, precision=2):
@@ -417,7 +422,7 @@ class OperatorPredictor(Callback):
             print(
                 self.model.train_state.epoch,
                 utils.list_to_str(
-                    (self.value.flatten()).tolist(), precision=self.precision
+                    self.value.flatten().tolist(), precision=self.precision
                 ),
                 file=self.file,
             )

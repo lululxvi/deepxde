@@ -212,6 +212,7 @@ class PointSetBC:
 
 class PointSetOperatorBC:
     """General operator boundary conditions for a set of points.
+    
     Compare the function output, func, (that associates with `points`) with `values` (target data).
 
     Args:
@@ -226,7 +227,7 @@ class PointSetOperatorBC:
     def __init__(self, points, values, func):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
-            raise RuntimeError("PointSetBC should output 1D values")
+            raise RuntimeError("PointSetOperatorBC should output 1D values")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.func = func
 
