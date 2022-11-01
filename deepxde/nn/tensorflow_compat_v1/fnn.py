@@ -23,6 +23,7 @@ class FNN(NN):
         layer_normalization=None,
         kernel_constraint=None,
         use_bias=True,
+        task_name=None
     ):
         super().__init__()
         self.layer_size = layer_sizes
