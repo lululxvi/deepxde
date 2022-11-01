@@ -24,7 +24,7 @@ def _get_lr_scheduler(lr, decay):
         )
     else:
         raise NotImplementedError(
-            f"{decay[0]} decay to be implemented for backend tensorflow.compat.v1."
+            f"{decay[0]} decay to be implemented for backend paddle."
         )
     return lr_sch
 
