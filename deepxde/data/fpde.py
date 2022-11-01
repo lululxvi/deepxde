@@ -7,7 +7,6 @@ import numpy as np
 
 from .pde import PDE
 from .. import config
-# from ..backend import is_tensor, tf
 from ..utils import array_ops_compat, run_if_all_none
 
 
@@ -570,8 +569,6 @@ class Fractional:
                     indices.append([i, beg])
                     beg += 1
                 values = array_ops_compat.hstack((values, self.w[i]))
-                # values.append(self.w[i])
-            # values = array_ops_compat.hstack(values)
             return indices, values, dense_shape
 
         print("Generating dense fractional matrix...")

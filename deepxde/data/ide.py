@@ -5,7 +5,6 @@ from .pde import PDE
 from .. import backend as bkd
 from .. import config
 
-# from ..backend import tf
 from ..utils import run_if_all_none
 
 
