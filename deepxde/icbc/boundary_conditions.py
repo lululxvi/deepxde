@@ -15,6 +15,7 @@ from abc import ABC, abstractmethod
 from functools import wraps
 
 import numpy as np
+import paddle
 
 from .. import backend as bkd
 from .. import config

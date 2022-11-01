@@ -36,6 +36,7 @@ class Model:
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
+        self.lr_scheduler = None
 
         # Backend-dependent attributes
         self.opt = None
@@ -361,20 +362,17 @@ class Model:
             def closure():
                 losses = outputs_losses_train(inputs, targets)[1]
                 total_loss = torch.sum(losses)
+                
                 if LOSS_FLAG:
                     print(f"{total_loss.item():.10f}")
 
-                # file_name3 = 'pytorch_dygrqaph_loss.log'
-                # with open(file_name3, 'ab') as f3:
-                #     np.savetxt(f3, utils.to_numpy(total_loss).reshape(1,-1), delimiter=",")
-                
                 self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
 
             self.opt.step(closure)
-            # if self.lr_scheduler is not None:
-            #     self.lr_scheduler.step()
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
         # Callables
         self.outputs = outputs
@@ -483,30 +481,48 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        self.opt = optimizers.get(
-            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-        )
+        if decay is None:
+            self.opt = optimizers.get(
+                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+            )
+        else:
+            self.opt, self.lr_scheduler = optimizers.get(
+                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+            )
 
         def train_step(inputs, targets):
             losses = outputs_losses_train(inputs, targets)[1]
             total_loss = paddle.sum(losses)
-            
-            # file_name3 = 'paddle_dygraph_loss.log'
-            # with open(file_name3, 'ab') as f3:
-            #     np.savetxt(f3, utils.to_numpy(total_loss), delimiter=",")
-            
             total_loss.backward()
+
             if LOSS_FLAG:
                 print(f"{total_loss.item():.10f}")
 
             self.opt.step()
             self.opt.clear_grad()
 
+            if self.lr_scheduler is not None:
+                 self.lr_scheduler.step()
+
+        def train_step_lbfgs(inputs, targets, previous_optimizer_results=None):
+            def build_loss():
+                losses = outputs_losses_train(inputs, targets)[1]
+                return paddle.sum(losses)
+
+            trainable_variables = (
+                self.net.trainable_variables + self.external_trainable_variables
+            )
+            return opt(trainable_variables, build_loss, previous_optimizer_results)
+        
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
-        self.train_step = train_step
+        self.train_step = (
+            train_step
+            if not optimizers.is_external_optimizer(self.opt_name)
+            else train_step_lbfgs
+        )
 
     def _compile_paddle_static(self, lr, loss_fn, decay, loss_weights):
         """paddle_static_program init"""
@@ -943,7 +959,7 @@ class Model:
                                     self.data.losses_test)
         print("start_up_program end ...")
         # self._test()
-        # self.callbacks.on_train_begin()
+        self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
                 self._train_tensorflow_compat_v1_scipy(display_every)
@@ -955,15 +971,13 @@ class Model:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
             
-            self.callbacks.on_train_begin()
             self._train_sgd(iterations, display_every)
-            self.callbacks.on_train_end()
-        #self.callbacks.on_train_end()
+        self.callbacks.on_train_end()
 
         print("")
-        # display.training_display.summary(self.train_state)
-        # if model_save_path is not None:
-            # self.save(model_save_path, verbose=1)
+        display.training_display.summary(self.train_state)
+        if model_save_path is not None:
+            self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
     def _train_sgd(self, iterations, display_every):
