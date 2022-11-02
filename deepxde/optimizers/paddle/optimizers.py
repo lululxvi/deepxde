@@ -44,6 +44,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
         else:
             if learning_rate is not None or decay is not None:
                 print("Warning: learning rate is ignored for {}".format(optimizer))
+            print("lbfgs has been used in paddle **************8")
             return lbfgs_minimize
 
     if learning_rate is None:

@@ -15,7 +15,7 @@ from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 
-LOSS_FLAG = True
+LOSS_FLAG = False
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -481,14 +481,11 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        if decay is None:
-            self.opt = optimizers.get(
-                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-            )
-        else:
-            self.opt, self.lr_scheduler = optimizers.get(
-                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-            )
+        
+        self.opt = optimizers.get(
+                trainable_variables, self.opt_name, learning_rate=lr, decay=decay)
+ 
+        print("self.opt :", self.opt)
 
         def train_step(inputs, targets):
             losses = outputs_losses_train(inputs, targets)[1]
@@ -506,18 +503,16 @@ class Model:
             # 打印学习率
             # print(self.opt._learning_rate.get_lr())
 
-            if self.lr_scheduler is not None:
-                 self.lr_scheduler.step()
-
         def train_step_lbfgs(inputs, targets, previous_optimizer_results=None):
             def build_loss():
                 losses = outputs_losses_train(inputs, targets)[1]
                 return paddle.sum(losses)
 
             trainable_variables = (
-                self.net.trainable_variables + self.external_trainable_variables
+                list(self.net.parameters()) + self.external_trainable_variables
             )
-            return opt(trainable_variables, build_loss, previous_optimizer_results)
+            print("trian_step_lbfgs: ")
+            return self.opt(trainable_variables, build_loss, previous_optimizer_results)
         
         # Callables
         self.outputs = outputs
@@ -864,9 +859,9 @@ class Model:
             outs = outputs_losses(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
-            # self.net.requires_grad_(requires_grad=False)
+            self.net.requires_grad_(requires_grad=False)
             outs = outputs_losses(inputs, targets)
-            # self.net.requires_grad_()
+            self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             outs = outputs_losses(self.params, inputs, targets)
@@ -975,6 +970,8 @@ class Model:
                 self._train_tensorflow_tfp()
             elif backend_name == "pytorch":
                 self._train_pytorch_lbfgs()
+            elif backend_name == "paddle":
+                self._train_paddle_lbfgs()
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
@@ -1095,6 +1092,24 @@ class Model:
             self.callbacks.on_epoch_end()
 
             if self.stop_training:
+                break
+
+    def _train_paddle_lbfgs(self):
+        n_iter = 0
+        while n_iter < optimizers.LBFGS_options["maxiter"]:
+            self.train_state.set_data_train(
+                *self.data.train_next_batch(self.batch_size)
+            )
+            results = self.train_step(
+                self.train_state.X_train,
+                self.train_state.y_train,
+            )
+            n_iter += results.num_iterations.numpy()
+            self.train_state.epoch += results.num_iterations.numpy()
+            self.train_state.step += results.num_iterations.numpy()
+            self._test()
+
+            if results.converged or results.failed:
                 break
 
     def _test(self):
