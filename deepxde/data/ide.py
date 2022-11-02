@@ -2,8 +2,9 @@ import numpy as np
 
 from .helper import one_function
 from .pde import PDE
+from .. import backend as bkd
 from .. import config
-from ..backend import tf
+
 from ..utils import run_if_all_none
 
 
@@ -56,14 +57,14 @@ class IDE(PDE):
             f = [f]
         f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+            loss_fn(bkd.zeros(bkd.shape(fi), dtype=config.real(bkd.lib)), fi) for fi in f
         ]
 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(
-                loss_fn(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+                loss_fn(bkd.zeros(bkd.shape(error), dtype=config.real(bkd.lib)), error)
             )
         return losses
 
@@ -73,8 +74,8 @@ class IDE(PDE):
         if not isinstance(f, (list, tuple)):
             f = [f]
         return [
-            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
-        ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
+            loss_fn(bkd.zeros(bkd.shape(fi), dtype=config.real(bkd.lib)), fi) for fi in f
+        ] + [bkd.constant(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):

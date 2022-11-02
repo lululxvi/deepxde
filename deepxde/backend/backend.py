@@ -239,7 +239,7 @@ def sum(input_tensor, dim, keepdims=False):
     """
 
 
-def reduce_sum(input_tensor):
+def reduce_sum(input_tensor, axis=None, keepdim=False):
     """Returns the sum of all elements in the input tensor.
 
     Args:
@@ -276,3 +276,57 @@ def zeros_like(input_tensor):
         Tensor: The result.
     """
 
+
+def lgamma(x):
+    """计算输入 x 的 gamma 函数的自然对数并返回
+    """
+
+
+def matmul(x, y):
+    """x与y做矩阵乘法
+    """
+
+
+def size(tensor):
+    """x与y做矩阵乘法
+    """
+
+
+def SparseTensor(indices, values, shape):
+    """返回一个稀疏矩阵
+    """
+
+
+def sparse_tensor_dense_matmul(x, y):
+    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
+    """
+
+
+def constant(values, dtype):
+    """创建一个常量张量
+    """
+
+
+def concat(values, axis):
+    """在axis维度上连接张量
+    """
+
+
+def reverse(tensor, axis):
+    """对Tensor在axis维度上进行逆序翻转
+    """
+
+
+def expand_dims(tensor, axis):
+    """对Tensor在axis上增加一个维度, similar to `unsqueeze`
+    """
+
+
+def cos(x):
+    """计算cos(tensor)
+    """
+
+
+def roll(tensor, shift, axis=None):
+    """沿着指定维度 axis 对输入 x 进行循环滚动
+    """

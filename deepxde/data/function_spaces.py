@@ -70,7 +70,7 @@ class FunctionSpace(abc.ABC):
 
 
 class PowerSeries(FunctionSpace):
-    """Power series.
+    r"""Power series.
 
     p(x) = \sum_{i=0}^{N-1} a_i x^i
 
@@ -97,7 +97,7 @@ class PowerSeries(FunctionSpace):
 
 
 class Chebyshev(FunctionSpace):
-    """Chebyshev polynomial.
+    r"""Chebyshev polynomial.
 
     p(x) = \sum_{i=0}^{N-1} a_i T_i(x),
     where T_i is Chebyshev polynomial of the first kind.

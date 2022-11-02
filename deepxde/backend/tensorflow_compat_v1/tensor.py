@@ -144,8 +144,8 @@ def sum(input_tensor, dim, keepdims=False):
     return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
 
 
-def reduce_sum(input_tensor):
-    return tf.math.reduce_sum(input_tensor)
+def reduce_sum(input_tensor, dim=None, keepdims=False):
+    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):
@@ -160,3 +160,53 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return tf.zeros_like(input_tensor)
+
+
+def lgamma(x):
+    return tf.lgamma(x)
+
+
+def matmul(x, y):
+    return tf.matmul(x, y)
+
+
+def size(tensor):
+    return tf.size(tensor)
+
+
+def SparseTensor(indices, values, shape):
+    return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
+
+
+def sparse_tensor_dense_matmul(x, y):
+    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
+    """
+    return tf.sparse_tensor_dense_matmul(x, y)
+
+
+def ones(shape, dtype):
+    return tf.ones(shape, dtype=dtype)
+
+
+def constant(values, dtype):
+    return tf.constant(values, dtype=dtype)
+
+
+def concat(values, axis):
+    return tf.concat(values, axis=axis)
+
+
+def reverse(tensor, axis):
+    return tf.reverse(tensor, axis)
+
+
+def expand_dims(tensor, axis):
+    return tf.expand_dims(tensor, axis)
+
+
+def cos(tensor):
+    return tf.cos(tensor)
+
+
+def roll(tensor, shift, axis=None):
+    return tf.roll(tensor, shift, axis)

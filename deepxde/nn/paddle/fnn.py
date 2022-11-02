@@ -3,7 +3,7 @@ import numpy as np
 from .nn import NN
 from .. import activations
 from .. import initializers
-from paddle.nn.initializer import Assign, Constant
+from paddle.nn.initializer import Assign
 from paddle import ParamAttr
 import os
 
@@ -13,37 +13,24 @@ class FNN(NN):
     def __init__(self, layer_sizes, activation, kernel_initializer, task_name=None):
         super().__init__()
         self.activation = activations.get(activation)
+        self.layer_size = layer_sizes
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
 
         self.linears = paddle.nn.LayerList()
-        # npz = np.load('/workspace/hesensen/paddlescience_project/deepxde_wrt_new/iter0_weights.npz')
         p = 0
         for i in range(1, len(layer_sizes)):
-            # weight_attr_ = paddle.ParamAttr(initializer = paddle.nn.initializer.Assign(w_array[i-1]))
-            # self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i],weight_attr=weight_attr_))
-            # self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
-            print("task_name:", task_name)
-            
-            if isinstance(task_name, str) and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy"):
+            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"./{task_name}/linears.{i-1}.bias.npy"):
                 print("load param from file")
                 self.linears.append(
                     paddle.nn.Linear(
                         layer_sizes[i - 1],
                         layer_sizes[i],
-                        weight_attr=ParamAttr(initializer=Assign(np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.weight.npy"))),
-                        bias_attr=ParamAttr(initializer=Assign(np.load(f"/home/wangruting/science/deepxde_wrt_44_orig/deepxde_wrt_44/{task_name}/linears.{i-1}.bias.npy")))
-
-                        # weight_attr=ParamAttr(initializer=Constant(0.5)),
-                        # bias_attr=ParamAttr(initializer=Constant(0.5))
+                        weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/linears.{i-1}.weight.npy").astype("float32"))),
+                        bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/linears.{i-1}.bias.npy").astype("float32")))
                     )
                 )
-                # initializer(self.linears[-1].weight)
-                # initializer_zero(self.linears[-1].bias)
-                # self.linears[-1].weight.set_value(npz[f'arr_{p}'])
-                # self.linears[-1].bias.set_value(npz[f'arr_{p+1}'])
                 p += 2
-                # print(f"{i} {self.linears[-1].weight.mean().item():.10f} {self.linears[-1].weight.std().item():.10f}")
             else:
                 print("init param from random")
                 self.linears.append(
@@ -54,15 +41,6 @@ class FNN(NN):
                 )
                 initializer(self.linears[-1].weight)
                 initializer_zero(self.linears[-1].bias)
-
-        # debug info
-        if paddle.in_dynamic_mode():
-            f = open('paddle_dygraph_param.log','ab')
-            for linear in self.linears:
-                np.savetxt(f,linear.weight.numpy().reshape(1,-1),delimiter=",")
-                np.savetxt(f,linear.bias.numpy().reshape(1,-1),delimiter=",")
-            f.close()
-        # debug info end
 
     def forward(self, inputs):
         x = inputs
@@ -103,11 +81,28 @@ class PFNN(NN):
             raise ValueError("output size must be integer")
 
         n_output = layer_sizes[-1]
+        self.p = 0
+        self.new_save = False
 
         def make_linear(n_input, n_output):
-            linear = paddle.nn.Linear(n_input, n_output)
-            initializer(linear.weight)
-            initializer_zero(linear.bias)
+            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/weight_{self.p}.npy") and os.path.exists(f"./{task_name}/bias_{self.p}.npy"):
+                print("load param from file")
+                linear = paddle.nn.Linear(
+                    n_input,
+                    n_output,
+                    weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/weight_{self.p}.npy").astype("float32"))),
+                    bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/bias_{self.p}.npy").astype("float32")))
+                )
+                self.p += 1
+            else:
+                print("init param from random")
+                linear = paddle.nn.Linear(n_input, n_output)
+                initializer(linear.weight)
+                initializer_zero(linear.bias)
+                np.save(f"./{task_name}/weight_{self.p}.npy", linear.weight.numpy())
+                np.save(f"./{task_name}/bias_{self.p}.npy", linear.bias.numpy())
+                self.p += 1
+                self.new_save = True
             return linear
 
         self.layers = paddle.nn.LayerList()
@@ -154,6 +149,10 @@ class PFNN(NN):
             )
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))
+
+        if self.new_save:
+            print("第一次保存模型完毕，自动退出，请再次运行")
+            exit(0)
 
     def forward(self, inputs):
         x = inputs
