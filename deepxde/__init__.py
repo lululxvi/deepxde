@@ -37,6 +37,7 @@ from .icbc import (
     RobinBC,
     PointSetBC,
     IC,
+    PointSetOperatorBC,
 )
 
 maps = nn
