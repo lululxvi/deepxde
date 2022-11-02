@@ -214,15 +214,17 @@ class PointSetBC:
 class PointSetOperatorBC:
     """General operator boundary conditions for a set of points.
     
-    Compare the function output, func, (that associates with `points`) with `values` (target data).
+    Compare the function output, func, (that associates with `points`) 
+        with `values` (target data).
 
     Args:
-        points: An array of points where the corresponding target values are known and used for training.
+        points: An array of points where the corresponding target values are 
+            known and used for training.
         values: An array of values which output of function should fulfill
         func: A function takes arguments (`inputs`, `outputs`, `X`)
-            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
-            `inputs` and `outputs` are the network input and output tensors,
-            respectively; `X` are the NumPy array of the `inputs`.
+            and outputs a tensor of size `N x 1`, where `N` is the length of 
+            `inputs`. `inputs` and `outputs` are the network input and output 
+            tensors, respectively; `X` are the NumPy array of the `inputs`.
     """
 
     def __init__(self, points, values, func):
