@@ -1,19 +1,19 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle
+"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
+import deepxde.backend as bkd
 from deepxde.backend import tf
 import paddle
 
-def ide(x, y, int_mat):
-    rhs = paddle.matmul(int_mat, y)
-    lhs1 = paddle.grad(y, x)[0]
-    return (lhs1 + y)[: paddle.size(rhs)] - rhs
 
-# def ide(x, y, int_mat):
-#     rhs = tf.matmul(int_mat, y)
-#     lhs1 = tf.gradients(y, x)[0]
-#     return (lhs1 + y)[: tf.size(rhs)] - rhs
+def ide(x, y, int_mat):
+    int_mat = bkd.as_tensor(int_mat)
+    rhs = bkd.matmul(int_mat, y)
+    lhs1 = bkd.gradients(y, x)[0]
+    return (lhs1 + y)[: bkd.size(rhs)] - rhs
+
 
 def kernel(x, s):
     return np.exp(s - x)
@@ -46,6 +46,10 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 model.compile("L-BFGS")
 model.train()
+
+# an temporary alternative with adam optimizer
+# model.compile("adam", lr=1e-3)
+# model.train(iterations=10000)
 
 X = geom.uniform_points(100)
 y_true = func(X)

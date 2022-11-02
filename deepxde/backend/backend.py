@@ -330,3 +330,8 @@ def cos(x):
 def roll(tensor, shift, axis=None):
     """沿着指定维度 axis 对输入 x 进行循环滚动
     """
+
+
+def gradients(x, y):
+    """求x对y的一阶微分矩阵
+    """

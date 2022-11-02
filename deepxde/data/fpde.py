@@ -502,10 +502,10 @@ class Fractional:
             h = self.geom.diam / (self.disc.resolution[0] - 1)
             for i in range(1, self.disc.resolution[0] - 1):
                 # first order
-                int_mat[i, 1: i + 2] = np.flipud(self.get_weight(i))
+                int_mat[i, 1: i + 2] = np.squeeze(np.flipud(self.get_weight(i)))
                 int_mat[i, i - 1: -1] += self.get_weight(
                     self.disc.resolution[0] - 1 - i
-                )
+                ).numpy().squeeze()
                 # second order
                 # int_mat[i, 0:i+2] = np.flipud(self.modify_second_order(w=self.get_weight(i)))
                 # int_mat[i, i-1:] += self.modify_second_order(w=self.get_weight(self.disc.resolution[0]-1-i))
@@ -621,7 +621,7 @@ class FractionalTime:
         x = self.geom.uniform_points(self.disc.resolution[0], True)
         x = np.roll(x, 1)[:, 0]
         dt = (self.tmax - self.tmin) / (self.nt - 1)
-        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1))
+        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1), dtype=config.real(np))
         d[0 : self.disc.resolution[0], 0] = x
         d[0 : self.disc.resolution[0], 1] = self.tmin
         beg = self.disc.resolution[0]
@@ -638,7 +638,7 @@ class FractionalTime:
     def get_x_dynamic(self):
         self.fracx = Fractional(self.alpha, self.geom, self.disc, self.x0[:, :-1])
         xx = self.fracx.get_x()
-        x = np.empty((len(xx), self.geom.dim + 1))
+        x = np.empty((len(xx), self.geom.dim + 1), dtype=config.real(np))
         x[: len(self.x0)] = self.x0
         beg = len(self.x0)
         for i in range(len(self.x0)):

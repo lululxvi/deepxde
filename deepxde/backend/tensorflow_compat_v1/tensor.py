@@ -144,8 +144,8 @@ def sum(input_tensor, dim, keepdims=False):
     return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
 
 
-def reduce_sum(input_tensor, dim=None, keepdims=False):
-    return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
+def reduce_sum(input_tensor, axis=None, keepdim=False):
+    return tf.math.reduce_sum(input_tensor, axis=axis, keepdims=keepdim)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):

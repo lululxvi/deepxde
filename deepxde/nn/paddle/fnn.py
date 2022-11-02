@@ -99,8 +99,8 @@ class PFNN(NN):
                 linear = paddle.nn.Linear(n_input, n_output)
                 initializer(linear.weight)
                 initializer_zero(linear.bias)
-                np.save(f"./{task_name}/weight_{self.p}.npy", linear.weight.numpy())
-                np.save(f"./{task_name}/bias_{self.p}.npy", linear.bias.numpy())
+                # np.save(f"./{task_name}/weight_{self.p}.npy", linear.weight.numpy())
+                # np.save(f"./{task_name}/bias_{self.p}.npy", linear.bias.numpy())
                 self.p += 1
                 self.new_save = True
             return linear

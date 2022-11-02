@@ -123,8 +123,8 @@ def sum(input_tensor, dim, keepdims=False):
     return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
 
 
-def reduce_sum(input_tensor, dim=None, keepdims=False):
-    return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
+def reduce_sum(input_tensor, axis=None, keepdim=False):
+    return paddle.sum(input_tensor, axis=axis, keepdim=keepdim)
 
 
 def zeros(shape, dtype):
@@ -193,3 +193,7 @@ def cos(tensor):
 
 def roll(tensor, shift, axis=None):
     return paddle.roll(tensor, shift, axis)
+
+
+def gradients(x, y):
+    return paddle.grad(x, y)
