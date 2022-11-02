@@ -48,6 +48,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
+            self.extra_fetch_var = []  # for later access
         elif backend_name == "pytorch":
             self.lr_scheduler = None
         elif backend_name == "jax":
@@ -362,7 +363,7 @@ class Model:
             def closure():
                 losses = outputs_losses_train(inputs, targets)[1]
                 total_loss = torch.sum(losses)
-                
+
                 if LOSS_FLAG:
                     print(f"{total_loss.item():.10f}")
 
@@ -507,7 +508,7 @@ class Model:
             # print(self.opt._learning_rate.get_lr())
 
             if self.lr_scheduler is not None:
-                 self.lr_scheduler.step()
+                self.lr_scheduler.step()
 
         def train_step_lbfgs(inputs, targets, previous_optimizer_results=None):
             def build_loss():
@@ -518,7 +519,7 @@ class Model:
                 self.net.trainable_variables + self.external_trainable_variables
             )
             return opt(trainable_variables, build_loss, previous_optimizer_results)
-        
+
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
@@ -721,7 +722,7 @@ class Model:
         def outputs(training, inputs):
             self.feeds = dict()
             self.extra_fetch_var = []
-            if training : 
+            if training :
                 self.feeds['train_inputs'] = inputs
                 if loss_weights is not None:
                     self.feeds['loss_weights'] = loss_weights
@@ -752,12 +753,12 @@ class Model:
                     self.fetches.append(self.train_outputs.name)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
-                    
-            
+
+
             for i in range(len(self.var_list)):
-                self.extra_fetch_var.append(static_out[i+1])   
-            return static_out[-1] 
-                
+                self.extra_fetch_var.append(static_out[i+1])
+            return static_out[-1]
+
 
         def outputs_losses(training, inputs, targets, losses_fn):
             self.feeds = dict()
@@ -799,7 +800,7 @@ class Model:
                     self.fetches.append(self.var_list)
                     static_out = self.exe.run(self.train_program, feed=self.feeds,
                             fetch_list=self.fetches)
-            
+
             # Data losses
             losses = static_out[0]
             if losses.size == 1:
@@ -978,7 +979,7 @@ class Model:
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
-            
+
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 

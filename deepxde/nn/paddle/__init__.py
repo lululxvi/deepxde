@@ -2,8 +2,11 @@
 
 __all__ = [
     "FNN",
-    "PFNN"
+    "MsFFN",
+    "PFNN",
+    "STMsFFN",
 ]
 
 from .fnn import FNN
 from .fnn import PFNN
+from .msffn import MsFFN, STMsFFN

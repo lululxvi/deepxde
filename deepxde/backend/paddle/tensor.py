@@ -123,8 +123,8 @@ def sum(input_tensor, dim, keepdims=False):
     return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
 
 
-def reduce_sum(input_tensor):
-    return paddle.sum(input_tensor)
+def reduce_sum(input_tensor, dim=None, keepdims=False):
+    return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
 
 
 def zeros(shape, dtype):
@@ -133,3 +133,63 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return paddle.full_like(input_tensor, 0.0)
+
+
+def lgamma(tensor):
+    return paddle.lgamma(tensor)
+
+
+def matmul(x, y):
+    return paddle.matmul(x, y)
+
+
+def size(tensor):
+    return paddle.numel(tensor)
+
+
+def SparseTensor(indices, values, shape):
+    x = [p[0] for p in indices]  # [num_of_nonzero(s), ]
+    y = [p[1] for p in indices]  # [num_of_nonzero(s), ]
+    indices = paddle.stack(
+        (paddle.to_tensor(x), paddle.to_tensor(y))
+    )  # [2(x,y), num_of_nonzero(s)]
+    values = paddle.to_tensor(values, dtype="float32")
+    if values.ndim >= 2 and values.shape[-1] == 1:
+        values = paddle.squeeze(values, axis=-1)
+    if not isinstance(shape, list):
+        shape = list(shape)
+    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=shape)
+
+
+def sparse_tensor_dense_matmul(x, y):
+    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
+    """
+    return paddle.sparse.matmul(x, y)
+
+
+def ones(shape, dtype):
+    return paddle.ones(shape=shape, dtype=dtype)
+
+
+def constant(values, dtype):
+    return paddle.to_tensor(values, dtype=dtype)
+
+
+def concat(values, axis):
+    return paddle.concat(values, axis=axis)
+
+
+def reverse(tensor, axis):
+    return paddle.flip(tensor, axis)
+
+
+def expand_dims(tensor, axis):
+    return paddle.unsqueeze(tensor, axis=axis)
+
+
+def cos(tensor):
+    return paddle.cos(tensor)
+
+
+def roll(tensor, shift, axis=None):
+    return paddle.roll(tensor, shift, axis)
