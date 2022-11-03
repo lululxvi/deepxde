@@ -149,3 +149,52 @@ def zeros(shape, dtype):
 def zeros_like(input_tensor):
     return torch.zeros_like(input_tensor)
 
+
+def lgamma(x):
+    return torch.lgamma(x)
+
+
+def matmul(x, y):
+    return torch.matmul(x, y)
+
+
+def size(tensor):
+    return torch.numel(tensor)
+
+
+def SparseTensor(indices, values, shape):
+    coo_tensor = torch.sparse_coo_tensor(i, v, (2, 3))
+    # pytorch仅支持CSR稀疏张量的tensor.matmul()
+    return coo_tensor.to_sparse_csr() # convert from COO to CSR
+
+
+def sparse_tensor_dense_matmul(x, y):
+    return torch.matmul(x, y)
+
+
+def constant(values, dtype):
+    return torch.tensor(values, dtype=dtype)
+
+
+def concat(values, axis):
+    return torch.concat(values, axis)
+
+
+def reverse(tensor, axis):
+    return torch.flip(tensor, axis)
+
+
+def expand_dims(tensor, axis):
+    return torch.unsqueeze(tensor, axis)
+
+
+def cos(x):
+    return torch.cos(x)
+
+
+def roll(tensor, shift, axis=None):
+    return torch.roll(tensor, shifts, axis)
+
+
+def gradients(x, y):
+    raise NotImplementedError()
