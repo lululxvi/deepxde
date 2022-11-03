@@ -7,8 +7,8 @@ __all__ = [
     "OperatorBC",
     "PeriodicBC",
     "PointSetBC",
-    "RobinBC",
     "PointSetOperatorBC",
+    "RobinBC",
 ]
 
 import numbers
