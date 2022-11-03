@@ -391,7 +391,7 @@ class Fractional:
         )
 
     def get_x_static(self):
-        return self.geom.uniform_points(self.disc.resolution[0], True)
+        return self.geom.uniform_points(self.disc.resolution[0], True).astype("float32")
 
     def dynamic_dist2npts(self, dx):
         return int(math.ceil(self.disc.resolution[-1] * dx))
