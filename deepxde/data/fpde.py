@@ -453,7 +453,7 @@ class Fractional:
         self.xindex_start = np.hstack(([0], np.cumsum(list(map(len, x))))) + len(
             self.x0
         )
-        return np.vstack([self.x0] + x)
+        return np.vstack([self.x0] + x).astype("float32")
 
     def modify_first_order(self, x, w):
         x = np.vstack(([2 * x[0] - x[1]], x[:-1]))
