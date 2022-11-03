@@ -486,7 +486,7 @@ class Model:
 
         self.opt = optimizers.get(
                 trainable_variables, self.opt_name, learning_rate=lr, decay=decay)
-                
+
 
         def train_step(inputs, targets, auxiliary_vars):
             losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
@@ -498,12 +498,6 @@ class Model:
 
             self.opt.step()
             self.opt.clear_grad()
-            # 更新学习率
-            if isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
-                self.opt._learning_rate.step()
-            # 打印学习率
-            # print(self.opt._learning_rate.get_lr())
-
 
         def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
             def build_loss():
@@ -887,7 +881,10 @@ class Model:
             self.train_step(inputs, targets, auxiliary_vars)
             if hasattr(self.opt, '_learning_rate') and \
                     isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
+                # 动态图/静态图统一在此处（self.train_step外部）更新学习率
                 self.opt._learning_rate.step()
+            # 打印学习率
+            # print(f"{self.opt._learning_rate.get_lr():.10f}")
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
@@ -1114,7 +1111,7 @@ class Model:
             self.train_state.epoch += results[1].numpy()
             self.train_state.step += results[1].numpy()
             self._test()
- 
+
             print("result[0]", results[0])
             print("result[1]", results[1])
             print("result[2]", results[2])
