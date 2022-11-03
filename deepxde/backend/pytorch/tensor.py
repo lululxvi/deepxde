@@ -134,8 +134,8 @@ def sum(input_tensor, dim, keepdims=False):
     return torch.sum(input_tensor, dim, keepdim=keepdims)
 
 
-def reduce_sum(input_tensor):
-    return torch.sum(input_tensor)
+def reduce_sum(input_tensor, axis=None, keepdim=False):
+    return torch.sum(input_tensor, axis, keepdim=keepdim)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):
