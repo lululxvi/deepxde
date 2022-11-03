@@ -483,10 +483,10 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        
+
         self.opt = optimizers.get(
                 trainable_variables, self.opt_name, learning_rate=lr, decay=decay)
- 
+                
 
         def train_step(inputs, targets, auxiliary_vars):
             losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
@@ -516,7 +516,7 @@ class Model:
 
             print("trian_step_lbfgs: ")
             return self.opt(trainable_variables, build_loss, previous_optimizer_results)
-        
+
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train

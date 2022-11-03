@@ -65,7 +65,7 @@ class MsFFN(paddle.nn.Layer):
                         shape=[layer_sizes[0] // (2 if task_name == 'wave_1d' else 1), self.layer_size[1] // 2], is_bias=False, default_initializer=Normal(std=sigma)
                     )
                 )
-                np.save(f"{task_name}/b_{i}_new.npy", self.b[-1].numpy())
+                # np.save(f"{task_name}/b_{i}_new.npy", self.b[-1].numpy())
                 self.new_save = True
 
         for i in range(len(self.b)):
@@ -96,8 +96,8 @@ class MsFFN(paddle.nn.Layer):
                 initializer(self.linears[-1].weight)
                 initializer_zero(self.linears[-1].bias)
                 self.new_save = True
-                np.save(f"{task_name}/weight_{p}_new.npy", self.linears[-1].weight.numpy())
-                np.save(f"{task_name}/bias_{p}_new.npy", self.linears[-1].bias.numpy())
+                # np.save(f"{task_name}/weight_{p}_new.npy", self.linears[-1].weight.numpy())
+                # np.save(f"{task_name}/bias_{p}_new.npy", self.linears[-1].bias.numpy())
             p += 1
 
         if isinstance(task_name, str) and os.path.exists(f"./{task_name}/tf_weight_{p}_new.npy") and os.path.exists(f"./{task_name}/tf_bias_{p}_new.npy"):
@@ -117,8 +117,8 @@ class MsFFN(paddle.nn.Layer):
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
             self.new_save = True
-            np.save(f"{task_name}/weight_{p}_new.npy", self._dense.weight.numpy())
-            np.save(f"{task_name}/bias_{p}_new.npy", self._dense.bias.numpy())
+            # np.save(f"{task_name}/weight_{p}_new.npy", self._dense.weight.numpy())
+            # np.save(f"{task_name}/bias_{p}_new.npy", self._dense.bias.numpy())
         p += 1
         # if self.new_save:
         #     print("第一次保存模型完毕，自动退出，请再次运行")
