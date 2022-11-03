@@ -1111,7 +1111,7 @@ class Model:
             results = self.train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
-                self.net.auxiliary_vars
+                self.train_state.train_aux_vars,
             )
             n_iter += results.num_iterations.numpy()
             self.train_state.epoch += results.num_iterations.numpy()
