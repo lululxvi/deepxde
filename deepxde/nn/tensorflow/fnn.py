@@ -13,7 +13,7 @@ class FNN(NN):
         layer_sizes,
         activation,
         kernel_initializer,
-        w_array,
+        w_array = [],
         regularization=None,
         dropout_rate=0,
         use_bias = True,

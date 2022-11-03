@@ -120,9 +120,9 @@ class MsFFN(paddle.nn.Layer):
             np.save(f"{task_name}/weight_{p}_new.npy", self._dense.weight.numpy())
             np.save(f"{task_name}/bias_{p}_new.npy", self._dense.bias.numpy())
         p += 1
-        if self.new_save:
-            print("第一次保存模型完毕，自动退出，请再次运行")
-            exit(0)
+        # if self.new_save:
+        #     print("第一次保存模型完毕，自动退出，请再次运行")
+        #     exit(0)
 
     def forward(self, inputs):
         x = inputs
