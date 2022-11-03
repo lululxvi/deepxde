@@ -15,7 +15,7 @@ from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 
-LOSS_FLAG = False
+LOSS_FLAG = True
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -448,7 +448,8 @@ class Model:
             with paddle.no_grad():
                 return self.net(paddle.to_tensor(inputs))
 
-        def outputs_losses(training, inputs, targets, losses_fn):
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+            self.net.auxiliary_vars = auxiliary_vars
             if training:
                 self.net.train()
             else:
@@ -473,11 +474,11 @@ class Model:
 
             return outputs_, losses
 
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(True, inputs, targets, auxiliary_vars, self.data.losses_train)
 
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(False, inputs, targets, auxiliary_vars, self.data.losses_test)
 
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
@@ -485,11 +486,10 @@ class Model:
 
         self.opt = optimizers.get(
                 trainable_variables, self.opt_name, learning_rate=lr, decay=decay)
+                
 
-        print("self.opt :", self.opt)
-
-        def train_step(inputs, targets):
-            losses = outputs_losses_train(inputs, targets)[1]
+        def train_step(inputs, targets, auxiliary_vars):
+            losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
 
@@ -504,12 +504,10 @@ class Model:
             # 打印学习率
             # print(self.opt._learning_rate.get_lr())
 
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
 
-        def train_step_lbfgs(inputs, targets, previous_optimizer_results=None):
+        def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
             def build_loss():
-                losses = outputs_losses_train(inputs, targets)[1]
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 return paddle.sum(losses)
 
             trainable_variables = (
@@ -871,7 +869,7 @@ class Model:
             # TODO: auxiliary_vars
             outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
-            outs = outputs_losses(inputs, targets)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
             if not paddle.in_dynamic_mode():
                 return outs[0], outs[1]
         return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
@@ -882,9 +880,14 @@ class Model:
             self.sess.run(self.train_step, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
             self.train_step(inputs, targets, auxiliary_vars)
-        elif backend_name in ["pytorch", "paddle"]:
+        elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
+            if hasattr(self.opt, '_learning_rate') and \
+                    isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
+                self.opt._learning_rate.step()
+        elif backend_name == "paddle":
+            self.train_step(inputs, targets, auxiliary_vars)
             if hasattr(self.opt, '_learning_rate') and \
                     isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
                 self.opt._learning_rate.step()
@@ -1108,6 +1111,7 @@ class Model:
             results = self.train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
+                self.net.auxiliary_vars
             )
             n_iter += results.num_iterations.numpy()
             self.train_state.epoch += results.num_iterations.numpy()

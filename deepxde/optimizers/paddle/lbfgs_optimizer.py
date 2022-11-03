@@ -29,16 +29,15 @@ class LossAndFlatGradient:
         for train_var in trainable_variables:
             self.shapes.append(train_var.shape)
         self.n_tensors = len(self.shapes)
-
+        print("n_tensors = ", self.n_tensors)
         # Information for dynamic_stitch and dynamic_partition
         count = 0
-        self.indices = []  # stitch indices
         self.partitions = []  # partition indices
-        self.partitions.append([0])
+        self.partitions.append(0)
         for i, shape in enumerate(self.shapes):
             n = np.product(shape) # number of every param
             count += n
-            self.partitions.append([count])
+            self.partitions.append(count)
         print("partition = ", self.partitions)
 
 
@@ -59,11 +58,13 @@ class LossAndFlatGradient:
         grads = []
         for param in self.trainable_variables:
             grads.append(param.grad)
-        return loss, grads
+        print("loss = ", loss)
+        print("grads = ", grads)
+        return self.to_flat_weights(grads)
 
     def dynamic_partition(self, weights_1d, partitions, param_num):
         weights_nd = []
-        for i in range(0, param_num+1) :
+        for i in range(0, param_num) :
             tmp = weights_1d[partitions[i]: partitions[i+1]]
             weights_nd.append(tmp)
         return weights_nd
@@ -107,7 +108,7 @@ def lbfgs_minimize(trainable_variables, build_loss, previous_optimizer_results=N
     initial_position = None
     if previous_optimizer_results is None:
         initial_position = func.to_flat_weights(trainable_variables)
-
+    print("initial_position = ", initial_position)
     LBFGS_options["iter_per_step"] = min(1000, LBFGS_options["maxiter"])
 
     results = paddle.incubate.optimizer.functional.minimize_lbfgs(

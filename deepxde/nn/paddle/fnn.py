@@ -150,9 +150,9 @@ class PFNN(NN):
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))
 
-        if self.new_save:
-            print("第一次保存模型完毕，自动退出，请再次运行")
-            exit(0)
+        # if self.new_save:
+        #     print("第一次保存模型完毕，自动退出，请再次运行")
+        #     exit(0)
 
     def forward(self, inputs):
         x = inputs
