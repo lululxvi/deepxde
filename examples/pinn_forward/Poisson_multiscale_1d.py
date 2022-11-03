@@ -8,6 +8,12 @@ import deepxde as dde
 import numpy as np
 # from deepxde.backend import tf
 import paddle
+import os
+task_name = os.path.basename(__file__).split(".")[0]
+
+# 创建任务日志文件夹
+log_dir = f"./{task_name}"
+os.makedirs(f"{log_dir}", exist_ok=True)
 
 A = 2
 B = 50
@@ -47,7 +53,7 @@ data = dde.data.PDE(
 layer_size = [1] + [100] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
-net = dde.nn.MsFFN(layer_size, activation, initializer, sigmas=[1, 10])
+net = dde.nn.MsFFN(layer_size, activation, initializer, sigmas=[1, 10], task_name=task_name)
 
 model = dde.Model(data, net)
 model.compile(
