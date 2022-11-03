@@ -883,9 +883,6 @@ class Model:
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-            if hasattr(self.opt, '_learning_rate') and \
-                    isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
-                self.opt._learning_rate.step()
         elif backend_name == "paddle":
             self.train_step(inputs, targets, auxiliary_vars)
             if hasattr(self.opt, '_learning_rate') and \
@@ -969,7 +966,7 @@ class Model:
                                     self.data.losses_train,
                                     self.data.losses_test)
         print("start_up_program end ...")
-        # self._test()
+        self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -1009,8 +1006,8 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
-            # if self.train_state.step % display_every == 0 or i + 1 == iterations:
-            #     self._test()
+            if self.train_state.step % display_every == 0 or i + 1 == iterations:
+                self._test()
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -1113,12 +1110,17 @@ class Model:
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
             )
-            n_iter += results.num_iterations.numpy()
-            self.train_state.epoch += results.num_iterations.numpy()
-            self.train_state.step += results.num_iterations.numpy()
+            n_iter += results[1].numpy()
+            self.train_state.epoch += results[1].numpy()
+            self.train_state.step += results[1].numpy()
             self._test()
-
-            if results.converged or results.failed:
+ 
+            print("result[0]", results[0])
+            print("result[1]", results[1])
+            print("result[2]", results[2])
+            print("result[3]", results[3])
+            print("result[4]", results[4])
+            if results[0] :
                 break
 
     def _test(self):
@@ -1151,6 +1153,7 @@ class Model:
             ]
 
         self.train_state.update_best()
+        print( "&&&&&&&&&&&&&&&&&%train_state.best_step", self.train_state.best_step)
         self.losshistory.append(
             self.train_state.step,
             self.train_state.loss_train,
