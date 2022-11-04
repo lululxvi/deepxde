@@ -403,6 +403,9 @@ class OperatorPredictor(Callback):
                 file=self.file,
             )
         self.file.flush()
+    
+    def on_train_end(self):
+        self.on_train_begin()
         
     def on_epoch_end(self):
         self.epochs_since_last += 1
