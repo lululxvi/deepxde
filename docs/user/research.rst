@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 35 universities, e.g.,
+- > 40 universities, e.g.,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
