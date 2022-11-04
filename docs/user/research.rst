@@ -33,6 +33,7 @@ DeepXDE has been used in
   `University of Johannesburg <https://www.uj.ac.za>`_,
   `University of Surrey <https://www.surrey.ac.uk>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_,
+  `University of Stuttgart <https://www.uni-stuttgart.de/en/>`_,
   `Clemson University <https://www.clemson.edu>`_,
   `Graz University of Technology <https://www.tugraz.at/en/home>`_,
   `Nanchang University <https://english.ncu.edu.cn>`_,
@@ -44,14 +45,16 @@ DeepXDE has been used in
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_
-- 7 national labs and research institutes, e.g.,
+- 9 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
   `Laboratory of Web Science <https://www.ffhs.ch/en/research/lws>`_,
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
-  `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_
+  `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
+  `NEC Lab Europe <https://www.neclab.eu/>`_,
+  `CSIRO’s Data61 <https://data61.csiro.au/>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -67,7 +70,7 @@ PINN
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://link.springer.com/article/10.1007/s11242-022-01864-7>`_. *Transport in Porous Media*, 1-24, 2022.
 #. C. Garcia-Cervera, M. Kessler, & F. Periago. `Control of partial differential equations via physics-informed neural networks <https://link.springer.com/article/10.1007/s10957-022-02100-4>`_. *Journal of Optimization Theory and Applications*, 1-24, 2022.
-#. M. Takamoto, T. Praditia, R. Leiteritz, D. MacKinlay, F. Alesiani, D. Pflüger & M. Niepert. `PDEBENCH: An Extensive Benchmark for Scientific Machine Learning <https://arxiv.org/abs/2210.07182>`_. *arXiv preprint arXiv:2210.07182*, 2022.
+#. M. Takamoto, T. Praditia, R. Leiteritz, D. MacKinlay, F. Alesiani, D. Pflüger, & M. Niepert. `PDEBENCH: An Extensive Benchmark for Scientific Machine Learning <https://arxiv.org/abs/2210.07182>`_. *arXiv preprint arXiv:2210.07182*, 2022.
 #. X. Wang, J. Li, & J. Li. `A deep learning based numerical PDE method for option pricing <https://link.springer.com/article/10.1007/s10614-022-10279-x>`_. *Computational Economics*, 1-16, 2022.
 #. Y. Wang, X. Han, C. Chang, D. Zha, U. Braga-Neto, & X. Hu. `Auto-PINN: Understanding and optimizing physics-informed neural architecture <https://arxiv.org/abs/2205.13748>`_. *arXiv preprint arXiv:2205.13748*, 2022.
 #. A. Cornell, A. Ncube, & G. Harmsen. `Determining QNMs using PINNs <https://arxiv.org/pdf/2205.08284.pdf>`_. *arXiv preprint arXiv:2205.08284*, 2022.
