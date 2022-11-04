@@ -17,10 +17,6 @@ def boundary_l(x, on_boundary):
     return on_boundary and np.isclose(x[0], -1)
 
 
-def boundary_r(x, on_boundary):
-    return on_boundary and np.isclose(x[0], 1)
-
-
 def func(x):
     return (x + 1) ** 2
 
