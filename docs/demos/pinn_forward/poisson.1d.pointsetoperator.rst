@@ -24,7 +24,7 @@ Implementation
 This description goes through the implementation of a solver for the above described Poisson equation step-by-step.
 First, modules setting is the same as Possion equation in 1D with Dirichlet boundary conditions. More details can be found in this page.
 
-.. _Possion equation in 1D with Dirichlet boundary conditions: https://github.com/lululxvi/deepxde/blob/master/docs/demos/poisson.1d.dirichlet.rst.
+.. _Possion equation in 1D with Dirichlet/PointSetOperator boundary conditions: https://github.com/lululxvi/deepxde/blob/master/docs/demos/poisson.1d.pointsetoperator.rst.
 
 The DeepXDE and TensorFlow (``tf``) modules are imported:
 
@@ -88,7 +88,7 @@ Next, we define a function to calculate the predicted Neumann BC
         dy_x = dde.grad.jacobian(y, x)
         return dy_x
 
-Finally we define `PointSetOperatorBC()` on the points that lie on the right boundary in a siliar way as Dirichlet BC.
+Finally we define `PointSetOperatorBC()` on the points that lie on the right boundary in a similar way as Dirichlet BC.
 
 .. code-block:: python
 
@@ -158,5 +158,5 @@ For optimization, we set the optimizer and learning rate. We also compute the :m
 Complete code
 --------------
 
-.. literalinclude:: ../../../examples/pinn_forward/Poisson_Neumann_1d.py
+.. literalinclude:: ../../../examples/pinn_forward/Poisson_PointSetOperator_1d.py
   :language: python
