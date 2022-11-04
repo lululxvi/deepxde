@@ -8,11 +8,6 @@ def pde(x, y):
     return dy_xx - 2
 
 
-def dy_x(x, y, X):
-    dy_x = dde.grad.jacobian(y, x)
-    return dy_x
-
-
 def boundary_l(x, on_boundary):
     return on_boundary and np.isclose(x[0], -1)
 
@@ -23,10 +18,6 @@ def boundary_r(x, on_boundary):
 
 def func(x):
     return (x + 1) ** 2
-
-
-def d_func(x):
-    return 2 * (x + 1)
 
 
 geom = dde.geometry.Interval(-1, 1)
@@ -40,32 +31,7 @@ initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
-
-
-def dy_x(x, y):
-    dy_x = dde.grad.jacobian(y, x)
-    return dy_x
-
-
-def dy_xx(x, y):
-    dy_xx = dde.grad.hessian(y, x)
-    return dy_xx
-
-
-# Print out first and second derivatives into a file during training on the boundary points
-first_derivative = dde.callbacks.OperatorPredictor(
-    geom.random_boundary_points(2), op=dy_x, period=200, filename="first_derivative.txt"
-)
-second_derivative = dde.callbacks.OperatorPredictor(
-    geom.random_boundary_points(2),
-    op=dy_xx,
-    period=200,
-    filename="second_derivative.txt",
-)
-
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-losshistory, train_state = model.train(
-    iterations=10000, callbacks=[first_derivative, second_derivative]
-)
+losshistory, train_state = model.train(iterations=10000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
