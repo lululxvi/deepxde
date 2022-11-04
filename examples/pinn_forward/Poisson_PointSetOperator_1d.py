@@ -46,6 +46,33 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
 
+
+def dy_x(x, y):
+    dy_x = dde.grad.jacobian(y, x)
+    return dy_x
+
+
+def dy_xx(x, y):
+    dy_xx = dde.grad.hessian(y, x)
+    return dy_xx
+
+
+# Print out first and second derivatives into a file during training on the boundary points
+first_derivative = dde.callbacks.OperatorPredictor(
+    geom.random_boundary_points(2), op=dy_x, period=200, filename="first_derivative.txt"
+)
+second_derivative = dde.callbacks.OperatorPredictor(
+    geom.random_boundary_points(2),
+    op=dy_xx,
+    period=200,
+    filename="second_derivative.txt",
+)
+
+model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+losshistory, train_state = model.train(
+    iterations=10000, callbacks=[first_derivative, second_derivative]
+)
+
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
 losshistory, train_state = model.train(iterations=10000)
 
