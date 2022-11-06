@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 35 universities, e.g.,
+- > 40 universities, e.g.,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
@@ -33,6 +33,7 @@ DeepXDE has been used in
   `University of Johannesburg <https://www.uj.ac.za>`_,
   `University of Surrey <https://www.surrey.ac.uk>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_,
+  `University of Stuttgart <https://www.uni-stuttgart.de/en/>`_,
   `Clemson University <https://www.clemson.edu>`_,
   `Graz University of Technology <https://www.tugraz.at/en/home>`_,
   `Nanchang University <https://english.ncu.edu.cn>`_,
@@ -44,14 +45,16 @@ DeepXDE has been used in
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_
-- 7 national labs and research institutes, e.g.,
+- 9 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
   `Laboratory of Web Science <https://www.ffhs.ch/en/research/lws>`_,
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
-  `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_
+  `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
+  `NEC Lab Europe <https://www.neclab.eu/>`_,
+  `CSIRO’s Data61 <https://data61.csiro.au/>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -65,16 +68,17 @@ PINN
 ----
 
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
-#. Y. Wang, X. Han, C. Chang, D. Zha, U. Braga-Neto, & X. Hu. `Auto-PINN: Understanding and optimizing physics-informed neural architecture <https://arxiv.org/abs/2205.13748>`_. *arXiv preprint arXiv:2205.13748*, 2022.
+#. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://link.springer.com/article/10.1007/s11242-022-01864-7>`_. *Transport in Porous Media*, 1-24, 2022.
+#. C. Garcia-Cervera, M. Kessler, & F. Periago. `Control of partial differential equations via physics-informed neural networks <https://link.springer.com/article/10.1007/s10957-022-02100-4>`_. *Journal of Optimization Theory and Applications*, 1-24, 2022.
+#. M. Takamoto, T. Praditia, R. Leiteritz, D. MacKinlay, F. Alesiani, D. Pflüger, & M. Niepert. `PDEBENCH: An Extensive Benchmark for Scientific Machine Learning <https://arxiv.org/abs/2210.07182>`_. *arXiv preprint arXiv:2210.07182*, 2022.
 #. X. Wang, J. Li, & J. Li. `A deep learning based numerical PDE method for option pricing <https://link.springer.com/article/10.1007/s10614-022-10279-x>`_. *Computational Economics*, 1-16, 2022.
-#. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://www.researchgate.net/profile/Alexandra-Serebrennikova/publication/360717115_Transport_of_organic_volatiles_through_paper_physics-informed_neural_networks_for_solving_inverse_and_forward_problems/links/6286753e8ecbaa07fcc19c64/Transport-of-organic-volatiles-through-paper-physics-informed-neural-networks-for-solving-inverse-and-forward-problems.pdf>`_. 2022.
+#. Y. Wang, X. Han, C. Chang, D. Zha, U. Braga-Neto, & X. Hu. `Auto-PINN: Understanding and optimizing physics-informed neural architecture <https://arxiv.org/abs/2205.13748>`_. *arXiv preprint arXiv:2205.13748*, 2022.
 #. A. Cornell, A. Ncube, & G. Harmsen. `Determining QNMs using PINNs <https://arxiv.org/pdf/2205.08284.pdf>`_. *arXiv preprint arXiv:2205.08284*, 2022.
 #. L. Guo, H. Wu, X. Yu, & T. Zhou. `Monte Carlo PINNs: Deep learning approach for forward and inverse problems involving high dimensional fractional partial differential equations <https://arxiv.org/pdf/2203.08501.pdf>`_. *arXiv preprint arXiv:2203.08501*, 2022.
 #. P. Escapil-Inchauspé, & G. A. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://arxiv.org/pdf/2205.06704.pdf>`_. *arXiv preprint arXiv:2205.06704*, 2022.
 #. H. Xie, C. Zhai, L. Liu, & H. Yong. `A weighted first-order formulation for solving anisotropic diffusion equations with deep neural networks <https://arxiv.org/pdf/2205.06658.pdf>`_. *arXiv preprint arXiv:2205.06658*, 2022.
 #. Y. Lu, G. Mei, & F. Piccialli.  `A deep learning approach for predicting two-dimensional soil consolidation using physics-informed neural networks (PINN) <https://arxiv.org/pdf/2205.05710.pdf>`_. *arXiv preprint arXiv:2205.05710*, 2022.
 #. J. Yu, L. Lu, X. Meng, & G. Karniadakis. `Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems <https://doi.org/10.1016/j.cma.2022.114823>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114823, 2022.
-#. C. Garcia-Cervera, M. Kessler, & F. Periago. `A first step towards controllability of partial differential equations via physics-informed neural networks <https://www.researchgate.net/profile/Francisco-Periago/publication/359524458_A_first_step_towards_controllability_of_partial_differential_equations_via_physics-informed_neural_networks/links/6242e24c8068956f3c56d679/A-first-step-towards-controllability-of-partial-differential-equations-via-physics-informed-neural-networks.pdf>`_. 2022.
 #. A. Sacchetti, B. Bachmann, K. Löffel, U. M. Künzi, & B. Paoli. `Neural networks to solve partial differential equations: A comparison with finite elements <https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9737092>`_. *IEEE Access*, 10, 32271-32279, 2022.
 #. Y. Xue, Y. Li, K. Zhang, & F. Yang. `A physics-inspired neural network to solve partial differential equations - application in diffusion-induced stress <https://pubs.rsc.org/en/content/articlehtml/2022/cp/d1cp04893g>`_. *Physical Chemistry Chemical Physics*, 24(13), 7937-7949, 2022.
 #. V. Santana, M. Gama, J. Loureiro, A. Rodrigues, A. Ribeiro, F. Tavares, A. Barreto Jr, I. Nogueira. `A first approach towards adsorption-oriented physics-informed neural networks: Monoclonal antibody adsorption performance on an ion-exchange column as a case study <https://www.mdpi.com/2305-7084/6/2/21>`_. *ChemEngineering*, 6.2 (2022): 21, 2022.
