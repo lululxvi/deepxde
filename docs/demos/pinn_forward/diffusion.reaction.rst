@@ -1,4 +1,3 @@
-===========================
 Diffusion-reaction equation
 ===========================
 
@@ -67,7 +66,7 @@ If the backend is Pytorch, the residual should look like this:
         dy_t = dde.grad.jacobian(y, x, i=0, j=1)
         dy_xx = dde.grad.hessian(y, x, i=0, j=0)
         d = 1
-        # Backend tensorflow.compact.v1 or tensorflow
+        # Backend pytorch
         return (
             dy_t
             - d * dy_xx
@@ -109,7 +108,7 @@ Now, we have specified the geometry and the PDE residual. We then define the ``T
 .. code-block:: python
 
     data = dde.data.TimePDE(
-    geomtime, pde, [], num_domain=320, solution=func, num_test=80000
+        geomtime, pde, [], num_domain=320, solution=func, num_test=80000
     )
 
 The number 320 is the number of training residual points sampled inside the domain, and the number 80000 is the number of points sampled inside
