@@ -46,7 +46,7 @@ Time-dependent PDEs
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
    pinn_forward/klein.gordon
-   pinn_forward/diffusion_reaction
+   pinn_forward/diffusion.reaction
 
 - `Heat equation with training points resampling <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_resample.py>`_
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
