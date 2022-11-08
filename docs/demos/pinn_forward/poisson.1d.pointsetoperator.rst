@@ -113,13 +113,13 @@ Next, we choose the network. Here, we use a fully connected neural network of de
     initializer = "Glorot uniform"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-Now, we have the PDE problem and the network. We bulid the ``Model``.
+Now, we have the PDE problem and the network. We build the ``Model``.
 
 .. code-block:: python
 
     model = dde.Model(data, net)
 
-To evaluate the intermediate values for any given function during training, we can use `OperatorPredictor`. Let's say we would like to write the first and second derivatives on the boundary points into two different files. To achiece that, we first define the functions for first and second derivatives 
+To evaluate the intermediate values for any given function during training, we can use `OperatorPredictor`. Let's say we would like to write the first and second derivatives on the boundary points into two different files. To achieve that, we first define the functions for first and second derivatives 
 
 .. code-block:: python
 
