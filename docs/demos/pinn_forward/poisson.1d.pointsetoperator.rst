@@ -22,11 +22,7 @@ Implementation
 --------------
 
 This description goes through the implementation of a solver for the above described Poisson equation step-by-step.
-First, modules setting is the same as Possion equation in 1D with Dirichlet boundary conditions. More details can be found in this page.
-
-.. _Possion equation in 1D with Dirichlet/PointSetOperator boundary conditions: https://github.com/lululxvi/deepxde/blob/master/docs/demos/poisson.1d.pointsetoperator.rst.
-
-The DeepXDE and TensorFlow (``tf``) modules are imported:
+First, the DeepXDE and TensorFlow (``tf``) modules are imported:
 
 .. code-block:: python
 
