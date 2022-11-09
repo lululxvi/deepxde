@@ -36,6 +36,7 @@ from .icbc import (
     PeriodicBC,
     RobinBC,
     PointSetBC,
+    PointSetOperatorBC,
     IC,
 )
 
