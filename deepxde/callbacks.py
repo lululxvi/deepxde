@@ -358,13 +358,23 @@ class OperatorPredictor(Callback):
     Args:
         x: The input data.
         op: The operator with inputs (x, y).
+        period (int): Interval (number of epochs) between checking values.
+        filename (string): Output the values to the file `filename`.
+            The file is kept open to allow instances to be re-used.
+            If ``None``, output to the screen.
+        precision (int): The precision of variables to display.
     """
 
-    def __init__(self, x, op):
+    def __init__(self, x, op, period=1, filename=None, precision=2):
         super().__init__()
         self.x = x
         self.op = op
+        self.period = period
+        self.precision = precision
+
+        self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
+        self.epochs_since_last = 0
 
     def init(self):
         if backend_name == "tensorflow.compat.v1":
@@ -383,6 +393,27 @@ class OperatorPredictor(Callback):
         elif backend_name == "paddle":
             self.x = paddle.to_tensor(self.x, stop_gradient=False)
 
+    def on_train_begin(self):
+        self.on_predict_end()
+        print(
+                self.model.train_state.epoch,
+                utils.list_to_str(
+                    self.value.flatten().tolist(), precision=self.precision
+                ),
+                file=self.file,
+            )
+        self.file.flush()
+    
+    def on_train_end(self):
+        if not self.epochs_since_last == 0:
+            self.on_train_begin()
+        
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.period:
+            self.epochs_since_last = 0
+            self.on_train_begin()
+            
     def on_predict_end(self):
         if backend_name == "tensorflow.compat.v1":
             self.value = self.model.sess.run(
@@ -511,9 +542,9 @@ class PDEPointResampler(Callback):
 
     Args:
         period: How often to resample the training points (default is 100 iterations).
-        pde_points: If True, resample the training points for PDE losses (default is 
+        pde_points: If True, resample the training points for PDE losses (default is
             True).
-        bc_points: If True, resample the training points for BC losses (default is 
+        bc_points: If True, resample the training points for BC losses (default is
             False; only supported by pytorch backend currently).
     """
 
