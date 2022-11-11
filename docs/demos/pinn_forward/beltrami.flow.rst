@@ -1,5 +1,4 @@
-
-Beltrami-flow
+Beltrami flow
 =============
 
 Problem setup
@@ -12,7 +11,7 @@ We will solve the incompressible Navier-Stokes equation:
 .. math:: \mathbf{x} \in [-1, 1]^3, \quad t \in [0, 1]
 
 In `this paper <https://www.ljll.math.upmc.fr/~frey/papers/Navier-Stokes/Ethier%20C.R.,%20Steinman%20D.A.,%20Exact%20fully%203d%20Navier-Stokes%20solutions%20for%20benchmarking.pdf>`_, the
-authors derive, under some constraints on :math:`\mathbf{u}`, a closed-form Beltrami-flow solution, which is higly likely physically unattainable (but good for testing numerical solves nonetheless):
+authors derive, under some constraints on :math:`\mathbf{u}`, a closed-form Beltrami flow solution, which is higly likely physically unattainable (but good for testing numerical solves nonetheless):
 
 .. math:: u = -a[e^{ax}\sin{(ay + dz)} + e^{az}\cos{(ax + dy)}]e^{-d^2 t}
 .. math:: v = -a[e^{ay}\sin{(az + dx)} + e^{ax}\cos{(ay + dz)}]e^{-d^2 t}
@@ -50,7 +49,7 @@ Next, we define the PDE and the residual:
         u_vel_t = dde.grad.jacobian(u, x, i=0, j=3)
         u_vel_xx = dde.grad.hessian(u, x, component=0, i=0, j=0)
         u_vel_yy = dde.grad.hessian(u, x, component=0, i=1, j=1)
-         u_vel_zz = dde.grad.hessian(u, x, component=0, i=2, j=2)
+        u_vel_zz = dde.grad.hessian(u, x, component=0, i=2, j=2)
 
         v_vel_x = dde.grad.jacobian(u, x, i=1, j=0)
         v_vel_y = dde.grad.jacobian(u, x, i=1, j=1)
