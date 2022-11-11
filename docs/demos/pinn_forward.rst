@@ -23,6 +23,7 @@ Time-independent PDEs
    pinn_forward/poisson.1d.neumanndirichlet
    pinn_forward/poisson.1d.dirichletrobin
    pinn_forward/poisson.1d.dirichletperiodic
+   pinn_forward/poisson.1d.pointsetoperator
    pinn_forward/poisson.dirichlet.1d.exactbc
    pinn_forward/poisson.1d.multiscaleFourier
    pinn_forward/poisson.Lshape
