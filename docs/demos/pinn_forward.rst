@@ -39,7 +39,6 @@ Time-dependent PDEs
 .. toctree::
    :maxdepth: 1
 
-   pinn_forward/beltrami.flow
    pinn_forward/burgers
    pinn_forward/heat
    pinn_forward/diffusion.1d
@@ -49,6 +48,7 @@ Time-dependent PDEs
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
    pinn_forward/klein.gordon
+   pinn_forward/beltrami.flow
 
 - `Heat equation with training points resampling <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_resample.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Kovasznay_flow.py>`_
