@@ -79,5 +79,5 @@ We also save and plot the best trained result and loss history.
 Complete code
 -------------
 
-.. literalinclude:: ../../examples/function/func.py
+.. literalinclude:: ../../../examples/function/func.py
   :language: python
