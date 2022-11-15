@@ -33,7 +33,7 @@ We begin by defining a simple function which will be approximated.
 
 The argument ``x`` to ``func`` is the network input. The ``func`` simply returns the corresponding function values from the given ``x``. 
 
-Then, we define a computational domain. We can use a built-in class ``Interval`` as follows
+Then, we define a computational domain. We can use a built-in class ``Interval`` as follows:
 
 .. code-block:: python
 
