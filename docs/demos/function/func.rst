@@ -1,4 +1,4 @@
-A simple function approximation from the formula
+Learning a function from a formula
 ===================
 
 Problem setup
@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a simple function approximation problem from a formula:
 
-.. math:: f(x) = x * sin(5x)
+.. math:: f(x) = x * \sin(5x)
 
 Implementation
 --------------
