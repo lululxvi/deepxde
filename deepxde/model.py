@@ -846,6 +846,8 @@ class Model:
                     "Model.predict() with auxiliary variable hasn't been implemented "
                     "for backend pytorch."
                 )
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
