@@ -265,6 +265,8 @@ class Model:
                 else:
                     inputs = torch.as_tensor(inputs)
                     inputs.requires_grad_()
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
             return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
