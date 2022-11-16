@@ -42,7 +42,7 @@ class DeepONetCartesianProd(NN):
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.b = torch.nn.Parameter(torch.tensor(0.0))
+        self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
         self.regularizer = regularization
 
     def forward(self, inputs):
@@ -120,7 +120,7 @@ class PODDeepONet(NN):
             self.trunk = FNN(
                 layer_sizes_trunk, self.activation_trunk, kernel_initializer
             )
-            self.b = torch.nn.Parameter(torch.tensor(0.0))
+            self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
         self.regularizer = regularization
 
     def forward(self, inputs):
