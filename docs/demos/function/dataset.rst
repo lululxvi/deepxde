@@ -43,7 +43,7 @@ The next step is to define both fname_train and fname_test and standardize it in
 
 After defining the dataset, the specifics of the model are defined. 
 The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the ouput.
-The next line specifies the activation function used "tanh" and ``Glorot uniform`` as the initializer
+The next line specifies the activation function used ``tanh`` and ``Glorot uniform`` as the initializer
 This is a fully connected neural network of depth 4 and a width of 50
 
 .. code-block:: python
