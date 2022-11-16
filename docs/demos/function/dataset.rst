@@ -38,8 +38,7 @@ The next step is to define both fname_train and fname_test and standardize it in
     fname_test=fname_test,
     col_x=(0,),
     col_y=(1,),
-    standardize=True,
-)
+    standardize=True,)
 
 After defining the dataset, the specifics of the model are defined. 
 The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the ouput.
