@@ -6,8 +6,12 @@ Here are some demos of learning functions.
 Function approximation
 ----------------------
 
+.. toctree::
+   :maxdepth: 1
+
+   function/func
+
 - `Learning a function from a dataset <https://github.com/lululxvi/deepxde/blob/master/examples/function/dataset.py>`_
-- `Learning a function from the formula <https://github.com/lululxvi/deepxde/blob/master/examples/function/func.py>`_
 
 Uncertainty quantification
 --------------------------
