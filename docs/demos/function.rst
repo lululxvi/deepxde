@@ -10,9 +10,7 @@ Function approximation
    :maxdepth: 1
 
    function/func
-   funtion/dataset
-
-
+   function/dataset
 
 
 Uncertainty quantification
