@@ -11,7 +11,7 @@ Implementation
 
 A step by step description of how to implement this code is written below.
 
-First, install the backend support needed for DeepXDE: Tensorflow and Pytorch, before installing DeepXDE.
+First, install the backend support needed for deepXDE: Tensorflow and Pytorch, before installing deepXDE.
 Import the deepXDE Library used for this project as described below
 
 .. code-block:: python
@@ -25,7 +25,7 @@ The next step is to import the dataset needed for the model training
     fname_train = "../dataset/dataset.train"
     fname_test = "../dataset/dataset.test"
 
-The variables fname_train and fname_test are used to to import the dataset and recall the dataset later in the code. 
+The variables fname_train and fname_test are used to import the dataset and recall the dataset later in the code. 
 
 The next step is to define both fname_train and fname_test and standardize it in an appropriate form
 
@@ -40,8 +40,8 @@ The next step is to define both fname_train and fname_test and standardize it in
     )
 
 After defining the dataset, the specifics of the model are defined. 
-The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the ouput.
-The next line specifies the activation function used ``tanh`` and ``Glorot uniform`` as the initializer
+The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the output.
+The next line specifies the activation function used ``tanh`` and the initializer as ``Glorot uniform``
 This is a fully connected neural network of depth 4 and a width of 50
 
 .. code-block:: python
@@ -51,7 +51,7 @@ This is a fully connected neural network of depth 4 and a width of 50
     initializer = "Glorot normal"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-The model can now be built using "adam" as an optimizer with a learning rate of 0.001s.
+The model can now be built using ``adam`` as an optimizer with a learning rate of 0.001s.
 The model is trained with 50000 iterations:
 
 .. code-block:: python
