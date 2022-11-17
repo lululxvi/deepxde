@@ -12,7 +12,6 @@ Function approximation
    function/func
    function/dataset
 
-
 Uncertainty quantification
 --------------------------
 
