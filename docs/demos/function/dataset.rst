@@ -4,21 +4,21 @@ Learning a function from a dataset
 Problem setup
 -------------
 
-We will learn how to approximate a function from a dataset
+We will learn a function from a dataset. The dataset used to train the model is dataset.train and the dataset used to test the model is dataset.test.
 
 Implementation
 --------------
 
 A step by step description of how to implement this code is written below.
 
-First, install the backend support needed for deepXDE: Tensorflow and Pytorch, before installing deepXDE.
-Import the deepXDE Library used for this project as described below
+First, install the backend support needed for DeepXDE: Tensorflow and Pytorch, before installing DeepXDE.
+Import the DeepXDE Library used for this project as described below.
 
 .. code-block:: python
 
     import deepxde as dde
 
-The next step is to import the dataset needed for the model training
+The next step is to import the dataset needed for the model training.
 
 .. code-block:: python
 
@@ -27,7 +27,7 @@ The next step is to import the dataset needed for the model training
 
 The variables fname_train and fname_test are used to import the dataset and recall the dataset later in the code. 
 
-The next step is to define both fname_train and fname_test and standardize it in an appropriate form
+The next step is to define both fname_train and fname_test and standardize it in an appropriate form.
 
 .. code-block:: python
 
@@ -41,8 +41,7 @@ The next step is to define both fname_train and fname_test and standardize it in
 
 After defining the dataset, the specifics of the model are defined. 
 The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the output.
-The next line specifies the activation function used ``tanh`` and the initializer as ``Glorot uniform``
-This is a fully connected neural network of depth 4 and a width of 50
+The next line specifies the activation function used ``tanh`` and the initializer as ``Glorot uniform``.
 
 .. code-block:: python
 
@@ -60,7 +59,7 @@ The model is trained with 50000 iterations:
     model.compile("adam", lr=0.001, metrics=["l2 relative error"])
     losshistory, train_state = model.train(iterations=50000)
     
-The best trained model is saved and plotted
+The best trained model is saved and plotted.
 
 .. code-block:: python
 
