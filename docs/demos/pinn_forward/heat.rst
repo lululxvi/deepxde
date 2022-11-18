@@ -4,7 +4,7 @@ Heat equation
 Problem setup
 -------------
 
-We will solve a Heat equation:
+We will solve a heat equation:
 
 .. math:: \frac{\partial u}{\partial t}=\alpha \frac{\partial^2u}{\partial x^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
 

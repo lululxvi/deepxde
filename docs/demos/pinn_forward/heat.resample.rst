@@ -4,7 +4,7 @@ Heat equation with training points resampling
 Problem setup
 -------------
 
-We will solve a Heat equation with training points resampling:
+We will solve a heat equation with training points resampling:
 
 .. math:: \frac{\partial u}{\partial t}=\alpha \frac{\partial^2u}{\partial x^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
 
@@ -103,6 +103,7 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
 The following code is to apply mini-batch gradient descent sampling method. The period is the period of resamping. Here, the training points in the domain will be resampled every 10 iterations.
 
 .. code-block:: python
+    
     pde_resampler = dde.callbacks.PDEPointResampler(period=10)
     
 We then train the model for 20000 iterations:
