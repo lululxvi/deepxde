@@ -33,21 +33,21 @@ First, the DeepXDE are imported:
 
     import deepxde as dde
 
-We begin by defining a computational geometry and time domain. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
-
-.. code-block:: python
-
-    geom = dde.geometry.Interval(0, L)
-    timedomain = dde.geometry.TimeDomain(0, 1)
-    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
-
-Next, we define the parameters of the equation:
+We begin by defining the parameters of the equation:
 
 .. code-block:: python
 
     a = 0.4
     L = 1
     n = 1
+
+Next, we define a computational geometry and time domain. We can use a built-in class ``Interval`` and ``TimeDomain`` and we combine both the domains using ``GeometryXTime`` as follows
+
+.. code-block:: python
+
+    geom = dde.geometry.Interval(0, L)
+    timedomain = dde.geometry.TimeDomain(0, 1)
+    geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
 Next, we express the PDE residual of the Heat equation:
 
