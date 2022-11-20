@@ -51,7 +51,7 @@ The next line specifies the activation function used ``tanh`` and the initialize
     initializer = "Glorot normal"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-The model can now be built using ``adam`` as an optimizer with a learning rate of 0.001s.
+The model can now be built using ``adam`` as an optimizer with a learning rate of 0.001.
 The model is trained with 50000 iterations:
 
 .. code-block:: python
