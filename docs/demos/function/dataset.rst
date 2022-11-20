@@ -4,7 +4,9 @@ Learning a function from a dataset
 Problem setup
 -------------
 
-We will learn a function from a dataset. The dataset used to train the model is dataset.train and the dataset used to test the model is dataset.test.
+We will learn a function from a dataset. The dataset used to train the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.train>`_.
+ and the dataset used to test the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.test>`_.
+
 
 Implementation
 --------------
