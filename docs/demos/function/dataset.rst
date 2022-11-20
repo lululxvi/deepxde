@@ -26,9 +26,9 @@ The next step is to import the dataset needed for the model training.
     fname_train = "../dataset/dataset.train"
     fname_test = "../dataset/dataset.test"
 
-The variables fname_train and fname_test are used to import the dataset and recall the dataset later in the code. 
+The variables ``fname_train`` and ``fname_test`` are used to import the dataset and recall the dataset later in the code. 
 
-The next step is to define both fname_train and fname_test and standardize it in an appropriate form.
+The next step is to define both ``fname_train`` and ``fname_test`` and standardize it in an appropriate form.
 
 .. code-block:: python
 
