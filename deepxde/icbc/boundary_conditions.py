@@ -165,7 +165,6 @@ class PointSetBC:
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
-
     If more than one component is provided via a list, the resulting loss will
     be the addative loss of the provided componets.
 
