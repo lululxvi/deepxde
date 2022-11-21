@@ -181,12 +181,12 @@ class PointSetBC:
     def __init__(
         self, points, values, component=0, batch_size=None, shuffle=True
     ):
-        if isinstance(component, numbers.Number):
+        self.points = np.array(points, dtype=config.real(np))
+        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+         if isinstance(component, numbers.Number):
             self.component = [component]
         else:
             self.component = component
-        self.points = np.array(points, dtype=config.real(np))
-        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
