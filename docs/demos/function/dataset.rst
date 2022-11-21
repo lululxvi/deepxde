@@ -4,7 +4,7 @@ Learning a function from a dataset
 Problem setup
 -------------
 
-We will learn a function from a dataset. The dataset used to train the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.train>`_. and the dataset used to test the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.test>`_.
+We will learn a function from a dataset. The dataset used to train the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.train>`_, and the dataset used to test the model can be found `here <https://github.com/lululxvi/deepxde/blob/master/examples/dataset/dataset.test>`_.
 
 
 Implementation
@@ -12,8 +12,7 @@ Implementation
 
 A step by step description of how to implement this code is written below.
 
-First, install the backend support needed for DeepXDE: Tensorflow and Pytorch, before installing DeepXDE.
-Import the DeepXDE Library used for this project as described below.
+Import the DeepXDE library used for this project as described below.
 
 .. code-block:: python
 
@@ -41,7 +40,7 @@ The next step is to define both ``fname_train`` and ``fname_test`` and standardi
     )
 
 After defining the dataset, the specifics of the model are defined. 
-The first line defines the layout of the inputs(dataset) the hidden layers used to train the model and the output.
+The first line defines the layout of the network size used to train the model.
 The next line specifies the activation function used ``tanh`` and the initializer as ``Glorot uniform``.
 
 .. code-block:: python
