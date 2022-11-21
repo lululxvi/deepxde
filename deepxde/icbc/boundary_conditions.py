@@ -182,7 +182,7 @@ class PointSetBC:
     def __init__(
         self, points, values, component=0, batch_size=None, shuffle=True
     ):
-        if not isinstance(component, (list, tuple)):
+        if not isinstance(component, list):
             component = [component]
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
