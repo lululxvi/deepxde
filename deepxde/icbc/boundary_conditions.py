@@ -183,7 +183,7 @@ class PointSetBC:
     ):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
-         if isinstance(component, numbers.Number):
+        if isinstance(component, numbers.Number):
             self.component = [component]
         else:
             self.component = component
