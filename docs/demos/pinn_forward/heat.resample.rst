@@ -1,10 +1,10 @@
-Heat equation
+Heat equation with training points resampling
 =============
 
 Problem setup
 -------------
 
-We will solve a heat equation:
+We will solve a heat equation with training points resampling:
 
 .. math:: \frac{\partial u}{\partial t}=\alpha \frac{\partial^2u}{\partial x^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
 
@@ -99,13 +99,18 @@ Now, we have the PDE problem and the network. We build a ``Model`` and choose th
 
     model = dde.Model(data, net)
     model.compile("adam", lr=1e-3)
+
+The following code is to apply mini-batch gradient descent sampling method. The period is the period of resamping. Here, the training points in the domain will be resampled every 10 iterations.
+
+.. code-block:: python
     
-   
+    pde_resampler = dde.callbacks.PDEPointResampler(period=10)
+    
 We then train the model for 20000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(iterations=20000)
+    losshistory, train_state = model.train(epochs=200000, callbacks=[pde_resampler])
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 
@@ -117,5 +122,5 @@ After we train the network using Adam, we continue to train the network using L-
 Complete code
 -------------
 
-.. literalinclude:: ../../../examples/pinn_forward/heat.py
+.. literalinclude:: ../../../examples/pinn_forward/heat_resample.py
   :language: python
