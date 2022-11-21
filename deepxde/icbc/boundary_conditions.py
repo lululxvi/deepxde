@@ -162,27 +162,28 @@ class OperatorBC(BC):
 
 
 class PointSetBC:
+    
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
-
+    
+    If more than one component is provided via a list, the resulting loss will 
+        be the addative loss of the provided componets
+        
     Args:
         points: An array of points where the corresponding target values are known and
             used for training.
-        values: An array of values that gives the exact solution of the problem.
-        component: The output component satisfying this BC.
+        values: A 2D-array of values that gives the exact solution of the problem.
+        components: The output components satisfying this BC.
         batch_size: The number of points per minibatch, or `None` to return all points.
             This is only supported for the backend PyTorch.
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
     def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
+        if not isinstance(component, (list, tuple)):
+            component = [component]
         self.points = np.array(points, dtype=config.real(np))
-        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
-            raise RuntimeError(
-                "PointSetBC should output 1D values. Use argument 'component' for "
-                "different components."
-            )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
         self.batch_size = batch_size
@@ -205,10 +206,10 @@ class PointSetBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         if self.batch_size is not None:
             return (
-                outputs[beg:end, self.component : self.component + 1]
+                outputs[beg:end, self.component ]
                 - self.values[self.batch_indices]
             )
-        return outputs[beg:end, self.component : self.component + 1] - self.values
+        return outputs[beg:end, self.component ] - self.values
 
 
 class PointSetOperatorBC:
