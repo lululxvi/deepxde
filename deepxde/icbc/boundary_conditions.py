@@ -167,7 +167,7 @@ class PointSetBC:
     Compare the output (that associates with `points`) with `values` (target data).
 
     If more than one component is provided via a list, the resulting loss will
-        be the addative loss of the provided componets
+        be the addative loss of the provided componets.
 
     Args:
         points: An array of points where the corresponding target values are known and
