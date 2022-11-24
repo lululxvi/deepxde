@@ -10,8 +10,7 @@ We will solve the incompressible Navier-Stokes equation:
 .. math:: \nabla \cdot u = 0
 .. math:: \mathbf{x} \in [-1, 1]^3, \quad t \in [0, 1]
 
-In `this paper <https://www.ljll.math.upmc.fr/~frey/papers/Navier-Stokes/Ethier%20C.R.,%20Steinman%20D.A.,%20Exact%20fully%203d%20Navier-Stokes%20solutions%20for%20benchmarking.pdf>`_, the
-authors derive, under some constraints on :math:`\mathbf{u}`, a closed-form Beltrami flow solution, which is higly likely physically unattainable (but good for testing numerical solves nonetheless):
+In `this paper <https://www.ljll.math.upmc.fr/~frey/papers/Navier-Stokes/Ethier%20C.R.,%20Steinman%20D.A.,%20Exact%20fully%203d%20Navier-Stokes%20solutions%20for%20benchmarking.pdf>`_, the authors derive, under some constraints on :math:`\mathbf{u}`, a closed-form Beltrami flow solution, which is higly likely physically unattainable (but good for testing numerical solves nonetheless):
 
 .. math:: u = -a[e^{ax}\sin{(ay + dz)} + e^{az}\cos{(ax + dy)}]e^{-d^2 t}
 .. math:: v = -a[e^{ay}\sin{(az + dx)} + e^{ax}\cos{(ay + dz)}]e^{-d^2 t}
@@ -93,7 +92,7 @@ Next, we define the PDE and the residual:
 
         return [momentum_x, momentum_y, momentum_z, continuity]
 
-The first argument to ``pde`` is the vector of the :math:`t`-coordinates, and the second argument is a 2-dimensional vector where the first column (``u[:, 0]``) is the first velocity component, the second column(``u[:, 1]``) is the the second velocity component, the third column (``u[:, 2]``) is the third velocity component, and the last column (``u[:, 3]``) is the pressure.
+The first argument to ``pde`` is the network input, i.e. the :math:`t`-coordinate and the :math:`x`-coordinates, and the second argument is a 2-dimensional vector where the first column (``u[:, 0]``) is the first velocity component, the second column(``u[:, 1]``) is the the second velocity component, the third column (``u[:, 2]``) is the third velocity component, and the last column (``u[:, 3]``) is the pressure.
 Here ``[momentum_x, momentum_y, momentum_z]`` is the residual vector for the velocity components, and ``continuity`` is the residual for the solution to be divergence-free.
 
 Then we define the solution function:
