@@ -54,7 +54,7 @@ DeepXDE has been used in
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
   `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
   `NEC Lab Europe <https://www.neclab.eu/>`_,
-  `CSIRO’s Data61 <https://data61.csiro.au/>`_
+  `CSIRO's Data61 <https://data61.csiro.au/>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -114,10 +114,10 @@ PINN
 DeepONet
 --------
 
+#. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://doi.org/10.1137/22M1477751>`_. *SIAM Journal on Scientific Computing*, 44(6), A3490--A3514, 2022.
 #. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://doi.org/10.1103/PhysRevResearch.4.023210>`_. *Physical Review Research*, 4(2), 023210, 2022.
 #. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://doi.org/10.1016/j.cma.2022.114778>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114778, 2022.
 #. L. Tan, & L. Chen. `Enhanced DeepONet for modeling partial differential operators considering multiple input functions <https://arxiv.org/pdf/2202.08942.pdf>`_. *arXiv preprint arXiv:2202.08942*, 2022.
-#. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://arxiv.org/abs/2202.06137>`_. *arXiv preprint arXiv:2202.06137*, 2022.
 #. C. Lin, M. Maxey, Z. Li, & G. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
 #. Z. Mao, L. Lu, O. Marxen, T. Zaki, & G. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.
 #. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `DeepONet prediction of linear instability waves in high-speed boundary layers <https://arxiv.org/abs/2105.08697>`_. *arXiv preprint arXiv:2105.08697*, 2021.

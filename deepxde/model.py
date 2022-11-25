@@ -265,6 +265,8 @@ class Model:
                 else:
                     inputs = torch.as_tensor(inputs)
                     inputs.requires_grad_()
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
             return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, losses_fn):
@@ -844,6 +846,8 @@ class Model:
                     "Model.predict() with auxiliary variable hasn't been implemented "
                     "for backend pytorch."
                 )
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
