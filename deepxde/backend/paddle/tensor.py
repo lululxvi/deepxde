@@ -148,22 +148,15 @@ def size(tensor):
 
 
 def SparseTensor(indices, values, shape):
-    x = [p[0] for p in indices]  # [num_of_nonzero(s), ]
-    y = [p[1] for p in indices]  # [num_of_nonzero(s), ]
+    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
+    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
     indices = paddle.stack(
-        (paddle.to_tensor(x), paddle.to_tensor(y))
-    )  # [2(x,y), num_of_nonzero(s)]
-    values = paddle.to_tensor(values, dtype="float32")
-    if values.ndim >= 2 and values.shape[-1] == 1:
-        values = paddle.squeeze(values, axis=-1)
-    if not isinstance(shape, list):
-        shape = list(shape)
-    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=shape)
+        [paddle.to_tensor(x), paddle.to_tensor(y)]
+    )  # [2, num_of_nonzeros]
+    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=shape, stop_gradient=False)
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
-    """
     return paddle.sparse.matmul(x, y)
 
 
@@ -196,4 +189,10 @@ def roll(tensor, shift, axis=None):
 
 
 def gradients(x, y):
-    return paddle.grad(x, y)
+    if paddle.in_dynamic_mode():
+        # for dynamic graph
+        # NOTE: set create_graph=True to enable high-order differentiation
+        return paddle.grad(x, y, create_graph=True)
+    else:
+        # for static graph
+        return paddle.static.gradients(x, y)

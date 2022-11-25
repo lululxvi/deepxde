@@ -179,8 +179,6 @@ def SparseTensor(indices, values, shape):
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
-    """
     return tf.sparse_tensor_dense_matmul(x, y)
 
 
@@ -210,3 +208,7 @@ def cos(tensor):
 
 def roll(tensor, shift, axis=None):
     return tf.roll(tensor, shift, axis)
+
+
+def gradients(x, y):
+    return tf.gradients(x, y)
