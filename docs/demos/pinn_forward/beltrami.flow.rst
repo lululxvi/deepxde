@@ -92,7 +92,7 @@ Next, we define the PDE and the residual:
 
         return [momentum_x, momentum_y, momentum_z, continuity]
 
-The first argument to ``pde`` is the network input, i.e. the :math:`t`-coordinate and the :math:`x`-coordinates, and the second argument is a 2-dimensional vector where the first column (``u[:, 0]``) is the first velocity component, the second column(``u[:, 1]``) is the the second velocity component, the third column (``u[:, 2]``) is the third velocity component, and the last column (``u[:, 3]``) is the pressure.
+The first argument to ``pde`` is the network input, i.e. the :math:`x`-coordinate and the :math:`t`-coordinates, and the second argument is a 2-dimensional vector where the first column (``u[:, 0]``) is the first velocity component, the second column(``u[:, 1]``) is the the second velocity component, the third column (``u[:, 2]``) is the third velocity component, and the last column (``u[:, 3]``) is the pressure.
 Here ``[momentum_x, momentum_y, momentum_z]`` is the residual vector for the velocity components, and ``continuity`` is the residual for the solution to be divergence-free.
 
 Then we define the solution function:
