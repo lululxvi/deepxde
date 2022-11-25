@@ -81,6 +81,17 @@ def shape(input_tensor):
     """
 
 
+def tensor_shape(input_tensor):
+    """Return the shape of the tensor in tensor format
+
+    Args:
+        input (Tensor): The input tensor.
+
+    Returns:
+        Tensor: input_tensor's shape in tensor format
+    """
+
+
 def ndim(input_tensor):
     """Returns the number of dimensions of the tensor.
 

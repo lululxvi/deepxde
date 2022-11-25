@@ -34,6 +34,10 @@ def shape(input_tensor):
     return input_tensor.shape
 
 
+def tensor_shape(input_tensor):
+    return input_tensor.shape
+
+
 def ndim(input_tensor):
     return input_tensor.ndim
 
