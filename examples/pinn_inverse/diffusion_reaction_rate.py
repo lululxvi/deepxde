@@ -2,13 +2,15 @@
 
 Implementation for the diffusion-reaction system with a space-dependent reaction rate in paper https://arxiv.org/abs/2111.02801.
 """
+import argparse
+import random
+
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.integrate import solve_bvp
-import argparse
 import paddle
-import random
+from scipy.integrate import solve_bvp
+
 paddle.seed(0)
 np.random.seed(0)
 random.seed(0)

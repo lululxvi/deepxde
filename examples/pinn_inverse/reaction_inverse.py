@@ -1,5 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
+import deepxde.backend as bkd
 import numpy as np
 
 

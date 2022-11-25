@@ -2,9 +2,7 @@
 import deepxde as dde
 import numpy as np
 import deepxde.backend as bkd
-# from deepxde.backend import tf
 from scipy.special import gamma
-import paddle
 
 
 alpha0 = 1.8
@@ -63,7 +61,7 @@ net.apply_output_transform(lambda x, y: (1 - x ** 2) * y)
 
 model = dde.Model(data, net)
 
-model.compile("adam", lr=1e-3, loss_weights=[1, 100])
+model.compile("adam", lr=1e-3, loss_weights=[1, 100], external_trainable_variables=[alpha])
 variable = dde.callbacks.VariableValue(alpha, period=1000)
 losshistory, train_state = model.train(iterations=10000, callbacks=[variable])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

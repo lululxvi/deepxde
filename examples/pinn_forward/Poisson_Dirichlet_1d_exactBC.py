@@ -1,16 +1,15 @@
 """Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
+import deepxde.backend as bkd
 import numpy as np
-# from deepxde.backend import tf
 import paddle
+
 geom = dde.geometry.Interval(0, np.pi)
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
-    # summation = sum([i * tf.sin(i * x) for i in range(1, 5)])
-    # return -dy_xx - summation - 8 * tf.sin(8 * x)
-    summation = sum([i * paddle.sin(i * x) for i in range(1, 5)])
-    return -dy_xx - summation - 8 * paddle.sin(8 * x)
+    summation = sum([i * bkd.sin(i * x) for i in range(1, 5)])
+    return -dy_xx - summation - 8 * bkd.sin(8 * x)
 
 def func(x):
     summation = sum([np.sin(i * x) / i for i in range(1, 5)])
@@ -23,13 +22,13 @@ activation = 'tanh'
 initializer = 'Glorot uniform'
 net = dde.nn.FNN(layer_size, activation, initializer)
 
-def  output_transform(x, y):
+def output_transform(x, y):
     return x * (np.pi - x) * y + x 
 
 net.apply_output_transform(output_transform)
 
 model = dde.Model(data, net)
-model.compile("adam", lr=1e-4, decay = ("inverse time", 1000, 0.3), metrics=["l2 relative error"])
+model.compile("adam", lr=1e-4, decay=("inverse time", 1000, 0.3), metrics=["l2 relative error"])
 
 losshistory, train_state = model.train(iterations=30000)
 

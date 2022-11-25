@@ -1,16 +1,15 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
-import numpy as np
 import deepxde.backend as bkd
+import numpy as np
 from scipy.special import gamma
-import paddle
 
 alpha = 1.5
 
 
 def fpde(x, y, int_mat):
     """(D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
-        int_mat = bkd.as_tensor(int_mat)
+    int_mat = bkd.as_tensor(int_mat)
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         int_mat = bkd.SparseTensor(*int_mat)
         lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
