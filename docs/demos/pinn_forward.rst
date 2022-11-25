@@ -41,6 +41,7 @@ Time-dependent PDEs
 
    pinn_forward/burgers
    pinn_forward/heat
+   pinn_forward/heat.resample
    pinn_forward/diffusion.1d
    pinn_forward/diffusion.1d.exactBC
    pinn_forward/diffusion.1d.resample
@@ -51,6 +52,7 @@ Time-dependent PDEs
    pinn_forward/beltrami.flow
 
 - `Heat equation with training points resampling <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/heat_resample.py>`_
+- `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
 - `Kovasznay flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Kovasznay_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/wave_1d.py>`_
 - `Schrodinger equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Schrodinger.ipynb>`_

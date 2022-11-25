@@ -75,7 +75,7 @@ class MIONetCartesianProd(NN):
         else:
             self.output_merger = None
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.b = torch.tensor(0.0, requires_grad=True)
+        self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
         self.merge_operation = merge_operation
@@ -206,7 +206,7 @@ class PODMIONet(NN):
             self.trunk = FNN(
                 layer_sizes_trunk, self.activation_trunk, kernel_initializer
             )
-            self.b = torch.tensor(0.0, requires_grad=True)
+            self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
         self.merge_operation = merge_operation
