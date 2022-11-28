@@ -1,5 +1,3 @@
-import numpy as np
-
 from paddle.nn.initializer import Normal
 
 from ...backend import paddle
@@ -67,7 +65,7 @@ class MsFFN(paddle.nn.Layer):
             initializer_zero(self.linears[-1].bias)
 
         self._dense = paddle.nn.Linear(
-            layer_sizes[-2] * (2 if task_name != 'wave_1d' else 2),
+            layer_sizes[-2] * 2,
             layer_sizes[-1],
         )
         initializer(self._dense.weight)
@@ -88,7 +86,6 @@ class MsFFN(paddle.nn.Layer):
 
         # fully-connected layers
         y = [self._fully_connected_forward(_y) for _y in y]
-        self.yy = y
 
         # concatenate all the fourier features
         y = paddle.concat(y, axis=1)
@@ -166,12 +163,10 @@ class STMsFFN(MsFFN):
             regularization,
             dropout_rate,
             kernel_constraint,
-            use_bias,
-            task_name,
+            use_bias
         )
         self.sigmas_x = sigmas_x
         self.sigmas_t = sigmas_t
-        self.debug_x = None
 
     def forward(self, inputs):
         x = inputs

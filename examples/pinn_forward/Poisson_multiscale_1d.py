@@ -47,7 +47,7 @@ data = dde.data.PDE(
 layer_size = [1] + [100] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
-net = dde.nn.MsFFN(layer_size, activation, initializer, sigmas=[1, 10], task_name=task_name)
+net = dde.nn.MsFFN(layer_size, activation, initializer, sigmas=[1, 10])
 
 model = dde.Model(data, net)
 model.compile(
