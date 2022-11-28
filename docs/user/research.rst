@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 40 universities, e.g.,
+- > 42 universities, e.g.,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
@@ -46,7 +46,7 @@ DeepXDE has been used in
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_
-- 9 national labs and research institutes, e.g.,
+- 10 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Argonne National Laboratory <https://www.anl.gov>`_,
