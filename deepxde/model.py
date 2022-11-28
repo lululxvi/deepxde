@@ -454,7 +454,7 @@ class Model:
                 self.net.train()
             else:
                 self.net.eval()
-            inputs = paddle.to_tensor(inputs, stop_gradient=False)
+            inputs = paddle.to_tensor(inputs, stop_gradient=False).astype("float32")
             outputs_ = self.net(inputs)
 
             # Data losses

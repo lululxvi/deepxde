@@ -1,5 +1,6 @@
 """Backend supported: tensorflow.compat.v1"""
 import deepxde as dde
+import deepxde.backend as bkd
 import matplotlib.pyplot as plt
 import numpy as np
 

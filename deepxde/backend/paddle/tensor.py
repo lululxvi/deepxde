@@ -157,7 +157,7 @@ def SparseTensor(indices, values, shape):
     indices = paddle.stack(
         [paddle.to_tensor(x), paddle.to_tensor(y)]
     )  # [2, num_of_nonzeros]
-    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=shape, stop_gradient=False)
+    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=list(shape), stop_gradient=False)
 
 
 def sparse_tensor_dense_matmul(x, y):

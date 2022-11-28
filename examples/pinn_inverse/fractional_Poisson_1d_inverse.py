@@ -11,12 +11,11 @@ alpha = bkd.Variable(1.5)
 
 def fpde(x, y, int_mat):
     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
-    int_mat_ = bkd.as_tensor(int_mat)
-    if isinstance(int_mat, (list, tuple)) and len(int_mat_) == 3:
-        int_mat_ = bkd.SparseTensor(*int_mat_)
-        lhs = bkd.sparse_tensor_dense_matmul(int_mat_, y)
+    if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+        int_mat = bkd.SparseTensor(*int_mat)
+        lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
     else:
-        lhs = bkd.matmul(int_mat_, y)
+        lhs = bkd.matmul(int_mat, y)
     lhs /= 2 * bkd.cos(alpha * np.pi / 2)
     rhs = gamma(alpha0 + 2) * x
     return lhs - rhs[: bkd.size(lhs)]
