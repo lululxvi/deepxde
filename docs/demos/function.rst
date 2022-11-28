@@ -10,8 +10,7 @@ Function approximation
    :maxdepth: 1
 
    function/func
-
-- `Learning a function from a dataset <https://github.com/lululxvi/deepxde/blob/master/examples/function/dataset.py>`_
+   function/dataset
 
 Uncertainty quantification
 --------------------------
