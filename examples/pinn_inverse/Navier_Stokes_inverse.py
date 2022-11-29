@@ -10,9 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import loadmat
 import re
-import paddle
-paddle.enable_static()
-# paddle.incubate.autograd.enable_prim()
 
 # true values
 C1true = 1.0

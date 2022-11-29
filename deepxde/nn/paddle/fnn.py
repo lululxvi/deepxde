@@ -10,7 +10,7 @@ import os
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self, layer_sizes, activation, kernel_initializer, task_name=None):
+    def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
         self.activation = activations.get(activation)
         self.layer_size = layer_sizes
@@ -18,29 +18,15 @@ class FNN(NN):
         initializer_zero = initializers.get("zeros")
 
         self.linears = paddle.nn.LayerList()
-        p = 0
         for i in range(1, len(layer_sizes)):
-            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/linears.{i-1}.weight.npy") and os.path.exists(f"./{task_name}/linears.{i-1}.bias.npy"):
-                print("load param from file")
-                self.linears.append(
-                    paddle.nn.Linear(
-                        layer_sizes[i - 1],
-                        layer_sizes[i],
-                        weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/linears.{i-1}.weight.npy").astype("float32"))),
-                        bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/linears.{i-1}.bias.npy").astype("float32")))
-                    )
+            self.linears.append(
+                paddle.nn.Linear(
+                    layer_sizes[i - 1],
+                    layer_sizes[i],
                 )
-                p += 2
-            else:
-                print("init param from random")
-                self.linears.append(
-                    paddle.nn.Linear(
-                        layer_sizes[i - 1],
-                        layer_sizes[i],
-                    )
-                )
-                initializer(self.linears[-1].weight)
-                initializer_zero(self.linears[-1].bias)
+            )
+            initializer(self.linears[-1].weight)
+            initializer_zero(self.linears[-1].bias)
 
     def forward(self, inputs):
         x = inputs

@@ -1,14 +1,10 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import numpy as np
-import paddle
-paddle.enable_static()
-# paddle.incubate.autograd.enable_prim()
 
 def gen_traindata():
     data = np.load("../dataset/Lorenz.npz")
     return data["t"], data["y"]
-
 
 C1 = dde.Variable(1.0)
 C2 = dde.Variable(1.0)

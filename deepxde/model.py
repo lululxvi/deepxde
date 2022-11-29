@@ -1112,11 +1112,6 @@ class Model:
             self.train_state.step += results[1].numpy()
             self._test()
 
-            print("result[0]", results[0])
-            print("result[1]", results[1])
-            print("result[2]", results[2])
-            print("result[3]", results[3])
-            print("result[4]", results[4])
             if results[0] :
                 break
 
@@ -1150,7 +1145,6 @@ class Model:
             ]
 
         self.train_state.update_best()
-        print( "&&&&&&&&&&&&&&&&&%train_state.best_step", self.train_state.best_step)
         self.losshistory.append(
             self.train_state.step,
             self.train_state.loss_train,
