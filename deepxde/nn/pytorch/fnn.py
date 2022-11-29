@@ -11,7 +11,16 @@ class FNN(NN):
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
-        self.activation = activations.get(activation)
+        if isinstance(activation, list):
+            self.activation = []
+            if not (len(layer_sizes) - 1) == len(activation):
+                raise ValueError(
+                    "Total number of activation functions do not match with sum of hidden layers and output layer!"
+                )
+            for act in activation:
+                self.activation.append(activations.get(act))
+        else:
+            self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
 
@@ -29,8 +38,14 @@ class FNN(NN):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
+        j = 0
         for linear in self.linears[:-1]:
-            x = self.activation(linear(x))
+            x = (
+                self.activation[j](linear(x))
+                if isinstance(self.activation, list)
+                else self.activation(linear(x))
+            )
+            j = j + 1
         x = self.linears[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
