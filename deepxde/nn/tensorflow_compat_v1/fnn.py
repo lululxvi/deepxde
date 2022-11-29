@@ -28,8 +28,10 @@ class FNN(NN):
         self.layer_size = layer_sizes
         if isinstance(activation, list):
             self.activation = []
-            if not (len(layer_sizes)-1) == len(activation):
-                raise ValueError("Total number of activation functions do not match with sum of hidden layers and output layer!")
+            if not (len(layer_sizes) - 1) == len(activation):
+                raise ValueError(
+                    "Total number of activation functions do not match with sum of hidden layers and output layer!"
+                )
             for act in activation:
                 self.activation.append(activations.get(act))
         else:
@@ -67,7 +69,11 @@ class FNN(NN):
                 y = self._dense(
                     y,
                     self.layer_size[i + 1],
-                    activation=(self.activation[i] if isinstance(self.activation, list) else self.activation),
+                    activation=(
+                        self.activation[i]
+                        if isinstance(self.activation, list)
+                        else self.activation
+                    ),
                     use_bias=self.use_bias,
                 )
             elif self.batch_normalization and self.layer_normalization:
