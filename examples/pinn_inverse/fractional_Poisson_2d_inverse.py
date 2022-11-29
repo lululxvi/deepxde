@@ -1,16 +1,15 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
-import numpy as np
 import deepxde.backend as bkd
+import numpy as np
 from scipy.special import gamma
-
 
 alpha0 = 1.8
 alpha = bkd.Variable(1.5)
 
 
 def fpde(x, y, int_mat):
-    """\int_theta D_theta^alpha u(x)"""
+    r"""\int_theta D_theta^alpha u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         int_mat = bkd.SparseTensor(*int_mat)
         lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
@@ -56,7 +55,7 @@ net.apply_output_transform(
 )
 
 model = dde.Model(data, net)
-model.compile("adam", lr=1e-3, loss_weights=[1, 100])
+model.compile("adam", lr=1e-3, loss_weights=[1, 100], external_trainable_variables=[alpha])
 variable = dde.callbacks.VariableValue(alpha, period=1000)
 losshistory, train_state = model.train(iterations=10000, callbacks=[variable])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

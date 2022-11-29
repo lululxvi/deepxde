@@ -1,9 +1,4 @@
-import os
-
-import numpy as np
-
-from paddle import ParamAttr
-from paddle.nn.initializer import Assign, Normal
+from paddle.nn.initializer import Normal
 
 from ...backend import paddle
 from .. import activations, initializers
@@ -32,8 +27,7 @@ class MsFFN(paddle.nn.Layer):
         regularization=None,
         dropout_rate=0.0,
         kernel_constraint=None,
-        use_bias=True,
-        task_name=None,
+        use_bias=True
     ):
         super(MsFFN, self).__init__()
         self._input_transform = None
@@ -49,95 +43,50 @@ class MsFFN(paddle.nn.Layer):
         initializer_zero = initializers.get("zeros")
 
         self.b = []
-        self.new_save = False
         for i, sigma in enumerate(self.sigmas):
-            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/tf_b_{i}_new.npy"):
-                print("load param from file[sigma]")
-                self.b.append(
-                    self.create_parameter(
-                        shape=[layer_sizes[0] // (2 if task_name == 'wave_1d' else 1), self.layer_size[1] // 2], is_bias=False, default_initializer=Assign(np.load(f"./{task_name}/tf_b_{i}_new.npy"))
-                    )
+            self.b.append(
+                self.create_parameter(
+                    shape=[layer_sizes[0], self.layer_size[1] // 2], default_initializer=Normal(std=sigma),
                 )
-            else:
-                print("init param from random[sigma]")
-                self.b.append(
-                    self.create_parameter(
-                        shape=[layer_sizes[0] // (2 if task_name == 'wave_1d' else 1), self.layer_size[1] // 2], is_bias=False, default_initializer=Normal(std=sigma)
-                    )
-                )
-                # np.save(f"{task_name}/b_{i}_new.npy", self.b[-1].numpy())
-                self.new_save = True
-
-        for i in range(len(self.b)):
-            self.b[i].trainable = False
-            self.b[i].stop_gradient = True
+            )
+            # freeze all parameter in self.b
+            self.b[-1].trainable = False
+            self.b[-1].stop_gradient = True
 
         self.linears = paddle.nn.LayerList()
-        p = 0
         for i in range(2, len(layer_sizes) - 1):
-            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/tf_weight_{p}_new.npy") and os.path.exists(f"./{task_name}/tf_bias_{p}_new.npy"):
-                print("load param from file[linear]")
-                self.linears.append(
-                    paddle.nn.Linear(
-                        layer_sizes[i - 1],
-                        layer_sizes[i],
-                        weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/tf_weight_{p}_new.npy"))),
-                        bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/tf_bias_{p}_new.npy")))
-                    )
+            self.linears.append(
+                paddle.nn.Linear(
+                    layer_sizes[i - 1],
+                    layer_sizes[i],
                 )
-            else:
-                print("init param from random[linear]")
-                self.linears.append(
-                    paddle.nn.Linear(
-                        layer_sizes[i - 1],
-                        layer_sizes[i],
-                    )
-                )
-                initializer(self.linears[-1].weight)
-                initializer_zero(self.linears[-1].bias)
-                self.new_save = True
-                # np.save(f"{task_name}/weight_{p}_new.npy", self.linears[-1].weight.numpy())
-                # np.save(f"{task_name}/bias_{p}_new.npy", self.linears[-1].bias.numpy())
-            p += 1
-
-        if isinstance(task_name, str) and os.path.exists(f"./{task_name}/tf_weight_{p}_new.npy") and os.path.exists(f"./{task_name}/tf_bias_{p}_new.npy"):
-            print("load param from file[dense]")
-            self._dense = paddle.nn.Linear(
-                layer_sizes[-2] * (2 if task_name != 'wave_1d' else 2),
-                layer_sizes[-1],
-                weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/tf_weight_{p}_new.npy"))),
-                bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/tf_bias_{p}_new.npy")))
-            )
-        else:
-            print("init param from random[dense]")
-            self._dense = paddle.nn.Linear(
-                layer_sizes[-2] * (2 if task_name != 'wave_1d' else 2),
-                layer_sizes[-1],
             )
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
-            self.new_save = True
-            # np.save(f"{task_name}/weight_{p}_new.npy", self._dense.weight.numpy())
-            # np.save(f"{task_name}/bias_{p}_new.npy", self._dense.bias.numpy())
-        p += 1
-        # if self.new_save:
-        #     print("第一次保存模型完毕，自动退出，请再次运行")
-        #     exit(0)
+
+        self._dense = paddle.nn.Linear(
+            layer_sizes[-2] * 2,
+            layer_sizes[-1],
+        )
+        initializer(self._dense.weight)
+        initializer_zero(self._dense.bias)
 
     def forward(self, inputs):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
+
         # fourier feature layer
         yb = [
             self._fourier_feature_forward(x, self.b[i])
             for i in range(len(self.sigmas))
-        ]  # [[[1284,100],[1,50]], [[1284,100],[1,50]], [[1284,100],[1,50]], ...]
-        y = [elem[0] for elem in yb]  # [[1284,100], [1284,100], [1284,100], ...]
-        self.fourier_feature_weights = [elem[1] for elem in yb]  # [[1,50], [1,50], [1,50], ...]
+        ]
+        y = [elem[0] for elem in yb]
+        self.fourier_feature_weights = [elem[1] for elem in yb]
+
         # fully-connected layers
         y = [self._fully_connected_forward(_y) for _y in y]
-        self.yy = y
+
         # concatenate all the fourier features
         y = paddle.concat(y, axis=1)
         y = self._dense(y)
@@ -203,9 +152,9 @@ class STMsFFN(MsFFN):
         batch_normalization=None,
         layer_normalization=None,
         kernel_constraint=None,
-        use_bias=True,
-        task_name=None,
+        use_bias=True
     ):
+        layer_sizes[0] = layer_sizes[0] // 2
         super(STMsFFN, self).__init__(
             layer_sizes,
             activation,
@@ -214,14 +163,10 @@ class STMsFFN(MsFFN):
             regularization,
             dropout_rate,
             kernel_constraint,
-            use_bias,
-            task_name,
+            use_bias
         )
         self.sigmas_x = sigmas_x
         self.sigmas_t = sigmas_t
-        self.left_mat = paddle.to_tensor([[1.0], [0.0]], dtype="float32")
-        self.right_mat = paddle.to_tensor([[0.0], [1.0]], dtype="float32")
-        self.debug_x = None
 
     def forward(self, inputs):
         x = inputs
@@ -229,9 +174,7 @@ class STMsFFN(MsFFN):
             # The last column should be function of t.
             x = self._input_transform(x)
 
-        # split don't work right, so split matrix mannualy with 2 col vector
-        x0 = paddle.matmul(x, self.left_mat)
-        x1 = paddle.matmul(x, self.right_mat)
+        x0, x1 = paddle.split(x, num_or_sections=2, axis=1)
 
         # fourier feature layer
         yb_x = [
@@ -242,12 +185,15 @@ class STMsFFN(MsFFN):
             self._fourier_feature_forward(x1, self.b[len(self.sigmas_x) + i])
             for i in range(len(self.sigmas_t))
         ]
-        self.fourier_feature_weights = [elem[1] for elem in yb_x + yb_t]  # [[1,50], [1,50], [1,50], ...]
+        self.fourier_feature_weights = [elem[1] for elem in yb_x + yb_t]
+
         # fully-connected layers (reuse)
         y_x = [self._fully_connected_forward(_yb[0]) for _yb in yb_x]
         y_t = [self._fully_connected_forward(_yb[0]) for _yb in yb_t]
+
         # point-wise multiplication layer
         y = [paddle.multiply(_y_x, _y_t) for _y_x in y_x for _y_t in y_t]
+
         # concatenate all the fourier features
         y = paddle.concat(y, axis=1)
         y = self._dense(y)

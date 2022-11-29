@@ -81,6 +81,17 @@ def shape(input_tensor):
     """
 
 
+def tensor_shape(input_tensor):
+    """Return the shape of the tensor in tensor format
+
+    Args:
+        input (Tensor): The input tensor.
+
+    Returns:
+        Tensor: input_tensor's shape in tensor format
+    """
+
+
 def ndim(input_tensor):
     """Returns the number of dimensions of the tensor.
 
@@ -278,60 +289,108 @@ def zeros_like(input_tensor):
 
 
 def lgamma(x):
-    """计算输入 x 的 gamma 函数的自然对数并返回
-    """
+    """Compute lgamma of x element-wise."""
 
 
 def matmul(x, y):
-    """x与y做矩阵乘法
+    """Compute matrix multiplication for input tensor x and y
+    Args:
+        x (Tensor). The input tensor x.
+        y (Tensor). The input tensor y
+
+    Returns:
+        Tensor: The multiplication result.
     """
 
 
 def size(tensor):
-    """x与y做矩阵乘法
+    """Return number of element(s) within the input tensor
+    Args:
+        tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor: number of element(s) within the input tensor
     """
 
 
 def SparseTensor(indices, values, shape):
-    """返回一个稀疏矩阵
+    """Construct an sparse tensor based on given indices, values and shape
+    Args:
+        tensor (list of tuple). Indices of non-zero element(s), [(x1, y1), (x2, y2), ..., (xn, yn)]
+        values (Tensor). Value of non-zero element, with shape of [n, d1, d2, d3]
+        shape (list or tuple). Dense shape of constructed tensor.
+    Returns:
+        SparseTensor: An sparse tensor in coo format
     """
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """稀疏矩阵x与稀疏/稠密矩阵y的矩乘
-    """
+    """Compute an sparse matrix multiplication with an sparse/dense matrix for input tensor x and y
+    Args:
+        x (Sparse Tensor). The input tensor x.
+        y (Sparse Tensor or Tensor). The input tensor y
 
+    Returns:
+        Tensor: The multiplication result.
+    """
 
 def constant(values, dtype):
-    """创建一个常量张量
-    """
+    """Create an constant tensor with given values and dtype"""
 
 
 def concat(values, axis):
-    """在axis维度上连接张量
+    """Returns the concatenation of the input tensors along the given dim.
+    Args:
+        values (list or tuple of Tensor). The input tensors in list or tuple.
+        axis (int). The concatenating dim.
+
+    Returns:
+        Tensor: Concatenated tensor.
     """
 
 
 def reverse(tensor, axis):
-    """对Tensor在axis维度上进行逆序翻转
+    """Flip tensor along given axis
+    Args:
+        tensor (Tensor). The input tensor.
+        axis (int). flip axis.
+
+    Returns:
+        Tensor: Tensor which is flipped along given axis.
     """
 
 
 def expand_dims(tensor, axis):
-    """对Tensor在axis上增加一个维度, similar to `unsqueeze`
+    """Expand dim for tensor along given axis
+    Args:
+        tensor (Tensor). The input tensor.
+        axis (int). axis to expand.
+
+    Returns:
+        Tensor: Expanded tensor.
     """
 
 
 def cos(x):
-    """计算cos(tensor)
-    """
+    """"Computes cosine of x element-wise."""
 
 
 def roll(tensor, shift, axis=None):
-    """沿着指定维度 axis 对输入 x 进行循环滚动
+    """Roll the x tensor along the given axis(axes).
+    Args:
+        tensor (Tensor). The input tensor.
+        shifts (int or tuple of int). The number of places by which the elements of the x tensor are shifted.
+        axis (int or tuple of int, optional). Axis(axes) along which to roll. Default: None
+    Returns:
+        Tensor: Rolled tensor.
     """
 
 
 def gradients(x, y):
-    """求x对y的一阶微分矩阵
+    """Backpropagate the gradients of targets to inputs.
+    Args:
+        x (Tensor or tuple of Tensors). The target tensors.
+        y (Tensor or tuple of Tensors). The input tensors.
+    Returns:
+        Tensor: A list of gradients for inputs If an input does not affect targets, the corresponding gradient Tensor will be None.
     """
