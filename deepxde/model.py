@@ -1004,6 +1004,7 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
+                self.train_state.set_data_test(*self.data.test())
                 self._test()
 
             self.callbacks.on_batch_end()
@@ -1012,6 +1013,7 @@ class Model:
             if self.stop_training:
                 break
         print("train_step_end")
+        self.train_state.set_data_test(*self.data.test())
         self._test()
 
     def _train_tensorflow_compat_v1_scipy(self, display_every):
