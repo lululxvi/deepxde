@@ -167,11 +167,11 @@ class PointSetBC:
     Compare the output (that associates with `points`) with `values` (target data).
     If more than one component is provided via a list, the resulting loss will
     be the addative loss of the provided componets.
-    
+
     Args:
         points: An array of points where the corresponding target values are known and
             used for training.
-        values: An array of values that gives the exact solution of the problem.
+        values: A scalar or a 2D-array of values that gives the exact solution of the problem.
         component: Integer or a list of integers. The output components satisfying this BC.
             List of integers only supported for the backend PyTorch.
         batch_size: The number of points per minibatch, or `None` to return all points.
@@ -187,15 +187,20 @@ class PointSetBC:
         if isinstance(component, numbers.Number):
             self.component = [component]
         else:
-            if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax", "paddle"]:
-               #TODO: Add support for multiple components in other backends
-               raise RuntimeError(
-                   "multiple components only implemented for pytorch backend"
-               ) 
+            if backend_name in [
+                "tensorflow.compat.v1",
+                "tensorflow",
+                "jax",
+                "paddle",
+            ]:
+                # TODO: Add support for multiple components in other backends
+                raise RuntimeError(
+                    "multiple components only implemented for pytorch backend"
+                )
             else:
                 self.component = component
         self.batch_size = batch_size
-        
+
         if batch_size is not None:  # batch iterator and state
             if backend_name != "pytorch":
                 raise RuntimeError(
@@ -223,17 +228,17 @@ class PointSetBC:
             )
         if backend_name in ["pytorch"]:
             return outputs[beg:end, self.component] - self.values
-        #When a concat is provided, the following code works 'fast' in paddle cpu, 
-        #and slow in both tensorflow backends, jax untested.
-        #tf.gather can be used instead of for loop but is also slow
-        #if len(self.component) > 1:
+        # When a concat is provided, the following code works 'fast' in paddle cpu,
+        # and slow in both tensorflow backends, jax untested.
+        # tf.gather can be used instead of for loop but is also slow
+        # if len(self.component) > 1:
         #    calculated_error = outputs[beg:end, self.component[0]] - self.values[:,0]
         #    for i in range(1,len(self.component)):
         #        tmp = outputs[beg:end, self.component[i]] - self.values[:,i]
         #        calculated_error = bkd.lib.concat([calculated_error,tmp],axis=0)
-        #else:
+        # else:
         #    calculated_error = outputs[beg:end, self.component[0]] - self.values
-        #return calculated_error
+        # return calculated_error
         else:
             return outputs[beg:end, self.component[0]] - self.values
 
