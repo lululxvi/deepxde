@@ -165,38 +165,32 @@ class PointSetBC:
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
-    If more than one component is provided via a list, the resulting loss will
-    be the addative loss of the provided componets.
 
     Args:
         points: An array of points where the corresponding target values are known and
             used for training.
-        values: A 2D-array of values that gives the exact solution of the problem.
-        component: Integer or a list of integers. The output components satisfying this BC.
+        values: An array of values that gives the exact solution of the problem.
+        component: The output component satisfying this BC.
         batch_size: The number of points per minibatch, or `None` to return all points.
             This is only supported for the backend PyTorch.
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(
-        self, points, values, component=0, batch_size=None, shuffle=True
-    ):
+    def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+            raise RuntimeError(
+                "PointSetBC should output 1D values. Use argument 'component' for "
+                "different components."
+            )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
-        if isinstance(component, numbers.Number):
-            self.component = [component]
-        else:
-            self.component = component
+        self.component = component
         self.batch_size = batch_size
 
-        if batch_size is not None:  # batch iterator and state
+        if batch_size is not None: # batch iterator and state
             if backend_name != "pytorch":
-                raise RuntimeError(
-                    "batch_size only implemented for pytorch backend"
-                )
-            self.batch_sampler = data.sampler.BatchSampler(
-                len(self), shuffle=shuffle
-            )
+                raise RuntimeError("batch_size only implemented for pytorch backend")
+            self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle=shuffle)
             self.batch_indices = None
 
     def __len__(self):
@@ -211,10 +205,10 @@ class PointSetBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         if self.batch_size is not None:
             return (
-                outputs[beg:end, self.component]
+                outputs[beg:end, self.component : self.component + 1]
                 - self.values[self.batch_indices]
             )
-        return outputs[beg:end, self.component] - self.values
+        return outputs[beg:end, self.component : self.component + 1] - self.values
 
 
 class PointSetOperatorBC:
