@@ -221,8 +221,8 @@ class PointSetBC:
                 outputs[beg:end, self.component]
                 - self.values[self.batch_indices]
             )
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax","paddle"]:
-            return outputs[beg:end, self.component[0]] - self.values
+        if backend_name in ["pytorch"]:
+            return outputs[beg:end, self.component] - self.values
         #When a concat is provided, the following code works 'fast' in paddle cpu, 
         #and slow in both tensorflow backends, jax untested.
         #tf.gather can be used instead of for loop but is also slow
@@ -235,7 +235,7 @@ class PointSetBC:
         #    calculated_error = outputs[beg:end, self.component[0]] - self.values
         #return calculated_error
         else:
-            return outputs[beg:end, self.component] - self.values
+            return outputs[beg:end, self.component[0]] - self.values
 
 
 class PointSetOperatorBC:
