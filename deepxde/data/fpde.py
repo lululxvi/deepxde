@@ -97,7 +97,20 @@ class FPDE(PDE):
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        int_mat = self.get_int_matrix(True)
+        # cache int_mat when alpha is unlearnable in paddle backend
+        if bkd.get_preferred_backend() == "paddle":
+            if not bkd.is_tensor(self.alpha) or self.alpha.stop_gradient:
+                # unlearnable alpha
+                if hasattr(self, "int_mat"):
+                    int_mat = self.int_mat
+                else:
+                    int_mat = self.get_int_matrix(True)
+                    self.int_mat = int_mat # cache int_mat
+            else:
+                # learnable alpha
+                int_mat = self.get_int_matrix(True)
+        else:
+            int_mat = self.get_int_matrix(True)
         f = self.pde(inputs, outputs, int_mat)
         if not isinstance(f, (list, tuple)):
             f = [f]
