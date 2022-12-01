@@ -38,14 +38,12 @@ class FNN(NN):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
-        j = 0
-        for linear in self.linears[:-1]:
+        for j,linear in enumerate(self.linears[:-1]):
             x = (
                 self.activation[j](linear(x))
                 if isinstance(self.activation, list)
                 else self.activation(linear(x))
             )
-            j = j + 1
         x = self.linears[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)

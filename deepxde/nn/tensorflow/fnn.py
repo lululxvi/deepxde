@@ -32,8 +32,7 @@ class FNN(NN):
         else:
             self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
-        j = 0
-        for units in layer_sizes[1:-1]:
+        for j,units in enumerate(layer_sizes[1:-1]):
             self.denses.append(
                 tf.keras.layers.Dense(
                     units,
@@ -46,7 +45,6 @@ class FNN(NN):
                     kernel_regularizer=self.regularizer,
                 )
             )
-            j = j + 1
             if self.dropout_rate > 0:
                 self.denses.append(tf.keras.layers.Dropout(rate=self.dropout_rate))
 
