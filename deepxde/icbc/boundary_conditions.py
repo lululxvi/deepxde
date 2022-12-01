@@ -165,7 +165,9 @@ class PointSetBC:
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
-
+    If more than one component is provided via a list, the resulting loss will
+    be the addative loss of the provided componets.
+    
     Args:
         points: An array of points where the corresponding target values are known and
             used for training.
@@ -193,6 +195,7 @@ class PointSetBC:
             else:
                 self.component = component
         self.batch_size = batch_size
+        
         if batch_size is not None:  # batch iterator and state
             if backend_name != "pytorch":
                 raise RuntimeError(
