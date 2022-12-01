@@ -1,7 +1,7 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-import paddle
+import deepxde.backend as bkd
 
 # General parameters
 n = 2
@@ -12,15 +12,6 @@ weights = 100  # if hard_constraint == False
 iterations = 5000
 parameters = [1e-3, 3, 150, "sin"]
 
-# Define sine function
-if dde.backend.backend_name == "pytorch":
-    sin = dde.backend.pytorch.sin
-elif dde.backend.backend_name == "paddle":
-    sin = paddle.sin
-else:
-    from deepxde.backend import tf
-    sin = tf.sin
-
 learning_rate, num_dense_layers, num_dense_nodes, activation = parameters
 
 
@@ -28,7 +19,7 @@ def pde(x, y):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     dy_yy = dde.grad.hessian(y, x, i=1, j=1)
 
-    f = k0 ** 2 * sin(k0 * x[:, 0:1]) * sin(k0 * x[:, 1:2])
+    f = k0 ** 2 * bkd.sin(k0 * x[:, 0:1]) * bkd.sin(k0 * x[:, 1:2])
     return -dy_xx - dy_yy - k0 ** 2 * y - f
 
 
@@ -91,7 +82,5 @@ else:
         loss_weights=loss_weights,
     )
 
-paddle.enable_static()
-paddle.incubate.autograd.enable_prim()
 losshistory, train_state = model.train(iterations=iterations)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

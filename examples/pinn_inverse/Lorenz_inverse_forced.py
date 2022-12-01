@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle
 
 Identification of the parameters of the modified Lorenz attractor (with exogenous input)
 see https://github.com/lululxvi/deepxde/issues/79
@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from scipy.integrate import odeint
+from deepxde import backend as bkd
 
 
 # Generate data
