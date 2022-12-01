@@ -32,7 +32,7 @@ class FNN(NN):
         else:
             self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
-        for j,units in enumerate(layer_sizes[1:-1]):
+        for j, units in enumerate(layer_sizes[1:-1]):
             self.denses.append(
                 tf.keras.layers.Dense(
                     units,

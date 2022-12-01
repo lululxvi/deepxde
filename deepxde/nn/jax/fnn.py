@@ -47,7 +47,7 @@ class FNN(NN):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
-        for j,linear in enumerate(self.denses[:-1]):
+        for j, linear in enumerate(self.denses[:-1]):
             x = (
                 self._activation[j](linear(x))
                 if isinstance(self._activation, list)
