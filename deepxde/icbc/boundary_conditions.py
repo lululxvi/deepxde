@@ -194,7 +194,6 @@ class PointSetBC:
                 self.component = component
         else:
             self.component = component
-
         self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
