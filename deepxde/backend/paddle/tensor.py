@@ -103,6 +103,10 @@ def exp(x):
     return paddle.exp(x)
 
 
+def pow(x, y):
+    return paddle.pow(x, y)
+
+    
 def square(x):
     return paddle.square(x)
 

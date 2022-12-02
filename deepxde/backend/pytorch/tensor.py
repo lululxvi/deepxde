@@ -114,6 +114,10 @@ def exp(x):
     return torch.exp(x)
 
 
+def pow(x, y):
+    return torch.pow(x, y)
+
+
 def square(x):
     return torch.square(x)
 
