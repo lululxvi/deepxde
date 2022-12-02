@@ -184,16 +184,12 @@ class PointSetBC:
     ):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
-        if isinstance(component, list):
-            if backend_name != "pytorch":
-                # TODO: Add support for multiple components in other backends
-                raise RuntimeError(
-                    "multiple components only implemented for pytorch backend"
-                )
-            else:
-                self.component = component
-        else:
-            self.component = component
+        self.component = component 
+        if isinstance(component, list) and backend_name != "pytorch":
+            # TODO: Add support for multiple components in other backends
+            raise RuntimeError(
+                "multiple components only implemented for pytorch backend"
+            )
         self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
