@@ -213,36 +213,33 @@ class PointSetBC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         if self.batch_size is not None:
-            if isinstance(self.component, list):
-                return (
-                    outputs[beg:end, self.component]
-                    - self.values[self.batch_indices]
-                )
-            else:
+            if isinstance(self.component, numbers.Number):
                 return (
                     outputs[beg:end, self.component : self.component + 1]
                     - self.values[self.batch_indices]
                 )
-        else:
-            if isinstance(self.component, list):
-                return outputs[beg:end, self.component] - self.values
-            # When a concat is provided, the following code works 'fast' in paddle cpu,
-            # and slow in both tensorflow backends, jax untested.
-            # tf.gather can be used instead of for loop but is also slow
-            # if len(self.component) > 1:
-            #    calculated_error = outputs[beg:end, self.component[0]] - self.values[:,0]
-            #    for i in range(1,len(self.component)):
-            #        tmp = outputs[beg:end, self.component[i]] - self.values[:,i]
-            #        calculated_error = bkd.lib.concat([calculated_error,tmp],axis=0)
-            # else:
-            #    calculated_error = outputs[beg:end, self.component[0]] - self.values
-            # return calculated_error
-            else:
-                return (
-                    outputs[beg:end, self.component : self.component + 1]
-                    - self.values
-                )
-                
+            return (
+                outputs[beg:end, self.component]
+                - self.values[self.batch_indices]
+            )
+        if isinstance(self.component, numbers.Number):
+            return (
+            outputs[beg:end, self.component : self.component + 1]
+            - self.values
+        )
+        # When a concat is provided, the following code works 'fast' in paddle cpu,
+        # and slow in both tensorflow backends, jax untested.
+        # tf.gather can be used instead of for loop but is also slow
+        # if len(self.component) > 1:
+        #    calculated_error = outputs[beg:end, self.component[0]] - self.values[:,0]
+        #    for i in range(1,len(self.component)):
+        #        tmp = outputs[beg:end, self.component[i]] - self.values[:,i]
+        #        calculated_error = bkd.lib.concat([calculated_error,tmp],axis=0)
+        # else:
+        #    calculated_error = outputs[beg:end, self.component[0]] - self.values
+        # return calculated_error
+        return outputs[beg:end, self.component] - self.values
+
 
 class PointSetOperatorBC:
     """General operator boundary conditions for a set of points.
