@@ -13,6 +13,7 @@ DeepXDE has been used in
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
   `Peking University <https://english.pku.edu.cn>`_,
   `Georgia Institute of Technology <https://www.gatech.edu>`_,
+  `Purdue University <https://www.purdue.edu>`_,
   `University of Colorado Boulder <https://www.colorado.edu>`_,
   `Boston University <https://www.bu.edu>`_,
   `University of California, Santa Barbara <https://www.ucsb.edu>`_,
@@ -45,9 +46,10 @@ DeepXDE has been used in
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_
-- 9 national labs and research institutes, e.g.,
+- 10 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
+  `Argonne National Laboratory <https://www.anl.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
   `Laboratory of Web Science <https://www.ffhs.ch/en/research/lws>`_,
@@ -69,6 +71,7 @@ PINN
 
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://link.springer.com/article/10.1007/s11242-022-01864-7>`_. *Transport in Porous Media*, 1-24, 2022.
+#. K. Prantikos, L. Tsoukalas, & A. Heifetz. `Physics-informed neural network solution of point kinetics equations for a nuclear reactor digital twin <https://doi.org/10.3390/en15207697>`_. *Energies*, 15(20), 7697, 2022.
 #. C. Garcia-Cervera, M. Kessler, & F. Periago. `Control of partial differential equations via physics-informed neural networks <https://link.springer.com/article/10.1007/s10957-022-02100-4>`_. *Journal of Optimization Theory and Applications*, 1-24, 2022.
 #. M. Takamoto, T. Praditia, R. Leiteritz, D. MacKinlay, F. Alesiani, D. Pflüger, & M. Niepert. `PDEBENCH: An Extensive Benchmark for Scientific Machine Learning <https://arxiv.org/abs/2210.07182>`_. *arXiv preprint arXiv:2210.07182*, 2022.
 #. X. Wang, J. Li, & J. Li. `A deep learning based numerical PDE method for option pricing <https://link.springer.com/article/10.1007/s10614-022-10279-x>`_. *Computational Economics*, 1-16, 2022.
