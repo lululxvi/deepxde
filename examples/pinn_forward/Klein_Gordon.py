@@ -1,8 +1,8 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-# from deepxde.backend import tf
+import deepxde.backend as bkd
 import paddle
 from scipy.interpolate import griddata
 
@@ -16,21 +16,13 @@ def pde(x, y):
     dy_tt = dde.grad.hessian(y, x, i=1, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     x, t = x[:, 0:1], x[:, 1:2]
-    # return (
-    #     dy_tt
-    #     + alpha * dy_xx
-    #     + beta * y
-    #     + gamma * (y ** k)
-    #     + x * tf.cos(t)
-    #     - (x ** 2) * (tf.cos(t) ** 2)
-    # )
     return (
         dy_tt
         + alpha * dy_xx
         + beta * y
         + gamma * (y ** k)
-        + x * paddle.cos(t)
-        - (x ** 2) * (paddle.cos(t) ** 2)
+        + x * bkd.cos(t)
+        - (x ** 2) * (bkd.cos(t) ** 2)
     )
 
 def func(x):

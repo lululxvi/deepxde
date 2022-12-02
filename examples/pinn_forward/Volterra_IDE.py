@@ -4,8 +4,6 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 import deepxde.backend as bkd
-from deepxde.backend import tf
-import paddle
 
 
 def ide(x, y, int_mat):
