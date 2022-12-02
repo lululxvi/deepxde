@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from scipy.integrate import odeint
-from deepxde import backend as bkd
 
 
 # Generate data
