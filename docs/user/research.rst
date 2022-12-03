@@ -79,6 +79,7 @@ PINN
 #. A. Cornell, A. Ncube, & G. Harmsen. `Determining QNMs using PINNs <https://arxiv.org/pdf/2205.08284.pdf>`_. *arXiv preprint arXiv:2205.08284*, 2022.
 #. L. Guo, H. Wu, X. Yu, & T. Zhou. `Monte Carlo PINNs: Deep learning approach for forward and inverse problems involving high dimensional fractional partial differential equations <https://arxiv.org/pdf/2203.08501.pdf>`_. *arXiv preprint arXiv:2203.08501*, 2022.
 #. P. Escapil-Inchauspé, & G. A. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://arxiv.org/pdf/2205.06704.pdf>`_. *arXiv preprint arXiv:2205.06704*, 2022.
+#. P. Escapil-Inchauspé, & G. A. Ruz. `Physics-informed neural networks for operator equations with stochastic data <https://arxiv.org/abs/2211.10344>`_. *arXiv preprint arXiv:2211.10344*, 2022.
 #. H. Xie, C. Zhai, L. Liu, & H. Yong. `A weighted first-order formulation for solving anisotropic diffusion equations with deep neural networks <https://arxiv.org/pdf/2205.06658.pdf>`_. *arXiv preprint arXiv:2205.06658*, 2022.
 #. Y. Lu, G. Mei, & F. Piccialli.  `A deep learning approach for predicting two-dimensional soil consolidation using physics-informed neural networks (PINN) <https://arxiv.org/pdf/2205.05710.pdf>`_. *arXiv preprint arXiv:2205.05710*, 2022.
 #. J. Yu, L. Lu, X. Meng, & G. Karniadakis. `Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems <https://doi.org/10.1016/j.cma.2022.114823>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114823, 2022.
