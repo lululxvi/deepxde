@@ -27,8 +27,7 @@ class FNN(NN):
                 raise ValueError(
                     "Total number of activation functions do not match with sum of hidden layers and output layer!"
                 )
-            for act in self.activation:
-                self._activation.append(activations.get(act))
+            self._activation = list(map(activations.get, self.activation))
         else:
             self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
