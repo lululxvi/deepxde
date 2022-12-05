@@ -1,7 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-import torch
 import deepxde.backend as bkd
 
 
@@ -31,16 +30,11 @@ net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
 # Use [r*sin(theta), r*cos(theta)] as features,
 # so that the network is automatically periodic along the theta coordinate.
-# Backend tensorflow.compat.v1 ,tensorflow or paddle
+# Backend tensorflow.compat.v1, tensorflow, pytorch, paddle
 def feature_transform(x):
     return bkd.concat(
         [x[:, 0:1] * bkd.sin(x[:, 1:2]), x[:, 0:1] * bkd.cos(x[:, 1:2])], axis=1
     )
-# Backend pytorch
-# def feature_transform(x):
-#     return torch.cat(
-#         [x[:, 0:1] * torch.sin(x[:, 1:2]), x[:, 0:1] * torch.cos(x[:, 1:2])], dim=1
-#     )
 
 net.apply_feature_transform(feature_transform)
 
