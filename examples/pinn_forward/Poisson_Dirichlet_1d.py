@@ -33,7 +33,7 @@ bc = dde.icbc.DirichletBC(geom, func, boundary)
 data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)
 
 layer_size = [1] + [50] * 3 + [1]
-activation = ["tanh","sigmoid","tanh","sigmoid"]
+activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
