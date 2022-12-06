@@ -22,7 +22,6 @@ class FNN(NN):
 
         self.denses = []
         if isinstance(activation, list):
-            self.activation = []
             if not (len(layer_sizes) - 1) == len(activation):
                 raise ValueError(
                     "Total number of activation functions do not match with sum of hidden layers and output layer!"

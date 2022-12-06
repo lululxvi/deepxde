@@ -22,7 +22,6 @@ class FNN(NN):
     def setup(self):
         # TODO: implement get regularizer
         if isinstance(self.activation, list):
-            self._activation = []
             if not (len(self.layer_sizes) - 1) == len(self.activation):
                 raise ValueError(
                     "Total number of activation functions do not match with sum of hidden layers and output layer!"

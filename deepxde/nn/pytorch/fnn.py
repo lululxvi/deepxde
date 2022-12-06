@@ -12,7 +12,6 @@ class FNN(NN):
     def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
         if isinstance(activation, list):
-            self.activation = []
             if not (len(layer_sizes) - 1) == len(activation):
                 raise ValueError(
                     "Total number of activation functions do not match with sum of hidden layers and output layer!"
