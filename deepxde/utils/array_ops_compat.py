@@ -4,7 +4,7 @@ import numpy as np
 
 from .. import backend as bkd
 from .. import config
-from ..backend import is_tensor, tf, as_tensor, get_preferred_backend
+from ..backend import is_tensor, tf, get_preferred_backend
 
 
 def istensorlist(values):

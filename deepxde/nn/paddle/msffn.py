@@ -136,7 +136,6 @@ class STMsFFN(MsFFN):
         kernel_initializer,
         sigmas_x,
         sigmas_t,
-        regularization=None,
         dropout_rate=0,
         use_bias=True
     ):

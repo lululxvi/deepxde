@@ -6,7 +6,7 @@ import paddle
 class InverseTimeDecay(paddle.optimizer.lr.InverseTimeDecay):
     def __init__(self, learning_rate, gamma, decay_steps=1, last_epoch=-1, verbose=False):
         self.decay_steps = decay_steps
-        super(InverseTimeDecay, self).__init__(learning_rate, gamma, last_epoch, verbose)
+        super().__init__(learning_rate, gamma, last_epoch, verbose)
 
     def get_lr(self):
         return self.base_lr / (1 + self.gamma * (self.last_epoch / self.decay_steps))
