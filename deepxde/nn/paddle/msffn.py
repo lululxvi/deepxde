@@ -24,12 +24,10 @@ class MsFFN(paddle.nn.Layer):
         activation,
         kernel_initializer,
         sigmas,
-        regularization=None,
         dropout_rate=0.0,
-        kernel_constraint=None,
         use_bias=True
     ):
-        super(MsFFN, self).__init__()
+        super().__init__()
         self._input_transform = None
         self._output_transform = None
 
@@ -140,20 +138,15 @@ class STMsFFN(MsFFN):
         sigmas_t,
         regularization=None,
         dropout_rate=0,
-        batch_normalization=None,
-        layer_normalization=None,
-        kernel_constraint=None,
         use_bias=True
     ):
         layer_sizes[0] = layer_sizes[0] // 2
-        super(STMsFFN, self).__init__(
+        super().__init__(
             layer_sizes,
             activation,
             kernel_initializer,
             sigmas_x + sigmas_t,
-            regularization,
             dropout_rate,
-            kernel_constraint,
             use_bias
         )
         self.sigmas_x = sigmas_x

@@ -475,6 +475,12 @@ class Model:
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
+        # Callables
+        self.outputs = outputs
+        self.outputs_losses_train = outputs_losses_train
+        self.outputs_losses_test = outputs_losses_test
+        self.train_step = train_step
+
     def _outputs(self, training, inputs):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)

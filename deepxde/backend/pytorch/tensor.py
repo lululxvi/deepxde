@@ -204,7 +204,7 @@ def cos(x):
 
 
 def roll(tensor, shift, axis=None):
-    return torch.roll(tensor, shifts, axis)
+    return torch.roll(tensor, shift, axis)
 
 
 def gradients(outputs, inputs):
