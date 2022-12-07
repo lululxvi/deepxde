@@ -172,11 +172,14 @@ def size(tensor):
 
 def sparse_tensor(indices, values, shape):
     coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
-    # pytorch仅支持CSR稀疏张量的tensor.matmul()
-    return coo_tensor.to_sparse_csr() # convert from COO to CSR
+    return coo_tensor
 
 
 def sparse_tensor_dense_matmul(x, y):
+    if not x.is_sparse_csr:
+        # NOTE: only support CSR tensor multiplication now
+        # refer to https://pytorch.org/docs/stable/sparse.html#csr-tensor-operations
+        x = x.to_sparse_csr()
     return torch.matmul(x, y)
 
 

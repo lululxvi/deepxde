@@ -1,9 +1,10 @@
 """paddle backend implementation"""
 from packaging.version import Version
+
 import paddle
 
-if Version(paddle.__version__) < Version("2.3.0") and Version(paddle.__version__) != Version("0.0.0") :
-    raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
+if Version(paddle.__version__) < Version("2.3.0") and Version(paddle.__version__) != Version("0.0.0"):
+    raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0 or develop")
 
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")
@@ -52,16 +53,11 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
-    if paddle.in_dynamic_mode():
-        return paddle.create_parameter(
-            shape=[1],
-            dtype="float32" if dtype is None else dtype,
-            default_initializer=paddle.nn.initializer.Constant(value=initial_value))
-    else:
-        return paddle.static.create_parameter(
-            shape=[1],
-            dtype="float32" if dtype is None else dtype,
-            default_initializer=paddle.nn.initializer.Constant(value=initial_value))
+    return paddle.create_parameter(
+        shape=[1],
+        dtype="float32" if dtype is None else dtype,
+        default_initializer=paddle.nn.initializer.Constant(value=initial_value)
+    )
 
 
 def as_tensor(data, dtype=None):
@@ -145,7 +141,7 @@ def zeros(shape, dtype):
 
 
 def zeros_like(input_tensor):
-    return paddle.full_like(input_tensor, 0.0)
+    return paddle.zeros_like(input_tensor)
 
 
 def lgamma(tensor):
@@ -161,11 +157,11 @@ def size(tensor):
 
 
 def sparse_tensor(indices, values, shape):
-    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
-    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
+    x = [p[0] for p in indices]
+    y = [p[1] for p in indices]
     indices = paddle.stack(
         [paddle.to_tensor(x), paddle.to_tensor(y)]
-    )  # [2, num_of_nonzeros]
+    )
     return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=list(shape), stop_gradient=False)
 
 
@@ -202,10 +198,5 @@ def roll(tensor, shift, axis=None):
 
 
 def gradients(outputs, inputs):
-    if paddle.in_dynamic_mode():
-        # for dynamic graph
-        # NOTE: set create_graph=True to enable high-order differentiation
-        return paddle.grad(outputs, inputs, create_graph=True)
-    else:
-        # for static graph
-        return paddle.static.gradients(outputs, inputs)
+    # NOTE: set create_graph=True to enable high-order differentiation
+    return paddle.grad(outputs, inputs, create_graph=True)

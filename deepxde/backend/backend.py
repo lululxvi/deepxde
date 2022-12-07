@@ -320,11 +320,11 @@ def size(tensor):
 def sparse_tensor(indices, values, shape):
     """Construct an sparse tensor based on given indices, values and shape
     Args:
-        tensor (list of tuple). Indices of non-zero element(s), [(x1, y1), (x2, y2), ..., (xn, yn)]
-        values (Tensor). Value of non-zero element, with shape of [n, d1, d2, d3]
+        tensor (list of tuple). Indices of non-zero element(s), such as [(x1, y1), (x2, y2), ..., (xn, yn)]
+        values (Tensor). Value of non-zero element, with shape of [n, d1, ..., dm]
         shape (list or tuple). Dense shape of constructed tensor.
     Returns:
-        SparseTensor: An sparse tensor in coo format
+        SparseTensor: An sparse tensor.
     """
 
 
