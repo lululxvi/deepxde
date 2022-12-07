@@ -1,12 +1,7 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
-import argparse
-import os
-import random
-
 import deepxde as dde
 import numpy as np
-import paddle
-from deepxde import backend as bkd
+
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
@@ -33,11 +28,10 @@ data = dde.data.PDE(geom, pde, [bc_l, bc_r], 16, 2, solution=func, num_test=100)
 layer_size = [1] + [50] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
-
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-# losshistory, train_state = model.train(iterations=10000, display_every=1)
-model.train(iterations=10000, display_every=100)
-# dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+losshistory, train_state = model.train(iterations=10000, display_every=1)
+
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)

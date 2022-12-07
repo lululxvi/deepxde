@@ -2,6 +2,7 @@
 import deepxde as dde
 import numpy as np
 
+
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return dy_xx - 2

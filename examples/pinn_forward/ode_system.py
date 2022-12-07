@@ -1,7 +1,7 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import numpy as np
-from deepxde import backend as bkd
+
 
 def ode_system(x, y):
     """ODE system.

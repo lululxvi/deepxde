@@ -1,7 +1,7 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-from deepxde import backend as bkd
+
 
 def ode(t, y):
     dy_dt = dde.grad.jacobian(y, t)

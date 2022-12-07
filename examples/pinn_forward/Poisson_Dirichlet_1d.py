@@ -46,33 +46,10 @@ dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 # Optional: Restore the saved model with the smallest training loss
 # model.restore(f"model/model-{train_state.best_step}.ckpt", verbose=1)
 # Plot PDE residual
-# x = geom.uniform_points(1000, True)
-# y_ = func(x)
-# file_name_y_ = 'standard_y'
-# with open(file_name_y_,'w') as f:
-#     np.savetxt(f,y_,delimiter=",")
-
-# y = model.predict(x, operator=pde)
-# y = model.predict(x, operator=None)
-
-# if backend_name == 'paddle':
-#     file_namex = 'paddle_x'
-#     file_namey = 'paddle_y'
-# elif backend_name == 'pytorch':
-#     file_namex = 'pytorch_x'
-#     file_namey = 'pytorch_y'
-# elif backend_name == 'tensorflow':
-#     file_namex = 'tensorflow_x'
-#     file_namey = 'tensorflow_y'
-
-
-# with open(file_namex,'ab') as f:
-#     np.savetxt(f,x,delimiter=",")
-# with open(file_namey,'ab') as g:
-#     np.savetxt(g,y,delimiter=",")
-
-# plt.figure()
-# plt.plot(x, y)
-# plt.xlabel("x")
-# plt.ylabel("PDE residual")
-# plt.show()
+x = geom.uniform_points(1000, True)
+y = model.predict(x, operator=pde)
+plt.figure()
+plt.plot(x, y)
+plt.xlabel("x")
+plt.ylabel("PDE residual")
+plt.show()
