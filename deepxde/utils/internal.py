@@ -33,10 +33,7 @@ def run_if_all_none(*attr):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             x = [getattr(self, a) for a in attr]
-            if all(i is None for i in x) or \
-                hasattr(self, "alpha") and \
-                bkd.is_tensor(self.alpha) and \
-                ((bkd.get_preferred_backend() == "paddle" and not self.alpha.stop_gradient) or (bkd.get_preferred_backend() != "paddle")):
+            if all(i is None for i in x) or (hasattr(self, "alpha") and bkd.is_tensor(self.alpha)):
                 return func(self, *args, **kwargs)
             return x if len(x) > 1 else x[0]
 
@@ -159,13 +156,8 @@ def list_to_str(nums, precision=6):
         return ""
     if not isinstance(nums, (list, tuple, np.ndarray)):
         return "{:.{}e}".format(nums, precision)
-    if bkd.backend_name not in ['paddle']:
-        return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
-    else:
-        if not bkd.paddle.in_dynamic_mode():
-           return "{:s}".format(", ".join(str(x) for x in nums))
-        else:
-            return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums])) 
+    return "[{:s}]".format(", ".join(["{:.{}e}".format(x, precision) for x in nums]))
+
 
 def get_num_args(func):
     """Get the number of arguments of a Python function.

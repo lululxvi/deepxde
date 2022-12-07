@@ -1,9 +1,8 @@
 """paddle backend implementation"""
-from distutils.version import LooseVersion
-
+from packaging.version import Version
 import paddle
 
-if LooseVersion(paddle.__version__) < LooseVersion("2.3.0") and LooseVersion(paddle.__version__) != LooseVersion("0.0.0") :
+if Version(paddle.__version__) < Version("2.3.0") and Version(paddle.__version__) != Version("0.0.0") :
     raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
 
 if paddle.device.is_compiled_with_cuda():
@@ -54,9 +53,15 @@ def reshape(tensor, shape):
 
 def Variable(initial_value, dtype=None):
     if paddle.in_dynamic_mode():
-        return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
+        return paddle.create_parameter(
+            shape=[1],
+            dtype="float32" if dtype is None else dtype,
+            default_initializer=paddle.nn.initializer.Constant(value=initial_value))
     else:
-        return paddle.static.create_parameter(shape=[1], dtype='float32', default_initializer=paddle.nn.initializer.Constant(value=initial_value))
+        return paddle.static.create_parameter(
+            shape=[1],
+            dtype="float32" if dtype is None else dtype,
+            default_initializer=paddle.nn.initializer.Constant(value=initial_value))
 
 
 def as_tensor(data, dtype=None):
@@ -106,13 +111,9 @@ def exp(x):
 def pow(x, y):
     return paddle.pow(x, y)
 
-    
+
 def square(x):
     return paddle.square(x)
-
-
-def norm(x, p=None, axis=None, keepdims=False):
-    return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
 
 
 def tanh(x):
@@ -131,8 +132,12 @@ def sum(input_tensor, dim, keepdims=False):
     return paddle.sum(input_tensor, axis=dim, keepdim=keepdims)
 
 
-def reduce_sum(input_tensor, axis=None, keepdim=False):
-    return paddle.sum(input_tensor, axis=axis, keepdim=keepdim)
+def reduce_sum(input_tensor):
+    return paddle.sum(input_tensor)
+
+
+def norm(x, p=None, axis=None, keepdims=False):
+    return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
 
 
 def zeros(shape, dtype):
@@ -155,7 +160,7 @@ def size(tensor):
     return paddle.numel(tensor)
 
 
-def SparseTensor(indices, values, shape):
+def sparse_tensor(indices, values, shape):
     x = [p[0] for p in indices]  # [num_of_nonzeros, ]
     y = [p[1] for p in indices]  # [num_of_nonzeros, ]
     indices = paddle.stack(
@@ -196,11 +201,11 @@ def roll(tensor, shift, axis=None):
     return paddle.roll(tensor, shift, axis)
 
 
-def gradients(x, y):
+def gradients(outputs, inputs):
     if paddle.in_dynamic_mode():
         # for dynamic graph
         # NOTE: set create_graph=True to enable high-order differentiation
-        return paddle.grad(x, y, create_graph=True)
+        return paddle.grad(outputs, inputs, create_graph=True)
     else:
         # for static graph
-        return paddle.static.gradients(x, y)
+        return paddle.static.gradients(outputs, inputs)

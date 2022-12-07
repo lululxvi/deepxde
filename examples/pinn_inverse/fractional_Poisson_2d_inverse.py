@@ -12,7 +12,7 @@ alpha = bkd.Variable(1.5)
 def fpde(x, y, int_mat):
     r"""\int_theta D_theta^alpha u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = bkd.SparseTensor(*int_mat)
+        int_mat = bkd.sparse_tensor(*int_mat)
         lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
     else:
         lhs = bkd.matmul(int_mat, y)
@@ -25,7 +25,7 @@ def fpde(x, y, int_mat):
         2 ** alpha0
         * gamma(2 + alpha0 / 2)
         * gamma(1 + alpha0 / 2)
-        * (1 - (1 + alpha0 / 2) * bkd.reduce_sum(x ** 2, axis=1))
+        * (1 - (1 + alpha0 / 2) * bkd.sum(x ** 2, dim=1))
     )
     return lhs - rhs
 
@@ -52,7 +52,7 @@ data = dde.data.FPDE(
 
 net = dde.nn.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(
-    lambda x, y: (1 - bkd.reduce_sum(x ** 2, axis=1, keepdim=True)) * y
+    lambda x, y: (1 - bkd.sum(x ** 2, dim=1, keepdims=True)) * y
 )
 
 model = dde.Model(data, net)

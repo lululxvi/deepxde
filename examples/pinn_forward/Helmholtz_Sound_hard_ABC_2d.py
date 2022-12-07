@@ -128,7 +128,6 @@ data = dde.data.PDE(
 net = dde.maps.FNN(
     [2] + [num_dense_nodes] * num_dense_layers + [2], activation, "Glorot uniform"
 )
-
 model = dde.Model(data, net)
 
 model.compile(

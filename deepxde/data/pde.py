@@ -5,7 +5,6 @@ from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none
-import paddle
 
 
 class PDE(Data):
@@ -101,7 +100,7 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
-        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde 
+        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde
         # explicitly.
         self.train_x_all = None
         self.train_x_bc = None
@@ -114,13 +113,6 @@ class PDE(Data):
 
         self.train_next_batch()
         self.test()
-
-    def error_numel(error):
-        shape = error.shape()
-        size = 1
-        for i in range(shape.size()):
-            size *= shape[i]
-        return size
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
@@ -155,17 +147,13 @@ class PDE(Data):
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)    
+            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
         ]
-        from paddle.fluid.framework import default_main_program
-
         for i, bc in enumerate(self.bcs):
-            
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
-        
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")

@@ -16,12 +16,7 @@ class FNN(NN):
 
         self.linears = paddle.nn.LayerList()
         for i in range(1, len(layer_sizes)):
-            self.linears.append(
-                paddle.nn.Linear(
-                    layer_sizes[i - 1],
-                    layer_sizes[i],
-                )
-            )
+            self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
@@ -89,22 +84,18 @@ class PFNN(NN):
                 if isinstance(prev_layer_size, (list, tuple)):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
                     self.layers.append(
-                        paddle.nn.LayerList(
-                            [
-                                make_linear(prev_layer_size[j], curr_layer_size[j])
-                                for j in range(n_output)
-                            ]
-                        )
+                        paddle.nn.LayerList([
+                            make_linear(prev_layer_size[j], curr_layer_size[j])
+                            for j in range(n_output)
+                        ])
                     )
                 else:
                     # e.g. 64 -> [8, 8, 8]
                     self.layers.append(
-                        paddle.nn.LayerList(
-                            [
-                                make_linear(prev_layer_size, curr_layer_size[j])
-                                for j in range(n_output)
-                            ]
-                        )
+                        paddle.nn.LayerList([
+                            make_linear(prev_layer_size, curr_layer_size[j])
+                            for j in range(n_output)
+                        ])
                     )
             else:  # e.g. 64 -> 64
                 if not isinstance(prev_layer_size, int):
@@ -116,9 +107,10 @@ class PFNN(NN):
         # output layers
         if isinstance(layer_sizes[-2], (list, tuple)):  # e.g. [3, 3, 3] -> 3
             self.layers.append(
-                paddle.nn.LayerList(
-                    [make_linear(layer_sizes[-2][j], 1) for j in range(n_output)]
-                )
+                paddle.nn.LayerList([
+                    make_linear(layer_sizes[-2][j], 1)
+                    for j in range(n_output)
+                ])
             )
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))

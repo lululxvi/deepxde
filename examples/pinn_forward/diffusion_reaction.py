@@ -53,7 +53,6 @@ def output_transform(x, y):
         + bkd.sin(8 * x[:, 0:1]) / 8
     )
 
-
 net.apply_output_transform(output_transform)
 
 model = dde.Model(data, net)

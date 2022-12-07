@@ -74,7 +74,6 @@ class LossAndFlatGradient:
             loss = self.build_loss()
         # Calculate gradients and convert to 1D tf.Tensor
         grads = tape.gradient(loss, self.trainable_variables)
-        print("grads : ",grads)
         grads = tf.dynamic_stitch(self.indices, grads)
         return loss, grads
 

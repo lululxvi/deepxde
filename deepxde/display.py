@@ -35,9 +35,9 @@ class TrainingDisplay:
 
     def __call__(self, train_state):
         if not self.is_header_print:
-            self.len_train = len(train_state.loss_train) * 10 + 10
-            self.len_test = len(train_state.loss_test) * 10 + 10
-            self.len_metric = len(train_state.metrics_test) * 10 + 10
+            self.len_train = len(train_state.loss_train) * 10 + 4
+            self.len_test = len(train_state.loss_test) * 10 + 4
+            self.len_metric = len(train_state.metrics_test) * 10 + 4
             self.header()
         self.print_one(
             str(train_state.step),
@@ -48,8 +48,8 @@ class TrainingDisplay:
 
     def summary(self, train_state):
         print("Best model at step {:d}:".format(train_state.best_step))
-        print("  train loss: {:.6e}".format(train_state.best_loss_train))
-        print("  test loss: {:.6e}".format(train_state.best_loss_test))
+        print("  train loss: {:.2e}".format(train_state.best_loss_train))
+        print("  test loss: {:.2e}".format(train_state.best_loss_test))
         print("  test metric: {:s}".format(list_to_str(train_state.best_metrics)))
         if train_state.best_ystd is not None:
             print("  Uncertainty:")

@@ -148,8 +148,8 @@ def sum(input_tensor, dim, keepdims=False):
     return tf.math.reduce_sum(input_tensor, axis=dim, keepdims=keepdims)
 
 
-def reduce_sum(input_tensor, axis=None, keepdim=False):
-    return tf.math.reduce_sum(input_tensor, axis=axis, keepdims=keepdim)
+def reduce_sum(input_tensor):
+    return tf.math.reduce_sum(input_tensor)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):
@@ -178,7 +178,7 @@ def size(tensor):
     return tf.size(tensor)
 
 
-def SparseTensor(indices, values, shape):
+def sparse_tensor(indices, values, shape):
     return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
 
 
@@ -214,5 +214,5 @@ def roll(tensor, shift, axis=None):
     return tf.roll(tensor, shift, axis)
 
 
-def gradients(x, y):
-    return tf.gradients(x, y)
+def gradients(outputs, inputs):
+    return tf.gradients(outputs, inputs)

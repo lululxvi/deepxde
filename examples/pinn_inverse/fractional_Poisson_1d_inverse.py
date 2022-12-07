@@ -12,7 +12,7 @@ alpha = bkd.Variable(1.5)
 def fpde(x, y, int_mat):
     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = bkd.SparseTensor(*int_mat)
+        int_mat = bkd.sparse_tensor(*int_mat)
         lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
     else:
         lhs = bkd.matmul(int_mat, y)

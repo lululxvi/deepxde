@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, paddle
+"""Backend supported: tensorflow.compat.v1
 """
 import deepxde as dde
 import matplotlib.pyplot as plt
@@ -35,7 +35,7 @@ data = dde.data.IDE(
     num_boundary=2,
     train_distribution="uniform",
 )
-print("*********************")
+
 layer_size = [1] + [20] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"
@@ -44,10 +44,6 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 model = dde.Model(data, net)
 model.compile("L-BFGS")
 model.train()
-
-# an temporary alternative with adam optimizer
-# model.compile("adam", lr=1e-3)
-# model.train(iterations=10000)
 
 X = geom.uniform_points(100)
 y_true = func(X)

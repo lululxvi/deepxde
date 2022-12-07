@@ -328,15 +328,8 @@ class VariableValue(Callback):
             self.value = self.model.sess.run(self.var_list)
         elif backend_name == "tensorflow":
             self.value = [var.numpy() for var in self.var_list]
-        elif backend_name in ["pytorch"]:
+        elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
-        elif backend_name in ["paddle"]:
-            if paddle.in_dynamic_mode():
-                self.value = [var.detach().item() for var in self.var_list]
-            else:
-                self.value = self.model.exe.run(self.model.start_up_program,
-                            fetch_list=[n.name for n in self.var_list])
-                self.model.var_list = [n.name for n in self.var_list]
         print(
             self.model.train_state.epoch,
             utils.list_to_str(self.value, precision=self.precision),
@@ -348,16 +341,7 @@ class VariableValue(Callback):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
-            if (backend_name in ["paddle"]) and paddle.in_dynamic_mode():
-                self.on_train_begin()
-            else:
-                self.value = self.model.extra_fetch_var
-                print(
-                    self.model.train_state.epoch,
-                    utils.list_to_str(self.value, precision=self.precision),
-                    file=self.file,
-                )
-                self.file.flush()
+            self.on_train_begin()
 
     def on_train_end(self):
         if not self.epochs_since_last == 0:

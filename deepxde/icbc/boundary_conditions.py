@@ -16,7 +16,6 @@ from abc import ABC, abstractmethod
 from functools import wraps
 
 import numpy as np
-import paddle
 
 from .. import backend as bkd
 from .. import config
@@ -244,17 +243,17 @@ class PointSetBC:
 
 class PointSetOperatorBC:
     """General operator boundary conditions for a set of points.
-    
-    Compare the function output, func, (that associates with `points`) 
+
+    Compare the function output, func, (that associates with `points`)
         with `values` (target data).
 
     Args:
-        points: An array of points where the corresponding target values are 
+        points: An array of points where the corresponding target values are
             known and used for training.
         values: An array of values which output of function should fulfill.
         func: A function takes arguments (`inputs`, `outputs`, `X`)
-            and outputs a tensor of size `N x 1`, where `N` is the length of 
-            `inputs`. `inputs` and `outputs` are the network input and output 
+            and outputs a tensor of size `N x 1`, where `N` is the length of
+            `inputs`. `inputs` and `outputs` are the network input and output
             tensors, respectively; `X` are the NumPy array of the `inputs`.
     """
 
@@ -307,37 +306,20 @@ def npfunc_range_autocache(func):
     def wrapper_nocache_auxiliary(X, beg, end, aux_var):
         return func(X[beg:end], aux_var[beg:end])
 
+    @wraps(func)
     def wrapper_cache(X, beg, end, _):
-        if backend_name == "paddle": 
-            if paddle.in_dynamic_mode():
-                key = (id(X), beg, end)
-                if key not in cache:
-                    cache[key] = func(X[beg:end])
-                return cache[key]
-            else:
-                return func(X[beg:end])
-        else:
-            key = (id(X), beg, end)
-            if key not in cache:
-                cache[key] = func(X[beg:end])
-            return cache[key]
+        key = (id(X), beg, end)
+        if key not in cache:
+            cache[key] = func(X[beg:end])
+        return cache[key]
 
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
         # Even if X is the same one, aux_var could be different
-        if backend_name == "paddle" :
-            if paddle.in_dynamic_mode():
-                key = (id(X), beg, end)
-                if key not in cache:
-                    cache[key] = func(X[beg:end], aux_var[beg:end])
-                return cache[key]
-            else:
-                return func(X[beg:end], aux_var[beg:end])
-        else:
-            key = (id(X), beg, end)
-            if key not in cache:
-                cache[key] = func(X[beg:end], aux_var[beg:end])
-            return cache[key]
+        key = (id(X), beg, end)
+        if key not in cache:
+            cache[key] = func(X[beg:end], aux_var[beg:end])
+        return cache[key]
 
     if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]:
         if utils.get_num_args(func) == 1:

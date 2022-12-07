@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
 
 Implementation of Allen-Cahn equation example in paper https://arxiv.org/abs/2111.02801.
 """

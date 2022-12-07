@@ -48,6 +48,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def tensor_shape(input_tensor):
+    return list(input_tensor.shape)
+
+
 def ndim(input_tensor):
     return input_tensor.dim()
 
@@ -138,8 +142,8 @@ def sum(input_tensor, dim, keepdims=False):
     return torch.sum(input_tensor, dim, keepdim=keepdims)
 
 
-def reduce_sum(input_tensor, axis=None, keepdim=False):
-    return torch.sum(input_tensor, axis, keepdim=keepdim)
+def reduce_sum(input_tensor):
+    return torch.sum(input_tensor)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):
@@ -166,7 +170,7 @@ def size(tensor):
     return torch.numel(tensor)
 
 
-def SparseTensor(indices, values, shape):
+def sparse_tensor(indices, values, shape):
     coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
     # pytorch仅支持CSR稀疏张量的tensor.matmul()
     return coo_tensor.to_sparse_csr() # convert from COO to CSR
@@ -200,5 +204,6 @@ def roll(tensor, shift, axis=None):
     return torch.roll(tensor, shifts, axis)
 
 
-def gradients(x, y):
-    raise NotImplementedError()
+def gradients(outputs, inputs):
+    # NOTE: set create_graph=True to enable high-order differentiation
+    raise torch.autograd.grad(outputs, inputs, create_graph=True)

@@ -1,9 +1,8 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 import deepxde.backend as bkd
-import paddle
 from scipy.interpolate import griddata
 
 geom = dde.geometry.Interval(-1, 1)

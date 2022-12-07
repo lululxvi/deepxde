@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 import deepxde as dde
 import deepxde.backend as bkd
 import matplotlib.pyplot as plt
@@ -42,8 +42,7 @@ data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test=3000)
 layer_size = [1] + [64] * 6 + [2]
 activation = "tanh"
 initializer = "Glorot normal"
-net = dde.nn.FNN(layer_size, activation, initializer, task_name)
-
+net = dde.nn.FNN(layer_size, activation, initializer)
 
 def input_transform(t):
     return bkd.concat(

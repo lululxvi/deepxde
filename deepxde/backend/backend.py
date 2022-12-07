@@ -254,7 +254,7 @@ def sum(input_tensor, dim, keepdims=False):
     """
 
 
-def reduce_sum(input_tensor, axis=None, keepdim=False):
+def reduce_sum(input_tensor):
     """Returns the sum of all elements in the input tensor.
 
     Args:
@@ -317,7 +317,7 @@ def size(tensor):
     """
 
 
-def SparseTensor(indices, values, shape):
+def sparse_tensor(indices, values, shape):
     """Construct an sparse tensor based on given indices, values and shape
     Args:
         tensor (list of tuple). Indices of non-zero element(s), [(x1, y1), (x2, y2), ..., (xn, yn)]
@@ -390,11 +390,11 @@ def roll(tensor, shift, axis=None):
     """
 
 
-def gradients(x, y):
-    """Backpropagate the gradients of targets to inputs.
+def gradients(outputs, inputs):
+    """Computes and returns the sum of gradients of outputs with respect to the inputs.
     Args:
-        x (Tensor or tuple of Tensors). The target tensors.
-        y (Tensor or tuple of Tensors). The input tensors.
+        outputs (Tensor or tuple of Tensors). The outputs tensors.
+        inputs (Tensor or tuple of Tensors). The input tensors.
     Returns:
         Tensor: A list of gradients for inputs If an input does not affect targets, the corresponding gradient Tensor will be None.
     """

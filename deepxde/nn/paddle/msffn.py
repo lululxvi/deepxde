@@ -49,25 +49,17 @@ class MsFFN(paddle.nn.Layer):
                     shape=[layer_sizes[0], self.layer_size[1] // 2], default_initializer=Normal(std=sigma),
                 )
             )
-            # freeze all parameter in self.b
+            # freeze parameters in self.b
             self.b[-1].trainable = False
             self.b[-1].stop_gradient = True
 
         self.linears = paddle.nn.LayerList()
         for i in range(2, len(layer_sizes) - 1):
-            self.linears.append(
-                paddle.nn.Linear(
-                    layer_sizes[i - 1],
-                    layer_sizes[i],
-                )
-            )
+            self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
-        self._dense = paddle.nn.Linear(
-            layer_sizes[-2] * 2,
-            layer_sizes[-1],
-        )
+        self._dense = paddle.nn.Linear(layer_sizes[-2] * 2, layer_sizes[-1])
         initializer(self._dense.weight)
         initializer_zero(self._dense.bias)
 
@@ -99,7 +91,7 @@ class MsFFN(paddle.nn.Layer):
         y = paddle.concat(
             [
                 paddle.cos(paddle.matmul(y, b)),
-                paddle.sin(paddle.matmul(y, b)),
+                paddle.sin(paddle.matmul(y, b))
             ],
             axis=1
         )
@@ -111,8 +103,7 @@ class MsFFN(paddle.nn.Layer):
             y = self.activation(y)
             if self.dropout_rate > 0:
                 y = paddle.nn.functional.dropout(
-                    y, p=self.dropout_rate, training=self.training
-                )
+                    y, p=self.dropout_rate, training=self.training)
         return y
 
     def apply_feature_transform(self, transform):

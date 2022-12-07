@@ -4,7 +4,6 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
-import paddle
 from . import config
 from . import display
 from . import gradients as grad
@@ -16,7 +15,6 @@ from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
 
-LOSS_FLAG = True
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -37,7 +35,6 @@ class Model:
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
-        self.lr_scheduler = None
 
         # Backend-dependent attributes
         self.opt = None
@@ -49,33 +46,13 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-            self.extra_fetch_var = []  # for later access
         elif backend_name == "pytorch":
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
             self.params = None
         elif backend_name == "paddle":
-            if not paddle.in_dynamic_mode():
-                self.static_start_up = None
-                self.exe = None
-                self.start_up_program = None
-                self.feeds = dict()
-                self.fetches = dict()
-
-                #train elements
-                self.train_program = None
-                self.train_targets = dict()
-                self.train_losses = None
-                self.train_outputs = None
-
-                # test elements
-                self.test_program = None
-                self.test_targets = dict()
-                self.test_losses = None
-                self.test_outputs = None
-                self.var_list = []
-                self.extra_fetch_var = []
+            self.lr_scheduler = None
 
 
     @utils.timing
@@ -90,7 +67,7 @@ class Model:
         external_trainable_variables=None,
     ):
         """Configures the model for training.
-        loss="mean l2 relative error",
+
         Args:
             optimizer: String name of an optimizer, or a backend optimizer class
                 instance.
@@ -118,6 +95,10 @@ class Model:
 
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
 
+                - For backend PaddlePaddle:
+
+                    - `InverseTimeDecay <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_: ("inverse time", decay_steps, decay_rate)
+                       NOTE: InverseTimeDecay is refactored in deepxde/optimizers/paddle/optimizers.py for arg `decay_steps`
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
@@ -154,10 +135,7 @@ class Model:
         elif backend_name == "jax":
             self._compile_jax(lr, loss_fn, decay, loss_weights)
         elif backend_name == "paddle":
-            if paddle.in_dynamic_mode():
-                self._compile_paddle(lr, loss_fn, decay, loss_weights)
-            else:
-                self._compile_paddle_static(lr, loss_fn, decay, loss_weights)
+            self._compile_paddle(lr, loss_fn, decay, loss_weights)
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
         metrics = metrics or []
@@ -305,17 +283,7 @@ class Model:
             else:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
-
-            # file_name1 = 'pytorch_net_input'
-            # with open(file_name1,'ab') as f1:
-            #     np.savetxt(f1,utils.to_numpy(inputs),delimiter=",")
-
             outputs_ = self.net(inputs)
-
-            # file_name = 'pytorch_net_output'
-            # with open(file_name,'ab') as f:
-            #     np.savetxt(f,utils.to_numpy(outputs_),delimiter=",")
-
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -323,10 +291,6 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             losses = torch.stack(losses)
-
-            # file_name2 = 'pytorch_losses'
-            # with open(file_name2,'ab') as f2:
-            #     np.savetxt(f2,utils.to_numpy(losses),delimiter=",")
             # Weighted losses
             if loss_weights is not None:
                 losses *= torch.as_tensor(loss_weights)
@@ -369,10 +333,6 @@ class Model:
             def closure():
                 losses = outputs_losses_train(inputs, targets)[1]
                 total_loss = torch.sum(losses)
-
-                if LOSS_FLAG:
-                    print(f"{total_loss.item():.10f}")
-
                 self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
@@ -503,361 +463,24 @@ class Model:
         )
 
         self.opt = optimizers.get(
-                trainable_variables, self.opt_name, learning_rate=lr, decay=decay)
-
+            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+        )
 
         def train_step(inputs, targets, auxiliary_vars):
             losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
-
-            if LOSS_FLAG:
-                print(f"{total_loss.item():.10f}")
-
             self.opt.step()
             self.opt.clear_grad()
-
-        def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
-            def build_loss():
-                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
-                return paddle.sum(losses)
-
-            trainable_variables = (
-                list(self.net.parameters()) + self.external_trainable_variables
-            )
-
-            print("trian_step_lbfgs: ")
-            return self.opt(trainable_variables, build_loss, previous_optimizer_results)
-
-        # Callables
-        self.outputs = outputs
-        self.outputs_losses_train = outputs_losses_train
-        self.outputs_losses_test = outputs_losses_test
-        self.train_step = (
-            train_step
-            if not optimizers.is_external_optimizer(self.opt_name)
-            else train_step_lbfgs
-        )
-
-    def _compile_paddle_static(self, lr, loss_fn, decay, loss_weights):
-        """paddle_static_program init"""
-        place = paddle.CUDAPlace(0)
-        if self.exe == None:
-            self.exe = paddle.static.Executor(place)
-
-        """ set train parameters and optimizer"""
-        trainable_variables = (
-            list(self.net.parameters()) + self.external_trainable_variables
-        )
-        self.opt = optimizers.get(
-            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-        )
-
-        """ paddle static train start_up program """
-        def static_start_up(train_inputs, train_targets, test_inputs, test_targets, losses_fn, test_losses_fn):
-            print("oldAD init train program")
-            train_inputs_shape = list(train_inputs.shape)
-            train_inputs_shape[0] = None
-            if train_targets is not None:
-                train_targets_shape = list(train_targets.shape)
-                train_targets_shape[0] = None
-            self.train_program = paddle.static.default_main_program()
-            self.start_up_program = paddle.static.default_startup_program()
-
-            with paddle.static.program_guard(self.train_program,
-                                             self.start_up_program):
-                train_inputs_buffer = paddle.static.data(name='train_inputs',
-                                    shape=train_inputs_shape,
-                                    dtype=train_inputs.dtype)
-                train_inputs_buffer.stop_gradient = False
-                print("train_inputs_buffer shape :", train_inputs_buffer.shape)
-
-                if train_targets is not None:
-                    train_targets_buffer = paddle.static.data(name='train_targets',
-                                    shape=train_targets_shape,
-                                    dtype=train_targets.dtype)
-                else:
-                    train_targets_buffer = paddle.static.data(name='train_targets',
-                                    shape=[0])
-                train_targets_buffer.stop_gradient = False
-                print("train_targets_buffer shape :", train_targets_buffer.shape)
-
-                self.train_outputs = self.net(train_inputs_buffer)
-                print("train_outputs shape :", self.train_outputs.shape)
-
-                self.train_losses = losses_fn(train_targets_buffer, self.train_outputs, loss_fn, train_inputs_buffer, self)
-                if not isinstance(self.train_losses, list):
-                    self.train_losses = [self.train_losses]
-                self.train_losses = paddle.concat(self.train_losses, axis=0)
-
-                # Weighted losses
-                if loss_weights is not None:
-                    print("loss_weights:",loss_weights)
-                    loss_weights_shape = [len(loss_weights)]
-                    loss_weights_buffer = paddle.static.data(name='loss_weights',
-                                    shape=loss_weights_shape,
-                                    dtype=type(loss_weights[0]))
-                    loss_weights_buffer.stop_gradient = False
-
-                    self.train_losses *= loss_weights_buffer
-                grad.clear()
-
-                self.train_losses = paddle.sum(self.train_losses)
-
-                self.opt.minimize(self.train_losses)
-
-            # import os
-            # f = open('oldAD_main_program.log','w')
-            # print (self.train_program,file=f)
-            # f.close()
-
-            self.exe.run(self.start_up_program)
-
-        def prim_static_start_up(train_inputs, train_targets, test_inputs, test_targets, train_losses_fn, test_losses_fn):
-            print("prim init train program")
-
-            self.train_program = paddle.static.default_main_program()
-            self.test_program = self.train_program.clone()
-            self.start_up_program  = paddle.static.default_startup_program()
-
-            # s = open('prim_start_up_program.log','w')
-            # print (self.start_up_program,file=s)
-            # s.close()
-
-            # build the train_program
-            with paddle.fluid.unique_name.guard("rename"):
-                with paddle.static.program_guard(self.train_program, self.start_up_program):
-                    inputs_buffer = paddle.static.data(name='train_inputs',
-                                        shape=train_inputs.shape,
-                                        dtype=train_inputs.dtype)
-                    inputs_buffer.stop_gradient = False
-                    print("train_inputs_buffer shape :", inputs_buffer.shape)
-
-                    if train_targets is not None:
-                        targets_buffer = paddle.static.data(name='train_targets',
-                                        shape=train_targets.shape,
-                                        dtype=train_targets.dtype)
-                        targets_buffer.stop_gradient = False
-                        print("train_targets_buffer shape :", targets_buffer.shape)
-                    else:
-                        targets_buffer = paddle.static.data(name='train_targets',
-                                                            shape=train_inputs.shape,
-                                                            dtype=train_inputs.dtype)
-                    self.train_outputs = self.net(inputs_buffer)
-                    print("train_outputs shape :", self.train_outputs.shape)
-
-                    losses = train_losses_fn(targets_buffer, self.train_outputs, loss_fn, inputs_buffer, self)
-                    if not isinstance(losses, list):
-                        losses = [losses]
-                    print("loss compute end")
-                    losses = paddle.concat(losses, axis=0)
-                    # Weighted losses
-                    if loss_weights is not None:
-                        print("loss_weights:",loss_weights)
-                        loss_weights_shape = [len(loss_weights)]
-                        loss_weights_buffer = paddle.static.data(name='loss_weights',
-                                        shape=loss_weights_shape,
-                                        dtype=type(loss_weights[0]))
-                        loss_weights_buffer.stop_gradient = False
-                        losses *= loss_weights_buffer
-
-                    grad.clear()
-                    self.train_losses = paddle.sum(losses)
-
-                    f = open('prim_train_program_1.log','w')
-                    print (self.train_program,file=f)
-                    f.close()
-
-                    self.opt.minimize(self.train_losses, startup_program=self.start_up_program)
-                    paddle.incubate.autograd.prim2orig()
-
-                    print("train_program success")
-
-            f = open('prim_train_program.log','w')
-            print (self.train_program,file=f)
-            f.close()
-
-            # build the test_program
-            with paddle.fluid.unique_name.guard("rename"):
-                with paddle.static.program_guard(self.test_program, self.start_up_program):
-                    inputs_buffer_ = paddle.static.data(name='test_inputs',
-                                        shape=test_inputs.shape,
-                                        dtype=test_inputs.dtype)
-                    inputs_buffer_.stop_gradient = False
-                    print("test_inputs_buffer shape :", inputs_buffer_.shape)
-
-                    if test_targets is not None:
-                        targets_buffer_ = paddle.static.data(name='test_targets',
-                                        shape=test_targets.shape,
-                                        dtype=test_targets.dtype)
-                        targets_buffer_.stop_gradient = False
-                        print("test_targets_buffer shape :", targets_buffer_.shape)
-                    else:
-                        targets_buffer_ = paddle.static.data(name='test_targets',
-                                                             shape=test_inputs.shape,
-                                                             dtype=test_inputs.dtype)
-                    self.test_outputs = self.net(inputs_buffer_)
-                    print("outputs shape :", self.test_outputs.shape)
-
-                    losses = test_losses_fn(targets_buffer_, self.test_outputs, loss_fn, inputs_buffer_, self)
-                    if not isinstance(losses, list):
-                        losses = [losses]
-                    print("loss compute end")
-                    losses = paddle.concat(losses, axis=0)
-                    # Weighted losses
-                    if loss_weights is not None:
-                        print("loss_weights:",loss_weights)
-                        loss_weights_shape = [len(loss_weights)]
-                        loss_weights_buffer_ = paddle.static.data(name='loss_weights',
-                                        shape=loss_weights_shape,
-                                        dtype=type(loss_weights[0]))
-                        loss_weights_buffer_.stop_gradient = False
-                        losses *= loss_weights_buffer_
-
-                    grad.clear()
-                    self.test_losses = paddle.sum(losses)
-
-                    paddle.incubate.autograd.prim2orig()
-
-                    print("test_program success")
-
-            s = open('prim_test_program.log','w')
-            print (self.test_program,file=s)
-            s.close()
-
-            self.exe.run(self.start_up_program)
-            print("prim build end")
-
-        def outputs(training, inputs):
-            self.feeds = dict()
-            self.extra_fetch_var = []
-            if training :
-                self.feeds['train_inputs'] = inputs
-                if loss_weights is not None:
-                    self.feeds['loss_weights'] = loss_weights
-
-                self.fetches = [self.train_losses.name]
-                self.fetches.append(self.train_outputs.name)
-                self.fetches.append(self.var_list)
-                static_out = self.exe.run(self.train_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-            else:
-                if paddle.incubate.autograd.prim_enabled():
-                    self.feeds['test_inputs'] = inputs
-                    if loss_weights is not None:
-                        self.feeds['loss_weights'] = loss_weights
-
-                    self.fetches = [self.test_losses.name]
-                    self.fetches.append(self.var_list)
-                    self.fetches.append(self.test_outputs.name)
-                    static_out = self.exe.run(self.test_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-                else:
-                    self.feeds['train_inputs'] = inputs
-                    if loss_weights is not None:
-                        self.feeds['loss_weights'] = loss_weights
-
-                    self.fetches = [self.train_losses.name]
-                    self.fetches.append(self.var_list)
-                    self.fetches.append(self.train_outputs.name)
-                    static_out = self.exe.run(self.train_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-
-
-            for i in range(len(self.var_list)):
-                self.extra_fetch_var.append(static_out[i+1])
-            return static_out[-1]
-
-
-        def outputs_losses(training, inputs, targets, losses_fn):
-            self.feeds = dict()
-            self.extra_fetch_var = []
-            if training:
-                self.feeds['train_inputs'] = inputs
-                if loss_weights is not None:
-                    self.feeds['loss_weights'] = loss_weights
-                if targets is not None:
-                    self.feeds['train_targets'] = targets
-
-                self.fetches = [self.train_losses.name]
-                self.fetches.append(self.train_outputs.name)
-                self.fetches.append(self.var_list)
-                static_out = self.exe.run(self.train_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-            else:
-                if paddle.incubate.autograd.prim_enabled():
-                    self.feeds['test_inputs'] = inputs
-                    if loss_weights is not None:
-                        self.feeds['loss_weights'] = loss_weights
-                    if targets is not None:
-                        self.feeds['test_targets'] = targets
-
-                    self.fetches = [self.test_losses.name]
-                    self.fetches.append(self.test_outputs.name)
-                    self.fetches.append(self.var_list)
-                    static_out = self.exe.run(self.test_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-                else:
-                    self.feeds['train_inputs'] = inputs
-                    if loss_weights is not None:
-                        self.feeds['loss_weights'] = loss_weights
-                    if targets is not None:
-                        self.feeds['train_targets'] = targets
-
-                    self.fetches = [self.train_losses.name]
-                    self.fetches.append(self.train_outputs.name)
-                    self.fetches.append(self.var_list)
-                    static_out = self.exe.run(self.train_program, feed=self.feeds,
-                            fetch_list=self.fetches)
-
-            # Data losses
-            losses = static_out[0]
-            if losses.size == 1:
-                total_loss = losses.item()
-                if LOSS_FLAG:
-                    if isinstance(total_loss, float):
-                        print(f"{total_loss:.10f}")
-            outputs_ = static_out[1]
-            for i in range(len(self.var_list)):
-                self.extra_fetch_var.append(static_out[i+2])
-            return outputs_, losses
-
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
-
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
-
-        def train_step(inputs, targets):
-            _, loss = outputs_losses_train(inputs, targets)
-            # if paddle.incubate.autograd.prim_enabled():
-            #     filename = 'newAD_static_loss.log'
-            # else:
-            #     filename = 'oldAD_static_loss.log'
-            # f = open(filename,'ab')
-            # np.savetxt(f, loss, delimiter=',')
-            # f.close()
-
-        # Callables
-        self.outputs = outputs
-        self.outputs_losses_train = outputs_losses_train
-        self.outputs_losses_test = outputs_losses_test
-        self.train_step = train_step
-        if paddle.incubate.autograd.prim_enabled():
-            self.static_start_up = prim_static_start_up
-        else:
-            self.static_start_up = static_start_up
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
     def _outputs(self, training, inputs):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(training, inputs)
             return self.sess.run(self.outputs, feed_dict=feed_dict)
-        if backend_name in ["tensorflow", "pytorch"]:
+        if backend_name in ["tensorflow", "pytorch", "paddle"]:
             outs = self.outputs(training, inputs)
-        elif backend_name == "paddle":
-            outs = self.outputs(training, inputs)
-            if not paddle.in_dynamic_mode():
-                return outs
         elif backend_name == "jax":
             outs = self.outputs(self.net.params, training, inputs)
         return utils.to_numpy(outs)
@@ -882,8 +505,6 @@ class Model:
             outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
             outs = outputs_losses(inputs, targets, auxiliary_vars)
-            if not paddle.in_dynamic_mode():
-                return outs[0], outs[1]
         return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -897,12 +518,6 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "paddle":
             self.train_step(inputs, targets, auxiliary_vars)
-            if hasattr(self.opt, '_learning_rate') and \
-                    isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
-                # 动态图/静态图统一在此处（self.train_step外部）更新学习率
-                self.opt._learning_rate.step()
-            # 打印学习率
-            # print(f"{self.opt._learning_rate.get_lr():.10f}")
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
@@ -966,7 +581,6 @@ class Model:
             else:
                 utils.guarantee_initialized_variables(self.sess)
 
-
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
 
@@ -974,17 +588,6 @@ class Model:
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        if self.train_state.step == 0:
-            if backend_name == "paddle":
-                if not paddle.in_dynamic_mode():
-                    print("paddle start_up_program run...")
-                    self.static_start_up(self.train_state.X_train,
-                                    self.train_state.y_train,
-                                    self.train_state.X_test,
-                                    self.train_state.y_test,
-                                    self.data.losses_train,
-                                    self.data.losses_test)
-        print("start_up_program end ...")
         self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
@@ -995,11 +598,10 @@ class Model:
             elif backend_name == "pytorch":
                 self._train_pytorch_lbfgs()
             elif backend_name == "paddle":
-                self._train_paddle_lbfgs()
+                raise NotImplementedError("L-BFGS will be implemented soon in PaddlePaddle")
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
-
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
@@ -1034,9 +636,6 @@ class Model:
 
             if self.stop_training:
                 break
-        print("train_step_end")
-        self.train_state.set_data_test(*self.data.test())
-        self._test()
 
     def _train_tensorflow_compat_v1_scipy(self, display_every):
         def loss_callback(loss_train, loss_test, *args):
@@ -1139,25 +738,6 @@ class Model:
             self.callbacks.on_epoch_end()
 
             if self.stop_training:
-                break
-
-    def _train_paddle_lbfgs(self):
-        n_iter = 0
-        while n_iter < optimizers.LBFGS_options["maxiter"]:
-            self.train_state.set_data_train(
-                *self.data.train_next_batch(self.batch_size)
-            )
-            results = self.train_step(
-                self.train_state.X_train,
-                self.train_state.y_train,
-                self.train_state.train_aux_vars,
-            )
-            n_iter += results[1].numpy()
-            self.train_state.epoch += results[1].numpy()
-            self.train_state.step += results[1].numpy()
-            self._test()
-
-            if results[0] :
                 break
 
     def _test(self):

@@ -97,20 +97,7 @@ class FPDE(PDE):
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        # cache int_mat when alpha is unlearnable in paddle backend
-        if bkd.get_preferred_backend() == "paddle":
-            if not bkd.is_tensor(self.alpha) or self.alpha.stop_gradient:
-                # unlearnable alpha
-                if hasattr(self, "int_mat"):
-                    int_mat = self.int_mat
-                else:
-                    int_mat = self.get_int_matrix(True)
-                    self.int_mat = int_mat # cache int_mat
-            else:
-                # learnable alpha
-                int_mat = self.get_int_matrix(True)
-        else:
-            int_mat = self.get_int_matrix(True)
+        int_mat = self.get_int_matrix(True)
         f = self.pde(inputs, outputs, int_mat)
         if not isinstance(f, (list, tuple)):
             f = [f]
@@ -383,7 +370,7 @@ class Fractional:
             if self.disc.meshtype == "static"
             else self.dynamic_dist2npts(self.geom.diam) + 1
         )
-        w = [bkd.constant(1.0, dtype=config.real(bkd.lib))]
+        w = [bkd.constant(1.0, dtype=config.real(bkd.lib)) if bkd.is_tensor(self.alpha) else 1.0]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
         return array_ops_compat.convert_to_array(w)
@@ -404,7 +391,7 @@ class Fractional:
         )
 
     def get_x_static(self):
-        return self.geom.uniform_points(self.disc.resolution[0], True).astype("float32")
+        return self.geom.uniform_points(self.disc.resolution[0], True)
 
     def dynamic_dist2npts(self, dx):
         return int(math.ceil(self.disc.resolution[-1] * dx))
@@ -466,7 +453,7 @@ class Fractional:
         self.xindex_start = np.hstack(([0], np.cumsum(list(map(len, x))))) + len(
             self.x0
         )
-        return np.vstack([self.x0] + x).astype("float32")
+        return np.vstack([self.x0] + x)
 
     def modify_first_order(self, x, w):
         x = np.vstack(([2 * x[0] - x[1]], x[:-1]))
@@ -515,10 +502,10 @@ class Fractional:
             h = self.geom.diam / (self.disc.resolution[0] - 1)
             for i in range(1, self.disc.resolution[0] - 1):
                 # first order
-                int_mat[i, 1: i + 2] = np.squeeze(np.flipud(self.get_weight(i)))
-                int_mat[i, i - 1: -1] += self.get_weight(
+                int_mat[i, 1 : i + 2] = np.flipud(self.get_weight(i))
+                int_mat[i, i - 1 : -1] += self.get_weight(
                     self.disc.resolution[0] - 1 - i
-                ).numpy().squeeze()
+                )
                 # second order
                 # int_mat[i, 0:i+2] = np.flipud(self.modify_second_order(w=self.get_weight(i)))
                 # int_mat[i, i-1:] += self.modify_second_order(w=self.get_weight(self.disc.resolution[0]-1-i))
@@ -634,7 +621,7 @@ class FractionalTime:
         x = self.geom.uniform_points(self.disc.resolution[0], True)
         x = np.roll(x, 1)[:, 0]
         dt = (self.tmax - self.tmin) / (self.nt - 1)
-        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1), dtype=config.real(np))
+        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1), dtype=x.dtype)
         d[0 : self.disc.resolution[0], 0] = x
         d[0 : self.disc.resolution[0], 1] = self.tmin
         beg = self.disc.resolution[0]
@@ -651,7 +638,7 @@ class FractionalTime:
     def get_x_dynamic(self):
         self.fracx = Fractional(self.alpha, self.geom, self.disc, self.x0[:, :-1])
         xx = self.fracx.get_x()
-        x = np.empty((len(xx), self.geom.dim + 1), dtype=config.real(np))
+        x = np.empty((len(xx), self.geom.dim + 1), dtype=xx.dtype)
         x[: len(self.x0)] = self.x0
         beg = len(self.x0)
         for i in range(len(self.x0)):
