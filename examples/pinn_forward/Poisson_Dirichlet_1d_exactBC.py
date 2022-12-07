@@ -2,7 +2,6 @@
 import deepxde as dde
 import deepxde.backend as bkd
 import numpy as np
-import paddle
 
 geom = dde.geometry.Interval(0, np.pi)
 

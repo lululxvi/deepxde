@@ -4,6 +4,7 @@ import deepxde.backend as bkd
 import numpy as np
 from scipy.special import gamma
 
+
 alpha = 1.8
 
 

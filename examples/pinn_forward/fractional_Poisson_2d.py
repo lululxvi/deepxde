@@ -4,11 +4,12 @@ import deepxde.backend as bkd
 import numpy as np
 from scipy.special import gamma
 
+
 alpha = 1.8
 
 
 def fpde(x, y, int_mat):
-    """\int_theta D_theta^alpha u(x)"""
+    r"""\int_theta D_theta^alpha u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         int_mat = bkd.SparseTensor(*int_mat)
         lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)

@@ -4,16 +4,17 @@ import deepxde.backend as bkd
 import numpy as np
 from scipy.special import gamma
 
+
 alpha = 1.8
 
 
 def fpde(x, y, int_mat):
     """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
-    int_mat = bkd.as_tensor(int_mat)
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         int_mat = bkd.SparseTensor(*int_mat)
         lhs = -bkd.sparse_tensor_dense_matmul(int_mat, y)
     else:
+        int_mat = bkd.as_tensor(int_mat)
         lhs = -bkd.matmul(int_mat, y)
     dy_t = bkd.gradients(y, x)[0][:, 1:2]
     x, t = x[:, :-1], x[:, -1:]

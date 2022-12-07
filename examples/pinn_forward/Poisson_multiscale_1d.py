@@ -8,7 +8,6 @@ import deepxde as dde
 import numpy as np
 from deepxde import backend as bkd
 
-
 A = 2
 B = 50
 
