@@ -1,11 +1,8 @@
 import paddle
-import numpy as np
+
+from .. import activations, initializers
 from .nn import NN
-from .. import activations
-from .. import initializers
-from paddle.nn.initializer import Assign
-from paddle import ParamAttr
-import os
+
 
 class FNN(NN):
     """Fully-connected neural network."""
@@ -51,9 +48,14 @@ class PFNN(NN):
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
             used by one output. Note that `len(layer_sizes[i])` should equal the number
             of outputs. Every number specifies the number of neurons in that layer.
+        activation: If `activation` is a ``string``, then the same activation is used in
+            both trunk and branch nets. If `activation` is a ``dict``, then the trunk
+            net uses the activation `activation["trunk"]`, and the branch net uses
+            `activation["branch"]`.
+        kernel_initializer: initializer method for NN kernels.
     """
 
-    def __init__(self, layer_sizes, activation, kernel_initializer, task_name=None):
+    def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
@@ -67,28 +69,12 @@ class PFNN(NN):
             raise ValueError("output size must be integer")
 
         n_output = layer_sizes[-1]
-        self.p = 0
-        self.new_save = False
+
 
         def make_linear(n_input, n_output):
-            if isinstance(task_name, str) and os.path.exists(f"./{task_name}/weight_{self.p}.npy") and os.path.exists(f"./{task_name}/bias_{self.p}.npy"):
-                print("load param from file")
-                linear = paddle.nn.Linear(
-                    n_input,
-                    n_output,
-                    weight_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/weight_{self.p}.npy").astype("float32"))),
-                    bias_attr=ParamAttr(initializer=Assign(np.load(f"./{task_name}/bias_{self.p}.npy").astype("float32")))
-                )
-                self.p += 1
-            else:
-                print("init param from random")
-                linear = paddle.nn.Linear(n_input, n_output)
-                initializer(linear.weight)
-                initializer_zero(linear.bias)
-                # np.save(f"./{task_name}/weight_{self.p}.npy", linear.weight.numpy())
-                # np.save(f"./{task_name}/bias_{self.p}.npy", linear.bias.numpy())
-                self.p += 1
-                self.new_save = True
+            linear = paddle.nn.Linear(n_input, n_output)
+            initializer(linear.weight)
+            initializer_zero(linear.bias)
             return linear
 
         self.layers = paddle.nn.LayerList()
@@ -110,7 +96,8 @@ class PFNN(NN):
                             ]
                         )
                     )
-                else:  # e.g. 64 -> [8, 8, 8]
+                else:
+                    # e.g. 64 -> [8, 8, 8]
                     self.layers.append(
                         paddle.nn.LayerList(
                             [
@@ -135,10 +122,6 @@ class PFNN(NN):
             )
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))
-
-        # if self.new_save:
-        #     print("第一次保存模型完毕，自动退出，请再次运行")
-        #     exit(0)
 
     def forward(self, inputs):
         x = inputs

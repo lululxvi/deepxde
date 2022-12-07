@@ -7,6 +7,7 @@ __all__ = [
     "OperatorBC",
     "PeriodicBC",
     "PointSetBC",
+    "PointSetOperatorBC",
     "RobinBC",
 ]
 
@@ -19,6 +20,7 @@ import paddle
 
 from .. import backend as bkd
 from .. import config
+from .. import data
 from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
@@ -164,29 +166,110 @@ class PointSetBC:
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
+    If more than one component is provided via a list, the resulting loss will
+    be the addative loss of the provided componets.
 
     Args:
         points: An array of points where the corresponding target values are known and
             used for training.
-        values: An array of values that gives the exact solution of the problem.
-        component: The output component satisfying this BC.
+        values: A scalar or a 2D-array of values that gives the exact solution of the problem.
+        component: Integer or a list of integers. The output components satisfying this BC.
+            List of integers only supported for the backend PyTorch.
+        batch_size: The number of points per minibatch, or `None` to return all points.
+            This is only supported for the backend PyTorch.
+        shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, component=0):
+    def __init__(
+        self, points, values, component=0, batch_size=None, shuffle=True
+    ):
         self.points = np.array(points, dtype=config.real(np))
-        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
-            raise RuntimeError(
-                "PointSetBC should output 1D values. Use argument 'component' for "
-                "different components."
-            )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
+        if isinstance(component, list) and backend_name != "pytorch":
+            # TODO: Add support for multiple components in other backends
+            raise RuntimeError(
+                "multiple components only implemented for pytorch backend"
+            )
+        self.batch_size = batch_size
+
+        if batch_size is not None:  # batch iterator and state
+            if backend_name != "pytorch":
+                raise RuntimeError(
+                    "batch_size only implemented for pytorch backend"
+                )
+            self.batch_sampler = data.sampler.BatchSampler(
+                len(self), shuffle=shuffle
+            )
+            self.batch_indices = None
+
+    def __len__(self):
+        return self.points.shape[0]
+
+    def collocation_points(self, X):
+        if self.batch_size is not None:
+            self.batch_indices = self.batch_sampler.get_next(self.batch_size)
+            return self.points[self.batch_indices]
+        return self.points
+
+    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        if self.batch_size is not None:
+            if isinstance(self.component, numbers.Number):
+                return (
+                    outputs[beg:end, self.component : self.component + 1]
+                    - self.values[self.batch_indices]
+                )
+            return (
+                outputs[beg:end, self.component]
+                - self.values[self.batch_indices]
+            )
+        if isinstance(self.component, numbers.Number):
+            return (
+                outputs[beg:end, self.component : self.component + 1]
+                - self.values
+            )
+        # When a concat is provided, the following code works 'fast' in paddle cpu,
+        # and slow in both tensorflow backends, jax untested.
+        # tf.gather can be used instead of for loop but is also slow
+        # if len(self.component) > 1:
+        #    calculated_error = outputs[beg:end, self.component[0]] - self.values[:,0]
+        #    for i in range(1,len(self.component)):
+        #        tmp = outputs[beg:end, self.component[i]] - self.values[:,i]
+        #        calculated_error = bkd.lib.concat([calculated_error,tmp],axis=0)
+        # else:
+        #    calculated_error = outputs[beg:end, self.component[0]] - self.values
+        # return calculated_error
+        return outputs[beg:end, self.component] - self.values
+
+
+class PointSetOperatorBC:
+    """General operator boundary conditions for a set of points.
+    
+    Compare the function output, func, (that associates with `points`) 
+        with `values` (target data).
+
+    Args:
+        points: An array of points where the corresponding target values are 
+            known and used for training.
+        values: An array of values which output of function should fulfill.
+        func: A function takes arguments (`inputs`, `outputs`, `X`)
+            and outputs a tensor of size `N x 1`, where `N` is the length of 
+            `inputs`. `inputs` and `outputs` are the network input and output 
+            tensors, respectively; `X` are the NumPy array of the `inputs`.
+    """
+
+    def __init__(self, points, values, func):
+        self.points = np.array(points, dtype=config.real(np))
+        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
+            raise RuntimeError("PointSetOperatorBC should output 1D values")
+        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+        self.func = func
 
     def collocation_points(self, X):
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return outputs[beg:end, self.component : self.component + 1] - self.values
+        return self.func(inputs, outputs, X)[beg:end] - self.values
 
 
 def npfunc_range_autocache(func):
