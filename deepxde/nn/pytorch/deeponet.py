@@ -4,6 +4,7 @@ from .fnn import FNN
 from .nn import NN
 from .. import activations
 
+
 class DeepONet(NN):
     """Deep operator network for dataset in the format of element-wise product.
 
@@ -19,26 +20,6 @@ class DeepONet(NN):
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
     """
-
-    """Deep operator network.
-        `Lu et al. Learning nonlinear operators via DeepONet based on the universal
-        approximation theorem of operators. Nat Mach Intell, 2021.
-        <https://doi.org/10.1038/s42256-021-00302-5>`_
-        Args:
-            layer_sizes_branch: A list of integers as the width of a fully connected
-                network, or `(dim, f)` where `dim` is the input dimension and `f` is a
-                network function. The width of the last layer in the branch and trunk net
-                should be equal.
-            layer_sizes_trunk (list): A list of integers as the width of a fully connected
-                network.
-            activation: If `activation` is a ``string``, then the same activation is used in
-                both trunk and branch nets. If `activation` is a ``dict``, then the trunk
-                net uses the activation `activation["trunk"]`, and the branch net uses
-                `activation["branch"]`.
-            trainable_branch: Boolean.
-            trainable_trunk: Boolean or a list of booleans.
-        """
-
 
     def __init__(
         self,
@@ -94,6 +75,7 @@ class DeepONet(NN):
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
+
 
 class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
@@ -228,4 +210,3 @@ class PODDeepONet(NN):
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
-  
