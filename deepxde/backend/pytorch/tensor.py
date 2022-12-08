@@ -48,6 +48,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def tensor_shape(input_tensor):
+    return list(input_tensor.shape)
+
+
 def ndim(input_tensor):
     return input_tensor.dim()
 
@@ -110,6 +114,14 @@ def sin(x):
     return torch.sin(x)
 
 
+def exp(x):
+    return torch.exp(x)
+
+
+def pow(x, y):
+    return torch.pow(x, y)
+
+
 def square(x):
     return torch.square(x)
 
@@ -144,3 +156,57 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return torch.zeros_like(input_tensor)
+
+
+def lgamma(x):
+    return torch.lgamma(x)
+
+
+def matmul(x, y):
+    return torch.matmul(x, y)
+
+
+def size(tensor):
+    return torch.numel(tensor)
+
+
+def sparse_tensor(indices, values, shape):
+    coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
+    return coo_tensor
+
+
+def sparse_tensor_dense_matmul(x, y):
+    if not x.is_sparse_csr:
+        # NOTE: only support CSR tensor multiplication now
+        # refer to https://pytorch.org/docs/stable/sparse.html#csr-tensor-operations
+        x = x.to_sparse_csr()
+    return torch.matmul(x, y)
+
+
+def constant(values, dtype):
+    return torch.tensor(values, dtype=dtype)
+
+
+def concat(values, axis):
+    return torch.concat(values, axis)
+
+
+def reverse(tensor, axis):
+    return torch.flip(tensor, axis)
+
+
+def expand_dims(tensor, axis):
+    return torch.unsqueeze(tensor, axis)
+
+
+def cos(x):
+    return torch.cos(x)
+
+
+def roll(tensor, shift, axis=None):
+    return torch.roll(tensor, shift, axis)
+
+
+def gradients(outputs, inputs):
+    # NOTE: set create_graph=True to enable high-order differentiation
+    raise torch.autograd.grad(outputs, inputs, create_graph=True)
