@@ -30,7 +30,7 @@ class DeepONet(NN):
     ):
         super().__init__()
         if isinstance(activation, dict):
-            activation_branch = activation["branch"]
+            activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
@@ -41,7 +41,7 @@ class DeepONet(NN):
             # Fully connected network
             self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.b = torch.tensor(0.0, requires_grad=True)
+        self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
 
     def forward(self, inputs):
         x_func = inputs[0]
@@ -92,7 +92,7 @@ class DeepONetCartesianProd(NN):
     ):
         super().__init__()
         if isinstance(activation, dict):
-            activation_branch = activation["branch"]
+            activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
@@ -164,7 +164,7 @@ class PODDeepONet(NN):
     ):
         super().__init__()
         if isinstance(activation, dict):
-            activation_branch = activation["branch"]
+            activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
