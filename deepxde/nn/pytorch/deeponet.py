@@ -43,17 +43,6 @@ class DeepONet(NN):
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         self.b = torch.tensor(0.0, requires_grad=True)
 
-    @property
-    def inputs(self):
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, value):
-        if value[1] is not None:
-            raise ValueError("DeepONet does not support setting trunk net input.")
-        self._X_func_default = value[0]
-        self._inputs = self.X_loc
-
     def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
