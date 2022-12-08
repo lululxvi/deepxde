@@ -2,7 +2,7 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+import deepxde.backend as bkd
 from scipy.interpolate import griddata
 
 geom = dde.geometry.Interval(-1, 1)
@@ -20,10 +20,9 @@ def pde(x, y):
         + alpha * dy_xx
         + beta * y
         + gamma * (y ** k)
-        + x * tf.cos(t)
-        - (x ** 2) * (tf.cos(t) ** 2)
+        + x * bkd.cos(t)
+        - (x ** 2) * (bkd.cos(t) ** 2)
     )
-
 
 def func(x):
     return x[:, 0:1] * np.cos(x[:, 1:2])

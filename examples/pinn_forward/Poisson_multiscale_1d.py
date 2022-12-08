@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1
+"""Backend supported: tensorflow.compat.v1, paddle
 
 Implementation of the Poisson 1D example in paper https://arxiv.org/abs/2012.10047.
 References:
@@ -6,7 +6,7 @@ References:
 """
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
+from deepxde import backend as bkd
 
 A = 2
 B = 50
@@ -16,8 +16,8 @@ def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return (
         dy_xx
-        + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
-        + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
+        + (np.pi * A) ** 2 * bkd.sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * bkd.sin(np.pi * B * x)
     )
 
 

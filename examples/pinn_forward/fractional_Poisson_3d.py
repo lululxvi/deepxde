@@ -1,7 +1,7 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
+import deepxde.backend as bkd
 import numpy as np
-from deepxde.backend import tf
 from scipy.special import gamma
 
 
@@ -9,21 +9,21 @@ alpha = 1.8
 
 
 def fpde(x, y, int_mat):
-    """\int_theta D_theta^alpha u(x)"""
+    r"""\int_theta D_theta^alpha u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = tf.SparseTensor(*int_mat)
-        lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
+        int_mat = bkd.sparse_tensor(*int_mat)
+        lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
     else:
-        lhs = tf.matmul(int_mat, y)
+        lhs = bkd.matmul(int_mat, y)
     lhs = lhs[:, 0]
     lhs *= gamma((1 - alpha) / 2) * gamma((3 + alpha) / 2) / (2 * np.pi ** 2)
-    x = x[: tf.size(lhs)]
+    x = x[: bkd.size(lhs)]
     rhs = (
         2 ** alpha
         * gamma(2 + alpha / 2)
         * gamma((3 + alpha) / 2)
         / gamma(3 / 2)
-        * (1 - (1 + alpha / 3) * tf.reduce_sum(x ** 2, axis=1))
+        * (1 - (1 + alpha / 3) * bkd.sum(x ** 2, axis=1))
     )
     return lhs - rhs
 
@@ -50,7 +50,7 @@ data = dde.data.FPDE(
 
 net = dde.nn.FNN([3] + [20] * 4 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(
-    lambda x, y: (1 - tf.reduce_sum(x ** 2, axis=1, keepdims=True)) * y
+    lambda x, y: (1 - bkd.sum(x ** 2, dim=1, keepdims=True)) * y
 )
 
 model = dde.Model(data, net)

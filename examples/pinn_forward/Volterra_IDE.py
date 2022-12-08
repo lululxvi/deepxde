@@ -1,14 +1,16 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1
+"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+import deepxde.backend as bkd
 
 
 def ide(x, y, int_mat):
-    rhs = tf.matmul(int_mat, y)
-    lhs1 = tf.gradients(y, x)[0]
-    return (lhs1 + y)[: tf.size(rhs)] - rhs
+    int_mat = bkd.as_tensor(int_mat)
+    rhs = bkd.matmul(int_mat, y)
+    lhs1 = bkd.gradients(y, x)[0]
+    return (lhs1 + y)[: bkd.size(rhs)] - rhs
 
 
 def kernel(x, s):

@@ -1,30 +1,17 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Backend pytorch
-# import torch
-
+from deepxde import backend as bkd
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-    # Backend tensorflow.compat.v1 or tensorflow
     return (
         dy_t
         - dy_xx
-        + tf.exp(-x[:, 1:])
-        * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
+        + bkd.exp(-x[:, 1:])
+        * (bkd.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * bkd.sin(np.pi * x[:, 0:1]))
     )
-    # Backend pytorch
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + torch.exp(-x[:, 1:])
-    #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
-    # )
-
 
 def func(x):
     return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
