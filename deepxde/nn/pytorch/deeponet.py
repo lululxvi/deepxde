@@ -6,7 +6,7 @@ from .. import activations
 
 
 class DeepONet(NN):
-    """Deep operator network for dataset in the format of element-wise product.
+    """Deep operator network.
 
     Args:
         layer_sizes_branch: A list of integers as the width of a fully connected network,
