@@ -171,6 +171,11 @@ def size(tensor):
 
 
 def sparse_tensor(indices, values, shape):
+    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
+    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
+    indices = torch.stack(
+        [torch.tensor(x), torch.tensor(y)]
+    )  # [2, num_of_nonzeros]
     coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
     return coo_tensor
 
