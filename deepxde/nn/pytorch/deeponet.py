@@ -52,7 +52,7 @@ class DeepONet(NN):
         if self._input_transform is not None:
             x_loc = self._input_transform(x_loc)
         x_loc = self.activation_trunk(self.trunk(x_loc))
-        # Element-wise product
+        # Dot product
         if x_func.shape[-1] != x_loc.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
