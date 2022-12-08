@@ -214,4 +214,4 @@ def roll(tensor, shift, axis=None):
 
 def gradients(outputs, inputs):
     # NOTE: set create_graph=True to enable high-order differentiation
-    raise torch.autograd.grad(outputs, inputs, create_graph=True)
+    return torch.autograd.grad(outputs, inputs, create_graph=True)
