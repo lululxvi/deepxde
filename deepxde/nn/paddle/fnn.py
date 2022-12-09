@@ -37,7 +37,6 @@ class FNN(NN):
                 if isinstance(self.activation, list)
                 else self.activation(linear(x))
             )
-            j = j + 1
         x = self.linears[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
