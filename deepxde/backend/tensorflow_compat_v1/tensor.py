@@ -64,6 +64,10 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
+def size(tensor):
+    return tf.size(tensor)
+
+
 def tensor_shape(input_tensor):
     return tf.shape(input_tensor)
 
@@ -92,12 +96,36 @@ def as_tensor(data, dtype=None):
     return tf.convert_to_tensor(data, dtype=dtype)
 
 
+def sparse_tensor(indices, values, shape):
+    return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
+
+
 def from_numpy(np_array):
     # Do memory copy:
     # https://stackoverflow.com/questions/47519802/does-tensorflow-convert-to-tensor-do-memory-copy
     # To avoid memory copy, use implicit conversion, but memory copy is still possible.
     # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
     return tf.convert_to_tensor(np_array)
+
+
+def concat(values, axis):
+    return tf.concat(values, axis=axis)
+
+
+def expand_dims(tensor, axis):
+    return tf.expand_dims(tensor, axis)
+
+
+def reverse(tensor, axis):
+    return tf.reverse(tensor, axis)
+
+
+def roll(tensor, shift, axis=None):
+    return tf.roll(tensor, shift, axis)
+
+
+def lgamma(x):
+    return tf.lgamma(x)
 
 
 def elu(x):
@@ -124,6 +152,10 @@ def sin(x):
     return tf.math.sin(x)
 
 
+def cos(x):
+    return tf.cos(x)
+
+
 def exp(x):
     return tf.math.exp(x)
 
@@ -134,6 +166,10 @@ def square(x):
 
 def tanh(x):
     return tf.math.tanh(x)
+
+
+def pow(x, y):
+    return tf.math.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -166,53 +202,9 @@ def zeros_like(input_tensor):
     return tf.zeros_like(input_tensor)
 
 
-def lgamma(x):
-    return tf.lgamma(x)
-
-
 def matmul(x, y):
     return tf.matmul(x, y)
 
 
-def size(tensor):
-    return tf.size(tensor)
-
-
-def sparse_tensor(indices, values, shape):
-    return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
-
-
 def sparse_tensor_dense_matmul(x, y):
     return tf.sparse_tensor_dense_matmul(x, y)
-
-
-def ones(shape, dtype):
-    return tf.ones(shape, dtype=dtype)
-
-
-def constant(values, dtype):
-    return tf.constant(values, dtype=dtype)
-
-
-def concat(values, axis):
-    return tf.concat(values, axis=axis)
-
-
-def reverse(tensor, axis):
-    return tf.reverse(tensor, axis)
-
-
-def expand_dims(tensor, axis):
-    return tf.expand_dims(tensor, axis)
-
-
-def cos(tensor):
-    return tf.cos(tensor)
-
-
-def roll(tensor, shift, axis=None):
-    return tf.roll(tensor, shift, axis)
-
-
-def gradients(outputs, inputs):
-    return tf.gradients(outputs, inputs)

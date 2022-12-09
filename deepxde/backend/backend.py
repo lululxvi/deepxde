@@ -81,14 +81,25 @@ def shape(input_tensor):
     """
 
 
+def size(input_tensor):
+    """Return number of element(s) within the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor: number of element(s) within the input tensor.
+    """
+
+
 def tensor_shape(input_tensor):
-    """Return the shape of the tensor in tensor format
+    """Return the shape of the tensor in tensor format.
 
     Args:
         input (Tensor): The input tensor.
 
     Returns:
-        Tensor: input_tensor's shape in tensor format
+        Tensor: input_tensor's shape in tensor format.
     """
 
 
@@ -155,6 +166,19 @@ def as_tensor(data, dtype=None):
     """
 
 
+def sparse_tensor(indices, values, shape):
+    """Construct an sparse tensor based on given indices, values and shape.
+
+    Args:
+        tensor (list of tuple). Indices of non-zero element(s), such as [(x1, y1), (x2, y2), ..., (xn, yn)].
+        values (Tensor). Value of non-zero element, with shape of [n, d1, ..., dm].
+        shape (list or tuple). Dense shape of constructed tensor.
+
+    Returns:
+        SparseTensor: An sparse tensor.
+    """
+
+
 def from_numpy(np_array):
     """Create a tensor that shares the underlying numpy array memory, if possible.
 
@@ -177,11 +201,64 @@ def to_numpy(input_tensor):
     """
 
 
+def concat(values, axis):
+    """Returns the concatenation of the input tensors along the given dim.
+
+    Args:
+        values (list or tuple of Tensor). The input tensors in list or tuple.
+        axis (int). The concatenating dim.
+
+    Returns:
+        Tensor: Concatenated tensor.
+    """
+
+
+def expand_dims(tensor, axis):
+    """Expand dim for tensor along given axis.
+
+    Args:
+        tensor (Tensor). The input tensor.
+        axis (int). axis to expand.
+
+    Returns:
+        Tensor: Expanded tensor.
+    """
+
+
+def reverse(tensor, axis):
+    """Flip tensor along given axis.
+
+    Args:
+        tensor (Tensor). The input tensor.
+        axis (int). flip axis.
+
+    Returns:
+        Tensor: Tensor which is flipped along given axis.
+    """
+
+
+def roll(tensor, shift, axis=None):
+    """Roll the x tensor along the given axis(axes).
+
+    Args:
+        tensor (Tensor). The input tensor.
+        shifts (int or tuple of int). The number of places by which the elements of the x tensor are shifted.
+        axis (int or tuple of int, optional). Axis(axes) along which to roll. Default: None.
+
+    Returns:
+        Tensor: Rolled tensor.
+    """
+
+
 ###############################################################################
 # Element-wise math functions
 # ---------------------------
 # These functions are performance critical, so it's better to have efficient
 # implementation in each framework.
+
+
+def lgamma(x):
+    """Computes the natural logarithm of the absolute value of the gamma function of x element-wise."""
 
 
 def elu(x):
@@ -210,12 +287,12 @@ def sin(x):
     """Computes sine of x element-wise."""
 
 
+def cos(x):
+    """"Computes cosine of x element-wise."""
+
+
 def exp(x):
-    """Computes exp of x element-wise."""
-
-
-def pow(x, y):
-    """Computes x ^ y"""
+    """Computes exponential of x element-wise."""
 
 
 def square(x):
@@ -224,6 +301,10 @@ def square(x):
 
 def tanh(x):
     """Computes hyperbolic tangent of x element-wise."""
+
+
+def pow(x, y):
+    """Computes the power of one value to another: x ^ y."""
 
 
 ###############################################################################
@@ -292,109 +373,25 @@ def zeros_like(input_tensor):
     """
 
 
-def lgamma(x):
-    """Compute lgamma of x element-wise."""
-
-
 def matmul(x, y):
-    """Compute matrix multiplication for input tensor x and y
+    """Compute matrix multiplication for input tensor x and y.
+
     Args:
         x (Tensor). The input tensor x.
-        y (Tensor). The input tensor y
+        y (Tensor). The input tensor y.
 
     Returns:
         Tensor: The multiplication result.
-    """
-
-
-def size(tensor):
-    """Return number of element(s) within the input tensor
-    Args:
-        tensor (Tensor). The input tensor.
-
-    Returns:
-        Tensor: number of element(s) within the input tensor
-    """
-
-
-def sparse_tensor(indices, values, shape):
-    """Construct an sparse tensor based on given indices, values and shape
-    Args:
-        tensor (list of tuple). Indices of non-zero element(s), such as [(x1, y1), (x2, y2), ..., (xn, yn)]
-        values (Tensor). Value of non-zero element, with shape of [n, d1, ..., dm]
-        shape (list or tuple). Dense shape of constructed tensor.
-    Returns:
-        SparseTensor: An sparse tensor.
     """
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """Compute an sparse matrix multiplication with an sparse/dense matrix for input tensor x and y
+    """Compute an sparse matrix multiplication with an sparse/dense matrix for input tensor x and y.
+
     Args:
         x (Sparse Tensor). The input tensor x.
-        y (Sparse Tensor or Tensor). The input tensor y
+        y (Sparse Tensor or Tensor). The input tensor y.
 
     Returns:
         Tensor: The multiplication result.
-    """
-
-def constant(values, dtype):
-    """Create an constant tensor with given values and dtype"""
-
-
-def concat(values, axis):
-    """Returns the concatenation of the input tensors along the given dim.
-    Args:
-        values (list or tuple of Tensor). The input tensors in list or tuple.
-        axis (int). The concatenating dim.
-
-    Returns:
-        Tensor: Concatenated tensor.
-    """
-
-
-def reverse(tensor, axis):
-    """Flip tensor along given axis
-    Args:
-        tensor (Tensor). The input tensor.
-        axis (int). flip axis.
-
-    Returns:
-        Tensor: Tensor which is flipped along given axis.
-    """
-
-
-def expand_dims(tensor, axis):
-    """Expand dim for tensor along given axis
-    Args:
-        tensor (Tensor). The input tensor.
-        axis (int). axis to expand.
-
-    Returns:
-        Tensor: Expanded tensor.
-    """
-
-
-def cos(x):
-    """"Computes cosine of x element-wise."""
-
-
-def roll(tensor, shift, axis=None):
-    """Roll the x tensor along the given axis(axes).
-    Args:
-        tensor (Tensor). The input tensor.
-        shifts (int or tuple of int). The number of places by which the elements of the x tensor are shifted.
-        axis (int or tuple of int, optional). Axis(axes) along which to roll. Default: None
-    Returns:
-        Tensor: Rolled tensor.
-    """
-
-
-def gradients(outputs, inputs):
-    """Computes and returns the sum of gradients of outputs with respect to the inputs.
-    Args:
-        outputs (Tensor or tuple of Tensors). The outputs tensors.
-        inputs (Tensor or tuple of Tensors). The input tensors.
-    Returns:
-        Tensor: A list of gradients for inputs If an input does not affect targets, the corresponding gradient Tensor will be None.
     """

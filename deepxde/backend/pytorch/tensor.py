@@ -48,6 +48,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def size(tensor):
+    return torch.numel(tensor)
+
+
 def tensor_shape(input_tensor):
     return list(input_tensor.shape)
 
@@ -78,6 +82,16 @@ def as_tensor(data, dtype=None):
     return torch.as_tensor(data, dtype=dtype)
 
 
+def sparse_tensor(indices, values, shape):
+    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
+    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
+    indices = torch.stack(
+        [torch.tensor(x), torch.tensor(y)]
+    )  # [2, num_of_nonzeros]
+    coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
+    return coo_tensor
+
+
 def from_numpy(np_array):
     # Both torch.from_numpy and torch.as_tensor work without memory copy.
     # https://discuss.pytorch.org/t/from-numpy-vs-as-tensor/79932
@@ -88,6 +102,26 @@ def from_numpy(np_array):
 
 def to_numpy(input_tensor):
     return input_tensor.detach().cpu().numpy()
+
+
+def concat(values, axis):
+    return torch.concat(values, axis)
+
+
+def expand_dims(tensor, axis):
+    return torch.unsqueeze(tensor, axis)
+
+
+def reverse(tensor, axis):
+    return torch.flip(tensor, axis)
+
+
+def roll(tensor, shift, axis=None):
+    return torch.roll(tensor, shift, axis)
+
+
+def lgamma(x):
+    return torch.lgamma(x)
 
 
 def elu(x):
@@ -114,12 +148,12 @@ def sin(x):
     return torch.sin(x)
 
 
+def cos(x):
+    return torch.cos(x)
+
+
 def exp(x):
     return torch.exp(x)
-
-
-def pow(x, y):
-    return torch.pow(x, y)
 
 
 def square(x):
@@ -128,6 +162,10 @@ def square(x):
 
 def tanh(x):
     return torch.tanh(x)
+
+
+def pow(x, y):
+    return torch.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -158,26 +196,8 @@ def zeros_like(input_tensor):
     return torch.zeros_like(input_tensor)
 
 
-def lgamma(x):
-    return torch.lgamma(x)
-
-
 def matmul(x, y):
     return torch.matmul(x, y)
-
-
-def size(tensor):
-    return torch.numel(tensor)
-
-
-def sparse_tensor(indices, values, shape):
-    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
-    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
-    indices = torch.stack(
-        [torch.tensor(x), torch.tensor(y)]
-    )  # [2, num_of_nonzeros]
-    coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
-    return coo_tensor
 
 
 def sparse_tensor_dense_matmul(x, y):
@@ -186,32 +206,3 @@ def sparse_tensor_dense_matmul(x, y):
         # refer to https://pytorch.org/docs/stable/sparse.html#csr-tensor-operations
         x = x.to_sparse_csr()
     return torch.matmul(x, y)
-
-
-def constant(values, dtype):
-    return torch.tensor(values, dtype=dtype)
-
-
-def concat(values, axis):
-    return torch.concat(values, axis)
-
-
-def reverse(tensor, axis):
-    return torch.flip(tensor, axis)
-
-
-def expand_dims(tensor, axis):
-    return torch.unsqueeze(tensor, axis)
-
-
-def cos(x):
-    return torch.cos(x)
-
-
-def roll(tensor, shift, axis=None):
-    return torch.roll(tensor, shift, axis)
-
-
-def gradients(outputs, inputs):
-    # NOTE: set create_graph=True to enable high-order differentiation
-    return torch.autograd.grad(outputs, inputs, create_graph=True)

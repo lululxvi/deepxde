@@ -26,12 +26,22 @@ def data_type_dict():
     }
 
 
+def is_gpu_available():
+    device = paddle.device.get_device()
+    # "cpu"/"gpu:x"/"xpu:x"/"mlu:x"/"npu:x"
+    return "gpu" in device
+
+
 def is_tensor(obj):
     return paddle.is_tensor(obj)
 
 
 def shape(input_tensor):
     return input_tensor.shape
+
+
+def size(input_tensor):
+    return paddle.numel(tensor)
 
 
 def tensor_shape(input_tensor):
@@ -68,12 +78,41 @@ def as_tensor(data, dtype=None):
     return paddle.to_tensor(data, dtype=dtype)
 
 
+def sparse_tensor(indices, values, shape):
+    x = [p[0] for p in indices]
+    y = [p[1] for p in indices]
+    indices = paddle.stack(
+        [paddle.to_tensor(x), paddle.to_tensor(y)]
+    )
+    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=list(shape), stop_gradient=False)
+
+
 def from_numpy(np_array):
     return paddle.to_tensor(np_array)
 
 
 def to_numpy(input_tensor):
     return input_tensor.detach().cpu().numpy()
+
+
+def concat(values, axis):
+    return paddle.concat(values, axis=axis)
+
+
+def expand_dims(tensor, axis):
+    return paddle.unsqueeze(tensor, axis=axis)
+
+
+def reverse(tensor, axis):
+    return paddle.flip(tensor, axis)
+
+
+def roll(tensor, shift, axis=None):
+    return paddle.roll(tensor, shift, axis)
+
+
+def lgamma(tensor):
+    return paddle.lgamma(tensor)
 
 
 def elu(x):
@@ -100,12 +139,12 @@ def sin(x):
     return paddle.sin(x)
 
 
+def cos(x):
+    return paddle.cos(x)
+
+
 def exp(x):
     return paddle.exp(x)
-
-
-def pow(x, y):
-    return paddle.pow(x, y)
 
 
 def square(x):
@@ -114,6 +153,10 @@ def square(x):
 
 def tanh(x):
     return paddle.tanh(x)
+
+
+def pow(x, y):
+    return paddle.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -144,59 +187,10 @@ def zeros_like(input_tensor):
     return paddle.zeros_like(input_tensor)
 
 
-def lgamma(tensor):
-    return paddle.lgamma(tensor)
-
-
 def matmul(x, y):
     return paddle.matmul(x, y)
 
 
-def size(tensor):
-    return paddle.numel(tensor)
-
-
-def sparse_tensor(indices, values, shape):
-    x = [p[0] for p in indices]
-    y = [p[1] for p in indices]
-    indices = paddle.stack(
-        [paddle.to_tensor(x), paddle.to_tensor(y)]
-    )
-    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=list(shape), stop_gradient=False)
-
-
 def sparse_tensor_dense_matmul(x, y):
+
     return paddle.sparse.matmul(x, y)
-
-
-def ones(shape, dtype):
-    return paddle.ones(shape=shape, dtype=dtype)
-
-
-def constant(values, dtype):
-    return paddle.to_tensor(values, dtype=dtype)
-
-
-def concat(values, axis):
-    return paddle.concat(values, axis=axis)
-
-
-def reverse(tensor, axis):
-    return paddle.flip(tensor, axis)
-
-
-def expand_dims(tensor, axis):
-    return paddle.unsqueeze(tensor, axis=axis)
-
-
-def cos(tensor):
-    return paddle.cos(tensor)
-
-
-def roll(tensor, shift, axis=None):
-    return paddle.roll(tensor, shift, axis)
-
-
-def gradients(outputs, inputs):
-    # NOTE: set create_graph=True to enable high-order differentiation
-    return paddle.grad(outputs, inputs, create_graph=True)
