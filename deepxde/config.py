@@ -47,6 +47,10 @@ def set_default_float(value):
         real.set_float64()
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         tf.keras.backend.set_floatx(value)
+    elif backend_name in ["paddle"]:
+        paddle.set_default_dtype(value)
+    elif backend_name in ["pytorch"]:
+        torch.set_default_dtype(real(bkd.lib))
     # TODO: support jax.numpy.float64, which is not automatically enabled by default,
     # and will be truncated to jax.numpy.float32 for now.
     # - https://github.com/google/jax#current-gotchas

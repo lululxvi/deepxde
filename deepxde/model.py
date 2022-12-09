@@ -4,6 +4,7 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
+from . import backend as bkd
 from . import config
 from . import display
 from . import gradients as grad
@@ -265,10 +266,10 @@ class Model:
             with torch.no_grad():
                 if isinstance(inputs, tuple):
                     inputs = tuple(
-                        map(lambda x: torch.as_tensor(x, dtype=torch.float32).requires_grad_(), inputs)
+                        map(lambda x: torch.as_tensor(x, dtype=config.real(bkd.lib)).requires_grad_(), inputs)
                     )
                 else:
-                    inputs = torch.as_tensor(inputs, dtype=torch.float32)
+                    inputs = torch.as_tensor(inputs, dtype=config.real(bkd.lib))
                     inputs.requires_grad_()
             # Clear cached Jacobians and Hessians.
             grad.clear()
@@ -278,22 +279,23 @@ class Model:
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
                 inputs = tuple(
-                    map(lambda x: torch.as_tensor(x, dtype=torch.float32).requires_grad_(), inputs)
+                    map(lambda x: torch.as_tensor(x, dtype=config.real(bkd.lib)).requires_grad_(), inputs)
                 )
             else:
-                inputs = torch.as_tensor(inputs, dtype=torch.float32)
+                inputs = torch.as_tensor(inputs, dtype=config.real(bkd.lib))
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
+
             # Data losses
             if targets is not None:
-                targets = torch.as_tensor(targets, dtype=torch.float32)
+                targets = torch.as_tensor(targets, dtype=config.real(bkd.lib))
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
             losses = torch.stack(losses)
             # Weighted losses
             if loss_weights is not None:
-                losses *= torch.as_tensor(loss_weights, dtype=torch.float32)
+                losses *= torch.as_tensor(loss_weights, dtype=config.real(bkd.lib))
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -414,10 +416,10 @@ class Model:
             with paddle.no_grad():
                 if isinstance(inputs, tuple):
                     inputs = tuple(
-                        map(lambda x: paddle.to_tensor(x, "float32", stop_gradient=False), inputs)
+                        map(lambda x: paddle.to_tensor(x, config.real(bkd.lib), stop_gradient=False), inputs)
                     )
                 else:
-                    inputs = paddle.to_tensor(inputs, "float32", stop_gradient=False)
+                    inputs = paddle.to_tensor(inputs, config.real(bkd.lib), stop_gradient=False)
                 return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
@@ -429,15 +431,15 @@ class Model:
 
             if isinstance(inputs, tuple):
                 inputs = tuple(
-                    map(lambda x: paddle.to_tensor(x, "float32", stop_gradient=False), inputs)
+                    map(lambda x: paddle.to_tensor(x, config.real(bkd.lib), stop_gradient=False), inputs)
                 )
             else:
-                inputs = paddle.to_tensor(inputs, "float32", stop_gradient=False)
+                inputs = paddle.to_tensor(inputs, config.real(bkd.lib), stop_gradient=False)
             outputs_ = self.net(inputs)
 
             # Data losses
             if targets is not None:
-                targets = paddle.to_tensor(targets, "float32")
+                targets = paddle.to_tensor(targets, config.real(bkd.lib))
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
@@ -850,14 +852,14 @@ class Model:
             y = utils.to_numpy(y)
         elif backend_name == "pytorch":
             self.net.eval()
-            inputs = torch.as_tensor(x, dtype=torch.float32)
+            inputs = torch.as_tensor(x, dtype=config.real(bkd.lib))
             inputs.requires_grad_()
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
                 y = operator(inputs, outputs)
             elif utils.get_num_args(operator) == 3:
                 # TODO: Pytorch backend Implementation of Auxiliary variables.
-                # y = operator(inputs, outputs, torch.as_tensor(aux_vars, dtype=torch.float32))
+                # y = operator(inputs, outputs, torch.as_tensor(aux_vars, dtype=config.real(bkd.lib)))
                 raise NotImplementedError(
                     "Model.predict() with auxiliary variable hasn't been implemented "
                     "for backend pytorch."
@@ -867,7 +869,7 @@ class Model:
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
-            inputs = paddle.to_tensor(x, "float32", stop_gradient=False)
+            inputs = paddle.to_tensor(x, config.real(bkd.lib), stop_gradient=False)
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
                 y = operator(inputs, outputs)
