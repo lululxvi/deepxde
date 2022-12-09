@@ -26,18 +26,18 @@ class FNN(NN):
                 raise ValueError(
                     "Total number of activation functions do not match with sum of hidden layers and output layer!"
                 )
-            self.activation = list(map(activations.get, activation))
+            activation = list(map(activations.get, activation))
         else:
-            self.activation = activations.get(activation)
+            activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         for j, units in enumerate(layer_sizes[1:-1]):
             self.denses.append(
                 tf.keras.layers.Dense(
                     units,
                     activation=(
-                        self.activation[j]
-                        if isinstance(self.activation, list)
-                        else self.activation
+                        activation[j]
+                        if isinstance(activation, list)
+                        else activation
                     ),
                     kernel_initializer=initializer,
                     kernel_regularizer=self.regularizer,
