@@ -1,8 +1,7 @@
-from paddle.nn.initializer import Normal
-
-from ...backend import paddle
-from .. import activations, initializers
 from .nn import NN
+from .. import activations
+from .. import initializers
+from ...backend import paddle
 
 
 class MsFFN(NN):
@@ -44,7 +43,8 @@ class MsFFN(NN):
         for i, sigma in enumerate(self.sigmas):
             self.b.append(
                 self.create_parameter(
-                    shape=[layer_sizes[0], layer_sizes[1] // 2], default_initializer=Normal(std=sigma),
+                    shape=[layer_sizes[0], layer_sizes[1] // 2],
+                    default_initializer=paddle.nn.initializer.Normal(std=sigma),
                 )
             )
             # freeze parameters in self.b

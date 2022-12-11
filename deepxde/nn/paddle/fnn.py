@@ -1,7 +1,8 @@
 import paddle
 
-from .. import activations, initializers
 from .nn import NN
+from .. import activations
+from .. import initializers
 
 
 class FNN(NN):
