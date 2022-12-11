@@ -40,12 +40,12 @@ def shape(input_tensor):
     return input_tensor.shape
 
 
-def size(input_tensor):
-    return paddle.numel(tensor)
-
-
 def tensor_shape(input_tensor):
     return input_tensor.shape
+
+
+def size(input_tensor):
+    return paddle.numel(tensor)
 
 
 def ndim(input_tensor):

@@ -81,17 +81,6 @@ def shape(input_tensor):
     """
 
 
-def size(input_tensor):
-    """Return number of element(s) within the input tensor.
-
-    Args:
-        input_tensor (Tensor). The input tensor.
-
-    Returns:
-        Tensor: number of element(s) within the input tensor.
-    """
-
-
 def tensor_shape(input_tensor):
     """Return the shape of the tensor in tensor format.
 
@@ -100,6 +89,17 @@ def tensor_shape(input_tensor):
 
     Returns:
         Tensor: input_tensor's shape in tensor format.
+    """
+
+
+def size(input_tensor):
+    """Return the total number of elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor: number of element(s) within the input tensor.
     """
 
 
@@ -167,15 +167,15 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    """Construct an sparse tensor based on given indices, values and shape.
+    """Construct a sparse tensor based on given indices, values and shape.
 
     Args:
-        tensor (list of tuple). Indices of non-zero element(s), such as [(x1, y1), (x2, y2), ..., (xn, yn)].
-        values (Tensor). Value of non-zero element, with shape of [n, d1, ..., dm].
+        indices (list of tuple). A 2-D int list of shape [N, ndims], which specifies the indices of the elements in the sparse tensor that contain nonzero values (elements are zero-indexed), such as [(x1, y1), (x2, y2), ..., (xN, yN)].
+        values (Tensor). Values of non-zero elements, with shape of [N].
         shape (list or tuple). Dense shape of constructed tensor.
 
     Returns:
-        SparseTensor: An sparse tensor.
+        SparseTensor: A sparse tensor.
     """
 
 
@@ -226,11 +226,11 @@ def expand_dims(tensor, axis):
 
 
 def reverse(tensor, axis):
-    """Flip tensor along given axis.
+    """Reverse the order of elements along the given axis.
 
     Args:
         tensor (Tensor). The input tensor.
-        axis (int). flip axis.
+        axis (int). Axis to flip on.
 
     Returns:
         Tensor: Tensor which is flipped along given axis.
@@ -238,12 +238,12 @@ def reverse(tensor, axis):
 
 
 def roll(tensor, shift, axis=None):
-    """Roll the x tensor along the given axis(axes).
+    """Roll the tensor along the given axis (axes).
 
     Args:
         tensor (Tensor). The input tensor.
-        shifts (int or tuple of int). The number of places by which the elements of the x tensor are shifted.
-        axis (int or tuple of int, optional). Axis(axes) along which to roll. Default: None.
+        shift (int or tuple of int). The number of places by which the elements of the tensor are shifted.
+        axis (int or tuple of int, optional). Axis (axes) along which to roll. Default: None; the tensor will be flattened before rolling and then restored to the original shape.
 
     Returns:
         Tensor: Rolled tensor.
@@ -288,7 +288,7 @@ def sin(x):
 
 
 def cos(x):
-    """"Computes cosine of x element-wise."""
+    """Computes cosine of x element-wise."""
 
 
 def exp(x):
@@ -374,7 +374,7 @@ def zeros_like(input_tensor):
 
 
 def matmul(x, y):
-    """Compute matrix multiplication for input tensor x and y.
+    """Compute matrix multiplication for two input tensors x and y.
 
     Args:
         x (Tensor). The input tensor x.
@@ -386,7 +386,7 @@ def matmul(x, y):
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """Compute an sparse matrix multiplication with an sparse/dense matrix for input tensor x and y.
+    """Compute sparse matrix multiplication with a sparse/dense matrix for input tensors x and y.
 
     Args:
         x (Sparse Tensor). The input tensor x.
