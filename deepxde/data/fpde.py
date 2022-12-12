@@ -146,8 +146,8 @@ class FPDE(PDE):
             self.frac_train = Fractional(self.alpha, self.geom, self.disc, x_f)
             X = self.frac_train.get_x()
 
-        self.train_x = np.vstack((x_bc, X))
-        self.train_y = self.soln(self.train_x) if self.soln else None
+        self.train_x = np.vstack((x_bc, X)).astype(config.real(np))
+        self.train_y = self.soln(self.train_x).astype(config.real(np)) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
@@ -156,14 +156,14 @@ class FPDE(PDE):
             raise ValueError("Cannot use test points in static mesh.")
 
         if self.num_test is None:
-            self.test_x = self.train_x[sum(self.num_bcs) :]
+            self.test_x = self.train_x[sum(self.num_bcs) :].astype(config.real(np))
             self.frac_test = self.frac_train
         else:
             self.test_x = self.test_points()
             x_f = self.test_x[~self.geom.on_boundary(self.test_x)]
             self.frac_test = Fractional(self.alpha, self.geom, self.disc, x_f)
-            self.test_x = self.frac_test.get_x()
-        self.test_y = self.soln(self.test_x) if self.soln else None
+            self.test_x = self.frac_test.get_x().astype(config.real(np))
+        self.test_y = self.soln(self.test_x).astype(config.real(np)) if self.soln else None
         return self.test_x, self.test_y
 
     def test_points(self):
@@ -278,8 +278,8 @@ class TimeFPDE(FPDE):
             )
             X = self.frac_train.get_x()
 
-        self.train_x = np.vstack((x_bc, X))
-        self.train_y = self.soln(self.train_x) if self.soln else None
+        self.train_x = np.vstack((x_bc, X)).astype(config.real(np))
+        self.train_y = self.soln(self.train_x).astype(config.real(np)) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
@@ -302,8 +302,8 @@ class TimeFPDE(FPDE):
                 None,
                 x_f,
             )
-            self.test_x = self.frac_test.get_x()
-        self.test_y = self.soln(self.test_x) if self.soln else None
+            self.test_x = self.frac_test.get_x().astype(config.real(np))
+        self.test_y = self.soln(self.test_x).astype(config.real(np)) if self.soln else None
         return self.test_x, self.test_y
 
     def train_points(self):

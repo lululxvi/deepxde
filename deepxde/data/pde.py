@@ -160,10 +160,10 @@ class PDE(Data):
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
-        self.train_x = self.bc_points()
+        self.train_x = self.bc_points().astype(config.real(np))
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
-        self.train_y = self.soln(self.train_x) if self.soln else None
+            self.train_x = np.vstack((self.train_x, self.train_x_all)).astype(config.real(np))
+        self.train_y = self.soln(self.train_x).astype(config.real(np)) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
                 config.real(np)
@@ -173,9 +173,9 @@ class PDE(Data):
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x
+            self.test_x = self.train_x.astype(config.real(np))
         else:
-            self.test_x = self.test_points()
+            self.test_x = self.test_points().astype(config.real(np))
         self.test_y = self.soln(self.test_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.test_aux_vars = self.auxiliary_var_fn(self.test_x).astype(
