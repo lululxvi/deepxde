@@ -41,7 +41,7 @@ def shape(input_tensor):
 
 
 def size(input_tensor):
-    return paddle.numel(tensor)
+    return paddle.numel(input_tensor)
 
 
 def ndim(input_tensor):
