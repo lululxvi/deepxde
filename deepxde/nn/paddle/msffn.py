@@ -92,9 +92,8 @@ class MsFFN(NN):
         return y, b
 
     def _fully_connected_forward(self, y):
-        for i in range(len(self.linears)):
-            y = self.linears[i](y)
-            y = self.activation(y)
+        for linear in self.linears:
+            y = self.activation(linear(y))
             if self.dropout_rate > 0:
                 y = paddle.nn.functional.dropout(
                     y, p=self.dropout_rate, training=self.training)
