@@ -88,7 +88,7 @@ def size(input_tensor):
         input_tensor (Tensor). The input tensor.
 
     Returns:
-        Tensor: number of element(s) within the input tensor.
+        Tensor: The total number of elements in the input tensor.
     """
 
 
@@ -159,7 +159,9 @@ def sparse_tensor(indices, values, shape):
     """Construct a sparse tensor based on given indices, values and shape.
 
     Args:
-        indices (list of tuple). A 2-D int list of shape [N, ndims], which specifies the indices of the elements in the sparse tensor that contain nonzero values (elements are zero-indexed), such as [(x1, y1), (x2, y2), ..., (xN, yN)].
+        indices (list of tuple). A 2-D int list of shape [N, ndims], which specifies 
+            the indices of the elements in the sparse tensor that contain nonzero values 
+            (elements are zero-indexed), such as [(x1, y1), (x2, y2), ..., (xN, yN)].
         values (Tensor). Values of non-zero elements, with shape of [N].
         shape (list or tuple). Dense shape of constructed tensor.
 
@@ -207,7 +209,7 @@ def expand_dims(tensor, axis):
 
     Args:
         tensor (Tensor). The input tensor.
-        axis (int). axis to expand.
+        axis (int). Axis to expand.
 
     Returns:
         Tensor: Expanded tensor.
