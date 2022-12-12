@@ -4,7 +4,6 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
-from . import backend as bkd
 from . import config
 from . import display
 from . import gradients as grad
@@ -98,8 +97,10 @@ class Model:
 
                 - For backend PaddlePaddle:
 
-                    - `InverseTimeDecay <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_: ("inverse time", decay_steps, decay_rate)
-                       NOTE: InverseTimeDecay is refactored in deepxde/optimizers/paddle/optimizers.py for arg `decay_steps`
+                    - `InverseTimeDecay
+                      <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
+                      ("inverse time", decay_steps, decay_rate)
+                      NOTE: InverseTimeDecay is refactored in deepxde/optimizers/paddle/optimizers.py for arg `decay_steps`
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
