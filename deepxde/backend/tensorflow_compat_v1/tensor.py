@@ -64,10 +64,6 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
-def tensor_shape(input_tensor):
-    return tf.shape(input_tensor)
-
-
 def size(tensor):
     return tf.size(tensor)
 

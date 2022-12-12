@@ -48,10 +48,6 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
-def tensor_shape(input_tensor):
-    return list(input_tensor.shape)
-
-
 def size(tensor):
     return torch.numel(tensor)
 

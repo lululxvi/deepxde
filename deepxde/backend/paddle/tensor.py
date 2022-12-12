@@ -40,10 +40,6 @@ def shape(input_tensor):
     return input_tensor.shape
 
 
-def tensor_shape(input_tensor):
-    return input_tensor.shape
-
-
 def size(input_tensor):
     return paddle.numel(tensor)
 
