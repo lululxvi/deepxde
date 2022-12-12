@@ -28,19 +28,15 @@ class MsFFN(NN):
         use_bias=True
     ):
         super().__init__()
-        self._input_transform = None
-        self._output_transform = None
-
         self.activation = activations.get(activation)
         self.dropout_rate = dropout_rate
         self.sigmas = sigmas  # list or tuple
-        self.use_bias = use_bias
         self.fourier_feature_weights = None
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
 
         self.b = []
-        for i, sigma in enumerate(self.sigmas):
+        for sigma in self.sigmas:
             self.b.append(
                 self.create_parameter(
                     shape=[layer_sizes[0], layer_sizes[1] // 2],
@@ -57,7 +53,7 @@ class MsFFN(NN):
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
-        self._dense = paddle.nn.Linear(layer_sizes[-2] * 2, layer_sizes[-1])
+        self._dense = paddle.nn.Linear(layer_sizes[-2] * 2, layer_sizes[-1], bias_attr=use_bias)
         initializer(self._dense.weight)
         initializer_zero(self._dense.bias)
 
@@ -103,20 +99,6 @@ class MsFFN(NN):
                 y = paddle.nn.functional.dropout(
                     y, p=self.dropout_rate, training=self.training)
         return y
-
-    def apply_feature_transform(self, transform):
-        """Compute the features by appling a transform to the network inputs, i.e.,
-        features = transform(inputs). Then, outputs = network(features).
-        """
-        # TODO: support input transform
-        self._input_transform = transform
-
-    def apply_output_transform(self, transform):
-        """Apply a transform to the network outputs, i.e.,
-        outputs = transform(inputs, outputs).
-        """
-        # TODO: support output transform
-        self._output_transform = transform
 
 
 class STMsFFN(MsFFN):

@@ -43,11 +43,8 @@ class PFNN(NN):
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
             used by one output. Note that `len(layer_sizes[i])` should equal the number
             of outputs. Every number specifies the number of neurons in that layer.
-        activation: If `activation` is a ``string``, then the same activation is used in
-            both trunk and branch nets. If `activation` is a ``dict``, then the trunk
-            net uses the activation `activation["trunk"]`, and the branch net uses
-            `activation["branch"]`.
-        kernel_initializer: initializer method for NN kernels.
+        activation: A string represent activation used in fully-connected net.
+        kernel_initializer: Initializer for the kernel weights matrix.
     """
 
     def __init__(self, layer_sizes, activation, kernel_initializer):
