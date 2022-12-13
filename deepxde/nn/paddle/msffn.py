@@ -25,7 +25,6 @@ class MsFFN(NN):
         kernel_initializer,
         sigmas,
         dropout_rate=0.0,
-        use_bias=True
     ):
         super().__init__()
         self.activation = activations.get(activation)
@@ -53,7 +52,7 @@ class MsFFN(NN):
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
 
-        self._dense = paddle.nn.Linear(layer_sizes[-2] * 2, layer_sizes[-1], bias_attr=use_bias)
+        self._dense = paddle.nn.Linear(layer_sizes[-2] * 2, layer_sizes[-1])
         initializer(self._dense.weight)
         initializer_zero(self._dense.bias)
 
@@ -118,17 +117,36 @@ class STMsFFN(MsFFN):
         sigmas_x,
         sigmas_t,
         dropout_rate=0,
-        use_bias=True
     ):
-        layer_sizes[0] = layer_sizes[0] // 2
         super().__init__(
             layer_sizes,
             activation,
             kernel_initializer,
-            sigmas_x + sigmas_t,
+            [],
             dropout_rate,
-            use_bias
         )
+        for sigma in self.sigmas_x:
+            self.b.append(
+                self.create_parameter(
+                    shape=[layer_sizes[0] - 1, layer_sizes[1] // 2],
+                    default_initializer=paddle.nn.initializer.Normal(std=sigma),
+                )
+            )
+            # freeze parameters in self.b
+            self.b[-1].trainable = False
+            self.b[-1].stop_gradient = True
+
+        for sigma in self.sigmas_t:
+            self.b.append(
+                self.create_parameter(
+                    shape=[1, layer_sizes[1] // 2],
+                    default_initializer=paddle.nn.initializer.Normal(std=sigma),
+                )
+            )
+            # freeze parameters in self.b
+            self.b[-1].trainable = False
+            self.b[-1].stop_gradient = True
+
         self.sigmas_x = sigmas_x
         self.sigmas_t = sigmas_t
 
@@ -138,15 +156,13 @@ class STMsFFN(MsFFN):
             # The last column should be function of t.
             x = self._input_transform(x)
 
-        x0, x1 = paddle.split(x, num_or_sections=2, axis=1)
-
         # fourier feature layer
         yb_x = [
-            self._fourier_feature_forward(x0, self.b[i])
+            self._fourier_feature_forward(x[:, :-1], self.b[i])
             for i in range(len(self.sigmas_x))
         ]
         yb_t = [
-            self._fourier_feature_forward(x1, self.b[len(self.sigmas_x) + i])
+            self._fourier_feature_forward(x[:, -1:], self.b[len(self.sigmas_x) + i])
             for i in range(len(self.sigmas_t))
         ]
         self.fourier_feature_weights = [elem[1] for elem in yb_x + yb_t]
