@@ -125,7 +125,7 @@ class STMsFFN(MsFFN):
             [],
             dropout_rate,
         )
-        for sigma in self.sigmas_x:
+        for sigma in sigmas_x:
             self.b.append(
                 self.create_parameter(
                     shape=[layer_sizes[0] - 1, layer_sizes[1] // 2],
@@ -136,7 +136,7 @@ class STMsFFN(MsFFN):
             self.b[-1].trainable = False
             self.b[-1].stop_gradient = True
 
-        for sigma in self.sigmas_t:
+        for sigma in sigmas_t:
             self.b.append(
                 self.create_parameter(
                     shape=[1, layer_sizes[1] // 2],
