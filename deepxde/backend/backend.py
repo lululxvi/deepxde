@@ -88,7 +88,7 @@ def size(input_tensor):
         input_tensor (Tensor). The input tensor.
 
     Returns:
-        Tensor: The total number of elements in the input tensor.
+        int: The total number of elements in the input tensor.
     """
 
 
@@ -233,8 +233,11 @@ def roll(tensor, shift, axis=None):
 
     Args:
         tensor (Tensor). The input tensor.
-        shift (int or tuple of int). The number of places by which the elements of the tensor are shifted.
-        axis (int or tuple of int, optional). Axis (axes) along which to roll. Default: None; the tensor will be flattened before rolling and then restored to the original shape.
+        shift (int or tuple of int). The number of places by which the elements of the 
+            tensor are shifted.
+        axis (int or tuple of int, optional). Axis (axes) along which to roll. 
+            Default: None; the tensor will be flattened before rolling and then restored
+            to the original shape.
 
     Returns:
         Tensor: Rolled tensor.
@@ -249,7 +252,9 @@ def roll(tensor, shift, axis=None):
 
 
 def lgamma(x):
-    """Computes the natural logarithm of the absolute value of the gamma function of x element-wise."""
+    """Computes the natural logarithm of the absolute value of the gamma function of x 
+    element-wise.
+    """
 
 
 def elu(x):
@@ -377,7 +382,8 @@ def matmul(x, y):
 
 
 def sparse_tensor_dense_matmul(x, y):
-    """Compute sparse matrix multiplication with a sparse/dense matrix for input tensors x and y.
+    """Compute sparse matrix multiplication with a sparse/dense matrix for input 
+    tensors x and y.
 
     Args:
         x (Sparse Tensor). The input tensor x.
