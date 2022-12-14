@@ -3,8 +3,8 @@ from packaging.version import Version
 
 import paddle
 
-if Version(paddle.__version__) < Version("2.3.0") and Version(paddle.__version__) != Version("0.0.0"):
-    raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0 or develop")
+if Version(paddle.__version__) != Version("0.0.0"):
+    raise RuntimeError("DeepXDE requires PaddlePaddle==0.0.0(develop).")
 
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")
@@ -41,7 +41,7 @@ def shape(input_tensor):
 
 
 def size(input_tensor):
-    return paddle.numel(input_tensor)
+    return int(paddle.numel(input_tensor))
 
 
 def ndim(input_tensor):
@@ -103,7 +103,7 @@ def reverse(tensor, axis):
     return paddle.flip(tensor, axis)
 
 
-def roll(tensor, shift, axis=None):
+def roll(tensor, shift, axis):
     return paddle.roll(tensor, shift, axis)
 
 
@@ -187,6 +187,5 @@ def matmul(x, y):
     return paddle.matmul(x, y)
 
 
-def sparse_tensor_dense_matmul(x, y):
-
+def sparse_dense_matmul(x, y):
     return paddle.sparse.matmul(x, y)

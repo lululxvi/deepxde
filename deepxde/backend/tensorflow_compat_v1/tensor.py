@@ -1,10 +1,10 @@
 """tensorflow.compat.v1 backend implementation"""
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import tensorflow.compat.v1 as tf
 
 
-if LooseVersion(tf.__version__) < LooseVersion("2.7.0"):
+if Version(tf.__version__) < Version("2.7.0"):
     raise RuntimeError("DeepXDE requires TensorFlow>=2.7.0.")
 
 
@@ -65,7 +65,7 @@ def shape(input_tensor):
 
 
 def size(tensor):
-    return tf.size(tensor)
+    return tf.get_static_value(tf.size(tensor)).item()
 
 
 def ndim(input_tensor):
@@ -93,7 +93,7 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    return tf.SparseTensor(indices=indices, values=values, dense_shape=shape)
+    return tf.sparse.SparseTensor(indices=indices, values=values, dense_shape=shape)
 
 
 def from_numpy(np_array):
@@ -105,7 +105,7 @@ def from_numpy(np_array):
 
 
 def concat(values, axis):
-    return tf.concat(values, axis=axis)
+    return tf.concat(values, axis)
 
 
 def expand_dims(tensor, axis):
@@ -116,12 +116,12 @@ def reverse(tensor, axis):
     return tf.reverse(tensor, axis)
 
 
-def roll(tensor, shift, axis=None):
+def roll(tensor, shift, axis):
     return tf.roll(tensor, shift, axis)
 
 
 def lgamma(x):
-    return tf.lgamma(x)
+    return tf.math.lgamma(x)
 
 
 def elu(x):
@@ -149,7 +149,7 @@ def sin(x):
 
 
 def cos(x):
-    return tf.cos(x)
+    return tf.math.cos(x)
 
 
 def exp(x):
@@ -199,8 +199,8 @@ def zeros_like(input_tensor):
 
 
 def matmul(x, y):
-    return tf.matmul(x, y)
+    return tf.linalg.matmul(x, y)
 
 
-def sparse_tensor_dense_matmul(x, y):
-    return tf.sparse_tensor_dense_matmul(x, y)
+def sparse_dense_matmul(x, y):
+    return tf.sparse.sparse_dense_matmul(x, y)

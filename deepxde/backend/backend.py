@@ -159,8 +159,8 @@ def sparse_tensor(indices, values, shape):
     """Construct a sparse tensor based on given indices, values and shape.
 
     Args:
-        indices (list of tuple). A 2-D int list of shape [N, ndims], which specifies 
-            the indices of the elements in the sparse tensor that contain nonzero values 
+        indices (list of tuple). A 2-D int list of shape [N, ndims], which specifies
+            the indices of the elements in the sparse tensor that contain nonzero values
             (elements are zero-indexed), such as [(x1, y1), (x2, y2), ..., (xN, yN)].
         values (Tensor). Values of non-zero elements, with shape of [N].
         shape (list or tuple). Dense shape of constructed tensor.
@@ -228,16 +228,14 @@ def reverse(tensor, axis):
     """
 
 
-def roll(tensor, shift, axis=None):
+def roll(tensor, shift, axis):
     """Roll the tensor along the given axis (axes).
 
     Args:
         tensor (Tensor). The input tensor.
-        shift (int or tuple of int). The number of places by which the elements of the 
+        shift (int or tuple of ints). The number of places by which the elements of the
             tensor are shifted.
-        axis (int or tuple of int, optional). Axis (axes) along which to roll. 
-            Default: None; the tensor will be flattened before rolling and then restored
-            to the original shape.
+        axis (int or tuple of ints). Axis (axes) along which to roll.
 
     Returns:
         Tensor: Rolled tensor.
@@ -252,7 +250,7 @@ def roll(tensor, shift, axis=None):
 
 
 def lgamma(x):
-    """Computes the natural logarithm of the absolute value of the gamma function of x 
+    """Computes the natural logarithm of the absolute value of the gamma function of x
     element-wise.
     """
 
@@ -350,7 +348,7 @@ def zeros(shape, dtype):
     """Creates a tensor with all elements set to zero.
 
     Args:
-        shape (tuple of int). The tensor shape.
+        shape (tuple of ints). The tensor shape.
         dtype (data type). It should be one of the values in the data type dict.
 
     Returns:
@@ -381,8 +379,8 @@ def matmul(x, y):
     """
 
 
-def sparse_tensor_dense_matmul(x, y):
-    """Compute sparse matrix multiplication with a sparse/dense matrix for input 
+def sparse_dense_matmul(x, y):
+    """Compute sparse matrix multiplication with a sparse/dense matrix for input
     tensors x and y.
 
     Args:

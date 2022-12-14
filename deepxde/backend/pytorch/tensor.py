@@ -1,10 +1,10 @@
 """pytorch backend implementation"""
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import torch
 
 
-if LooseVersion(torch.__version__) < LooseVersion("1.9.0"):
+if Version(torch.__version__) < Version("1.9.0"):
     raise RuntimeError("DeepXDE requires PyTorch>=1.9.0.")
 
 # To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
@@ -112,7 +112,7 @@ def reverse(tensor, axis):
     return torch.flip(tensor, axis)
 
 
-def roll(tensor, shift, axis=None):
+def roll(tensor, shift, axis):
     return torch.roll(tensor, shift, axis)
 
 
@@ -196,7 +196,7 @@ def matmul(x, y):
     return torch.matmul(x, y)
 
 
-def sparse_tensor_dense_matmul(x, y):
+def sparse_dense_matmul(x, y):
     if not x.is_sparse_csr:
         # NOTE: only support CSR tensor multiplication now
         # refer to https://pytorch.org/docs/stable/sparse.html#csr-tensor-operations
