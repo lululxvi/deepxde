@@ -118,6 +118,7 @@ PINN
 DeepONet
 --------
 
+#. M. Zhu, H. Zhang, A. Jiao, G. Karniadakis, & L. Lu. `Reliable extrapolation of deep neural operators informed by physics or sparse observations <https://arxiv.org/abs/2212.06347>`_. *arXiv preprint arXiv:2212.06347*, 2022.
 #. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `Neural operator prediction of linear instability waves in high-speed boundary layers <https://doi.org/10.1016/j.jcp.2022.111793>`_. *Journal of Computational Physics*, 474, 111793, 2023.
 #. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://doi.org/10.1137/22M1477751>`_. *SIAM Journal on Scientific Computing*, 44(6), A3490--A3514, 2022.
 #. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://doi.org/10.1103/PhysRevResearch.4.023210>`_. *Physical Review Research*, 4(2), 023210, 2022.
@@ -138,4 +139,4 @@ Multi-fidelity NN
 Others
 ------
 
-#. L. Lu, H. He, P. Kasimbeg, R. Ranade, & J. Pathak. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
+#. A. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
