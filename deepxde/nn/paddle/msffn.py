@@ -1,7 +1,7 @@
 from .nn import NN
 from .. import activations
 from .. import initializers
-from ...backend import paddle
+import paddle
 
 
 class MsFFN(NN):
@@ -24,7 +24,7 @@ class MsFFN(NN):
         activation,
         kernel_initializer,
         sigmas,
-        dropout_rate=0.0,
+        dropout_rate=0,
     ):
         super().__init__()
         self.activation = activations.get(activation)
