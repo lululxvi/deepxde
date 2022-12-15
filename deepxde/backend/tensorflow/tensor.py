@@ -99,8 +99,12 @@ def sin(x):
     return tf.math.sin(x)
 
 
+def cos(x):
+    return tf.math.cos(x)
+
+
 def exp(x):
-    return tf.exp(x)
+    return tf.math.exp(x)
 
 
 def square(x):

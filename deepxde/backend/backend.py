@@ -368,11 +368,11 @@ def zeros_like(input_tensor):
 
 
 def matmul(x, y):
-    """Compute matrix multiplication for two input tensors x and y.
+    """Compute matrix multiplication for two matrices x and y.
 
     Args:
-        x (Tensor). The input tensor x.
-        y (Tensor). The input tensor y.
+        x (Tensor). The first matrix to be matrix multiplied.
+        y (Tensor). The second matrix to be matrix multiplied.
 
     Returns:
         Tensor: The multiplication result.
@@ -380,12 +380,11 @@ def matmul(x, y):
 
 
 def sparse_dense_matmul(x, y):
-    """Compute sparse matrix multiplication with a sparse/dense matrix for input
-    tensors x and y.
+    """Compute matrix multiplication of a sparse matrix x and a sparse/dense matrix y.
 
     Args:
-        x (Sparse Tensor). The input tensor x.
-        y (Sparse Tensor or Tensor). The input tensor y.
+        x (Sparse Tensor). The first sparse matrix to be multiplied.
+        y (Sparse Tensor or Tensor). The second matrix to be multiplied, which could be sparse or dense.
 
     Returns:
         Tensor: The multiplication result.

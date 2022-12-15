@@ -75,12 +75,7 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    x = [p[0] for p in indices]
-    y = [p[1] for p in indices]
-    indices = paddle.stack(
-        [paddle.to_tensor(x), paddle.to_tensor(y)]
-    )
-    return paddle.sparse.sparse_coo_tensor(indices=indices, values=values, shape=list(shape), stop_gradient=False)
+    return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, list(shape), stop_gradient=False)
 
 
 def from_numpy(np_array):

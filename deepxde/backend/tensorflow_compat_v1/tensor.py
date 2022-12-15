@@ -93,7 +93,7 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    return tf.sparse.SparseTensor(indices=indices, values=values, dense_shape=shape)
+    return tf.sparse.SparseTensor(indices, values, shape)
 
 
 def from_numpy(np_array):

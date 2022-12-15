@@ -79,13 +79,7 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    x = [p[0] for p in indices]  # [num_of_nonzeros, ]
-    y = [p[1] for p in indices]  # [num_of_nonzeros, ]
-    indices = torch.stack(
-        [torch.tensor(x), torch.tensor(y)]
-    )  # [2, num_of_nonzeros]
-    coo_tensor = torch.sparse_coo_tensor(indices, values, shape)
-    return coo_tensor
+    return torch.sparse_coo_tensor(list(zip(*indices)), values, shape, requires_grad=True)
 
 
 def from_numpy(np_array):
@@ -101,7 +95,7 @@ def to_numpy(input_tensor):
 
 
 def concat(values, axis):
-    return torch.concat(values, axis)
+    return torch.cat(values, axis)
 
 
 def expand_dims(tensor, axis):
@@ -193,12 +187,8 @@ def zeros_like(input_tensor):
 
 
 def matmul(x, y):
-    return torch.matmul(x, y)
+    return torch.mm(x, y)
 
 
 def sparse_dense_matmul(x, y):
-    if not x.is_sparse_csr:
-        # NOTE: only support CSR tensor multiplication now
-        # refer to https://pytorch.org/docs/stable/sparse.html#csr-tensor-operations
-        x = x.to_sparse_csr()
-    return torch.matmul(x, y)
+    return torch.sparse.mm(x, y)
