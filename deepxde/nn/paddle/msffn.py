@@ -1,7 +1,8 @@
+import paddle
+
 from .nn import NN
 from .. import activations
 from .. import initializers
-import paddle
 
 
 class MsFFN(NN):
