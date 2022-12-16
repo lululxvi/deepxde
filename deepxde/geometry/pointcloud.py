@@ -10,31 +10,31 @@ class PointCloud(Geometry):
 
     Args:
         points: A NumPy array of shape (`N`, `d`). A list of `d`-dim points.
-        If boundary is known, includes only points inside the boundary.
+            If boundary is known, includes only points inside the boundary.
         boundary_points: A NumPy array of shape (`N`, `d`). A list of `d`-dim
-        points on the boundary. If boundary is not known, leave as None type.
+            points on the boundary. If boundary is not known, leave as None type.
         normals: A NumPy array of shape (`N`, `d`). A list of `d`-dim
-        points of the normals corresponding to boundary_points.
+            points of the normals corresponding to boundary_points.
     """
 
-    def __init__(self, points, boundary_points=None, normals=None):
+    def __init__(self, points, boundary_points=None, boundary_normals=None):
         self.points = np.asarray(points, dtype=config.real(np))
         self.num_points = len(points)
         if boundary_points is None:
-            if normals is not None:
+            if boundary_normals is not None:
                 raise ValueError(
-                    "boundary_points must be provided to use normals"
+                    "boundary_points must be provided to use boundary_normals"
                 )
             self.boundary_points = boundary_points
-            self.normals = normals
+            self.boundary_normals = boundary_normals
             self.all_points = np.asarray(points, dtype=config.real(np))
         else:
-            if normals is not None:
-                if normals.shape != boundary_points.shape:
+            if boundary_normals is not None:
+                if boundary_normals.shape != boundary_points.shape:
                     raise ValueError(
-                        "the shape of normals should be the same as boundary_points"
+                        "the shape of boundary_normals should be the same as boundary_points"
                     )
-            self.normals = normals
+            self.boundary_normals = boundary_normals
             self.boundary_points = np.asarray(
                 boundary_points, dtype=config.real(np)
             )
