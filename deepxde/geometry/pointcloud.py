@@ -9,12 +9,11 @@ class PointCloud(Geometry):
     """A geometry represented by a point cloud, i.e., a set of points in space.
 
     Args:
-        points: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
-            If `boundary_points` is not provided, `points` can include points both 
-            inside the geometry or on the boundary; if `boundary_points` is 
-            provided, `points` includes only points inside the geometry.
-        boundary_points: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
-        normals: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
+        points: A 2-D NumPy array. If `boundary_points` is not provided, `points` can 
+            include points both inside the geometry or on the boundary; if `boundary_points`
+            is provided, `points` includes only points inside the geometry.
+        boundary_points: A 2-D NumPy array.
+        normals: A 2-D NumPy array.
     """
 
     def __init__(self, points, boundary_points=None, boundary_normals=None):
@@ -27,10 +26,10 @@ class PointCloud(Geometry):
                 )
             self.boundary_points = boundary_points
             self.boundary_normals = boundary_normals
-            self.all_points = np.asarray(points, dtype=config.real(np))
+            self.all_points = self.points
         else:
             if boundary_normals is not None:
-                if boundary_normals.shape != boundary_points.shape:
+                if len(boundary_normals) != len(boundary_points):
                     raise ValueError(
                         "the shape of boundary_normals should be the same as boundary_points"
                     )
@@ -39,12 +38,7 @@ class PointCloud(Geometry):
                 boundary_points, dtype=config.real(np)
             )
             self.num_boundary_points = len(boundary_points)
-            self.all_points = np.vstack(
-                (
-                    np.asarray(points, dtype=config.real(np)),
-                    np.asarray(boundary_points, dtype=config.real(np)),
-                )
-            )
+            self.all_points = np.vstack((self.points, self.boundary_points))
             self.boundary_sampler = BatchSampler(
                 self.num_boundary_points, shuffle=True
             )
@@ -59,24 +53,14 @@ class PointCloud(Geometry):
         self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
-        x_broad = x[:, None, :]
-        broad = self.points[None, :, :]
-        return (
-            np.isclose((x_broad - broad), 0, atol=1e-6).all(axis=2).any(axis=1)
-        )
+        return np.isclose((x[:, None, :] - self.points[None, :, :]), 0, atol=1e-6).all(axis=2).any(axis=1)
 
     def on_boundary(self, x):
         if self.boundary_points is None:
             raise ValueError(
                 "boundary_points must be defined to sample the boundary"
             )
-        x_broad = x[:, None, :]
-        bound_broad = self.boundary_points[None, :, :]
-        return (
-            np.isclose((x_broad - bound_broad), 0, atol=1e-6)
-            .all(axis=2)
-            .any(axis=1)
-        )
+        return np.isclose((x[:, None, :] - self.boundary_points[None, :, :]), 0, atol=1e-6).all(axis=2).any(axis=1)
 
     def random_points(self, n, random="pseudo"):
         if n <= self.num_points:
