@@ -9,12 +9,12 @@ class PointCloud(Geometry):
     """A geometry represented by a point cloud, i.e., a set of points in space.
 
     Args:
-        points: A NumPy array of shape (`N`, `d`). A list of `d`-dim points.
-            If boundary is known, includes only points inside the boundary.
-        boundary_points: A NumPy array of shape (`N`, `d`). A list of `d`-dim
-            points on the boundary. If boundary is not known, leave as None type.
-        normals: A NumPy array of shape (`N`, `d`). A list of `d`-dim
-            points of the normals corresponding to boundary_points.
+        points: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
+            If `boundary_points` is not provided, `points` can include points both 
+            inside the geometry or on the boundary; if `boundary_points` is 
+            provided, `points` includes only points inside the geometry.
+        boundary_points: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
+        normals: A NumPy array of shape (`N`, `d`). --> A 2-D NumPy array.
     """
 
     def __init__(self, points, boundary_points=None, boundary_normals=None):
