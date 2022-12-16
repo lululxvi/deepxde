@@ -341,7 +341,24 @@ def reduce_sum(input_tensor):
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):
-    """Computes a vector or matrix norm."""
+    """Computes a vector norm.
+
+    Due to the incompatibility of different backends, only some vector norms are 
+    supported, and matrix norm is not supported now. This API follows numpy.linalg.norm().
+
+    Args:
+        tensor (Tensor). If axis is None, tensor must be 1-D.
+        ord (int, float, inf). Order of the norm. For vector norm, supported values are 
+            1, 2, inf, and any positive real number. Default is 2-norm for vectors.
+        axis (int). If axis is an integer, it specifies the axis of tensor along which 
+            to compute the vector norms. If axis is None, then a vector norm 
+            (when tensor is 1-D) is returned. The default is None.
+        keepdims (bool). If this is set to True, the axes which are normed over are left
+            in the result as dimensions with size one.
+
+    Returns:
+        Tensor: Norm of the vector(s).
+    """
 
 
 def zeros(shape, dtype):

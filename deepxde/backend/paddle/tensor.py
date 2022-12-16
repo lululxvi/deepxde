@@ -61,7 +61,7 @@ def reshape(tensor, shape):
 def Variable(initial_value, dtype=None):
     return paddle.create_parameter(
         shape=[1],
-        dtype="float32" if dtype is None else dtype,
+        dtype=paddle.get_default_dtype() if dtype is None else dtype,
         default_initializer=paddle.nn.initializer.Constant(value=initial_value)
     )
 
@@ -75,7 +75,7 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, list(shape), stop_gradient=False)
+    return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
 
 
 def from_numpy(np_array):
@@ -166,8 +166,8 @@ def reduce_sum(input_tensor):
     return paddle.sum(input_tensor)
 
 
-def norm(x, p=None, axis=None, keepdims=False):
-    return paddle.linalg.norm(x, p=p, axis=axis, keepdim=keepdims)
+def norm(x, ord=None, axis=None, keepdims=False):
+    return paddle.linalg.norm(x, p=ord, axis=axis, keepdim=keepdims)
 
 
 def zeros(shape, dtype):
@@ -179,7 +179,7 @@ def zeros_like(input_tensor):
 
 
 def matmul(x, y):
-    return paddle.matmul(x, y)
+    return paddle.mm(x, y)
 
 
 def sparse_dense_matmul(x, y):
