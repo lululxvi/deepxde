@@ -165,7 +165,9 @@ class PDE(Data):
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
         return self.train_x, self.train_y, self.train_aux_vars
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
@@ -176,7 +178,8 @@ class PDE(Data):
             self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.test_aux_vars = self.auxiliary_var_fn(self.test_x)
+            self.test_aux_vars = self.auxiliary_var_fn(self.test_x).astype(
+                config.real(np)
             )
         return self.test_x, self.test_y, self.test_aux_vars
 
@@ -191,7 +194,7 @@ class PDE(Data):
 
     def add_anchors(self, anchors):
         """Add new points for training PDE losses. The BC points will not be updated."""
-        anchors = anchors
+        anchors = anchors.astype(config.real(np))
         if self.anchors is None:
             self.anchors = anchors
         else:
@@ -202,18 +205,22 @@ class PDE(Data):
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
 
     def replace_with_anchors(self, anchors):
         """Replace the current PDE training points with anchors. The BC points will not be changed."""
-        self.anchors = anchors
+        self.anchors = anchors.astype(config.real(np))
         self.train_x_all = self.anchors
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
-            self.train_aux_vars = self.auxiliary_var_fn(self.train_x)
+            self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
+                config.real(np)
+            )
 
     @run_if_all_none("train_x_all")
     def train_points(self):

@@ -81,8 +81,8 @@ class IDE(PDE):
         self.train_x_all = self.train_points()
         x_bc = self.bc_points()
         x_quad = self.quad_points(self.train_x_all)
-        self.train_x = np.vstack((x_bc, self.train_x_all, x_quad)).astype(config.real(np))
-        self.train_y = self.soln(self.train_x).astype(config.real(np)) if self.soln else None
+        self.train_x = np.vstack((x_bc, self.train_x_all, x_quad))
+        self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
@@ -92,8 +92,8 @@ class IDE(PDE):
         else:
             self.test_x = self.test_points()
         x_quad = self.quad_points(self.test_x)
-        self.test_x = np.vstack((self.test_x, x_quad)).astype(config.real(np))
-        self.test_y = self.soln(self.test_x).astype(config.real(np)) if self.soln else None
+        self.test_x = np.vstack((self.test_x, x_quad))
+        self.test_y = self.soln(self.test_x) if self.soln else None
         return self.test_x, self.test_y
 
     def test_points(self):

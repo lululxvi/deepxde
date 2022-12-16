@@ -138,12 +138,12 @@ class Hypersphere(Geometry):
     def random_points(self, n, random="pseudo"):
         # https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         if random == "pseudo":
-            U = np.random.rand(n, 1)
-            X = np.random.normal(size=(n, self.dim))
+            U = np.random.rand(n, 1).astype(config.real(np))
+            X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
             rng = sample(n, self.dim + 1, random)
             U, X = rng[:, 0:1], rng[:, 1:]  # Error if X = [0, 0, ...]
-            X = stats.norm.ppf(X)
+            X = stats.norm.ppf(X).astype(config.real(np))
         X = preprocessing.normalize(X)
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
@@ -154,7 +154,7 @@ class Hypersphere(Geometry):
             X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
         else:
             U = sample(n, self.dim, random)  # Error for [0, 0, ...] or [0.5, 0.5, ...]
-            X = stats.norm.ppf(U)
+            X = stats.norm.ppf(U).astype(config.real(np))
         X = preprocessing.normalize(X)
         return self.radius * X + self.center
 

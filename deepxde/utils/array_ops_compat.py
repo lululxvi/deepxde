@@ -27,7 +27,7 @@ def hstack(tup):
             tup[0] = tf.convert_to_tensor([], dtype=config.real(tf))
         else:
             tup[0] = np.array([], dtype=config.real(np))
-    return tf.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup).astype(config.real(np))
+    return tf.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup)
 
 
 def roll(a, shift, axis):
