@@ -4,7 +4,6 @@ from .helper import one_function
 from .pde import PDE
 from .. import backend as bkd
 from .. import config
-
 from ..utils import run_if_all_none
 
 

@@ -2,10 +2,10 @@ __all__ = ["Scheme", "FPDE", "TimeFPDE"]
 
 import math
 
-from .. import backend as bkd
 import numpy as np
 
 from .pde import PDE
+from .. import backend as bkd
 from .. import config
 from ..utils import array_ops_compat, run_if_all_none
 
