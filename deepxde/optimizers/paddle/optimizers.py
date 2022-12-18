@@ -39,6 +39,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
         return optimizer
 
     if is_external_optimizer(optimizer):
+        # TODO: add support for L-BFGS and L-BFGS-B
         raise NotImplementedError(f"{optimizer} is not implemented in PaddlePaddle")
 
     if learning_rate is None:
