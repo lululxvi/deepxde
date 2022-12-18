@@ -4,7 +4,7 @@ import numpy as np
 
 from .. import backend as bkd
 from .. import config
-from ..backend import is_tensor, tf, get_preferred_backend
+from ..backend import is_tensor, tf, backend_name
 
 
 def istensorlist(values):
@@ -14,7 +14,7 @@ def istensorlist(values):
 def convert_to_array(value):
     """Convert a list to numpy array or tensorflow tensor."""
     if istensorlist(value):
-        if get_preferred_backend() == "paddle":
+        if backend_name == "paddle":
             return bkd.concat(value, axis=0)
         return bkd.as_tensor(value, dtype=config.real(bkd.lib))
     value = np.array(value)
