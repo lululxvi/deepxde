@@ -74,6 +74,10 @@ def as_tensor(data, dtype=None):
     return paddle.to_tensor(data, dtype=dtype)
 
 
+def constant(value, dtype=None):
+    return paddle.to_tensor(value, dtype=dtype)
+
+
 def sparse_tensor(indices, values, shape):
     return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
 

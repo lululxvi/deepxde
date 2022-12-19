@@ -92,6 +92,10 @@ def as_tensor(data, dtype=None):
     return tf.convert_to_tensor(data, dtype=dtype)
 
 
+def constant(value, dtype=None):
+    return tf.constant(value, dtype=dtype)
+
+
 def sparse_tensor(indices, values, shape):
     return tf.sparse.SparseTensor(indices, values, shape)
 

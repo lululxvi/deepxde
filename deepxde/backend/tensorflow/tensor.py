@@ -63,6 +63,10 @@ def as_tensor(data, dtype=None):
     return tf.convert_to_tensor(data, dtype=dtype)
 
 
+def constant(value, dtype=None):
+    return tf.constant(value, dtype=dtype)
+
+
 def from_numpy(np_array):
     # Do memory copy:
     # https://stackoverflow.com/questions/47519802/does-tensorflow-convert-to-tensor-do-memory-copy
