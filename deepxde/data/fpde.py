@@ -1,12 +1,12 @@
 __all__ = ["Scheme", "FPDE", "TimeFPDE"]
 
 import math
-
 import numpy as np
+import types
 
 from .pde import PDE
 from .. import config
-from ..backend import is_tensor, tf
+from ..backend import is_tensor, tf, backend_name
 from ..utils import array_ops_compat, run_if_all_none
 
 
@@ -94,6 +94,11 @@ class FPDE(PDE):
             solution=solution,
             num_test=num_test,
         )
+
+        # do not use cache when alpha is a learnable parameter
+        if is_tensor(self.alpha) and backend_name != "tensorflow.compat.v1":
+            self.train_next_batch = types.MethodType(self.train_next_batch.__wrapped__, self)
+            self.test = types.MethodType(self.test.__wrapped__, self)
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)

@@ -33,7 +33,7 @@ def run_if_all_none(*attr):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             x = [getattr(self, a) for a in attr]
-            if all(i is None for i in x) or (hasattr(self, "alpha") and bkd.is_tensor(self.alpha)):
+            if all(i is None for i in x):
                 return func(self, *args, **kwargs)
             return x if len(x) > 1 else x[0]
 
