@@ -62,10 +62,10 @@ class Disk(Geometry):
 
     def background_points(self, x, dirn, dist2npt, shift):
         dirn = dirn / np.linalg.norm(dirn)
-        dx = self.distance2boundary_unitdirn(x, -dirn)
+        dx = self.distance2boundary_unitdirn(x, -dirn).astype(config.real(np))
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n - shift + 1)[:, None] * h * dirn
+        pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
         return pts
 
 

@@ -403,6 +403,7 @@ class Fractional:
             dirns, dirn_w = [-1, 1], [1, 1]
         elif self.geom.dim == 2:
             gauss_x, gauss_w = np.polynomial.legendre.leggauss(self.disc.resolution[0])
+            gauss_x, gauss_w = gauss_x.astype(config.real(np)), gauss_w.astype(config.real(np))
             thetas = np.pi * gauss_x + np.pi
             dirns = np.vstack((np.cos(thetas), np.sin(thetas))).T
             dirn_w = np.pi * gauss_w
@@ -410,6 +411,7 @@ class Fractional:
             gauss_x, gauss_w = np.polynomial.legendre.leggauss(
                 max(self.disc.resolution[:2])
             )
+            gauss_x, gauss_w = gauss_x.astype(config.real(np)), gauss_w.astype(config.real(np))
             thetas = (np.pi * gauss_x[: self.disc.resolution[0]] + np.pi) / 2
             phis = np.pi * gauss_x[: self.disc.resolution[1]] + np.pi
             dirns, dirn_w = [], []
