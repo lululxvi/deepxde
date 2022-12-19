@@ -3,23 +3,13 @@ __all__ = ["get", "is_external_optimizer"]
 import paddle
 
 
-class InverseTimeDecay(paddle.optimizer.lr.InverseTimeDecay):
-    def __init__(self, learning_rate, gamma, decay_steps=1, last_epoch=-1, verbose=False):
-        self.decay_steps = decay_steps
-        super().__init__(learning_rate, gamma, last_epoch, verbose)
-
-    def get_lr(self):
-        return self.base_lr / (1 + self.gamma * (self.last_epoch / self.decay_steps))
-
-
 def _get_lr_scheduler(lr, decay):
     if decay is None:
         return lr, None
     if decay[0] == "inverse time":
-        lr_sch = InverseTimeDecay(
+        lr_sch = paddle.optimizer.lr.InverseTimeDecay(
             lr,
-            decay[2],
-            decay[1],
+            decay[2]/decay[1],
             verbose=False
         )
     else:

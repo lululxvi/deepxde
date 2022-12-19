@@ -4,6 +4,7 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
+
 from . import config
 from . import display
 from . import gradients as grad
@@ -46,13 +47,11 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
             self.params = None
-        elif backend_name == "paddle":
-            self.lr_scheduler = None
 
 
     @utils.timing
@@ -100,7 +99,7 @@ class Model:
                     - `InverseTimeDecay
                       <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
                       ("inverse time", decay_steps, decay_rate)
-                      NOTE: InverseTimeDecay is refactored in deepxde/optimizers/paddle/optimizers.py for arg `decay_steps`
+
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
