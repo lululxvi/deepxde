@@ -56,7 +56,7 @@ class PointCloud(Geometry):
     def on_boundary(self, x):
         if self.boundary_points is None:
             raise ValueError(
-                "boundary_points must be defined to sample the boundary"
+                "boundary_points must be defined to test on_boundary"
             )
         return np.isclose((x[:, None, :] - self.boundary_points[None, :, :]), 0, atol=1e-6).all(axis=2).any(axis=1)
 
