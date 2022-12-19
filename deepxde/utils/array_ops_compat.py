@@ -12,7 +12,7 @@ def istensorlist(values):
 
 
 def convert_to_array(value):
-    """Convert a list to numpy array or tensorflow tensor."""
+    """Convert a list of numpy arrays or tensors to a numpy array or a tensor."""
     if istensorlist(value):
         if backend_name == "paddle":
             return bkd.concat(value, axis=0)
@@ -24,7 +24,7 @@ def convert_to_array(value):
 
 
 def hstack(tup):
-    if not is_tensor(tup[0]) and isinstance(tup[0], list) and tup[0] == []:
+    if not is_tensor(tup[0]) and tup[0] == []:
         tup = list(tup)
         if istensorlist(tup[1:]):
             tup[0] = bkd.as_tensor([], dtype=config.real(bkd.lib))
