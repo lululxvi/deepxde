@@ -31,6 +31,14 @@ def default_float():
     return "float32"
 
 
+def init_parallel_env():
+    """Initial parallel environment
+    """
+    if backend_name == "paddle":
+        paddle.distributed.init_parallel_env()
+    else:
+        raise NotImplementedError(f"Parallel env is not supported in {backend_name} now")
+
 def set_default_float(value):
     """Sets the default float type.
 

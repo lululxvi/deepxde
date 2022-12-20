@@ -49,6 +49,7 @@ class BC(ABC):
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
     def collocation_points(self, X):
+        # print("OperatorBC.collocation_points.X.shape=", X.shape)
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
@@ -184,6 +185,8 @@ class PointSetBC:
     ):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+        self.points = utils.array_ops_compat.sub_with_padding(self.points)
+        self.values = utils.array_ops_compat.sub_with_padding(self.values)
         self.component = component
         if isinstance(component, list) and backend_name != "pytorch":
             # TODO: Add support for multiple components in other backends

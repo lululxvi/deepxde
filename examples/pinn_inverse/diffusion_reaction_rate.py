@@ -6,6 +6,13 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
+import paddle
+import deepxde.config as config
+
+if dde.utils.get_nprocs() > 1:
+    config.init_parallel_env()
+config.set_random_seed(42)
+
 
 l = 0.01
 
@@ -64,7 +71,8 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3)
 
-losshistory, train_state = model.train(iterations=20000)
+losshistory, train_state = model.train(iterations=20000, display_every=50)
+paddle.save(net.state_dict(), "diffusion_reaction_rate/net.pdparams")
 
 x = geom.uniform_points(500)
 yhat = model.predict(x)

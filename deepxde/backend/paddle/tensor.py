@@ -4,8 +4,8 @@ from distutils.version import LooseVersion
 import paddle
 
 
-if LooseVersion(paddle.__version__) < LooseVersion("2.3.0"):
-    raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
+# if LooseVersion(paddle.__version__) < LooseVersion("2.3.0"):
+#     raise RuntimeError("DeepXDE requires PaddlePaddle>=2.3.0")
 
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")

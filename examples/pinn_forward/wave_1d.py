@@ -6,6 +6,13 @@ References:
 """
 import deepxde as dde
 import numpy as np
+import paddle
+import deepxde.config as config
+
+if dde.utils.get_nprocs() > 1:
+    config.init_parallel_env()
+config.set_random_seed(42)
+
 
 
 A = 2
@@ -40,8 +47,8 @@ ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 # do not use dde.NeumannBC here, since `normal_derivative` does not work with temporal coordinate.
 ic_2 = dde.icbc.OperatorBC(
     geomtime,
-    lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-    lambda x, _: np.isclose(x[1], 0),
+    func=lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
+    on_boundary=lambda x, _: np.isclose(x[1], 0),
 )
 data = dde.data.TimePDE(
     geomtime,
@@ -72,9 +79,9 @@ model.compile(
     loss_weights=loss_weights,
     decay=("inverse time", 2000, 0.9),
 )
-pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
+pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
 losshistory, train_state = model.train(
-    iterations=10000, callbacks=[pde_residual_resampler], display_every=500
+    iterations=10000, callbacks=[pde_residual_resampler], display_every=50
 )
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

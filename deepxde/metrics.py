@@ -1,7 +1,9 @@
 import numpy as np
+from . import backend as bkd
 from sklearn import metrics
 
 from . import config
+from . import utils
 
 
 def accuracy(y_true, y_pred):
@@ -9,6 +11,10 @@ def accuracy(y_true, y_pred):
 
 
 def l2_relative_error(y_true, y_pred):
+    nprocs, _ = utils.get_nprocs_and_rank()
+    if nprocs > 1:
+        y_true = utils.all_gather(bkd.as_tensor(y_true)).numpy()
+        y_pred = utils.all_gather(bkd.as_tensor(y_pred)).numpy()
     return np.linalg.norm(y_true - y_pred) / np.linalg.norm(y_true)
 
 

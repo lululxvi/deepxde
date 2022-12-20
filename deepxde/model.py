@@ -53,6 +53,14 @@ class Model:
         elif backend_name == "jax":
             self.opt_state = None
             self.params = None
+        elif backend_name == "paddle":
+            self.parallel = False
+            self.nprocs, _ = utils.get_nprocs_and_rank()
+            if self.nprocs > 1:
+                config.init_parallel_env()
+                print(f"Initializing parallel environment with world_size={self.nprocs}...")
+                self.net = paddle.DataParallel(self.net)
+                self.parallel = True
 
     @utils.timing
     def compile(
@@ -461,6 +469,11 @@ class Model:
             losses = outputs_losses_train(inputs, targets)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
+            if self.parallel:
+                for var in self.external_trainable_variables:
+                    paddle.dist.all_reduce(var.grad, paddle.dist.ReduceOp.SUM)
+                    var.grad.set(var.grad/self.nprocs)
+
             self.opt.step()
             self.opt.clear_grad()
 

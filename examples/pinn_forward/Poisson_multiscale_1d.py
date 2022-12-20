@@ -7,6 +7,14 @@ References:
 import deepxde as dde
 import numpy as np
 from deepxde.backend import tf
+import paddle
+import deepxde.config as config
+
+if dde.utils.get_nprocs() > 1:
+    config.init_parallel_env()
+config.set_random_seed(42)
+
+
 
 A = 2
 B = 50
@@ -16,8 +24,8 @@ def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return (
         dy_xx
-        + (np.pi * A) ** 2 * tf.sin(np.pi * A * x)
-        + 0.1 * (np.pi * B) ** 2 * tf.sin(np.pi * B * x)
+        + (np.pi * A) ** 2 * paddle.sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * paddle.sin(np.pi * B * x)
     )
 
 
@@ -51,7 +59,7 @@ model.compile(
     decay=("inverse time", 2000, 0.9),
 )
 
-pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
-model.train(iterations=20000, callbacks=[pde_residual_resampler])
+pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
+model.train(iterations=20000, callbacks=[pde_residual_resampler], display_every=50)
 
 dde.saveplot(model.losshistory, model.train_state, issave=True, isplot=True)

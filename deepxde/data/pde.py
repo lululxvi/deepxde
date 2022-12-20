@@ -4,7 +4,8 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none
+from ..losses import squared_error
+from ..utils import get_num_args, run_if_all_none, array_ops_compat, get_nprocs, all_gather
 
 
 class PDE(Data):
@@ -93,6 +94,9 @@ class PDE(Data):
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
+        if self.anchors is not None:
+            # shard anchors
+            self.anchors = array_ops_compat.sub_with_padding(self.anchors)
         self.exclusions = exclusions
 
         self.soln = solution
@@ -147,19 +151,38 @@ class PDE(Data):
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
-        losses = [
-            loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
-        ]
+        nprocs = get_nprocs()
+        if nprocs > 1 and not model.net.training:
+            # DDP test
+            losses = [
+                squared_error(bkd.zeros_like(error), error) for i, error in enumerate(error_f)
+            ]
+        else:
+            losses = [
+                loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
+            ]
+        # for p, q in enumerate(error_f):
+        #     print(f"loss_domain.item{p}.shape={q.shape}")
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(self.train_x, inputs, outputs, beg, end)
-            losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
+            # print(f"loss.item{i}.shape={error.shape}")
+            if nprocs > 1 and not model.net.training:
+                # DDP test
+                losses.append(squared_error(bkd.zeros_like(error), error))
+            else:
+                losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
+        if nprocs > 1 and not model.net.training:
+            # DDP test
+            losses = [
+                bkd.reduce_mean(all_gather(item)) for item in losses
+            ]
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        self.train_x_all = self.train_points()
+        self.train_x_all = self.train_points() # halfed
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
@@ -232,6 +255,7 @@ class PDE(Data):
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
+            X = array_ops_compat.sub_with_padding(X)
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -239,6 +263,7 @@ class PDE(Data):
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
+            tmp = array_ops_compat.sub_with_padding(tmp)
             X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
@@ -265,6 +290,7 @@ class PDE(Data):
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
         x = self.geom.uniform_points(self.num_test, boundary=False)
+        x = array_ops_compat.sub_with_padding(x) # halfed
         x = np.vstack((self.train_x_bc, x))
         return x
 
@@ -313,10 +339,12 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
+                tmp = array_ops_compat.sub_with_padding(tmp)
             else:
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
+                tmp = array_ops_compat.sub_with_padding(tmp)
             if self.exclusions is not None:
 
                 def is_not_excluded(x):
