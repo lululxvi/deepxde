@@ -2,7 +2,6 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde import backend as bkd
 
 
 # General parameters
@@ -24,11 +23,25 @@ activation = "sin"
 k0 = 2 * np.pi * n
 wave_len = 1 / n
 
+# Define sine function
+if dde.backend.backend_name == "pytorch":
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    sin = tf.sin
+
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     dy_yy = dde.grad.hessian(y, x, i=1, j=1)
-    f = k0**2 * bkd.sin(k0 * x[:, 0:1]) * bkd.sin(k0 * x[:, 1:2])
+    f = k0**2 * sin(k0 * x[:, 0:1]) * sin(k0 * x[:, 1:2])
     return -dy_xx - dy_yy - k0**2 * y - f
 
 

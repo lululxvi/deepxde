@@ -1,14 +1,26 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
-import deepxde.backend as bkd
 import numpy as np
+from deepxde.backend import tf
 
 geom = dde.geometry.Interval(0, np.pi)
 
+
+# Define sine function
+if dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    sin = tf.sin
+
+
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
-    summation = sum([i * bkd.sin(i * x) for i in range(1, 5)])
-    return -dy_xx - summation - 8 * bkd.sin(8 * x)
+    summation = sum([i * sin(i * x) for i in range(1, 5)])
+    return -dy_xx - summation - 8 * sin(8 * x)
 
 def func(x):
     summation = sum([np.sin(i * x) / i for i in range(1, 5)])

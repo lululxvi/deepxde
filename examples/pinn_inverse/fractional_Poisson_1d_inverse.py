@@ -1,24 +1,39 @@
 """Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
 import numpy as np
-import deepxde.backend as bkd
+from deepxde.backend import tf
+# Import paddle if using backend paddle
+# import paddle
 from scipy.special import gamma
 
 
 alpha0 = 1.8
-alpha = bkd.Variable(1.5)
+alpha = tf.Variable(1.5)
 
 
+# Backend tensorflow.compat.v1
 def fpde(x, y, int_mat):
     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = bkd.sparse_tensor(*int_mat)
-        lhs = bkd.sparse_tensor_dense_matmul(int_mat, y)
+        int_mat = tf.SparseTensor(*int_mat)
+        lhs = tf.sparse_tensor_dense_matmul(int_mat, y)
     else:
-        lhs = bkd.matmul(int_mat, y)
-    lhs /= 2 * bkd.cos(alpha * np.pi / 2)
+        lhs = tf.matmul(int_mat, y)
+    lhs /= 2 * tf.cos(alpha * np.pi / 2)
     rhs = gamma(alpha0 + 2) * x
-    return lhs - rhs[: bkd.size(lhs)]
+    return lhs - rhs[: tf.size(lhs)]
+# Backend paddle
+# def fpde(x, y, int_mat):
+#     """(D_{0+}^alpha + D_{1-}^alpha) u(x)"""
+#     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+#         indices, values, shape = int_mat
+#         int_mat = paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
+#         lhs = paddle.sparse.matmul(int_mat, y)
+#     else:
+#         lhs = paddle.mm(int_mat, y)
+#     lhs /= 2 * paddle.cos(alpha * np.pi / 2)
+#     rhs = gamma(alpha0 + 2) * x
+#     return lhs - rhs[: paddle.numel(lhs)]
 
 
 def func(x):

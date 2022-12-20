@@ -2,11 +2,22 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde import backend as bkd
+# Import tf if using backend tensorflow.compat.v1 or tensorflow
+from deepxde.backend import tf
+# Import torch if using backend pytorch
+# import torch
+# Import paddle if using backend paddle
+# import paddle
+
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
-    return -dy_xx - np.pi ** 2 * bkd.sin(np.pi * x)
+    # Use tf.sin for backend tensorflow.compat.v1 or tensorflow
+    return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
+    # Use torch.sin for backend pytorch
+    # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
+    # Use paddle.sin for backend paddle
+    # return -dy_xx - np.pi ** 2 * paddle.sin(np.pi * x)
 
 
 def boundary(x, on_boundary):
@@ -22,7 +33,6 @@ bc = dde.icbc.DirichletBC(geom, func, boundary)
 data = dde.data.PDE(geom, pde, bc, 16, 2, solution=func, num_test=100)
 
 layer_size = [1] + [50] * 3 + [1]
-
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)

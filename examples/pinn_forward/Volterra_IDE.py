@@ -1,16 +1,22 @@
-"""Backend supported: tensorflow.compat.v1
-"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-import deepxde.backend as bkd
+from deepxde.backend import tf
+# Import paddle if using backend paddle
+# import paddle
 
 
+# Backend tensorflow.compat.v1
 def ide(x, y, int_mat):
-    int_mat = bkd.as_tensor(int_mat)
-    rhs = bkd.matmul(int_mat, y)
-    lhs1 = bkd.gradients(y, x)[0]
-    return (lhs1 + y)[: bkd.size(rhs)] - rhs
+    rhs = tf.matmul(int_mat, y)
+    lhs1 = tf.gradients(y, x)[0]
+    return (lhs1 + y)[: tf.size(rhs)] - rhs
+# Backend paddle
+# def ide(x, y, int_mat):
+#     rhs = paddle.mm(int_mat, y)
+#     lhs1 = paddle.grad(y, x, create_graph=True)[0]
+#     return (lhs1 + y)[: paddle.numel(rhs)] - rhs
 
 
 def kernel(x, s):

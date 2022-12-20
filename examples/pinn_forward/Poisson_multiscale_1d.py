@@ -6,18 +6,29 @@ References:
 """
 import deepxde as dde
 import numpy as np
-from deepxde import backend as bkd
+from deepxde.backend import tf
 
 A = 2
 B = 50
+
+
+# Define sine function
+if dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    sin = tf.sin
 
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return (
         dy_xx
-        + (np.pi * A) ** 2 * bkd.sin(np.pi * A * x)
-        + 0.1 * (np.pi * B) ** 2 * bkd.sin(np.pi * B * x)
+        + (np.pi * A) ** 2 * sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * sin(np.pi * B * x)
     )
 
 

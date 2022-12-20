@@ -1,31 +1,52 @@
 """Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
-import deepxde.backend as bkd
 import numpy as np
+from deepxde.backend import tf
+# Import paddle if using backend paddle
+# import paddle
 from scipy.special import gamma
 
 
 alpha = 1.8
 
 
+# Backend tensorflow.compat.v1
 def fpde(x, y, int_mat):
     """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
-        int_mat = bkd.sparse_tensor(*int_mat)
-        lhs = -bkd.sparse_tensor_dense_matmul(int_mat, y)
+        int_mat = tf.SparseTensor(*int_mat)
+        lhs = -tf.sparse_tensor_dense_matmul(int_mat, y)
     else:
-        int_mat = bkd.as_tensor(int_mat)
-        lhs = -bkd.matmul(int_mat, y)
-    dy_t = bkd.gradients(y, x)[0][:, 1:2]
+        lhs = -tf.matmul(int_mat, y)
+    dy_t = tf.gradients(y, x)[0][:, 1:2]
     x, t = x[:, :-1], x[:, -1:]
-    rhs = -dy_t - bkd.exp(-t) * (
+    rhs = -dy_t - tf.exp(-t) * (
         x ** 3 * (1 - x) ** 3
         + gamma(4) / gamma(4 - alpha) * (x ** (3 - alpha) + (1 - x) ** (3 - alpha))
         - 3 * gamma(5) / gamma(5 - alpha) * (x ** (4 - alpha) + (1 - x) ** (4 - alpha))
         + 3 * gamma(6) / gamma(6 - alpha) * (x ** (5 - alpha) + (1 - x) ** (5 - alpha))
         - gamma(7) / gamma(7 - alpha) * (x ** (6 - alpha) + (1 - x) ** (6 - alpha))
     )
-    return lhs - rhs[: bkd.size(lhs)]
+    return lhs - rhs[: tf.size(lhs)]
+# Backend paddle
+# def fpde(x, y, int_mat):
+#     """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
+#     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+#         indices, values, shape = int_mat
+#         int_mat = paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
+#         lhs = -paddle.sparse.matmul(int_mat, y)
+#     else:
+#         lhs = -paddle.mm(int_mat, y)
+#     dy_t = paddle.grad(y, x, create_graph=True)[0][:, 1:2]
+#     x, t = x[:, :-1], x[:, -1:]
+#     rhs = -dy_t - paddle.exp(-t) * (
+#         x ** 3 * (1 - x) ** 3
+#         + gamma(4) / gamma(4 - alpha) * (x ** (3 - alpha) + (1 - x) ** (3 - alpha))
+#         - 3 * gamma(5) / gamma(5 - alpha) * (x ** (4 - alpha) + (1 - x) ** (4 - alpha))
+#         + 3 * gamma(6) / gamma(6 - alpha) * (x ** (5 - alpha) + (1 - x) ** (5 - alpha))
+#         - gamma(7) / gamma(7 - alpha) * (x ** (6 - alpha) + (1 - x) ** (6 - alpha))
+#     )
+#     return lhs - rhs[: paddle.numel(lhs)]
 
 
 def func(x):

@@ -2,16 +2,25 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-import deepxde.backend as bkd
+from deepxde.backend import tf
+# Import paddle if using backend paddle
+# import paddle
 
 
+# Backend tensorflow.compat.v1
 def ide(x, y, int_mat):
     """int_0^x y(t)dt"""
-    int_mat = bkd.as_tensor(int_mat)
-    lhs1 = bkd.matmul(int_mat, y)
-    lhs2 = bkd.gradients(y, x)[0]
-    rhs = 2 * np.pi * bkd.cos(2 * np.pi * x) + bkd.sin(np.pi * x) ** 2 / np.pi
-    return lhs1 + (lhs2 - rhs)[: bkd.size(lhs1)]
+    lhs1 = tf.matmul(int_mat, y)
+    lhs2 = tf.gradients(y, x)[0]
+    rhs = 2 * np.pi * tf.cos(2 * np.pi * x) + tf.sin(np.pi * x) ** 2 / np.pi
+    return lhs1 + (lhs2 - rhs)[: tf.size(lhs1)]
+# Backend paddle
+# def ide(x, y, int_mat):
+#     """int_0^x y(t)dt"""
+#     lhs1 = paddle.mm(int_mat, y)
+#     lhs2 = paddle.grad(y, x, create_graph=True)[0]
+#     rhs = 2 * np.pi * paddle.cos(2 * np.pi * x) + paddle.sin(np.pi * x) ** 2 / np.pi
+#     return lhs1 + (lhs2 - rhs)[: paddle.numel(lhs1)]
 
 
 def func(x):
