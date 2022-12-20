@@ -636,7 +636,6 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self.train_state.set_data_test(*self.data.test())
                 self._test()
 
             self.callbacks.on_batch_end()
