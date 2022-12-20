@@ -78,10 +78,6 @@ def as_tensor(data, dtype=None):
     return torch.as_tensor(data, dtype=dtype)
 
 
-def constant(values, dtype):
-    return torch.tensor(values, dtype=dtype)
-
-
 def sparse_tensor(indices, values, shape):
     return torch.sparse_coo_tensor(list(zip(*indices)), values, shape, requires_grad=True)
 

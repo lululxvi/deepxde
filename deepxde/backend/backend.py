@@ -155,19 +155,6 @@ def as_tensor(data, dtype=None):
     """
 
 
-def constant(value, dtype=None):
-    """Return a untrainable variable.
-
-    Args:
-        value: The value of the variable.
-        dtype: The desired data type of returned tensor. Default: if None, infers data
-            type from data.
-
-    Returns:
-        Tensor. A framework-specific tensor.
-    """
-
-
 def sparse_tensor(indices, values, shape):
     """Construct a sparse tensor based on given indices, values and shape.
 

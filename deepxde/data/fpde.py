@@ -121,7 +121,7 @@ class FPDE(PDE):
             f = [f]
         return [
             loss_fn(bkd.zeros_like(fi), fi) for fi in f
-        ] + [bkd.constant(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
+        ] + [bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
@@ -370,7 +370,7 @@ class Fractional:
             if self.disc.meshtype == "static"
             else self.dynamic_dist2npts(self.geom.diam) + 1
         )
-        w = [bkd.constant(1.0, dtype=config.real(bkd.lib))]
+        w = [bkd.as_tensor(1.0, dtype=config.real(bkd.lib))]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
         return array_ops_compat.convert_to_array(w)

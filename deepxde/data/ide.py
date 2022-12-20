@@ -70,7 +70,7 @@ class IDE(PDE):
             f = [f]
         return [
             loss_fn(bkd.zeros_like(fi), fi) for fi in f
-        ] + [bkd.constant(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
+        ] + [bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
