@@ -33,9 +33,11 @@ class PointCloud(Geometry):
                     raise ValueError(
                         "the shape of boundary_normals should be the same as boundary_points"
                     )
+                self.boundary_normals = np.asarray(boundary_normals, dtype=config.real(np))
+            else:
+                self.boundary_normals = boundary_normals
             self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
             self.num_boundary_points = len(boundary_points)
-            self.boundary_normals = boundary_normals
             all_points = np.vstack((self.points, self.boundary_points))
             self.boundary_sampler = BatchSampler(
                 self.num_boundary_points, shuffle=True
