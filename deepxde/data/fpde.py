@@ -95,11 +95,6 @@ class FPDE(PDE):
             num_test=num_test,
         )
 
-        # do not use cache when alpha is a learnable parameter
-        if is_tensor(self.alpha) and backend_name != "tensorflow.compat.v1":
-            self.train_next_batch = types.MethodType(self.train_next_batch.__wrapped__, self)
-            self.test = types.MethodType(self.test.__wrapped__, self)
-
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
         int_mat = self.get_int_matrix(True)
@@ -128,8 +123,11 @@ class FPDE(PDE):
             loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
         ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
 
-    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
+        # do not cache train data when alpha is a learnable parameter
+        if backend_name == "tensorflow.compat.v1" or not is_tensor(self.alpha):
+            if hasattr(self, "train_x") or hasattr(self, "train_y"):
+                return self.train_x, self.train_y
         if self.disc.meshtype == "static":
             if self.geom.idstr != "Interval":
                 raise ValueError("Only Interval supports static mesh.")
@@ -155,8 +153,12 @@ class FPDE(PDE):
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
-    @run_if_all_none("test_x", "test_y")
     def test(self):
+        # do not cache test data when alpha is a learnable parameter
+        if backend_name == "tensorflow.compat.v1" or not is_tensor(self.alpha):
+            if hasattr(self, "test_x") or hasattr(self, "test_y"):
+                return self.test_x, self.test_y
+
         if self.disc.meshtype == "static" and self.num_test is not None:
             raise ValueError("Cannot use test points in static mesh.")
 
