@@ -1,13 +1,13 @@
 """tensorflow backend implementation"""
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 
-if LooseVersion(tf.__version__) < LooseVersion("2.2.0"):
+if Version(tf.__version__) < Version("2.2.0"):
     raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
-if LooseVersion(tfp.__version__) < LooseVersion("0.10.0"):
+if Version(tfp.__version__) < Version("0.10.0"):
     raise RuntimeError("DeepXDE requires TensorFlow Probability>=0.10.0.")
 
 lib = tf
@@ -97,6 +97,14 @@ def silu(x):
 
 def sin(x):
     return tf.math.sin(x)
+
+
+def cos(x):
+    return tf.math.cos(x)
+
+
+def exp(x):
+    return tf.math.exp(x)
 
 
 def square(x):

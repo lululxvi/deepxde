@@ -21,13 +21,24 @@ class FNN(NN):
         self.dropout_rate = dropout_rate
 
         self.denses = []
-        activation = activations.get(activation)
+        if isinstance(activation, list):
+            if not (len(layer_sizes) - 1) == len(activation):
+                raise ValueError(
+                    "Total number of activation functions do not match with sum of hidden layers and output layer!"
+                )
+            activation = list(map(activations.get, activation))
+        else:
+            activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
-        for units in layer_sizes[1:-1]:
+        for j, units in enumerate(layer_sizes[1:-1]):
             self.denses.append(
                 tf.keras.layers.Dense(
                     units,
-                    activation=activation,
+                    activation=(
+                        activation[j]
+                        if isinstance(activation, list)
+                        else activation
+                    ),
                     kernel_initializer=initializer,
                     kernel_regularizer=self.regularizer,
                 )
