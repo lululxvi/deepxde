@@ -121,7 +121,7 @@ class Hypersphere(Geometry):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return -ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
+        return (-ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(config.real(np))
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -160,7 +160,7 @@ class Hypersphere(Geometry):
 
     def background_points(self, x, dirn, dist2npt, shift):
         dirn = dirn / np.linalg.norm(dirn)
-        dx = self.distance2boundary_unitdirn(x, -dirn).astype(config.real(np))
+        dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
         pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
