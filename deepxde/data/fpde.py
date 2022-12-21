@@ -373,7 +373,7 @@ class Fractional:
         w = [bkd.as_tensor(1.0, dtype=config.real(bkd.lib))]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
-        return array_ops_compat.convert_to_array(w)
+        return w
 
     def get_x(self):
         self.x = (
