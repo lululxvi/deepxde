@@ -370,10 +370,10 @@ class Fractional:
             if self.disc.meshtype == "static"
             else self.dynamic_dist2npts(self.geom.diam) + 1
         )
-        w = [bkd.as_tensor(1.0, dtype=config.real(bkd.lib))]
+        w = [bkd.as_tensor(1.0, dtype=config.real(bkd.lib)) if bkd.is_tensor(self.alpha) else 1.0]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
-        return w
+        return array_ops_compat.convert_to_array(w)
 
     def get_x(self):
         self.x = (
