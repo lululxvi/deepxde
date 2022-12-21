@@ -1,6 +1,7 @@
 __all__ = ["Scheme", "FPDE", "TimeFPDE"]
 
 import math
+
 import numpy as np
 
 from .pde import PDE
