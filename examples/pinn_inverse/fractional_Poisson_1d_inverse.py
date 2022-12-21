@@ -1,6 +1,7 @@
 """Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
 import numpy as np
+# Import tf if using backend tensorflow.compat.v1
 from deepxde.backend import tf
 # Import paddle if using backend paddle
 # import paddle

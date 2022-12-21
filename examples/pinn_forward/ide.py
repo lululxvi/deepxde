@@ -2,6 +2,7 @@
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
+# Import tf if using backend tensorflow.compat.v1
 from deepxde.backend import tf
 # Import paddle if using backend paddle
 # import paddle

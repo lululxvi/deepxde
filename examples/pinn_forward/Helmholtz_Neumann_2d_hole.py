@@ -24,7 +24,11 @@ k0 = 2 * np.pi * n
 wave_len = 1 / n
 
 # Define sine function
-if dde.backend.backend_name == "pytorch":
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    sin = tf.sin
+elif dde.backend.backend_name == "pytorch":
     import torch
 
     sin = torch.sin
@@ -32,10 +36,6 @@ elif dde.backend.backend_name == "paddle":
     import paddle
 
     sin = paddle.sin
-elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    from deepxde.backend import tf
-
-    sin = tf.sin
 
 
 def pde(x, y):

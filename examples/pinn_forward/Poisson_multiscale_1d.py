@@ -6,21 +6,20 @@ References:
 """
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
 
 A = 2
 B = 50
 
 
 # Define sine function
-if dde.backend.backend_name == "paddle":
-    import paddle
-
-    sin = paddle.sin
-elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
     sin = tf.sin
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
 
 
 def pde(x, y):

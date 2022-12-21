@@ -1,7 +1,7 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Backend tensorflow.compact.v1 or tensorflow
+# Backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Backend pytorch
 # import torch
@@ -13,7 +13,7 @@ def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     d = 1
-    # Backend tensorflow.compact.v1 or tensorflow
+    # Backend tensorflow.compat.v1 or tensorflow
     return (
         dy_t
         - d * dy_xx
@@ -72,7 +72,7 @@ activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
-# Backend tensorflow.compact.v1 or tensorflow
+# Backend tensorflow.compat.v1 or tensorflow
 def output_transform(x, y):
     return (
         x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y

@@ -10,14 +10,14 @@ geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
 
 # Define sine function
-if dde.backend.backend_name == "paddle":
-    import paddle
-
-    cos = paddle.cos
-elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
     cos = tf.math.cos
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    cos = paddle.cos
 
 
 def pde(x, y):
