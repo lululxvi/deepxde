@@ -1,7 +1,14 @@
 """Package for paddle NN modules."""
 
-__all__ = ["DeepONet", "DeepONetCartesianProd", "FNN"]
+__all__ = [
+    "DeepONet",
+    "DeepONetCartesianProd",
+    "FNN",
+    "MsFFN",
+    "PFNN",
+    "STMsFFN",
+]
 
-from .deeponet import DeepONet
-from .deeponet import DeepONetCartesianProd
-from .fnn import FNN
+from .deeponet import DeepONet, DeepONetCartesianProd
+from .fnn import FNN, PFNN
+from .msffn import MsFFN, STMsFFN

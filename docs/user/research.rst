@@ -118,13 +118,14 @@ PINN
 DeepONet
 --------
 
+#. M. Zhu, H. Zhang, A. Jiao, G. Karniadakis, & L. Lu. `Reliable extrapolation of deep neural operators informed by physics or sparse observations <https://arxiv.org/abs/2212.06347>`_. *arXiv preprint arXiv:2212.06347*, 2022.
+#. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `Neural operator prediction of linear instability waves in high-speed boundary layers <https://doi.org/10.1016/j.jcp.2022.111793>`_. *Journal of Computational Physics*, 474, 111793, 2023.
 #. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://doi.org/10.1137/22M1477751>`_. *SIAM Journal on Scientific Computing*, 44(6), A3490--A3514, 2022.
 #. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://doi.org/10.1103/PhysRevResearch.4.023210>`_. *Physical Review Research*, 4(2), 023210, 2022.
 #. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://doi.org/10.1016/j.cma.2022.114778>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114778, 2022.
 #. L. Tan, & L. Chen. `Enhanced DeepONet for modeling partial differential operators considering multiple input functions <https://arxiv.org/pdf/2202.08942.pdf>`_. *arXiv preprint arXiv:2202.08942*, 2022.
 #. C. Lin, M. Maxey, Z. Li, & G. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
 #. Z. Mao, L. Lu, O. Marxen, T. Zaki, & G. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.
-#. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `DeepONet prediction of linear instability waves in high-speed boundary layers <https://arxiv.org/abs/2105.08697>`_. *arXiv preprint arXiv:2105.08697*, 2021.
 #. S. Cai, Z. Wang, L. Lu, T. Zaki, & G. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://doi.org/10.1016/j.jcp.2021.110296>`_. *Journal of Computational Physics*, 436, 110296, 2021.
 #. L. Lu, P. Jin, G. Pang, Z. Zhang, & G. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021.
 #. C. Lin, Z. Li, L. Lu, S. Cai, M. Maxey, & G. Karniadakis. `Operator learning for predicting multiscale bubble growth dynamics <https://doi.org/10.1063/5.0041203>`_. *The Journal of Chemical Physics*, 154(10), 104118, 2021.
@@ -138,4 +139,4 @@ Multi-fidelity NN
 Others
 ------
 
-#. L. Lu, H. He, P. Kasimbeg, R. Ranade, & J. Pathak. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
+#. A. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
