@@ -7,6 +7,7 @@ import numpy as np
 from .pde import PDE
 from .. import backend as bkd
 from .. import config
+from ..backend import is_tensor, backend_name
 from ..utils import array_ops_compat, run_if_all_none
 
 
@@ -123,8 +124,11 @@ class FPDE(PDE):
             loss_fn(bkd.zeros_like(fi), fi) for fi in f
         ] + [bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
 
-    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
+        # do not cache train data when alpha is a learnable parameter
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.train_x is not None:
+                return self.train_x, self.train_y
         if self.disc.meshtype == "static":
             if self.geom.idstr != "Interval":
                 raise ValueError("Only Interval supports static mesh.")
@@ -150,8 +154,12 @@ class FPDE(PDE):
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
-    @run_if_all_none("test_x", "test_y")
     def test(self):
+        # do not cache test data when alpha is a learnable parameter
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.test_x is not None:
+                return self.test_x, self.test_y
+
         if self.disc.meshtype == "static" and self.num_test is not None:
             raise ValueError("Cannot use test points in static mesh.")
 
