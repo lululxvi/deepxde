@@ -124,8 +124,8 @@ class FPDE(PDE):
 
     def train_next_batch(self, batch_size=None):
         # do not cache train data when alpha is a learnable parameter
-        if backend_name == "tensorflow.compat.v1" or not is_tensor(self.alpha):
-            if hasattr(self, "train_x") or hasattr(self, "train_y"):
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.train_x is not None:
                 return self.train_x, self.train_y
         if self.disc.meshtype == "static":
             if self.geom.idstr != "Interval":
@@ -154,8 +154,8 @@ class FPDE(PDE):
 
     def test(self):
         # do not cache test data when alpha is a learnable parameter
-        if backend_name == "tensorflow.compat.v1" or not is_tensor(self.alpha):
-            if hasattr(self, "test_x") or hasattr(self, "test_y"):
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.test_x is not None:
                 return self.test_x, self.test_y
 
         if self.disc.meshtype == "static" and self.num_test is not None:
