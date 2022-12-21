@@ -100,7 +100,7 @@ class PDE(Data):
 
         self.auxiliary_var_fn = auxiliary_var_function
 
-        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde 
+        # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde
         # explicitly.
         self.train_x_all = None
         self.train_x_bc = None
