@@ -108,4 +108,5 @@ def sub_with_padding(array):
     if nprocs <= 1:
         return array
     array_pad = padding_array(array, nprocs)
-    return sub(array_pad, nprocs, rank)
+    ret = sub(array_pad, nprocs, rank)
+    return ret

@@ -191,6 +191,7 @@ class PDE(Data):
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
                 config.real(np)
             )
+        # print(f"{self.train_x is None} {self.train_y is None} {self.train_aux_vars is None}")
         return self.train_x, self.train_y, self.train_aux_vars
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")

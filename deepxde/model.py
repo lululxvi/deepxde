@@ -15,7 +15,7 @@ from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
-
+import time
 
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
@@ -61,6 +61,13 @@ class Model:
                 print(f"Initializing parallel environment with world_size={self.nprocs}...")
                 self.net = paddle.DataParallel(self.net)
                 self.parallel = True
+        self.fwd_cost = 0.0
+        self.bwd_cost = 0.0
+        self.opt_step_cost = 0.0
+        self.opt_clr_cost = 0.0
+        self.set_data_train_cost = 0.0
+        self.set_data_test_cost = 0.0
+        self.call_backs_cost = 0.0
 
     @utils.timing
     def compile(
@@ -435,8 +442,9 @@ class Model:
                 )
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
-
+            print(f"{'train' if training else 'eval'} inputs.shape = {inputs.shape}")
             outputs_ = self.net(inputs)
+            print(f"{'train' if training else 'eval'} outputs_.shape = {outputs_.shape}")
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
@@ -466,16 +474,29 @@ class Model:
         )
 
         def train_step(inputs, targets):
+            t = time.perf_counter()
             losses = outputs_losses_train(inputs, targets)[1]
             total_loss = paddle.sum(losses)
+            fwd_cost = time.perf_counter() - t
+            self.fwd_cost += fwd_cost
+            t = time.perf_counter()
             total_loss.backward()
+            bwd_cost = time.perf_counter() - t
+            self.bwd_cost += bwd_cost
+            t = time.perf_counter()
             if self.parallel:
                 for var in self.external_trainable_variables:
                     paddle.dist.all_reduce(var.grad, paddle.dist.ReduceOp.SUM)
                     var.grad.set(var.grad/self.nprocs)
 
             self.opt.step()
+            opt_cost = time.perf_counter() - t
+            self.opt_step_cost += opt_cost
+            t = time.perf_counter()
             self.opt.clear_grad()
+            clr_cost = time.perf_counter() - t
+            self.opt_clr_cost += clr_cost
+            t = time.perf_counter()
 
         # Callables
         self.outputs = outputs
@@ -619,10 +640,13 @@ class Model:
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
+            t = time.perf_counter()
 
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
+            self.set_data_train_cost += (time.perf_counter() - t)
+            t = time.perf_counter()
             self._train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
@@ -631,14 +655,27 @@ class Model:
 
             self.train_state.epoch += 1
             self.train_state.step += 1
+            t = time.perf_counter()
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
                 self._test()
+                self.set_data_test_cost += (time.perf_counter() - t)
+                t = time.perf_counter()
 
+            t = time.perf_counter()
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
+            self.call_backs_cost += (time.perf_counter() - t)
+            t = time.perf_counter()
 
             if self.stop_training:
                 break
+        print(f"self.fwd_cost {self.fwd_cost:.2f}")
+        print(f"self.bwd_cost {self.bwd_cost:.2f}")
+        print(f"self.opt_step_cost {self.opt_step_cost:.2f}")
+        print(f"self.opt_clr_cost {self.opt_clr_cost:.2f}")
+        print(f"self.set_data_train_cost {self.set_data_train_cost:.2f}")
+        print(f"self.set_data_test_cost {self.set_data_test_cost:.2f}")
+        print(f"self.call_backs_cost {self.call_backs_cost:.2f}")
 
     def _train_tensorflow_compat_v1_scipy(self, display_every):
         def loss_callback(loss_train, loss_test, *args):
