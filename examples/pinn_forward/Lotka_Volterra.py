@@ -77,13 +77,7 @@ def input_transform(t):
 # def input_transform(t):
 #     return paddle.concat(
 #         (
-#             t,
 #             paddle.sin(t),
-#             paddle.sin(2 * t),
-#             paddle.sin(3 * t),
-#             paddle.sin(4 * t),
-#             paddle.sin(5 * t),
-#             paddle.sin(6 * t),
 #         ),
 #         axis=1,
 #     )
