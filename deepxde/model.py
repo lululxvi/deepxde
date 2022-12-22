@@ -16,7 +16,6 @@ from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
 
-
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -48,11 +47,12 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
             self.params = None
+
 
     @utils.timing
     def compile(
@@ -93,6 +93,12 @@ class Model:
                 - For backend PyTorch:
 
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
+
+                - For backend PaddlePaddle:
+
+                    - `InverseTimeDecay
+                      <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
+                      ("inverse time", decay_steps, gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
@@ -279,6 +285,7 @@ class Model:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
+
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -415,7 +422,8 @@ class Model:
                     inputs = paddle.to_tensor(inputs, stop_gradient=False)
                 return self.net(inputs)
 
-        def outputs_losses(training, inputs, targets, losses_fn):
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+            self.net.auxiliary_vars = auxiliary_vars
             if training:
                 self.net.train()
             else:
@@ -427,8 +435,8 @@ class Model:
                 )
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
-
             outputs_ = self.net(inputs)
+
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
@@ -437,32 +445,37 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = paddle.concat(losses, axis=0)
+
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
+
             return outputs_, losses
 
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(True, inputs, targets, auxiliary_vars, self.data.losses_train)
 
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(False, inputs, targets, auxiliary_vars, self.data.losses_test)
 
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
+
         self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
-        def train_step(inputs, targets):
-            losses = outputs_losses_train(inputs, targets)[1]
+        def train_step(inputs, targets, auxiliary_vars):
+            losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
             self.opt.step()
             self.opt.clear_grad()
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
         def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
             def closure():
@@ -526,9 +539,6 @@ class Model:
             self.train_step(inputs, targets)
         elif backend_name == "paddle":
             self.train_step(inputs, targets, auxiliary_vars)
-            if hasattr(self.opt, '_learning_rate') and \
-                    isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
-                self.opt._learning_rate.step()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(

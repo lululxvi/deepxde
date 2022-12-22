@@ -79,14 +79,14 @@ class Interval(Geometry):
             dx = x[0] - self.l
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] - np.arange(-shift, n - shift + 1) * h
+            pts = x[0] - np.arange(-shift, n - shift + 1, dtype=config.real(np)) * h
             return pts[:, None]
 
         def background_points_right():
             dx = self.r - x[0]
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] + np.arange(-shift, n - shift + 1) * h
+            pts = x[0] + np.arange(-shift, n - shift + 1, dtype=config.real(np)) * h
             return pts[:, None]
 
         return (
