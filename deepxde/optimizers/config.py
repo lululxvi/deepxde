@@ -60,9 +60,8 @@ def set_LBFGS_options(
 
 set_LBFGS_options()
 
-
 # Backend-dependent options
-if backend_name == "pytorch":
+if backend_name in ["pytorch", "paddle"]:
     # number of iterations per optimization call
     LBFGS_options["iter_per_step"] = min(1000, LBFGS_options["maxiter"])
     LBFGS_options["fun_per_step"] = (

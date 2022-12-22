@@ -464,11 +464,24 @@ class Model:
             self.opt.step()
             self.opt.clear_grad()
 
+        def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
+            def closure():
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
+                total_loss = paddle.sum(losses)
+                self.opt.clear_grad()
+                total_loss.backward()
+                return total_loss
+            
+            self.opt.step(closure)
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
-        self.train_step = train_step
+        self.train_step = (
+            train_step
+            if not optimizers.is_external_optimizer(self.opt_name)
+            else train_step_lbfgs
+        )
 
     def _outputs(self, training, inputs):
         if backend_name == "tensorflow.compat.v1":
@@ -499,7 +512,7 @@ class Model:
             # TODO: auxiliary_vars
             outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
-            outs = outputs_losses(inputs, targets)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
         return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
 
     def _train_step(self, inputs, targets, auxiliary_vars):
@@ -508,9 +521,14 @@ class Model:
             self.sess.run(self.train_step, feed_dict=feed_dict)
         elif backend_name == "tensorflow":
             self.train_step(inputs, targets, auxiliary_vars)
-        elif backend_name in ["pytorch", "paddle"]:
+        elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
+        elif backend_name == "paddle":
+            self.train_step(inputs, targets, auxiliary_vars)
+            if hasattr(self.opt, '_learning_rate') and \
+                    isinstance(self.opt._learning_rate, paddle.optimizer.lr.LRScheduler):
+                self.opt._learning_rate.step()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
@@ -590,6 +608,8 @@ class Model:
                 self._train_tensorflow_tfp()
             elif backend_name == "pytorch":
                 self._train_pytorch_lbfgs()
+            elif backend_name == "paddle":
+                self._train_paddle_lbfgs()
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
@@ -715,6 +735,38 @@ class Model:
             )
 
             n_iter = self.opt.state_dict()["state"][0]["n_iter"]
+            if prev_n_iter == n_iter:
+                # Converged
+                break
+
+            self.train_state.epoch += n_iter - prev_n_iter
+            self.train_state.step += n_iter - prev_n_iter
+            prev_n_iter = n_iter
+            self._test()
+
+            self.callbacks.on_batch_end()
+            self.callbacks.on_epoch_end()
+
+            if self.stop_training:
+                break
+
+    def _train_paddle_lbfgs(self):
+        prev_n_iter = 0
+        
+        while prev_n_iter < optimizers.LBFGS_options["maxiter"]:
+            self.callbacks.on_epoch_begin()
+            self.callbacks.on_batch_begin()
+
+            self.train_state.set_data_train(
+                *self.data.train_next_batch(self.batch_size)
+            )
+            self._train_step(
+                self.train_state.X_train,
+                self.train_state.y_train,
+                self.train_state.train_aux_vars,
+            )
+
+            n_iter = self.opt.state_dict()["state"]["n_iter"]
             if prev_n_iter == n_iter:
                 # Converged
                 break
