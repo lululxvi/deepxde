@@ -9,9 +9,6 @@ import numpy as np
 import paddle
 import deepxde.config as config
 
-if dde.utils.get_nprocs() > 1:
-    config.init_parallel_env()
-
 
 A = 2
 C = 10
@@ -45,8 +42,8 @@ ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 # do not use dde.NeumannBC here, since `normal_derivative` does not work with temporal coordinate.
 ic_2 = dde.icbc.OperatorBC(
     geomtime,
-    func=lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-    on_boundary=lambda x, _: np.isclose(x[1], 0),
+    lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
+    lambda x, _: np.isclose(x[1], 0),
 )
 data = dde.data.TimePDE(
     geomtime,
@@ -79,7 +76,7 @@ model.compile(
 )
 pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
 losshistory, train_state = model.train(
-    iterations=10000, callbacks=[pde_residual_resampler], display_every=100000
+    iterations=10000, callbacks=[pde_residual_resampler], display_every=500
 )
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

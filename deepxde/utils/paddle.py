@@ -20,11 +20,11 @@ def all_gather(tensor, concat=True, axis=0):
     return tensor_list
 
 
-def get_nprocs():
-    """Get number of replica(s)
+def get_world_size():
+    """Get world size
 
     Returns:
-        int: number of replica(s)
+        int: world size
     """
     return paddle.distributed.get_world_size()
 
@@ -38,14 +38,14 @@ def get_rank():
     return paddle.distributed.get_rank()
 
 
-def get_nprocs_and_rank():
-    """Get number of replica(s) and current rank
+def get_dist_info():
+    """Get world size and current rank
 
     Returns:
-        Tuple of ints: (number of replica(s), current rank)
+        Tuple of ints: (world size, current rank)
     """
-    nprocs = paddle.distributed.get_world_size()
+    world_size = paddle.distributed.get_world_size()
     rank = paddle.distributed.get_rank()
-    return nprocs, rank
+    return world_size, rank
 
 

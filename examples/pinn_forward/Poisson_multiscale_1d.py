@@ -10,9 +10,6 @@ from deepxde.backend import tf
 import paddle
 import deepxde.config as config
 
-if dde.utils.get_nprocs() > 1:
-    config.init_parallel_env()
-
 
 A = 2
 B = 50
@@ -33,13 +30,8 @@ def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return (
         dy_xx
-<<<<<<< HEAD
-        + (np.pi * A) ** 2 * paddle.sin(np.pi * A * x)
-        + 0.1 * (np.pi * B) ** 2 * paddle.sin(np.pi * B * x)
-=======
         + (np.pi * A) ** 2 * sin(np.pi * A * x)
         + 0.1 * (np.pi * B) ** 2 * sin(np.pi * B * x)
->>>>>>> lulu_master
     )
 
 
@@ -74,6 +66,6 @@ model.compile(
 )
 
 pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
-model.train(iterations=20000, callbacks=[pde_residual_resampler], display_every=50)
+model.train(iterations=20000, callbacks=[pde_residual_resampler])
 
 dde.saveplot(model.losshistory, model.train_state, issave=True, isplot=True)

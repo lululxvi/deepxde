@@ -49,7 +49,6 @@ class BC(ABC):
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
     def collocation_points(self, X):
-        # print("OperatorBC.collocation_points.X.shape=", X.shape)
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):

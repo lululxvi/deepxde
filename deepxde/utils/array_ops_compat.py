@@ -5,7 +5,6 @@ import numpy as np
 from .. import backend as bkd
 from .. import config
 from ..backend import is_tensor, tf
-from .paddle import get_nprocs_and_rank
 
 
 def istensorlist(values):
@@ -51,17 +50,18 @@ def zero_padding(array, pad_width):
     return np.pad(array, pad_width)
 
 
-def padding_array(array, nprocs):
-    """Padding an array so as to be divided by nprocs
+def _padding_array(array, nprocs):
+    """Padding an array with the last value of array, so as to be divided by nprocs
 
     Args:
-        array (array or Tensor): array to be padded
-        nprocs (int): number of world_size
+        array (array or Tensor): Array to be padded
+        nprocs (int): Number of world_size
 
     Returns:
         array or Tensor: Padded array or Tensor
     """
-    npad = (nprocs - len(array) % nprocs) % nprocs  # pad npad elements, %nprocs at last in case of nprocs=1
+    # pad with npad elements, %nprocs at last in case of nprocs=1
+    npad = (nprocs - len(array) % nprocs) % nprocs
     if npad == 0:
         return array
     if isinstance(array, np.ndarray):
@@ -74,20 +74,20 @@ def padding_array(array, nprocs):
         for i in range(npad):
             array = bkd.concat([array, datapad], axis=0)
     else:
-        raise NotImplementedError(f"{type(array)} not supported!")
+        raise NotImplementedError(f"Array of type `{type(array)}` is not supported now.")
     return array
 
 
-def sub(array, nprocs, n):
-    """Get subset of array in part n
+def _sub(array, nprocs, n):
+    """Get continuous subset of array or Tensor according to rank n
 
     Args:
-        array (array or Tensor): _description_
-        nprocs (int): _description_
-        n (int): _description_
+        array (array or Tensor): array to be subdivided
+        nprocs (int): Number of world_size
+        n (int): Rank of current device
 
     Returns:
-        array or Tensor: _description_
+        array or Tensor: Subdivided array or Tensor
     """
     N = len(array)
     subN = N // nprocs
@@ -98,16 +98,14 @@ def sub(array, nprocs, n):
 
 def sub_with_padding(array):
     """
-    Get subset of padded array in part n 
+    Get continuous subset of an padded array or Tensor according to rank n
     Args:
-        array (array or Tensor): array to be sharded
+        array (array or Tensor): Array to be sharded
 
     Returns:
-        array or Tensor: _description_
+        array or Tensor: Subdivided array or Tensor
     """
-    nprocs, rank = get_nprocs_and_rank()
-    if nprocs <= 1:
+    if config.world_size <= 1:
         return array
-    array_pad = padding_array(array, nprocs)
-    ret = sub(array_pad, nprocs, rank)
-    return ret
+    array_pad = _padding_array(array, config.world_size)
+    return _sub(array_pad, config.world_size, config.rank)

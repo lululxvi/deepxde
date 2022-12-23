@@ -22,6 +22,15 @@ elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
+# world_size for DataParallel
+world_size = 1
+rank = 0
+if backend_name == "paddle":
+    world_size = paddle.distributed.get_world_size()
+    if world_size > 1:
+        paddle.distributed.init_parallel_env()
+        rank = paddle.distributed.get_rank()
+        print(f"Running with Parallel environment, world_size={world_size}, rank={rank}.")
 
 
 def default_float():
@@ -30,14 +39,6 @@ def default_float():
         return "float64"
     return "float32"
 
-
-def init_parallel_env():
-    """Initial parallel environment
-    """
-    if backend_name == "paddle":
-        paddle.distributed.init_parallel_env()
-    else:
-        raise NotImplementedError(f"Parallel env is not supported in {backend_name} now")
 
 def set_default_float(value):
     """Sets the default float type.

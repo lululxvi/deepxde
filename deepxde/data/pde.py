@@ -5,8 +5,7 @@ from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
 from ..losses import squared_error
-from ..utils import get_num_args, run_if_all_none, array_ops_compat, get_nprocs, all_gather
-
+from ..utils import all_gather, array_ops_compat, get_num_args, run_if_all_none
 
 class PDE(Data):
     """ODE or time-independent PDE solver.
@@ -95,7 +94,6 @@ class PDE(Data):
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         if self.anchors is not None:
-            # shard anchors
             self.anchors = array_ops_compat.sub_with_padding(self.anchors)
         self.exclusions = exclusions
 
@@ -151,9 +149,8 @@ class PDE(Data):
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
-        nprocs = get_nprocs()
-        if nprocs > 1 and not model.net.training:
-            # DDP test
+        if config.world_size > 1 and not model.net.training:
+            # TODO: Only support for "MSE" loss now
             losses = [
                 squared_error(bkd.zeros_like(error), error) for i, error in enumerate(error_f)
             ]
@@ -161,28 +158,22 @@ class PDE(Data):
             losses = [
                 loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
             ]
-        # for p, q in enumerate(error_f):
-        #     print(f"loss_domain.item{p}.shape={q.shape}")
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(self.train_x, inputs, outputs, beg, end)
-            # print(f"loss.item{i}.shape={error.shape}")
-            if nprocs > 1 and not model.net.training:
-                # DDP test
+
+            if config.world_size > 1 and not model.net.training:
                 losses.append(squared_error(bkd.zeros_like(error), error))
             else:
                 losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
-        if nprocs > 1 and not model.net.training:
-            # DDP test
-            losses = [
-                bkd.reduce_mean(all_gather(item)) for item in losses
-            ]
+        if config.world_size > 1 and not model.net.training:
+            losses = [bkd.reduce_mean(all_gather(item)) for item in losses]
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        self.train_x_all = self.train_points() # halfed
+        self.train_x_all = self.train_points()
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
@@ -191,7 +182,6 @@ class PDE(Data):
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
                 config.real(np)
             )
-        # print(f"{self.train_x is None} {self.train_y is None} {self.train_aux_vars is None}")
         return self.train_x, self.train_y, self.train_aux_vars
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
@@ -291,7 +281,7 @@ class PDE(Data):
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
         x = self.geom.uniform_points(self.num_test, boundary=False)
-        x = array_ops_compat.sub_with_padding(x) # halfed
+        x = array_ops_compat.sub_with_padding(x)
         x = np.vstack((self.train_x_bc, x))
         return x
 

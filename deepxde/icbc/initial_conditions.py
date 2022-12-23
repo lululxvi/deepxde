@@ -24,7 +24,6 @@ class IC:
         return X[self.on_initial(X, self.geom.on_initial(X))]
 
     def collocation_points(self, X):
-        # print("IC.collocation_points.X.shape=", X.shape)
         return self.filter(X)
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
