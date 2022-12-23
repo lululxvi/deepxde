@@ -98,7 +98,7 @@ class Model:
 
                     - `InverseTimeDecay
                       <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
-                      ("inverse time", decay_steps, gamma)
+                      ("inverse time", gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by

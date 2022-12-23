@@ -7,7 +7,7 @@ def _get_lr_scheduler(lr, decay):
     if decay[0] == "inverse time":
         lr_sch = paddle.optimizer.lr.InverseTimeDecay(
             lr,
-            decay[2]/decay[1],
+            decay[1],
             verbose=False
         )
     else:

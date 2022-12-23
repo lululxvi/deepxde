@@ -450,7 +450,7 @@ class Fractional:
             # xi, wi = zip(*map(self.modify_second_order, xi, wi))
             # third order
             # xi, wi = zip(*map(self.modify_third_order, xi, wi))
-            x.append(np.vstack(xi).astype(config.real(np)))
+            x.append(np.vstack(xi))
             self.w.append(array_ops_compat.hstack(wi))
         self.xindex_start = np.hstack(([0], np.cumsum(list(map(len, x))))) + len(
             self.x0
