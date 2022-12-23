@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1
+"""Backend supported: tensorflow.compat.v1, paddle
 
 Implementation of the Poisson 1D example in paper https://arxiv.org/abs/2012.10047.
 References:
@@ -18,12 +18,28 @@ A = 2
 B = 50
 
 
+# Define sine function
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    sin = tf.sin
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
+
+
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
     return (
         dy_xx
+<<<<<<< HEAD
         + (np.pi * A) ** 2 * paddle.sin(np.pi * A * x)
         + 0.1 * (np.pi * B) ** 2 * paddle.sin(np.pi * B * x)
+=======
+        + (np.pi * A) ** 2 * sin(np.pi * A * x)
+        + 0.1 * (np.pi * B) ** 2 * sin(np.pi * B * x)
+>>>>>>> lulu_master
     )
 
 

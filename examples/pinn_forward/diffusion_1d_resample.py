@@ -1,10 +1,12 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Backend pytorch
 # import torch
+# Backend paddle
+# import paddle
 
 
 def pde(x, y):
@@ -23,6 +25,13 @@ def pde(x, y):
     #     - dy_xx
     #     + torch.exp(-x[:, 1:])
     #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
+    # )
+    # Backend paddle
+    # return (
+    #     dy_t
+    #     - dy_xx
+    #     + paddle.exp(-x[:, 1:])
+    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
     # )
 
 

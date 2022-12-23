@@ -1,13 +1,23 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
 from scipy.interpolate import griddata
 
 geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 10)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
+
+
+# Define sine function
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    from deepxde.backend import tf
+
+    cos = tf.math.cos
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    cos = paddle.cos
 
 
 def pde(x, y):
@@ -20,8 +30,8 @@ def pde(x, y):
         + alpha * dy_xx
         + beta * y
         + gamma * (y ** k)
-        + x * tf.cos(t)
-        - (x ** 2) * (tf.cos(t) ** 2)
+        + x * cos(t)
+        - (x ** 2) * (cos(t) ** 2)
     )
 
 

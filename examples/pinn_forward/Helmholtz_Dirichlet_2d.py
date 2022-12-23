@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
 
@@ -14,6 +14,8 @@ parameters = [1e-3, 3, 150, "sin"]
 # Define sine function
 if dde.backend.backend_name == "pytorch":
     sin = dde.backend.pytorch.sin
+elif dde.backend.backend_name == "paddle":
+    sin = dde.backend.paddle.sin
 else:
     from deepxde.backend import tf
 

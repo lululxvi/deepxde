@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1
+"""Backend supported: tensorflow.compat.v1, paddle
 
 Implementation of the wave propagation example in paper https://arxiv.org/abs/2012.10047.
 References:
