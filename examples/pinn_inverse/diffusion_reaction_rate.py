@@ -11,7 +11,6 @@ import deepxde.config as config
 
 if dde.utils.get_nprocs() > 1:
     config.init_parallel_env()
-config.set_random_seed(42)
 
 
 l = 0.01
