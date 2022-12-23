@@ -47,5 +47,3 @@ def get_dist_info():
     world_size = paddle.distributed.get_world_size()
     rank = paddle.distributed.get_rank()
     return world_size, rank
-
-

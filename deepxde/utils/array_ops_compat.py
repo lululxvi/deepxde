@@ -66,12 +66,12 @@ def _padding_array(array, nprocs):
         return array
     if isinstance(array, np.ndarray):
         datapad = array[-1, :].reshape([-1, array[-1, :].shape[0]])
-        for i in range(npad):
+        for _ in range(npad):
             array = np.append(array, datapad, axis=0)
     elif bkd.is_tensor(array):
         element_shape = array[0].shape[2:]
         datapad = array[-1].reshape([-1, *element_shape])
-        for i in range(npad):
+        for _ in range(npad):
             array = bkd.concat([array, datapad], axis=0)
     else:
         raise NotImplementedError(f"Array of type `{type(array)}` is not supported now.")
