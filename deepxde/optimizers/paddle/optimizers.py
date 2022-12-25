@@ -5,11 +5,7 @@ import paddle
 
 def _get_lr_scheduler(lr, decay):
     if decay[0] == "inverse time":
-        lr_sch = paddle.optimizer.lr.InverseTimeDecay(
-            lr,
-            decay[1],
-            verbose=False
-        )
+        lr_sch = paddle.optimizer.lr.InverseTimeDecay(lr, decay[1], verbose=False)
     else:
         raise NotImplementedError(
             f"{decay[0]} decay is not implemented in PaddlePaddle"

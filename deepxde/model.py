@@ -97,7 +97,7 @@ class Model:
                 - For backend PaddlePaddle:
 
                     - `InverseTimeDecay
-                      <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
+                      <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
                       ("inverse time", gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
@@ -524,14 +524,14 @@ class Model:
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-        elif backend_name == "paddle":
-            self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
                 self.params, self.opt_state, inputs, targets
             )
             self.net.params, self.external_trainable_variables = self.params
+        elif backend_name == "paddle":
+            self.train_step(inputs, targets, auxiliary_vars)
 
     @utils.timing
     def train(
