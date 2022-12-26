@@ -28,6 +28,12 @@ class PointCloud(Geometry):
             self.boundary_normals = None
             all_points = self.points
         else:
+            self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
+            self.num_boundary_points = len(boundary_points)
+            all_points = np.vstack((self.points, self.boundary_points))
+            self.boundary_sampler = BatchSampler(
+                self.num_boundary_points, shuffle=True
+            )
             if boundary_normals is not None:
                 if len(boundary_normals) != len(boundary_points):
                     raise ValueError(
@@ -35,13 +41,7 @@ class PointCloud(Geometry):
                     )
                 self.boundary_normals = np.asarray(boundary_normals, dtype=config.real(np))
             else:
-                self.boundary_normals = boundary_normals
-            self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
-            self.num_boundary_points = len(boundary_points)
-            all_points = np.vstack((self.points, self.boundary_points))
-            self.boundary_sampler = BatchSampler(
-                self.num_boundary_points, shuffle=True
-            )
+                self.boundary_normals = None
         super().__init__(
             len(points[0]),
             (
