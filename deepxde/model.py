@@ -16,6 +16,7 @@ from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
 
+
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
