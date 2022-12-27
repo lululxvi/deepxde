@@ -48,14 +48,12 @@ def is_external_optimizer(optimizer):
     return optimizer in ["L-BFGS", "L-BFGS-B"]
 
 
-def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
+def get(params, optimizer, learning_rate=None, decay=None):
     """Retrieves an Optimizer instance."""
     if isinstance(optimizer, paddle.optimizer.Optimizer):
         return optimizer
 
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
-        if weight_decay > 0:
-            raise ValueError("L-BFGS optimizer doesn't support weight_decay > 0")
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
         optim = LBFGS(
