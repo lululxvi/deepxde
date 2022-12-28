@@ -48,7 +48,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             self.sess = None
             self.saver = None
-        elif backend_name == "pytorch":
+        elif backend_name in ["pytorch", "paddle"]:
             self.lr_scheduler = None
         elif backend_name == "jax":
             self.opt_state = None
@@ -93,6 +93,12 @@ class Model:
                 - For backend PyTorch:
 
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
+
+                - For backend PaddlePaddle:
+
+                    - `InverseTimeDecay
+                      <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
+                      ("inverse time", gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
@@ -415,7 +421,8 @@ class Model:
                     inputs = paddle.to_tensor(inputs, stop_gradient=False)
                 return self.net(inputs)
 
-        def outputs_losses(training, inputs, targets, losses_fn):
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+            self.net.auxiliary_vars = auxiliary_vars
             if training:
                 self.net.train()
             else:
@@ -427,7 +434,6 @@ class Model:
                 )
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
-
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
@@ -444,11 +450,11 @@ class Model:
             grad.clear()
             return outputs_, losses
 
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(True, inputs, targets, auxiliary_vars, self.data.losses_train)
 
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(False, inputs, targets, auxiliary_vars, self.data.losses_test)
 
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
@@ -457,12 +463,14 @@ class Model:
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
 
-        def train_step(inputs, targets):
-            losses = outputs_losses_train(inputs, targets)[1]
+        def train_step(inputs, targets, auxiliary_vars):
+            losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
             self.opt.step()
             self.opt.clear_grad()
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
 
         # Callables
         self.outputs = outputs
@@ -499,16 +507,16 @@ class Model:
             # TODO: auxiliary_vars
             outs = outputs_losses(self.params, inputs, targets)
         elif backend_name == "paddle":
-            outs = outputs_losses(inputs, targets)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
         return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
 
     def _train_step(self, inputs, targets, auxiliary_vars):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
             self.sess.run(self.train_step, feed_dict=feed_dict)
-        elif backend_name == "tensorflow":
+        elif backend_name in ["tensorflow", "paddle"]:
             self.train_step(inputs, targets, auxiliary_vars)
-        elif backend_name in ["pytorch", "paddle"]:
+        elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
         elif backend_name == "jax":
@@ -590,6 +598,8 @@ class Model:
                 self._train_tensorflow_tfp()
             elif backend_name == "pytorch":
                 self._train_pytorch_lbfgs()
+            elif backend_name == "paddle":
+                raise NotImplementedError("L-BFGS will be implemented soon in PaddlePaddle")
         else:
             if iterations is None:
                 raise ValueError("No iterations for {}.".format(self.opt_name))
