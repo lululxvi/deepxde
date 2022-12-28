@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
 
-
 l = 0.01
 
 
