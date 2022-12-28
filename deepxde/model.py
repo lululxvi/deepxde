@@ -97,8 +97,8 @@ class Model:
                 - For backend PaddlePaddle:
 
                     - `InverseTimeDecay
-                      <https://www.paddlepaddle.org.cn/documentation/docs/zh/develop/api/paddle/optimizer/lr/InverseTimeDecay_cn.html#inversetimedecay>`_:
-                      ("inverse time", decay_steps, gamma)
+                      <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
+                      ("inverse time", gamma)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
@@ -532,7 +532,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
             self.sess.run(self.train_step, feed_dict=feed_dict)
-        elif backend_name == "tensorflow":
+        elif backend_name in ["tensorflow", "paddle"]:
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars

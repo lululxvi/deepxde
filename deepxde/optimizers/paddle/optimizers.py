@@ -44,6 +44,16 @@ def _get_lr_scheduler(lr, decay):
     return lr_sch
 
 
+def _get_lr_scheduler(lr, decay):
+    if decay[0] == "inverse time":
+        lr_sch = paddle.optimizer.lr.InverseTimeDecay(lr, decay[1], verbose=False)
+    else:
+        raise NotImplementedError(
+            f"{decay[0]} decay is not implemented in PaddlePaddle"
+        )
+    return lr_sch
+
+
 def is_external_optimizer(optimizer):
     return optimizer in ["L-BFGS", "L-BFGS-B"]
 

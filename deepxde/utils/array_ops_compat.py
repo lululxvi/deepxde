@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from .. import backend as bkd
 from .. import config
 from ..backend import is_tensor, tf
 
@@ -11,9 +12,9 @@ def istensorlist(values):
 
 
 def convert_to_array(value):
-    """Convert a list to numpy array or tensorflow tensor."""
+    """Convert a list of numpy arrays or tensors to a numpy array or a tensor."""
     if istensorlist(value):
-        return tf.convert_to_tensor(value, dtype=config.real(tf))
+        return bkd.concat(value, axis=0)
     value = np.array(value)
     if value.dtype != config.real(np):
         return value.astype(config.real(np))
@@ -24,10 +25,10 @@ def hstack(tup):
     if not is_tensor(tup[0]) and tup[0] == []:
         tup = list(tup)
         if istensorlist(tup[1:]):
-            tup[0] = tf.convert_to_tensor([], dtype=config.real(tf))
+            tup[0] = bkd.as_tensor([], dtype=config.real(bkd.lib))
         else:
             tup[0] = np.array([], dtype=config.real(np))
-    return tf.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup)
+    return bkd.concat(tup, 0) if is_tensor(tup[0]) else np.hstack(tup)
 
 
 def roll(a, shift, axis):
