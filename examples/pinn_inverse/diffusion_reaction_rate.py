@@ -6,8 +6,6 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
-import paddle
-import deepxde.config as config
 
 
 l = 0.01

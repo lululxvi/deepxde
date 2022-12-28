@@ -1,10 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
-import deepxde.config as config
 import numpy as np
-import paddle
-from deepxde.backend import tf
-
 
 geom = dde.geometry.Interval(0, np.pi)
 

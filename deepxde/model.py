@@ -471,7 +471,6 @@ class Model:
             losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
             total_loss = paddle.sum(losses)
             total_loss.backward()
-
             self.opt.step()
             self.opt.clear_grad()
             if self.lr_scheduler is not None:

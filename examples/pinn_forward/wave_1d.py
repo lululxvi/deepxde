@@ -6,8 +6,6 @@ References:
 """
 import deepxde as dde
 import numpy as np
-import paddle
-import deepxde.config as config
 
 
 A = 2

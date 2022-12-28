@@ -6,10 +6,6 @@ References:
 """
 import deepxde as dde
 import numpy as np
-from deepxde.backend import tf
-import paddle
-import deepxde.config as config
-
 
 A = 2
 B = 50

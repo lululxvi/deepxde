@@ -9,9 +9,6 @@ from deepxde.backend import tf
 # Import paddle if using backend paddle
 # import paddle
 
-import paddle
-import deepxde.config as config
-
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
