@@ -448,7 +448,6 @@ class Model:
                 losses *= paddle.to_tensor(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
-
             return outputs_, losses
 
         def outputs_losses_train(inputs, targets, auxiliary_vars):
@@ -473,7 +472,7 @@ class Model:
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
-        def train_step_lbfgs(inputs, targets, auxiliary_vars, previous_optimizer_results=None):
+        def train_step_lbfgs(inputs, targets, auxiliary_vars):
             def closure():
                 losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = paddle.sum(losses)

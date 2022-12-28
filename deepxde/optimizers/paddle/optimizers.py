@@ -38,15 +38,14 @@ def get(params, optimizer, learning_rate=None, decay=None):
             parameters=params,
         )
         return optim
-    else:
-        if learning_rate is None:
-            raise ValueError("No learning rate for {}.".format(optimizer))
+    
+    if learning_rate is None:
+        raise ValueError("No learning rate for {}.".format(optimizer))
 
-        if decay is not None:
-            learning_rate = _get_lr_scheduler(learning_rate, decay)
+    if decay is not None:
+        learning_rate = _get_lr_scheduler(learning_rate, decay)
 
-        if optimizer == "adam":
-            return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
-        
-        raise NotImplementedError(f"{optimizer} to be implemented for backend Paddle.")
+    if optimizer == "adam":
+        return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
+    raise NotImplementedError(f"{optimizer} to be implemented for backend Paddle.")
 
