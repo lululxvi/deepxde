@@ -4,45 +4,6 @@ import paddle
 from paddle.incubate.optimizer import LBFGS
 from ..config import LBFGS_options
 
-class InverseTimeDecay(paddle.optimizer.lr.InverseTimeDecay):
-    def __init__(self, learning_rate, gamma, decay_steps=1, last_epoch=-1, verbose=False):
-        self.decay_steps = decay_steps
-        super(InverseTimeDecay, self).__init__(learning_rate, gamma, last_epoch, verbose)
-
-    def get_lr(self):
-        return self.base_lr / (1 + self.gamma * (self.last_epoch / self.decay_steps))
-
-
-def _get_lr_scheduler(lr, decay):
-    if decay is None:
-        return lr, None
-    if decay[0] == "inverse time":
-        lr_sch = InverseTimeDecay(
-            lr,  # 初始学习率
-            decay[2],  # 衰减系数
-            decay[1],  # 每隔decay[1]步衰减
-            verbose=False
-        )
-    else:
-        raise NotImplementedError(
-            f"{decay[0]} decay to be implemented for backend paddle."
-        )
-    return lr_sch
-
-
-def _get_lr_scheduler(lr, decay):
-    if decay[0] == "inverse time":
-        lr_sch = paddle.optimizer.lr.InverseTimeDecay(
-            lr,
-            decay[2]/decay[1],
-            verbose=False
-        )
-    else:
-        raise NotImplementedError(
-            f"{decay[0]} decay is not implemented in PaddlePaddle"
-        )
-    return lr_sch
-
 
 def _get_lr_scheduler(lr, decay):
     if decay[0] == "inverse time":

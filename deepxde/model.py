@@ -16,6 +16,7 @@ from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
 
+
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
@@ -52,7 +53,6 @@ class Model:
         elif backend_name == "jax":
             self.opt_state = None
             self.params = None
-
 
     @utils.timing
     def compile(
@@ -285,7 +285,6 @@ class Model:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
-
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -436,7 +435,6 @@ class Model:
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
             outputs_ = self.net(inputs)
-
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
@@ -445,7 +443,6 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = paddle.concat(losses, axis=0)
-
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
@@ -463,7 +460,6 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-
         self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
