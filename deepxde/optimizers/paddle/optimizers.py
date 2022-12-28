@@ -34,5 +34,4 @@ def get(params, optimizer, learning_rate=None, decay=None):
 
     if optimizer == "adam":
         return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
-
     raise NotImplementedError(f"{optimizer} is not implemented in PaddlePaddle")

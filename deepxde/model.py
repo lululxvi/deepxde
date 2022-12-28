@@ -54,7 +54,6 @@ class Model:
             self.opt_state = None
             self.params = None
 
-
     @utils.timing
     def compile(
         self,
@@ -286,7 +285,6 @@ class Model:
                 inputs = torch.as_tensor(inputs)
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
-
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
@@ -437,7 +435,6 @@ class Model:
             else:
                 inputs = paddle.to_tensor(inputs, stop_gradient=False)
             outputs_ = self.net(inputs)
-
             # Data losses
             if targets is not None:
                 targets = paddle.to_tensor(targets)
@@ -446,13 +443,11 @@ class Model:
                 losses = [losses]
             # TODO: regularization
             losses = paddle.concat(losses, axis=0)
-
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
-
             return outputs_, losses
 
         def outputs_losses_train(inputs, targets, auxiliary_vars):
@@ -464,7 +459,6 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-
         self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
@@ -520,7 +514,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
             self.sess.run(self.train_step, feed_dict=feed_dict)
-        elif backend_name == "tensorflow":
+        elif backend_name in ["tensorflow", "paddle"]:
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
@@ -531,8 +525,6 @@ class Model:
                 self.params, self.opt_state, inputs, targets
             )
             self.net.params, self.external_trainable_variables = self.params
-        elif backend_name == "paddle":
-            self.train_step(inputs, targets, auxiliary_vars)
 
     @utils.timing
     def train(
