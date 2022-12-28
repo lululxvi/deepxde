@@ -4,14 +4,8 @@ import paddle
 
 
 def _get_lr_scheduler(lr, decay):
-    if decay is None:
-        return lr, None
     if decay[0] == "inverse time":
-        lr_sch = paddle.optimizer.lr.InverseTimeDecay(
-            lr,
-            decay[2]/decay[1],
-            verbose=False
-        )
+        lr_sch = paddle.optimizer.lr.InverseTimeDecay(lr, decay[1], verbose=False)
     else:
         raise NotImplementedError(
             f"{decay[0]} decay is not implemented in PaddlePaddle"
@@ -40,5 +34,4 @@ def get(params, optimizer, learning_rate=None, decay=None):
 
     if optimizer == "adam":
         return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params)
-
     raise NotImplementedError(f"{optimizer} is not implemented in PaddlePaddle")
