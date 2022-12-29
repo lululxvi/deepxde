@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle
 
 An inverse problem of the Navier-Stokes equation of incompressible flow around cylinder with Re=100
 

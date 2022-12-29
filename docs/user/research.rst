@@ -13,6 +13,7 @@ DeepXDE has been used in
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
   `Peking University <https://english.pku.edu.cn>`_,
   `Georgia Institute of Technology <https://www.gatech.edu>`_,
+  `Purdue University <https://www.purdue.edu>`_,
   `University of Colorado Boulder <https://www.colorado.edu>`_,
   `Boston University <https://www.bu.edu>`_,
   `University of California, Santa Barbara <https://www.ucsb.edu>`_,
@@ -45,9 +46,10 @@ DeepXDE has been used in
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_
-- 9 national labs and research institutes, e.g.,
+- 10 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
+  `Argonne National Laboratory <https://www.anl.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
   `Laboratory of Web Science <https://www.ffhs.ch/en/research/lws>`_,
@@ -69,6 +71,7 @@ PINN
 
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://link.springer.com/article/10.1007/s11242-022-01864-7>`_. *Transport in Porous Media*, 1-24, 2022.
+#. K. Prantikos, L. Tsoukalas, & A. Heifetz. `Physics-informed neural network solution of point kinetics equations for a nuclear reactor digital twin <https://doi.org/10.3390/en15207697>`_. *Energies*, 15(20), 7697, 2022.
 #. C. Garcia-Cervera, M. Kessler, & F. Periago. `Control of partial differential equations via physics-informed neural networks <https://link.springer.com/article/10.1007/s10957-022-02100-4>`_. *Journal of Optimization Theory and Applications*, 1-24, 2022.
 #. M. Takamoto, T. Praditia, R. Leiteritz, D. MacKinlay, F. Alesiani, D. Pflüger, & M. Niepert. `PDEBENCH: An Extensive Benchmark for Scientific Machine Learning <https://arxiv.org/abs/2210.07182>`_. *arXiv preprint arXiv:2210.07182*, 2022.
 #. X. Wang, J. Li, & J. Li. `A deep learning based numerical PDE method for option pricing <https://link.springer.com/article/10.1007/s10614-022-10279-x>`_. *Computational Economics*, 1-16, 2022.
@@ -76,6 +79,7 @@ PINN
 #. A. Cornell, A. Ncube, & G. Harmsen. `Determining QNMs using PINNs <https://arxiv.org/pdf/2205.08284.pdf>`_. *arXiv preprint arXiv:2205.08284*, 2022.
 #. L. Guo, H. Wu, X. Yu, & T. Zhou. `Monte Carlo PINNs: Deep learning approach for forward and inverse problems involving high dimensional fractional partial differential equations <https://arxiv.org/pdf/2203.08501.pdf>`_. *arXiv preprint arXiv:2203.08501*, 2022.
 #. P. Escapil-Inchauspé, & G. A. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://arxiv.org/pdf/2205.06704.pdf>`_. *arXiv preprint arXiv:2205.06704*, 2022.
+#. P. Escapil-Inchauspé, & G. A. Ruz. `Physics-informed neural networks for operator equations with stochastic data <https://arxiv.org/abs/2211.10344>`_. *arXiv preprint arXiv:2211.10344*, 2022.
 #. H. Xie, C. Zhai, L. Liu, & H. Yong. `A weighted first-order formulation for solving anisotropic diffusion equations with deep neural networks <https://arxiv.org/pdf/2205.06658.pdf>`_. *arXiv preprint arXiv:2205.06658*, 2022.
 #. Y. Lu, G. Mei, & F. Piccialli.  `A deep learning approach for predicting two-dimensional soil consolidation using physics-informed neural networks (PINN) <https://arxiv.org/pdf/2205.05710.pdf>`_. *arXiv preprint arXiv:2205.05710*, 2022.
 #. J. Yu, L. Lu, X. Meng, & G. Karniadakis. `Gradient-enhanced physics-informed neural networks for forward and inverse PDE problems <https://doi.org/10.1016/j.cma.2022.114823>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114823, 2022.
@@ -114,13 +118,14 @@ PINN
 DeepONet
 --------
 
+#. M. Zhu, H. Zhang, A. Jiao, G. Karniadakis, & L. Lu. `Reliable extrapolation of deep neural operators informed by physics or sparse observations <https://arxiv.org/abs/2212.06347>`_. *arXiv preprint arXiv:2212.06347*, 2022.
+#. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `Neural operator prediction of linear instability waves in high-speed boundary layers <https://doi.org/10.1016/j.jcp.2022.111793>`_. *Journal of Computational Physics*, 474, 111793, 2023.
 #. P. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://doi.org/10.1137/22M1477751>`_. *SIAM Journal on Scientific Computing*, 44(6), A3490--A3514, 2022.
 #. L. Lu, R. Pestourie, S. Johnson, & G. Romano. `Multifidelity deep neural operators for efficient learning of partial differential equations with application to fast inverse design of nanoscale heat transport <https://doi.org/10.1103/PhysRevResearch.4.023210>`_. *Physical Review Research*, 4(2), 023210, 2022.
 #. L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis. `A comprehensive and fair comparison of two neural operators (with practical extensions) based on FAIR data <https://doi.org/10.1016/j.cma.2022.114778>`_. *Computer Methods in Applied Mechanics and Engineering*, 393, 114778, 2022.
 #. L. Tan, & L. Chen. `Enhanced DeepONet for modeling partial differential operators considering multiple input functions <https://arxiv.org/pdf/2202.08942.pdf>`_. *arXiv preprint arXiv:2202.08942*, 2022.
 #. C. Lin, M. Maxey, Z. Li, & G. Karniadakis. `A seamless multiscale operator neural network for inferring bubble dynamics <https://doi.org/10.1017/jfm.2021.866>`_. *Journal of Fluid Mechanics*, 929, A18, 2021.
 #. Z. Mao, L. Lu, O. Marxen, T. Zaki, & G. Karniadakis. `DeepM&Mnet for hypersonics: Predicting the coupled flow and finite-rate chemistry behind a normal shock using neural-network approximation of operators <https://doi.org/10.1016/j.jcp.2021.110698>`_. *Journal of Computational Physics*, 447, 110698, 2021.
-#. P. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `DeepONet prediction of linear instability waves in high-speed boundary layers <https://arxiv.org/abs/2105.08697>`_. *arXiv preprint arXiv:2105.08697*, 2021.
 #. S. Cai, Z. Wang, L. Lu, T. Zaki, & G. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://doi.org/10.1016/j.jcp.2021.110296>`_. *Journal of Computational Physics*, 436, 110296, 2021.
 #. L. Lu, P. Jin, G. Pang, Z. Zhang, & G. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021.
 #. C. Lin, Z. Li, L. Lu, S. Cai, M. Maxey, & G. Karniadakis. `Operator learning for predicting multiscale bubble growth dynamics <https://doi.org/10.1063/5.0041203>`_. *The Journal of Chemical Physics*, 154(10), 104118, 2021.
@@ -134,4 +139,4 @@ Multi-fidelity NN
 Others
 ------
 
-#. L. Lu, H. He, P. Kasimbeg, R. Ranade, & J. Pathak. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
+#. A. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
