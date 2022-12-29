@@ -1,7 +1,7 @@
 import numpy as np
-from . import backend as bkd
 from sklearn import metrics
 
+from . import backend as bkd
 from . import config
 from . import utils
 
