@@ -14,7 +14,9 @@ with the Dirichlet boundary conditions
 
 .. math:: u(x,y)=0, \qquad (x,y)\in \partial \Omega
 
-The reference solution is :math:`u = 1 - e^{lambda x} \cos(2\pi y)` `v = \frac{lambda}{2\pi}e^{-t} \sin(2\pi x)` `p =\frac{1}{2}(1 - e^{2 lambda x})`
+The reference solution is :math:`u = 1 - e^{lambda x} \cos(2\pi y)` 
+                          :math:`v = \frac{lambda}{2\pi}e^{-t} \sin(2\pi x)` 
+                          :math:`p =\frac{1}{2}(1 - e^{2 lambda x})`
 
 Implementation
 --------------
@@ -112,7 +114,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
         num_test=100000,
     )
     
-The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 80. 100000 test points were used in the ``TimePDE``.
+The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 400. 100000 test points were used in the ``TimePDE``.
 
 Next, we choose the network. We use a fully connected neural network of depth 53 (i.e., 50 hidden layers and 3 outputs) and width 4:
 
