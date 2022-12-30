@@ -23,18 +23,18 @@ class PointCloud(Geometry):
         self.boundary_normals = None
         all_points = self.points
         if boundary_points is not None:
-                self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
-                self.num_boundary_points = len(boundary_points)
-                all_points = np.vstack((self.points, self.boundary_points))
-                self.boundary_sampler = BatchSampler(
-                    self.num_boundary_points, shuffle=True
-                )
-                if boundary_normals is not None:
-                                if len(boundary_normals) != len(boundary_points):
-                                    raise ValueError(
-                                        "the shape of boundary_normals should be the same as boundary_points"
-                                    )
-                                self.boundary_normals = np.asarray(boundary_normals, dtype=config.real(np))
+            self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
+            self.num_boundary_points = len(boundary_points)
+            all_points = np.vstack((self.points, self.boundary_points))
+            self.boundary_sampler = BatchSampler(
+                self.num_boundary_points, shuffle=True
+            )
+            if boundary_normals is not None:
+                if len(boundary_normals) != len(boundary_points):
+                    raise ValueError(
+                        "the shape of boundary_normals should be the same as boundary_points"
+                    )
+                self.boundary_normals = np.asarray(boundary_normals, dtype=config.real(np))
         super().__init__(
                     len(points[0]),
                     (
