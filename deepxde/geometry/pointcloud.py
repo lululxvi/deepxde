@@ -41,10 +41,7 @@ class PointCloud(Geometry):
                 )
         super().__init__(
             len(points[0]),
-            (
-                np.amin(all_points, axis=0),
-                np.amax(all_points, axis=0),
-            ),
+            (np.amin(all_points, axis=0), np.amax(all_points, axis=0)),
             np.inf,
         )
         self.sampler = BatchSampler(self.num_points, shuffle=True)
