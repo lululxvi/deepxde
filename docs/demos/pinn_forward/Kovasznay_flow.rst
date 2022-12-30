@@ -14,9 +14,7 @@ with the Dirichlet boundary conditions
 
 .. math:: u(x,y)=0, \qquad (x,y)\in \partial \Omega
 
-The reference solution is :math:`u = 1 - e^{lambda x} \cos(2\pi y)` 
-                          :math:`v = \frac{lambda}{2\pi}e^{-t} \sin(2\pi x)` 
-                          :math:`p =\frac{1}{2}(1 - e^{2 lambda x})`
+The reference solution is :math:`u = 1 - e^{lambda x} \cos(2\pi y)`, :math:`v = \frac{lambda}{2\pi}e^{-t} \sin(2\pi x)`, :math:`p =\frac{1}{2}(1 - e^{2 lambda x})`
 
 Implementation
 --------------
