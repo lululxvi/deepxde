@@ -49,7 +49,7 @@ Time-dependent PDEs
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
    pinn_forward/klein.gordon
-   pinn_forward/Kovasznay_flow
+   pinn_forward/Kovasznay.flow
 
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/wave_1d.py>`_
