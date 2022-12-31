@@ -1,4 +1,4 @@
-Kovasznay flow equation
+Kovasznay flow
 ================
 
 Problem setup
@@ -19,7 +19,7 @@ The reference solution is :math:`u = 1 - e^{\lambda x} \cos(2\pi y)`, :math:`v =
 Implementation
 --------------
 
-This description goes through the implementation of a solver for the above described Kovasznay flow equation step-by-step.
+This description goes through the implementation of a solver for the above described Kovasznay flow step-by-step.
 
 First, the DeepXDE and Numpy modules are imported:
 
@@ -67,7 +67,7 @@ Next, we express the PDE residual of the Kovasznay flow equation in terms of the
 
 The first argument to ``pde`` is the network input, i.e. the x and y coordinates. The second argument is the network output ``u`` which is comprised of the 3 different output solutions i.e., velocity u, velocity v, and pressure p. 
 
-Next, the exact solution of the Kovasznay flow equations are introduced
+Next, the exact solution of the Kovasznay flow is introduced
 
 .. code-block:: python
 
