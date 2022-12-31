@@ -6,15 +6,15 @@ Problem setup
 
 We will solve the Kovasznay flow equation:
 
-.. math:: u\frac{\partial u}{\partial x} + v\frac{\partial u}{\partial x}= -\frac{\partial p}{\partial x} + \frac{1}{Re}(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}), \qquad  \Omega = [0,1]^2, 
+.. math:: u\frac{\partial u}{\partial x} + v\frac{\partial u}{\partial y}= -\frac{\partial p}{\partial x} + \frac{1}{Re}(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}), \qquad  \Omega = [0,1]^2, 
 
-.. math:: u\frac{\partial v}{\partial x} + v\frac{\partial v}{\partial x}= -\frac{\partial p}{\partial y} + \frac{1}{Re}(\frac{\partial^2v}{\partial x^2} + \frac{\partial^2v}{\partial y^2}), \qquad  \Omega = [0,1]^2, 
+.. math:: u\frac{\partial v}{\partial x} + v\frac{\partial v}{\partial y}= -\frac{\partial p}{\partial y} + \frac{1}{Re}(\frac{\partial^2v}{\partial x^2} + \frac{\partial^2v}{\partial y^2}), \qquad  \Omega = [0,1]^2, 
 
 with the Dirichlet boundary conditions
 
 .. math:: u(x,y)=0, \qquad (x,y)\in \partial \Omega
 
-The reference solution is :math:`u = 1 - e^{lambda x} \cos(2\pi y)`, :math:`v = \frac{lambda}{2\pi}e^{-t} \sin(2\pi x)`, :math:`p =\frac{1}{2}(1 - e^{2 lambda x})`
+The reference solution is :math:`u = 1 - e^{\lambda x} \cos(2\pi y)`, :math:`v = \frac{\lambda}{2\pi}e^{\lambdax} \sin(2\pi x)`, :math:`p =\frac{1}{2}(1 - e^{2 lambda x})`
 
 Implementation
 --------------
@@ -28,7 +28,7 @@ First, the DeepXDE and Numpy modules are imported:
     import deepxde as dde
     import numpy as np
 
-We begin by defining the parameters of the equation. `lambda` is defined as l below.
+We begin by defining the parameters of the equation. :math:`\lambda` is defined as l below.
 
 .. code-block:: python
 
