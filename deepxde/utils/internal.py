@@ -14,31 +14,26 @@ from .. import config
 from .. import utils
 
 
-def gather_before_run(func):
+def all_gather_before_run(func):
     """
     Gather tensors from all trainers before calling func,
     mainly for distributed metric computing
     """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args):
-            if config.world_size > 1:
-                if config.backend_name == "paddle":
-                    gathered_args = [
-                        utils.all_gather(bkd.as_tensor(arg)).numpy()
-                        for arg in args
-                    ]
-                    return func(gathered_args)
-                else:
-                    raise NotImplementedError(
-                        f"Function `collect_from_all_device` is not "
-                        f"implemented in {config.backend_name}"
-                    )
-            return func(*args)
+    @wraps(func)
+    def wrapper(*args):
+        if config.world_size > 1:
+            if config.backend_name == "paddle":
+                gathered_args = [
+                    utils.all_gather(bkd.as_tensor(arg)).numpy()
+                    for arg in args
+                ]
+                return func(gathered_args)
+            raise NotImplementedError(
+                f"Function 'all_gather' should be implemented in {config.backend_name}"
+            )
+        return func(*args)
 
-        return wrapper
-
-    return decorator
+    return wrapper
 
 
 def timing(f):
