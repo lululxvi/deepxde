@@ -6,17 +6,17 @@ from . import config
 from . import utils
 
 
+@utils.gather_before_run
 def accuracy(y_true, y_pred):
     return np.mean(np.equal(np.argmax(y_pred, axis=-1), np.argmax(y_true, axis=-1)))
 
 
+@utils.gather_before_run
 def l2_relative_error(y_true, y_pred):
-    if config.world_size > 1:
-        y_true = utils.all_gather(bkd.as_tensor(y_true)).numpy()
-        y_pred = utils.all_gather(bkd.as_tensor(y_pred)).numpy()
     return np.linalg.norm(y_true - y_pred) / np.linalg.norm(y_true)
 
 
+@utils.gather_before_run
 def nanl2_relative_error(y_true, y_pred):
     """Return the L2 relative error treating Not a Numbers (NaNs) as zero."""
     err = y_true - y_pred
@@ -25,6 +25,7 @@ def nanl2_relative_error(y_true, y_pred):
     return np.linalg.norm(err) / np.linalg.norm(y_true)
 
 
+@utils.gather_before_run
 def mean_l2_relative_error(y_true, y_pred):
     """Compute the average of L2 relative error along the first axis."""
     return np.mean(
@@ -32,24 +33,29 @@ def mean_l2_relative_error(y_true, y_pred):
     )
 
 
+@utils.gather_before_run
 def _absolute_percentage_error(y_true, y_pred):
     return 100 * np.abs(
         (y_true - y_pred) / np.clip(np.abs(y_true), np.finfo(config.real(np)).eps, None)
     )
 
 
+@utils.gather_before_run
 def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(_absolute_percentage_error(y_true, y_pred))
 
 
+@utils.gather_before_run
 def max_absolute_percentage_error(y_true, y_pred):
     return np.amax(_absolute_percentage_error(y_true, y_pred))
 
 
+@utils.gather_before_run
 def absolute_percentage_error_std(y_true, y_pred):
     return np.std(_absolute_percentage_error(y_true, y_pred))
 
 
+@utils.gather_before_run
 def mean_squared_error(y_true, y_pred):
     return metrics.mean_squared_error(y_true, y_pred)
 
