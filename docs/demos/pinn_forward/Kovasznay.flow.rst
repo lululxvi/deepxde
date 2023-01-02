@@ -99,7 +99,7 @@ Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here
     )
 
     
-Now, we have specified the geometry, PDE residual, and boundary/initial condition. We then define the ``TimePDE`` problem as
+Now, we have specified the geometry, PDE residual, and boundary/initial condition. We then define the ``PDE`` problem as
 
 .. code-block:: python
 
@@ -112,7 +112,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
         num_test=100000,
     )
     
-The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 400. 100000 test points were used in the ``TimePDE``.
+The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 400. 100000 test points were used in the ``PDE``.
 
 Next, we choose the network. We use a fully connected neural network of 4 hidden layers, 3 outputs and width 50
 
