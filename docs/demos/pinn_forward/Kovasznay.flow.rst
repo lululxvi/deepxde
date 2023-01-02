@@ -4,7 +4,7 @@ Kovasznay flow
 Problem setup
 --------------
 
-We will solve the Kovasznay flow equation on math:`\Omega = [0, 1]^2`:
+We will solve the Kovasznay flow equation on :math:`\Omega = [0, 1]^2`:
 
 .. math:: u\frac{\partial u}{\partial x} + v\frac{\partial u}{\partial y}= -\frac{\partial p}{\partial x} + \frac{1}{Re}(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}), 
 
