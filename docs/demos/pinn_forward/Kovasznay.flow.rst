@@ -103,7 +103,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
 
 .. code-block:: python
 
-    data = dde.data.TimePDE(
+    data = dde.data.PDE(
         spatial_domain,
         pde,
         [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],
