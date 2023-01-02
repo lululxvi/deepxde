@@ -114,7 +114,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
     
 The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 400. 100000 test points were used in the ``TimePDE``.
 
-Next, we choose the network. We use a fully connected neural network of depth 53 (i.e., 50 hidden layers and 3 outputs) and width 4:
+Next, we choose the network. We use a fully connected neural network of 4 hidden layers, 3 outputs and width 50
 
 .. code-block:: python
 
@@ -164,6 +164,7 @@ Next, we compare the predicted output to the exact output and calculate the loss
     print("L2 relative error in u:", l2_difference_u)
     print("L2 relative error in v:", l2_difference_v)
     print("L2 relative error in p:", l2_difference_p) 
+    
 Complete code
 --------------
 
