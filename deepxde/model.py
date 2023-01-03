@@ -532,8 +532,6 @@ class Model:
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
             self.train_step(inputs, targets)
-        elif backend_name == "paddle":
-            self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
