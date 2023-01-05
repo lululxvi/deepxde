@@ -108,6 +108,10 @@ def concat(values, axis):
     return tf.concat(values, axis)
 
 
+def stack(values, axis):
+    return tf.stack(values, axis)
+
+
 def expand_dims(tensor, axis):
     return tf.expand_dims(tensor, axis)
 

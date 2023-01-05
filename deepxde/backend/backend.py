@@ -204,6 +204,18 @@ def concat(values, axis):
     """
 
 
+def stack(values, axis):
+    """Returns the stack of the input tensors along the given dim.
+
+    Args:
+        values (list or tuple of Tensor). The input tensors in list or tuple.
+        axis (int). The stacking dim.
+
+    Returns:
+        Tensor: Stacked tensor.
+    """
+
+
 def expand_dims(tensor, axis):
     """Expand dim for tensor along given axis.
 

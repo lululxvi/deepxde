@@ -90,6 +90,10 @@ def concat(values, axis):
     return paddle.concat(values, axis=axis)
 
 
+def stack(values, axis):
+    return paddle.stack(values, axis=axis)
+
+
 def expand_dims(tensor, axis):
     return paddle.unsqueeze(tensor, axis=axis)
 

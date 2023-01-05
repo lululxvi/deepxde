@@ -14,7 +14,11 @@ def istensorlist(values):
 def convert_to_array(value):
     """Convert a list of numpy arrays or tensors to a numpy array or a tensor."""
     if istensorlist(value):
-        return bkd.concat(value, axis=0)
+        # TODO: use concat instead of stack as paddle now use shape [1,]
+        # for 0-D tensor, it will be solved soon.
+        if bkd.backend_name == "paddle":
+            return bkd.concat(value, axis=0)
+        return bkd.stack(value, axis=0)
     value = np.array(value)
     if value.dtype != config.real(np):
         return value.astype(config.real(np))
