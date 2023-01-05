@@ -98,6 +98,10 @@ def concat(values, axis):
     return torch.cat(values, axis)
 
 
+def stack(values, axis):
+    return torch.stack(values, axis)
+
+
 def expand_dims(tensor, axis):
     return torch.unsqueeze(tensor, axis)
 
