@@ -955,7 +955,7 @@ class Model:
                 - For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
                 - For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
                 - For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
-                - For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/save_cn.html#cn-api-paddle-framework-io-save>`_.
+                - For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/save_en.html>`_.
 
                 If `protocol` is "pickle", save using the Python pickle module. Only the
                 protocol "backend" supports ``restore()``.
