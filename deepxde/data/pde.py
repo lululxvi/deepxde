@@ -25,9 +25,10 @@ class PDE(Data):
             `num_boundary` sampled points.
         exclusions: A Numpy array of points to be excluded for training.
         solution: The reference solution.
-        num_test: The number of points sampled inside the domain for testing PDE loss.
-            The testing points for BCs/ICs are the same set of points used for training.
+        num_test_domain: The number of points sampled inside the domain for testing PDE loss.
             If ``None``, then the training points will be used for testing.
+        num_test_boundary: The number of points sampled on the BC/ICs for testing PDE loss.
+            If ``None``, then the training points on the BC/ICs will be used for testing.
         auxiliary_var_function: A function that inputs `train_x` or `test_x` and outputs
             auxiliary variables.
 
@@ -67,7 +68,7 @@ class PDE(Data):
             (`train_x_all`), and may have duplicate points.
         train_aux_vars: Auxiliary variables that associate with `train_x`.
         test_x: A Numpy array of the points fed into the network for testing, ordered
-            from BCs to PDE. The BC points are exactly the same points in `train_x_bc`.
+            from BCs to PDE.
         test_aux_vars: Auxiliary variables that associate with `test_x`.
     """
 
@@ -82,7 +83,8 @@ class PDE(Data):
         anchors=None,
         exclusions=None,
         solution=None,
-        num_test=None,
+        num_test_domain=None,
+        num_test_boundary=None,
         auxiliary_var_function=None,
     ):
         self.geom = geometry
@@ -96,7 +98,8 @@ class PDE(Data):
         self.exclusions = exclusions
 
         self.soln = solution
-        self.num_test = num_test
+        self.num_test_domain = num_test_domain
+        self.num_test_boundary = num_test_boundary
 
         self.auxiliary_var_fn = auxiliary_var_function
 
@@ -172,10 +175,7 @@ class PDE(Data):
 
     @run_if_all_none("test_x", "test_y", "test_aux_vars")
     def test(self):
-        if self.num_test is None:
-            self.test_x = self.train_x
-        else:
-            self.test_x = self.test_points()
+        self.test_x = self.test_points()
         self.test_y = self.soln(self.test_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.test_aux_vars = self.auxiliary_var_fn(self.test_x).astype(
@@ -263,10 +263,17 @@ class PDE(Data):
         return self.train_x_bc
 
     def test_points(self):
-        # TODO: Use different BC points from self.train_x_bc
-        x = self.geom.uniform_points(self.num_test, boundary=False)
-        x = np.vstack((self.train_x_bc, x))
-        return x
+        test_points_boundary = (
+            self.geom.uniform_boundary_points(self.num_test_boundary)
+            if self.num_test_boundary is not None
+            else self.train_x_bc
+        )
+        test_points_domain = (
+            self.geom.uniform_points(self.num_test_domain, boundary=False)
+            if self.num_test_domain is not None
+            else self.train_x_pde
+        )
+        return np.vstack((test_points_boundary, test_points_domain))
 
 
 class TimePDE(PDE):
@@ -289,7 +296,8 @@ class TimePDE(PDE):
         anchors=None,
         exclusions=None,
         solution=None,
-        num_test=None,
+        num_test_domain=None,
+        num_test_boundary=None,
         auxiliary_var_function=None,
     ):
         self.num_initial = num_initial
@@ -303,7 +311,8 @@ class TimePDE(PDE):
             anchors=anchors,
             exclusions=exclusions,
             solution=solution,
-            num_test=num_test,
+            num_test_domain=num_test_domain,
+            num_test_boundary=num_test_boundary,
             auxiliary_var_function=auxiliary_var_function,
         )
 
