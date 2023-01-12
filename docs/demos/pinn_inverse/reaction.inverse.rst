@@ -124,7 +124,7 @@ Now, we can define the ``TimePDE`` problem as follows:
         num_boundary=100,
         num_initial=100,
         anchors=observe_x,
-        num_test=50000,
+        num_test_domain=50000,
     )
 
 We have 2000 training residual points in the domain, 100 points on the boundary, 100 points for the initial conditions, and 50000 to test the PDE residual. ``anchors`` specifies the training points as well.

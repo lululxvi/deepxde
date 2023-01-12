@@ -45,7 +45,7 @@ data = dde.data.PDE(
     2,
     train_distribution="pseudo",
     solution=func,
-    num_test=10000,
+    num_test_domain=10000,
 )
 
 layer_size = [1] + [100] * 3 + [1]

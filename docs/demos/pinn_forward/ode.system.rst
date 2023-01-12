@@ -70,7 +70,7 @@ Now, we have specified the geometry, ODEs, and initial conditions. Since ``PDE``
 
 .. code-block:: python
 
-    data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
+    data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test_domain=100)
 
 The number 35 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary (the left and right endpoints of the time domain in this case). We use 100 points for testing the ODE residual. The argument  ``solution=func`` is the reference solution to compute the error of our solution, and we define it as follows:
 

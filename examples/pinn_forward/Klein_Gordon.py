@@ -55,7 +55,7 @@ data = dde.data.TimePDE(
     num_boundary=1500,
     num_initial=1500,
     solution=func,
-    num_test=6000,
+    num_test_domain=6000,
 )
 
 layer_size = [2] + [40] * 2 + [1]

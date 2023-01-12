@@ -110,7 +110,7 @@ Now, we have specified the geometry, PDE residual, and boundary condition. We th
         [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],
         num_domain=2601,
         num_boundary=400,
-        num_test=100000,
+        num_test_domain=100000,
     )
     
 The training residual points imside the domain is 2601, and the number of training points sampled on the boundary is 400. 100000 test points were used in the ``PDE``.

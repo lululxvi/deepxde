@@ -49,7 +49,7 @@ data = dde.data.PDE(
     num_domain=100,
     num_boundary=0,
     train_distribution="uniform",
-    num_test=500,
+    num_test_domain=500,
 )
 
 net = dde.nn.FNN([1] + [20] * 3 + [1], "tanh", "Glorot uniform")

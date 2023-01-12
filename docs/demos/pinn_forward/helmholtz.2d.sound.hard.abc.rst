@@ -191,7 +191,7 @@ Next, we define the weights for the loss function and generate the training and 
       bcs,
       num_domain=nx**2,
       num_boundary=8 * nx,
-      num_test=5 * nx **2,
+      num_test_domain=5 * nx **2,
       solution=sol
   )
 

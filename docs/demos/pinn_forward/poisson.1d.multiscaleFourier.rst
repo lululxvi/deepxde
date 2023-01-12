@@ -80,7 +80,7 @@ Now, we have specified the geometry, PDE residual and Dirichlet boundary conditi
         2,
         train_distribution="pseudo",
         solution=func,
-        num_test=10000,
+        num_test_domain=10000,
     )
 
 The number 1280 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``train_distribution = 'pseudo'`` means that the sample training points follows a pseudo-random distribution.  The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 10000 residual points for testing the PDE residual.

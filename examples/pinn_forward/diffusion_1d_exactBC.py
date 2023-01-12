@@ -43,7 +43,7 @@ geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-data = dde.data.TimePDE(geomtime, pde, [], num_domain=40, solution=func, num_test=10000)
+data = dde.data.TimePDE(geomtime, pde, [], num_domain=40, solution=func, num_test_domain=10000)
 
 layer_size = [2] + [32] * 3 + [1]
 activation = "tanh"

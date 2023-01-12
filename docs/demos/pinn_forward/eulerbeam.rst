@@ -109,7 +109,7 @@ Now, we have specified the geometry, PDE residual and boundary conditions. We th
         num_domain=10,
         num_boundary=2,
         solution=func,
-        num_test=100,
+        num_test_domain=100,
     )
 
 The number 10 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 100 residual points for testing the PDE residual.

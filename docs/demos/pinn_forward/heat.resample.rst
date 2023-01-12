@@ -82,7 +82,7 @@ Now, we have specified the geometry, PDE residual, and boundary/initial conditio
         num_domain=2540,
         num_boundary=80,
         num_initial=160,
-        num_test=2540,
+        num_test_domain=2540,
     )
 
 The number 2540 is the number of training residual points sampled inside the domain, and the number 80 is the number of training points sampled on the boundary. We also include 160 initial residual points for the initial conditions.

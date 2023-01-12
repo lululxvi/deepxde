@@ -35,7 +35,7 @@ data = dde.data.PDE(
     num_domain=200,
     num_boundary=2,
     anchors=ob_x,
-    num_test=1000,
+    num_test_domain=1000,
 )
 
 net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform")

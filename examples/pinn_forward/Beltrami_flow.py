@@ -158,7 +158,7 @@ data = dde.data.TimePDE(
     num_domain=50000,
     num_boundary=5000,
     num_initial=5000,
-    num_test=10000,
+    num_test_domain=10000,
 )
 
 net = dde.nn.FNN([4] + 4 * [50] + [4], "tanh", "Glorot normal")

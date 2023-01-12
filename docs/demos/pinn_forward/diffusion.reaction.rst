@@ -108,7 +108,7 @@ Now, we have specified the geometry and the PDE residual. We then define the ``T
 .. code-block:: python
 
     data = dde.data.TimePDE(
-        geomtime, pde, [], num_domain=320, solution=func, num_test=80000
+        geomtime, pde, [], num_domain=320, solution=func, num_test_domain=80000
     )
 
 The number 320 is the number of training residual points sampled inside the domain, and the number 80000 is the number of points sampled inside

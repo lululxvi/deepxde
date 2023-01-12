@@ -32,7 +32,7 @@ r_boundary_pts = boundary_pts[np.isclose(boundary_pts, 1)].reshape(-1, 1)
 bc_r = dde.icbc.PointSetOperatorBC(r_boundary_pts, d_func(r_boundary_pts), dy_x)
 
 data = dde.data.PDE(
-    geom, pde, [bc_l, bc_r], num_domain=16, num_boundary=2, solution=func, num_test=100
+    geom, pde, [bc_l, bc_r], num_domain=16, num_boundary=2, solution=func, num_test_domain=100
 )
 
 layer_size = [1] + [50] * 3 + [1]

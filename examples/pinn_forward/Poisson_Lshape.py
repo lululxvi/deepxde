@@ -19,7 +19,7 @@ def boundary(_, on_boundary):
 geom = dde.geometry.Polygon([[0, 0], [1, 0], [1, -1], [-1, -1], [-1, 1], [0, 1]])
 bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary)
 
-data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test=1500)
+data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test_domain=1500)
 net = dde.nn.FNN([2] + [50] * 4 + [1], "tanh", "Glorot uniform")
 model = dde.Model(data, net)
 

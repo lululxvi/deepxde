@@ -43,7 +43,7 @@ data = dde.data.PDE(
     num_domain=10,
     num_boundary=2,
     solution=func,
-    num_test=100,
+    num_test_domain=100,
 )
 layer_size = [1] + [20] * 3 + [1]
 activation = "tanh"

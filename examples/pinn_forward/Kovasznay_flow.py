@@ -68,7 +68,7 @@ data = dde.data.PDE(
     [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],
     num_domain=2601,
     num_boundary=400,
-    num_test=100000,
+    num_test_domain=100000,
 )
 
 net = dde.nn.FNN([2] + 4 * [50] + [3], "tanh", "Glorot normal")

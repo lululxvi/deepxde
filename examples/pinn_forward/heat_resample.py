@@ -90,7 +90,7 @@ data = dde.data.TimePDE(
     num_domain=2540,
     num_boundary=80,
     num_initial=160,
-    num_test=2540,
+    num_test_domain=2540,
 )
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)

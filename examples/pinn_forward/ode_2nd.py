@@ -31,7 +31,7 @@ def bc_func2(inputs, outputs, X):
 ic1 = dde.icbc.IC(geom, lambda x: -1, lambda _, on_initial: on_initial)
 ic2 = dde.icbc.OperatorBC(geom, bc_func2, boundary_l)
 
-data = dde.data.TimePDE(geom, ode, [ic1, ic2], 16, 2, solution=func, num_test=500)
+data = dde.data.TimePDE(geom, ode, [ic1, ic2], 16, 2, solution=func, num_test_domain=500)
 layer_size = [1] + [50] * 3 + [1]
 activation = "tanh"
 initializer = "Glorot uniform"

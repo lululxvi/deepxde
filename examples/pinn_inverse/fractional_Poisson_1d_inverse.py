@@ -68,7 +68,7 @@ data = dde.data.FPDE(
     num_domain=20,
     anchors=observe_x,
     solution=func,
-    num_test=100,
+    num_test_domain=100,
 )
 
 net = dde.nn.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")

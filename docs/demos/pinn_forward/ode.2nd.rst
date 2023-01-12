@@ -70,11 +70,11 @@ Then, the initial condition is defined by
 
     ic2 = dde.icbc.OperatorBC(geom, error_2, boundary_l)
 
-Now, we have specified the geometry, PDE residual, and the initial conditions. We then define the PDE problem. Note: If you use `X` in `func`, then do not set ``num_test`` when you define ``dde.data.PDE`` or ``dde.data.TimePDE``, otherwise DeepXDE would throw an error. In this case, the training points will be used for testing, and this will not affect the network training and training loss. This is a bug of DeepXDE, which cannot be fixed in an easy way for all backends.
+Now, we have specified the geometry, PDE residual, and the initial conditions. We then define the PDE problem. Note: If you use `X` in `func`, then do not set ``num_test_domain`` when you define ``dde.data.PDE`` or ``dde.data.TimePDE``, otherwise DeepXDE would throw an error. In this case, the training points will be used for testing, and this will not affect the network training and training loss. This is a bug of DeepXDE, which cannot be fixed in an easy way for all backends.
 
 .. code-block:: python
 
-    data = dde.data.TimePDE(geom, ode, [ic1, ic2], 16, 2, solution=func, num_test=500)
+    data = dde.data.TimePDE(geom, ode, [ic1, ic2], 16, 2, solution=func, num_test_domain=500)
 
 The number 16 is the number of training residual points sampled inside the domain, and the number 2 is the number of training points sampled on the boundary. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 500 residual points for testing the PDE residual.
 

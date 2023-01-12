@@ -35,7 +35,7 @@ def func(x):
 geom = dde.geometry.TimeDomain(0, 10)
 ic1 = dde.icbc.IC(geom, lambda x: 0, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
-data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test=100)
+data = dde.data.PDE(geom, ode_system, [ic1, ic2], 35, 2, solution=func, num_test_domain=100)
 
 layer_size = [1] + [50] * 3 + [2]
 activation = "tanh"

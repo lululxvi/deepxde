@@ -124,7 +124,7 @@ Next, we generate the training and testing points.
       num_domain=nx_train ** 2,
       num_boundary=4 * nx_train,
       solution=func,
-      num_test=nx_test ** 2,
+      num_test_domain=nx_test ** 2,
   )
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 150. Besides, we choose sin as activation function and Glorot uniform as initializer :

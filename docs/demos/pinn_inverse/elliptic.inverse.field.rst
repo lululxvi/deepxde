@@ -88,7 +88,7 @@ Now that the problem is fully setup, we define the PDE as:
         num_domain=200,
         num_boundary=2,
         anchors=ob_x,
-        num_test=1000,
+        num_test_domain=1000,
     )
  
 where ``num_domain`` is the number of points inside the domain, and ``num_boundary`` is the number of points on the boundary. ``anchors`` are extra points beyond ``num_domain`` and ``num_boundary`` used for training.

@@ -96,7 +96,7 @@ Now, we have specified the geometry, PDE residual, and the boundary/initial cond
         num_boundary=1500,
         num_initial=1500,
         solution=func,
-        num_test=6000, 
+        num_test_domain=6000, 
     )
 
 The number 30000 is the number of training residual points sampled inside of the domain, and the number 1500 is the number of training residual points sampled on the boundary. We also include 1500 initial residual points for the initial conditions and 6000 points for testing the PDE residual. 

@@ -82,7 +82,7 @@ Now, we have specified the geometry, the PDE residual and the boundary/initial c
         num_boundary=20,
         num_initial=10,
         solution=func,
-        num_test=10000,
+        num_test_domain=10000,
     )
 
 The number 40 is the number of training residual points sampled inside the domain, and the number 20 is the number of training points sampled on the boundary (the left and right endpoints of the interval). We also include 10 initial residual points for the initial conditions and 10000 points for testing the PDE residual.

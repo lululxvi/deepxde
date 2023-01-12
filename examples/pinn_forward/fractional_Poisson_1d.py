@@ -59,7 +59,7 @@ bc = dde.icbc.DirichletBC(geom, func, lambda _, on_boundary: on_boundary)
 data = dde.data.FPDE(geom, fpde, alpha, bc, [101], meshtype="static", solution=func)
 # Dynamic auxiliary points
 # data = dde.data.FPDE(
-#     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test=100
+#     geom, fpde, alpha, bc, [100], meshtype="dynamic", num_domain=20, num_boundary=2, solution=func, num_test_domain=100
 # )
 
 net = dde.nn.FNN([1] + [20] * 4 + [1], "tanh", "Glorot normal")

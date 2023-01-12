@@ -62,7 +62,7 @@ data = dde.data.TimePDE(
     num_boundary=100,
     num_initial=100,
     anchors=observe_x,
-    num_test=50000,
+    num_test_domain=50000,
 )
 net = dde.nn.FNN([2] + [20] * 3 + [2], "tanh", "Glorot uniform")
 

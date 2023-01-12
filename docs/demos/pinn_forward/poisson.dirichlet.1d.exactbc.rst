@@ -54,7 +54,7 @@ Now, we have specified the geometry and PDE residual. We then define the PDE pro
 
 .. code-block:: python
 
-    data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test=400)
+    data = dde.data.PDE(geom, pde, [], num_domain=64, solution=func, num_test_domain=400)
     
 The number 64 is the number of training residual points sampled inside the domain. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don’t have a reference solution. We use 400 residual points for testing the PDE residual.
 

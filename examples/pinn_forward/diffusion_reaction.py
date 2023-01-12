@@ -64,7 +64,7 @@ timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
 data = dde.data.TimePDE(
-    geomtime, pde, [], num_domain=320, solution=func, num_test=80000
+    geomtime, pde, [], num_domain=320, solution=func, num_test_domain=80000
 )
 
 layer_size = [2] + [30] * 6 + [1]

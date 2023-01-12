@@ -59,7 +59,7 @@ Now, we have specified the geometry, PDE residual, and Dirichlet boundary condit
 
 .. code-block:: python
 
-    data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test=1500)
+    data = dde.data.PDE(geom, pde, bc, num_domain=1200, num_boundary=120, num_test_domain=1500)
 The number 1200 is the number of training residual points sampled inside the domain, and the number 120 is the number of training points sampled on the boundary. We use 1500 residual points for testing the PDE residual.
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 5 (i.e., 4 hidden layers) and width 50. Besides, we choose ``tanh`` as activation function and ``Glorot uniform`` as initializer :

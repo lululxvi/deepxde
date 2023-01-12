@@ -97,7 +97,7 @@ data = dde.data.PDE(
     num_domain=nx_train**2,
     num_boundary=16 * nx_train,
     solution=func,
-    num_test=nx_test**2,
+    num_test_domain=nx_test**2,
 )
 
 net = dde.nn.FNN(

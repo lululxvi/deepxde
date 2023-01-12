@@ -69,7 +69,7 @@ Now, we define the ODE problem as
 
 .. code-block:: python 
 
-    data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test = 3000)
+    data = dde.data.PDE(geom, ode_system, [], 3000, 2, num_test_domain = 3000)
 
 Note that when solving this equation, we want to have hard constraints on the initial conditions, so we define this later when creating the network rather than as part of the PDE.
 
