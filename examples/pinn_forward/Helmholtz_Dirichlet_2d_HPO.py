@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, tensorflow"""
 
 import deepxde as dde
 from matplotlib import pyplot as plt
@@ -87,9 +87,8 @@ def train_model(model, config):
     test = np.array(losshistory.loss_test).sum(axis=1).ravel()
     metric = np.array(losshistory.metrics_test).sum(axis=1).ravel()
 
-    accuracy = test.min()
-    print(accuracy, "accuracy")
-    return accuracy
+    error = test.min()
+    return error
 
 
 # HPO setting
@@ -126,14 +125,14 @@ def fitness(learning_rate, num_dense_layers, num_dense_nodes, activation):
     # Create the neural network with these hyper-parameters.
     model = create_model(config)
     # possibility to change where we save
-    accuracy = train_model(model, config)
+    error = train_model(model, config)
     # print(accuracy, 'accuracy is')
 
-    if np.isnan(accuracy):
-        accuracy = 10**5
+    if np.isnan(error):
+        error = 10**5
 
     ITERATION += 1
-    return accuracy
+    return error
 
 
 ITERATION = 0
