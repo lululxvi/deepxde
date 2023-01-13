@@ -5,20 +5,20 @@ Finding proper hyper-parameters for PINNs infrastructures is a common issue for 
 
 This example is issued from: *Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems*, [`ArXiv preprint <https://arxiv.org/pdf/2205.06704.pdf>`_].
 
-Notice that this script can be easilly applied to other examples (either forward or inverse problems). 
+Notice that this script can be easilly adapted to other examples (either forward or inverse problems). 
 
-More scripts are available at: `HPOMax <https://github.com/pescap/HPOMax>`_ GitHub repository. 
+More scripts are available at `HPOMax <https://github.com/pescap/HPOMax>`_ GitHub repository. 
 
 Problem setup
 --------------
 
 We consider the same setting as in `Helmholtz equation over a 2D square domain <https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/helmholtz.2d.dirichlet.html>`_. 
 
-We apply Gaussian processes-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the *Expected Improvement* as acquisition function, and use the minimum test error for each call as the (outer) loss function for the HPO.
+We apply GP-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the *`Expected Improvement <https://scikit-optimize.github.io/stable/modules/generated/skopt.acquisition.gaussian_ei.html?highlight=ei#skopt.acquisition.gaussian_ei>_`* as acquisition function, define the minimum test error for each call as the (outer) loss function for the HPO.
 
-We decide to optimize the following hyper-parameters:
+We optimize the following hyper-parameters:
 
-- Learning rate :math:`\alpha`;
+- Learning rate: :math:`\alpha`;
 - Width :math:`N`: number of nodes per layer;
 - Depth :math:`L − 1`: number of dense layers;
 - Activation function :math:`\sigma`.
