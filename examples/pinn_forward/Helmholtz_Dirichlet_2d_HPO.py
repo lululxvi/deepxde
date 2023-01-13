@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
 
 import deepxde as dde
 from matplotlib import pyplot as plt
@@ -146,7 +146,7 @@ search_result = gp_minimize(
     random_state=1234,
 )
 
-search_result.x
+print(search_result.x)
 
 plot_convergence(search_result)
 plot_objective(search_result, show_points=True, size=3.8)
