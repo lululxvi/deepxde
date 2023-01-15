@@ -451,10 +451,14 @@ class Model:
             return outputs_, losses
 
         def outputs_losses_train(inputs, targets, auxiliary_vars):
-            return outputs_losses(True, inputs, targets, auxiliary_vars, self.data.losses_train)
+            return outputs_losses(
+                True, inputs, targets, auxiliary_vars, self.data.losses_train
+            )
 
         def outputs_losses_test(inputs, targets, auxiliary_vars):
-            return outputs_losses(False, inputs, targets, auxiliary_vars, self.data.losses_test)
+            return outputs_losses(
+                False, inputs, targets, auxiliary_vars, self.data.losses_test
+            )
 
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
@@ -479,8 +483,9 @@ class Model:
                 self.opt.clear_grad()
                 total_loss.backward()
                 return total_loss
-            
+
             self.opt.step(closure)
+
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
@@ -755,7 +760,7 @@ class Model:
 
     def _train_paddle_lbfgs(self):
         prev_n_iter = 0
-        
+
         while prev_n_iter < optimizers.LBFGS_options["maxiter"]:
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
