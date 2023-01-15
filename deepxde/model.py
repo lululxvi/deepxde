@@ -451,10 +451,14 @@ class Model:
             return outputs_, losses
 
         def outputs_losses_train(inputs, targets, auxiliary_vars):
-            return outputs_losses(True, inputs, targets, auxiliary_vars, self.data.losses_train)
+            return outputs_losses(
+                True, inputs, targets, auxiliary_vars, self.data.losses_train
+            )
 
         def outputs_losses_test(inputs, targets, auxiliary_vars):
-            return outputs_losses(False, inputs, targets, auxiliary_vars, self.data.losses_test)
+            return outputs_losses(
+                False, inputs, targets, auxiliary_vars, self.data.losses_test
+            )
 
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
@@ -479,8 +483,9 @@ class Model:
                 self.opt.clear_grad()
                 total_loss.backward()
                 return total_loss
-            
+
             self.opt.step(closure)
+
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
@@ -755,7 +760,7 @@ class Model:
 
     def _train_paddle_lbfgs(self):
         prev_n_iter = 0
-        
+
         while prev_n_iter < optimizers.LBFGS_options["maxiter"]:
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -929,13 +934,20 @@ class Model:
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
-        # TODO: backend tensorflow
         if backend_name == "tensorflow.compat.v1":
             destination = OrderedDict()
             variables_names = [v.name for v in tf.global_variables()]
             values = self.sess.run(variables_names)
             for k, v in zip(variables_names, values):
                 destination[k] = v
+        elif backend_name == "tensorflow":
+            # user-provided variables
+            destination = {
+                f"external_trainable_variable:{i}": v
+                for (i, v) in enumerate(self.external_trainable_variables)
+            }
+            # the paramaters of the net
+            destination.update(self.net.get_weight_paths())
         elif backend_name in ["pytorch", "paddle"]:
             destination = self.net.state_dict()
         else:
