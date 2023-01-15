@@ -101,7 +101,7 @@ class PDEOperator(Data):
         v, x, vx = self.bc_inputs(func_feats, func_vals)
         if self.pde.pde is not None:
             v_pde, x_pde, vx_pde = self.gen_inputs(
-                func_feats, func_vals, self.pde.train_x_all
+                func_feats, func_vals, self.pde.train_x_pde
             )
             v = np.vstack((v, v_pde))
             x = np.vstack((x, x_pde))

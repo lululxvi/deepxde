@@ -68,23 +68,23 @@ class IDE(PDE):
         f = self.pde(inputs, outputs, int_mat)
         if not isinstance(f, (list, tuple)):
             f = [f]
-        return [
-            loss_fn(bkd.zeros_like(fi), fi) for fi in f
-        ] + [bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
+        return [loss_fn(bkd.zeros_like(fi), fi) for fi in f] + [
+            bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs
+        ]
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
-        self.train_x_all = self.train_points()
+        self.train_x_pde = self.train_points()
         x_bc = self.bc_points()
-        x_quad = self.quad_points(self.train_x_all)
-        self.train_x = np.vstack((x_bc, self.train_x_all, x_quad))
+        x_quad = self.quad_points(self.train_x_pde)
+        self.train_x = np.vstack((x_bc, self.train_x_pde, x_quad))
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
     @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
-            self.test_x = self.train_x_all
+            self.test_x = self.train_x_pde
         else:
             self.test_x = self.test_points()
         x_quad = self.quad_points(self.test_x)
@@ -112,7 +112,7 @@ class IDE(PDE):
             num_bc = 0
             X = self.test_x
         if training or self.num_test is None:
-            num_f = len(self.train_x_all)
+            num_f = len(self.train_x_pde)
         else:
             num_f = self.num_test
 

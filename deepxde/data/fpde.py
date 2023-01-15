@@ -138,15 +138,15 @@ class FPDE(PDE):
             # FPDE is only applied to the domain points.
             # Boundary points are auxiliary points, and appended in the end.
             X = np.roll(X, -1)
-            self.train_x_all = X
+            self.train_x_pde = X
             if self.anchors is not None:
-                self.train_x_all = np.vstack((self.anchors, self.train_x_all))
+                self.train_x_pde = np.vstack((self.anchors, self.train_x_pde))
             x_bc = self.bc_points()
         elif self.disc.meshtype == "dynamic":
-            self.train_x_all = self.train_points()
+            self.train_x_pde = self.train_points()
             x_bc = self.bc_points()
             # FPDE is only applied to the domain points.
-            x_f = self.train_x_all[~self.geom.on_boundary(self.train_x_all)]
+            x_f = self.train_x_pde[~self.geom.on_boundary(self.train_x_pde)]
             self.frac_train = Fractional(self.alpha, self.geom, self.disc, x_f)
             X = self.frac_train.get_x()
 
@@ -263,18 +263,18 @@ class TimeFPDE(FPDE):
                 None,
             )
             X = self.frac_train.get_x()
-            self.train_x_all = X
+            self.train_x_pde = X
             if self.anchors is not None:
-                self.train_x_all = np.vstack((self.anchors, self.train_x_all))
+                self.train_x_pde = np.vstack((self.anchors, self.train_x_pde))
             x_bc = self.bc_points()
             # Remove the initial and boundary points at the beginning of X,
             # which are not considered in the integral matrix.
             X = X[self.disc.resolution[0] + 2 * nt - 2 :, :]
         elif self.disc.meshtype == "dynamic":
-            self.train_x_all = self.train_points()
+            self.train_x_pde = self.train_points()
             x_bc = self.bc_points()
             # FPDE is only applied to the non-boundary points.
-            x_f = self.train_x_all[~self.geom.on_boundary(self.train_x_all)]
+            x_f = self.train_x_pde[~self.geom.on_boundary(self.train_x_pde)]
             self.frac_train = FractionalTime(
                 self.alpha,
                 self.geom.geometry,
