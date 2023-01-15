@@ -934,13 +934,20 @@ class Model:
 
     def state_dict(self):
         """Returns a dictionary containing all variables."""
-        # TODO: backend tensorflow
         if backend_name == "tensorflow.compat.v1":
             destination = OrderedDict()
             variables_names = [v.name for v in tf.global_variables()]
             values = self.sess.run(variables_names)
             for k, v in zip(variables_names, values):
                 destination[k] = v
+        elif backend_name == "tensorflow":
+            # user-provided variables
+            destination = {
+                f"external_trainable_variable:{i}": v
+                for (i, v) in enumerate(self.external_trainable_variables)
+            }
+            # the paramaters of the net
+            destination.update(self.net.get_weight_paths())
         elif backend_name in ["pytorch", "paddle"]:
             destination = self.net.state_dict()
         else:
