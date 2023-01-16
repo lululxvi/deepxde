@@ -1,4 +1,4 @@
-Helmholtz equation over a 2D square domain: Hyper-parameter tuning
+Helmholtz equation over a 2D square domain: Hyper-parameter optimization
 ========================================================================
 
 Finding proper hyper-parameters for PINNs infrastructures is a common issue for practicioners. To remedy this concern, we apply hyper-parameter optimization (HPO) via Gaussian processes (GP)-based Bayesian optimization.
@@ -14,11 +14,11 @@ Problem setup
 
 We consider the same setting as in `Helmholtz equation over a 2D square domain <https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/helmholtz.2d.dirichlet.html>`_. 
 
-We apply GP-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the *`Expected Improvement <https://scikit-optimize.github.io/stable/modules/generated/skopt.acquisition.gaussian_ei.html?highlight=ei#skopt.acquisition.gaussian_ei>_`* as acquisition function, define the minimum test error for each call as the (outer) loss function for the HPO.
+We apply GP-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the `Expected Improvement <https://scikit-optimize.github.io/stable/modules/generated/skopt.acquisition.gaussian_ei.html?highlight=ei#skopt.acquisition.gaussian_ei>_` as acquisition function, define the minimum test error for each call as the (outer) loss function for the HPO.
 
 We optimize the following hyper-parameters:
 
-- Learning rate: :math:`\alpha`;
+- Learning rate :math:`\alpha`;
 - Width :math:`N`: number of nodes per layer;
 - Depth :math:`L − 1`: number of dense layers;
 - Activation function :math:`\sigma`.
