@@ -14,7 +14,7 @@ Problem setup
 
 We consider the same setting as in `Helmholtz equation over a 2D square domain <https://deepxde.readthedocs.io/en/latest/demos/pinn_forward/helmholtz.2d.dirichlet.html>`_. 
 
-We apply GP-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the `Expected Improvement <https://scikit-optimize.github.io/stable/modules/generated/skopt.acquisition.gaussian_ei.html?highlight=ei#skopt.acquisition.gaussian_ei>_` as acquisition function, define the minimum test error for each call as the (outer) loss function for the HPO.
+We apply GP-based Bayesian optimization via ``scikit-optimize`` (see `documentation <https://scikit-optimize.github.io/stable/>`_) over 50 calls. We use the `Expected Improvement <https://scikit-optimize.github.io/stable/modules/generated/skopt.acquisition.gaussian_ei.html?highlight=ei#skopt.acquisition.gaussian_ei>`_` as acquisition function, define the minimum test error for each call as the (outer) loss function for the HPO.
 
 We optimize the following hyper-parameters:
 
