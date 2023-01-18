@@ -52,3 +52,6 @@ Documentation = "https://deepxde.readthedocs.io/en/latest/"
 
 [tool.hatch.version]
 path = "deepxde/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["deepxde"]
