@@ -38,32 +38,38 @@ jobs:
       - name: Test build with Tensorflow v1
         if: matrix.python-version != 3.11
         run: |
-          echo "DDE_BACKEND=tensorflow.compat.v1" >> $GITHUB_ENV
           python -m pip install tensorflow-cpu tensorflow-probability
           python -c "import deepxde"
+        env:
+          DDE_BACKEND: tensorflow.compat.v1
 
       - name: Test build with Tensorflow
         if: matrix.python-version != 3.11
         run: |
-          echo "DDE_BACKEND=tensorflow" >> $GITHUB_ENV
           python -c "import deepxde"
+          python -m pip uninstall -y tensorflow-cpu tensorflow-probability
+        env:
+          DDE_BACKEND: tensorflow
 
       - name: Test build with PyTorch
         run: |
-          echo "DDE_BACKEND=pytorch" >> $GITHUB_ENV
-          python -m pip uninstall -y tensorflow-cpu tensorflow-probability install torch --extra-index-url https://download.pytorch.org/whl/cpu
+          python -m pip install torch --extra-index-url https://download.pytorch.org/whl/cpu
           python -c "import deepxde"
           python -m pip uninstall -y torch
+        env:
+          DDE_BACKEND: pytorch
 
       - name: Test build with Jax
         run: |
-          echo "DDE_BACKEND=jax" >> $GITHUB_ENV
           python -m pip install jax flax optax
           python -c "import deepxde"
           python -m pip uninstall -y jax
+        env:
+          DDE_BACKEND: jax
 
       - name: Test build with Paddle
         run: |
-          echo "DDE_BACKEND=paddle" >> $GITHUB_ENV
           python -m pip install paddlepaddle
           DDE_BACKEND=paddle python -c "import deepxde"
+        env:
+          DDE_BACKEND: paddle
