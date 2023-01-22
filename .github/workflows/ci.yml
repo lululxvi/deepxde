@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Build DeepXDE with requirements
+      - name: Install DeepXDE with requirements
         run: python -m pip install -e .
 
       - name: List environment
@@ -40,12 +40,14 @@ jobs:
         run: |
           python -m pip install tensorflow-cpu tensorflow-probability
           python -c "import deepxde"
+          python -m pip uninstall -y tensorflow-cpu tensorflow-probability
         env:
           DDE_BACKEND: tensorflow.compat.v1
 
       - name: Test build with Tensorflow
         if: matrix.python-version != 3.11   # not available on Python 3.11
         run: |
+          python -m pip install tensorflow-cpu tensorflow-probability
           python -c "import deepxde"
           python -m pip uninstall -y tensorflow-cpu tensorflow-probability
         env:
@@ -63,11 +65,13 @@ jobs:
         run: |
           python -m pip install jax flax optax
           python -c "import deepxde"
-          python -m pip uninstall -y jax
+          python -m pip uninstall -y jax flax optax
         env:
           DDE_BACKEND: jax
 
-      # DeepXDE does not work with stable paddle
+      # DeepXDE does not work with stable paddle, and building paddle from source will
+      # take a lot of CI time, slowing the development process
+      #
       # - name: Test build with Paddle
       #   if: matrix.python-version != 3.11   # not available on Python 3.11
       #   run: |
