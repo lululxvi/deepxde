@@ -55,7 +55,7 @@ jobs:
           python -c "import deepxde"
 
       - name: Test build with Jax
-        if: matrix.os != "windows-latest"   # jaxlib is not available on windows
+        if: matrix.os != 'windows-latest'   # jaxlib is not available on windows
         env:
           DDE_BACKEND: jax
         run: |
