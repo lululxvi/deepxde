@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-       - master
+      - master
   workflow_dispatch:
 
 concurrency:
@@ -35,18 +35,18 @@ jobs:
       - name: List environment
         run: python -m pip freeze
 
-      - name: Test build with Tensorflow v1
+      - name: Test build with TensorFlow v1
         env:
           DDE_BACKEND: tensorflow.compat.v1
         run: |
           python -m pip install tensorflow
           python -c "import deepxde"
 
-      - name: Test build with Tensorflow
+      - name: Test build with TensorFlow
         env:
           DDE_BACKEND: tensorflow
         run: |
-          python -m pip install tensorflow tensorflow-probability
+          python -m pip install tensorflow-probability
           python -c "import deepxde"
 
       - name: Test build with PyTorch
