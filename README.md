@@ -1,6 +1,6 @@
 # DeepXDE
 
-[![Build Status](https://app.travis-ci.com/lululxvi/deepxde.svg?branch=master)](https://app.travis-ci.com/lululxvi/deepxde)
+[![build](https://github.com/lululxvi/deepxde/actions/workflows/build.yml/badge.svg)](https://github.com/lululxvi/deepxde/actions/workflows/build.yml)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5c67adbfeabd4ccc9b84d2212c50a342)](https://www.codacy.com/gh/lululxvi/deepxde/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lululxvi/deepxde&amp;utm_campaign=Badge_Grade)
 [![PyPI Version](https://badge.fury.io/py/DeepXDE.svg)](https://badge.fury.io/py/DeepXDE)
