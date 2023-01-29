@@ -10,3 +10,6 @@ docs/_build/
 
 # VSCode
 .vscode/
+
+# Build files
+dist/
