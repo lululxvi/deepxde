@@ -3,8 +3,8 @@ name: build
 on:
   pull_request:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
   workflow_dispatch:
 
 concurrency:
