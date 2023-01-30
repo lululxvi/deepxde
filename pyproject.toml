@@ -11,7 +11,7 @@ license = "LGPL-2.1"
 authors = [
     { name = "Lu Lu", email = "lululxvi@gmail.com" },
 ]
-requires-python = ">=3.7,<3.10"
+requires-python = ">=3.7"
 keywords = [
     "Deep learning",
     "Differential equations",
@@ -46,7 +46,6 @@ Homepage = "https://github.com/lululxvi/deepxde"
 "Bug Tracker" = "https://github.com/lululxvi/deepxde/issues"
 Changelog = "https://github.com/lululxvi/deepxde/releases"
 Documentation = "https://deepxde.readthedocs.io/en/latest/"
-
 
 [tool.hatch.version]
 path = "deepxde/__about__.py"

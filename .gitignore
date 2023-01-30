@@ -2,6 +2,10 @@
 *.pyc
 __pycache__/
 
+# Build files
+dist/
+*.egg-info/
+
 # Sphinx documentation
 docs/_build/
 
@@ -10,6 +14,3 @@ docs/_build/
 
 # VSCode
 .vscode/
-
-# Build files
-dist/
