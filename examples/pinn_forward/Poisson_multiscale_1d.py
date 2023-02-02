@@ -61,7 +61,7 @@ model.compile(
     decay=("inverse time", 2000, 0.9),
 )
 
-pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
+pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
 model.train(iterations=20000, callbacks=[pde_residual_resampler])
 
 dde.saveplot(model.losshistory, model.train_state, issave=True, isplot=True)

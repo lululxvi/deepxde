@@ -35,6 +35,7 @@ def fpde(x, y, int_mat):
 #         int_mat = paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
 #         lhs = paddle.sparse.matmul(int_mat, y)
 #     else:
+#         int_mat = paddle.to_tensor(int_mat, dde.config.real(paddle), stop_gradient=False)
 #         lhs = paddle.mm(int_mat, y)
 #     rhs = (
 #         gamma(4) / gamma(4 - alpha) * (x ** (3 - alpha) + (1 - x) ** (3 - alpha))

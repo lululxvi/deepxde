@@ -9,7 +9,14 @@ from scipy.special import gamma
 
 
 alpha0 = 1.8
+# Backend tensorflow.compat.v1
 alpha = tf.Variable(1.5)
+# Backend paddle
+# alpha = paddle.create_parameter(
+#     [1],
+#     dde.config.real(paddle),
+#     default_initializer=paddle.nn.initializer.Constant(value=1.5)
+# )
 
 
 # Backend tensorflow.compat.v1

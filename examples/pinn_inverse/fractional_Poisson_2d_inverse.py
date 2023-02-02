@@ -9,7 +9,14 @@ from scipy.special import gamma
 
 
 alpha0 = 1.8
+# Backend tensorflow.compat.v1
 alpha = tf.Variable(1.5)
+# Backend paddle
+# alpha = paddle.create_parameter(
+#     [1],
+#     dde.config.real(paddle),
+#     default_initializer=paddle.nn.initializer.Constant(value=1.5)
+# )
 
 
 # Backend tensorflow.compat.v1
@@ -45,7 +52,7 @@ def fpde(x, y, int_mat):
 #     lhs *= -paddle.exp(paddle.lgamma((1 - alpha) / 2) + paddle.lgamma((2 + alpha) / 2)) / (
 #         2 * np.pi ** 1.5
 #     )
-#     x = x[: paddle.size(lhs)]
+#     x = x[: paddle.numel(lhs)]
 #     rhs = (
 #         2 ** alpha0
 #         * gamma(2 + alpha0 / 2)
@@ -76,9 +83,14 @@ data = dde.data.FPDE(
 )
 
 net = dde.nn.FNN([2] + [20] * 4 + [1], "tanh", "Glorot normal")
+# Backend tensorflow.compat.v1
 net.apply_output_transform(
     lambda x, y: (1 - tf.reduce_sum(x ** 2, axis=1, keepdims=True)) * y
 )
+# Backend paddle
+# net.apply_output_transform(
+#     lambda x, y: (1 - paddle.sum(x ** 2, axis=1, keepdim=True)) * y
+# )
 
 model = dde.Model(data, net)
 model.compile("adam", lr=1e-3, loss_weights=[1, 100], external_trainable_variables=[alpha])
