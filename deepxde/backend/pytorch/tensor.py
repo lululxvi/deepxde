@@ -1,10 +1,10 @@
 """pytorch backend implementation"""
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import torch
 
 
-if LooseVersion(torch.__version__) < LooseVersion("1.9.0"):
+if Version(torch.__version__) < Version("1.9.0"):
     raise RuntimeError("DeepXDE requires PyTorch>=1.9.0.")
 
 # To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
@@ -48,6 +48,10 @@ def shape(input_tensor):
     return list(input_tensor.shape)
 
 
+def size(tensor):
+    return torch.numel(tensor)
+
+
 def ndim(input_tensor):
     return input_tensor.dim()
 
@@ -74,6 +78,10 @@ def as_tensor(data, dtype=None):
     return torch.as_tensor(data, dtype=dtype)
 
 
+def sparse_tensor(indices, values, shape):
+    return torch.sparse_coo_tensor(list(zip(*indices)), values, shape, requires_grad=True)
+
+
 def from_numpy(np_array):
     # Both torch.from_numpy and torch.as_tensor work without memory copy.
     # https://discuss.pytorch.org/t/from-numpy-vs-as-tensor/79932
@@ -84,6 +92,30 @@ def from_numpy(np_array):
 
 def to_numpy(input_tensor):
     return input_tensor.detach().cpu().numpy()
+
+
+def concat(values, axis):
+    return torch.cat(values, axis)
+
+
+def stack(values, axis):
+    return torch.stack(values, axis)
+
+
+def expand_dims(tensor, axis):
+    return torch.unsqueeze(tensor, axis)
+
+
+def reverse(tensor, axis):
+    return torch.flip(tensor, axis)
+
+
+def roll(tensor, shift, axis):
+    return torch.roll(tensor, shift, axis)
+
+
+def lgamma(x):
+    return torch.lgamma(x)
 
 
 def elu(x):
@@ -110,12 +142,24 @@ def sin(x):
     return torch.sin(x)
 
 
+def cos(x):
+    return torch.cos(x)
+
+
+def exp(x):
+    return torch.exp(x)
+
+
 def square(x):
     return torch.square(x)
 
 
 def tanh(x):
     return torch.tanh(x)
+
+
+def pow(x, y):
+    return torch.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -144,3 +188,11 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return torch.zeros_like(input_tensor)
+
+
+def matmul(x, y):
+    return torch.mm(x, y)
+
+
+def sparse_dense_matmul(x, y):
+    return torch.sparse.mm(x, y)

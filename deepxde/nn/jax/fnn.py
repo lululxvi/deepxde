@@ -21,7 +21,14 @@ class FNN(NN):
 
     def setup(self):
         # TODO: implement get regularizer
-        self._activation = activations.get(self.activation)
+        if isinstance(self.activation, list):
+            if not (len(self.layer_sizes) - 1) == len(self.activation):
+                raise ValueError(
+                    "Total number of activation functions do not match with sum of hidden layers and output layer!"
+                )
+            self._activation = list(map(activations.get, self.activation))
+        else:
+            self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
 
@@ -38,8 +45,12 @@ class FNN(NN):
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
-        for linear in self.denses[:-1]:
-            x = self._activation(linear(x))
+        for j, linear in enumerate(self.denses[:-1]):
+            x = (
+                self._activation[j](linear(x))
+                if isinstance(self._activation, list)
+                else self._activation(linear(x))
+            )
         x = self.denses[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)

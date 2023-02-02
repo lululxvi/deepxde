@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
 
@@ -62,7 +62,7 @@ boundary_condition_right_p = dde.icbc.DirichletBC(
     spatial_domain, p_func, boundary_outflow, component=2
 )
 
-data = dde.data.TimePDE(
+data = dde.data.PDE(
     spatial_domain,
     pde,
     [boundary_condition_u, boundary_condition_v, boundary_condition_right_p],

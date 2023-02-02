@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +7,8 @@ from scipy import integrate
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
+# Import paddle if using backend paddle
+# import paddle
 
 ub = 200
 rb = 20
@@ -71,6 +73,14 @@ def input_transform(t):
 #         ],
 #         dim=1,
 #     )
+# Backend paddle
+# def input_transform(t):
+#     return paddle.concat(
+#         (
+#             paddle.sin(t),
+#         ),
+#         axis=1,
+#     )
 
 # hard constraints: x(0) = 100, y(0) = 15
 # Backend tensorflow.compat.v1 or tensorflow
@@ -83,6 +93,11 @@ def output_transform(t, y):
 #     y1 = y[:, 0:1]
 #     y2 = y[:, 1:2]
 #     return torch.cat([y1 * torch.tanh(t) + 100 / ub, y2 * torch.tanh(t) + 15 / ub], dim=1)
+# Backend paddle
+# def output_transform(t, y):
+#     y1 = y[:, 0:1]
+#     y2 = y[:, 1:2]
+#     return paddle.cat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
 
 net.apply_feature_transform(input_transform)
 net.apply_output_transform(output_transform)
