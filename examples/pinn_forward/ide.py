@@ -18,6 +18,7 @@ def ide(x, y, int_mat):
 # Backend paddle
 # def ide(x, y, int_mat):
 #     """int_0^x y(t)dt"""
+#     int_mat = paddle.to_tensor(int_mat, dde.config.real(paddle), stop_gradient=False)
 #     lhs1 = paddle.mm(int_mat, y)
 #     lhs2 = paddle.grad(y, x, create_graph=True)[0]
 #     rhs = 2 * np.pi * paddle.cos(2 * np.pi * x) + paddle.sin(np.pi * x) ** 2 / np.pi

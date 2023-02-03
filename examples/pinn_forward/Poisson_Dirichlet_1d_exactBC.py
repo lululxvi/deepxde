@@ -33,7 +33,7 @@ initializer = 'Glorot uniform'
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 def output_transform(x, y):
-    return x * (np.pi - x) * y + x 
+    return x * (np.pi - x) * y + x
 
 net.apply_output_transform(output_transform)
 

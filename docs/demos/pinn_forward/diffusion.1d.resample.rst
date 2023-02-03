@@ -12,7 +12,7 @@ with the initial condition
 
 .. math:: y(x, 0) = \sin(\pi x)
 
-and the Dirichlet boundary condition 
+and the Dirichlet boundary condition
 
 .. math:: y(-1, t) = y(1, t) = 0.
 
@@ -47,16 +47,16 @@ Next, we express the PDE residual of the diffusion equation:
     	dy_t = dde.grad.jacobian(y, x, j=1)
     	dy_xx = dde.grad.hessian(y, x, j=0)
     	return (
-            dy_t 
-            - dy_xx 
-            + tf.exp(-x[:, 1:] 
+            dy_t
+            - dy_xx
+            + tf.exp(-x[:, 1:]
             * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
          )
 
 
 The first argument to ``pde`` is 2-dimensional vector where the first component(``x[:,0:1]``) is :math:`x`-coordinate and the second component (``x[:,1:]``) is the :math:`t`-coordinate. The second argument is the network output, i.e., the solution :math:`y(x, t)`.
 
-Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the initial condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC. 
+Next, we consider the boundary/initial condition. ``on_boundary`` is chosen here to use the whole boundary of the computational domain as the boundary condition. We include the ``geotime`` space , time geometry created above and ``on_boundary`` as the BC in the ``DirichletBC`` function of DeepXDE. We also define ``IC`` which is the initial condition for the diffusion equation and we use the computational domain, initial function, and ``on_initial`` to specify the IC.
 
 .. code-block:: python
 
@@ -101,21 +101,21 @@ The following code is to apply mini-batch gradient descent sampling method. The 
 
 .. code-block:: python
 
-   resampler = dde.callbacks.PDEResidualResampler(period=100)
+   resampler = dde.callbacks.PDEPointResampler(period=100)
 
-Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate. We then train the model for 2000 iterations. 
+Now, we have the PDE problem and the network. We build a ``Model`` and choose the optimizer and learning rate. We then train the model for 2000 iterations.
 
 .. code-block:: python
 
    model = dde.Model(data, net)
    model.compile("adam", lr=0.001, metrics=["l2 relative error"])
    losshistory, train_state = model.train(iterations=2000, callbacks=[resampler])
-    
+
 We also save and plot the best trained result and loss history.
 
 .. code-block:: python
 
-   dde.saveplot(losshistory, train_state, issave=True, isplot=True)  
+   dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 Complete code
 --------------

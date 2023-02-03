@@ -564,8 +564,8 @@ class Model:
             batch_size: Integer, tuple, or ``None``.
 
                 - If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use `batch_size`, and instead use
-                  `dde.callbacks.PDEResidualResampler
-                  <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEResidualResampler>`_,
+                  `dde.callbacks.PDEPointResampler
+                  <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEPointResampler>`_,
                   see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
                 - For DeepONet in the format of Cartesian product, if `batch_size` is an Integer,
                   then it is the batch size for the branch input; if you want to also use mini-batch for the trunk net input,
