@@ -9,7 +9,6 @@ from scipy.special import gamma
 
 
 alpha0 = 1.8
-# Backend tensorflow.compat.v1
 alpha = dde.Variable(1.5)
 
 
