@@ -47,7 +47,7 @@ def feature_transform(x):
 #     )
 # Backend paddle
 # def feature_transform(x):
-#     return paddle.cat(
+#     return paddle.concat(
 #         [x[:, 0:1] * paddle.sin(x[:, 1:2]), x[:, 0:1] * paddle.cos(x[:, 1:2])], axis=1
 #     )
 
