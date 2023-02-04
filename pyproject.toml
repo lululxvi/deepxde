@@ -52,5 +52,6 @@ Documentation = "https://deepxde.readthedocs.io/en/latest/"
 [tool.setuptools.dynamic]
 version = {attr = "deepxde.__about__.__version__"}
 
-[tool.setuptools]
-packages = ["deepxde"]
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["docker", "docs*", "examples*"]
