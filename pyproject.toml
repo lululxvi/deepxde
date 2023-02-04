@@ -1,13 +1,13 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "DeepXDE"
 dynamic = ["version"]
 description = "A library for scientific machine learning"
 readme = "README.md"
-license = "LGPL-2.1"
+license = {text = "LGPL-2.1"}
 authors = [
     { name = "Lu Lu", email = "lululxvi@gmail.com" },
 ]
@@ -29,6 +29,8 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Mathematics",
@@ -47,8 +49,8 @@ Homepage = "https://github.com/lululxvi/deepxde"
 Changelog = "https://github.com/lululxvi/deepxde/releases"
 Documentation = "https://deepxde.readthedocs.io/en/latest/"
 
-[tool.hatch.version]
-path = "deepxde/__about__.py"
+[tool.setuptools.dynamic]
+version = {attr = "deepxde.__about__.__version__"}
 
-[tool.hatch.build.targets.wheel]
+[tool.setuptools]
 packages = ["deepxde"]
