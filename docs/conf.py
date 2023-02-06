@@ -14,7 +14,8 @@
 #
 import os
 import sys
-
+from importlib.metadata import version
+dde_version = version('myproject')
 
 def read(rel_path: str) -> str:
     here = os.path.abspath(os.path.dirname(__file__))
@@ -42,9 +43,8 @@ project = "DeepXDE"
 copyright = "2019, Lu Lu"
 author = "Lu Lu"
 
-file_with_version = os.path.join("..", "deepxde", "__about__.py")
 # The short X.Y version
-version = get_version(file_with_version)
+version = dde_version
 # The full version, including alpha/beta/rc tags
 release = version
 
