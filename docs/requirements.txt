@@ -4,6 +4,7 @@ scikit-learn
 scikit-optimize>=0.9.0
 scipy
 docutils<0.18  # https://github.com/readthedocs/readthedocs.org/issues/8616
+sphinx-copybutton
 
 # TensorFlow 1.x
 tensorflow>=2.7.0
@@ -17,4 +18,4 @@ paddlepaddle>=2.3.0
 jax
 flax
 optax
-sphinx-copybutton
+
