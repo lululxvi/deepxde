@@ -17,3 +17,4 @@ paddlepaddle>=2.3.0
 jax
 flax
 optax
+sphinx-copybutton

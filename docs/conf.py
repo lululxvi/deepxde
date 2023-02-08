@@ -63,6 +63,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx-copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
