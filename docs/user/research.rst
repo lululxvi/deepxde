@@ -45,7 +45,8 @@ DeepXDE has been used in
   `Worcester Polytechnic Institute <https://www.wpi.edu>`_,
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
-  `Adolfo Ibáñez University <https://www.uai.cl/en>`_
+  `Adolfo Ibáñez University <https://www.uai.cl/en>`_,
+  `Swansea University <https://www.swansea.ac.uk/>`_
 - 10 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
@@ -56,7 +57,8 @@ DeepXDE has been used in
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
   `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
   `NEC Lab Europe <https://www.neclab.eu/>`_,
-  `CSIRO's Data61 <https://data61.csiro.au/>`_
+  `CSIRO's Data61 <https://data61.csiro.au/>`_,
+  `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai/>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
