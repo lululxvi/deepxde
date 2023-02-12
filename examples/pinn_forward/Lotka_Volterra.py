@@ -97,7 +97,7 @@ def output_transform(t, y):
 # def output_transform(t, y):
 #     y1 = y[:, 0:1]
 #     y2 = y[:, 1:2]
-#     return paddle.cat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
+#     return paddle.concat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
 
 net.apply_feature_transform(input_transform)
 net.apply_output_transform(output_transform)
