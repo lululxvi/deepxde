@@ -100,7 +100,9 @@ class FPDE(PDE):
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
         # do not cache int_mat when alpha is a learnable parameter
-        if not is_tensor(self.alpha):
+        if is_tensor(self.alpha):
+            int_mat = self.get_int_matrix(True)
+        else:
             if self.int_mat_train is not None:
                 # use cached int_mat
                 int_mat = self.int_mat_train
@@ -108,8 +110,6 @@ class FPDE(PDE):
                 # initialize self.int_mat_train with int_mat
                 int_mat = self.get_int_matrix(True)
                 self.int_mat_train = int_mat
-        else:
-            int_mat = self.get_int_matrix(True)
 
         f = self.pde(inputs, outputs, int_mat)
         if not isinstance(f, (list, tuple)):
