@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Laplace equation in a polar coordinate system:
 
-.. math:: r\frac{dy}{dr} + r^2\frac{dy}{dr^2} + \frac{dy}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
+.. math:: r\frac{dy}{dr} + r^2\frac{dy^2}{dr^2} + \frac{dy^2}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
 
 with the Dirichlet boundary condition
 
