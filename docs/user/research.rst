@@ -6,76 +6,76 @@ DeepXDE has been used in
 - > 70 universities, e.g.,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
-  `University of California, Berkeley <https://www.berkeley.edu/>`_,
+  `University of California, Berkeley <https://www.berkeley.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
   `University of Pennsylvania <https://www.upenn.edu>`_,
   `Imperial College London <https://www.imperial.ac.uk>`_,
-  `University of California, Los Angeles <https://www.ucla.edu/>`_,
+  `University of California, Los Angeles <https://www.ucla.edu>`_,
   `Cornell University <https://www.cornell.edu>`_,
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
   `Peking University <https://english.pku.edu.cn>`_,
-  `The University of Texas at Austin <utexas.edu>`_,
+  `University of Texas at Austin <utexas.edu>`_,
   `Georgia Institute of Technology <https://www.gatech.edu>`_,
-  `The University of Manchester <https://www.manchester.ac.uk/>`_,
+  `University of Manchester <https://www.manchester.ac.uk>`_,
   `University of California, Santa Barbara <https://www.ucsb.edu>`_,
   `Boston University <https://www.bu.edu>`_,
   `University of Colorado Boulder <https://www.colorado.edu>`_,
   `University of Southern California <https://www.usc.edu>`_,
   `Pennsylvania State University <https://www.psu.edu>`_,
-  `University of California Irvine <https://uci.edu/>`_,
-  `University of Oslo <https://www.uio.no/english/>`_,
-  `Zhejiang University <https://www.zju.edu.cn/english/>`_,
-  `University of Florida <https://www.ufl.edu/>`_,
-  `University of California, Santa Cruz <https://www.ucsc.edu/>`_,
+  `University of California Irvine <https://uci.edu>`_,
+  `University of Oslo <https://www.uio.no/english>`_,
+  `Zhejiang University <https://www.zju.edu.cn/english>`_,
+  `University of Florida <https://www.ufl.ed>`_,
+  `University of California, Santa Cruz <https://www.ucsc.edu>`_,
   `Brown University <https://www.brown.edu>`_,
   `Purdue University <https://www.purdue.edu>`_,
   `Kyoto University <https://www.kyoto-u.ac.jp/en>`_,
   `Texas A&M University <https://www.tamu.edu>`_,
   `University of Basel <https://www.unibas.ch/en.html>`_,
-  `Arizona State University <https://www.asu.edu/>`_,
-  `University of Massachusetts Amherst <https://www.umass.edu/>`_,
-  `Delft University of Technology <https://www.tudelft.nl/en/>`_,
+  `Arizona State University <https://www.asu.edu>`_,
+  `University of Massachusetts Amherst <https://www.umass.edu>`_,
+  `Delft University of Technology <https://www.tudelft.nl/en>`_,
   `Tongji University <https://en.tongji.edu.cn>`_,
   `Rice University <https://www.rice.edu>`_,
   `University of Bergen <https://www.uib.no/en>`_,
   `University of Naples Federico II <http://www.international.unina.it>`_,
-  `University of Electronic Science and Technology of China <https://en.uestc.edu.cn/>`_,
+  `University of Electronic Science and Technology of China <https://en.uestc.edu.cn>`_,
   `KTH Royal Institute of Technology <https://www.kth.se/en>`_,
   `Florida State University <https://www.fsu.edu>`_,
   `Xiamen University <https://en.xmu.edu.cn>`_,
-  `Beihang University <https://ev.buaa.edu.cn/>`_,
-  `University of Strasbourg <https://en.unistra.fr/>`_,
+  `Beihang University <https://ev.buaa.edu.cn>`_,
+  `University of Strasbourg <https://en.unistra.fr>`_,
   `China University of Geosciences <https://en.cug.edu.cn>`_,
-  `University Duisburg-Essen <https://www.uni-due.org/category/english/>`_,
-  `University of Rome Tor Vergata <http://web.uniroma2.it/>`_,
-  `Chalmers University of Technology <https://www.chalmers.se/en/>`_,
-  `Wuhan University of Technology <http://english.whut.edu.cn/>`_,
+  `University Duisburg-Essen <https://www.uni-due.org/category/english>`_,
+  `University of Rome Tor Vergata <http://web.uniroma2.it>`_,
+  `Chalmers University of Technology <https://www.chalmers.se/en>`_,
+  `Wuhan University of Technology <http://english.whut.edu.cn>`_,
   `University of Kentucky <https://www.uky.edu>`_,
   `University of Surrey <https://www.surrey.ac.uk>`_,
   `Federal University of Rio de Janeiro <https://ufrj.br/en>`_,
   `University of Johannesburg <https://www.uj.ac.za>`_,
-  `University of Houston <https://www.uh.edu/>`_,
-  `Carleton University <https://carleton.ca/>`_,
-  `University of Stuttgart <https://www.uni-stuttgart.de/en/>`_,
-  `National University of Colombia <https://unal.edu.co/en.html/>`_,
-  `University of Calabria <https://www.unical.it/internazionale/intenational-students/unical-admission/>`_,
+  `University of Houston <https://www.uh.edu>`_,
+  `Carleton University <https://carleton.ca>`_,
+  `University of Stuttgart <https://www.uni-stuttgart.de/en>`_,
+  `National University of Colombia <https://unal.edu.co/en.html>`_,
+  `University of Calabria <https://www.unical.it/internazionale/intenational-students/unical-admission>`_,
   `Clemson University <https://www.clemson.edu>`_,
-  `Isfahan University of Technology <http://english.iut.ac.ir/>`_,
+  `Isfahan University of Technology <http://english.iut.ac.ir>`_,
   `Nanchang University <https://english.ncu.edu.cn>`_,
   `Graz University of Technology <https://www.tugraz.at/en/home>`_,
-  `Missouri University of Science and Technology <https://www.mst.edu/>`_,
-  `California Polytechnic State University <https://www.calpoly.edu/>`_,
+  `Missouri University of Science and Technology <https://www.mst.edu>`_,
+  `California Polytechnic State University <https://www.calpoly.edu>`_,
   `University of Nevada, Las Vegas <https://www.unlv.edu>`_,
   `Universiti Teknologi PETRONAS <https://www.utp.edu.my/Pages/Home.aspx>`_,
-  `Hangzhou Dianzi University <http://hdu.admissions.cn/>`_,
+  `Hangzhou Dianzi University <http://hdu.admissions.cn>`_,
   `University of Kaiserslautern <https://www.uni-kl.de/en/startseite>`_,
   `Shanghai Normal University <https://english.shnu.edu.cn>`_,
   `Worcester Polytechnic Institute <https://www.wpi.edu>`_,
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_,
-  `Bauhaus-Universität Weimar <https://www.uni-weimar.de/en/university/start/>`_,
+  `Bauhaus-Universität Weimar <https://www.uni-weimar.de/en/university/start>`_,
   `Henan Institute of Economics and Trade <https://www.hnjmxy.cn/info/1107/1116.htm>`_
-  `Swansea University <https://www.swansea.ac.uk/>`_,
+  `Swansea University <https://www.swansea.ac.uk>`_,
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_
@@ -83,24 +83,24 @@ DeepXDE has been used in
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Argonne National Laboratory <https://www.anl.gov>`_,
-  `Idaho National Laboratory <https://inl.gov/>`_,
+  `Idaho National Laboratory <https://inl.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
-  `China Academy of Engineering Physics <https://unitracker.aspi.org.au/universities/chinese-academy-of-engineering-physics/>`_,
-  `National Key Laboratory for Remanufacturing <https://unitracker.aspi.org.au/universities/army-academy-of-armored-forces/>`_,
+  `China Academy of Engineering Physics <https://unitracker.aspi.org.au/universities/chinese-academy-of-engineering-physics>`_,
+  `National Key Laboratory for Remanufacturing <https://unitracker.aspi.org.au/universities/army-academy-of-armored-forces>`_,
   `Laboratory of Web Science <https://www.ffhs.ch/en/research/lws>`_,
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
   `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
-  `NEC Lab Europe <https://www.neclab.eu/>`_,
-  `CSIRO's Data61 <https://data61.csiro.au/>`_,
-  `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai/>`_,
+  `NEC Lab Europe <https://www.neclab.eu>`_,
+  `CSIRO's Data61 <https://data61.csiro.au>`_,
+  `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai>`_,
   `Erich Schmid Institute of Materials Science <https://www.oeaw.ac.at/esi/erich-schmid-institute>`_,
-  `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org/>`_,
-  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu/>`_,
+  `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org>`_,
+  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
-  `BirenTech Research <https://www.birentech.com/>`_,
+  `BirenTech Research <https://www.birentech.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
   `Saudi Aramco <https://www.aramco.com>`_
@@ -109,21 +109,19 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 
 PINN
 ----
+
 #. S\. Li, G. Wang, Y. Di, L. Wang, H. Wang, & Q. Zhou. `A physics-informed neural network framework to predict 3D temperature field without labeled data in process of laser metal deposition <https://www.sciencedirect.com/science/article/pii/S0952197623000921?casa_token=0B1dHbaZcUMAAAAA:GLb73w6Ey4fEHTM4k6q5YbITizLtSqfn-mxNbxgBWKTGLOiPLAN7mR0e8WyDLTlx0PJJxriuqQ0>`_. *Engineering Applications of Artificial Intelligence*, 120, p.105908, 2023.
 #. M\. Bazmara, M. Silani, & M. Mianroodi. `Physics-informed neural networks for nonlinear bending of 3D functionally graded beam <https://www.sciencedirect.com/science/article/pii/S2352012423001169>`_. *Structures*, Vol. 49, Elsevier, 2023.
-#. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
 #. Y\.H. Huang, Z. Xu, C. Qian, & L. Liu. `Solving free-surface problems for non-shallow water using boundary and initial conditions-free physics-informed neural network (bif-PINN) <https://www.sciencedirect.com/science/article/pii/S0021999123000980?casa_token=8BLfjYZRFEIAAAAA:SGSFk_XdumSVBV83RReAstGdGtIEY5Z5TLZzYKXYX_vp8b0OqksWmhvJclVEctAI8wH3hcVDuZc>`_. *Journal of Computational Physics*, p.112003, 2023.
 #. P\. Sharma, L. Evans, M. Tindall, & P. Nithiarasu. `Stiff-PDEs and physics-informed neural networks <https://doi.org/10.1007/s11831-023-09890-4>`_. *Archives of Computational Methods in Engineering*, 2023.
 #. T\.G. Grossmann, U. J. Komorowska, J. Latz, & C. B. Schönlieb. `Can physics-informed neural networks beat the finite element method <https://arxiv.org/pdf/2302.04107.pdf>`_? *arXiv preprint arXiv:2302.04107*, 2023.
 #. F\. Pioch, J.H. Harmening, A.M. Müller, F.J. Peitzmann, D. Schramm, & O.E. Moctar. `Turbulence modeling for physics-informed neural networks: Comparison of different RANS models for the backward-facing step flow <https://www.mdpi.com/2311-5521/8/2/43>`_. *Fluids*, 8(2), p.43, 2023.
 #. Q\. Jiang, M. Yu, M. Tang, B. Zhan, & S. Dong. `Study on pile driving and sound propagation in shallow water using Physics-informed neural network <https://deliverypdf.ssrn.com/delivery.php?ID=064009119124112124110093115067126126063031005037095033119126020096084101020002007080106026119012027016022102028024005010019119104077115092046070045004097121015118021067023031112095066026112050022104052033050126023119087126085025100123098098067070120117016111015030084007097029087125074&EXT=pdf&INDEX=TRUE>`_. 2023.
 #. L\. Sliwinski,  & G. Rigas. `Mean flow reconstruction of unsteady flows using physics-informed neural networks <https://www.cambridge.org/core/journals/data-centric-engineering/article/mean-flow-reconstruction-of-unsteady-flows-using-physicsinformed-neural-networks/FA2A09B976B0ACE4C8C2CEA9205C540D>`_. *Data-Centric Engineering*, 4, p.e4, 2023.
-#. K\. Kobayashi, J. Daniell, & S.B. Alam. `Operator learning framework for digital twin and complex engineering systems <https://arxiv.org/pdf/2301.06701.pdf>`_. *arXiv e-prints*, pp.arXiv-2301, 2023.
 #. E\. Lorin, & X. Yang. `Schwarz waveform relaxation-learning for advection-diffusion-reaction equations <https://www.sciencedirect.com/science/article/pii/S0021999122007203?casa_token=hZsXqzdjoXoAAAAA:czw_GhUSII7WfE0UehrS6UXadNdldXqO_pN-zRU4r480Wn_fB_PswseUR_fnd4WmPPYk-Tx2YVU>`_. *Journal of Computational Physics*, 473, p.111657, 2023.
 #. F\. Fonseca. `A solution of a 3d Cartesian Poisson-Boltzmann equation <http://www.m-hikari.com/ces/ces2023/ces1-2023/p/fonsecaCES1-2023.pdf>`_. *Contemporary Engineering Sciences*, Vol. 16, no. 1, 1-10, 2023.
 #. C\. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. S\.P. Carney, A. Gangal, & L. Kim. `Physics informed neural networks for elliptic equations with oscillatory differential operators <https://arxiv.org/pdf/2212.13531.pdf>`_. *arXiv preprint arXiv:2212.13531*, 2022.
-#. E\. Pickering, S. Guth, G.E. Karniadakis, & T.P. Sapsis. `Discovering and forecasting extreme events via active learning in neural operators <https://www.nature.com/articles/s43588-022-00376-0>`_. *Nature Computational Science*, 2(12), pp.823-833, 2022.
 #. R\. Usman, & D. Amato. `ML-Ops pipeline for improved physics-informed ODE modeling <https://www.researchgate.net/profile/Raihaan_Usman/publication/366250867_ML-Ops_Pipeline_for_Improved_Physics-Informed_ODE_Modelling/links/6399c269095a6a777429ffeb/ML-Ops-Pipeline-for-Improved-Physics-Informed-ODE-Modelling.pdf>`_. 2022.
 #. S\. Saqlain, W. Zhu, E.G. Charalampidis, & P.G. Kevrekidis. `Discovering governing equations in discrete systems using PINNs <https://arxiv.org/pdf/2212.00971.pdf>`_. *arXiv preprint arXiv:2212.00971*, 2022.
 #. N\. Ma, B. Sun, K. Mao, B. Chen, & Y. Zhai. `Physics-informed neural networks for solving nonlinear bloch equations in atomic magnetometer <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4270086>`_. 2022.
@@ -141,7 +139,6 @@ PINN
 #. A\. Zhu. `Accelerating parameter inference in diffusion-reaction models of glioblastoma using physics-informed neural networks <https://www.siam.org/Portals/0/Publications/SIURO/Vol15/S147281R.pdf?ver=2022-10-11-122057-963>`_.2022.
 #. Y\. Wang, J. Xing, K. Luo, H. Wang, & J. Fan. `Solving combustion chemical differential equations via physics-informed neural network <https://www.zjujournals.com/eng/article/2022/1008-973X/202210020.shtml>`_. *Journal of Zhejiang University(Engineering Science)*, 2022.
 #. Y\. Zhou, M. Dan, Y. Shao, & Y. Zhang. `Deep-neural-network solution of piezo-phototronic transistor based on GaN/AlN quantum wells <https://www.sciencedirect.com/science/article/pii/S2211285522006644?casa_token=X4ir1WGO9EAAAAAA:HJj8gjGsU53HU7LOtY3a4Kr_vvlegAyz8xFnePT9panY5HR1f4xOAKbizXSFMBtAtdgUCHR_gbI>`_. *Nano Energy*, 101, p.107586, 2022.
-#. S\.L. Dhulipala, & R.C. Hruska. `Efficient interdependent systems recovery modeling with DeepONets <https://ieeexplore.ieee.org/abstract/document/9984029?casa_token=YzcUx1VcodwAAAAA:YnIaTDR230p0yeoXKAlfu_DclexyyIs4i5hg42Y9YIGkCMWBzk0QwWT-SBaHWeD2-GNi-znQsSQ>`_. *2022 Resilience Week (RWS)*, pp. 1-6. IEEE, 2022.
 #. M\. Ferrante, A. Duggento, & N. Toschi. `Physically constrained neural networks to solve the inverse problem for neuron models <https://arxiv.org/pdf/2209.11998.pdf>`_. *arXiv preprint arXiv:2209.11998*, 2022.
 #. R\. Hu, Q. Lin, A. Raydan, & S. Tang. `Higher-order error estimates for physics-informed neural networks approximating the primitive equations <https://arxiv.org/pdf/2209.11929.pdf>`_. *arXiv preprint arXiv:2209.11929*, 2022.
 #. D\. Sana. `Approximating the wave equation via physics informed neural networks: Various forward and inverse problems <https://dcn.nat.fau.eu/wp-content/uploads/FAUMoD_DaniaSana-InternReport_PINN.pdf>`_. 2022.
@@ -151,7 +148,7 @@ PINN
 #. I\. Nodozi, J. O'Leary, A. Mesbah, & A. Halder. `A physics-informed deep learning approach for minimum effort stochastic control of colloidal self-assembly <https://arxiv.org/pdf/2208.09182.pdf>`_. *arXiv preprint arXiv:2208.09182*, 2022.
 #. Y\. Yang, & G. Mei. `A deep learning-based approach for a numerical investigation of soil–water vertical infiltration with physics-informed neural networks <https://www.mdpi.com/2227-7390/10/16/2945>`_. *Mathematics*, 10(16), p.2945, 2022.
 #. L\. Jiang, L. Wang, X. Chu, Y. Xiao, & H. Zhang. `PhyGNNet: Solving spatiotemporal PDEs with physics-informed graph neural network <https://arxiv.org/pdf/2208.04319.pdf>`_. *arXiv preprint arXiv:2208.04319*, 2022.
-#. J\. Yu. `Indifference computer experiment for mathematical identification of two variables <https://www.hindawi.com/journals/wcmc/2022/9181840/>`_. *Wireless Communications and Mobile Computing*, 2022.
+#. J\. Yu. `Indifference computer experiment for mathematical identification of two variables <https://www.hindawi.com/journals/wcmc/2022/9181840>`_. *Wireless Communications and Mobile Computing*, 2022.
 #. C\. O. Trost, S. Zak, S. Schaffer, C. Saringer, L. Exl, & M.J. Cordill. `Bridging fidelities to predict nanoindentation tip radii using interpretable deep learning models <https://link.springer.com/article/10.1007/s11837-022-05233-z>`_. *JOM*, 74(6), pp.2195-2205, 2022.
 #. F\. A. Torres, M.M. Negri, M. Nagy-Huber, M. Samarin, & V. Roth. `Mesh-free Eulerian physics-informed neural networks <https://arxiv.org/pdf/2206.01545.pdf>`_. *arXiv preprint arXiv:2206.01545*, 2022.
 #. R\. Anelli. `Physics-informed neural networks for shallow water equations <https://www.politesi.polimi.it/handle/10589/195179>`_. 2022.
@@ -203,6 +200,10 @@ PINN
 DeepONet
 --------
 
+#. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
+#. K\. Kobayashi, J. Daniell, & S.B. Alam. `Operator learning framework for digital twin and complex engineering systems <https://arxiv.org/pdf/2301.06701.pdf>`_. *arXiv e-prints*, pp.arXiv-2301, 2023.
+#. E\. Pickering, S. Guth, G.E. Karniadakis, & T.P. Sapsis. `Discovering and forecasting extreme events via active learning in neural operators <https://www.nature.com/articles/s43588-022-00376-0>`_. *Nature Computational Science*, 2(12), pp.823-833, 2022.
+#. S\.L. Dhulipala, & R.C. Hruska. `Efficient interdependent systems recovery modeling with DeepONets <https://ieeexplore.ieee.org/abstract/document/9984029?casa_token=YzcUx1VcodwAAAAA:YnIaTDR230p0yeoXKAlfu_DclexyyIs4i5hg42Y9YIGkCMWBzk0QwWT-SBaHWeD2-GNi-znQsSQ>`_. *2022 Resilience Week (RWS)*, pp. 1-6. IEEE, 2022.
 #. M\. Zhu, H. Zhang, A. Jiao, G. Karniadakis, & L. Lu. `Reliable extrapolation of deep neural operators informed by physics or sparse observations <https://arxiv.org/abs/2212.06347>`_. *arXiv preprint arXiv:2212.06347*, 2022.
 #. P\. Clark Di Leoni, L. Lu, C. Meneveau, G. Karniadakis, & T. Zaki. `Neural operator prediction of linear instability waves in high-speed boundary layers <https://doi.org/10.1016/j.jcp.2022.111793>`_. *Journal of Computational Physics*, 474, 111793, 2023.
 #. P\. Jin, S. Meng, & L. Lu. `MIONet: Learning multiple-input operators via tensor product <https://doi.org/10.1137/22M1477751>`_. *SIAM Journal on Scientific Computing*, 44(6), A3490--A3514, 2022.
