@@ -113,6 +113,7 @@ PINN
 #. M. Bazmara, M. Silani, & M. Mianroodi. `Physics-informed neural networks for nonlinear bending of 3D functionally graded beam <https://www.sciencedirect.com/science/article/pii/S2352012423001169>`_. *Structures*, Vol. 49, Elsevier, 2023.
 #. S. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
 #. Y.H. Huang, Z. Xu, C. Qian, & L. Liu. `Solving free-surface problems for non-shallow water using boundary and initial conditions-free physics-informed neural network (bif-PINN) <https://www.sciencedirect.com/science/article/pii/S0021999123000980?casa_token=8BLfjYZRFEIAAAAA:SGSFk_XdumSVBV83RReAstGdGtIEY5Z5TLZzYKXYX_vp8b0OqksWmhvJclVEctAI8wH3hcVDuZc>`_. *Journal of Computational Physics*, p.112003, 2023.
+
 #. P. Sharma, L. Evans, M. Tindall, & P. Nithiarasu. `Stiff-PDEs and physics-informed neural networks <https://doi.org/10.1007/s11831-023-09890-4>`_. *Archives of Computational Methods in Engineering*, 2023.
 #. T.G. Grossmann, U. J. Komorowska, J. Latz, & C. B. Schönlieb. `Can Physics-Informed Neural Networks beat the Finite Element Method? <https://arxiv.org/pdf/2302.04107.pdf>`_. *arXiv preprint arXiv:2302.04107*, 2023.
 #. F. Pioch, J.H. Harmening, A.M. Müller, F.J. Peitzmann, D. Schramm, & O.E. Moctar. `Turbulence modeling for physics-informed neural networks: Comparison of different RANS models for the backward-facing step flow <https://www.mdpi.com/2311-5521/8/2/43>`_. *Fluids*, 8(2), p.43, 2023.
@@ -123,6 +124,7 @@ PINN
 #. F. Fonseca. `A solution of a 3d Cartesian Poisson-Boltzmann equation <http://www.m-hikari.com/ces/ces2023/ces1-2023/p/fonsecaCES1-2023.pdf>`_. *Contemporary Engineering Sciences*, Vol. 16, no. 1, 1-10, 2023.
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. S.P. Carney, A. Gangal, & L. Kim. `Physics informed neural networks for elliptic equations with oscillatory differential operators <https://arxiv.org/pdf/2212.13531.pdf>`_. *arXiv preprint arXiv:2212.13531*, 2022.
+
 #. E. Pickering, S. Guth, G.E. Karniadakis, & T.P. Sapsis. `Discovering and forecasting extreme events via active learning in neural operators <https://www.nature.com/articles/s43588-022-00376-0>`_. *Nature Computational Science*, 2(12), pp.823-833, 2022.
 #. R. Usman, & D. Amato. `ML-Ops pipeline for improved physics-informed ODE modeling <https://www.researchgate.net/profile/Raihaan_Usman/publication/366250867_ML-Ops_Pipeline_for_Improved_Physics-Informed_ODE_Modelling/links/6399c269095a6a777429ffeb/ML-Ops-Pipeline-for-Improved-Physics-Informed-ODE-Modelling.pdf>`_. 2022.
 #. S. Saqlain, W. Zhu, E.G. Charalampidis, & P.G. Kevrekidis. `Discovering governing equations in discrete systems using PINNs <https://arxiv.org/pdf/2212.00971.pdf>`_. *arXiv preprint arXiv:2212.00971*, 2022.
