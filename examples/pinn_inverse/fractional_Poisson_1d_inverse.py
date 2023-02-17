@@ -9,8 +9,7 @@ from scipy.special import gamma
 
 
 alpha0 = 1.8
-alpha = tf.Variable(1.5)
-
+alpha = dde.Variable(1.5)
 
 # Backend tensorflow.compat.v1
 def fpde(x, y, int_mat):

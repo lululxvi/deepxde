@@ -15,6 +15,7 @@ def ide(x, y, int_mat):
     return (lhs1 + y)[: tf.size(rhs)] - rhs
 # Backend paddle
 # def ide(x, y, int_mat):
+#     int_mat = paddle.to_tensor(int_mat, dde.config.real(paddle), stop_gradient=False)
 #     rhs = paddle.mm(int_mat, y)
 #     lhs1 = paddle.grad(y, x, create_graph=True)[0]
 #     return (lhs1 + y)[: paddle.numel(rhs)] - rhs

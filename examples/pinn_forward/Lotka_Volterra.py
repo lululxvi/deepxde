@@ -77,13 +77,7 @@ def input_transform(t):
 # def input_transform(t):
 #     return paddle.concat(
 #         (
-#             t,
 #             paddle.sin(t),
-#             paddle.sin(2 * t),
-#             paddle.sin(3 * t),
-#             paddle.sin(4 * t),
-#             paddle.sin(5 * t),
-#             paddle.sin(6 * t),
 #         ),
 #         axis=1,
 #     )
@@ -103,7 +97,7 @@ def output_transform(t, y):
 # def output_transform(t, y):
 #     y1 = y[:, 0:1]
 #     y2 = y[:, 1:2]
-#     return paddle.cat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
+#     return paddle.concat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
 
 net.apply_feature_transform(input_transform)
 net.apply_output_transform(output_transform)

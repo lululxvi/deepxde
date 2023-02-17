@@ -1,6 +1,6 @@
 # DeepXDE
 
-[![Build Status](https://app.travis-ci.com/lululxvi/deepxde.svg?branch=master)](https://app.travis-ci.com/lululxvi/deepxde)
+[![Build Status](https://github.com/lululxvi/deepxde/actions/workflows/build.yml/badge.svg)](https://github.com/lululxvi/deepxde/actions/workflows/build.yml)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5c67adbfeabd4ccc9b84d2212c50a342)](https://www.codacy.com/gh/lululxvi/deepxde/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lululxvi/deepxde&amp;utm_campaign=Badge_Grade)
 [![PyPI Version](https://badge.fury.io/py/DeepXDE.svg)](https://badge.fury.io/py/DeepXDE)
@@ -73,7 +73,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
 - PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
-- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn)>=2.3.0
+- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn/en) ([develop version](https://www.paddlepaddle.org.cn/documentation/docs/en/install/compile/fromsource_en.html))
 
 Then, you can install DeepXDE itself.
 

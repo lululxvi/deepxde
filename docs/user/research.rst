@@ -45,7 +45,8 @@ DeepXDE has been used in
   `Worcester Polytechnic Institute <https://www.wpi.edu>`_,
   `Technical University of Cartagena <https://www.upct.es/english/content/departments>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
-  `Adolfo Ibáñez University <https://www.uai.cl/en>`_
+  `Adolfo Ibáñez University <https://www.uai.cl/en>`_,
+  `Swansea University <https://www.swansea.ac.uk/>`_
 - 10 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
@@ -56,7 +57,8 @@ DeepXDE has been used in
   `Associate Laboratory LSRE-LCM <https://lsre-lcm.fe.up.pt>`_,
   `Center of Applied Ecology and Sustainability <https://investigacion.uc.cl/en/centros-de-excelencia/center-of-applied-ecology-and-sustainability-capes>`_,
   `NEC Lab Europe <https://www.neclab.eu/>`_,
-  `CSIRO's Data61 <https://data61.csiro.au/>`_
+  `CSIRO's Data61 <https://data61.csiro.au/>`_,
+  `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai/>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -69,6 +71,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. P. Sharma, L. Evans, M. Tindall, & P. Nithiarasu. `Stiff-PDEs and physics-informed neural networks <https://doi.org/10.1007/s11831-023-09890-4>`_. *Archives of Computational Methods in Engineering*, 2023.
 #. C. Wu, M. Zhu, Q. Tan, Y. Kartha, & L. Lu. `A comprehensive study of non-adaptive and residual-based adaptive sampling for physics-informed neural networks <https://doi.org/10.1016/j.cma.2022.115671>`_. *Computer Methods in Applied Mechanics and Engineering*, 403, 115671, 2023.
 #. A. Serebrennikova, R. Teubler, L. Hoffellner, E. Leitner, U. Hirn, & K. Zojer. `Transport of organic volatiles through paper: Physics-informed neural networks for solving inverse and forward problems <https://link.springer.com/article/10.1007/s11242-022-01864-7>`_. *Transport in Porous Media*, 1-24, 2022.
 #. K. Prantikos, L. Tsoukalas, & A. Heifetz. `Physics-informed neural network solution of point kinetics equations for a nuclear reactor digital twin <https://doi.org/10.3390/en15207697>`_. *Energies*, 15(20), 7697, 2022.

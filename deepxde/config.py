@@ -46,14 +46,19 @@ def set_default_float(value):
     The default floating point type is 'float32'.
 
     Args:
-        value (String): 'float32' or 'float64'.
+        value (String): 'float16', 'float32', or 'float64'.
     """
-    if value == "float32":
+    if value == "float16":
+        print("Set the default float type to float16")
+        real.set_float16()
+    elif value == "float32":
         print("Set the default float type to float32")
         real.set_float32()
     elif value == "float64":
         print("Set the default float type to float64")
         real.set_float64()
+    else:
+        raise ValueError(f"{value} not supported in deepXDE")
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
         tf.keras.backend.set_floatx(value)
     elif backend_name == "pytorch":
