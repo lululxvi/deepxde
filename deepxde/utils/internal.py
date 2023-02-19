@@ -27,7 +27,7 @@ def all_gather_before_run(func):
                     utils.all_gather(bkd.as_tensor(arg)).numpy()
                     for arg in args
                 ]
-                return func(gathered_args)
+                return func(*gathered_args)
             raise NotImplementedError(
                 f"Function 'all_gather' should be implemented in {config.backend_name}"
             )
