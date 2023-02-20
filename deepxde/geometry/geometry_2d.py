@@ -16,7 +16,7 @@ class Disk(Geometry):
             raise TypeError("radius must be an integer or float")
 
         if len(center) != 2:
-             raise ValueError("Dimension of center should be 2.")
+            raise ValueError("Dimension of center should be 2.")
         
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
