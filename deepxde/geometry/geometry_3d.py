@@ -15,6 +15,8 @@ class Cuboid(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
+        if not all([len(xmin) == 3,len(xmax) == 3]):
+            raise ValueError("Dimension of xmin and xmax should be 3.")
         dx = self.xmax - self.xmin
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
 
@@ -76,3 +78,6 @@ class Sphere(Hypersphere):
 
     def __init__(self, center, radius):
         super().__init__(center, radius)
+
+        if len(center) != 3:
+             raise ValueError("Dimension of center should be 3. Make sure you only supply the x, y and z coordinates of the center.")

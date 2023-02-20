@@ -12,6 +12,14 @@ from ..utils import vectorize
 
 class Disk(Geometry):
     def __init__(self, center, radius):
+        if not isinstance(center, list):
+            raise TypeError("center must be a list")
+        if not isinstance(radius, (int, float)):
+            raise TypeError("radius must be an integer or float")
+
+        if len(center) != 2:
+             raise ValueError("Dimension of center should be 2. Make sure you only supply the x and y coordinates of the center.")
+        
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
         super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
@@ -78,6 +86,9 @@ class Rectangle(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
+        if not all([len(xmin) == 2,len(xmax) == 2]):
+            raise ValueError("Dimension of xmin and xmax should be 2.")
+
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
         self.area = np.prod(self.xmax - self.xmin)
 
@@ -161,7 +172,15 @@ class Triangle(Geometry):
     """
 
     def __init__(self, x1, x2, x3):
+        if not all([isinstance(x1, list),isinstance(x2, list), isinstance(x3, list)]):
+            raise TypeError("x1, x2 and x3 must be lists")
+
+        if not all([len(x1) == 2, len(x2) == 2, len(x3) == 2]):
+            raise ValueError("Dimension of x1, x2 and x3 should be 2.")
+        
         self.area = polygon_signed_area([x1, x2, x3])
+        if self.area == 0:
+            raise ValueError("Degenerate triangle obtained. Make sure the x1, x2 and x3 are not collinear or coinciding.")
         # Clockwise
         if self.area < 0:
             self.area = -self.area
