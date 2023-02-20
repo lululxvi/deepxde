@@ -10,11 +10,7 @@ from .. import config
 
 
 class Hypercube(Geometry):
-    def __init__(self, xmin, xmax):
-
-        if not all([isinstance(xmin, list),isinstance(xmax, list)]):
-            raise TypeError("Both xmin and xmax must be a list")
-        
+    def __init__(self, xmin, xmax):       
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
 
@@ -107,8 +103,6 @@ class Hypercube(Geometry):
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
-        if not isinstance(center, list):
-            raise TypeError("center must be a list")
         if not isinstance(radius, (int, float)):
             raise TypeError("radius must be an integer or float")
         

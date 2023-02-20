@@ -12,13 +12,11 @@ from ..utils import vectorize
 
 class Disk(Geometry):
     def __init__(self, center, radius):
-        if not isinstance(center, list):
-            raise TypeError("center must be a list")
         if not isinstance(radius, (int, float)):
             raise TypeError("radius must be an integer or float")
 
         if len(center) != 2:
-             raise ValueError("Dimension of center should be 2. Make sure you only supply the x and y coordinates of the center.")
+             raise ValueError("Dimension of center should be 2.")
         
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
@@ -172,9 +170,6 @@ class Triangle(Geometry):
     """
 
     def __init__(self, x1, x2, x3):
-        if not all([isinstance(x1, list),isinstance(x2, list), isinstance(x3, list)]):
-            raise TypeError("x1, x2 and x3 must be lists")
-
         if not all([len(x1) == 2, len(x2) == 2, len(x3) == 2]):
             raise ValueError("Dimension of x1, x2 and x3 should be 2.")
         

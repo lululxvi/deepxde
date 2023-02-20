@@ -80,4 +80,4 @@ class Sphere(Hypersphere):
         super().__init__(center, radius)
 
         if len(center) != 3:
-             raise ValueError("Dimension of center should be 3. Make sure you only supply the x, y and z coordinates of the center.")
+             raise ValueError("Dimension of center should be 3.")
