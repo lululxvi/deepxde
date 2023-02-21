@@ -10,7 +10,7 @@ from .. import config
 
 
 class Hypercube(Geometry):
-    def __init__(self, xmin, xmax):       
+    def __init__(self, xmin, xmax):
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
 

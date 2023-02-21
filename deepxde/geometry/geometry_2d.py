@@ -16,8 +16,8 @@ class Disk(Geometry):
             raise TypeError("radius must be an integer or float")
 
         if len(center) != 2:
-            raise ValueError("Dimension of center should be 2.")
-        
+            raise ValueError("Length of center should be 2.")
+
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
         super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
@@ -34,7 +34,9 @@ class Disk(Geometry):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return (-ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(config.real(np))
+        return (-ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+            config.real(np)
+        )
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -71,7 +73,12 @@ class Disk(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
+        pts = (
+            x
+            - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None]
+            * h
+            * dirn
+        )
         return pts
 
 
@@ -84,7 +91,7 @@ class Rectangle(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
-        if not all([len(xmin) == 2,len(xmax) == 2]):
+        if not all([len(xmin) == 2, len(xmax) == 2]):
             raise ValueError("Dimension of xmin and xmax should be 2.")
 
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
@@ -172,10 +179,12 @@ class Triangle(Geometry):
     def __init__(self, x1, x2, x3):
         if not all([len(x1) == 2, len(x2) == 2, len(x3) == 2]):
             raise ValueError("Dimension of x1, x2 and x3 should be 2.")
-        
+
         self.area = polygon_signed_area([x1, x2, x3])
         if self.area == 0:
-            raise ValueError("Degenerate triangle obtained. Make sure the x1, x2 and x3 are not collinear or coinciding.")
+            raise ValueError(
+                "Degenerate triangle obtained. Make sure the x1, x2 and x3 are not collinear or coinciding."
+            )
         # Clockwise
         if self.area < 0:
             self.area = -self.area
