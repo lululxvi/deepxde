@@ -180,3 +180,4 @@ texinfo_documents = [
 # -- Extension configuration -------------------------------------------------
 # Sphinx-copybutton : Strip bash input prompt from copied text, if exist
 copybutton_prompt_text = "$ "
+
