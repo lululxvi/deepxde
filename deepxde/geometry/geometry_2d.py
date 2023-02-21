@@ -34,9 +34,7 @@ class Disk(Geometry):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return (-ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
-            config.real(np)
-        )
+        return (-ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(config.real(np))
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -73,12 +71,7 @@ class Disk(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = (
-            x
-            - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None]
-            * h
-            * dirn
-        )
+        pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
         return pts
 
 
