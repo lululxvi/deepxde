@@ -84,7 +84,7 @@ class Rectangle(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
-        if not all([len(xmin) == 2, len(xmax) == 2]):
+        if len(xmin) != 2 or len(xmax) != 2:
             raise ValueError("Dimension of xmin and xmax should be 2.")
 
         self.perimeter = 2 * np.sum(self.xmax - self.xmin)
@@ -174,7 +174,7 @@ class Triangle(Geometry):
             raise ValueError("Dimension of x1, x2 and x3 should be 2.")
 
         self.area = polygon_signed_area([x1, x2, x3])
-        if self.area == 0:
+        if np.isclose(self.area, 0.0):
             raise ValueError(
                 "Degenerate triangle obtained. Make sure the x1, x2 and x3 are not collinear or coinciding."
             )

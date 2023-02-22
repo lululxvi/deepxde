@@ -15,7 +15,7 @@ class Cuboid(Hypercube):
 
     def __init__(self, xmin, xmax):
         super().__init__(xmin, xmax)
-        if not all([len(xmin) == 3,len(xmax) == 3]):
+        if len(xmin) != 3 or len(xmax) != 3:
             raise ValueError("Dimension of xmin and xmax should be 3.")
         dx = self.xmax - self.xmin
         self.area = 2 * np.sum(dx * np.roll(dx, 2))
