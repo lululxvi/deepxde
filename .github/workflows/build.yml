@@ -67,7 +67,8 @@ jobs:
       - name: Test build with Paddle(MacOS)
         if: matrix.os == 'macos-latest' && matrix.python-version != 3.11  # not available on Python 3.11
         run: |
-          which python3.7
+          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/mac/cpu-noavx/develop.html
+          python -c "import deepxde"
         env:
           DDE_BACKEND: paddle
 
