@@ -64,6 +64,13 @@ jobs:
           python -m pip install jax flax optax
           python -c "import deepxde"
 
+      - name: Test build with Paddle(MacOS)
+        if: matrix.os == 'macos-latest' && matrix.python-version != 3.11  # not available on Python 3.11
+        run: |
+          which python3.7
+        env:
+          DDE_BACKEND: paddle
+
       - name: Test build with Paddle(Linux)
         if: matrix.os == 'ubuntu-latest' && matrix.python-version != 3.11  # not available on Python 3.11
         run: |
