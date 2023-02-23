@@ -119,9 +119,6 @@ def output_transform(t, y):
 #     return paddle.concat([y1 * paddle.tanh(t) + 100 / ub, y2 * paddle.tanh(t) + 15 / ub], axis=1)
 # Backend jax
 # def output_transform(t, y):
-#     if y.ndim == 1:
-#         y1 = y[None]
-#         y2 = y[None]
 #     y1 = y[:, 0:1]
 #     y2 = y[:, 1:2]
 #     return jnp.concatenate(
@@ -134,7 +131,7 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(iterations=10)
+losshistory, train_state = model.train(iterations=1000)
 # Most backends except jax can have a second fine tuning of the solution
 model.compile("L-BFGS", lr=0.001)
 losshistory, train_state = model.train()
