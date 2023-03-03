@@ -60,7 +60,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - conveniently **save** the model during training, and **load** a trained model.
 - **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
 - **uncertainty quantification** using dropout.
-- **float32** and **float64**.
+- **float16**, **float32**, and **float64**.
 - many other useful features: different (weighted) losses, learning rate schedules, metrics, etc.
 
 All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-structured and highly configurable. It is easy to customize DeepXDE to meet new demands.
