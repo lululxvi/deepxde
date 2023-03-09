@@ -64,6 +64,7 @@ class Model:
         decay=None,
         loss_weights=None,
         external_trainable_variables=None,
+        loss_scaling=False,
     ):
         """Configures the model for training.
 
@@ -109,9 +110,13 @@ class Model:
                 physics systems that need to be recovered. If the backend is
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
+            loss_scaling: Wrap ``optimizer`` with the keras LossScaleOptimizer.
+                This option is useful when dealing with float16.
+                Uses <https://keras.io/api/mixed_precision/loss_scale_optimizer/>
         """
         print("Compiling model...")
         self.opt_name = optimizer
+        self.loss_scaling = loss_scaling
         loss_fn = losses_module.get(loss)
         self.losshistory.set_loss_weights(loss_weights)
         if external_trainable_variables is None:
@@ -137,6 +142,11 @@ class Model:
             self._compile_jax(lr, loss_fn, decay, loss_weights)
         elif backend_name == "paddle":
             self._compile_paddle(lr, loss_fn, decay, loss_weights)
+        if backend_name != "tensorflow" and loss_scaling:
+            raise NotImplementedError(
+                "loss scaling not implemented for non-tensorflow backend"
+            )
+
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
         metrics = metrics or []
@@ -222,7 +232,11 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
+        if self.loss_scaling:
+            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
+            opt = tf.keras.mixed_precision.LossScaleOptimizer(opt)
+        else:
+            opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function(jit_compile=config.xla_jit)
         def train_step(inputs, targets, auxiliary_vars):
@@ -230,10 +244,14 @@ class Model:
             with tf.GradientTape() as tape:
                 losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = tf.math.reduce_sum(losses)
+                if self.loss_scaling:
+                    total_loss = opt.get_scaled_loss(total_loss)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
             grads = tape.gradient(total_loss, trainable_variables)
+            if self.loss_scaling:
+                grads = opt.get_unscaled_gradients(grads)
             opt.apply_gradients(zip(grads, trainable_variables))
 
         def train_step_tfp(
