@@ -309,7 +309,7 @@ class Model:
         # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
         # but not all optimizers (such as L-BFGS) support this.
         trainable_variables = (
-            list(self.net.parameters()) + self.external_trainable_variables
+            list(filter(lambda p: p.requires_grad, self.net.parameters())) + self.external_trainable_variables
         )
         if self.net.regularizer is None:
             self.opt, self.lr_scheduler = optimizers.get(
@@ -518,9 +518,7 @@ class Model:
             outs = outputs_losses(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
             # TODO: auxiliary_vars
-            self.net.requires_grad_(requires_grad=False)
             outs = outputs_losses(inputs, targets)
-            self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             outs = outputs_losses(self.params, inputs, targets)
