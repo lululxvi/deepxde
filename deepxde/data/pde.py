@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config, utils
 from ..backend import backend_name
-from ..losses import squared_error
+from .. import losses as losses_module
 from ..utils import array_ops_compat, get_num_args, run_if_all_none
 
 class PDE(Data):
@@ -94,7 +94,7 @@ class PDE(Data):
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         if self.anchors is not None:
-            self.anchors = array_ops_compat.sub_with_padding(self.anchors)
+            self.anchors = array_ops_compat.split_in_rank(self.anchors)
         self.exclusions = exclusions
 
         self.soln = solution
@@ -150,13 +150,17 @@ class PDE(Data):
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
         if config.world_size > 1 and not model.net.training:
-            # TODO: Only support for "MSE" loss now
-            losses = [
-                squared_error(bkd.zeros_like(error), error) for i, error in enumerate(error_f)
-            ]
+            losses = []
+            for i, error in enumerate(error_f):
+                error_func = getattr(
+                    losses_module,
+                    loss_fn[i].__name__.replace("mean_", "")
+                )
+                losses.append(error_func(bkd.zeros_like(error), error))
         else:
             losses = [
-                loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
+                loss_fn[i](bkd.zeros_like(error), error)
+                for i, error in enumerate(error_f)
             ]
 
         for i, bc in enumerate(self.bcs):
@@ -165,7 +169,11 @@ class PDE(Data):
             error = bc.error(self.train_x, inputs, outputs, beg, end)
 
             if config.world_size > 1 and not model.net.training:
-                losses.append(squared_error(bkd.zeros_like(error), error))
+                error_func = getattr(
+                    losses_module,
+                    loss_fn[len(error_f) + i].__name__.replace("mean_", "")
+                )
+                losses.append(error_func(bkd.zeros_like(error), error))
             else:
                 losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
 
@@ -248,7 +256,7 @@ class PDE(Data):
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
-            X = array_ops_compat.sub_with_padding(X)
+            X = array_ops_compat.split_in_rank(X)
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -256,7 +264,7 @@ class PDE(Data):
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
-            tmp = array_ops_compat.sub_with_padding(tmp)
+            tmp = array_ops_compat.split_in_rank(tmp)
             X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
@@ -283,7 +291,7 @@ class PDE(Data):
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
         x = self.geom.uniform_points(self.num_test, boundary=False)
-        x = array_ops_compat.sub_with_padding(x)
+        x = array_ops_compat.split_in_rank(x)
         x = np.vstack((self.train_x_bc, x))
         return x
 
@@ -332,12 +340,12 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-                tmp = array_ops_compat.sub_with_padding(tmp)
+                tmp = array_ops_compat.split_in_rank(tmp)
             else:
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
-                tmp = array_ops_compat.sub_with_padding(tmp)
+                tmp = array_ops_compat.split_in_rank(tmp)
             if self.exclusions is not None:
 
                 def is_not_excluded(x):

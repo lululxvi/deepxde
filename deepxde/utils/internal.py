@@ -30,6 +30,7 @@ def all_gather_before_run(func):
                 return func(*gathered_args)
             raise NotImplementedError(
                 f"Function 'all_gather' should be implemented in {config.backend_name}"
+                f" when config.world_size({config.world_size}) > 1."
             )
         return func(*args)
 

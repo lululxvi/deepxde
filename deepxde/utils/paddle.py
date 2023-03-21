@@ -3,7 +3,7 @@ import paddle
 
 
 def all_gather(tensor, concat=True, axis=0):
-    """Gather tensor from all devices, concatenate them along given axis(if specified)
+    """Gather tensor from all devices, concatenate them along given axis(if specified).
 
     Args:
         tensor (Tensor): Tensor to be gathered from all GPUs.
@@ -21,28 +21,28 @@ def all_gather(tensor, concat=True, axis=0):
 
 
 def get_world_size():
-    """Get world size
+    """Get world size.
 
     Returns:
-        int: world size
+        int: World size.
     """
     return paddle.distributed.get_world_size()
 
 
 def get_rank():
-    """Get current rank
+    """Get current rank.
 
     Returns:
-        int: current rank
+        int: Current rank.
     """
     return paddle.distributed.get_rank()
 
 
 def get_dist_info():
-    """Get world size and current rank
+    """Get world size and current rank.
 
     Returns:
-        Tuple of ints: (world size, current rank)
+        Tuple of ints: (world size, current rank).
     """
     world_size = paddle.distributed.get_world_size()
     rank = paddle.distributed.get_rank()

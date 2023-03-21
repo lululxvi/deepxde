@@ -27,6 +27,10 @@ def mean_squared_error(y_true, y_pred):
     return bkd.reduce_mean(bkd.square(y_true - y_pred))
 
 
+def l2_relative_error(y_true, y_pred):
+    return bkd.norm(y_true - y_pred, axis=1) / bkd.norm(y_true, axis=1)
+
+
 def mean_l2_relative_error(y_true, y_pred):
     return bkd.reduce_mean(bkd.norm(y_true - y_pred, axis=1) / bkd.norm(y_true, axis=1))
 

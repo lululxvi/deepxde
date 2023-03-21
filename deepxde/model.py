@@ -54,10 +54,8 @@ class Model:
             self.opt_state = None
             self.params = None
         elif backend_name == "paddle":
-            self.parallel = False
             if config.world_size > 1:
                 self.net = paddle.DataParallel(self.net)
-                self.parallel = True
 
     @utils.timing
     def compile(

@@ -184,8 +184,8 @@ class PointSetBC:
     ):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
-        self.points = utils.array_ops_compat.sub_with_padding(self.points)
-        self.values = utils.array_ops_compat.sub_with_padding(self.values)
+        self.points = utils.array_ops_compat.split_in_rank(self.points)
+        self.values = utils.array_ops_compat.split_in_rank(self.values)
         self.component = component
         if isinstance(component, list) and backend_name != "pytorch":
             # TODO: Add support for multiple components in other backends
