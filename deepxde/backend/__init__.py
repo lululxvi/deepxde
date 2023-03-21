@@ -7,6 +7,7 @@ import sys
 
 from . import backend
 from .set_default_backend import set_default_backend
+from .utils import verify_backend
 
 _enabled_apis = set()
 
@@ -81,16 +82,13 @@ def get_preferred_backend():
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
 
-    if backend_name in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
+    if backend_name is not None:
+        verify_backend(backend_name)
         return backend_name
+
+    # No backend selected
     print(
-        "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
+        "DeepXDE backend not selected. Use tensorflow.compat.v1.",
         file=sys.stderr,
     )
     set_default_backend("tensorflow.compat.v1")
