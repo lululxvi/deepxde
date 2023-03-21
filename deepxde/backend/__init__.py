@@ -68,19 +68,68 @@ def load_backend(mod_name):
                 setattr(thismod, api, _gen_missing_api(api, mod_name))
 
 
+def check_backend(backend_name=None):
+    """Detect user's package to select backend.
+
+    Return:
+        backend name or None
+    """
+    # pylint: disable=C0415
+    if backend_name in ["paddle", None]:
+        try:
+            import paddle
+            assert paddle   # silence pyflakes
+            return "paddle"
+        except ImportError:
+            pass
+    
+    if backend_name in ["tensorflow.compat.v1", "tensorflow", None]:
+        try:
+            import tensorflow.compat.v1
+            assert tensorflow.compat.v1   # silence pyflakes
+            print("Backend be set to 'tensorflow.compat.v1' automaticlly, if you want to set it to 'tensorflow',", 
+                "please using 'DDE_BACKEND=tensorflow'.\n", file=sys.stderr, flush=True)
+            return "tensorflow.compat.v1"
+        except ImportError:
+            pass
+
+    if backend_name in ["pytorch", None]:
+        try:
+            import torch
+            assert torch   # silence pyflakes
+            return "pytorch"
+        except ImportError:
+            pass
+
+    if backend_name in ["jax", None]:
+        try:
+            import jax
+            assert jax   # silence pyflakes
+            return "jax"
+        except ImportError:
+            pass
+
+    return None
+
+
 def get_preferred_backend():
     backend_name = None
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
     if "DDE_BACKEND" in os.environ:
-        backend_name = os.getenv("DDE_BACKEND")
+        backend_name = check_backend(os.getenv("DDE_BACKEND"))
     # Backward compatibility
     elif "DDEBACKEND" in os.environ:
-        backend_name = os.getenv("DDEBACKEND")
+        backend_name = check_backend(os.getenv("DDEBACKEND"))
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
-            backend_name = config_dict.get("backend", "").lower()
-
+            backend_name = check_backend(config_dict.get("backend", "").lower())
+    
+    # no backend config or config error
+    if backend_name is None:
+        backend_name = check_backend()
+    
+    # no backend config or config error
     if backend_name in [
         "tensorflow.compat.v1",
         "tensorflow",
