@@ -137,6 +137,112 @@ def check_backend(backend_name=None):
     return None
 
 
+def ask_install(backend_name):
+    """Ask the user to install the backend.
+
+    Args:
+        backend_name: which backend detected.
+    """
+    if backend_name == 'paddle':
+        return backend_name
+        
+    if backend_name in [
+        "tensorflow.compat.v1",
+        "tensorflow",
+        "pytorch",
+        "jax",
+    ]:
+        notice = "{}{}{}".format("Your backend is ", backend_name, 
+                " now. paddle is default which can support more examples and under monitoring, do you want to try and install it (y/n): ")
+    else:
+        notice = "No available backend found. paddle is default which can support more examples and under monitoring, do you want to install it (y/n): "
+    
+    try:
+        msg = input(notice)
+    except EOFError:
+        msg = "n"
+    
+    cnt = 0
+    while cnt < 3:
+        if msg == 'y':
+            install_backend()
+            return "paddle"
+        if msg == 'n':
+            break
+        cnt += 1
+        msg = input("Please enter correctly (y/n): ")
+
+    if backend_name in [
+        "tensorflow.compat.v1",
+        "tensorflow",
+        "pytorch",
+        "jax",
+    ]:
+        print("No installing required, continue running...\n", file=sys.stderr, flush=True)
+    else:
+        sys.exit("No available backend found, you can manually install one of paddle/tensorflow.compat.va/tensorflow/pytorch/jax ",
+                 "and select backend by using 'DDE_BACKEND=xxx', Running stopped!")
+
+    return backend_name
+
+
+def run_install(command):
+    """Send command to terminal and print it.
+
+    Args:
+        command: command to be sent to terminal.
+    """
+    print("Install command:", command,"\n")
+    installed = os.system(command)
+    if installed == 0:
+        print("Paddle installed successfully!\n", file=sys.stderr, flush=True)
+    else:
+        sys.exit("Paddle installed failed. You can visit https://www.paddlepaddle.org.cn to install it manually. Running stopped!")
+
+
+def install_backend():
+    """Generate command and install paddle.
+    """
+    # get user's platform
+    platform = sys.platform
+    if platform in ["win32", "cygwin"]:
+        platform = 'windows'
+    elif platform in ["linux","linux2"]:
+        platform = 'linux'
+    elif platform == "darwin":
+        print("Paddle only can be installed in macOS with cpu by pip now, installing cpu version...", file=sys.stderr, flush=True)
+        cmd = "python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/mac/cpu/develop.html"
+        run_install(cmd)
+    else:
+        sys.exit("your system is", platform, ", paddle only supported Window/Linux/macOS now, sorry. Running stopped!")
+
+    # get user's device
+    nvcc_text = os.popen("nvcc -V").read()
+    if nvcc_text != '':
+        cuda_version = nvcc_text.split("Cuda compilation tools, release ")[-1].split(",")[0]
+        version = int(float(cuda_version)*10)
+        if version not in [102,112,116,117]:
+            print("{}{}{}".format("There is no avaliable Cuda, your Cuda version is ",cuda_version,
+                    " however paddle only supports Cuda 10.2/11.2/11.6/11.7 now.\n"), file=sys.stderr, flush=True)
+        else:
+            print("Installing cuda", cuda_version, "version...", file=sys.stderr, flush=True)
+            cmd = "{}{}{}{}{}".format("python -m pip install paddlepaddle-gpu==0.0.0.post", version, " -f https://www.paddlepaddle.org.cn/whl/", platform, "/gpu/develop.html")
+            run_install(cmd)
+    if platform == 'linux':
+        roc_text1 = os.popen("/opt/rocm/bin/rocminfo").read()
+        roc_text2 = os.popen("/opt/rocm/opencl/bin/clinfo").read()
+        if roc_text1 != '' and roc_text2 != '':
+            print("Installing ROCm4.0 version...", file=sys.stderr, flush=True)
+            cmd = "pip install --pre paddlepaddle-rocm -f https://www.paddlepaddle.org.cn/whl/rocm/develop.html"
+            run_install(cmd)
+        else:
+            print("There is no avaliable ROCm4.0.\n", file=sys.stderr, flush=True)
+
+    print("Installing cpu version...", file=sys.stderr, flush=True)
+    cmd = "{}{}{}".format("python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/", platform, "/cpu-mkl-avx/develop.html")
+    run_install(cmd)
+
+
 def get_preferred_backend():
     backend_name = None
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
@@ -154,21 +260,8 @@ def get_preferred_backend():
     if backend_name is None:
         backend_name = check_backend()
     
-    # no backend config or config error
-    if backend_name in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
-        return backend_name
-    print(
-        "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
-        file=sys.stderr,
-    )
-    set_default_backend("tensorflow.compat.v1")
-    return "tensorflow.compat.v1"
+    backend_name = ask_install(backend_name)
+    return backend_name
 
 
 load_backend(get_preferred_backend())
