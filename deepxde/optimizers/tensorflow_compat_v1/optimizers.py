@@ -10,7 +10,7 @@ def is_external_optimizer(optimizer):
     return optimizer in scipy_opts
 
 
-def get(loss, optimizer, learning_rate=None, decay=None):
+def get(loss, optimizer, learning_rate=None, decay=None, data_parallel=False):
     """Retrieves an Optimizer instance."""
     if is_external_optimizer(optimizer):
         if learning_rate is not None or decay is not None:
@@ -54,6 +54,9 @@ def get(loss, optimizer, learning_rate=None, decay=None):
             )
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    if data_parallel:
+        import horovod.tensorflow as hvd
+        optim = hvd.DistributedOptimizer(optim)
     with tf.control_dependencies(update_ops):
         train_op = optim.minimize(loss, global_step=global_step)
     return train_op

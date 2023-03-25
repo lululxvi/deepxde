@@ -19,7 +19,6 @@ from .utils import list_to_str
 
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
-
     Args:
         data: ``deepxde.data.Data`` instance.
         net: ``deepxde.nn.NN`` instance.
@@ -64,9 +63,9 @@ class Model:
         decay=None,
         loss_weights=None,
         external_trainable_variables=None,
+        data_parallel=False,
     ):
         """Configures the model for training.
-
         Args:
             optimizer: String name of an optimizer, or a backend optimizer class
                 instance.
@@ -79,27 +78,18 @@ class Model:
             metrics: List of metrics to be evaluated by the model during training.
             decay (tuple): Name and parameters of decay to the initial learning rate.
                 One of the following options:
-
                 - For backend TensorFlow 1.x:
-
                     - `inverse_time_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
                     - `cosine_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
-
                 - For backend TensorFlow 2.x:
-
                     - `InverseTimeDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
                     - `CosineDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
-
                 - For backend PyTorch:
-
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
-
                 - For backend PaddlePaddle:
-
                     - `InverseTimeDecay
                       <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
                       ("inverse time", gamma)
-
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
@@ -109,8 +99,20 @@ class Model:
                 physics systems that need to be recovered. If the backend is
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
+            data_parallel: Whether a data parallel acceleration is performed. If True, a Horovod-based data-parallel acceleration is performed.
         """
-        print("Compiling model...")
+        self.data_parallel = data_parallel
+        if data_parallel:
+            if backend_name == "tensorflow.compat.v1":
+                import horovod.tensorflow as hvd
+
+                hvd.init()
+            else:
+                raise NotImplementedError(
+                    "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
+                )
+        if not data_parallel or (data_parallel and hvd.rank() == 0):
+            print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
         self.losshistory.set_loss_weights(loss_weights)
@@ -128,7 +130,9 @@ class Model:
             self.external_trainable_variables = external_trainable_variables
 
         if backend_name == "tensorflow.compat.v1":
-            self._compile_tensorflow_compat_v1(lr, loss_fn, decay, loss_weights)
+            self._compile_tensorflow_compat_v1(
+                lr, loss_fn, decay, loss_weights, data_parallel
+            )
         elif backend_name == "tensorflow":
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
@@ -142,7 +146,9 @@ class Model:
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
-    def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay, loss_weights):
+    def _compile_tensorflow_compat_v1(
+        self, lr, loss_fn, decay, loss_weights, data_parallel
+    ):
         """tensorflow.compat.v1"""
         if not self.net.built:
             self.net.build()
@@ -153,8 +159,16 @@ class Model:
                     tf.OptimizerOptions.ON_2
                 )
                 self.sess = tf.Session(config=cfg)
+            elif data_parallel:
+                import horovod.tensorflow as hvd
+
+                cfg = tf.ConfigProto()
+                cfg.gpu_options.visible_device_list = str(hvd.local_rank())
+                cfg.gpu_options.allow_growth = True
+                self.sess = tf.Session(config=cfg)
             else:
                 self.sess = tf.Session()
+
             self.saver = tf.train.Saver(max_to_keep=None)
 
         def losses(losses_fn):
@@ -182,7 +196,11 @@ class Model:
         self.outputs_losses_train = [self.net.outputs, losses_train]
         self.outputs_losses_test = [self.net.outputs, losses_test]
         self.train_step = optimizers.get(
-            total_loss, self.opt_name, learning_rate=lr, decay=decay
+            total_loss,
+            self.opt_name,
+            learning_rate=lr,
+            decay=decay,
+            data_parallel=data_parallel,
         )
 
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
@@ -364,6 +382,7 @@ class Model:
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
             nn_params, ext_params = params
+
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(nn_params, inputs, training=training)
@@ -557,12 +576,10 @@ class Model:
         epochs=None,
     ):
         """Trains the model.
-
         Args:
             iterations (Integer): Number of iterations to train the model, i.e., number
                 of times the network weights are updated.
             batch_size: Integer, tuple, or ``None``.
-
                 - If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                   `dde.callbacks.PDEPointResampler
                   <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEPointResampler>`_,
@@ -581,6 +598,8 @@ class Model:
             epochs (Integer): Deprecated alias to `iterations`. This will be removed in
                 a future version.
         """
+        if self.data_parallel:
+            import horovod.tensorflow as hvd
         if iterations is None and epochs is not None:
             print(
                 "Warning: epochs is deprecated and will be removed in a future version."
@@ -595,19 +614,25 @@ class Model:
 
         if backend_name == "tensorflow.compat.v1":
             if self.train_state.step == 0:
-                print("Initializing variables...")
+                if not self.data_parallel or (self.data_parallel and hvd.rank() == 0):
+                    print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
+                if self.data_parallel:
+                    bcast = hvd.broadcast_global_variables(0)
+                    self.sess.run(bcast)
             else:
                 utils.guarantee_initialized_variables(self.sess)
 
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
 
-        print("Training model...\n")
+        if not self.data_parallel or (self.data_parallel and hvd.rank() == 0):
+            print("Training model...\n")
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        self._test()
+        if not self.data_parallel or (self.data_parallel and hvd.rank() == 0):
+            self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -625,12 +650,15 @@ class Model:
         self.callbacks.on_train_end()
 
         print("")
-        display.training_display.summary(self.train_state)
+        if not self.data_parallel or (self.data_parallel and hvd.rank() == 0):
+            display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
 
     def _train_sgd(self, iterations, display_every):
+        if self.data_parallel:
+            import horovod.tensorflow as hvd
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -647,7 +675,8 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self._test()
+                if not self.data_parallel or (self.data_parallel and hvd.rank() == 0):
+                    self._test()
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -837,7 +866,6 @@ class Model:
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,
         returns the network output, otherwise returns the output of the `operator`.
-
         Args:
             x: The network inputs. A Numpy array or a tuple of Numpy arrays.
             operator: A function takes arguments (`inputs`, `outputs`) or (`inputs`,
@@ -958,20 +986,16 @@ class Model:
 
     def save(self, save_path, protocol="backend", verbose=0):
         """Saves all variables to a disk file.
-
         Args:
             save_path (string): Prefix of filenames to save the model file.
             protocol (string): If `protocol` is "backend", save using the
                 backend-specific method.
-
                 - For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
                 - For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
                 - For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
                 - For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/save_en.html>`_.
-
                 If `protocol` is "pickle", save using the Python pickle module. Only the
                 protocol "backend" supports ``restore()``.
-
         Returns:
             string: Path where model is saved.
         """
@@ -1016,7 +1040,6 @@ class Model:
 
     def restore(self, save_path, verbose=0):
         """Restore all variables from a disk file.
-
         Args:
             save_path (string): Path where model was previously saved.
         """

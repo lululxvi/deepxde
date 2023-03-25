@@ -16,12 +16,13 @@ if backend_name == "jax":
     jax_random_seed = random.randint(iinfo.min, iinfo.max)
 # XLA
 xla_jit = False
-if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    xla_jit = bkd.is_gpu_available()
-elif backend_name == "jax":
-    xla_jit = True
-if xla_jit:
-    print("Enable just-in-time compilation with XLA.\n")
+# Remember
+#if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+#    xla_jit = bkd.is_gpu_available()
+#elif backend_name == "jax":
+    #    xla_jit = True
+#if xla_jit:
+#    print("Enable just-in-time compilation with XLA.\n")
 
 
 def default_float():
