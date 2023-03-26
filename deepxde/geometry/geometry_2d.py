@@ -94,37 +94,36 @@ class Ellipse(Geometry):
         self.angle = angle
         self.c = (semimajor**2 - semiminor**2) ** 0.5
 
-        self.left_center = np.array(
+        self.focus1 = np.array(
             [
                 center[0] - self.c * np.cos(angle),
                 center[1] + self.c * np.sin(angle),
             ],
             dtype=config.real(np),
         )
-        self.right_center = np.array(
+        self.focus2 = np.array(
             [
                 center[0] + self.c * np.cos(angle),
                 center[1] - self.c * np.sin(angle),
             ],
             dtype=config.real(np),
         )
-        self.rotate_coeff = np.array(
+        self.rotation_mat = np.array(
             [[np.cos(-angle), -np.sin(-angle)], [np.sin(-angle), np.cos(-angle)]]
         )
-        self._r2 = self.c**2
         super().__init__(
             2, (self.center - semimajor, self.center + semiminor), 2 * self.c
         )
 
     def on_boundary(self, x):
-        L1 = np.linalg.norm(x - self.left_center, axis=-1)
-        L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return np.isclose(L1 + L2, 2 * self.semimajor)
+        d1 = np.linalg.norm(x - self.focus1, axis=-1)
+        d2 = np.linalg.norm(x - self.focus2, axis=-1)
+        return np.isclose(d1 + d2, 2 * self.semimajor)
 
     def inside(self, x):
-        L1 = np.linalg.norm(x - self.left_center, axis=-1)
-        L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return L1 + L2 <= 2 * self.semimajor
+        d1 = np.linalg.norm(x - self.focus1, axis=-1)
+        d2 = np.linalg.norm(x - self.focus2, axis=-1)
+        return d1 + d2 <= 2 * self.semimajor
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html"""
@@ -132,20 +131,20 @@ class Ellipse(Geometry):
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)
         X = np.sqrt(r) * np.vstack((x, y))
-        return np.matmul(self.rotate_coeff, X).T + self.center
+        return np.matmul(self.rotation_mat, X).T + self.center
 
     def uniform_boundary_points(self, n):
         theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
         X = np.vstack(
             (self.semimajor * np.cos(theta), self.semiminor * np.sin(theta))
         ).T
-        return np.matmul(self.rotate_coeff, X.T).T + self.center
+        return np.matmul(self.rotation_mat, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
         theta = 2 * np.pi * u
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
-        return np.matmul(self.rotate_coeff, X.T).T + self.center
+        return np.matmul(self.rotation_mat, X.T).T + self.center
 
 
 class Rectangle(Hypercube):
