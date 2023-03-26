@@ -39,23 +39,46 @@ def roll(a, shift, axis):
     return tf.roll(a, shift, axis) if is_tensor(a) else np.roll(a, shift, axis=axis)
 
 
-def split_in_rank(array):
+def zero_padding(array, pad_width):
+    # SparseTensor
+    if isinstance(array, (list, tuple)) and len(array) == 3:
+        indices, values, dense_shape = array
+        indices = [(i + pad_width[0][0], j + pad_width[1][0]) for i, j in indices]
+        dense_shape = (
+            dense_shape[0] + sum(pad_width[0]),
+            dense_shape[1] + sum(pad_width[1]),
+        )
+        return indices, values, dense_shape
+    if is_tensor(array):
+        return tf.pad(array, tf.constant(pad_width))
+    return np.pad(array, pad_width)
+
+
+def split_in_rank(array, drop_last=True):
     """Split given array into continuous subarray according to world size and rank.
 
     Args:
         array (array or Tensor): Array to be split.
+        drop_last (bool): Whether to discard the remainder samples
+            not divisible by world_size. Default: True.
 
     Returns:
         array or Tensor: Split array or Tensor.
     """
+    # TODO: support drop_last=False
+    if not drop_last:
+        raise ValueError(
+            "Only support drop_last=True now."
+        )
+
     if config.world_size <= 1:
         return array
 
     n_total = len(array)
     if n_total % config.world_size > 0:
         raise ValueError(
-            f"The data length({n_total}) must be an "
-            f"integer multiple of world_size({config.world_size})."
+            f"The data length({n_total}) must be divisible "
+            f"by world_size({config.world_size})."
         )
     n_split = n_total // config.world_size
     beg = n_split * config.rank

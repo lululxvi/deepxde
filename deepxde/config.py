@@ -22,15 +22,14 @@ elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
-# world_size for DataParallel
+# Data parallel
 world_size = 1
-rank = 0
 if backend_name == "paddle":
     world_size = paddle.distributed.get_world_size()
     if world_size > 1:
         paddle.distributed.init_parallel_env()
         rank = paddle.distributed.get_rank()
-        print(f"Running with Parallel environment, world_size={world_size}, rank={rank}.")
+        print(f"Running with Parallel environment, world_size={world_size}.")
 
 
 def default_float():

@@ -2,9 +2,10 @@ import numpy as np
 
 from .data import Data
 from .. import backend as bkd
-from .. import config, utils
-from ..backend import backend_name
+from .. import config
+from .. import utils
 from .. import losses as losses_module
+from ..backend import backend_name
 from ..utils import array_ops_compat, get_num_args, run_if_all_none
 
 class PDE(Data):
