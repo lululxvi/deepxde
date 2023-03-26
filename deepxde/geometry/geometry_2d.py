@@ -28,7 +28,9 @@ class Disk(Geometry):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return (-ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(config.real(np))
+        return (-ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+            config.real(np)
+        )
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -65,39 +67,64 @@ class Disk(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
+        pts = (
+            x
+            - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None]
+            * h
+            * dirn
+        )
         return pts
 
 
 class Ellipse(Geometry):
+    """Ellipse.
+
+    Args:
+        center: Center of the ellipse.
+        long_axis: Length of semi-major axis of the ellipse.
+        short_axis: Length of semi-minor axis of the ellipse.
+        alpha: Rotation angle of the ellipse.
+    """
+
     def __init__(self, center, long_axis, short_axis, alpha=0):
         self.center = np.array(center, dtype=config.real(np))
         self.long_axis = long_axis
         self.short_axis = short_axis
         self.alpha = alpha
-        self.radius = (long_axis**2 - short_axis**2)**0.5
-        
-        self.left_center = np.array([center[0] - self.radius * np.cos(alpha), 
-                                     center[1] + self.radius * np.sin(alpha)], 
-                                     dtype=config.real(np))
-        self.right_center = np.array([center[0] + self.radius * np.cos(alpha), 
-                                      center[1] - self.radius * np.sin(alpha)], 
-                                      dtype=config.real(np))
-        self.rotate_coeff = np.array([[np.cos(-alpha), -np.sin(-alpha)],
-                                      [np.sin(-alpha),  np.cos(-alpha)]])
-        self._r2 = self.radius ** 2       
-        super().__init__(2, (self.center - long_axis, self.center + short_axis), 2 * self.radius)
+        self.radius = (long_axis**2 - short_axis**2) ** 0.5
+
+        self.left_center = np.array(
+            [
+                center[0] - self.radius * np.cos(alpha),
+                center[1] + self.radius * np.sin(alpha),
+            ],
+            dtype=config.real(np),
+        )
+        self.right_center = np.array(
+            [
+                center[0] + self.radius * np.cos(alpha),
+                center[1] - self.radius * np.sin(alpha),
+            ],
+            dtype=config.real(np),
+        )
+        self.rotate_coeff = np.array(
+            [[np.cos(-alpha), -np.sin(-alpha)], [np.sin(-alpha), np.cos(-alpha)]]
+        )
+        self._r2 = self.radius**2
+        super().__init__(
+            2, (self.center - long_axis, self.center + short_axis), 2 * self.radius
+        )
 
     def on_boundary(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
-        L2 = np.linalg.norm(x - self.right_center, axis=-1)      
-        return np.isclose(L1 + L2, 2*self.long_axis)    
+        L2 = np.linalg.norm(x - self.right_center, axis=-1)
+        return np.isclose(L1 + L2, 2 * self.long_axis)
 
     def inside(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
-        L2 = np.linalg.norm(x - self.right_center, axis=-1)  
-        return L1 + L2 <= 2*self.long_axis  
-    
+        L2 = np.linalg.norm(x - self.right_center, axis=-1)
+        return L1 + L2 <= 2 * self.long_axis
+
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html"""
         rng = sample(n, 2, random)
@@ -108,13 +135,15 @@ class Ellipse(Geometry):
 
     def uniform_boundary_points(self, n):
         theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
-        X = np.vstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta))).T   
+        X = np.vstack(
+            (self.long_axis * np.cos(theta), self.short_axis * np.sin(theta))
+        ).T
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
         theta = 2 * np.pi * u
-        X = np.hstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)))      
+        X = np.hstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)))
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
 
