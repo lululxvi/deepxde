@@ -1,4 +1,4 @@
-__all__ = ["Disk", "Polygon", "Rectangle", "Triangle"]
+__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
 
 import numpy as np
 from scipy import spatial
@@ -67,6 +67,55 @@ class Disk(Geometry):
         h = dx / n
         pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
         return pts
+
+
+class Ellipse(Geometry):
+    def __init__(self, center, long_axis, short_axis, alpha=0):
+        self.center = np.array(center, dtype=config.real(np))
+        self.long_axis = long_axis
+        self.short_axis = short_axis
+        self.alpha = alpha
+        self.radius = (long_axis**2 - short_axis**2)**0.5
+        
+        self.left_center = np.array([center[0] - self.radius * np.cos(alpha), 
+                                     center[1] + self.radius * np.sin(alpha)], 
+                                     dtype=config.real(np))
+        self.right_center = np.array([center[0] + self.radius * np.cos(alpha), 
+                                      center[1] - self.radius * np.sin(alpha)], 
+                                      dtype=config.real(np))
+        self.rotate_coeff = np.array([[np.cos(-alpha), -np.sin(-alpha)],
+                                      [np.sin(-alpha),  np.cos(-alpha)]])
+        self._r2 = self.radius ** 2       
+        super().__init__(2, (self.center - long_axis, self.center + short_axis), 2 * self.radius)
+
+    def on_boundary(self, x):
+        L1 = np.linalg.norm(x - self.left_center, axis=-1)
+        L2 = np.linalg.norm(x - self.right_center, axis=-1)      
+        return np.isclose(L1 + L2, 2*self.long_axis)    
+
+    def inside(self, x):
+        L1 = np.linalg.norm(x - self.left_center, axis=-1)
+        L2 = np.linalg.norm(x - self.right_center, axis=-1)  
+        return L1 + L2 <= 2*self.long_axis  
+    
+    def random_points(self, n, random="pseudo"):
+        """http://mathworld.wolfram.com/DiskPointPicking.html"""
+        rng = sample(n, 2, random)
+        r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
+        x, y = self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)
+        X = np.sqrt(r) * np.vstack((x, y))
+        return np.matmul(self.rotate_coeff, X).T + self.center
+
+    def uniform_boundary_points(self, n):
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        X = np.vstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta))).T   
+        return np.matmul(self.rotate_coeff, X.T).T + self.center
+
+    def random_boundary_points(self, n, random="pseudo"):
+        u = sample(n, 1, random)
+        theta = 2 * np.pi * u
+        X = np.hstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)))      
+        return np.matmul(self.rotate_coeff, X.T).T + self.center
 
 
 class Rectangle(Hypercube):
