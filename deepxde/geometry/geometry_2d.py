@@ -81,69 +81,72 @@ class Ellipse(Geometry):
 
     Args:
         center: Center of the ellipse.
-        long_axis: Length of semi-major axis of the ellipse.
-        short_axis: Length of semi-minor axis of the ellipse.
-        alpha: Rotation angle of the ellipse.
+        semimajor_axis: Length of semimajor axis of the ellipse.
+        semiminor_axis: Length of semiminor axis of the ellipse.
+        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse counterclockwise
+            about the center and a negative angle rotates the ellipse clockwise about the center.
     """
 
-    def __init__(self, center, long_axis, short_axis, alpha=0):
+    def __init__(self, center, semimajor_axis, semiminor_axis, angle=0):
         self.center = np.array(center, dtype=config.real(np))
-        self.long_axis = long_axis
-        self.short_axis = short_axis
-        self.alpha = alpha
-        self.radius = (long_axis**2 - short_axis**2) ** 0.5
+        self.semimajor_axis = semimajor_axis
+        self.semiminor_axis = semiminor_axis
+        self.angle = angle
+        self.c = (semimajor_axis**2 - semiminor_axis**2) ** 0.5
 
         self.left_center = np.array(
             [
-                center[0] - self.radius * np.cos(alpha),
-                center[1] + self.radius * np.sin(alpha),
+                center[0] - self.c * np.cos(angle),
+                center[1] + self.c * np.sin(angle),
             ],
             dtype=config.real(np),
         )
         self.right_center = np.array(
             [
-                center[0] + self.radius * np.cos(alpha),
-                center[1] - self.radius * np.sin(alpha),
+                center[0] + self.c * np.cos(angle),
+                center[1] - self.c * np.sin(angle),
             ],
             dtype=config.real(np),
         )
         self.rotate_coeff = np.array(
-            [[np.cos(-alpha), -np.sin(-alpha)], [np.sin(-alpha), np.cos(-alpha)]]
+            [[np.cos(-angle), -np.sin(-angle)], [np.sin(-angle), np.cos(-angle)]]
         )
-        self._r2 = self.radius**2
+        self._r2 = self.c**2
         super().__init__(
-            2, (self.center - long_axis, self.center + short_axis), 2 * self.radius
+            2, (self.center - semimajor_axis, self.center + semiminor_axis), 2 * self.c
         )
 
     def on_boundary(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
         L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return np.isclose(L1 + L2, 2 * self.long_axis)
+        return np.isclose(L1 + L2, 2 * self.semimajor_axis)
 
     def inside(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
         L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return L1 + L2 <= 2 * self.long_axis
+        return L1 + L2 <= 2 * self.semimajor_axis
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html"""
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
-        x, y = self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)
+        x, y = self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta)
         X = np.sqrt(r) * np.vstack((x, y))
         return np.matmul(self.rotate_coeff, X).T + self.center
 
     def uniform_boundary_points(self, n):
         theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
         X = np.vstack(
-            (self.long_axis * np.cos(theta), self.short_axis * np.sin(theta))
+            (self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta))
         ).T
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
         theta = 2 * np.pi * u
-        X = np.hstack((self.long_axis * np.cos(theta), self.short_axis * np.sin(theta)))
+        X = np.hstack(
+            (self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta))
+        )
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
 
