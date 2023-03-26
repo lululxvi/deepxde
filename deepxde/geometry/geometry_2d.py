@@ -81,18 +81,18 @@ class Ellipse(Geometry):
 
     Args:
         center: Center of the ellipse.
-        semimajor_axis: Length of semimajor axis of the ellipse.
-        semiminor_axis: Length of semiminor axis of the ellipse.
+        semimajor: Semimajor of the ellipse.
+        semiminor: Semiminor of the ellipse.
         angle: Rotation angle of the ellipse. A positive angle rotates the ellipse counterclockwise
             about the center and a negative angle rotates the ellipse clockwise about the center.
     """
 
-    def __init__(self, center, semimajor_axis, semiminor_axis, angle=0):
+    def __init__(self, center, semimajor, semiminor, angle=0):
         self.center = np.array(center, dtype=config.real(np))
-        self.semimajor_axis = semimajor_axis
-        self.semiminor_axis = semiminor_axis
+        self.semimajor = semimajor
+        self.semiminor = semiminor
         self.angle = angle
-        self.c = (semimajor_axis**2 - semiminor_axis**2) ** 0.5
+        self.c = (semimajor**2 - semiminor**2) ** 0.5
 
         self.left_center = np.array(
             [
@@ -113,40 +113,38 @@ class Ellipse(Geometry):
         )
         self._r2 = self.c**2
         super().__init__(
-            2, (self.center - semimajor_axis, self.center + semiminor_axis), 2 * self.c
+            2, (self.center - semimajor, self.center + semiminor), 2 * self.c
         )
 
     def on_boundary(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
         L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return np.isclose(L1 + L2, 2 * self.semimajor_axis)
+        return np.isclose(L1 + L2, 2 * self.semimajor)
 
     def inside(self, x):
         L1 = np.linalg.norm(x - self.left_center, axis=-1)
         L2 = np.linalg.norm(x - self.right_center, axis=-1)
-        return L1 + L2 <= 2 * self.semimajor_axis
+        return L1 + L2 <= 2 * self.semimajor
 
     def random_points(self, n, random="pseudo"):
         """http://mathworld.wolfram.com/DiskPointPicking.html"""
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
-        x, y = self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta)
+        x, y = self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)
         X = np.sqrt(r) * np.vstack((x, y))
         return np.matmul(self.rotate_coeff, X).T + self.center
 
     def uniform_boundary_points(self, n):
         theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
         X = np.vstack(
-            (self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta))
+            (self.semimajor * np.cos(theta), self.semiminor * np.sin(theta))
         ).T
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
         theta = 2 * np.pi * u
-        X = np.hstack(
-            (self.semimajor_axis * np.cos(theta), self.semiminor_axis * np.sin(theta))
-        )
+        X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotate_coeff, X.T).T + self.center
 
 
