@@ -126,7 +126,7 @@ class Ellipse(Geometry):
         return d1 + d2 <= 2 * self.semimajor
 
     def random_points(self, n, random="pseudo"):
-        """http://mathworld.wolfram.com/DiskPointPicking.html"""
+        # http://mathworld.wolfram.com/DiskPointPicking.html
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
         x, y = self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)
