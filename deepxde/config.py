@@ -24,12 +24,17 @@ if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
 # Data parallel
 world_size = 1
+rank = 0
 if backend_name == "paddle":
     world_size = paddle.distributed.get_world_size()
     if world_size > 1:
         paddle.distributed.init_parallel_env()
         rank = paddle.distributed.get_rank()
-        print(f"Running with Parallel environment, world_size={world_size}.")
+elif world_size > 1:
+    raise NotImplementedError(
+        f"Parallel training is not implemented yet in {backend_name}"
+    )
+print(f"\nParallel training with {world_size} processes.\n")
 
 
 def default_float():

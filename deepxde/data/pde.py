@@ -3,8 +3,6 @@ import numpy as np
 from .data import Data
 from .. import backend as bkd
 from .. import config
-from .. import utils
-from .. import losses as losses_module
 from ..backend import backend_name
 from ..utils import array_ops_compat, get_num_args, run_if_all_none
 
@@ -150,36 +148,16 @@ class PDE(Data):
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
-        if config.world_size > 1 and not model.net.training:
-            losses = []
-            for i, error in enumerate(error_f):
-                error_func = getattr(
-                    losses_module,
-                    loss_fn[i].__name__.replace("mean_", "")
-                )
-                losses.append(error_func(bkd.zeros_like(error), error))
-        else:
-            losses = [
-                loss_fn[i](bkd.zeros_like(error), error)
-                for i, error in enumerate(error_f)
-            ]
+        losses = [
+            loss_fn[i](bkd.zeros_like(error), error)
+            for i, error in enumerate(error_f)
+        ]
 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(self.train_x, inputs, outputs, beg, end)
-
-            if config.world_size > 1 and not model.net.training:
-                error_func = getattr(
-                    losses_module,
-                    loss_fn[len(error_f) + i].__name__.replace("mean_", "")
-                )
-                losses.append(error_func(bkd.zeros_like(error), error))
-            else:
-                losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
-
-        if config.world_size > 1 and not model.net.training:
-            losses = [bkd.reduce_mean(utils.all_gather(item)) for item in losses]
+            losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
@@ -292,7 +270,6 @@ class PDE(Data):
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
         x = self.geom.uniform_points(self.num_test, boundary=False)
-        x = array_ops_compat.split_in_rank(x)
         x = np.vstack((self.train_x_bc, x))
         return x
 

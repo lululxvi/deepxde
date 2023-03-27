@@ -11,30 +11,6 @@ from matplotlib import animation
 from .external import apply
 from .. import backend as bkd
 from .. import config
-from .. import utils
-
-
-def all_gather_before_run(func):
-    """
-    Gather tensors from all trainers before calling func,
-    mainly for distributed metric computing
-    """
-    @wraps(func)
-    def wrapper(*args):
-        if config.world_size > 1:
-            if config.backend_name == "paddle":
-                gathered_args = [
-                    utils.all_gather(bkd.as_tensor(arg)).numpy()
-                    for arg in args
-                ]
-                return func(*gathered_args)
-            raise NotImplementedError(
-                f"Function 'all_gather' should be implemented in {config.backend_name}"
-                f" when config.world_size({config.world_size}) > 1."
-            )
-        return func(*args)
-
-    return wrapper
 
 
 def timing(f):

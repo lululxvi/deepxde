@@ -13,10 +13,6 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return tf.keras.losses.MeanAbsolutePercentageError()(y_true, y_pred)
 
 
-def squared_error(y_true, y_pred):
-    return bkd.square(y_true - y_pred)
-
-
 def mean_squared_error(y_true, y_pred):
     # Warning:
     # - Do not use ``tf.losses.mean_squared_error``, which casts `y_true` and `y_pred` to ``float32``.
@@ -25,10 +21,6 @@ def mean_squared_error(y_true, y_pred):
     #     when calling ``compute_weighted_loss()`` calling ``scale_losses_by_sample_weight()``,
     #     although it finally casts loss back to the original type.
     return bkd.reduce_mean(bkd.square(y_true - y_pred))
-
-
-def l2_relative_error(y_true, y_pred):
-    return bkd.norm(y_true - y_pred, axis=1) / bkd.norm(y_true, axis=1)
 
 
 def mean_l2_relative_error(y_true, y_pred):

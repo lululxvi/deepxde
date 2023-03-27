@@ -1,4 +1,5 @@
 """Utilities of paddle."""
+
 import paddle
 
 
@@ -18,32 +19,3 @@ def all_gather(tensor, concat=True, axis=0):
     if concat:
         return paddle.concat(tensor_list, axis)
     return tensor_list
-
-
-def get_world_size():
-    """Get world size.
-
-    Returns:
-        int: World size.
-    """
-    return paddle.distributed.get_world_size()
-
-
-def get_rank():
-    """Get current rank.
-
-    Returns:
-        int: Current rank.
-    """
-    return paddle.distributed.get_rank()
-
-
-def get_dist_info():
-    """Get world size and current rank.
-
-    Returns:
-        Tuple of ints: (world size, current rank).
-    """
-    world_size = paddle.distributed.get_world_size()
-    rank = paddle.distributed.get_rank()
-    return world_size, rank
