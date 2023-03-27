@@ -110,7 +110,7 @@ class Model:
                 physics systems that need to be recovered. If the backend is
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
-            data_parallel: Whether a data parallel acceleration is performed. If True, a Horovod-based data-parallel acceleration is performed.
+            data_parallel: If True, a Horovod-based data-parallel acceleration is performed.
         """
         self.data_parallel = data_parallel
         if data_parallel:
