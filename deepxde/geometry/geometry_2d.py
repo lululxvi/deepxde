@@ -83,8 +83,9 @@ class Ellipse(Geometry):
         center: Center of the ellipse.
         semimajor: Semimajor of the ellipse.
         semiminor: Semiminor of the ellipse.
-        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse counterclockwise
-            about the center and a negative angle rotates the ellipse clockwise about the center.
+        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse
+            clockwise about the center and a negative angle rotates the
+            ellipse counterclockwise about the center.
     """
 
     def __init__(self, center, semimajor, semiminor, angle=0):
@@ -111,6 +112,10 @@ class Ellipse(Geometry):
         self.rotation_mat = np.array(
             [[np.cos(-angle), -np.sin(-angle)], [np.sin(-angle), np.cos(-angle)]]
         )
+        (
+            self.theta_from_arc_length,
+            self.total_arc,
+        ) = self._theta_from_arc_length_constructor()
         super().__init__(
             2, (self.center - semimajor, self.center + semiminor), 2 * self.c
         )
@@ -124,16 +129,16 @@ class Ellipse(Geometry):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
         d2 = np.linalg.norm(x - self.focus2, axis=-1)
         return d1 + d2 <= 2 * self.semimajor
-    
-    def ellipse_arc(self, n):
-        """
-        Cumulative arc length of ellipse with given dimensions. Returns theta values, 
+
+    def _ellipse_arc(self):
+        """Cumulative arc length of ellipse with given dimensions. Returns theta values,
         distance cumulated at each theta, and total arc length.
         """
-
         # Divide the interval [0 , theta] into n steps at regular angles
-        theta = np.linspace(0, 2*np.pi, n)
-        coords = np.array([self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)])
+        theta = np.linspace(0, 2 * np.pi, 10000)
+        coords = np.array(
+            [self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)]
+        )
         # Compute vector distance between each successive point
         coords_diffs = np.diff(coords)
         # Compute the full arc
@@ -142,13 +147,11 @@ class Ellipse(Geometry):
         c = np.sum(delta_r)
         return theta, cumulative_distance, c
 
-    def theta_from_arc_length_constructor(self, precision):
+    def _theta_from_arc_length_constructor(self):
+        """Constructs a function that returns the angle associated with a given
+        cumulative arc length for given ellipse.
         """
-        Constructs a function that returns the
-        angle associated with a given cumulative arc length for given ellipse.
-        """
-
-        theta, cumulative_distance, total_arc = self.ellipse_arc(precision)
+        theta, cumulative_distance, total_arc = self._ellipse_arc()
         # Construct the inverse arc length function
         def f(s):
             assert np.all(s <= total_arc), "s out of range"
@@ -164,20 +167,16 @@ class Ellipse(Geometry):
         X = np.sqrt(r) * np.vstack((x, y))
         return np.matmul(self.rotation_mat, X).T + self.center
 
-    def uniform_boundary_points(self, n, precision=1000):
+    def uniform_boundary_points(self, n):
         # https://codereview.stackexchange.com/questions/243590/generate-random-points-on-perimeter-of-ellipse
-        u = np.linspace(0, 1, num=n, endpoint=False).reshape((-1,1))
-        theta_from_arc_length, total_arc = self.theta_from_arc_length_constructor(precision=precision)
-        s = u * total_arc
-        theta = theta_from_arc_length(s)
+        u = np.linspace(0, 1, num=n, endpoint=False).reshape((-1, 1))
+        theta = self.theta_from_arc_length(u * self.total_arc)
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
-    def random_boundary_points(self, n, random="pseudo", precision=1000):
+    def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
-        theta_from_arc_length, total_arc = self.theta_from_arc_length_constructor(precision=precision)
-        s = u * total_arc
-        theta = theta_from_arc_length(s)
+        theta = self.theta_from_arc_length(u * self.total_arc)
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
