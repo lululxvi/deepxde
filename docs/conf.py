@@ -14,10 +14,24 @@
 #
 import os
 import sys
-from importlib.metadata import version
 
 
-dde_version = version('deepxde')
+def read(rel_path: str) -> str:
+     here = os.path.abspath(os.path.dirname(__file__))
+     # intentionally *not* adding an encoding option to open, See:
+     #   https://github.com/pypa/virtualenv/issues/201#issuecomment-3145690
+     with open(os.path.join(here, rel_path)) as fp:
+         return fp.read()
+
+
+def get_version(rel_path: str) -> str:
+    for line in read(rel_path).splitlines():
+        if line.startswith("__version__"):
+            # __version__ = "0.11.2"
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
+
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -28,8 +42,9 @@ project = "DeepXDE"
 copyright = "2019, Lu Lu"
 author = "Lu Lu"
 
+file_with_version = os.path.join("..", "deepxde", "_version.py")
 # The short X.Y version
-version = dde_version
+version = get_version(file_with_version)
 # The full version, including alpha/beta/rc tags
 release = version
 
