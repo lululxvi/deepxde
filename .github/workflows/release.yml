@@ -1,0 +1,44 @@
+name: release
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build SDist and wheel
+        run: pipx run build
+
+      - name: Upload SDist and wheel
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+  publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - name: Download SDist and wheel
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+
+      - name: Publish on PyPI
+        uses: pypa/gh-action-pypi-publish@v1.6.4
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
