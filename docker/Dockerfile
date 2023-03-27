@@ -1,4 +1,4 @@
-FROM horovod/horovod:master
+FROM horovod/horovod:sha-9b42eda
 LABEL description="DeepXDE with Tensorflow PyTorch and GPU support"
 
 COPY requirements.txt /root
