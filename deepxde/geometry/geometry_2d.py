@@ -124,6 +124,37 @@ class Ellipse(Geometry):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
         d2 = np.linalg.norm(x - self.focus2, axis=-1)
         return d1 + d2 <= 2 * self.semimajor
+    
+    def ellipse_arc(self, n):
+        """
+        Cumulative arc length of ellipse with given dimensions. Returns theta values, 
+        distance cumulated at each theta, and total arc length.
+        """
+
+        # Divide the interval [0 , theta] into n steps at regular angles
+        theta = np.linspace(0, 2*np.pi, n)
+        coords = np.array([self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)])
+        # Compute vector distance between each successive point
+        coords_diffs = np.diff(coords)
+        # Compute the full arc
+        delta_r = np.linalg.norm(coords_diffs, axis=0)
+        cumulative_distance = np.concatenate(([0], np.cumsum(delta_r)))
+        c = np.sum(delta_r)
+        return theta, cumulative_distance, c
+
+    def theta_from_arc_length_constructor(self, precision):
+        """
+        Constructs a function that returns the
+        angle associated with a given cumulative arc length for given ellipse.
+        """
+
+        theta, cumulative_distance, total_arc = self.ellipse_arc(precision)
+        # Construct the inverse arc length function
+        def f(s):
+            assert np.all(s <= total_arc), "s out of range"
+            # Can invert through interpolation since monotonic increasing
+            return np.interp(s, cumulative_distance, theta)
+        return f, total_arc
 
     def random_points(self, n, random="pseudo"):
         # http://mathworld.wolfram.com/DiskPointPicking.html
@@ -133,16 +164,20 @@ class Ellipse(Geometry):
         X = np.sqrt(r) * np.vstack((x, y))
         return np.matmul(self.rotation_mat, X).T + self.center
 
-    def uniform_boundary_points(self, n):
-        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
-        X = np.vstack(
-            (self.semimajor * np.cos(theta), self.semiminor * np.sin(theta))
-        ).T
+    def uniform_boundary_points(self, n, precision=1000):
+        # https://codereview.stackexchange.com/questions/243590/generate-random-points-on-perimeter-of-ellipse
+        u = np.linspace(0, 1, num=n, endpoint=False).reshape((-1,1))
+        theta_from_arc_length, total_arc = self.theta_from_arc_length_constructor(precision=precision)
+        s = u * total_arc
+        theta = theta_from_arc_length(s)
+        X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n, random="pseudo", precision=1000):
         u = sample(n, 1, random)
-        theta = 2 * np.pi * u
+        theta_from_arc_length, total_arc = self.theta_from_arc_length_constructor(precision=precision)
+        s = u * total_arc
+        theta = theta_from_arc_length(s)
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
