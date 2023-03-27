@@ -80,15 +80,23 @@ class Model:
             metrics: List of metrics to be evaluated by the model during training.
             decay (tuple): Name and parameters of decay to the initial learning rate.
                 One of the following options:
+
                 - For backend TensorFlow 1.x:
+
                     - `inverse_time_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
                     - `cosine_decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
+
                 - For backend TensorFlow 2.x:
+
                     - `InverseTimeDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
                     - `CosineDecay <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/CosineDecay>`_: ("cosine", decay_steps, alpha)
+
                 - For backend PyTorch:
+
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
+
                 - For backend PaddlePaddle:
+
                     - `InverseTimeDecay
                       <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
                       ("inverse time", gamma)
@@ -170,7 +178,6 @@ class Model:
                 self.sess = tf.Session(config=cfg)
             else:
                 self.sess = tf.Session()
-
             self.saver = tf.train.Saver(max_to_keep=None)
 
         def losses(losses_fn):
@@ -384,7 +391,6 @@ class Model:
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
             nn_params, ext_params = params
-
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(nn_params, inputs, training=training)
@@ -578,10 +584,12 @@ class Model:
         epochs=None,
     ):
         """Trains the model.
+
         Args:
             iterations (Integer): Number of iterations to train the model, i.e., number
                 of times the network weights are updated.
             batch_size: Integer, tuple, or ``None``.
+
                 - If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                   `dde.callbacks.PDEPointResampler
                   <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEPointResampler>`_,
@@ -868,6 +876,7 @@ class Model:
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,
         returns the network output, otherwise returns the output of the `operator`.
+
         Args:
             x: The network inputs. A Numpy array or a tuple of Numpy arrays.
             operator: A function takes arguments (`inputs`, `outputs`) or (`inputs`,
@@ -988,16 +997,20 @@ class Model:
 
     def save(self, save_path, protocol="backend", verbose=0):
         """Saves all variables to a disk file.
+
         Args:
             save_path (string): Prefix of filenames to save the model file.
             protocol (string): If `protocol` is "backend", save using the
                 backend-specific method.
+
                 - For "tensorflow.compat.v1", use `tf.train.Save <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Saver#attributes>`_.
                 - For "tensorflow", use `tf.keras.Model.save_weights <https://www.tensorflow.org/api_docs/python/tf/keras/Model#save_weights>`_.
                 - For "pytorch", use `torch.save <https://pytorch.org/docs/stable/generated/torch.save.html>`_.
                 - For "paddle", use `paddle.save <https://www.paddlepaddle.org.cn/documentation/docs/en/api/paddle/save_en.html>`_.
+
                 If `protocol` is "pickle", save using the Python pickle module. Only the
                 protocol "backend" supports ``restore()``.
+
         Returns:
             string: Path where model is saved.
         """
@@ -1042,6 +1055,7 @@ class Model:
 
     def restore(self, save_path, verbose=0):
         """Restore all variables from a disk file.
+
         Args:
             save_path (string): Path where model was previously saved.
         """
