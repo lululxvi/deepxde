@@ -9,7 +9,7 @@ tensorflow>=2.7.0
 # TensorFlow 2.x
 tensorflow-probability>=0.10.0
 # PyTorch
-torch<2.0.0
+torch>=1.9.0
 # PaddlePaddle
 paddlepaddle>=2.3.0
 # JAX
