@@ -23,8 +23,7 @@ if Version(tf.__version__) < Version("2.7.0"):
 # features in TensorFlow 2.x are useful such as `Tensor shapes`. Actually we use `Tensor
 # shapes` in DeepXDE.
 tf.disable_v2_behavior()
-#tf.enable_v2_tensorshape()
-tf.compat.v1.disable_eager_execution()
+tf.enable_v2_tensorshape()
 
 # In terms of functionality, we only need to disable eager mode.
 # tf.disable_eager_execution()
