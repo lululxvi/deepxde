@@ -19,6 +19,7 @@ from .utils import list_to_str
 
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
+
     Args:
         data: ``deepxde.data.Data`` instance.
         net: ``deepxde.nn.NN`` instance.
@@ -66,6 +67,7 @@ class Model:
         data_parallel=False,
     ):
         """Configures the model for training.
+
         Args:
             optimizer: String name of an optimizer, or a backend optimizer class
                 instance.
