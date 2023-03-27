@@ -33,7 +33,9 @@ def default_float():
 
 def set_default_float(value):
     """Sets the default float type.
+
     The default floating point type is 'float32'.
+
     Args:
         value (String): 'float16', 'float32', or 'float64'.
     """
@@ -63,15 +65,19 @@ def set_default_float(value):
 def set_random_seed(seed):
     """Sets all random seeds for the program (Python random, NumPy, and backend), and
     configures the program to run deterministically.
+
     You can use this to make the program fully deterministic. This means that if the
     program is run multiple times with the same inputs on the same hardware, it will
     have the exact same outputs each time. This is useful for debugging models, and for
     obtaining fully reproducible results.
+
     - For backend TensorFlow 2.x: Results might change if you run the model several
       times in the same terminal.
+
     Warning:
         Note that determinism in general comes at the expense of lower performance and
         so your model may run slower when determinism is enabled.
+
     Args:
         seed (int): The desired seed.
     """
@@ -101,14 +107,18 @@ def set_random_seed(seed):
 
 def enable_xla_jit(mode=True):
     """Enables just-in-time compilation with XLA.
+
     - For backend TensorFlow 1.x, by default, compiles with XLA when running on GPU.
       XLA compilation can only be enabled when running on GPU.
     - For backend TensorFlow 2.x, by default, compiles with XLA when running on GPU. If
       compilation with XLA makes your code slower on GPU, in addition to calling
       ``disable_xla_jit``, you may simultaneously try XLA with auto-clustering via
+
           $ TF_XLA_FLAGS=--tf_xla_auto_jit=2 path/to/your/program
+
     - Backend JAX always uses XLA.
     - Backends PyTorch and PaddlePaddle do not support XLA.
+
     Args:
         mode (bool): Whether to enable just-in-time compilation with XLA (``True``) or
             disable just-in-time compilation with XLA (``False``).
@@ -142,14 +152,18 @@ def enable_xla_jit(mode=True):
 
 def disable_xla_jit():
     """Disables just-in-time compilation with XLA.
+
     - For backend TensorFlow 1.x, by default, compiles with XLA when running on GPU.
       XLA compilation can only be enabled when running on GPU.
     - For backend TensorFlow 2.x, by default, compiles with XLA when running on GPU. If
       compilation with XLA makes your code slower on GPU, in addition to calling
       ``disable_xla_jit``, you may simultaneously try XLA with auto-clustering via
+
           $ TF_XLA_FLAGS=--tf_xla_auto_jit=2 path/to/your/program
+
     - Backend JAX always uses XLA.
     - Backends PyTorch and PaddlePaddle do not support XLA.
+
     This is equivalent with ``enable_xla_jit(False)``.
     """
     enable_xla_jit(False)
