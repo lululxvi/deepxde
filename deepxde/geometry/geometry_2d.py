@@ -83,9 +83,9 @@ class Ellipse(Geometry):
         center: Center of the ellipse.
         semimajor: Semimajor of the ellipse.
         semiminor: Semiminor of the ellipse.
-        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse 
-        clockwise about the center and a negative angle rotates the ellipse 
-        counterclockwise about the center.
+        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse
+            clockwise about the center and a negative angle rotates the ellipse
+            counterclockwise about the center.
     """
 
     def __init__(self, center, semimajor, semiminor, angle=0):
