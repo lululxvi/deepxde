@@ -17,6 +17,7 @@ from .callbacks import CallbackList
 from .config import hvd
 from .utils import list_to_str
 
+
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
