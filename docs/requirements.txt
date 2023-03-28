@@ -11,7 +11,7 @@ tensorflow-probability>=0.10.0
 # PyTorch
 torch<2.0.0    # build fails on RTD with torch 2.0.0
 # PaddlePaddle
-paddlepaddle>=2.3.0
+paddlepaddle==2.3.*
 # JAX
 jax
 flax
