@@ -15,7 +15,7 @@ from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
 from .utils import list_to_str
-
+from .config import hvd
 
 class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
@@ -115,8 +115,6 @@ class Model:
         self.data_parallel = data_parallel
         if data_parallel:
             if backend_name == "tensorflow.compat.v1":
-                import horovod.tensorflow as hvd
-
                 hvd.init()
             else:
                 raise NotImplementedError(
@@ -141,8 +139,7 @@ class Model:
             self.external_trainable_variables = external_trainable_variables
 
         if backend_name == "tensorflow.compat.v1":
-            self._compile_tensorflow_compat_v1(
-                lr, loss_fn, decay, loss_weights)
+            self._compile_tensorflow_compat_v1(lr, loss_fn, decay, loss_weights)
         elif backend_name == "tensorflow":
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
@@ -156,8 +153,7 @@ class Model:
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
-    def _compile_tensorflow_compat_v1(
-        self, lr, loss_fn, decay, loss_weights):
+    def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay, loss_weights):
         """tensorflow.compat.v1"""
         if not self.net.built:
             self.net.build()
@@ -607,8 +603,6 @@ class Model:
             epochs (Integer): Deprecated alias to `iterations`. This will be removed in
                 a future version.
         """
-        if self.data_parallel:
-            import horovod.tensorflow as hvd
         if iterations is None and epochs is not None:
             print(
                 "Warning: epochs is deprecated and will be removed in a future version."

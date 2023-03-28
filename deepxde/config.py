@@ -23,6 +23,15 @@ elif backend_name == "jax":
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
 
+# Import Horovod if mpirun is ongoing
+global hvd
+
+try:
+    print(os.environ['OMPI_COMM_WORLD_SIZE'], 'environ')
+    import horovod.tensorflow as hvd
+except:
+    hvd = None
+    pass
 
 def default_float():
     """Returns the default float type, as a string."""
