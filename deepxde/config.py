@@ -23,11 +23,11 @@ elif backend_name == "jax":
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
 
-# Import Horovod if mpirun is ongoing
+# Import Horovod if a mpirun process is ongoing
 global hvd
 
 try:
-    print(os.environ['OMPI_COMM_WORLD_SIZE'], 'environ')
+    mpi = os.environ['OMPI_COMM_WORLD_SIZE']
     import horovod.tensorflow as hvd
 except:
     hvd = None
