@@ -1,7 +1,7 @@
 __all__ = ["get", "is_external_optimizer"]
 
 from .scipy_optimizer import ScipyOptimizerInterface
-from ..config import LBFGS_options
+from ..config import LBFGS_options, hvd
 from ...backend import tf
 
 
@@ -55,7 +55,6 @@ def get(loss, optimizer, learning_rate=None, decay=None, data_parallel=False):
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     if data_parallel:
-        import horovod.tensorflow as hvd
         optim = hvd.DistributedOptimizer(optim)
     with tf.control_dependencies(update_ops):
         train_op = optim.minimize(loss, global_step=global_step)

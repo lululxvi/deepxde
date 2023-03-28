@@ -7,6 +7,12 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
+try:
+    mpi = os.environ['OMPI_COMM_WORLD_SIZE']
+    import horovod.tensorflow as hvd
+except:
+    hvd = None
+
 # Default float type
 real = Real(32)
 # Random seed
@@ -25,13 +31,6 @@ if xla_jit:
 
 # Import Horovod if a mpirun process is ongoing
 global hvd
-
-try:
-    mpi = os.environ['OMPI_COMM_WORLD_SIZE']
-    import horovod.tensorflow as hvd
-except:
-    hvd = None
-    pass
 
 def default_float():
     """Returns the default float type, as a string."""
