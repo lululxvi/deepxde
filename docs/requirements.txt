@@ -11,7 +11,7 @@ tensorflow-probability>=0.10.0
 # PyTorch
 torch<2.0.0    # build fails on RTD with torch 2.0.0
 # PaddlePaddle
-# paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
+https://paddle-wheel.bj.bcebos.com/develop/linux/linux-cpu-mkl-avx/paddlepaddle-0.0.0-cp38-cp38-linux_x86_64.whl
 # JAX
 jax
 flax

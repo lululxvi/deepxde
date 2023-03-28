@@ -19,5 +19,3 @@ sphinx:
 python:
    install:
    - requirements: docs/requirements.txt
-   - method: pip
-     path: paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
