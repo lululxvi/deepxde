@@ -154,8 +154,6 @@ class Ellipse(Geometry):
         theta, cumulative_distance, total_arc = self._ellipse_arc()
         # Construct the inverse arc length function
         def f(s):
-            assert np.all(s <= total_arc), "s out of range"
-            # Can invert through interpolation since monotonic increasing
             return np.interp(s, cumulative_distance, theta)
         return f, total_arc
 
