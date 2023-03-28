@@ -33,6 +33,7 @@ def load_backend(mod_name):
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
     print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
+    set_default_backend(mod_name)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
     # log backend name
@@ -93,7 +94,6 @@ def get_preferred_backend():
         "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
         file=sys.stderr,
     )
-    set_default_backend("tensorflow.compat.v1")
     return "tensorflow.compat.v1"
 
 
