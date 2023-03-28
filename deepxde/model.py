@@ -142,8 +142,7 @@ class Model:
 
         if backend_name == "tensorflow.compat.v1":
             self._compile_tensorflow_compat_v1(
-                lr, loss_fn, decay, loss_weights, data_parallel
-            )
+                lr, loss_fn, decay, loss_weights)
         elif backend_name == "tensorflow":
             self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
         elif backend_name == "pytorch":
@@ -158,8 +157,7 @@ class Model:
         self.metrics = [metrics_module.get(m) for m in metrics]
 
     def _compile_tensorflow_compat_v1(
-        self, lr, loss_fn, decay, loss_weights, data_parallel
-    ):
+        self, lr, loss_fn, decay, loss_weights):
         """tensorflow.compat.v1"""
         if not self.net.built:
             self.net.build()
@@ -170,7 +168,7 @@ class Model:
                     tf.OptimizerOptions.ON_2
                 )
                 self.sess = tf.Session(config=cfg)
-            elif data_parallel:
+            elif self.data_parallel:
                 import horovod.tensorflow as hvd
 
                 cfg = tf.ConfigProto()
@@ -210,7 +208,7 @@ class Model:
             self.opt_name,
             learning_rate=lr,
             decay=decay,
-            data_parallel=data_parallel,
+            data_parallel=self.data_parallel,
         )
 
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
