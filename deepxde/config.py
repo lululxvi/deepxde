@@ -30,11 +30,7 @@ if backend_name == "paddle":
     if world_size > 1:
         paddle.distributed.init_parallel_env()
         rank = paddle.distributed.get_rank()
-elif world_size > 1:
-    raise NotImplementedError(
-        f"Parallel training is not implemented yet in {backend_name}"
-    )
-print(f"\nParallel training with {world_size} processes.\n")
+        print(f"\nParallel training with {world_size} processes.\n")
 
 
 def default_float():

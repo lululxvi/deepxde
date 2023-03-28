@@ -199,3 +199,35 @@ def get_num_args(func):
     # g = dummy(a.f)
     params = inspect.signature(func).parameters
     return len(params) - ("self" in params)
+
+
+def split_in_rank(array, drop_last=True):
+    """Split given array into continuous subarray according to world size and rank.
+
+    Args:
+        array (array or Tensor): Array to be split.
+        drop_last (bool): Whether to discard the remainder samples
+            not divisible by world_size. Default: True.
+
+    Returns:
+        array or Tensor: Split array or Tensor.
+    """
+    # TODO: support drop_last=False
+    if not drop_last:
+        raise ValueError(
+            "Only support drop_last=True now."
+        )
+
+    if config.world_size <= 1:
+        return array
+
+    n_total = len(array)
+    if n_total % config.world_size > 0:
+        raise ValueError(
+            f"The data length({n_total}) must be divisible "
+            f"by world_size({config.world_size})."
+        )
+    n_split = n_total // config.world_size
+    beg = n_split * config.rank
+    end = n_split * (config.rank + 1)
+    return array[beg: end]

@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import array_ops_compat, get_num_args, run_if_all_none
+from ..utils import get_num_args, run_if_all_none, split_in_rank
 
 class PDE(Data):
     """ODE or time-independent PDE solver.
@@ -93,7 +93,7 @@ class PDE(Data):
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         if self.anchors is not None:
-            self.anchors = array_ops_compat.split_in_rank(self.anchors)
+            self.anchors = split_in_rank(self.anchors)
         self.exclusions = exclusions
 
         self.soln = solution
@@ -235,7 +235,7 @@ class PDE(Data):
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
-            X = array_ops_compat.split_in_rank(X)
+            X = split_in_rank(X)
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -243,7 +243,7 @@ class PDE(Data):
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
-            tmp = array_ops_compat.split_in_rank(tmp)
+            tmp = split_in_rank(tmp)
             X = np.vstack((tmp, X))
         if self.anchors is not None:
             X = np.vstack((self.anchors, X))
@@ -318,12 +318,12 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-                tmp = array_ops_compat.split_in_rank(tmp)
+                tmp = split_in_rank(tmp)
             else:
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
-                tmp = array_ops_compat.split_in_rank(tmp)
+                tmp = split_in_rank(tmp)
             if self.exclusions is not None:
 
                 def is_not_excluded(x):
