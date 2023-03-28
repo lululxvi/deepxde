@@ -7,6 +7,9 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
+# Import Horovod if a mpirun process is ongoing
+global hvd
+
 try:
     mpi = os.environ['OMPI_COMM_WORLD_SIZE']
     import horovod.tensorflow as hvd
@@ -28,9 +31,6 @@ elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
-
-# Import Horovod if a mpirun process is ongoing
-global hvd
 
 def default_float():
     """Returns the default float type, as a string."""
