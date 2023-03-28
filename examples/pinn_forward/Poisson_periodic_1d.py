@@ -1,22 +1,33 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Import tf if using backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Import torch if using backend pytorch
-# import torch
-# Import paddle if using backend paddle
-# import paddle
+
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    sin = paddle.sin
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    sin = tf.sin
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
 
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x)
-    # Use tf.sin for backend tensorflow.compat.v1 or tensorflow
-    return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
-    # Use torch.sin for backend pytorch
-    # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
-    # Use paddle.sin for backend paddle
-    # return -dy_xx - np.pi ** 2 * paddle.sin(np.pi * x)
+    return -dy_xx - np.pi**2 * sin(np.pi * x)
 
 
 def boundary_l(x, on_boundary):

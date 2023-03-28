@@ -1,38 +1,43 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Backend pytorch
-# import torch
-# Backend paddle
-# import paddle
+
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    sin = paddle.sin
+    exp = paddle.exp
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+    exp = torch.exp
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    sin = tf.sin
+    exp = tf.exp
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
+    exp = jnp.exp
 
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-    # Backend tensorflow.compat.v1 or tensorflow
     return (
         dy_t
         - dy_xx
-        + tf.exp(-x[:, 1:])
-        * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
+        + exp(-x[:, 1:])
+        * (sin(np.pi * x[:, 0:1]) - np.pi**2 * sin(np.pi * x[:, 0:1]))
     )
-    # Backend pytorch
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + torch.exp(-x[:, 1:])
-    #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
-    # )
-    # Backend paddle
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + paddle.exp(-x[:, 1:])
-    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
-    # )
 
 
 def func(x):
@@ -50,12 +55,7 @@ activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 net.apply_output_transform(
-    # Backend tensorflow.compat.v1 or tensorflow
-    lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + tf.sin(np.pi * x[:, 0:1])
-    # Backend pytorch
-    # lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + torch.sin(np.pi * x[:, 0:1])
-    # Backend paddle
-    # lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + paddle.sin(np.pi * x[:, 0:1])
+    lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + sin(np.pi * x[:, 0:1])
 )
 
 model = dde.Model(data, net)

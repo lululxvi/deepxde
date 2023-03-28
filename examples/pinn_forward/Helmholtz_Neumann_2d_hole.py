@@ -23,7 +23,7 @@ activation = "sin"
 k0 = 2 * np.pi * n
 wave_len = 1 / n
 
-# Define sine function
+# Define function
 if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
@@ -36,6 +36,11 @@ elif dde.backend.backend_name == "paddle":
     import paddle
 
     sin = paddle.sin
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
 
 
 def pde(x, y):

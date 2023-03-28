@@ -8,16 +8,22 @@ geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 10)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-
-# Define sine function
-if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    from deepxde.backend import tf
-
-    cos = tf.math.cos
-elif dde.backend.backend_name == "paddle":
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
     import paddle
 
     cos = paddle.cos
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    cos = tf.math.cos
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    cos = jnp.cos
 
 
 def pde(x, y):
@@ -29,9 +35,9 @@ def pde(x, y):
         dy_tt
         + alpha * dy_xx
         + beta * y
-        + gamma * (y ** k)
+        + gamma * (y**k)
         + x * cos(t)
-        - (x ** 2) * (cos(t) ** 2)
+        - (x**2) * (cos(t) ** 2)
     )
 
 

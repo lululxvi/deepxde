@@ -5,12 +5,28 @@ Implementation of Allen-Cahn equation example in paper https://arxiv.org/abs/211
 import deepxde as dde
 import numpy as np
 from scipy.io import loadmat
-# Import tf if using backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Import torch if using backend pytorch
-# import torch
-# Import paddle if using backend paddle
-# import paddle
+
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    cos = paddle.cos
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    cos = torch.cos
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    cos = tf.cos
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    cos = jnp.cos
 
 
 def gen_testdata():
@@ -26,30 +42,29 @@ def gen_testdata():
     y = u.flatten()[:, None]
     return X, y
 
+
 geom = dde.geometry.Interval(-1, 1)
 timedomain = dde.geometry.TimeDomain(0, 1)
 geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 d = 0.001
+
 
 def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     return dy_t - d * dy_xx - 5 * (y - y**3)
 
+
 # Hard restraints on initial + boundary conditions
-# Backend tensorflow.compat.v1 or tensorflow
 def output_transform(x, y):
-    return x[:, 0:1]**2 * tf.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
+    return (
+        x[:, 0:1] ** 2 * cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y
+    )
 
-# Backend pytorch
-# def output_transform(x, y):
-#     return x[:, 0:1]**2 * torch.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
 
-# Backend paddle
-# def output_transform(x, y):
-#     return x[:, 0:1]**2 * paddle.cos(np.pi * x[:, 0:1]) + x[:, 1:2] * (1 - x[:, 0:1]**2) * y
-
-data = dde.data.TimePDE(geomtime, pde, [], num_domain=8000, num_boundary=400, num_initial=800)
+data = dde.data.TimePDE(
+    geomtime, pde, [], num_domain=8000, num_boundary=400, num_initial=800
+)
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 net.apply_output_transform(output_transform)
 model = dde.Model(data, net)

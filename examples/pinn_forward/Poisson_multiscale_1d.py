@@ -10,16 +10,27 @@ import numpy as np
 A = 2
 B = 50
 
-
-# Define sine function
-if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    from deepxde.backend import tf
-
-    sin = tf.sin
-elif dde.backend.backend_name == "paddle":
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
     import paddle
 
     sin = paddle.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    sin = tf.sin
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
 
 
 def pde(x, y):

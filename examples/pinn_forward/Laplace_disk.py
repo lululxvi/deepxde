@@ -1,12 +1,36 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Import tf if using backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Import torch if using backend pytorch
-# import torch
-# Import paddle if using backend paddle
-# import paddle
+
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    sin = paddle.sin
+    cos = paddle.cos
+    concat = paddle.concat
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+    cos = torch.cos
+    concat = torch.cat
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    sin = tf.sin
+    cos = tf.cos
+    concat = tf.concat
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
+    cos = jnp.cos
+    concat = jnp.concatenate
 
 
 def pde(x, y):
@@ -33,22 +57,18 @@ data = dde.data.PDE(
 
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
+
 # Use [r*sin(theta), r*cos(theta)] as features,
 # so that the network is automatically periodic along the theta coordinate.
-# Backend tensorflow.compat.v1 or tensorflow
+# Backend tensorflow.compat.v1 or tensorflow or paddle or jax
 def feature_transform(x):
-    return tf.concat(
-        [x[:, 0:1] * tf.sin(x[:, 1:2]), x[:, 0:1] * tf.cos(x[:, 1:2])], axis=1
-    )
+    return concat([x[:, 0:1] * sin(x[:, 1:2]), x[:, 0:1] * cos(x[:, 1:2])], axis=1)
+
+
 # Backend pytorch
 # def feature_transform(x):
-#     return torch.cat(
-#         [x[:, 0:1] * torch.sin(x[:, 1:2]), x[:, 0:1] * torch.cos(x[:, 1:2])], dim=1
-#     )
-# Backend paddle
-# def feature_transform(x):
-#     return paddle.concat(
-#         [x[:, 0:1] * paddle.sin(x[:, 1:2]), x[:, 0:1] * paddle.cos(x[:, 1:2])], axis=1
+#     return cat(
+#         [x[:, 0:1] * sin(x[:, 1:2]), x[:, 0:1] * cos(x[:, 1:2])], dim=1
 #     )
 
 net.apply_feature_transform(feature_transform)

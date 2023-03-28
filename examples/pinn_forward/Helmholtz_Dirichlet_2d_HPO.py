@@ -9,12 +9,27 @@ from skopt.plots import plot_convergence, plot_objective
 from skopt.space import Real, Categorical, Integer
 from skopt.utils import use_named_args
 
-if dde.backend.backend_name == "pytorch":
-    sin = dde.backend.pytorch.sin
-else:
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    sin = paddle.sin
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
     from deepxde.backend import tf
 
     sin = tf.sin
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
 
 # General parameters
 d = 2
@@ -110,7 +125,6 @@ default_parameters = [1e-3, 4, 50, "sin"]
 
 @use_named_args(dimensions=dimensions)
 def fitness(learning_rate, num_dense_layers, num_dense_nodes, activation):
-
     config = [learning_rate, num_dense_layers, num_dense_nodes, activation]
     global ITERATION
 

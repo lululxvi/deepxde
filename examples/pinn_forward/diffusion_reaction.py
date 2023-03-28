@@ -1,12 +1,32 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
-# Backend tensorflow.compat.v1 or tensorflow
-from deepxde.backend import tf
-# Backend pytorch
-# import torch
-# Backend paddle
-# import paddle
+
+# Define function
+if dde.backend.backend_name == "paddle":
+    # Backend paddle
+    import paddle
+
+    sin = paddle.sin
+    exp = paddle.exp
+elif dde.backend.backend_name == "pytorch":
+    # Backend pytorch
+    import torch
+
+    sin = torch.sin
+    exp = torch.exp
+elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+    # Backend tensorflow.compat.v1 or tensorflow
+    from deepxde.backend import tf
+
+    sin = tf.sin
+    exp = tf.exp
+elif dde.backend.backend_name == "jax":
+    # Backend jax
+    import jax.numpy as jnp
+
+    sin = jnp.sin
+    exp = jnp.exp
 
 
 def pde(x, y):
@@ -17,36 +37,14 @@ def pde(x, y):
     return (
         dy_t
         - d * dy_xx
-        - tf.exp(-x[:, 1:])
+        - exp(-x[:, 1:])
         * (
-            3 * tf.sin(2 * x[:, 0:1]) / 2
-            + 8 * tf.sin(3 * x[:, 0:1]) / 3
-            + 15 * tf.sin(4 * x[:, 0:1]) / 4
-            + 63 * tf.sin(8 * x[:, 0:1]) / 8
+            3 * sin(2 * x[:, 0:1]) / 2
+            + 8 * sin(3 * x[:, 0:1]) / 3
+            + 15 * sin(4 * x[:, 0:1]) / 4
+            + 63 * sin(8 * x[:, 0:1]) / 8
         )
     )
-    # Backend pytorch
-    # return (
-    #     dy_t
-    #     - d * dy_xx
-    #     - torch.exp(-x[:, 1:])
-    #     * (3 * torch.sin(2 * x[:, 0:1]) / 2
-    #        + 8 * torch.sin(3 * x[:, 0:1]) / 3
-    #        + 15 * torch.sin(4 * x[:, 0:1]) / 4
-    #        + 63 * torch.sin(8 * x[:, 0:1]) / 8
-    #     )
-    # )
-    # Backend paddle
-    # return (
-    #     dy_t
-    #     - d * dy_xx
-    #     - paddle.exp(-x[:, 1:])
-    #     * (3 * paddle.sin(2 * x[:, 0:1]) / 2
-    #        + 8 * paddle.sin(3 * x[:, 0:1]) / 3
-    #        + 15 * paddle.sin(4 * x[:, 0:1]) / 4
-    #        + 63 * paddle.sin(8 * x[:, 0:1]) / 8
-    #     )
-    # )
 
 
 def func(x):
@@ -72,36 +70,18 @@ activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
+
 # Backend tensorflow.compat.v1 or tensorflow
 def output_transform(x, y):
     return (
-        x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-        + tf.sin(x[:, 0:1])
-        + tf.sin(2 * x[:, 0:1]) / 2
-        + tf.sin(3 * x[:, 0:1]) / 3
-        + tf.sin(4 * x[:, 0:1]) / 4
-        + tf.sin(8 * x[:, 0:1]) / 8
+        x[:, 1:2] * (np.pi**2 - x[:, 0:1] ** 2) * y
+        + sin(x[:, 0:1])
+        + sin(2 * x[:, 0:1]) / 2
+        + sin(3 * x[:, 0:1]) / 3
+        + sin(4 * x[:, 0:1]) / 4
+        + sin(8 * x[:, 0:1]) / 8
     )
-# Backend pytorch
-# def output_transform(x, y):
-#     return (
-#         x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-#         + torch.sin(x[:, 0:1])
-#         + torch.sin(2 * x[:, 0:1]) / 2
-#         + torch.sin(3 * x[:, 0:1]) / 3
-#         + torch.sin(4 * x[:, 0:1]) / 4
-#         + torch.sin(8 * x[:, 0:1]) / 8
-#    )
-# Backend paddle
-# def output_transform(x, y):
-#     return (
-#         x[:, 1:2] * (np.pi ** 2 - x[:, 0:1] ** 2) * y
-#         + paddle.sin(x[:, 0:1])
-#         + paddle.sin(2 * x[:, 0:1]) / 2
-#         + paddle.sin(3 * x[:, 0:1]) / 3
-#         + paddle.sin(4 * x[:, 0:1]) / 4
-#         + paddle.sin(8 * x[:, 0:1]) / 8
-#    )
+
 
 net.apply_output_transform(output_transform)
 
