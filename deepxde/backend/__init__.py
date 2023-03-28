@@ -6,6 +6,7 @@ import os
 import sys
 
 from . import backend
+from .install_backend import interactive_install_paddle
 from .set_default_backend import set_default_backend
 
 _enabled_apis = set()
@@ -73,28 +74,21 @@ def get_preferred_backend():
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
     if "DDE_BACKEND" in os.environ:
         backend_name = os.getenv("DDE_BACKEND")
+        return backend_name
     # Backward compatibility
     elif "DDEBACKEND" in os.environ:
         backend_name = os.getenv("DDEBACKEND")
+        return backend_name
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
+            return backend_name
 
-    if backend_name in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
-        return backend_name
-    print(
-        "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
-        file=sys.stderr,
-    )
-    set_default_backend("tensorflow.compat.v1")
-    return "tensorflow.compat.v1"
+    interactive_install_paddle()
+
+    set_default_backend(backend_name)
+    return backend_name
 
 
 load_backend(get_preferred_backend())
