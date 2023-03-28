@@ -11,6 +11,9 @@ from skopt.utils import use_named_args
 
 if dde.backend.backend_name == "pytorch":
     sin = dde.backend.pytorch.sin
+elif dde.backend.backend_name == "paddle":
+    import paddle
+    sin = paddle.sin
 else:
     from deepxde.backend import tf
 
