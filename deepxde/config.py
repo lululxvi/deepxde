@@ -8,11 +8,10 @@ from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
 # Import Horovod if a mpirun process is ongoing
-global hvd
-
 try:
     mpi = os.environ['OMPI_COMM_WORLD_SIZE']
     import horovod.tensorflow as hvd
+    tf.compat.v1.disable_eager_execution()
 except:
     hvd = None
 
@@ -25,7 +24,7 @@ if backend_name == "jax":
     jax_random_seed = random.randint(iinfo.min, iinfo.max)
 # XLA
 xla_jit = False
-if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+if backend_name in ["tensorflow.compat.v1", "tensorflow"] and hvd is None:
     xla_jit = bkd.is_gpu_available()
 elif backend_name == "jax":
     xla_jit = True

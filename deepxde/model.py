@@ -165,6 +165,7 @@ class Model:
                     tf.OptimizerOptions.ON_2
                 )
                 self.sess = tf.Session(config=cfg)
+            elif self.data_parallel:
                 cfg = tf.ConfigProto()
                 cfg.gpu_options.visible_device_list = str(hvd.local_rank())
                 cfg.gpu_options.allow_growth = True
