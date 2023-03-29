@@ -37,6 +37,7 @@ elif backend_name == "jax":
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
 
+
 def default_float():
     """Returns the default float type, as a string."""
     if real.precision == 64:
