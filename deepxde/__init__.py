@@ -11,7 +11,10 @@ __all__ = [
     "Variable",
 ]
 
-from .__about__ import __version__
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown version"
 
 # Should import backend before importing anything else
 from . import backend

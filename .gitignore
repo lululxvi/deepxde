@@ -17,3 +17,6 @@ docs/_build/
 
 # VSCode
 .vscode/
+
+# setuptools_scm
+deepxde/_version.py

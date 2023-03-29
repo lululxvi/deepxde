@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=65"]
+requires = ["setuptools>=65", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -49,9 +49,9 @@ Homepage = "https://github.com/lululxvi/deepxde"
 Changelog = "https://github.com/lululxvi/deepxde/releases"
 Documentation = "https://deepxde.readthedocs.io"
 
-[tool.setuptools.dynamic]
-version = {attr = "deepxde.__about__.__version__"}
-
 [tool.setuptools.packages.find]
 where = ["."]
 exclude = ["docker", "docs*", "examples*"]
+
+[tool.setuptools_scm]
+write_to = "deepxde/_version.py"
