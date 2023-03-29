@@ -92,8 +92,6 @@ class PDE(Data):
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
-        if self.anchors is not None:
-            self.anchors = split_in_rank(self.anchors)
         self.exclusions = exclusions
 
         self.soln = solution
@@ -246,7 +244,7 @@ class PDE(Data):
             tmp = split_in_rank(tmp)
             X = np.vstack((tmp, X))
         if self.anchors is not None:
-            X = np.vstack((self.anchors, X))
+            X = np.vstack((split_in_rank(self.anchors), X))
         if self.exclusions is not None:
 
             def is_not_excluded(x):
