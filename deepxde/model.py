@@ -56,8 +56,7 @@ class Model:
         elif backend_name == "paddle":
             if config.world_size > 1:
                 from paddle.distributed import fleet
-                strategy = fleet.DistributedStrategy()
-                fleet.init(is_collective=True, strategy=strategy)
+                fleet.init(is_collective=True)
                 self.net = fleet.distributed_model(self.net)
 
     @utils.timing
@@ -472,9 +471,6 @@ class Model:
         self.opt = optimizers.get(
             trainable_variables, self.opt_name, learning_rate=lr, decay=decay
         )
-        if config.world_size > 1:
-            from paddle.distributed import fleet
-            self.opt = fleet.distributed_optimizer(self.opt)
 
         def train_step(inputs, targets, auxiliary_vars):
             losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
