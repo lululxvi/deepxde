@@ -20,7 +20,6 @@ try:
         )
 except KeyError: 
     hvd = None
-    pass 
 
 # Default float type
 real = Real(32)
