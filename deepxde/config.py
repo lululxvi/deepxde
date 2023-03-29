@@ -18,7 +18,7 @@ try:
         raise NotImplementedError(
             "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
         )
-except: 
+except KeyError: 
     hvd = None
     pass 
 
