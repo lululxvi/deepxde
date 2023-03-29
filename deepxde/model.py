@@ -114,13 +114,6 @@ class Model:
             data_parallel: If True, a Horovod-based data-parallel acceleration is performed.
         """
         self.data_parallel = data_parallel
-        if data_parallel:
-            if backend_name == "tensorflow.compat.v1":
-                hvd.init()
-            else:
-                raise NotImplementedError(
-                    "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
-                )
         if not data_parallel or (data_parallel and hvd.rank() == 0):
             print("Compiling model...")
         self.opt_name = optimizer
@@ -659,8 +652,6 @@ class Model:
         return self.losshistory, self.train_state
 
     def _train_sgd(self, iterations, display_every):
-        if self.data_parallel:
-            import horovod.tensorflow as hvd
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()

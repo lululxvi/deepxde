@@ -9,11 +9,18 @@ from .real import Real
 
 # Import Horovod if a mpirun process is ongoing
 try:
-    mpi = os.environ['OMPI_COMM_WORLD_SIZE']
-    import horovod.tensorflow as hvd
-    tf.compat.v1.disable_eager_execution()
-except:
+    mpi = os.environ['OMPI_COMM_WORLD_SIZE']       
+    if backend_name == "tensorflow.compat.v1":
+        import horovod.tensorflow as hvd
+        tf.compat.v1.disable_eager_execution()
+        hvd.init()    
+    else:
+        raise NotImplementedError(
+            "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
+        )
+except: 
     hvd = None
+    pass 
 
 # Default float type
 real = Real(32)
