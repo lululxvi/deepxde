@@ -12,7 +12,7 @@ try:
     mpi = os.environ['OMPI_COMM_WORLD_SIZE']       
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
-        tf.compat.v1.disable_eager_execution()
+        tf.compat.v1.disable_eager_execution() # Without this line, Horovod broadcasting fails.
         hvd.init()    
     else:
         raise NotImplementedError(
