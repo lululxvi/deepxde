@@ -22,7 +22,7 @@ copyright = "2019, Lu Lu"
 author = "Lu Lu"
 
 # The short X.Y version
-version = version('deepxde')
+version = version("deepxde")
 # The full version, including alpha/beta/rc tags
 release = version
 
