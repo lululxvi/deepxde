@@ -68,6 +68,13 @@ class PointCloud(Geometry):
             .any(axis=1)
         )
 
+    def boundary_normal(self, x):
+        if self.boundary_normals is None:
+            raise ValueError(
+                "boundary_normals must be defined for boundary_normal"
+            )
+        return self.boundary_normals
+    
     def random_points(self, n, random="pseudo"):
         if n <= self.num_points:
             indices = self.sampler.get_next(n)
