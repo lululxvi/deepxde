@@ -22,6 +22,29 @@ def _gen_missing_api(api, mod_name):
     return _missing_api
 
 
+def backend_message(backend_name):
+    """Show message about backend.
+
+    Args:
+        backend_name: which backend used
+    """
+    msg = f"Using backend: {backend_name}\n"
+    if backend_name == "tensorflow.compat.v1":
+        msg += "Other available backends: tensorflow, pytorch, jax, paddle.\n"
+    elif backend_name == "tensorflow":
+        msg += "Other available backends: tensorflow.compat.v1, pytorch, jax, paddle.\n"
+    elif backend_name == "pytorch":
+        msg += (
+            "Other available backends: tensorflow.compat.v1, tensorflow, jax, paddle.\n"
+        )
+    elif backend_name == "jax":
+        msg += "Other available backends: tensorflow.compat.v1, tensorflow, pytorch, paddle.\n"
+    elif backend_name == "paddle":
+        msg += "Other available backends: tensorflow.compat.v1, tensorflow, pytorch, jax.\n"
+    msg += "paddle supports more examples now and is recommended.\n "
+    print(msg, file=sys.stderr, flush=True)
+
+
 def load_backend(mod_name):
     if mod_name not in [
         "tensorflow.compat.v1",
@@ -32,7 +55,7 @@ def load_backend(mod_name):
     ]:
         raise NotImplementedError("Unsupported backend: %s" % mod_name)
 
-    print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
+    backend_message(mod_name)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
     # log backend name

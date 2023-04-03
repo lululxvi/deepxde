@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle
 
 Identification of the parameters of the modified Lorenz attractor (with exogenous input)
 see https://github.com/lululxvi/deepxde/issues/79

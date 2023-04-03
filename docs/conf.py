@@ -42,7 +42,7 @@ project = "DeepXDE"
 copyright = "2019, Lu Lu"
 author = "Lu Lu"
 
-file_with_version = os.path.join("..", "deepxde", "__about__.py")
+file_with_version = os.path.join("..", "deepxde", "_version.py")
 # The short X.Y version
 version = get_version(file_with_version)
 # The full version, including alpha/beta/rc tags
@@ -63,6 +63,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx_copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,14 +24,18 @@ k0 = 2 * np.pi * n
 wave_len = 1 / n
 
 # Define sine function
-if dde.backend.backend_name == "pytorch":
-    import torch
-
-    sin = torch.sin
-elif dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
     sin = tf.sin
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    sin = torch.sin
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
 
 
 def pde(x, y):

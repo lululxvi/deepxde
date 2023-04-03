@@ -5,8 +5,9 @@ import math
 import numpy as np
 
 from .pde import PDE
+from .. import backend as bkd
 from .. import config
-from ..backend import is_tensor, tf
+from ..backend import is_tensor, backend_name
 from ..utils import array_ops_compat, run_if_all_none
 
 
@@ -44,7 +45,7 @@ class Scheme:
 
 
 class FPDE(PDE):
-    """Fractional PDE solver.
+    r"""Fractional PDE solver.
 
     D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
     (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
@@ -82,6 +83,7 @@ class FPDE(PDE):
         self.alpha = alpha
         self.disc = Scheme(meshtype, resolution)
         self.frac_train, self.frac_test = None, None
+        self.int_mat_train = None
 
         super().__init__(
             geometry,
@@ -97,20 +99,31 @@ class FPDE(PDE):
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        int_mat = self.get_int_matrix(True)
+        # do not cache int_mat when alpha is a learnable parameter
+        if is_tensor(self.alpha):
+            int_mat = self.get_int_matrix(True)
+        else:
+            if self.int_mat_train is not None:
+                # use cached int_mat
+                int_mat = self.int_mat_train
+            else:
+                # initialize self.int_mat_train with int_mat
+                int_mat = self.get_int_matrix(True)
+                self.int_mat_train = int_mat
+
         f = self.pde(inputs, outputs, int_mat)
         if not isinstance(f, (list, tuple)):
             f = [f]
         f = [fi[bcs_start[-1] :] for fi in f]
         losses = [
-            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
+            loss_fn(bkd.zeros_like(fi), fi) for fi in f
         ]
 
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(
-                loss_fn(tf.zeros(tf.shape(error), dtype=config.real(tf)), error)
+                loss_fn(bkd.zeros_like(error), error)
             )
         return losses
 
@@ -120,11 +133,14 @@ class FPDE(PDE):
         if not isinstance(f, (list, tuple)):
             f = [f]
         return [
-            loss_fn(tf.zeros(tf.shape(fi), dtype=config.real(tf)), fi) for fi in f
-        ] + [tf.constant(0, dtype=config.real(tf)) for _ in self.bcs]
+            loss_fn(bkd.zeros_like(fi), fi) for fi in f
+        ] + [bkd.as_tensor(0, dtype=config.real(bkd.lib)) for _ in self.bcs]
 
-    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
+        # do not cache train data when alpha is a learnable parameter
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.train_x is not None:
+                return self.train_x, self.train_y
         if self.disc.meshtype == "static":
             if self.geom.idstr != "Interval":
                 raise ValueError("Only Interval supports static mesh.")
@@ -150,8 +166,12 @@ class FPDE(PDE):
         self.train_y = self.soln(self.train_x) if self.soln else None
         return self.train_x, self.train_y
 
-    @run_if_all_none("test_x", "test_y")
     def test(self):
+        # do not cache test data when alpha is a learnable parameter
+        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+            if self.test_x is not None:
+                return self.test_x, self.test_y
+
         if self.disc.meshtype == "static" and self.num_test is not None:
             raise ValueError("Cannot use test points in static mesh.")
 
@@ -186,7 +206,7 @@ class FPDE(PDE):
 
 
 class TimeFPDE(FPDE):
-    """Time-dependent fractional PDE solver.
+    r"""Time-dependent fractional PDE solver.
 
     D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
     (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
@@ -370,7 +390,7 @@ class Fractional:
             if self.disc.meshtype == "static"
             else self.dynamic_dist2npts(self.geom.diam) + 1
         )
-        w = [1]
+        w = [bkd.as_tensor(1.0, dtype=config.real(bkd.lib)) if bkd.is_tensor(self.alpha) else 1.0]
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
         return array_ops_compat.convert_to_array(w)
@@ -403,6 +423,7 @@ class Fractional:
             dirns, dirn_w = [-1, 1], [1, 1]
         elif self.geom.dim == 2:
             gauss_x, gauss_w = np.polynomial.legendre.leggauss(self.disc.resolution[0])
+            gauss_x, gauss_w = gauss_x.astype(config.real(np)), gauss_w.astype(config.real(np))
             thetas = np.pi * gauss_x + np.pi
             dirns = np.vstack((np.cos(thetas), np.sin(thetas))).T
             dirn_w = np.pi * gauss_w
@@ -410,6 +431,7 @@ class Fractional:
             gauss_x, gauss_w = np.polynomial.legendre.leggauss(
                 max(self.disc.resolution[:2])
             )
+            gauss_x, gauss_w = gauss_x.astype(config.real(np)), gauss_w.astype(config.real(np))
             thetas = (np.pi * gauss_x[: self.disc.resolution[0]] + np.pi) / 2
             phis = np.pi * gauss_x[: self.disc.resolution[1]] + np.pi
             dirns, dirn_w = [], []
@@ -494,7 +516,7 @@ class Fractional:
         return self._w_init[: n + 1]
 
     def get_matrix_static(self):
-        if not is_tensor(self.alpha):
+        if not bkd.is_tensor(self.alpha):
             int_mat = np.zeros(
                 (self.disc.resolution[0], self.disc.resolution[0]),
                 dtype=config.real(np),
@@ -513,44 +535,44 @@ class Fractional:
                 # int_mat[i, 0:i+2] = np.flipud(self.modify_third_order(w=self.get_weight(i)))
                 # int_mat[i, i-1:] += self.modify_third_order(w=self.get_weight(self.disc.resolution[0]-1-i))
             return h ** (-self.alpha) * int_mat
-        int_mat = tf.zeros((1, self.disc.resolution[0]), dtype=config.real(tf))
+        int_mat = bkd.zeros((1, self.disc.resolution[0]), dtype=config.real(bkd.lib))
         for i in range(1, self.disc.resolution[0] - 1):
             if True:
                 # shifted
-                row = tf.concat(
+                row = bkd.concat(
                     [
-                        tf.zeros(1, dtype=config.real(tf)),
-                        tf.reverse(self.get_weight(i), [0]),
-                        tf.zeros(
-                            self.disc.resolution[0] - i - 2, dtype=config.real(tf)
+                        bkd.zeros(1, dtype=config.real(bkd.lib)),
+                        bkd.reverse(self.get_weight(i), [0]),
+                        bkd.zeros(
+                            self.disc.resolution[0] - i - 2, dtype=config.real(bkd.lib)
                         ),
                     ],
                     0,
                 )
-                row += tf.concat(
+                row += bkd.concat(
                     [
-                        tf.zeros(i - 1, dtype=config.real(tf)),
+                        bkd.zeros(i - 1, dtype=config.real(bkd.lib)),
                         self.get_weight(self.disc.resolution[0] - 1 - i),
-                        tf.zeros(1, dtype=config.real(tf)),
+                        bkd.zeros(1, dtype=config.real(bkd.lib)),
                     ],
                     0,
                 )
             else:
                 # not shifted
-                row = tf.concat(
+                row = bkd.concat(
                     [
-                        tf.reverse(self.get_weight(i), [0]),
-                        tf.zeros(self.disc.resolution[0] - i - 1),
+                        bkd.reverse(self.get_weight(i), [0]),
+                        bkd.zeros(self.disc.resolution[0] - i - 1),
                     ],
                     0,
                 )
-                row += tf.concat(
-                    [tf.zeros(i), self.get_weight(self.disc.resolution[0] - 1 - i)], 0
+                row += bkd.concat(
+                    [bkd.zeros(i), self.get_weight(self.disc.resolution[0] - 1 - i)], 0
                 )
-            row = tf.expand_dims(row, 0)
-            int_mat = tf.concat([int_mat, row], 0)
-        int_mat = tf.concat(
-            [int_mat, tf.zeros([1, self.disc.resolution[0]], dtype=config.real(tf))], 0
+            row = bkd.expand_dims(row, 0)
+            int_mat = bkd.concat([int_mat, row], 0)
+        int_mat = bkd.concat(
+            [int_mat, bkd.zeros([1, self.disc.resolution[0]], dtype=config.real(bkd.lib))], 0
         )
         h = self.geom.diam / (self.disc.resolution[0] - 1)
         return h ** (-self.alpha) * int_mat
@@ -621,7 +643,7 @@ class FractionalTime:
         x = self.geom.uniform_points(self.disc.resolution[0], True)
         x = np.roll(x, 1)[:, 0]
         dt = (self.tmax - self.tmin) / (self.nt - 1)
-        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1))
+        d = np.empty((self.disc.resolution[0] * self.nt, self.geom.dim + 1), dtype=x.dtype)
         d[0 : self.disc.resolution[0], 0] = x
         d[0 : self.disc.resolution[0], 1] = self.tmin
         beg = self.disc.resolution[0]
@@ -638,7 +660,7 @@ class FractionalTime:
     def get_x_dynamic(self):
         self.fracx = Fractional(self.alpha, self.geom, self.disc, self.x0[:, :-1])
         xx = self.fracx.get_x()
-        x = np.empty((len(xx), self.geom.dim + 1))
+        x = np.empty((len(xx), self.geom.dim + 1), dtype=xx.dtype)
         x[: len(self.x0)] = self.x0
         beg = len(self.x0)
         for i in range(len(self.x0)):
