@@ -1019,7 +1019,7 @@ class Model:
 
         Args:
             save_path (string): Path where model was previously saved.
-            device (optional): Device to load the model on. By default, the model is loaded on the device it was saved from.
+            device (string): Oprionnal, device to load the model on (e.g. "cpu","gpu:0","cuda:1"...). By default, the model is loaded on the device it was saved from.
         """
         # TODO: backend tensorflow
         if device is not None and backend_name != "pytorch":
@@ -1034,7 +1034,7 @@ class Model:
             self.net.load_weights(save_path)
         elif backend_name == "pytorch":
             if device is not None:
-                checkpoint = torch.load(save_path, map_location=device)
+                checkpoint = torch.load(save_path, map_location=torch.device(device))
             else:
                 checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
