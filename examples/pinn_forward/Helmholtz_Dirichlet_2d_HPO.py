@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 
 import deepxde as dde
 from matplotlib import pyplot as plt
@@ -11,6 +11,8 @@ from skopt.utils import use_named_args
 
 if dde.backend.backend_name == "pytorch":
     sin = dde.backend.pytorch.sin
+elif dde.backend.backend_name == "paddle":
+    sin = dde.backend.paddle.sin
 else:
     from deepxde.backend import tf
 
@@ -110,7 +112,6 @@ default_parameters = [1e-3, 4, 50, "sin"]
 
 @use_named_args(dimensions=dimensions)
 def fitness(learning_rate, num_dense_layers, num_dense_nodes, activation):
-
     config = [learning_rate, num_dense_layers, num_dense_nodes, activation]
     global ITERATION
 

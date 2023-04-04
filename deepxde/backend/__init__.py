@@ -6,8 +6,8 @@ import os
 import sys
 
 from . import backend
-from .install_backend import interactive_install_paddle
 from .set_default_backend import set_default_backend
+from .utils import interactive_install_paddle, verify_backend
 
 _enabled_apis = set()
 
@@ -23,17 +23,31 @@ def _gen_missing_api(api, mod_name):
     return _missing_api
 
 
-def load_backend(mod_name):
-    if mod_name not in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
-        raise NotImplementedError("Unsupported backend: %s" % mod_name)
+def backend_message(backend_name):
+    """Show message about backend.
 
-    print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
+    Args:
+        backend_name: which backend used
+    """
+    msg = f"Using backend: {backend_name}\n"
+    if backend_name == "tensorflow.compat.v1":
+        msg += "Other available backends: tensorflow, pytorch, jax, paddle.\n"
+    elif backend_name == "tensorflow":
+        msg += "Other available backends: tensorflow.compat.v1, pytorch, jax, paddle.\n"
+    elif backend_name == "pytorch":
+        msg += (
+            "Other available backends: tensorflow.compat.v1, tensorflow, jax, paddle.\n"
+        )
+    elif backend_name == "jax":
+        msg += "Other available backends: tensorflow.compat.v1, tensorflow, pytorch, paddle.\n"
+    elif backend_name == "paddle":
+        msg += "Other available backends: tensorflow.compat.v1, tensorflow, pytorch, jax.\n"
+    msg += "paddle supports more examples now and is recommended.\n "
+    print(msg, file=sys.stderr, flush=True)
+
+
+def load_backend(mod_name):
+    backend_message(mod_name)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
     # log backend name
@@ -74,21 +88,23 @@ def get_preferred_backend():
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
     if "DDE_BACKEND" in os.environ:
         backend_name = os.getenv("DDE_BACKEND")
-        return backend_name
     # Backward compatibility
     elif "DDEBACKEND" in os.environ:
         backend_name = os.getenv("DDEBACKEND")
-        return backend_name
     elif os.path.exists(config_path):
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
-            return backend_name
 
+    if backend_name is not None:
+        verify_backend(backend_name)
+        return backend_name
+
+    # No backend selected
+    print("No backend selected.")
     interactive_install_paddle()
-
-    set_default_backend(backend_name)
-    return backend_name
+    set_default_backend("paddle")
+    return "paddle"
 
 
 load_backend(get_preferred_backend())

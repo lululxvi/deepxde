@@ -2,57 +2,103 @@ import os
 import sys
 
 
-def exit_install(state=0, arg=None):
-    """Exit running.
+# Verify if the backend is available/importable
+def import_tensorflow_compat_v1():
+    # pylint: disable=import-outside-toplevel
+    try:
+        import tensorflow.compat.v1
 
-    Args:
-        state (int): 0, 1, 2 or 3
-            0: install failed
-            1: error platform
-            2: no avx
-            3: no avaliable backend
+        assert tensorflow.compat.v1  # silence pyflakes
+        return True
+    except ImportError:
+        return False
+
+
+def import_tensorflow():
+    # pylint: disable=import-outside-toplevel
+    try:
+        import tensorflow
+
+        assert tensorflow  # silence pyflakes
+        return True
+    except ImportError:
+        return False
+
+
+def import_pytorch():
+    # pylint: disable=import-outside-toplevel
+    try:
+        import torch
+
+        assert torch  # silence pyflakes
+        return True
+    except ImportError:
+        return False
+
+
+def import_jax():
+    # pylint: disable=import-outside-toplevel
+    try:
+        import jax
+
+        assert jax  # silence pyflakes
+        return True
+    except ImportError:
+        return False
+
+
+def import_paddle():
+    # pylint: disable=import-outside-toplevel
+    try:
+        import paddle
+
+        assert paddle  # silence pyflakes
+        return True
+    except ImportError:
+        return False
+
+
+def verify_backend(backend_name):
+    """Verify if the backend is available. If it is available,
+    do nothing, otherwise, raise RuntimeError.
     """
-    msg = "Paddle installed failed!\n"
-    if state == 0:
-        msg += (
-            "Reasons might be python version/pip version/requirements/avx/GPU model... "
-            "You can visit https://www.paddlepaddle.org.cn for help and install it manually.\n"
+    import_funcs = {
+        "tensorflow.compat.v1": import_tensorflow_compat_v1,
+        "tensorflow": import_tensorflow,
+        "pytorch": import_pytorch,
+        "jax": import_jax,
+        "paddle": import_paddle,
+    }
+
+    if backend_name not in import_funcs:
+        raise NotImplementedError(
+            f"Unsupported backend: {backend_name}.\n"
+            "Please select backend from tensorflow.compat.v1, tensorflow, pytorch, jax or paddle."
         )
-    elif state == 1:
-        msg += (
-            "your system is",
-            arg,
-            ", paddle only supported Window/Linux/macOS now, sorry.\n",
+
+    if not import_funcs[backend_name]():
+        raise RuntimeError(
+            f"Backend is set as {backend_name}, but '{backend_name}' failed to import."
         )
-    elif state == 2:
-        msg += (
-            "avx is not supported by your machine. "
-            "Sorry, paddle develop is not supported in noavx machine now."
-        )
-    elif state == 3:
-        msg += (
-            "No available backend found, you can manually install one of "
-            "paddle/tensorflow.compat.va/tensorflow/pytorch/jax.\n"
-        )
-    msg += (
-        "You can run deepxde again and select backend by 'DDE_BACKEND=xxx'.\n"
-        "Running stopped!"
-    )
-    sys.exit(msg)
 
 
+# Ask user if install paddle and install it
 def run_install(command):
     """Send command to terminal and print it.
 
     Args:
         command (str): command to be sent to terminal.
     """
-    print("Install command:", command, "\n")
+    print("Install command:", command)
     installed = os.system(command)
     if installed == 0:
         print("Paddle installed successfully!\n", file=sys.stderr, flush=True)
     else:
-        exit_install(0)
+        sys.exit(
+            "Paddle installed failed!\n"
+            "Please visit https://www.paddlepaddle.org.cn/en for help and install it manually, "
+            "or use another backend."
+        )
 
 
 def get_platform():
@@ -61,21 +107,20 @@ def get_platform():
     Returns:
         platform (str): "windows", "linux" or "darwin"
     """
-    platform = sys.platform
-    if platform in ["win32", "cygwin"]:
-        platform = "windows"
-    elif platform in ["linux", "linux2"]:
-        platform = "linux"
-    elif platform == "darwin":
-        pass
-    else:
-        exit_install(1, platform)
+    if sys.platform in ["win32", "cygwin"]:
+        return "windows"
+    if sys.platform in ["linux", "linux2"]:
+        return "linux"
+    if sys.platform == "darwin":
+        return "darwin"
+    sys.exit(
+        f"Your system {sys.platform} is not supported by Paddle. Paddle installation stopped.\n"
+        "Please use another backend."
+    )
 
-    return platform
 
-
-def check_cuda(platform):
-    """Check whether cuda is avaliable and its version.
+def get_cuda(platform):
+    """Check whether cuda is avaliable and get its version.
 
     Returns:
         cuda_verion (str) or None
@@ -94,8 +139,8 @@ def check_cuda(platform):
             cuda_list_str = [str(i / 10) for i in cuda_list]
             msg_cl = "/".join(cuda_list_str)
             print(
-                f"Your Cuda version is {cuda_version},",
-                f"however paddle only supports Cuda {msg_cl} for {platform} now.\n",
+                f"Your CUDA version is {cuda_version},",
+                f"but Paddle only supports CUDA {msg_cl} for {platform} now.",
                 file=sys.stderr,
                 flush=True,
             )
@@ -105,7 +150,7 @@ def check_cuda(platform):
     return None
 
 
-def check_rocm():
+def get_rocm():
     """Check whether ROCm4.0 is avaliable.
 
     Returns:
@@ -116,7 +161,7 @@ def check_rocm():
     if roc_text1 != "" and roc_text2 != "":
         return True
 
-    print("There is no avaliable ROCm4.0.\n", file=sys.stderr, flush=True)
+    print("There is no avaliable ROCm4.0.", file=sys.stderr, flush=True)
     return False
 
 
@@ -132,11 +177,15 @@ def check_avx(platform):
         return
 
     if avx_text1 == "" and avx_text2 == "":
-        exit_install(2)
+        sys.exit(
+            "Your machine doesn't support AVX, which is required by PaddlePaddle (develop version). "
+            "Paddle installation stopped.\n"
+            "Please use another backend."
+        )
 
 
-def check_executable():
-    """Check user's python version.
+def get_python_executable():
+    """Get user's python executable.
 
     Returns:
         str: python exection path
@@ -155,8 +204,8 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
     """
     if platform == "darwin":
         print(
-            "Paddle only can be installed in macOS with cpu by pip now, ",
-            "installing cpu version...",
+            "Paddle can only be installed in macOS with CPU version now. ",
+            "Installing CPU version...",
             file=sys.stderr,
             flush=True,
         )
@@ -168,7 +217,7 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
         return cmd
 
     if cuda_version is not None:
-        print(f"Installing cuda {cuda_version} version...", file=sys.stderr, flush=True)
+        print(f"Installing CUDA {cuda_version} version...", file=sys.stderr, flush=True)
         cmd = "{}{}{}{}{}{}".format(
             py_exec,
             " -m pip install paddlepaddle-gpu==0.0.0.post",
@@ -188,7 +237,7 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
         )
         return cmd
 
-    print("Installing cpu version...", file=sys.stderr, flush=True)
+    print("Installing CPU version...", file=sys.stderr, flush=True)
     cmd = "{}{}".format(
         py_exec,
         " -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/",
@@ -204,20 +253,17 @@ def install_paddle():
     """Generate command and install paddle."""
     # get user's platform
     platform = get_platform()
-
     # check avx
     check_avx(platform)
-
     # check python version
-    py_exec = check_executable()
+    py_exec = get_python_executable()
 
     # get user's device and generate cmd
     if platform == "darwin":
         cmd = generate_cmd(py_exec, platform)
     else:
-        cuda_version = check_cuda(platform)
-        has_rocm = check_rocm() if cuda_version is None else False
-
+        cuda_version = get_cuda(platform)
+        has_rocm = get_rocm() if platform == "linux" and cuda_version is None else False
         cmd = generate_cmd(py_exec, platform, cuda_version, has_rocm)
 
     # run command
@@ -226,12 +272,8 @@ def install_paddle():
 
 def interactive_install_paddle():
     """Ask the user for installing paddle."""
-
     try:
-        notice = "{}{}".format(
-            "No available backend found. ",
-            "Do you want to install the recommended backend paddle (y/n): ",
-        )
+        notice = "Do you want to install the recommended backend Paddle (y/n): "
         msg = input(notice)
     except EOFError:
         msg = "n"
@@ -246,4 +288,7 @@ def interactive_install_paddle():
         cnt += 1
         msg = input("Please enter correctly (y/n): ")
 
-    exit_install(3)
+    sys.exit(
+        "No available backend found.\n"
+        "Please manually install a backend, and run DeepXDE again."
+    )
