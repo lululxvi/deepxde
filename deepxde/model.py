@@ -1019,7 +1019,7 @@ class Model:
 
         Args:
             save_path (string): Path where model was previously saved.
-            device (string): Optionnal, device to load the model on (e.g. "cpu","gpu:0","cuda:1"...). By default, the model is loaded on the device it was saved from.
+            device (string, optionnal): Device to load the model on (e.g. "cpu","cuda:0"...). By default, the model is loaded on the device it was saved from.
         """
         # TODO: backend tensorflow
         if device is not None and backend_name != "pytorch":
