@@ -164,6 +164,14 @@ def square(x):
     return tf.math.square(x)
 
 
+def abs(x):
+    return tf.math.abs(x)
+
+
+def minimum(x, y):
+    return tf.math.minimum(x, y)
+
+
 def tanh(x):
     return tf.math.tanh(x)
 

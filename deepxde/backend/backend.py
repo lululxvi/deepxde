@@ -305,6 +305,14 @@ def square(x):
     """Returns the square of the elements of input."""
 
 
+def abs(x):
+    """Computes the absolute value of a tensor."""
+
+
+def minimum(x, y):
+    """Returns the minimum of x and y (i.e. x < y ? x : y) element-wise."""
+
+
 def tanh(x):
     """Computes hyperbolic tangent of x element-wise."""
 

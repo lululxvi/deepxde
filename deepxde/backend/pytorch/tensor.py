@@ -154,6 +154,14 @@ def square(x):
     return torch.square(x)
 
 
+def abs(x):
+    return torch.abs(x)
+
+
+def minimum(x, y):
+    return torch.minimum(x, y)
+
+
 def tanh(x):
     return torch.tanh(x)
 

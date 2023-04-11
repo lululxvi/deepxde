@@ -89,6 +89,14 @@ def square(x):
     return jnp.square(x)
 
 
+def abs(x):
+    return jnp.abs(x)
+
+
+def minimum(x, y):
+    return jnp.minimum(x, y)
+
+
 def tanh(x):
     return jnp.tanh(x)
 

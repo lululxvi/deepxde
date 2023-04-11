@@ -146,6 +146,14 @@ def square(x):
     return paddle.square(x)
 
 
+def abs(x):
+    return paddle.abs(x)
+
+
+def minimum(x, y):
+    return paddle.minimum(x, y)
+
+
 def tanh(x):
     return paddle.tanh(x)
 
