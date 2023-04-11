@@ -1,8 +1,9 @@
 import numpy as np
 
-from .geometry import Geometry
+from .geometry import Geometry, Literal, Union
 from .sampler import sample
 from .. import config
+from .. import backend as bkd
 
 
 class Interval(Geometry):
@@ -21,6 +22,36 @@ class Interval(Geometry):
 
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
+
+    def approxdist2boundary(self, x, where:Union[
+        None, Literal["left", "right"]]=None,
+        smoothness:Literal["L", "M", "H"]="M"):
+
+        assert where in [None, "left", "right"]
+        assert smoothness in ["L", "M", "H"]
+        
+        if type(self.l) == np.ndarray:
+            l = self.l.flatten()[0]
+        if type(self.r) == np.ndarray:
+            r = self.r.flatten()[0]
+
+        if where is None:
+            if smoothness == "L":
+                return bkd.minimum(bkd.abs(x - l), bkd.abs(x - r))
+            elif smoothness == "M":
+                return bkd.abs(x - l) * bkd.abs(x - r)
+            else:
+                return bkd.square(x - l) * bkd.square(x - r)
+        elif where == "left":
+            if smoothness == "L" or smoothness == "M":
+                return bkd.abs(x - l)
+            else:
+                return bkd.square(x - l)
+        elif where == "right":
+            if smoothness == "L" or smoothness == "M":
+                return bkd.abs(x - r)
+            else:
+                return bkd.square(x - r)
 
     def boundary_normal(self, x):
         return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
