@@ -28,9 +28,9 @@ class Geometry(abc.ABC):
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
     
-    def approxdist2boundary(self, x, where:Union[
-        None, Literal["left", "right", "top", "bottom"]]=None,
-        smoothness:Literal["L", "M", "H"]="M"):
+    def approxdist2boundary(self, x, where: Union[
+        None, Literal["left", "right", "top", "bottom"]] = None,
+        smoothness: Literal["L", "M", "H"] = "M"):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
         - The approximate distance function satisfies the following properties:

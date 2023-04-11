@@ -23,35 +23,37 @@ class Interval(Geometry):
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
-    def approxdist2boundary(self, x, where:Union[
-        None, Literal["left", "right"]]=None,
-        smoothness:Literal["L", "M", "H"]="M"):
+    def approxdist2boundary(self, x, where: Union[
+        None, Literal["left", "right"]] = None,
+        smoothness: Literal["L", "M", "H"] = "M"):
 
-        assert where in [None, "left", "right"]
-        assert smoothness in ["L", "M", "H"]
+        assert where in [None, "left", "right"], "where must be None, left, or right"
+        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
         
-        if type(self.l) == np.ndarray:
-            l = self.l.flatten()[0]
-        if type(self.r) == np.ndarray:
-            r = self.r.flatten()[0]
+        # To convert self.l and self.r to tensor,
+        # and avoid repeated conversion in the loop
+        if not hasattr(self, 'self.l_tensor'):
+            self.l_tensor = bkd.as_tensor(self.l)
+        if not hasattr(self, 'self.r_tensor'):
+            self.r_tensor = bkd.as_tensor(self.r)
 
         if where is None:
             if smoothness == "L":
-                return bkd.minimum(bkd.abs(x - l), bkd.abs(x - r))
+                return bkd.minimum(bkd.abs(x - self.l_tensor), bkd.abs(x - self.r_tensor))
             elif smoothness == "M":
-                return bkd.abs(x - l) * bkd.abs(x - r)
+                return bkd.abs(x - self.l_tensor) * bkd.abs(x - self.r_tensor)
             else:
-                return bkd.square(x - l) * bkd.square(x - r)
+                return bkd.square(x - self.l_tensor) * bkd.square(x - self.r_tensor)
         elif where == "left":
             if smoothness == "L" or smoothness == "M":
-                return bkd.abs(x - l)
+                return bkd.abs(x - self.l_tensor)
             else:
-                return bkd.square(x - l)
+                return bkd.square(x - self.l_tensor)
         elif where == "right":
             if smoothness == "L" or smoothness == "M":
-                return bkd.abs(x - r)
+                return bkd.abs(x - self.r_tensor)
             else:
-                return bkd.square(x - r)
+                return bkd.square(x - self.r_tensor)
 
     def boundary_normal(self, x):
         return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
