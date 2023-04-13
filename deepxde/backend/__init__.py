@@ -7,7 +7,7 @@ import sys
 
 from . import backend
 from .set_default_backend import set_default_backend
-from .utils import verify_backend
+from .utils import interactive_install_paddle, verify_backend
 
 _enabled_apis = set()
 
@@ -47,15 +47,6 @@ def backend_message(backend_name):
 
 
 def load_backend(mod_name):
-    if mod_name not in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
-        raise NotImplementedError("Unsupported backend: %s" % mod_name)
-
     backend_message(mod_name)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
@@ -110,12 +101,10 @@ def get_preferred_backend():
         return backend_name
 
     # No backend selected
-    print(
-        "DeepXDE backend not selected. Use tensorflow.compat.v1.",
-        file=sys.stderr,
-    )
-    set_default_backend("tensorflow.compat.v1")
-    return "tensorflow.compat.v1"
+    print("No backend selected.")
+    interactive_install_paddle()
+    set_default_backend("paddle")
+    return "paddle"
 
 
 load_backend(get_preferred_backend())
