@@ -69,17 +69,30 @@ def verify_backend(backend_name):
         "jax": import_jax,
         "paddle": import_paddle,
     }
-
     if backend_name not in import_funcs:
         raise NotImplementedError(
             f"Unsupported backend: {backend_name}.\n"
             "Please select backend from tensorflow.compat.v1, tensorflow, pytorch, jax or paddle."
         )
-
     if not import_funcs[backend_name]():
         raise RuntimeError(
             f"Backend is set as {backend_name}, but '{backend_name}' failed to import."
         )
+
+
+def get_available_backend():
+    backends = ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax", "paddle"]
+    import_funcs = {
+        "tensorflow.compat.v1": import_tensorflow_compat_v1,
+        "tensorflow": import_tensorflow,
+        "pytorch": import_pytorch,
+        "jax": import_jax,
+        "paddle": import_paddle,
+    }
+    for backend in backends:
+        if import_funcs[backend]():
+            return backend
+    return None
 
 
 # Ask user if install paddle and install it
@@ -146,7 +159,6 @@ def get_cuda(platform):
             )
         else:
             return cuda_version
-
     return None
 
 
@@ -160,7 +172,6 @@ def get_rocm():
     roc_text2 = os.popen("/opt/rocm/opencl/bin/clinfo").read()
     if roc_text1 != "" and roc_text2 != "":
         return True
-
     print("There is no avaliable ROCm4.0.", file=sys.stderr, flush=True)
     return False
 
