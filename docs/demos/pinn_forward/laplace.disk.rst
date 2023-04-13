@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a Laplace equation in a polar coordinate system:
 
-.. math:: r\frac{dy}{dr} + r^2\frac{dy}{dr^2} + \frac{dy}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
+.. math:: r\frac{dy}{dr} + r^2\frac{dy^2}{dr^2} + \frac{dy^2}{d\theta^2} = 0,  \qquad r \in [0, 1], \quad \theta \in [0, 2\pi]
 
 with the Dirichlet boundary condition
 
@@ -87,6 +87,7 @@ The number 2540 is the number of training residual points sampled inside the dom
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers) and width 20:
 
 .. code-block:: python
+
     net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 
 If we rewrite this problem in cartesian coordinates, the variables are in the form of :math:`[r\sin(\theta), r\cos(\theta)]`. We use them as features to satisfy the certain underlying physical constraints, so that the network is automatically periodic along the :math:`\theta` coordinate and the period is :math:`2\pi`.

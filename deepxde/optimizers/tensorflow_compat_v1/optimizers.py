@@ -41,9 +41,9 @@ def get(loss, optimizer, learning_rate=None, decay=None):
         elif optimizer == "sgdnesterov":
             optim = tf.train.MomentumOptimizer(lr, 0.9, use_nesterov=True)
         elif optimizer == "adagrad":
-            optim = tf.train.AdagradOptimizer(0.01)
+            optim = tf.train.AdagradOptimizer(lr)
         elif optimizer == "adadelta":
-            optim = tf.train.AdadeltaOptimizer()
+            optim = tf.train.AdadeltaOptimizer(lr)
         elif optimizer == "rmsprop":
             optim = tf.train.RMSPropOptimizer(lr)
         elif optimizer == "adam":

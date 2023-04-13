@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=65", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "DeepXDE"
+dynamic = ["version"]
+description = "A library for scientific machine learning"
+readme = "README.md"
+license = {text = "LGPL-2.1"}
+authors = [
+    { name = "Lu Lu", email = "lululxvi@gmail.com" },
+]
+requires-python = ">=3.8"
+keywords = [
+    "Deep learning",
+    "Differential equations",
+    "Machine learning",
+    "Neural networks",
+    "Physics-informed neural networks",
+    "Scientific computing",
+    "Scientific machine learning",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "scikit-learn",
+    "scikit-optimize>=0.9.0",
+    "scipy",
+]
+
+[project.urls]
+Homepage = "https://github.com/lululxvi/deepxde"
+"Bug Tracker" = "https://github.com/lululxvi/deepxde/issues"
+Changelog = "https://github.com/lululxvi/deepxde/releases"
+Documentation = "https://deepxde.readthedocs.io"
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["docker", "docs*", "examples*"]
+
+[tool.setuptools_scm]
+write_to = "deepxde/_version.py"

@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1
+"""Backend supported: tensorflow.compat.v1, paddle
 
 Implementation of the wave propagation example in paper https://arxiv.org/abs/2012.10047.
 References:
@@ -72,7 +72,7 @@ model.compile(
     loss_weights=loss_weights,
     decay=("inverse time", 2000, 0.9),
 )
-pde_residual_resampler = dde.callbacks.PDEResidualResampler(period=1)
+pde_residual_resampler = dde.callbacks.PDEPointResampler(period=1)
 losshistory, train_state = model.train(
     iterations=10000, callbacks=[pde_residual_resampler], display_every=500
 )

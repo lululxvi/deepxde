@@ -1,4 +1,4 @@
-__all__ = ["Disk", "Polygon", "Rectangle", "Triangle"]
+__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
 
 import numpy as np
 from scipy import spatial
@@ -28,7 +28,9 @@ class Disk(Geometry):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return -ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5
+        return (-ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+            config.real(np)
+        )
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -65,8 +67,116 @@ class Disk(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n - shift + 1)[:, None] * h * dirn
+        pts = (
+            x
+            - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None]
+            * h
+            * dirn
+        )
         return pts
+
+
+class Ellipse(Geometry):
+    """Ellipse.
+
+    Args:
+        center: Center of the ellipse.
+        semimajor: Semimajor of the ellipse.
+        semiminor: Semiminor of the ellipse.
+        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse
+            clockwise about the center and a negative angle rotates the ellipse
+            counterclockwise about the center.
+    """
+
+    def __init__(self, center, semimajor, semiminor, angle=0):
+        self.center = np.array(center, dtype=config.real(np))
+        self.semimajor = semimajor
+        self.semiminor = semiminor
+        self.angle = angle
+        self.c = (semimajor**2 - semiminor**2) ** 0.5
+
+        self.focus1 = np.array(
+            [
+                center[0] - self.c * np.cos(angle),
+                center[1] + self.c * np.sin(angle),
+            ],
+            dtype=config.real(np),
+        )
+        self.focus2 = np.array(
+            [
+                center[0] + self.c * np.cos(angle),
+                center[1] - self.c * np.sin(angle),
+            ],
+            dtype=config.real(np),
+        )
+        self.rotation_mat = np.array(
+            [[np.cos(-angle), -np.sin(-angle)], [np.sin(-angle), np.cos(-angle)]]
+        )
+        (
+            self.theta_from_arc_length,
+            self.total_arc,
+        ) = self._theta_from_arc_length_constructor()
+        super().__init__(
+            2, (self.center - semimajor, self.center + semiminor), 2 * self.c
+        )
+
+    def on_boundary(self, x):
+        d1 = np.linalg.norm(x - self.focus1, axis=-1)
+        d2 = np.linalg.norm(x - self.focus2, axis=-1)
+        return np.isclose(d1 + d2, 2 * self.semimajor)
+
+    def inside(self, x):
+        d1 = np.linalg.norm(x - self.focus1, axis=-1)
+        d2 = np.linalg.norm(x - self.focus2, axis=-1)
+        return d1 + d2 <= 2 * self.semimajor
+
+    def _ellipse_arc(self):
+        """Cumulative arc length of ellipse with given dimensions. Returns theta values,
+        distance cumulated at each theta, and total arc length.
+        """
+        # Divide the interval [0 , theta] into n steps at regular angles
+        theta = np.linspace(0, 2 * np.pi, 10000)
+        coords = np.array(
+            [self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)]
+        )
+        # Compute vector distance between each successive point
+        coords_diffs = np.diff(coords)
+        # Compute the full arc
+        delta_r = np.linalg.norm(coords_diffs, axis=0)
+        cumulative_distance = np.concatenate(([0], np.cumsum(delta_r)))
+        c = np.sum(delta_r)
+        return theta, cumulative_distance, c
+
+    def _theta_from_arc_length_constructor(self):
+        """Constructs a function that returns the angle associated with a given
+        cumulative arc length for given ellipse.
+        """
+        theta, cumulative_distance, total_arc = self._ellipse_arc()
+        # Construct the inverse arc length function
+        def f(s):
+            return np.interp(s, cumulative_distance, theta)
+        return f, total_arc
+
+    def random_points(self, n, random="pseudo"):
+        # http://mathworld.wolfram.com/DiskPointPicking.html
+        rng = sample(n, 2, random)
+        r, theta = rng[:, 0], 2 * np.pi * rng[:, 1]
+        x, y = self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)
+        X = np.sqrt(r) * np.vstack((x, y))
+        return np.matmul(self.rotation_mat, X).T + self.center
+
+    def uniform_boundary_points(self, n):
+        # https://codereview.stackexchange.com/questions/243590/generate-random-points-on-perimeter-of-ellipse
+        u = np.linspace(0, 1, num=n, endpoint=False).reshape((-1, 1))
+        theta = self.theta_from_arc_length(u * self.total_arc)
+        X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
+        return np.matmul(self.rotation_mat, X.T).T + self.center
+
+    def random_boundary_points(self, n, random="pseudo"):
+        u = sample(n, 1, random)
+        theta = self.theta_from_arc_length(u * self.total_arc)
+        X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
+        return np.matmul(self.rotation_mat, X.T).T + self.center
 
 
 class Rectangle(Hypercube):

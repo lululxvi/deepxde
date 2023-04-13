@@ -1,10 +1,10 @@
 """tensorflow.compat.v1 backend implementation"""
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 import tensorflow.compat.v1 as tf
 
 
-if LooseVersion(tf.__version__) < LooseVersion("2.7.0"):
+if Version(tf.__version__) < Version("2.7.0"):
     raise RuntimeError("DeepXDE requires TensorFlow>=2.7.0.")
 
 
@@ -64,6 +64,10 @@ def shape(input_tensor):
     return input_tensor.shape.as_list()
 
 
+def size(tensor):
+    return tf.get_static_value(tf.size(tensor)).item()
+
+
 def ndim(input_tensor):
     return len(input_tensor.shape)
 
@@ -88,12 +92,40 @@ def as_tensor(data, dtype=None):
     return tf.convert_to_tensor(data, dtype=dtype)
 
 
+def sparse_tensor(indices, values, shape):
+    return tf.sparse.SparseTensor(indices, values, shape)
+
+
 def from_numpy(np_array):
     # Do memory copy:
     # https://stackoverflow.com/questions/47519802/does-tensorflow-convert-to-tensor-do-memory-copy
     # To avoid memory copy, use implicit conversion, but memory copy is still possible.
     # https://www.tensorflow.org/tutorials/customization/basics#numpy_compatibility
     return tf.convert_to_tensor(np_array)
+
+
+def concat(values, axis):
+    return tf.concat(values, axis)
+
+
+def stack(values, axis):
+    return tf.stack(values, axis)
+
+
+def expand_dims(tensor, axis):
+    return tf.expand_dims(tensor, axis)
+
+
+def reverse(tensor, axis):
+    return tf.reverse(tensor, axis)
+
+
+def roll(tensor, shift, axis):
+    return tf.roll(tensor, shift, axis)
+
+
+def lgamma(x):
+    return tf.math.lgamma(x)
 
 
 def elu(x):
@@ -120,12 +152,24 @@ def sin(x):
     return tf.math.sin(x)
 
 
+def cos(x):
+    return tf.math.cos(x)
+
+
+def exp(x):
+    return tf.math.exp(x)
+
+
 def square(x):
     return tf.math.square(x)
 
 
 def tanh(x):
     return tf.math.tanh(x)
+
+
+def pow(x, y):
+    return tf.math.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -156,3 +200,11 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return tf.zeros_like(input_tensor)
+
+
+def matmul(x, y):
+    return tf.linalg.matmul(x, y)
+
+
+def sparse_dense_matmul(x, y):
+    return tf.sparse.sparse_dense_matmul(x, y)

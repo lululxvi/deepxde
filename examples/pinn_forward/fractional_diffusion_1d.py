@@ -1,13 +1,17 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
 import numpy as np
+# Import tf if using backend tensorflow.compat.v1
 from deepxde.backend import tf
+# Import paddle if using backend paddle
+# import paddle
 from scipy.special import gamma
 
 
 alpha = 1.8
 
 
+# Backend tensorflow.compat.v1
 def fpde(x, y, int_mat):
     """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
@@ -25,6 +29,31 @@ def fpde(x, y, int_mat):
         - gamma(7) / gamma(7 - alpha) * (x ** (6 - alpha) + (1 - x) ** (6 - alpha))
     )
     return lhs - rhs[: tf.size(lhs)]
+# Backend paddle
+# def fpde(x, y, int_mat):
+#     """du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)"""
+#     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
+#         indices, values, shape = int_mat
+#         int_mat = paddle.sparse.sparse_coo_tensor(
+#             [[p[0] for p in indices], [p[1] for p in indices]],
+#             values,
+#             shape,
+#             stop_gradient=False
+#         )
+#         lhs = -paddle.sparse.matmul(int_mat, y)
+#     else:
+#         int_mat = paddle.to_tensor(int_mat, dde.config.real(paddle), stop_gradient=False)
+#         lhs = -paddle.mm(int_mat, y)
+#     dy_t = paddle.grad(y, x, create_graph=True)[0][:, 1:2]
+#     x, t = x[:, :-1], x[:, -1:]
+#     rhs = -dy_t - paddle.exp(-t) * (
+#         x ** 3 * (1 - x) ** 3
+#         + gamma(4) / gamma(4 - alpha) * (x ** (3 - alpha) + (1 - x) ** (3 - alpha))
+#         - 3 * gamma(5) / gamma(5 - alpha) * (x ** (4 - alpha) + (1 - x) ** (4 - alpha))
+#         + 3 * gamma(6) / gamma(6 - alpha) * (x ** (5 - alpha) + (1 - x) ** (5 - alpha))
+#         - gamma(7) / gamma(7 - alpha) * (x ** (6 - alpha) + (1 - x) ** (6 - alpha))
+#     )
+#     return lhs - rhs[: paddle.numel(lhs)]
 
 
 def func(x):

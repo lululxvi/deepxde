@@ -1,10 +1,12 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
 # Import tf if using backend tensorflow.compat.v1 or tensorflow
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
+# Import paddle if using backend paddle
+# import paddle
 
 
 def pde(x, y):
@@ -42,6 +44,11 @@ def feature_transform(x):
 # def feature_transform(x):
 #     return torch.cat(
 #         [x[:, 0:1] * torch.sin(x[:, 1:2]), x[:, 0:1] * torch.cos(x[:, 1:2])], dim=1
+#     )
+# Backend paddle
+# def feature_transform(x):
+#     return paddle.concat(
+#         [x[:, 0:1] * paddle.sin(x[:, 1:2]), x[:, 0:1] * paddle.cos(x[:, 1:2])], axis=1
 #     )
 
 net.apply_feature_transform(feature_transform)
