@@ -31,6 +31,7 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
     - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
     - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
     - Reliable extrapolation [[arXiv](https://arxiv.org/abs/2212.06347)]
+    - Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
