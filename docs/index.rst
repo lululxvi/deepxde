@@ -19,11 +19,11 @@ DeepXDE
     - DeepONet: learning operators [`Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_]
     - DeepONet extensions, e.g., POD-DeepONet [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114778>`_]
     - MIONet: learning multiple-input operators [`SIAM J. Sci. Comput. <https://doi.org/10.1137/22M1477751>`_]
+    - Fourier-MIONet [`arXiv <https://arxiv.org/abs/2303.04778>`_]
     - physics-informed DeepONet [`Sci. Adv. <https://doi.org/10.1126/sciadv.abi8605>`_]
     - multifidelity DeepONet [`Phys. Rev. Research <https://doi.org/10.1103/PhysRevResearch.4.023210>`_]
     - DeepM&Mnet: solving multiphysics and multiscale problems [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
     - Reliable extrapolation [`arXiv <https://arxiv.org/abs/2212.06347>`_]
-    - Fourier-MIONet [`arXiv <https://arxiv.org/abs/2303.04778>`_]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://doi.org/10.1073/pnas.1922210117>`_]
 
