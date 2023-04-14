@@ -42,6 +42,7 @@ DeepXDE has been used in
   `University of Electronic Science and Technology of China <https://en.uestc.edu.cn>`_,
   `KTH Royal Institute of Technology <https://www.kth.se/en>`_,
   `Florida State University <https://www.fsu.edu>`_,
+  `University of Delaware <https://www.udel.edu>`_,
   `Xiamen University <https://en.xmu.edu.cn>`_,
   `Beihang University <https://ev.buaa.edu.cn>`_,
   `University of Strasbourg <https://en.unistra.fr>`_,
@@ -103,7 +104,8 @@ DeepXDE has been used in
   `BirenTech Research <https://www.birentech.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
-  `Saudi Aramco <https://www.aramco.com>`_
+  `Saudi Aramco <https://www.aramco.com>`_,
+  `ExxonMobil <https://corporate.exxonmobil.com>`_
 
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
 
