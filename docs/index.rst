@@ -23,6 +23,7 @@ DeepXDE
     - multifidelity DeepONet [`Phys. Rev. Research <https://doi.org/10.1103/PhysRevResearch.4.023210>`_]
     - DeepM&Mnet: solving multiphysics and multiscale problems [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110296>`_, `J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2021.110698>`_]
     - Reliable extrapolation [`arXiv <https://arxiv.org/abs/2212.06347>`_]
+    - Fourier-MIONet [`arXiv <https://arxiv.org/abs/2303.04778>`_]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [`J. Comput. Phys. <https://doi.org/10.1016/j.jcp.2019.109020>`_, `PNAS <https://doi.org/10.1073/pnas.1922210117>`_]
 
