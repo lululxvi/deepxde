@@ -186,6 +186,30 @@ def reduce_sum(input_tensor):
     return torch.sum(input_tensor)
 
 
+def prod(input_tensor, dim, keepdims=False):
+    return torch.prod(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return torch.prod(input_tensor)
+
+
+def min(input_tensor, dim, keepdims=False):
+    return torch.min(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_min(input_tensor):
+    return torch.min(input_tensor)
+
+
+def max(input_tensor, dim, keepdims=False):
+    return torch.max(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_max(input_tensor):
+    return torch.max(input_tensor)
+
+
 def norm(tensor, ord=None, axis=None, keepdims=False):
     return torch.linalg.norm(tensor, ord=ord, dim=axis, keepdim=keepdims)
 

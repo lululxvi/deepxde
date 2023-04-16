@@ -178,6 +178,30 @@ def reduce_sum(input_tensor):
     return paddle.sum(input_tensor)
 
 
+def prod(input_tensor, dim, keepdims=False):
+    return paddle.prod(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return paddle.prod(input_tensor)
+
+
+def max(input_tensor, dim, keepdims=False):
+    return paddle.max(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_max(input_tensor):
+    return paddle.max(input_tensor)
+
+
+def min(input_tensor, dim, keepdims=False):
+    return paddle.min(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_min(input_tensor):
+    return paddle.min(input_tensor)
+
+
 def norm(x, ord=None, axis=None, keepdims=False):
     return paddle.linalg.norm(x, p=ord, axis=axis, keepdim=keepdims)
 

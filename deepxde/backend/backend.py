@@ -360,6 +360,78 @@ def reduce_sum(input_tensor):
     """
 
 
+def prod(input_tensor, dim, keepdims=False):
+    """Returns the product of the input tensor along the given dim.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+        dim (int). The reduce dim.
+        keepdims (bool). Whether to keep the summed dimension.
+
+    Returns:
+        Tensor: A framework-specific tensor.
+    """
+
+
+def reduce_prod(input_tensor):
+    """Returns the product of all elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor.
+    """
+
+
+def min(input_tensor, dim, keepdims=False):
+    """Returns the minimum of the input tensor along the given dim.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+        dim (int). The reduce dim.
+        keepdims (bool). Whether to keep the summed dimension.
+
+    Returns:
+        Tensor: A framework-specific tensor.
+    """
+
+
+def reduce_min(input_tensor):
+    """Returns the minimum of all elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor.
+    """
+
+
+def max(input_tensor, dim, keepdims=False):
+    """Returns the maximum of the input tensor along the given dim.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+        dim (int). The reduce dim.
+        keepdims (bool). Whether to keep the summed dimension.
+
+    Returns:
+        Tensor: A framework-specific tensor.
+    """
+
+
+def reduce_max(input_tensor):
+    """Returns the maximum of all elements in the input tensor.
+
+    Args:
+        input_tensor (Tensor). The input tensor.
+
+    Returns:
+        Tensor.
+    """
+
+
 def norm(tensor, ord=None, axis=None, keepdims=False):
     """Computes a vector norm.
 

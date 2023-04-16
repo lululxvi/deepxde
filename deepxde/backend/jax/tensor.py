@@ -117,6 +117,30 @@ def reduce_sum(input_tensor):
     return jnp.sum(input_tensor)
 
 
+def prod(input_tensor, dim, keepdims=False):
+    return jnp.prod(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return jnp.prod(input_tensor)
+
+
+def max(input_tensor, dim, keepdims=False):
+    return jnp.max(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_max(input_tensor):
+    return jnp.max(input_tensor)
+
+
+def min(input_tensor, dim, keepdims=False):
+    return jnp.min(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_min(input_tensor):
+    return jnp.min(input_tensor)
+
+
 def zeros(shape, dtype):
     return jnp.zeros(shape, dtype=dtype)
 
