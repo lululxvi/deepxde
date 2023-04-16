@@ -34,26 +34,29 @@ class Interval(Geometry):
         # and avoid repeated conversion in the loop
         if not hasattr(self, 'self.l_tensor'):
             self.l_tensor = bkd.as_tensor(self.l)
-        if not hasattr(self, 'self.r_tensor'):
             self.r_tensor = bkd.as_tensor(self.r)
 
+        dist_l = bkd.abs((x - self.l_tensor) 
+            / (self.r_tensor - self.l_tensor) * 2)
+        dist_r = bkd.abs((x - self.r_tensor) 
+            / (self.r_tensor - self.l_tensor) * 2)
         if where is None:
             if smoothness == "L":
-                return bkd.minimum(bkd.abs(x - self.l_tensor), bkd.abs(x - self.r_tensor))
+                return bkd.minimum(dist_l, dist_r)
             elif smoothness == "M":
-                return bkd.abs(x - self.l_tensor) * bkd.abs(x - self.r_tensor)
+                return dist_l * dist_r
             else:
-                return bkd.square(x - self.l_tensor) * bkd.square(x - self.r_tensor)
+                return bkd.square(dist_l * dist_r)
         elif where == "left":
             if smoothness == "L" or smoothness == "M":
-                return bkd.abs(x - self.l_tensor)
+                return dist_l
             else:
-                return bkd.square(x - self.l_tensor)
+                return bkd.square(dist_l)
         elif where == "right":
             if smoothness == "L" or smoothness == "M":
-                return bkd.abs(x - self.r_tensor)
+                return dist_r
             else:
-                return bkd.square(x - self.r_tensor)
+                return bkd.square(dist_r)
 
     def boundary_normal(self, x):
         return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
