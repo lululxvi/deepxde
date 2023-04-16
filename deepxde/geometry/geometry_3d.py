@@ -3,7 +3,7 @@ import itertools
 import numpy as np
 
 from .geometry_2d import Rectangle
-from .geometry_nd import Hypercube, Hypersphere
+from .geometry_nd import Hypercube, Hypersphere, Literal, Union, bkd
 
 
 class Cuboid(Hypercube):
@@ -66,6 +66,56 @@ class Cuboid(Hypercube):
             )
         return pts
 
+    def approxdist2boundary(self, x, where: Union[
+            None, Literal["back", "front", "left", "right", 
+                        "bottom", "top"]] = None,
+        smoothness: Literal["L", "M", "H"] = "M",
+        inside: bool = True):
+        """
+        `inside`: `x` is either inside or outside the geometry.
+        The case where there are both points inside and points
+        outside the geometry is NOT allowed.
+
+        NOTE: currently only support `inside=True`.
+
+        See `Geometry.approxdist2boundary()` for more info on args.
+        """
+        
+        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+        assert self.dim == 3
+        assert inside, "inside=False is not supported for Cuboid"
+
+        if not hasattr(self, "self.xmin_tensor"):
+            self.xmin_tensor = bkd.as_tensor(self.xmin)
+            self.xmax_tensor = bkd.as_tensor(self.xmax)
+
+        dist_l = bkd.abs((x - self.xmin_tensor) /
+                        (self.xmax_tensor - self.xmin_tensor) * 2)
+        dist_r = bkd.abs((x - self.xmax_tensor) /
+                        (self.xmax_tensor - self.xmin_tensor) * 2)
+        
+        if where == "back":
+            return dist_l[:, 0:1]
+        elif where == "front":
+            return dist_r[:, 0:1]
+        elif where == "left":
+            return dist_l[:, 1:2]
+        elif where == "right":
+            return dist_r[:, 1:2]
+        elif where == "bottom":
+            return dist_l[:, 2:]
+        elif where == "top":
+            return dist_r[:, 2:]
+
+        if smoothness == "L":
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+            return bkd.minimum(dist_l, dist_r)
+        else:
+            dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+            return dist_l * dist_r
+
 
 class Sphere(Hypersphere):
     """
@@ -73,6 +123,3 @@ class Sphere(Hypersphere):
         center: Center of the sphere.
         radius: Radius of the sphere.
     """
-
-    def __init__(self, center, radius):
-        super().__init__(center, radius)
