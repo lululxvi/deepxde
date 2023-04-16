@@ -4,9 +4,10 @@ import numpy as np
 from scipy import stats
 from sklearn import preprocessing
 
-from .geometry import Geometry
+from .geometry import Geometry, Literal, Union
 from .sampler import sample
 from .. import config
+from .. import backend as bkd
 
 
 class Hypercube(Geometry):
@@ -100,6 +101,56 @@ class Hypercube(Geometry):
         y[:, component][_on_xmax] = self.xmin[component]
         return y
 
+    def approxdist2boundary(self, x, 
+            where: None = None, 
+            smoothness: None = None):
+        """Do not use this overload. 
+        Use the overload with `inside` argument instead."""
+        raise NotImplementedError(
+            "Do not use this overload. Use the overload with `inside` argument instead."
+        )
+
+    def approxdist2boundary(self, x, 
+        where: None = None, 
+        smoothness: Literal["L", "M", "H"] = "M",
+        inside: bool = True):
+        """
+        `inside`: `x` is either inside or outside the geometry.
+        The cases that there are both points inside and points
+        outside the geometry are NOT allowed.
+
+        NOTE: currently only support `inside=True`.
+
+        WARNING: in current implementation, 
+        numerical underflow may happen for high dimensionalities
+        when `smoothness="M"` or `smoothness="H"`. 
+
+        See `Geometry.approxdist2boundary()` for more info on args.
+        """
+        
+        assert where is None, "where!=None is not supported for Hypercube"
+        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+        assert self.dim >= 2
+        assert inside, "inside=False is not supported for Hypercube"
+
+        if not hasattr(self, "self.xmin_tensor"):
+            self.xmin_tensor = bkd.as_tensor(self.xmin)
+            self.xmax_tensor = bkd.as_tensor(self.xmax)
+
+        dist_l = bkd.abs((x - self.xmin_tensor) /
+                        (self.xmax_tensor - self.xmin_tensor) * 2)
+        dist_r = bkd.abs((x - self.xmax_tensor) /
+                        (self.xmax_tensor - self.xmin_tensor) * 2)
+        if smoothness == "L":
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+            return bkd.minimum(dist_l, dist_r)
+        else:
+            # TODO: fix potential numerical underflow
+            dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+            return dist_l * dist_r
+
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
@@ -128,6 +179,24 @@ class Hypersphere(Geometry):
 
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
+
+    def approxdist2boundary(self, x, 
+        where: None = None, 
+        smoothness: Literal["L", "M", "H"] = "M"):
+        
+        assert where is None, "where!=None is not supported for Hypersphere or its subclasses"
+        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+
+        if not hasattr(self, "self.center_tensor"):
+            self.center_tensor = bkd.as_tensor(self.center)
+            self.radius_tensor = bkd.as_tensor(self.radius)
+
+        diff = bkd.norm(
+            x - self.center_tensor, axis=-1, keepdims=True) - self.radius
+        if smoothness == "L" or smoothness == "M":
+            return bkd.abs(diff)
+        else:
+            return bkd.square(diff)
 
     def boundary_normal(self, x):
         _n = x - self.center
