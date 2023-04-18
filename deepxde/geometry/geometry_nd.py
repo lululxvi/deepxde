@@ -1,10 +1,11 @@
 import itertools
+from typing import overload
 
 import numpy as np
 from scipy import stats
 from sklearn import preprocessing
 
-from .geometry import Geometry, Literal, Union
+from .geometry import Geometry, Literal
 from .sampler import sample
 from .. import config
 from .. import backend as bkd
@@ -101,14 +102,12 @@ class Hypercube(Geometry):
         y[:, component][_on_xmax] = self.xmin[component]
         return y
 
+    @overload
     def approxdist2boundary(self, x, 
             where: None = None, 
             smoothness: None = None):
         """Do not use this overload. 
         Use the overload with `inside` argument instead."""
-        raise NotImplementedError(
-            "Do not use this overload. Use the overload with `inside` argument instead."
-        )
 
     def approxdist2boundary(self, x, 
         where: None = None, 

@@ -2,8 +2,8 @@ import itertools
 
 import numpy as np
 
-from .geometry_2d import Rectangle
-from .geometry_nd import Hypercube, Hypersphere, Literal, Union, bkd
+from .geometry_2d import Rectangle, Union
+from .geometry_nd import Hypercube, Hypersphere, Literal, bkd
 
 
 class Cuboid(Hypercube):

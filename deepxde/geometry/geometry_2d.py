@@ -3,8 +3,8 @@ __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
 import numpy as np
 from scipy import spatial
 
-from .geometry import Geometry
-from .geometry_nd import Hypercube, Hypersphere, Literal, Union, bkd
+from .geometry import Geometry, Union
+from .geometry_nd import Hypercube, Hypersphere, Literal, bkd
 from .sampler import sample
 from .. import config
 from ..utils import vectorize
@@ -261,6 +261,39 @@ class Rectangle(Hypercube):
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return np.vstack(x)
 
+    def approxdist2boundary_inside(self, x, where: Union[
+            None, Literal["left", "right",
+                        "bottom", "top"]] = None,
+        smoothness: Literal["L", "M", "H"] = "M"):
+
+        if not hasattr(self, "self.xmin_tensor"):
+            self.xmin_tensor = bkd.as_tensor(self.xmin)
+            self.xmax_tensor = bkd.as_tensor(self.xmax)
+        if where not in ["right", "top"]:
+            dist_l = bkd.absolute((x - self.xmin_tensor) /
+                            (self.xmax_tensor - self.xmin_tensor) * 2)
+        if where not in ["left", "bottom"]:
+            dist_r = bkd.absolute((x - self.xmax_tensor) /
+                            (self.xmax_tensor - self.xmin_tensor) * 2)
+        
+        if where == "left":
+            return dist_l[:, 0:1]
+        if where == "right":
+            return dist_r[:, 0:1]
+        if where == "bottom":
+            return dist_l[:, 1:]
+        if where == "top":
+            return dist_r[:, 1:]
+
+        if smoothness == "L":
+            dist_l = bkd.amin(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.amin(dist_r, dim=-1, keepdims=True)
+            return bkd.minimum(dist_l, dist_r)
+        dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+        dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+        return dist_l * dist_r
+
+
     def approxdist2boundary(self, x, where: Union[
             None, Literal["left", "right",
                         "bottom", "top"]] = None,
@@ -274,73 +307,50 @@ class Rectangle(Hypercube):
         See `Geometry.approxdist2boundary()` for more info on args.
         """
         
+        assert where in [None, "left", "right", "bottom", "top"], \
+            "where must be one of None, left, right, bottom, top"
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
         assert self.dim == 2
 
         if inside:
-            if not hasattr(self, "self.xmin_tensor"):
-                self.xmin_tensor = bkd.as_tensor(self.xmin)
-                self.xmax_tensor = bkd.as_tensor(self.xmax)
-            if where not in ["right", "top"]:
-                dist_l = bkd.absolute((x - self.xmin_tensor) /
-                                (self.xmax_tensor - self.xmin_tensor) * 2)
-            if where not in ["left", "bottom"]:
-                dist_r = bkd.absolute((x - self.xmax_tensor) /
-                                (self.xmax_tensor - self.xmin_tensor) * 2)
-            
-            if where == "left":
-                return dist_l[:, 0:1]
-            if where == "right":
-                return dist_r[:, 0:1]
-            if where == "bottom":
-                return dist_l[:, 1:]
-            if where == "top":
-                return dist_r[:, 1:]
+            return self.approxdist2boundary_inside(x, where, smoothness)
 
-            if smoothness == "L":
-                dist_l = bkd.amin(dist_l, dim=-1, keepdims=True)
-                dist_r = bkd.amin(dist_r, dim=-1, keepdims=True)
-                return bkd.minimum(dist_l, dist_r)
-            dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
-            dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
-            return dist_l * dist_r
-        else:
-            if not hasattr(self, "self.x11_tensor"):
-                self.x11_tensor = bkd.as_tensor(self.xmin)
-                self.x22_tensor = bkd.as_tensor(self.xmax)
-                self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
-                self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
-            
-            if where is None or where == "left":
-                dist_left = bkd.absolute(bkd.norm(
-                    x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
-                    x - self.x12_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
-            if where is None or where == "right":
-                dist_right = bkd.absolute(bkd.norm(
-                    x - self.x21_tensor, axis=-1, keepdims=True) + bkd.norm(
-                    x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
-            if where is None or where == "bottom":
-                dist_bottom = bkd.absolute(bkd.norm(
-                    x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
-                    x - self.x21_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
-            if where is None or where == "top":
-                dist_top = bkd.absolute(bkd.norm(
-                    x - self.x12_tensor, axis=-1, keepdims=True) + bkd.norm(
-                    x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
-            
-            if where == "left":
-                return dist_left
-            if where == "right":
-                return dist_right
-            if where == "bottom":
-                return dist_bottom
-            if where == "top":
-                return dist_top
-            if smoothness == "L":
-                return bkd.minimum(
-                    bkd.minimum(dist_left, dist_right),
-                    bkd.minimum(dist_bottom, dist_top))
-            return dist_left * dist_right * dist_bottom * dist_top
+        if not hasattr(self, "self.x11_tensor"):
+            self.x11_tensor = bkd.as_tensor(self.xmin)
+            self.x22_tensor = bkd.as_tensor(self.xmax)
+            self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
+            self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
+        
+        if where is None or where == "left":
+            dist_left = bkd.absolute(bkd.norm(
+                x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x12_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
+        if where is None or where == "right":
+            dist_right = bkd.absolute(bkd.norm(
+                x - self.x21_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
+        if where is None or where == "bottom":
+            dist_bottom = bkd.absolute(bkd.norm(
+                x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x21_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
+        if where is None or where == "top":
+            dist_top = bkd.absolute(bkd.norm(
+                x - self.x12_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
+        
+        if where == "left":
+            return dist_left
+        if where == "right":
+            return dist_right
+        if where == "bottom":
+            return dist_bottom
+        if where == "top":
+            return dist_top
+        if smoothness == "L":
+            return bkd.minimum(
+                bkd.minimum(dist_left, dist_right),
+                bkd.minimum(dist_bottom, dist_top))
+        return dist_left * dist_right * dist_bottom * dist_top
 
     @staticmethod
     def is_valid(vertices):
