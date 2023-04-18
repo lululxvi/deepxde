@@ -189,11 +189,13 @@ class Hypersphere(Geometry):
             self.center_tensor = bkd.as_tensor(self.center)
             self.radius_tensor = bkd.as_tensor(self.radius)
 
-        diff = bkd.norm(
+        dist = bkd.norm(
             x - self.center_tensor, axis=-1, keepdims=True) - self.radius
-        if smoothness == "L" or smoothness == "M":
-            return bkd.absolute(diff)
-        return bkd.square(diff)
+        if smoothness == "H":
+            dist = bkd.square(dist)
+        else:
+            dist = bkd.absolute(dist)
+        return dist
 
     def boundary_normal(self, x):
         _n = x - self.center

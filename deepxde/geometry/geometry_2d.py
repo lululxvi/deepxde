@@ -183,10 +183,14 @@ class Ellipse(Geometry):
         
         d1 = bkd.norm(x - self.focus1_tensor, axis=-1, keepdims=True)
         d2 = bkd.norm(x - self.focus2_tensor, axis=-1, keepdims=True)
+        dist = d1 + d2 - 2 * self.semimajor
 
-        if smoothness == "L" or smoothness == "M":
-            return bkd.absolute(d1 + d2 - 2 * self.semimajor)
-        return bkd.square(d1 + d2 - 2 * self.semimajor)
+        if smoothness == "H":
+            dist = bkd.square(dist)
+        else:
+            dist = bkd.absolute(dist)
+
+        return dist
 
 
 class Rectangle(Hypercube):

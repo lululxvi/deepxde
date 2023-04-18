@@ -49,12 +49,12 @@ class Interval(Geometry):
                 return dist_l * dist_r
             return bkd.square(dist_l * dist_r)
         if where == "left":
-            if smoothness == "L" or smoothness == "M":
-                return dist_l
-            return bkd.square(dist_l)
-        if smoothness == "L" or smoothness == "M":
-            return dist_r
-        return bkd.square(dist_r)
+            if smoothness == "H":
+                dist_l = bkd.square(dist_l)
+            return dist_l
+        if smoothness == "H":
+            dist_r = bkd.square(dist_r)
+        return dist_r
 
     def boundary_normal(self, x):
         return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
