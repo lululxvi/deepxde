@@ -195,7 +195,7 @@ def reduce_prod(input_tensor):
 
 
 def min(input_tensor, dim, keepdims=False):
-    return torch.min(input_tensor, dim, keepdim=keepdims)
+    return torch.amin(input_tensor, dim, keepdim=keepdims)
 
 
 def reduce_min(input_tensor):
@@ -203,7 +203,7 @@ def reduce_min(input_tensor):
 
 
 def max(input_tensor, dim, keepdims=False):
-    return torch.max(input_tensor, dim, keepdim=keepdims)
+    return torch.amax(input_tensor, dim, keepdim=keepdims)
 
 
 def reduce_max(input_tensor):
