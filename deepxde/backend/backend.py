@@ -305,8 +305,8 @@ def square(x):
     """Returns the square of the elements of input."""
 
 
-def abs(x):
-    """Computes the absolute value of a tensor."""
+def absolute(x):
+    """Computes the absolute value element-wise."""
 
 
 def minimum(x, y):
@@ -384,7 +384,7 @@ def reduce_prod(input_tensor):
     """
 
 
-def min(input_tensor, dim, keepdims=False):
+def amin(input_tensor, dim, keepdims=False):
     """Returns the minimum of the input tensor along the given dim.
 
     Args:
@@ -408,7 +408,7 @@ def reduce_min(input_tensor):
     """
 
 
-def max(input_tensor, dim, keepdims=False):
+def amax(input_tensor, dim, keepdims=False):
     """Returns the maximum of the input tensor along the given dim.
 
     Args:

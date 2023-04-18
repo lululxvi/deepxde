@@ -185,9 +185,8 @@ class Ellipse(Geometry):
         d2 = bkd.norm(x - self.focus2_tensor, axis=-1, keepdims=True)
 
         if smoothness == "L" or smoothness == "M":
-            return bkd.abs(d1 + d2 - 2 * self.semimajor)
-        else:
-            return bkd.square(d1 + d2 - 2 * self.semimajor)
+            return bkd.absolute(d1 + d2 - 2 * self.semimajor)
+        return bkd.square(d1 + d2 - 2 * self.semimajor)
 
 
 class Rectangle(Hypercube):
@@ -283,29 +282,28 @@ class Rectangle(Hypercube):
                 self.xmin_tensor = bkd.as_tensor(self.xmin)
                 self.xmax_tensor = bkd.as_tensor(self.xmax)
             if where not in ["right", "top"]:
-                dist_l = bkd.abs((x - self.xmin_tensor) /
+                dist_l = bkd.absolute((x - self.xmin_tensor) /
                                 (self.xmax_tensor - self.xmin_tensor) * 2)
             if where not in ["left", "bottom"]:
-                dist_r = bkd.abs((x - self.xmax_tensor) /
+                dist_r = bkd.absolute((x - self.xmax_tensor) /
                                 (self.xmax_tensor - self.xmin_tensor) * 2)
             
             if where == "left":
                 return dist_l[:, 0:1]
-            elif where == "right":
+            if where == "right":
                 return dist_r[:, 0:1]
-            elif where == "bottom":
+            if where == "bottom":
                 return dist_l[:, 1:]
-            elif where == "top":
+            if where == "top":
                 return dist_r[:, 1:]
 
             if smoothness == "L":
-                dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
-                dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+                dist_l = bkd.amin(dist_l, dim=-1, keepdims=True)
+                dist_r = bkd.amin(dist_r, dim=-1, keepdims=True)
                 return bkd.minimum(dist_l, dist_r)
-            else:
-                dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
-                dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
-                return dist_l * dist_r
+            dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+            return dist_l * dist_r
         else:
             if not hasattr(self, "self.x11_tensor"):
                 self.x11_tensor = bkd.as_tensor(self.xmin)
@@ -314,37 +312,35 @@ class Rectangle(Hypercube):
                 self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
             
             if where is None or where == "left":
-                dist_left = bkd.abs(bkd.norm(
+                dist_left = bkd.absolute(bkd.norm(
                     x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
                     x - self.x12_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
             if where is None or where == "right":
-                dist_right = bkd.abs(bkd.norm(
+                dist_right = bkd.absolute(bkd.norm(
                     x - self.x21_tensor, axis=-1, keepdims=True) + bkd.norm(
                     x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
             if where is None or where == "bottom":
-                dist_bottom = bkd.abs(bkd.norm(
+                dist_bottom = bkd.absolute(bkd.norm(
                     x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
                     x - self.x21_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
             if where is None or where == "top":
-                dist_top = bkd.abs(bkd.norm(
+                dist_top = bkd.absolute(bkd.norm(
                     x - self.x12_tensor, axis=-1, keepdims=True) + bkd.norm(
                     x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
             
             if where == "left":
                 return dist_left
-            elif where == "right":
+            if where == "right":
                 return dist_right
-            elif where == "bottom":
+            if where == "bottom":
                 return dist_bottom
-            elif where == "top":
+            if where == "top":
                 return dist_top
-            else:
-                if smoothness == "L":
-                    return bkd.minimum(
-                        bkd.minimum(dist_left, dist_right),
-                        bkd.minimum(dist_bottom, dist_top))
-                else:
-                    return dist_left * dist_right * dist_bottom * dist_top
+            if smoothness == "L":
+                return bkd.minimum(
+                    bkd.minimum(dist_left, dist_right),
+                    bkd.minimum(dist_bottom, dist_top))
+            return dist_left * dist_right * dist_bottom * dist_top
 
     @staticmethod
     def is_valid(vertices):
@@ -543,14 +539,12 @@ class Triangle(Geometry):
         if where is None:
             if smoothness == "L":
                 return bkd.minimum(bkd.minimum(diff_x1_x2, diff_x1_x3), diff_x2_x3)
-            else:
-                return diff_x1_x2 * diff_x1_x3 * diff_x2_x3
-        elif where == "x1-x2":
+            return diff_x1_x2 * diff_x1_x3 * diff_x2_x3
+        if where == "x1-x2":
             return diff_x1_x2
-        elif where == "x1-x3":
+        if where == "x1-x3":
             return diff_x1_x3
-        elif where == "x2-x3":
-            return diff_x2_x3
+        return diff_x2_x3
 
 
 class Polygon(Geometry):

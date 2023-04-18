@@ -154,7 +154,7 @@ def square(x):
     return torch.square(x)
 
 
-def abs(x):
+def absolute(x):
     return torch.abs(x)
 
 
@@ -194,7 +194,7 @@ def reduce_prod(input_tensor):
     return torch.prod(input_tensor)
 
 
-def min(input_tensor, dim, keepdims=False):
+def amin(input_tensor, dim, keepdims=False):
     return torch.amin(input_tensor, dim, keepdim=keepdims)
 
 
@@ -202,7 +202,7 @@ def reduce_min(input_tensor):
     return torch.min(input_tensor)
 
 
-def max(input_tensor, dim, keepdims=False):
+def amax(input_tensor, dim, keepdims=False):
     return torch.amax(input_tensor, dim, keepdim=keepdims)
 
 

@@ -37,28 +37,25 @@ class Interval(Geometry):
             self.r_tensor = bkd.as_tensor(self.r)
 
         if where != "right":
-            dist_l = bkd.abs((x - self.l_tensor) 
+            dist_l = bkd.absolute((x - self.l_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
         if where != "left":
-            dist_r = bkd.abs((x - self.r_tensor) 
+            dist_r = bkd.absolute((x - self.r_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
         if where is None:
             if smoothness == "L":
                 return bkd.minimum(dist_l, dist_r)
-            elif smoothness == "M":
+            if smoothness == "M":
                 return dist_l * dist_r
-            else:
-                return bkd.square(dist_l * dist_r)
+            return bkd.square(dist_l * dist_r)
         elif where == "left":
             if smoothness == "L" or smoothness == "M":
                 return dist_l
-            else:
-                return bkd.square(dist_l)
-        elif where == "right":
+            return bkd.square(dist_l)
+        else:
             if smoothness == "L" or smoothness == "M":
                 return dist_r
-            else:
-                return bkd.square(dist_r)
+            return bkd.square(dist_r)
 
     def boundary_normal(self, x):
         return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)

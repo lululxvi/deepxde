@@ -111,7 +111,7 @@ def square(x):
     return tf.math.square(x)
 
 
-def abs(x):
+def absolute(x):
     return tf.math.abs(x)
 
 
@@ -147,7 +147,7 @@ def reduce_prod(input_tensor):
     return tf.math.reduce_prod(input_tensor)
 
 
-def max(input_tensor, dim, keepdims=False):
+def amax(input_tensor, dim, keepdims=False):
     return tf.math.reduce_max(input_tensor, axis=dim, keepdims=keepdims)
 
 
@@ -155,7 +155,7 @@ def reduce_max(input_tensor):
     return tf.math.reduce_max(input_tensor)
 
 
-def min(input_tensor, dim, keepdims=False):
+def amin(input_tensor, dim, keepdims=False):
     return tf.math.reduce_min(input_tensor, axis=dim, keepdims=keepdims)
 
 
