@@ -36,10 +36,12 @@ class Interval(Geometry):
             self.l_tensor = bkd.as_tensor(self.l)
             self.r_tensor = bkd.as_tensor(self.r)
 
-        dist_l = bkd.abs((x - self.l_tensor) 
-            / (self.r_tensor - self.l_tensor) * 2)
-        dist_r = bkd.abs((x - self.r_tensor) 
-            / (self.r_tensor - self.l_tensor) * 2)
+        if where != "right":
+            dist_l = bkd.abs((x - self.l_tensor) 
+                / (self.r_tensor - self.l_tensor) * 2)
+        if where != "left":
+            dist_r = bkd.abs((x - self.r_tensor) 
+                / (self.r_tensor - self.l_tensor) * 2)
         if where is None:
             if smoothness == "L":
                 return bkd.minimum(dist_l, dist_r)
