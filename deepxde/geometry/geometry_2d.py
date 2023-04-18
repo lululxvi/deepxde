@@ -4,20 +4,13 @@ import numpy as np
 from scipy import spatial
 
 from .geometry import Geometry
-from .geometry_nd import Hypercube
+from .geometry_nd import Hypercube, Hypersphere, Literal, Union, bkd
 from .sampler import sample
 from .. import config
 from ..utils import vectorize
 
 
-class Disk(Geometry):
-    def __init__(self, center, radius):
-        self.center = np.array(center, dtype=config.real(np))
-        self.radius = radius
-        super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
-
-        self._r2 = radius**2
-
+class Disk(Hypersphere):
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
@@ -178,6 +171,24 @@ class Ellipse(Geometry):
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
+    def approxdist2boundary(self, x, 
+        where: None = None, 
+        smoothness: Literal["L", "M", "H"] = "M"):
+        assert where is None, "`where!=None` is not supported for Ellipse"
+        assert smoothness in ["L", "M", "H"], "`smoothness` must be one of 'L', 'M', 'H'"
+        
+        if not hasattr(self, "self.focus1_tensor"):
+            self.focus1_tensor = bkd.as_tensor(self.focus1)
+            self.focus2_tensor = bkd.as_tensor(self.focus2)
+        
+        d1 = bkd.norm(x - self.focus1_tensor, axis=-1, keepdims=True)
+        d2 = bkd.norm(x - self.focus2_tensor, axis=-1, keepdims=True)
+
+        if smoothness == "L" or smoothness == "M":
+            return bkd.abs(d1 + d2 - 2 * self.semimajor)
+        else:
+            return bkd.square(d1 + d2 - 2 * self.semimajor)
+
 
 class Rectangle(Hypercube):
     """
@@ -250,6 +261,90 @@ class Rectangle(Hypercube):
             else:
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return np.vstack(x)
+
+    def approxdist2boundary(self, x, where: Union[
+            None, Literal["left", "right",
+                        "bottom", "top"]] = None,
+        smoothness: Literal["L", "M", "H"] = "M",
+        inside: bool = True):
+        """
+        `inside`: `x` is either inside or outside the geometry.
+        The cases where there are both points inside and points
+        outside the geometry are NOT allowed.
+
+        See `Geometry.approxdist2boundary()` for more info on args.
+        """
+        
+        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+        assert self.dim == 2
+
+        if inside:
+            if not hasattr(self, "self.xmin_tensor"):
+                self.xmin_tensor = bkd.as_tensor(self.xmin)
+                self.xmax_tensor = bkd.as_tensor(self.xmax)
+            if where not in ["right", "top"]:
+                dist_l = bkd.abs((x - self.xmin_tensor) /
+                                (self.xmax_tensor - self.xmin_tensor) * 2)
+            if where not in ["left", "bottom"]:
+                dist_r = bkd.abs((x - self.xmax_tensor) /
+                                (self.xmax_tensor - self.xmin_tensor) * 2)
+            
+            if where == "left":
+                return dist_l[:, 0:1]
+            elif where == "right":
+                return dist_r[:, 0:1]
+            elif where == "bottom":
+                return dist_l[:, 1:]
+            elif where == "top":
+                return dist_r[:, 1:]
+
+            if smoothness == "L":
+                dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+                dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+                return bkd.minimum(dist_l, dist_r)
+            else:
+                dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+                dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+                return dist_l * dist_r
+        else:
+            if not hasattr(self, "self.x11_tensor"):
+                self.x11_tensor = bkd.as_tensor(self.xmin)
+                self.x22_tensor = bkd.as_tensor(self.xmax)
+                self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
+                self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
+            
+            if where is None or where == "left":
+                dist_left = bkd.abs(bkd.norm(
+                    x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
+                    x - self.x12_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
+            if where is None or where == "right":
+                dist_right = bkd.abs(bkd.norm(
+                    x - self.x21_tensor, axis=-1, keepdims=True) + bkd.norm(
+                    x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[1] - self.xmin[1]))
+            if where is None or where == "bottom":
+                dist_bottom = bkd.abs(bkd.norm(
+                    x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
+                    x - self.x21_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
+            if where is None or where == "top":
+                dist_top = bkd.abs(bkd.norm(
+                    x - self.x12_tensor, axis=-1, keepdims=True) + bkd.norm(
+                    x - self.x22_tensor, axis=-1, keepdims=True) - (self.xmax[0] - self.xmin[0]))
+            
+            if where == "left":
+                return dist_left
+            elif where == "right":
+                return dist_right
+            elif where == "bottom":
+                return dist_bottom
+            elif where == "top":
+                return dist_top
+            else:
+                if smoothness == "L":
+                    return bkd.minimum(
+                        bkd.minimum(dist_left, dist_right),
+                        bkd.minimum(dist_bottom, dist_top))
+                else:
+                    return dist_left * dist_right * dist_bottom * dist_top
 
     @staticmethod
     def is_valid(vertices):
@@ -413,6 +508,49 @@ class Triangle(Geometry):
             else:
                 x.append((l - self.l12 - self.l23) * self.n31 + self.x3)
         return np.vstack(x)
+
+    def approxdist2boundary(self, x, 
+        where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None, 
+        smoothness: Literal["L", "M", "H"] = "M"):
+        """
+        `where`: "x1-x2" indicates the line segment with vertices x1 and x2 
+        (after reordered).
+
+        See `Geometry.approxdist2boundary()` for more info on args.
+        """
+
+        assert where in [None, "x1-x2", "x1-x3", "x2-x3"]
+        assert smoothness in ["L", "M", "H"]
+
+        if not hasattr(self, "self.x1_tensor"):
+            self.x1_tensor = bkd.as_tensor(self.x1)
+            self.x2_tensor = bkd.as_tensor(self.x2)
+            self.x3_tensor = bkd.as_tensor(self.x3)
+        
+        if where not in ["x1-x3", "x2-x3"]:
+            diff_x1_x2 = bkd.norm(
+                x - self.x1_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x2_tensor, axis=-1, keepdims=True) - self.l12
+        if where not in ["x1-x2", "x2-x3"]:
+            diff_x1_x3 = bkd.norm(
+                x - self.x1_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x3_tensor, axis=-1, keepdims=True) - self.l31
+        if where not in ["x1-x2", "x1-x3"]:
+            diff_x2_x3 = bkd.norm(
+                x - self.x2_tensor, axis=-1, keepdims=True) + bkd.norm(
+                x - self.x3_tensor, axis=-1, keepdims=True) - self.l23
+        
+        if where is None:
+            if smoothness == "L":
+                return bkd.minimum(bkd.minimum(diff_x1_x2, diff_x1_x3), diff_x2_x3)
+            else:
+                return diff_x1_x2 * diff_x1_x3 * diff_x2_x3
+        elif where == "x1-x2":
+            return diff_x1_x2
+        elif where == "x1-x3":
+            return diff_x1_x3
+        elif where == "x2-x3":
+            return diff_x2_x3
 
 
 class Polygon(Geometry):
