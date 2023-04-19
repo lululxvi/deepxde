@@ -14,7 +14,7 @@ from . import optimizers
 from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
 from .callbacks import CallbackList
-from .config import hvd, mpi4py
+from .config import hvd
 from .utils import list_to_str
 
 
