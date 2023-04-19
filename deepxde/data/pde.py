@@ -3,7 +3,7 @@ import numpy as np
 from .data import Data
 from .. import backend as bkd
 from .. import config
-from ..config import hvd, MPI
+from ..config import hvd, comm
 from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none
 
@@ -162,7 +162,6 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         if hvd is not None:
-            comm = MPI.COMM_WORLD
             train_x = self.bc_points()[:self.num_boundary,:]
             comm.Bcast(train_x, root=0)
             self.train_x = train_x
