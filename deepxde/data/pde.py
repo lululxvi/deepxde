@@ -166,7 +166,7 @@ class PDE(Data):
             comm.Bcast(train_x, root=0)
             self.train_x = train_x
         else:
-            self.train_x = self.bc_points()[:self.num_boundary,:]
+            self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
