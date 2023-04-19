@@ -3,6 +3,7 @@ scipy
 sklearn
 matplotlib
 scikit-optimize
+seaborn
 tensorflow-probability==0.12.2
 jupyter
 jupyterlab

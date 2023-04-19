@@ -35,7 +35,12 @@ def fpde(x, y, int_mat):
 #     """\int_theta D_theta^alpha u(x)"""
 #     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
 #         indices, values, shape = int_mat
-#         int_mat = paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
+#         int_mat = paddle.sparse.sparse_coo_tensor(
+#             [[p[0] for p in indices], [p[1] for p in indices]],
+#             values,
+#             shape,
+#             stop_gradient=False
+#         )
 #         lhs = paddle.sparse.matmul(int_mat, y)
 #     else:
 #         int_mat = paddle.to_tensor(int_mat, dde.config.real(paddle), stop_gradient=False)
