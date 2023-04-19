@@ -4,6 +4,7 @@ __all__ = [
     "CSGUnion",
     "Cuboid",
     "Disk",
+    "Ellipse",
     "Geometry",
     "GeometryXTime",
     "Hypercube",
@@ -21,7 +22,7 @@ __all__ = [
 from .csg import CSGDifference, CSGIntersection, CSGUnion
 from .geometry import Geometry
 from .geometry_1d import Interval
-from .geometry_2d import Disk, Polygon, Rectangle, Triangle
+from .geometry_2d import Disk, Ellipse, Polygon, Rectangle, Triangle
 from .geometry_3d import Cuboid, Sphere
 from .geometry_nd import Hypercube, Hypersphere
 from .pointcloud import PointCloud

@@ -32,6 +32,14 @@ deepxde.backend.set\_default\_backend module
    :undoc-members:
    :show-inheritance:
 
+deepxde.backend.utils module
+----------------------------
+
+.. automodule:: deepxde.backend.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
