@@ -28,7 +28,7 @@ rank = 0
 if backend_name == "paddle":
     world_size = paddle.distributed.get_world_size()
     if world_size > 1:
-        paddle.distributed.init_parallel_env()
+        paddle.distributed.fleet.init(is_collective=True)
         rank = paddle.distributed.get_rank()
         print(f"\nParallel training with {world_size} processes.\n")
 

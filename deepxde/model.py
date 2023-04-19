@@ -55,9 +55,7 @@ class Model:
             self.params = None
         elif backend_name == "paddle":
             if config.world_size > 1:
-                from paddle.distributed import fleet
-                fleet.init(is_collective=True)
-                self.net = fleet.distributed_model(self.net)
+                self.net = paddle.distributed.fleet.distributed_model(self.net)
 
     @utils.timing
     def compile(

@@ -6,6 +6,7 @@ from .. import config
 from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none, split_in_rank
 
+
 class PDE(Data):
     """ODE or time-independent PDE solver.
 
@@ -162,7 +163,7 @@ class PDE(Data):
         self.train_x_all = self.train_points()
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
+            self.train_x = np.vstack((self.train_x, split_in_rank(self.train_x_all)))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
@@ -199,7 +200,7 @@ class PDE(Data):
             self.anchors = anchors
         else:
             self.anchors = np.vstack((anchors, self.anchors))
-        self.train_x_all = np.vstack((anchors, self.train_x_all))
+        self.train_x_all = np.vstack((anchors, split_in_rank(self.train_x_all)))
         self.train_x = self.bc_points()
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
@@ -232,7 +233,6 @@ class PDE(Data):
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
-            X = split_in_rank(X)
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -240,10 +240,9 @@ class PDE(Data):
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
-            tmp = split_in_rank(tmp)
             X = np.vstack((tmp, X))
         if self.anchors is not None:
-            X = np.vstack((split_in_rank(self.anchors), X))
+            X = np.vstack((self.anchors, X))
         if self.exclusions is not None:
 
             def is_not_excluded(x):
@@ -315,12 +314,10 @@ class TimePDE(PDE):
         if self.num_initial > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_initial_points(self.num_initial)
-                tmp = split_in_rank(tmp)
             else:
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
-                tmp = split_in_rank(tmp)
             if self.exclusions is not None:
 
                 def is_not_excluded(x):
