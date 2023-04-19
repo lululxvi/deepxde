@@ -50,6 +50,7 @@ DeepXDE has been used in
   `University of Rome Tor Vergata <http://web.uniroma2.it>`_,
   `Chalmers University of Technology <https://www.chalmers.se/en>`_,
   `Wuhan University of Technology <http://english.whut.edu.cn>`_,
+  `University of Delaware <https://www.udel.edu>`_,
   `University of Kentucky <https://www.uky.edu>`_,
   `University of Surrey <https://www.surrey.ac.uk>`_,
   `Federal University of Rio de Janeiro <https://ufrj.br/en>`_,
@@ -101,6 +102,7 @@ DeepXDE has been used in
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
+  `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
   `Saudi Aramco <https://www.aramco.com>`_
@@ -200,6 +202,7 @@ PINN
 DeepONet
 --------
 
+#. Z\. Jiang, M. Zhu, D. Li, Q. Li, Y. Yuan, & L. Lu. `Fourier-MIONet: Fourier-enhanced multiple-input neural operators for multiphase modeling of geological carbon sequestration <https://arxiv.org/pdf/2303.04778.pdf>`_. *arXiv preprint arXiv:2303.04778*, 2023.
 #. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
 #. K\. Kobayashi, J. Daniell, & S. Alam. `Operator learning framework for digital twin and complex engineering systems <https://arxiv.org/pdf/2301.06701.pdf>`_. *arXiv e-prints*, pp.arXiv-2301, 2023.
 #. E\. Pickering, S. Guth, G. Karniadakis, & T. Sapsis. `Discovering and forecasting extreme events via active learning in neural operators <https://www.nature.com/articles/s43588-022-00376-0>`_. *Nature Computational Science*, 2(12), pp.823-833, 2022.

@@ -1014,13 +1014,18 @@ class Model:
             )
         return save_path
 
-    def restore(self, save_path, verbose=0):
+    def restore(self, save_path, device=None, verbose=0):
         """Restore all variables from a disk file.
 
         Args:
             save_path (string): Path where model was previously saved.
+            device (string, optional): Device to load the model on (e.g. "cpu","cuda:0"...). By default, the model is loaded on the device it was saved from.
         """
         # TODO: backend tensorflow
+        if device is not None and backend_name != "pytorch":
+            print(
+                "Warning: device is only supported for backend pytorch. Model will be loaded on the device it was saved from."
+            )
         if verbose > 0:
             print("Restoring model from {} ...\n".format(save_path))
         if backend_name == "tensorflow.compat.v1":
@@ -1028,7 +1033,10 @@ class Model:
         elif backend_name == "tensorflow":
             self.net.load_weights(save_path)
         elif backend_name == "pytorch":
-            checkpoint = torch.load(save_path)
+            if device is not None:
+                checkpoint = torch.load(save_path, map_location=torch.device(device))
+            else:
+                checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
             self.opt.load_state_dict(checkpoint["optimizer_state_dict"])
         elif backend_name == "paddle":

@@ -7,8 +7,21 @@ import sys
 
 from . import backend
 from .set_default_backend import set_default_backend
+from .utils import get_available_backend, interactive_install_paddle, verify_backend
 
 _enabled_apis = set()
+
+
+def is_enabled(api):
+    """Return true if the api is enabled by the current backend.
+
+    Args:
+        api (string): The api name.
+
+    Returns:
+        bool: ``True`` if the API is enabled by the current backend.
+    """
+    return api in _enabled_apis
 
 
 def _gen_missing_api(api, mod_name):
@@ -22,17 +35,29 @@ def _gen_missing_api(api, mod_name):
     return _missing_api
 
 
-def load_backend(mod_name):
-    if mod_name not in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
-        raise NotImplementedError("Unsupported backend: %s" % mod_name)
+def backend_message(backend_name):
+    """Show message about backend.
 
-    print("Using backend: %s\n" % mod_name, file=sys.stderr, flush=True)
+    Args:
+        backend_name: which backend used
+    """
+    msg = f"Using backend: {backend_name}\nOther supported backends: "
+    if backend_name == "tensorflow.compat.v1":
+        msg += "tensorflow, pytorch, jax, paddle.\n"
+    elif backend_name == "tensorflow":
+        msg += "tensorflow.compat.v1, pytorch, jax, paddle.\n"
+    elif backend_name == "pytorch":
+        msg += "tensorflow.compat.v1, tensorflow, jax, paddle.\n"
+    elif backend_name == "jax":
+        msg += "tensorflow.compat.v1, tensorflow, pytorch, paddle.\n"
+    elif backend_name == "paddle":
+        msg += "tensorflow.compat.v1, tensorflow, pytorch, jax.\n"
+    msg += "paddle supports more examples now and is recommended."
+    print(msg, file=sys.stderr, flush=True)
+
+
+def load_backend(mod_name):
+    backend_message(mod_name)
     mod = importlib.import_module(".%s" % mod_name.replace(".", "_"), __name__)
     thismod = sys.modules[__name__]
     # log backend name
@@ -70,6 +95,7 @@ def load_backend(mod_name):
 
 def get_preferred_backend():
     backend_name = None
+    # User-selected backend
     config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
     if "DDE_BACKEND" in os.environ:
         backend_name = os.getenv("DDE_BACKEND")
@@ -80,33 +106,25 @@ def get_preferred_backend():
         with open(config_path, "r") as config_file:
             config_dict = json.load(config_file)
             backend_name = config_dict.get("backend", "").lower()
-
-    if backend_name in [
-        "tensorflow.compat.v1",
-        "tensorflow",
-        "pytorch",
-        "jax",
-        "paddle",
-    ]:
+    if backend_name is not None:
+        verify_backend(backend_name)
         return backend_name
-    print(
-        "DeepXDE backend not selected or invalid. Use tensorflow.compat.v1.",
-        file=sys.stderr,
-    )
-    set_default_backend("tensorflow.compat.v1")
-    return "tensorflow.compat.v1"
+    # No backend selected
+    print("No backend selected.")
+
+    # Find available backend
+    print("Finding available backend...")
+    backend_name = get_available_backend()
+    if backend_name is not None:
+        print(f"Found {backend_name}")
+        set_default_backend(backend_name)
+        return backend_name
+
+    # No backend available
+    print("Cannot find available backend.")
+    interactive_install_paddle()
+    set_default_backend("paddle")
+    return "paddle"
 
 
 load_backend(get_preferred_backend())
-
-
-def is_enabled(api):
-    """Return true if the api is enabled by the current backend.
-
-    Args:
-        api (string): The api name.
-
-    Returns:
-        bool: ``True`` if the API is enabled by the current backend.
-    """
-    return api in _enabled_apis
