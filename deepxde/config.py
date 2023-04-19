@@ -14,7 +14,6 @@ comm = None
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
-        import mpi4py
         from mpi4py import MPI
         comm = MPI.COMM_WORLD
         tf.compat.v1.disable_eager_execution() # Without this line, Horovod broadcasting fails.
