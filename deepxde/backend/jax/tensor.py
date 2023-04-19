@@ -89,6 +89,7 @@ def square(x):
     return jnp.square(x)
 
 
+# pylint: disable=redefined-builtin
 def abs(x):
     return jnp.abs(x)
 
@@ -125,6 +126,7 @@ def reduce_prod(input_tensor):
     return jnp.prod(input_tensor)
 
 
+# pylint: disable=redefined-builtin
 def min(input_tensor, dim, keepdims=False):
     return jnp.min(input_tensor, axis=dim, keepdims=keepdims)
 
@@ -133,6 +135,7 @@ def reduce_min(input_tensor):
     return jnp.min(input_tensor)
 
 
+# pylint: disable=redefined-builtin
 def max(input_tensor, dim, keepdims=False):
     return jnp.max(input_tensor, axis=dim, keepdims=keepdims)
 

@@ -146,6 +146,7 @@ def square(x):
     return paddle.square(x)
 
 
+# pylint: disable=redefined-builtin
 def abs(x):
     return paddle.abs(x)
 
@@ -186,6 +187,7 @@ def reduce_prod(input_tensor):
     return paddle.prod(input_tensor)
 
 
+# pylint: disable=redefined-builtin
 def min(input_tensor, dim, keepdims=False):
     return paddle.min(input_tensor, axis=dim, keepdim=keepdims)
 
@@ -194,6 +196,7 @@ def reduce_min(input_tensor):
     return paddle.min(input_tensor)
 
 
+# pylint: disable=redefined-builtin
 def max(input_tensor, dim, keepdims=False):
     return paddle.max(input_tensor, axis=dim, keepdim=keepdims)
 
