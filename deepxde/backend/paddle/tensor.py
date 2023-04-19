@@ -146,7 +146,7 @@ def square(x):
     return paddle.square(x)
 
 
-def absolute(x):
+def abs(x):
     return paddle.abs(x)
 
 
@@ -186,20 +186,20 @@ def reduce_prod(input_tensor):
     return paddle.prod(input_tensor)
 
 
-def amax(input_tensor, dim, keepdims=False):
-    return paddle.max(input_tensor, axis=dim, keepdim=keepdims)
-
-
-def reduce_max(input_tensor):
-    return paddle.max(input_tensor)
-
-
-def amin(input_tensor, dim, keepdims=False):
+def min(input_tensor, dim, keepdims=False):
     return paddle.min(input_tensor, axis=dim, keepdim=keepdims)
 
 
 def reduce_min(input_tensor):
     return paddle.min(input_tensor)
+
+
+def max(input_tensor, dim, keepdims=False):
+    return paddle.max(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_max(input_tensor):
+    return paddle.max(input_tensor)
 
 
 def norm(x, ord=None, axis=None, keepdims=False):

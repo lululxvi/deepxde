@@ -90,10 +90,10 @@ class Cuboid(Hypercube):
             self.xmax_tensor = bkd.as_tensor(self.xmax)
 
         if where not in ["front", "right", "top"]:
-            dist_l = bkd.absolute((x - self.xmin_tensor) /
+            dist_l = bkd.abs((x - self.xmin_tensor) /
                             (self.xmax_tensor - self.xmin_tensor) * 2)
         if where not in ["back", "left", "bottom"]:
-            dist_r = bkd.absolute((x - self.xmax_tensor) /
+            dist_r = bkd.abs((x - self.xmax_tensor) /
                             (self.xmax_tensor - self.xmin_tensor) * 2)
         
         if where == "back":
@@ -110,8 +110,8 @@ class Cuboid(Hypercube):
             return dist_r[:, 2:]
 
         if smoothness == "L":
-            dist_l = bkd.amin(dist_l, dim=-1, keepdims=True)
-            dist_r = bkd.amin(dist_r, dim=-1, keepdims=True)
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
             return bkd.minimum(dist_l, dist_r)
         dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
         dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)

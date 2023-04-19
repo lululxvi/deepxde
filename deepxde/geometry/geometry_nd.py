@@ -136,13 +136,13 @@ class Hypercube(Geometry):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
             self.xmax_tensor = bkd.as_tensor(self.xmax)
 
-        dist_l = bkd.absolute((x - self.xmin_tensor) /
+        dist_l = bkd.abs((x - self.xmin_tensor) /
                         (self.xmax_tensor - self.xmin_tensor) * 2)
-        dist_r = bkd.absolute((x - self.xmax_tensor) /
+        dist_r = bkd.abs((x - self.xmax_tensor) /
                         (self.xmax_tensor - self.xmin_tensor) * 2)
         if smoothness == "L":
-            dist_l = bkd.amin(dist_l, dim=-1, keepdims=True)
-            dist_r = bkd.amin(dist_r, dim=-1, keepdims=True)
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
             return bkd.minimum(dist_l, dist_r)
         # TODO: fix potential numerical underflow
         dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
@@ -194,7 +194,7 @@ class Hypersphere(Geometry):
         if smoothness == "H":
             dist = bkd.square(dist)
         else:
-            dist = bkd.absolute(dist)
+            dist = bkd.abs(dist)
         return dist
 
     def boundary_normal(self, x):

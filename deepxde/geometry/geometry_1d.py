@@ -37,10 +37,10 @@ class Interval(Geometry):
             self.r_tensor = bkd.as_tensor(self.r)
 
         if where != "right":
-            dist_l = bkd.absolute((x - self.l_tensor) 
+            dist_l = bkd.abs((x - self.l_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
         if where != "left":
-            dist_r = bkd.absolute((x - self.r_tensor) 
+            dist_r = bkd.abs((x - self.r_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
         if where is None:
             if smoothness == "L":

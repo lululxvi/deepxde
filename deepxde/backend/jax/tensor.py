@@ -89,7 +89,7 @@ def square(x):
     return jnp.square(x)
 
 
-def absolute(x):
+def abs(x):
     return jnp.abs(x)
 
 
@@ -125,20 +125,20 @@ def reduce_prod(input_tensor):
     return jnp.prod(input_tensor)
 
 
-def amax(input_tensor, dim, keepdims=False):
-    return jnp.max(input_tensor, axis=dim, keepdims=keepdims)
-
-
-def reduce_max(input_tensor):
-    return jnp.max(input_tensor)
-
-
-def amin(input_tensor, dim, keepdims=False):
+def min(input_tensor, dim, keepdims=False):
     return jnp.min(input_tensor, axis=dim, keepdims=keepdims)
 
 
 def reduce_min(input_tensor):
     return jnp.min(input_tensor)
+
+
+def max(input_tensor, dim, keepdims=False):
+    return jnp.max(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_max(input_tensor):
+    return jnp.max(input_tensor)
 
 
 def zeros(shape, dtype):

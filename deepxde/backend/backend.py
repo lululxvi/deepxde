@@ -305,7 +305,7 @@ def square(x):
     """Returns the square of the elements of input."""
 
 
-def absolute(x):
+def abs(x):
     """Computes the absolute value element-wise."""
 
 
@@ -366,7 +366,7 @@ def prod(input_tensor, dim, keepdims=False):
     Args:
         input_tensor (Tensor). The input tensor.
         dim (int). The reduce dim.
-        keepdims (bool). Whether to keep the summed dimension.
+        keepdims (bool). Whether to keep the product dimension.
 
     Returns:
         Tensor: A framework-specific tensor.
@@ -384,13 +384,13 @@ def reduce_prod(input_tensor):
     """
 
 
-def amin(input_tensor, dim, keepdims=False):
+def min(input_tensor, dim, keepdims=False):
     """Returns the minimum of the input tensor along the given dim.
 
     Args:
         input_tensor (Tensor). The input tensor.
         dim (int). The reduce dim.
-        keepdims (bool). Whether to keep the summed dimension.
+        keepdims (bool). Whether to keep the dimension.
 
     Returns:
         Tensor: A framework-specific tensor.
@@ -408,13 +408,13 @@ def reduce_min(input_tensor):
     """
 
 
-def amax(input_tensor, dim, keepdims=False):
+def max(input_tensor, dim, keepdims=False):
     """Returns the maximum of the input tensor along the given dim.
 
     Args:
         input_tensor (Tensor). The input tensor.
         dim (int). The reduce dim.
-        keepdims (bool). Whether to keep the summed dimension.
+        keepdims (bool). Whether to keep the dimension.
 
     Returns:
         Tensor: A framework-specific tensor.
