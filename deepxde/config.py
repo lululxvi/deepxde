@@ -15,12 +15,13 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
         from mpi4py import MPI
+
         comm = MPI.COMM_WORLD
-        tf.compat.v1.disable_eager_execution() # Without this line, Horovod broadcasting fails.
-        hvd.init()    
+        tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
+        hvd.init()
     else:
         raise NotImplementedError(
-        "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
+            "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
         )
 
 
