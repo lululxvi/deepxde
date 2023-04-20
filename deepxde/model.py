@@ -63,7 +63,7 @@ class Model:
         metrics=None,
         decay=None,
         loss_weights=None,
-        external_trainable_variables=None
+        external_trainable_variables=None,
     ):
         """Configures the model for training.
 
@@ -188,10 +188,8 @@ class Model:
         self.outputs_losses_train = [self.net.outputs, losses_train]
         self.outputs_losses_test = [self.net.outputs, losses_test]
         self.train_step = optimizers.get(
-            total_loss,
-            self.opt_name,
-            learning_rate=lr,
-            decay=decay)
+            total_loss, self.opt_name, learning_rate=lr, decay=decay
+        )
 
     def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
         """tensorflow"""
@@ -603,7 +601,9 @@ class Model:
 
         if backend_name == "tensorflow.compat.v1":
             if self.train_state.step == 0:
-                if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+                if config.hvd is None or (
+                    config.hvd is not None and config.hvd.rank() == 0
+                ):
                     print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
                 if config.hvd is not None:
@@ -662,7 +662,9 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+                if config.hvd is None or (
+                    config.hvd is not None and config.hvd.rank() == 0
+                ):
                     self._test()
 
             self.callbacks.on_batch_end()
