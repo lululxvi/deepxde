@@ -10,7 +10,6 @@ from .real import Real
 # Import Horovod if a mpirun process is ongoing
 hvd = None
 comm = None
-
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
