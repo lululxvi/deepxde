@@ -85,7 +85,7 @@ Next, we consider the boundary condition. ``on_boundary`` is chosen here to use 
  .. code-block:: python
 
     def boundary_outflow(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
+        return on_boundary and dde.utils.isclose(x[0], 1)
         
     spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
 

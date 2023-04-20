@@ -9,11 +9,11 @@ def pde(x, y):
 
 
 def boundary_l(x, on_boundary):
-    return on_boundary and np.isclose(x[0], -1)
+    return on_boundary and dde.utils.isclose(x[0], -1)
 
 
 def boundary_r(x, on_boundary):
-    return on_boundary and np.isclose(x[0], 1)
+    return on_boundary and dde.utils.isclose(x[0], 1)
 
 
 def func(x):
