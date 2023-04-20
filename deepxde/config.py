@@ -28,7 +28,10 @@ def default_float():
     """Returns the default float type, as a string."""
     if real.precision == 64:
         return "float64"
-    return "float32"
+    elif real.precision == 32:
+        return "float32"
+    elif real.precision == 16:
+        return "float16"
 
 
 def set_default_float(value):
