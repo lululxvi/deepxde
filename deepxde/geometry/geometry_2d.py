@@ -7,7 +7,7 @@ from .geometry import Geometry
 from .geometry_nd import Hypercube
 from .sampler import sample
 from .. import config
-from ..utils import vectorize
+from ..utils import isclose, vectorize
 
 
 class Disk(Geometry):
@@ -22,7 +22,7 @@ class Disk(Geometry):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
+        return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
@@ -41,7 +41,7 @@ class Disk(Geometry):
     def boundary_normal(self, x):
         _n = x - self.center
         l = np.linalg.norm(_n, axis=-1, keepdims=True)
-        _n = _n / l * np.isclose(l, self.radius)
+        _n = _n / l * isclose(l, self.radius)
         return _n
 
     def random_points(self, n, random="pseudo"):
@@ -123,7 +123,7 @@ class Ellipse(Geometry):
     def on_boundary(self, x):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
         d2 = np.linalg.norm(x - self.focus2, axis=-1)
-        return np.isclose(d1 + d2, 2 * self.semimajor)
+        return isclose(d1 + d2, 2 * self.semimajor)
 
     def inside(self, x):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
@@ -155,6 +155,7 @@ class Ellipse(Geometry):
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
+
         return f, total_arc
 
     def random_points(self, n, random="pseudo"):
@@ -234,8 +235,8 @@ class Rectangle(Hypercube):
         l3 = l2 + l1
         u = np.ravel(sample(n + 2, 1, random))
         # Remove the possible points very close to the corners
-        u = u[np.logical_not(np.isclose(u, l1 / self.perimeter))]
-        u = u[np.logical_not(np.isclose(u, l3 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, l1 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, l3 / self.perimeter))]
         u = u[:n]
 
         u *= self.perimeter
@@ -256,10 +257,10 @@ class Rectangle(Hypercube):
         """Check if the geometry is a Rectangle."""
         return (
             len(vertices) == 4
-            and np.isclose(np.prod(vertices[1] - vertices[0]), 0)
-            and np.isclose(np.prod(vertices[2] - vertices[1]), 0)
-            and np.isclose(np.prod(vertices[3] - vertices[2]), 0)
-            and np.isclose(np.prod(vertices[0] - vertices[3]), 0)
+            and isclose(np.prod(vertices[1] - vertices[0]), 0)
+            and isclose(np.prod(vertices[2] - vertices[1]), 0)
+            and isclose(np.prod(vertices[3] - vertices[2]), 0)
+            and isclose(np.prod(vertices[0] - vertices[3]), 0)
         )
 
 
@@ -326,10 +327,9 @@ class Triangle(Geometry):
         l2 = np.linalg.norm(x - self.x2, axis=-1)
         l3 = np.linalg.norm(x - self.x3, axis=-1)
         return np.any(
-            np.isclose(
+            isclose(
                 [l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31],
                 0,
-                atol=1e-6,
             ),
             axis=0,
         )
@@ -338,9 +338,9 @@ class Triangle(Geometry):
         l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
         l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
         l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
-        on12 = np.isclose(l1 + l2, self.l12)
-        on23 = np.isclose(l2 + l3, self.l23)
-        on31 = np.isclose(l3 + l1, self.l31)
+        on12 = isclose(l1 + l2, self.l12)
+        on23 = isclose(l2 + l3, self.l23)
+        on31 = isclose(l3 + l1, self.l31)
         # Check points on the vertexes
         if np.any(np.count_nonzero(np.hstack([on12, on23, on31]), axis=-1) > 1):
             raise ValueError(
@@ -399,8 +399,8 @@ class Triangle(Geometry):
     def random_boundary_points(self, n, random="pseudo"):
         u = np.ravel(sample(n + 2, 1, random))
         # Remove the possible points very close to the corners
-        u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
-        u = u[np.logical_not(np.isclose(u, (self.l12 + self.l23) / self.perimeter))]
+        u = u[np.logical_not(isclose(u, self.l12 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, (self.l12 + self.l23) / self.perimeter))]
         u = u[:n]
 
         u *= self.perimeter
@@ -508,7 +508,7 @@ class Polygon(Geometry):
         for i in range(-1, self.nvertices - 1):
             l1 = np.linalg.norm(self.vertices[i] - x, axis=-1)
             l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1)
-            _on[np.isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
+            _on[isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
         return _on > 0
 
     @vectorize(excluded=[0], signature="(n)->(n)")
@@ -553,7 +553,7 @@ class Polygon(Geometry):
         l = 0
         for i in range(0, self.nvertices - 1):
             l += self.diagonals[i, i + 1]
-            u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
+            u = u[np.logical_not(isclose(u, l / self.perimeter))]
         u = u[:n]
         u *= self.perimeter
         u.sort()
@@ -640,11 +640,11 @@ def is_on_line_segment(P0, P1, P2):
     v12 = P2 - P1
     return (
         # check that P2 is almost on the line P0 P1
-        np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0, atol=1e-6)
+        isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0)
         # check that projection of P2 to line is between P0 and P1
         and v01 @ v02 >= 0
         and v01 @ v12 <= 0
     )
     # Not between P0 and P1, but close to P0 or P1
-    # or np.isclose(np.linalg.norm(v02), 0, atol=1e-6)  # check whether P2 is close to P0
-    # or np.isclose(np.linalg.norm(v12), 0, atol=1e-6)  # check whether P2 is close to P1
+    # or isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
+    # or isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
