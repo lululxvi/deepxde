@@ -7,9 +7,11 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
-# Import Horovod if a mpirun process is ongoing
+# Data parallel via Horovod
 hvd = None
 comm = None
+rank = 0
+world_size = 1
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
@@ -18,6 +20,9 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
         comm = MPI.COMM_WORLD
         tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
         hvd.init()
+        rank = hvd.rank() # Only single node acceleration supported so far.
+        world_size = hvd.size()
+        print(f"\nParallel training with {world_size} processes.\n")
     else:
         raise NotImplementedError(
             "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"

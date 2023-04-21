@@ -161,7 +161,13 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         if config.hvd is not None:
-            train_x = self.bc_points()[: self.num_boundary, :]
+            train_x = self.bc_points()
+            n_train = np.array([train_x.shape[0]])
+            config.comm.Bcast(n_train, root=0)
+            
+            if train_x.shape[0] != n_train[0]:
+                train_x = np.zeros((n_train[0], 2))
+
             config.comm.Bcast(train_x, root=0)
             self.train_x = train_x
         else:

@@ -21,7 +21,7 @@ class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
     Args:
-        data: ``deepxde.data.Data`` instance.
+        data: ``deepxftende.data.Data`` instance.
         net: ``deepxde.nn.NN`` instance.
     """
 
@@ -110,7 +110,7 @@ class Model:
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
         """
-        if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+        if config.hvd is None or (config.hvd is not None and config.rank == 0):
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
@@ -156,7 +156,7 @@ class Model:
                 self.sess = tf.Session(config=cfg)
             elif config.hvd is not None:
                 cfg = tf.ConfigProto()
-                cfg.gpu_options.visible_device_list = str(config.hvd.local_rank())
+                cfg.gpu_options.visible_device_list = str(config.rank)
                 cfg.gpu_options.allow_growth = True
                 self.sess = tf.Session(config=cfg)
             else:
@@ -602,7 +602,7 @@ class Model:
         if backend_name == "tensorflow.compat.v1":
             if self.train_state.step == 0:
                 if config.hvd is None or (
-                    config.hvd is not None and config.hvd.rank() == 0
+                    config.hvd is not None and config.rank == 0
                 ):
                     print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
@@ -615,12 +615,12 @@ class Model:
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
 
-        if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+        if config.hvd is None or (config.hvd is not None and config.rank == 0):
             print("Training model...\n")
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+        if config.hvd is None or (config.hvd is not None and config.rank == 0):
             self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
@@ -639,7 +639,7 @@ class Model:
         self.callbacks.on_train_end()
 
         print("")
-        if config.hvd is None or (config.hvd is not None and config.hvd.rank() == 0):
+        if config.hvd is None or (config.hvd is not None and config.rank == 0):
             display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
@@ -663,7 +663,7 @@ class Model:
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
                 if config.hvd is None or (
-                    config.hvd is not None and config.hvd.rank() == 0
+                    config.hvd is not None and config.rank == 0
                 ):
                     self._test()
 
