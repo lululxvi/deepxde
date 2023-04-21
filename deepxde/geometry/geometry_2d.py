@@ -504,7 +504,7 @@ class Polygon(Geometry):
         return wn_PnPoly(x, self.vertices) != 0
 
     def on_boundary(self, x):
-        _on = np.zeros(shape=len(x), dtype=np.int)
+        _on = np.zeros(shape=len(x), dtype=int)
         for i in range(-1, self.nvertices - 1):
             l1 = np.linalg.norm(self.vertices[i] - x, axis=-1)
             l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1)

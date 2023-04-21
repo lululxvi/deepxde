@@ -106,7 +106,7 @@ We introduce the analytic solution for the sound-hard scattering problem:
     r = np.sqrt(fem_xx * fem_xx + fem_xy * fem_xy)
     theta = np.arctan2(fem_xy, fem_xx)
     npts = np.size(fem_xx, 0)
-    n_terms = np.int(30 + (k0 * a)**1.01)
+    n_terms = int(30 + (k0 * a)**1.01)
     u_sc = np.zeros((npts), dtype=np.complex128)
     for n in range(-n_terms, n_terms):
         bessel_deriv = jv(n-1, k0*a) - n/(k0*a) * jv(n, k0*a)

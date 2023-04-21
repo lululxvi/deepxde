@@ -35,7 +35,7 @@ def sound_hard_circle_deepxde(k0, a, points):
     r = np.sqrt(fem_xx * fem_xx + fem_xy * fem_xy)
     theta = np.arctan2(fem_xy, fem_xx)
     npts = np.size(fem_xx, 0)
-    n_terms = np.int(30 + (k0 * a) ** 1.01)
+    n_terms = int(30 + (k0 * a) ** 1.01)
 
     u_sc = np.zeros((npts), dtype=np.complex128)
     for n in range(-n_terms, n_terms):
