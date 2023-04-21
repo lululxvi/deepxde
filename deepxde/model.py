@@ -601,9 +601,6 @@ class Model:
 
         if backend_name == "tensorflow.compat.v1":
             if self.train_state.step == 0:
-                if config.hvd is None or (
-                    config.hvd is not None and config.rank == 0
-                ):
                 self.sess.run(tf.global_variables_initializer())
                 if config.hvd is not None:
                     bcast = config.hvd.broadcast_global_variables(0)
