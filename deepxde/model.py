@@ -604,7 +604,6 @@ class Model:
                 if config.hvd is None or (
                     config.hvd is not None and config.rank == 0
                 ):
-                    print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
                 if config.hvd is not None:
                     bcast = config.hvd.broadcast_global_variables(0)
