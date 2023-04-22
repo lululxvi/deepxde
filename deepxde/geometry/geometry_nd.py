@@ -104,6 +104,7 @@ class Hypercube(Geometry):
 
     def approxdist2boundary(self, x, 
         smoothness: Literal["L", "M", "H"] = "L",
+        where: None = None,
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
@@ -135,6 +136,7 @@ class Hypercube(Geometry):
                 numerical underflow may happen for high dimensionalities
                 when `smoothness="M"` or `smoothness="H"`. 
 
+            where: this option is currently not supported for Hypercube.
             inside: `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
@@ -142,8 +144,8 @@ class Hypercube(Geometry):
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
-        
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+        assert where is None, "where is currently not supported for Hypercube"
         assert self.dim >= 2
         assert inside, "inside=False is not supported for Hypercube"
 

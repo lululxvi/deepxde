@@ -296,7 +296,7 @@ class Rectangle(Hypercube):
         dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
         return dist_l * dist_r
 
-
+    # pylint: disable=inconsistent-return-statements
     def approxdist2boundary(self, x,
         smoothness: Literal["L", "M", "H"] = "M",
         where: Union[None, Literal["left", "right",
@@ -337,7 +337,6 @@ class Rectangle(Hypercube):
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
-        # pylint: disable=inconsistent-return-statements
         assert where in [None, "left", "right", "bottom", "top"], \
             "where must be one of None, left, right, bottom, top"
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
