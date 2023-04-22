@@ -66,7 +66,6 @@ class Cuboid(Hypercube):
             )
         return pts
 
-    # pylint: disable=inconsistent-return-statements
     def approxdist2boundary(self, x, 
         smoothness: Literal["L", "M", "H"] = "M",
         where: Union[None, Literal["back", "front", "left", "right", 
