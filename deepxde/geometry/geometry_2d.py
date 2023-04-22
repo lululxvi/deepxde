@@ -3,8 +3,9 @@ __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
 import numpy as np
 from scipy import spatial
 
-from .geometry import Geometry, Union
-from .geometry_nd import Hypercube, Hypersphere, Literal, bkd
+from typing import Union, Literal
+from .geometry import Geometry
+from .geometry_nd import Hypercube, Hypersphere, bkd
 from .sampler import sample
 from .. import config
 from ..utils import vectorize
@@ -172,9 +173,7 @@ class Ellipse(Geometry):
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
     def approxdist2boundary(self, x, 
-        where: None = None, 
         smoothness: Literal["L", "M", "H"] = "M"):
-        assert where is None, "`where!=None` is not supported for Ellipse"
         assert smoothness in ["L", "M", "H"], "`smoothness` must be one of 'L', 'M', 'H'"
         
         if not hasattr(self, "self.focus1_tensor"):
@@ -303,12 +302,40 @@ class Rectangle(Hypercube):
                         "bottom", "top"]] = None,
         smoothness: Literal["L", "M", "H"] = "M",
         inside: bool = True):
-        """
-        `inside`: `x` is either inside or outside the geometry.
-        The cases where there are both points inside and points
-        outside the geometry are NOT allowed.
+        """Compute the approximate distance at x to the boundary.
+        - This function is used for the hard-constraint methods.
+        - The approximate distance function satisfies the following properties:
+            - The function is zero on the boundary and positive elsewhere.
+            - The function is almost differentiable at any order.
+            - The function is not necessarily equal to the exact distance function.
 
-        See `Geometry.approxdist2boundary()` for more info on args.
+        Args:
+
+            x: a 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            where: a string to specify which part of the boundary to compute the distance, 
+                e.g., "left", "right", "bottom", "top". If `None`, compute the distance to the whole boundary.
+            smoothness: a string to specify the smoothness of the distance function,
+                e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
+                Default is "M".
+
+                - "L": the distance function is continuous but can be non-differentiable on a 
+                set of points, which has measure zero.
+
+                - "M": the distance function is continuous and differentiable at any order. The 
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+                
+                - "H": the distance function is continuous and differentiable at any order on any 
+                points. This option may result in a polynomial of HIGH order.
+
+            inside: `x` is either inside or outside the geometry.
+                The cases where there are both points inside and points
+                outside the geometry are NOT allowed.
+
+        Returns:
+            A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
         
         assert where in [None, "left", "right", "bottom", "top"], \
@@ -522,11 +549,37 @@ class Triangle(Geometry):
     def approxdist2boundary(self, x, 
         where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None, 
         smoothness: Literal["L", "M", "H"] = "M"):
-        """
-        `where`: "x1-x2" indicates the line segment with vertices x1 and x2 
-        (after reordered).
+        """Compute the approximate distance at x to the boundary.
+        - This function is used for the hard-constraint methods.
+        - The approximate distance function satisfies the following properties:
+            - The function is zero on the boundary and positive elsewhere.
+            - The function is almost differentiable at any order.
+            - The function is not necessarily equal to the exact distance function.
 
-        See `Geometry.approxdist2boundary()` for more info on args.
+        Args:
+
+            x: a 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            where: a string to specify which part of the boundary to compute the distance. 
+                "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). 
+                If `None`, compute the distance to the whole boundary.
+            smoothness: a string to specify the smoothness of the distance function,
+                e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
+                Default is "M".
+
+                - "L": the distance function is continuous but can be non-differentiable on a 
+                set of points, which has measure zero.
+
+                - "M": the distance function is continuous and differentiable at any order. The 
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+                
+                - "H": the distance function is continuous and differentiable at any order on any 
+                points. This option may result in a polynomial of HIGH order. 
+
+        Returns:
+            A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
 
         assert where in [None, "x1-x2", "x1-x3", "x2-x3"]

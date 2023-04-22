@@ -71,14 +71,41 @@ class Cuboid(Hypercube):
                         "bottom", "top"]] = None,
         smoothness: Literal["L", "M", "H"] = "M",
         inside: bool = True):
-        """
-        `inside`: `x` is either inside or outside the geometry.
-        The case where there are both points inside and points
-        outside the geometry is NOT allowed.
+        """Compute the approximate distance at x to the boundary.
+        - This function is used for the hard-constraint methods.
+        - The approximate distance function satisfies the following properties:
+            - The function is zero on the boundary and positive elsewhere.
+            - The function is almost differentiable at any order.
+            - The function is not necessarily equal to the exact distance function.
 
-        NOTE: currently only support `inside=True`.
+        Args:
 
-        See `Geometry.approxdist2boundary()` for more info on args.
+            x: a 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            where: a string to specify which part of the boundary to compute the distance, 
+                e.g., "left", "right", "front", "back", "bottom", "top". 
+                If `None`, compute the distance to the whole boundary.
+            smoothness: a string to specify the smoothness of the distance function,
+                e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
+                Default is "M".
+
+                - "L": the distance function is continuous but can be non-differentiable on a 
+                set of points, which has measure zero.
+
+                - "M": the distance function is continuous and differentiable at any order. The 
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+                
+                - "H": the distance function is continuous and differentiable at any order on any 
+                points. This option may result in a polynomial of HIGH order.
+
+            inside: `x` is either inside or outside the geometry.
+                The cases where there are both points inside and points
+                outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
+
+        Returns:
+            A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
         
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
