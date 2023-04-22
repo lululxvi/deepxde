@@ -116,6 +116,7 @@ class Cuboid(Hypercube):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
             self.xmax_tensor = bkd.as_tensor(self.xmax)
 
+        dist_l = dist_r = None
         if where not in ["front", "right", "top"]:
             dist_l = bkd.abs((x - self.xmin_tensor) /
                             (self.xmax_tensor - self.xmin_tensor) * 2)
