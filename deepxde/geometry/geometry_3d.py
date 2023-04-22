@@ -107,6 +107,7 @@ class Cuboid(Hypercube):
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
+        # pylint: disable=inconsistent-return-statements
         assert where in [None, "back", "front", "left", "right", "bottom", "top"], \
             "where must be one of None, back, front, left, right, bottom, top"
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
@@ -117,7 +118,7 @@ class Cuboid(Hypercube):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
             self.xmax_tensor = bkd.as_tensor(self.xmax)
 
-        dist_l = dist_r = 0.
+        dist_l = dist_r = None
         if where not in ["front", "right", "top"]:
             dist_l = bkd.abs((x - self.xmin_tensor) /
                             (self.xmax_tensor - self.xmin_tensor) * 2)
