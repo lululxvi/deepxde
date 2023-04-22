@@ -24,9 +24,9 @@ class Interval(Geometry):
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
-    def approxdist2boundary(self, x, where: Union[
-        None, Literal["left", "right"]] = None,
-        smoothness: Literal["L", "M", "H"] = "M"):
+    def approxdist2boundary(self, x,
+        smoothness: Literal["L", "M", "H"] = "M",
+        where: Union[None, Literal["left", "right"]] = None):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
         - The approximate distance function satisfies the following properties:
@@ -39,8 +39,6 @@ class Interval(Geometry):
             x: a 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            where: a string to specify which part of the boundary to compute the distance, 
-                e.g., "left", "right". If `None`, compute the distance to the whole boundary.
             smoothness: a string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
@@ -55,6 +53,9 @@ class Interval(Geometry):
                 - "H": the distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order. 
 
+            where: a string to specify which part of the boundary to compute the distance, 
+                e.g., "left", "right". If `None`, compute the distance to the whole boundary.
+
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
@@ -68,12 +69,14 @@ class Interval(Geometry):
             self.l_tensor = bkd.as_tensor(self.l)
             self.r_tensor = bkd.as_tensor(self.r)
 
+        dist_l = dist_r = None
         if where != "right":
             dist_l = bkd.abs((x - self.l_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
         if where != "left":
             dist_r = bkd.abs((x - self.r_tensor) 
                 / (self.r_tensor - self.l_tensor) * 2)
+
         if where is None:
             if smoothness == "L":
                 return bkd.minimum(dist_l, dist_r)

@@ -297,10 +297,10 @@ class Rectangle(Hypercube):
         return dist_l * dist_r
 
 
-    def approxdist2boundary(self, x, where: Union[
-            None, Literal["left", "right",
-                        "bottom", "top"]] = None,
+    def approxdist2boundary(self, x,
         smoothness: Literal["L", "M", "H"] = "M",
+        where: Union[None, Literal["left", "right",
+            "bottom", "top"]] = None,
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
@@ -314,8 +314,6 @@ class Rectangle(Hypercube):
             x: a 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            where: a string to specify which part of the boundary to compute the distance, 
-                e.g., "left", "right", "bottom", "top". If `None`, compute the distance to the whole boundary.
             smoothness: a string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
@@ -330,6 +328,8 @@ class Rectangle(Hypercube):
                 - "H": the distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
+            where: a string to specify which part of the boundary to compute the distance, 
+                e.g., "left", "right", "bottom", "top". If `None`, compute the distance to the whole boundary.
             inside: `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed.
@@ -547,8 +547,8 @@ class Triangle(Geometry):
         return np.vstack(x)
 
     def approxdist2boundary(self, x, 
-        where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None, 
-        smoothness: Literal["L", "M", "H"] = "M"):
+        smoothness: Literal["L", "M", "H"] = "M",
+        where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None, ):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
         - The approximate distance function satisfies the following properties:
@@ -561,9 +561,6 @@ class Triangle(Geometry):
             x: a 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            where: a string to specify which part of the boundary to compute the distance. 
-                "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). 
-                If `None`, compute the distance to the whole boundary.
             smoothness: a string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
@@ -578,6 +575,10 @@ class Triangle(Geometry):
                 - "H": the distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order. 
 
+            where: a string to specify which part of the boundary to compute the distance. 
+                "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). 
+                If `None`, compute the distance to the whole boundary.
+
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
@@ -590,6 +591,7 @@ class Triangle(Geometry):
             self.x2_tensor = bkd.as_tensor(self.x2)
             self.x3_tensor = bkd.as_tensor(self.x3)
         
+        diff_x1_x2 = diff_x1_x3 = diff_x2_x3 = None
         if where not in ["x1-x3", "x2-x3"]:
             diff_x1_x2 = bkd.norm(
                 x - self.x1_tensor, axis=-1, keepdims=True) + bkd.norm(

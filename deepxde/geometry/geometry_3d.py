@@ -66,10 +66,10 @@ class Cuboid(Hypercube):
             )
         return pts
 
-    def approxdist2boundary(self, x, where: Union[
-            None, Literal["back", "front", "left", "right", 
-                        "bottom", "top"]] = None,
+    def approxdist2boundary(self, x, 
         smoothness: Literal["L", "M", "H"] = "M",
+        where: Union[None, Literal["back", "front", "left", "right", 
+            "bottom", "top"]] = None,
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
         - This function is used for the hard-constraint methods.
@@ -83,9 +83,6 @@ class Cuboid(Hypercube):
             x: a 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            where: a string to specify which part of the boundary to compute the distance, 
-                e.g., "left", "right", "front", "back", "bottom", "top". 
-                If `None`, compute the distance to the whole boundary.
             smoothness: a string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
@@ -100,6 +97,9 @@ class Cuboid(Hypercube):
                 - "H": the distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
+            where: a string to specify which part of the boundary to compute the distance, 
+                e.g., "left", "right", "front", "back", "bottom", "top". 
+                If `None`, compute the distance to the whole boundary.
             inside: `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.

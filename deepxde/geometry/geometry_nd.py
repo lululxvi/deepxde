@@ -103,7 +103,6 @@ class Hypercube(Geometry):
         return y
 
     def approxdist2boundary(self, x, 
-        where: None = None, 
         smoothness: Literal["L", "M", "H"] = "L",
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
@@ -118,9 +117,6 @@ class Hypercube(Geometry):
             x: a 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            where: a string to specify which part of the boundary to compute the distance, 
-                e.g., "left", "right", "front", "back", "bottom", "top". 
-                If `None`, compute the distance to the whole boundary.
             smoothness: a string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "L".
@@ -147,7 +143,6 @@ class Hypercube(Geometry):
             A NumPy array of shape (n, 1). The distance at each point in `x`.
         """
         
-        assert where is None, "where!=None is not supported for Hypercube"
         assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
         assert self.dim >= 2
         assert inside, "inside=False is not supported for Hypercube"
