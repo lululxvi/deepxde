@@ -166,7 +166,8 @@ class PDE(Data):
             config.comm.Bcast(n_train, root=0)
             
             if train_x.shape[0] != n_train[0][0]:
-                train_x = np.zeros(n_train)
+                print(n_train,'ntrain')
+                train_x = np.zeros(n_train[0], dtype=train_x.dtype)
 
             config.comm.Bcast(train_x, root=0)
             self.train_x = train_x

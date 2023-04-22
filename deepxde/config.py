@@ -22,7 +22,8 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
         hvd.init()
         rank = hvd.rank() # Only single node acceleration supported so far.
         world_size = hvd.size()
-        print(f"\nParallel training with {world_size} processes.\n")
+        if rank == 0:
+            print(f"\nParallel training with {world_size} processes.\n")
     else:
         raise NotImplementedError(
             "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
