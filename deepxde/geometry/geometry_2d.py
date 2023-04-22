@@ -352,7 +352,7 @@ class Rectangle(Hypercube):
             self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
             self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
         
-        dist_left = dist_right = dist_bottom = dist_top = None
+        dist_left = dist_right = dist_bottom = dist_top = 0.
         if where is None or where == "left":
             dist_left = bkd.abs(bkd.norm(
                 x - self.x11_tensor, axis=-1, keepdims=True) + bkd.norm(
