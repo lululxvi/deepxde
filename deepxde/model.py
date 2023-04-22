@@ -21,7 +21,7 @@ class Model:
     """A ``Model`` trains a ``NN`` on a ``Data``.
 
     Args:
-        data: ``deepxftende.data.Data`` instance.
+        data: ``deepxde.data.Data`` instance.
         net: ``deepxde.nn.NN`` instance.
     """
 
