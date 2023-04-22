@@ -296,7 +296,6 @@ class Rectangle(Hypercube):
         dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
         return dist_l * dist_r
 
-    # pylint: disable=inconsistent-return-statements
     def approxdist2boundary(self, x,
         smoothness: Literal["L", "M", "H"] = "M",
         where: Union[None, Literal["left", "right",
