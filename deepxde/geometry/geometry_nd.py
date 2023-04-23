@@ -107,37 +107,42 @@ class Hypercube(Geometry):
         where: None = None,
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
-        - This function is used for the hard-constraint methods.
-        - The approximate distance function satisfies the following properties:
-            - The function is zero on the boundary and positive elsewhere.
-            - The function is almost differentiable at any order.
-            - The function is not necessarily equal to the exact distance function.
+
+        This function is used for the hard-constraint methods. The approximate distance function 
+        satisfies the following properties:
+
+        - The function is zero on the boundary and positive elsewhere.
+        - The function is almost differentiable at any order.
+        - The function is not necessarily equal to the exact distance function.
 
         Args:
-
-            x: a 2D array of shape (n, dim), where `n` is the number of points and
+            x: A 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            smoothness: a string to specify the smoothness of the distance function,
+            smoothness (string, optional): A string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
-                Default is "L".
+                Default is "M".
 
-                - "L": the distance function is continuous but can be non-differentiable on a 
+                - L
+                The distance function is continuous but can be non-differentiable on a
                 set of points, which has measure zero.
 
-                - "M": the distance function is continuous and differentiable at any order. The 
+                - M
+                The distance function is continuous and differentiable at any order. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
-                
-                - "H": the distance function is continuous and differentiable at any order on any 
-                points. This option may result in a polynomial of HIGH order.
 
-                WARNING: in current implementation, 
+                - H
+                The distance function is continuous and differentiable at any order on any 
+                points. This option may result in a polynomial of HIGH order.
+                
+                - WARNING
+                In current implementation, 
                 numerical underflow may happen for high dimensionalities
                 when `smoothness="M"` or `smoothness="H"`. 
 
-            where: this option is currently not supported for Hypercube.
-            inside: `x` is either inside or outside the geometry.
+            where (string, optional): This option is currently not supported for Hypercube.
+            inside (bool, optional): The `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
 

@@ -39,10 +39,10 @@ class Geometry(abc.ABC):
         - The function is not necessarily equal to the exact distance function.
 
         Args:
-            x: a 2D array of shape (n, dim), where `n` is the number of points and
+            x: A 2D array of shape (n, dim), where `n` is the number of points and
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            smoothness: a string to specify the smoothness of the distance function,
+            smoothness (string, optional): A string to specify the smoothness of the distance function,
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
 
