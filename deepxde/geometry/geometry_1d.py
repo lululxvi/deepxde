@@ -1,10 +1,11 @@
+from typing import Literal, Union
+
 import numpy as np
 
 from .geometry import Geometry
-from typing import Literal, Union
 from .sampler import sample
-from .. import config
 from .. import backend as bkd
+from .. import config
 
 
 class Interval(Geometry):

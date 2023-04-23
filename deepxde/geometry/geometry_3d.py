@@ -1,9 +1,11 @@
 import itertools
+from typing import Union, Literal
 
 import numpy as np
 
-from .geometry_2d import Rectangle, Union
-from .geometry_nd import Hypercube, Hypersphere, Literal, bkd
+from .geometry_2d import Rectangle
+from .geometry_nd import Hypercube, Hypersphere
+from .. import backend as bkd
 
 
 class Cuboid(Hypercube):

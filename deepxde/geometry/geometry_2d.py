@@ -1,12 +1,14 @@
 __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
 
+from typing import Union, Literal
+
 import numpy as np
 from scipy import spatial
 
-from typing import Union, Literal
 from .geometry import Geometry
-from .geometry_nd import Hypercube, Hypersphere, bkd
+from .geometry_nd import Hypercube, Hypersphere
 from .sampler import sample
+from .. import backend as bkd
 from .. import config
 from ..utils import vectorize
 

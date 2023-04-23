@@ -7,8 +7,8 @@ from sklearn import preprocessing
 
 from .geometry import Geometry
 from .sampler import sample
-from .. import config
 from .. import backend as bkd
+from .. import config
 
 
 class Hypercube(Geometry):
