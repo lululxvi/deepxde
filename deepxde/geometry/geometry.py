@@ -28,17 +28,15 @@ class Geometry(abc.ABC):
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
     
-    def approxdist2boundary(self, x, 
-        smoothness: Literal["L", "M", "H"] = "M"):
+    def approxdist2boundary(self, x, smoothness: Literal["L", "M", "H"] = "M"):
         """Compute the approximate distance at x to the boundary.
 
-        - This function is used for the hard-constraint methods.
+        This function is used for the hard-constraint methods. The approximate distance function 
+        satisfies the following properties:
 
-        - The approximate distance function satisfies the following properties:
-
-            - The function is zero on the boundary and positive elsewhere.
-            - The function is almost differentiable at any order.
-            - The function is not necessarily equal to the exact distance function.
+        - The function is zero on the boundary and positive elsewhere.
+        - The function is almost differentiable at any order.
+        - The function is not necessarily equal to the exact distance function.
 
         Args:
             x: a 2D array of shape (n, dim), where `n` is the number of points and
@@ -48,15 +46,18 @@ class Geometry(abc.ABC):
                 e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
                 Default is "M".
 
-                - "L": the distance function is continuous but can be non-differentiable on a
-                  set of points, which has measure zero.
+                - L
+                The distance function is continuous but can be non-differentiable on a
+                set of points, which has measure zero.
 
-                - "M": the distance function is continuous and differentiable at any order. The
-                  non-differentiable points can only appear on boundaries. If the points in `x` are
-                  all inside or outside the geometry, the distance function is smooth.
-                
-                - "H": the distance function is continuous and differentiable at any order on any 
-                  points. This option may result in a polynomial of HIGH order.
+                - M
+                The distance function is continuous and differentiable at any order. The
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+
+                - H
+                The distance function is continuous and differentiable at any order on any 
+                points. This option may result in a polynomial of HIGH order.
 
         Returns:
             A NumPy array of shape (n, 1). The distance at each point in `x`.
