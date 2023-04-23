@@ -18,15 +18,15 @@ def pde(x, y):
 
 
 def boundary_l(x, on_boundary):
-    return on_boundary and np.isclose(x[0], 0)
+    return on_boundary and dde.utils.isclose(x[0], 0)
 
 
 def boundary_r(x, on_boundary):
-    return on_boundary and np.isclose(x[0], 1)
+    return on_boundary and dde.utils.isclose(x[0], 1)
 
 
 def func(x):
-    return -(x ** 4) / 24 + x ** 3 / 6 - x ** 2 / 4
+    return -(x**4) / 24 + x**3 / 6 - x**2 / 4
 
 
 geom = dde.geometry.Interval(0, 1)
