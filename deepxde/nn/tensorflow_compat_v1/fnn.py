@@ -91,9 +91,9 @@ class FNN(NN):
                 raise ValueError(
                     "batch_normalization: {}, layer_normalization: {}".format(
                         self.batch_normalization, self.layer_normalization
-                    ) +
-                     "\n'before' and 'after' are the only acceptable values for" + 
-                    " batch_normalization and layer_normalization."
+                    )
+                    + "\n'before' and 'after' are the only acceptable values for"
+                    + " batch_normalization and layer_normalization."
                 )
             if self.dropout_rate > 0:
                 y = tf.layers.dropout(y, rate=self.dropout_rate, training=self.training)
@@ -157,7 +157,6 @@ class FNN(NN):
         """
 
         with tf.variable_scope("layer_norm"):
-
             mean, var = tf.nn.moments(inputs, axes=[1], keepdims=True)
 
             if elementwise_affine:
