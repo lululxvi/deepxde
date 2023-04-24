@@ -117,6 +117,8 @@ class MsFFN(FNN):
                         "batch_normalization: {}, layer_normalization: {}".format(
                             self.batch_normalization, self.layer_normalization
                         )
+                        + "\n'before' and 'after' are the only acceptable values for"
+                        + " batch_normalization and layer_normalization."
                     )
                 if self.dropout_rate > 0:
                     y = tf.layers.dropout(
