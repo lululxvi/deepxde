@@ -3,6 +3,7 @@ import numpy as np
 from .geometry import Geometry
 from .sampler import sample
 from .. import config
+from ..utils import isclose
 
 
 class Interval(Geometry):
@@ -14,7 +15,7 @@ class Interval(Geometry):
         return np.logical_and(self.l <= x, x <= self.r).flatten()
 
     def on_boundary(self, x):
-        return np.any(np.isclose(x, [self.l, self.r]), axis=-1)
+        return np.any(isclose(x, [self.l, self.r]), axis=-1)
 
     def distance2boundary(self, x, dirn):
         return x - self.l if dirn < 0 else self.r - x
@@ -23,7 +24,7 @@ class Interval(Geometry):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
     def boundary_normal(self, x):
-        return -np.isclose(x, self.l).astype(config.real(np)) + np.isclose(x, self.r)
+        return -isclose(x, self.l).astype(config.real(np)) + isclose(x, self.r)
 
     def uniform_points(self, n, boundary=True):
         if boundary:
@@ -62,8 +63,8 @@ class Interval(Geometry):
 
     def periodic_point(self, x, component=0):
         tmp = np.copy(x)
-        tmp[np.isclose(x, self.l)] = self.r
-        tmp[np.isclose(x, self.r)] = self.l
+        tmp[isclose(x, self.l)] = self.r
+        tmp[isclose(x, self.r)] = self.l
         return tmp
 
     def background_points(self, x, dirn, dist2npt, shift):

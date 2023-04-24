@@ -7,6 +7,7 @@ from .geometry_2d import Rectangle
 from .geometry_3d import Cuboid
 from .geometry_nd import Hypercube
 from .. import config
+from ..utils import isclose
 
 
 class TimeDomain(Interval):
@@ -16,7 +17,7 @@ class TimeDomain(Interval):
         self.t1 = t1
 
     def on_initial(self, t):
-        return np.isclose(t, self.t0).flatten()
+        return isclose(t, self.t0).flatten()
 
 
 class GeometryXTime:
