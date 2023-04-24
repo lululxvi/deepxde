@@ -10,8 +10,8 @@ from .real import Real
 # Data parallel via Horovod
 hvd = None
 comm = None
-rank = 0
 world_size = 1
+rank = 0
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
@@ -30,7 +30,7 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
                 hvd = None
     else:
         raise NotImplementedError(
-            "The data parallel acceleration is only implemented in backend tensorflow.compat.v1"
+            "Parallel training via Horovod is only implemented in backend tensorflow.compat.v1"
         )
 
 
