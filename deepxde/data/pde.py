@@ -161,7 +161,7 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         if config.hvd is not None:
-            if not self.train_distribution in ["pseudo", "Sobol"]:
+            if self.train_distribution not in ["pseudo", "Sobol"]:
                 raise ValueError(
                 "{} train distribution does not support data-parallel acceleration".format(
                     self.train_distribution
