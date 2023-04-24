@@ -51,8 +51,9 @@ def quasirandom(n_samples, dimension, sampler):
             sampler = skopt.sampler.Hammersly()
             skip = 1
     elif sampler == "Sobol":
+        randomize = config.hvd is not None
         # 1st point: [0, 0, ...], 2nd point: [0.5, 0.5, ...]
-        sampler = skopt.sampler.Sobol(randomize=False)
+        sampler = skopt.sampler.Sobol(randomize=randomize)
         if dimension < 3:
             skip = 1
         else:
