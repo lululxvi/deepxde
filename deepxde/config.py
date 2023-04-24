@@ -26,8 +26,8 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
             rank = hvd.rank() # Only single node acceleration supported so far.
             if rank == 0:
                 print(f"\nParallel training with {world_size} processes.\n")
-            else:
-                hvd = None
+        else:
+            hvd = None
     else:
         raise NotImplementedError(
             "Parallel training via Horovod is only implemented in backend tensorflow.compat.v1"
