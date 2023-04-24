@@ -15,13 +15,16 @@ world_size = 1
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
-        from mpi4py import MPI
 
-        comm = MPI.COMM_WORLD
-        tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
         hvd.init()
-        rank = hvd.rank() # Only single node acceleration supported so far.
         world_size = hvd.size()
+        if world_size > 1:
+            from mpi4py import MPI
+
+            comm = MPI.COMM_WORLD
+            tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
+            rank = hvd.rank() # Only single node acceleration supported so far.
+
         if rank == 0:
             print(f"\nParallel training with {world_size} processes.\n")
     else:
