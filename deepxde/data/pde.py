@@ -92,6 +92,12 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
+        if config.hvd is not None and self.train_distribution not in ["pseudo", "Sobol"]:
+                raise ValueError(
+                "{} train distribution does not support data-parallel acceleration".format(
+                    self.train_distribution
+                ))
+
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
@@ -161,21 +167,20 @@ class PDE(Data):
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         if config.hvd is not None:
-            if self.train_distribution not in ["pseudo", "Sobol"]:
-                raise ValueError(
-                "{} train distribution does not support data-parallel acceleration".format(
-                    self.train_distribution
-                ))
             train_x = self.bc_points()
             n_train = np.array([train_x.shape])
+            num_bcs = np.array([self.num_bcs])
             config.comm.Bcast(n_train, root=0)
+            config.comm.Bcast(num_bcs, root=0)
+            self.num_bcs = list(num_bcs[0])
             
             if train_x.shape[0] != n_train[0][0]:
-                print(n_train,'ntrain')
                 train_x = np.zeros(n_train[0], dtype=train_x.dtype)
 
             config.comm.Bcast(train_x, root=0)
+            self.train_x_bc = train_x
             self.train_x = train_x
+            print(self.train_x_bc, 'BC')
         else:
             self.train_x = self.bc_points()
         if self.pde is not None:

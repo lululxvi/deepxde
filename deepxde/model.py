@@ -615,8 +615,7 @@ class Model:
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
-        if config.rank == 0:
-            self._test()
+        self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
             if backend_name == "tensorflow.compat.v1":
@@ -633,8 +632,8 @@ class Model:
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
-        print("")
         if config.rank == 0:
+            print("")
             display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
@@ -657,8 +656,8 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                if config.rank == 0:
-                    self._test()
+                self._test()
+                    
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -843,7 +842,8 @@ class Model:
             or np.isnan(self.train_state.loss_test).any()
         ):
             self.stop_training = True
-        display.training_display(self.train_state)
+        if config.rank == 0:
+            display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,

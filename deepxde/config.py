@@ -44,6 +44,7 @@ if backend_name == "jax":
 # XLA
 xla_jit = False
 if backend_name in ["tensorflow.compat.v1", "tensorflow"] and hvd is None:
+    # Note: Horovod with tensorflow.compat.v1 does not support XLA.
     xla_jit = bkd.is_gpu_available()
 elif backend_name == "jax":
     xla_jit = True
