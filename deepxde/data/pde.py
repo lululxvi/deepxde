@@ -168,19 +168,18 @@ class PDE(Data):
         self.train_x_all = self.train_points()
         if config.hvd is not None:
             train_x = self.bc_points()
-            n_train = np.array([train_x.shape])
-            num_bcs = np.array([self.num_bcs])
+            n_train = np.array(train_x.shape)
+            num_bcs = np.array(self.num_bcs)
             config.comm.Bcast(n_train, root=0)
             config.comm.Bcast(num_bcs, root=0)
-            self.num_bcs = list(num_bcs[0])
+            self.num_bcs = list(num_bcs)
             
-            if train_x.shape[0] != n_train[0][0]:
+            if train_x.shape[0] != n_train[0]:
                 train_x = np.zeros(n_train[0], dtype=train_x.dtype)
 
             config.comm.Bcast(train_x, root=0)
             self.train_x_bc = train_x
             self.train_x = train_x
-            print(self.train_x_bc, 'BC')
         else:
             self.train_x = self.bc_points()
         if self.pde is not None:
