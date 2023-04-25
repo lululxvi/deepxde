@@ -28,7 +28,7 @@ class Geometry(abc.ABC):
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
     
-    def approxdist2boundary(self, x, smoothness: Literal["L", "M", "H"] = "M"):
+    def approxdist2boundary(self, x, smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf"):
         """Compute the approximate distance at x to the boundary.
 
         This function is used for the hard-constraint methods. The approximate distance function 
@@ -43,19 +43,19 @@ class Geometry(abc.ABC):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
-                Default is "M".
+                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
+                Default is "Cinf".
 
-                - L
+                - C0
                 The distance function is continuous but can be non-differentiable on a
                 set of points, which has measure zero.
 
-                - M
+                - Cinf
                 The distance function is continuous and differentiable at any order. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - H
+                - Cinf+
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 

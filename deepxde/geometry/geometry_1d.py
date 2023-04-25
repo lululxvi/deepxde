@@ -26,7 +26,7 @@ class Interval(Geometry):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
     def approxdist2boundary(self, x,
-        smoothness: Literal["L", "M", "H"] = "M",
+        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf",
         where: Union[None, Literal["left", "right"]] = None):
         """Compute the approximate distance at x to the boundary.
 
@@ -42,19 +42,19 @@ class Interval(Geometry):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "L", "M", "H". "L" is the least smooth, "H" is the most smooth.
-                Default is "M".
+                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
+                Default is "Cinf".
 
-                - L
+                - C0
                 The distance function is continuous but can be non-differentiable on a
                 set of points, which has measure zero.
 
-                - M
+                - Cinf
                 The distance function is continuous and differentiable at any order. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - H
+                - Cinf+
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
@@ -66,7 +66,7 @@ class Interval(Geometry):
         """
 
         assert where in [None, "left", "right"], "where must be None, left, or right"
-        assert smoothness in ["L", "M", "H"], "smoothness must be one of L, M, H"
+        assert smoothness in ["C0", "Cinf", "Cinf+"], "smoothness must be one of C0, Cinf, Cinf+"
         
         # To convert self.l and self.r to tensor,
         # and avoid repeated conversion in the loop
@@ -83,16 +83,16 @@ class Interval(Geometry):
                 / (self.r_tensor - self.l_tensor) * 2)
 
         if where is None:
-            if smoothness == "L":
+            if smoothness == "C0":
                 return bkd.minimum(dist_l, dist_r)
-            if smoothness == "M":
+            if smoothness == "Cinf":
                 return dist_l * dist_r
             return bkd.square(dist_l * dist_r)
         if where == "left":
-            if smoothness == "H":
+            if smoothness == "Cinf+":
                 dist_l = bkd.square(dist_l)
             return dist_l
-        if smoothness == "H":
+        if smoothness == "Cinf+":
             dist_r = bkd.square(dist_r)
         return dist_r
 
