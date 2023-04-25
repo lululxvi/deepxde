@@ -92,11 +92,15 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
-        if config.hvd is not None and self.train_distribution not in ["pseudo", "Sobol"]:
-                raise ValueError(
+        if config.hvd is not None and self.train_distribution not in [
+            "pseudo",
+            "Sobol",
+        ]:
+            raise ValueError(
                 "{} train distribution does not support data-parallel acceleration".format(
                     self.train_distribution
-                ))
+                )
+            )
 
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
@@ -173,7 +177,7 @@ class PDE(Data):
             config.comm.Bcast(train_x_shape, root=0)
             config.comm.Bcast(num_bcs, root=0)
             self.num_bcs = list(num_bcs)
-            
+
             if train_x.shape[0] != train_x_shape[0]:
                 train_x = np.zeros(train_x_shape, dtype=train_x.dtype)
 
