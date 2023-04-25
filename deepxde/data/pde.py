@@ -92,10 +92,7 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
-        if config.hvd is not None and self.train_distribution not in [
-            "pseudo",
-            "Sobol",
-        ]:
+        if config.hvd is not None and self.train_distribution != 'pseudo':
             raise ValueError(
                 "{} train distribution does not support data-parallel acceleration".format(
                     self.train_distribution
