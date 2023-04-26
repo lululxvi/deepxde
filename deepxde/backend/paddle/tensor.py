@@ -62,7 +62,7 @@ def Variable(initial_value, dtype=None):
     return paddle.create_parameter(
         shape=[1],
         dtype=paddle.get_default_dtype() if dtype is None else dtype,
-        default_initializer=paddle.nn.initializer.Constant(value=initial_value)
+        default_initializer=paddle.nn.initializer.Constant(value=initial_value),
     )
 
 
@@ -71,11 +71,14 @@ def as_tensor(data, dtype=None):
         if dtype is None or data.dtype == dtype:
             return data
         return data.astype(dtype)
-    return paddle.to_tensor(data, dtype=dtype)
+    output = paddle.to_tensor(data, dtype=dtype)
+    return output.reshape([1]) if output.shape == [] else output
 
 
 def sparse_tensor(indices, values, shape):
-    return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
+    return paddle.sparse.sparse_coo_tensor(
+        list(zip(*indices)), values, shape, stop_gradient=False
+    )
 
 
 def from_numpy(np_array):
