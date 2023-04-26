@@ -92,13 +92,10 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
-        if config.hvd is not None and self.train_distribution != 'pseudo':
+        if config.hvd is not None and self.train_distribution != "pseudo":
             raise ValueError(
-                "{} train distribution does not support data-parallel acceleration".format(
-                    self.train_distribution
-                )
+                "Parallel training via Horovod only supports pseudo train distribution."
             )
-
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
