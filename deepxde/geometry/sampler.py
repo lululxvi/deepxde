@@ -52,7 +52,7 @@ def quasirandom(n_samples, dimension, sampler):
             skip = 1
     elif sampler == "Sobol":
         # 1st point: [0, 0, ...], 2nd point: [0.5, 0.5, ...]
-        sampler = skopt.sampler.Sobol()
+        sampler = skopt.sampler.Sobol(randomize=False)
         if dimension < 3:
             skip = 1
         else:

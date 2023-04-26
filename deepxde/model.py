@@ -656,8 +656,7 @@ class Model:
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self._test()
-                    
+                self._test() 
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
@@ -810,6 +809,7 @@ class Model:
             self.train_state.y_train,
             self.train_state.train_aux_vars,
         )
+        print(self.train_state.loss_train, 'LOSS', config.rank, 'RANK')
         self.train_state.y_pred_test, self.train_state.loss_test = self._outputs_losses(
             False,
             self.train_state.X_test,
