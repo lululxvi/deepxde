@@ -164,22 +164,18 @@ class PDE(Data):
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
-        if config.hvd is not None:
-            train_x = self.bc_points()
-            train_x_shape = np.array(train_x.shape)
+        self.bc_points()  # Generate self.num_bcs and self.train_x_bc
+        if self.bcs and config.hvd is not None:
             num_bcs = np.array(self.num_bcs)
-            config.comm.Bcast(train_x_shape, root=0)
             config.comm.Bcast(num_bcs, root=0)
             self.num_bcs = list(num_bcs)
 
-            if train_x.shape[0] != train_x_shape[0]:
-                train_x = np.zeros(train_x_shape, dtype=train_x.dtype)
-
-            config.comm.Bcast(train_x, root=0)
-            self.train_x_bc = train_x
-            self.train_x = train_x
-        else:
-            self.train_x = self.bc_points()
+            x_bc_shape = np.array(self.train_x_bc.shape)
+            config.comm.Bcast(x_bc_shape, root=0)
+            if len(self.train_x_bc) != x_bc_shape[0]:
+                self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
+            config.comm.Bcast(self.train_x_bc, root=0)
+        self.train_x = self.train_x_bc
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
