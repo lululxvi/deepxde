@@ -93,7 +93,9 @@ class PDE(Data):
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
         if config.hvd is not None:
-            # num_domain and num_boundary are the number of points over each rank.
+            print(
+                "When parallel training via Horovod, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
+            )
             if self.train_distribution != "pseudo":
                 raise ValueError(
                     "Parallel training via Horovod only supports pseudo train distribution."
