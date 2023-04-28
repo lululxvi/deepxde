@@ -15,8 +15,8 @@ class PDE(Data):
         pde: A global PDE or a list of PDEs. ``None`` if no global PDE.
         bcs: A boundary condition or a list of boundary conditions. Use ``[]`` if no
             boundary condition.
-        num_domain (int): The number of training points sampled inside the domain.
-        num_boundary (int): The number of training points sampled on the boundary.
+        num_domain (int): The number of training points sampled inside the domain (over each rank for data parallel training).
+        num_boundary (int): The number of training points sampled on the boundary (over each rank for data parallel training).
         train_distribution (string): The distribution to sample training points. One of
             the following: "uniform" (equispaced grid), "pseudo" (pseudorandom), "LHS"
             (Latin hypercube sampling), "Halton" (Halton sequence), "Hammersley"
