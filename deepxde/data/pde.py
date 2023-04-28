@@ -15,8 +15,8 @@ class PDE(Data):
         pde: A global PDE or a list of PDEs. ``None`` if no global PDE.
         bcs: A boundary condition or a list of boundary conditions. Use ``[]`` if no
             boundary condition.
-        num_domain (int): The number of training points sampled inside the domain (over each rank for data parallel training).
-        num_boundary (int): The number of training points sampled on the boundary (over each rank for data parallel training).
+        num_domain (int): The number of training points sampled inside the domain.
+        num_boundary (int): The number of training points sampled on the boundary.
         train_distribution (string): The distribution to sample training points. One of
             the following: "uniform" (equispaced grid), "pseudo" (pseudorandom), "LHS"
             (Latin hypercube sampling), "Halton" (Halton sequence), "Hammersley"
@@ -92,10 +92,12 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
-        if config.hvd is not None and self.train_distribution != "pseudo":
-            raise ValueError(
-                "Parallel training via Horovod only supports pseudo train distribution."
-            )
+        if config.hvd is not None:
+            # num_domain and num_boundary are the number of points over each rank.
+            if self.train_distribution != "pseudo":
+                raise ValueError(
+                    "Parallel training via Horovod only supports pseudo train distribution."
+                )
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
