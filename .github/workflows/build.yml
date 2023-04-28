@@ -67,7 +67,7 @@ jobs:
       - name: Test build with Paddle (MacOS)
         if: matrix.os == 'macos-latest'
         run: |
-          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/mac/cpu-noavx/develop.html
+          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/mac/cpu/develop.html
           python -c "import deepxde"
         env:
           DDE_BACKEND: paddle
