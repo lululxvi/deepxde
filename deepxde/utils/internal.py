@@ -21,8 +21,9 @@ def timing(f):
         ts = timeit.default_timer()
         result = f(*args, **kwargs)
         te = timeit.default_timer()
-        print("%r took %f s\n" % (f.__name__, te - ts))
-        sys.stdout.flush()
+        if config.rank == 0:
+            print("%r took %f s\n" % (f.__name__, te - ts))
+            sys.stdout.flush()
         return result
 
     return wrapper
