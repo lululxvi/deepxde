@@ -12,18 +12,20 @@ hvd = None
 comm = None
 world_size = 1
 rank = 0
+scaling = None
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
 
         hvd.init()
         world_size = hvd.size()
+        scaling = "weak"
         if world_size > 1:
             from mpi4py import MPI
 
             comm = MPI.COMM_WORLD
             tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
-            rank = hvd.rank() # Only single node acceleration supported so far.
+            rank = hvd.rank()  # Only single node acceleration supported so far.
             if rank == 0:
                 print(f"\nParallel training with {world_size} processes.\n")
         else:
@@ -198,3 +200,13 @@ def disable_xla_jit():
     This is equivalent with ``enable_xla_jit(False)``.
     """
     enable_xla_jit(False)
+
+
+def set_scaling(scaling_mode):
+    """Sets the scaling mode for data parallel acceleration.
+
+    Args:
+        scaling_mode (str): Whether 'weak' or 'strong'
+    """
+    global scaling
+    scaling = scaling_mode
