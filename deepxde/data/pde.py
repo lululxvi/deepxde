@@ -100,7 +100,7 @@ class PDE(Data):
                 raise ValueError(
                     "Parallel training via Horovod only supports pseudo train distribution."
                 )
-            elif config.scaling == "strong":
+            if config.scaling == "strong":
                 raise ValueError(
                     "Strong scaling is not supported with tensorflow.compat.v1. Please use weak scaling."
                 )
