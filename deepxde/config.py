@@ -20,10 +20,9 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
 
         hvd.init()
         world_size = hvd.size()
-        parallel_scaling = "weak"
         if world_size > 1:
             from mpi4py import MPI
-
+            parallel_scaling = "weak"
             comm = MPI.COMM_WORLD
             tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
             rank = hvd.rank() # Only single node acceleration supported so far.
