@@ -7,19 +7,20 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
+# Data parallel
+parallel_scaling = None
 # Data parallel via Horovod
 hvd = None
 comm = None
 world_size = 1
 rank = 0
-scaling = None
 if "OMPI_COMM_WORLD_SIZE" in os.environ:
     if backend_name == "tensorflow.compat.v1":
         import horovod.tensorflow as hvd
 
         hvd.init()
         world_size = hvd.size()
-        scaling = "weak"
+        parallel_scaling = "weak"
         if world_size > 1:
             from mpi4py import MPI
 
@@ -211,4 +212,4 @@ def set_scaling(scaling_mode):
         scaling_mode (str): Whether 'weak' or 'strong'
     """
     global scaling
-    scaling = scaling_mode
+    parallel_scaling = scaling_mode
