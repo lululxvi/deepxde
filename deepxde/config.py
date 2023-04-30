@@ -203,7 +203,7 @@ def disable_xla_jit():
     enable_xla_jit(False)
 
 
-def set_scaling(scaling_mode):
+def set_parallel_scaling(scaling_mode):
     """Sets the scaling mode for data parallel acceleration.
     Weak scaling involves increasing the problem size proportionally with the number of processors,
     while strong scaling involves keeping the problem size fixed and increasing the number of processors.
