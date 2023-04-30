@@ -9,4 +9,5 @@ jupyter
 jupyterlab
 notebook
 pandas
+mpi4py
 deepxde
