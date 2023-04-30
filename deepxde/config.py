@@ -211,5 +211,5 @@ def set_scaling(scaling_mode):
     Args:
         scaling_mode (str): Whether 'weak' or 'strong'
     """
-    global scaling
+    global parallel_scaling
     parallel_scaling = scaling_mode
