@@ -7,6 +7,8 @@ from . import backend as bkd
 from .backend import backend_name, tf, torch, paddle
 from .real import Real
 
+# Data parallel
+parallel_scaling = None
 # Data parallel via Horovod
 hvd = None
 comm = None
@@ -21,9 +23,10 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
         if world_size > 1:
             from mpi4py import MPI
 
+            parallel_scaling = "weak"
             comm = MPI.COMM_WORLD
             tf.compat.v1.disable_eager_execution()  # Without this line, Horovod broadcasting fails.
-            rank = hvd.rank() # Only single node acceleration supported so far.
+            rank = hvd.rank()  # Only single node acceleration supported so far.
             if rank == 0:
                 print(f"\nParallel training with {world_size} processes.\n")
         else:
@@ -198,3 +201,15 @@ def disable_xla_jit():
     This is equivalent with ``enable_xla_jit(False)``.
     """
     enable_xla_jit(False)
+
+
+def set_parallel_scaling(scaling_mode):
+    """Sets the scaling mode for data parallel acceleration.
+    Weak scaling involves increasing the problem size proportionally with the number of processors,
+    while strong scaling involves keeping the problem size fixed and increasing the number of processors.
+
+    Args:
+        scaling_mode (str): Whether 'weak' or 'strong'
+    """
+    global parallel_scaling
+    parallel_scaling = scaling_mode
