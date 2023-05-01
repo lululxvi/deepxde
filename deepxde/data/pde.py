@@ -93,16 +93,17 @@ class PDE(Data):
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
         if config.hvd is not None:
-            print(
-                "When parallel training via Horovod, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
-            )
             if self.train_distribution != "pseudo":
                 raise ValueError(
                     "Parallel training via Horovod only supports pseudo train distribution."
                 )
-            if config.parallel_scaling == "strong":
-                raise ValueError(
-                    "Strong scaling is not supported with tensorflow.compat.v1. Please use weak scaling."
+            if config.parallel_scaling == "weak":
+                print(
+                    "For weak scaling, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
+                )
+            else:
+                print(
+                    "For strong scaling, num_domain and num_boundary are the total number of points."
                 )
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
@@ -174,15 +175,21 @@ class PDE(Data):
         self.train_x_all = self.train_points()
         self.bc_points()  # Generate self.num_bcs and self.train_x_bc
         if self.bcs and config.hvd is not None:
-            num_bcs = np.array(self.num_bcs)
-            config.comm.Bcast(num_bcs, root=0)
-            self.num_bcs = list(num_bcs)
+            if config.parallel_scaling == "weak":
+                num_bcs = np.array(self.num_bcs)
+                config.comm.Bcast(num_bcs, root=0)
+                self.num_bcs = list(num_bcs)
 
-            x_bc_shape = np.array(self.train_x_bc.shape)
-            config.comm.Bcast(x_bc_shape, root=0)
-            if len(self.train_x_bc) != x_bc_shape[0]:
-                self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
-            config.comm.Bcast(self.train_x_bc, root=0)
+                x_bc_shape = np.array(self.train_x_bc.shape)
+                config.comm.Bcast(x_bc_shape, root=0)
+                if len(self.train_x_bc) != x_bc_shape[0]:
+                    self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
+                config.comm.Bcast(self.train_x_bc, root=0)
+            else:
+                # Todo: Split the domain training points over rank for strong scaling.
+                raise ValueError(
+                    "Strong scaling is not supported yet with tensorflow.compat.v1. Please use weak scaling."
+                )
         self.train_x = self.train_x_bc
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
