@@ -93,16 +93,17 @@ class PDE(Data):
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
         if config.hvd is not None:
-            print(
-                "When parallel training via Horovod, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
-            )
             if self.train_distribution != "pseudo":
                 raise ValueError(
                     "Parallel training via Horovod only supports pseudo train distribution."
                 )
-            if config.parallel_scaling == "strong":
-                raise ValueError(
-                    "Strong scaling is not supported with tensorflow.compat.v1. Please use weak scaling."
+            if config.parallel_scaling == "weak":
+                print(
+                    "For weak scaling, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
+                )
+            elif config.parallel_scaling == "strong":
+                print(
+                    "For strong scaling, num_domain and num_boundary are the total number of points."
                 )
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
@@ -171,6 +172,11 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
+        if config.parallel_scaling == "strong":
+            # Todo: Split the domain training points over rank for strong scaling.
+            raise ValueError(
+                "Strong scaling is not supported yet with tensorflow.compat.v1. Please use weak scaling."
+            )
         self.train_x_all = self.train_points()
         self.bc_points()  # Generate self.num_bcs and self.train_x_bc
         if self.bcs and config.hvd is not None:
