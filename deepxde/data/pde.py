@@ -101,7 +101,7 @@ class PDE(Data):
                 print(
                     "For weak scaling, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
                 )
-            else:
+            elif config.parallel_scaling == "strong":
                 print(
                     "For strong scaling, num_domain and num_boundary are the total number of points."
                 )
@@ -172,24 +172,23 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
+        if config.parallel_scaling == "strong":
+            # Todo: Split the domain training points over rank for strong scaling.
+            raise ValueError(
+                "Strong scaling is not supported yet with tensorflow.compat.v1. Please use weak scaling."
+            )
         self.train_x_all = self.train_points()
         self.bc_points()  # Generate self.num_bcs and self.train_x_bc
         if self.bcs and config.hvd is not None:
-            if config.parallel_scaling == "weak":
-                num_bcs = np.array(self.num_bcs)
-                config.comm.Bcast(num_bcs, root=0)
-                self.num_bcs = list(num_bcs)
+            num_bcs = np.array(self.num_bcs)
+            config.comm.Bcast(num_bcs, root=0)
+            self.num_bcs = list(num_bcs)
 
-                x_bc_shape = np.array(self.train_x_bc.shape)
-                config.comm.Bcast(x_bc_shape, root=0)
-                if len(self.train_x_bc) != x_bc_shape[0]:
-                    self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
-                config.comm.Bcast(self.train_x_bc, root=0)
-            else:
-                # Todo: Split the domain training points over rank for strong scaling.
-                raise ValueError(
-                    "Strong scaling is not supported yet with tensorflow.compat.v1. Please use weak scaling."
-                )
+            x_bc_shape = np.array(self.train_x_bc.shape)
+            config.comm.Bcast(x_bc_shape, root=0)
+            if len(self.train_x_bc) != x_bc_shape[0]:
+                self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
+            config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
