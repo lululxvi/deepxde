@@ -5,12 +5,9 @@ from ..config import hvd
 
 compression = None
 op = None
-if hvd is not None:
-    compression = hvd.compression.Compression.none
-    op = hvd.Average
-
 LBFGS_options = {}
-hvd_opt_options = {}
+if hvd is not None:
+    hvd_opt_options = {}
 
 
 def set_LBFGS_options(
@@ -67,8 +64,8 @@ def set_LBFGS_options(
 
 
 def set_hvd_opt_options(
-    compression=compression,
-    op=op,
+    compression=hvd.compression.Compression.none,
+    op=hvd.Average,
     backward_passes_per_step=1,
     average_aggregated_gradients=False,
 ):
