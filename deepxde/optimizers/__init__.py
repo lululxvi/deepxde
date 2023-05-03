@@ -3,10 +3,6 @@ import sys
 
 from .config import LBFGS_options
 from ..backend import backend_name
-from ..config import hvd
-
-if hvd is not None:
-    from .config import hvd_opt_options
 
 
 def _load_backend(mod_name):
