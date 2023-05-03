@@ -93,7 +93,6 @@ def set_hvd_opt_options(
 
             dde.config.set_hvd_opt_options()
     """
-    global hvd_opt_options
     if compression is None:
         compression = hvd.Average
     if op is None:
