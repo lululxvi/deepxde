@@ -172,11 +172,6 @@ class PDE(Data):
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
-        if config.parallel_scaling == "strong":
-            # Todo: Split the domain training points over rank for strong scaling.
-            raise ValueError(
-                "Strong scaling is not supported yet with tensorflow.compat.v1. Please use weak scaling."
-            )
         self.train_x_all = self.train_points()
         self.bc_points()  # Generate self.num_bcs and self.train_x_bc
         if self.bcs and config.hvd is not None:
@@ -190,6 +185,18 @@ class PDE(Data):
                 self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
             config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
+        if config.parallel_scaling == "strong":
+            # Split the training points over each rank.
+            # We drop last points in order to have the same number of points per rank
+            train_x_all = self.train_x_all
+            train_x_all_shape = list(
+                self.train_x_all.shape
+            )  # We transform to list to support item assignment
+            num_split = train_x_all_shape[0] // config.world_size
+            train_x_all_shape[0] = num_split
+            train_x_all_split = np.empty(train_x_all_shape, dtype=train_x_all.dtype)
+            config.comm.Scatter(train_x_all, train_x_all_split, root=0)
+            self.train_x_all = train_x_all_split
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
