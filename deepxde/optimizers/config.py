@@ -1,9 +1,16 @@
-__all__ = ["set_LBFGS_options"]
+__all__ = ["set_LBFGS_options", "set_hvd_opt_options"]
 
 from ..backend import backend_name
+from ..config import hvd
 
+compression = None
+op = None
+if hvd is not None:
+    compression = hvd.compression.Compression.none
+    op = hvd.Average
 
 LBFGS_options = {}
+hvd_opt_options = {}
 
 
 def set_LBFGS_options(
@@ -59,7 +66,48 @@ def set_LBFGS_options(
     LBFGS_options["maxls"] = maxls
 
 
+def set_hvd_opt_options(
+    compression=compression,
+    op=op,
+    backward_passes_per_step=1,
+    average_aggregated_gradients=False,
+):
+    """Sets the parameters of hvd.DistributedOptimizer.
+
+    The default parameters are the same as for hvd.DistributedOptimizer.
+    Refer to `hvd.DistributedOptimizer <https://horovod.readthedocs.io/en/stable/api.html>`_
+
+    Args:
+        compression: Compression algorithm used to reduce the amount of data
+                     sent and received by each worker node.  Defaults to not
+                     using compression.
+        op: The reduction operation to use when combining gradients across
+            different ranks. Defaults to Average.
+        backward_passes_per_step (int): Number of backward passes to perform before calling
+                                  hvd.allreduce. This allows accumulating updates over
+                                  multiple mini-batches before reducing and applying them.
+        average_aggregated_gradients (bool): Whether to average the aggregated gradients that
+                                      have been accumulated over multiple mini-batches.
+                                      If true divides gradient updates by
+                                      backward_passes_per_step.
+
+    Warning:
+        hvd is only implemented for tensorflow.compat.v1.
+
+        .. code-block:: python
+
+            dde.config.set_hvd_opt_options()
+    """
+    global hvd_opt_options
+    hvd_opt_options["compression"] = compression
+    hvd_opt_options["op"] = op
+    hvd_opt_options["backward_passes_per_step"] = backward_passes_per_step
+    hvd_opt_options["average_aggregated_gradients"] = average_aggregated_gradients
+
+
 set_LBFGS_options()
+if hvd is not None:
+    set_hvd_opt_options()
 
 
 # Backend-dependent options

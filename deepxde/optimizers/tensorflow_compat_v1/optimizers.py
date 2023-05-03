@@ -1,7 +1,7 @@
 __all__ = ["get", "is_external_optimizer"]
 
 from .scipy_optimizer import ScipyOptimizerInterface
-from ..config import LBFGS_options
+from ..config import LBFGS_options, hvd_opt_options
 from ...backend import tf
 from ...config import hvd
 
@@ -56,7 +56,17 @@ def get(loss, optimizer, learning_rate=None, decay=None):
 
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     if hvd is not None:
-        optim = hvd.DistributedOptimizer(optim)
+        options = {
+            "optimizer": optim,
+            "compression": hvd_opt_options["compression"],
+            "op": hvd_opt_options["op"],
+            "backward_passes_per_step": hvd_opt_options["backward_passes_per_step"],
+            "average_aggregated_gradients": hvd_opt_options[
+                "average_aggregated_gradients"
+            ],
+        }
+
+        optim = hvd.DistributedOptimizer(**options)
     with tf.control_dependencies(update_ops):
         train_op = optim.minimize(loss, global_step=global_step)
     return train_op

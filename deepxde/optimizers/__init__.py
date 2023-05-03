@@ -1,7 +1,7 @@
 import importlib
 import sys
 
-from .config import LBFGS_options, set_LBFGS_options
+from .config import LBFGS_options, hvd_opt_options
 from ..backend import backend_name
 
 
