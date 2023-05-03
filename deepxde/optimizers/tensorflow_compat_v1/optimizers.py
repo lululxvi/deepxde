@@ -1,9 +1,12 @@
 __all__ = ["get", "is_external_optimizer"]
 
 from .scipy_optimizer import ScipyOptimizerInterface
-from ..config import LBFGS_options, hvd_opt_options
+from ..config import LBFGS_options
 from ...backend import tf
 from ...config import hvd
+
+if hvd is not None:
+    from ..config import hvd_opt_options
 
 
 def is_external_optimizer(optimizer):

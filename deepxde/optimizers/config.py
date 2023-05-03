@@ -3,8 +3,6 @@ __all__ = ["set_LBFGS_options", "set_hvd_opt_options"]
 from ..backend import backend_name
 from ..config import hvd
 
-compression = None
-op = None
 LBFGS_options = {}
 if hvd is not None:
     hvd_opt_options = {}
@@ -64,8 +62,8 @@ def set_LBFGS_options(
 
 
 def set_hvd_opt_options(
-    compression=hvd.compression.Compression.none,
-    op=hvd.Average,
+    compression=None,
+    op=None,
     backward_passes_per_step=1,
     average_aggregated_gradients=False,
 ):
@@ -96,6 +94,10 @@ def set_hvd_opt_options(
             dde.config.set_hvd_opt_options()
     """
     global hvd_opt_options
+    if compression is None:
+        compression = hvd.Average
+    if op is None:
+        op = hvd.compression.Compression.none
     hvd_opt_options["compression"] = compression
     hvd_opt_options["op"] = op
     hvd_opt_options["backward_passes_per_step"] = backward_passes_per_step
