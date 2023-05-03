@@ -188,14 +188,15 @@ class PDE(Data):
         if config.parallel_scaling == "strong":
             # Split the training points over each rank.
             # We drop last points in order to have the same number of points per rank
-            train_x_all = self.train_x_all
             train_x_all_shape = list(
                 self.train_x_all.shape
             )  # We transform to list to support item assignment
             num_split = train_x_all_shape[0] // config.world_size
             train_x_all_shape[0] = num_split
-            train_x_all_split = np.empty(train_x_all_shape, dtype=train_x_all.dtype)
-            config.comm.Scatter(train_x_all, train_x_all_split, root=0)
+            train_x_all_split = np.empty(
+                train_x_all_shape, dtype=self.train_x_all.dtype
+            )
+            config.comm.Scatter(self.train_x_all, train_x_all_split, root=0)
             self.train_x_all = train_x_all_split
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
