@@ -192,9 +192,9 @@ class PDE(Data):
                 self.train_x_all.shape
             )  # We transform to list to support item assignment
             num_split = train_x_all_shape[0] // config.world_size
-            if num_split < config.world_size:
+            if train_x_all_shape[0] < config.world_size:
                 raise ValueError(
-                    "At least one point has to be split over each rank. Please ensure that: num_donain + num_boundary >= config.world_size."
+                    "The number of training points is smaller than the number of processes. Please use more points."
                 )
             train_x_all_shape[0] = num_split
             train_x_all_split = np.empty(
