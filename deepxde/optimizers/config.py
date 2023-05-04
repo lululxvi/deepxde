@@ -1,4 +1,4 @@
-__all__ = ["set_LBFGS_options"]
+__all__ = ["set_LBFGS_options", "set_hvd_opt_options"]
 
 from ..backend import backend_name
 from ..config import hvd
