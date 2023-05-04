@@ -188,14 +188,14 @@ class PDE(Data):
         if config.parallel_scaling == "strong":
             # Split the training points over each rank.
             # We drop last points in order to have the same number of points per rank
+            if len(self.train_x_all) < config.world_size:
+                raise ValueError(
+                    "The number of training points is smaller than the number of processes. Please use more points."
+                )
             train_x_all_shape = list(
                 self.train_x_all.shape
             )  # We transform to list to support item assignment
             num_split = train_x_all_shape[0] // config.world_size
-            if train_x_all_shape[0] < config.world_size:
-                raise ValueError(
-                    "The number of training points is smaller than the number of processes. Please use more points."
-                )
             train_x_all_shape[0] = num_split
             train_x_all_split = np.empty(
                 train_x_all_shape, dtype=self.train_x_all.dtype
