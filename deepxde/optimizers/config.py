@@ -86,7 +86,6 @@ def set_hvd_opt_options(
         compression = hvd.Average
     if op is None:
         op = hvd.compression.Compression.none
-    #global hvd_opt_options
     hvd_opt_options["compression"] = compression
     hvd_opt_options["op"] = op
     hvd_opt_options["backward_passes_per_step"] = backward_passes_per_step
