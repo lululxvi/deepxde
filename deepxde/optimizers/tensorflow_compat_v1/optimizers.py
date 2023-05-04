@@ -68,8 +68,6 @@ def get(loss, optimizer, learning_rate=None, decay=None):
                 "average_aggregated_gradients"
             ],
         )
-        print(hvd_opt_options,'THIS IS HVD OPT OPTIONS')
-        print('---------------')
     with tf.control_dependencies(update_ops):
         train_op = optim.minimize(loss, global_step=global_step)
     return train_op
