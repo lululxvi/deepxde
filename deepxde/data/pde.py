@@ -192,6 +192,10 @@ class PDE(Data):
                 self.train_x_all.shape
             )  # We transform to list to support item assignment
             num_split = train_x_all_shape[0] // config.world_size
+            if num_split < config.world_size:
+                raise ValueError(
+                    "At least one point has to be split over each rank. Please ensure that: num_donain + num_boundary >= config.world_size."
+                )
             train_x_all_shape[0] = num_split
             train_x_all_split = np.empty(
                 train_x_all_shape, dtype=self.train_x_all.dtype
