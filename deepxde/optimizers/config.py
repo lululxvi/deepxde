@@ -79,9 +79,6 @@ def set_hvd_opt_options(
         average_aggregated_gradients (bool): Whether to average the aggregated gradients that have been accumulated over
             multiple mini-batches. If true divides gradient updates by backward_passes_per_step. Only applicable for
             backward_passes_per_step > 1.
-
-    Warning:
-        hvd is only implemented for tensorflow.compat.v1.
     """
     if compression is None:
         compression = hvd.Average
