@@ -82,9 +82,6 @@ def set_hvd_opt_options(
 
     Warning:
         hvd is only implemented for tensorflow.compat.v1.
-
-        .. code-block:: python
-            dde.config.set_hvd_opt_options()
     """
     if compression is None:
         compression = hvd.Average
