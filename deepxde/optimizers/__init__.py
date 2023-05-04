@@ -3,7 +3,6 @@ import sys
 
 from .config import LBFGS_options, set_LBFGS_options
 from ..backend import backend_name
-from ..config import hvd
 
 
 def _load_backend(mod_name):
