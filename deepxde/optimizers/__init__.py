@@ -5,8 +5,6 @@ from .config import LBFGS_options, set_LBFGS_options
 from ..backend import backend_name
 from ..config import hvd
 
-if hvd is not None:
-    from .config import set_hvd_opt_options
 
 def _load_backend(mod_name):
     mod = importlib.import_module(".%s" % mod_name, __name__)

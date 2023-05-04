@@ -52,7 +52,7 @@ def set_LBFGS_options(
 
             dde.config.set_default_float("float64")
     """
-    global LBFGS_options
+    #global LBFGS_options
     LBFGS_options["maxcor"] = maxcor
     LBFGS_options["ftol"] = ftol
     LBFGS_options["gtol"] = gtol
