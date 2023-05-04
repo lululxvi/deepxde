@@ -69,28 +69,21 @@ def set_hvd_opt_options(
 ):
     """Sets the parameters of hvd.DistributedOptimizer.
 
-    The default parameters are the same as for hvd.DistributedOptimizer.
-    Refer to `hvd.DistributedOptimizer <https://horovod.readthedocs.io/en/stable/api.html>`_
+    The default parameters are the same as for `hvd.DistributedOptimizer <https://horovod.readthedocs.io/en/stable/api.html>`_.
 
     Args:
         compression: Compression algorithm used to reduce the amount of data
-                     sent and received by each worker node.  Defaults to not
-                     using compression.
-        op: The reduction operation to use when combining gradients across
-            different ranks. Defaults to Average.
+            sent and received by each worker node.  Defaults to not using compression.
+        op: The reduction operation to use when combining gradients across different ranks. Defaults to Average.
         backward_passes_per_step (int): Number of backward passes to perform before calling
-                                  hvd.allreduce. This allows accumulating updates over
-                                  multiple mini-batches before reducing and applying them.
-        average_aggregated_gradients (bool): Whether to average the aggregated gradients that
-                                      have been accumulated over multiple mini-batches.
-                                      If true divides gradient updates by
-                                      backward_passes_per_step.
+            hvd.allreduce. This allows accumulating updates over multiple mini-batches before reducing and applying them.
+        average_aggregated_gradients (bool): Whether to average the aggregated gradients that have been accumulated over multiple mini-batches.
+        If true divides gradient updates by backward_passes_per_step.
 
     Warning:
         hvd is only implemented for tensorflow.compat.v1.
 
         .. code-block:: python
-
             dde.config.set_hvd_opt_options()
     """
     if compression is None:
