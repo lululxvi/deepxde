@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none, mpi_split_in_rank
+from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0
 
 
 class PDE(Data):
@@ -186,7 +186,7 @@ class PDE(Data):
             config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
         if config.parallel_scaling == "strong" and config.hvd is not None:
-            self.train_x_all = mpi_split_in_rank(self.train_x_all)
+            self.train_x_all = mpi_scatter_from_rank0(self.train_x_all)
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None

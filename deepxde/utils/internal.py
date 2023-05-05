@@ -202,7 +202,7 @@ def get_num_args(func):
     return len(params) - ("self" in params)
 
 
-def mpi_split_in_rank(array, drop_last=True):
+def mpi_scatter_from_rank0(array, drop_last=True):
     """Scatter the given array into continuous subarrays of equal size from rank 0 to all ranks.
 
     Args:
