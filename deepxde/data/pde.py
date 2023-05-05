@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none
+from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0
 
 
 class PDE(Data):
@@ -186,22 +186,7 @@ class PDE(Data):
             config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
         if config.parallel_scaling == "strong":
-            # Split the training points over each rank.
-            # We drop last points in order to have the same number of points per rank
-            if len(self.train_x_all) < config.world_size:
-                raise ValueError(
-                    "The number of training points is smaller than the number of processes. Please use more points."
-                )
-            train_x_all_shape = list(
-                self.train_x_all.shape
-            )  # We transform to list to support item assignment
-            num_split = train_x_all_shape[0] // config.world_size
-            train_x_all_shape[0] = num_split
-            train_x_all_split = np.empty(
-                train_x_all_shape, dtype=self.train_x_all.dtype
-            )
-            config.comm.Scatter(self.train_x_all, train_x_all_split, root=0)
-            self.train_x_all = train_x_all_split
+            self.train_x_all = mpi_scatter_from_rank0(self.train_x_all)
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
