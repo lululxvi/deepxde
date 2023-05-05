@@ -226,6 +226,6 @@ def mpi_scatter_from_rank0(array, drop_last=True):
     num_split = array_shape[0] // config.world_size
     array_shape[0] = num_split
     array_split = np.empty(array_shape, dtype=array.dtype)
-    array = array[:num_split * config.world_size, :] # We truncate array size to be a multiple of num_split to prevent a MPI error.
+    array = array[:num_split * config.world_size] # We truncate array size to be a multiple of num_split to prevent a MPI error.
     config.comm.Scatter(array, array_split, root=0)
     return array_split
