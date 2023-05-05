@@ -203,7 +203,7 @@ def get_num_args(func):
 
 
 def mpi_split_in_rank(array, drop_last=True):
-    """Split given array into continuous subarray according to world size and rank.
+    """Scatter the given array into continuous subarrays of equal size from rank 0 to all ranks.
 
     Args:
         array (array or Tensor): Array to be split.
@@ -214,8 +214,10 @@ def mpi_split_in_rank(array, drop_last=True):
         array or Tensor: Split array or Tensor.
     """
     # TODO: support drop_last=False
+    if config.world_size == 1:
+        return array
     if not drop_last:
-        raise ValueError("Only support drop_last=True now.")
+        raise ValueError("Only support drop_last=True now.")    
     if len(array) < config.world_size:
         raise ValueError(
             "The number of training points is smaller than the number of processes. Please use more points."
