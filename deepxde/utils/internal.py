@@ -200,3 +200,27 @@ def get_num_args(func):
     # g = dummy(a.f)
     params = inspect.signature(func).parameters
     return len(params) - ("self" in params)
+
+
+def mpi_split_in_rank(array, drop_last=True):
+    """Split given array into continuous subarray according to world size and rank.
+    Args:
+        array (array or Tensor): Array to be split.
+        drop_last (bool): Whether to discard the remainder samples
+            not divisible by world_size. Default: True.
+    Returns:
+        array or Tensor: Split array or Tensor.
+    """
+    # TODO: support drop_last=False
+    if not drop_last:
+        raise ValueError("Only support drop_last=True now.")
+    if len(array) < config.world_size:
+        raise ValueError(
+            "The number of training points is smaller than the number of processes. Please use more points."
+        )
+    array_shape = list(array.shape)  # We transform to list to support item assignment
+    num_split = array_shape[0] // config.world_size
+    array_shape[0] = num_split
+    array_split = np.empty(array_shape, dtype=array.dtype)
+    config.comm.Scatter(array, array_split, root=0)
+    return array_split

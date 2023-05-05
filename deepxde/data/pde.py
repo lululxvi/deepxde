@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none
+from ..utils import get_num_args, run_if_all_none, mpi_split_in_rank
 
 
 class PDE(Data):
@@ -185,7 +185,9 @@ class PDE(Data):
                 self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
             config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
-        if config.parallel_scaling == "strong":
+        if config.parallel_scaling == "strong" and config.hvd is not None:
+            #test = mpi_split_in_rank(self.train_x_all)
+            #print(test, 'TEST')
             # Split the training points over each rank.
             # We drop last points in order to have the same number of points per rank
             if len(self.train_x_all) < config.world_size:
@@ -201,6 +203,7 @@ class PDE(Data):
                 train_x_all_shape, dtype=self.train_x_all.dtype
             )
             config.comm.Scatter(self.train_x_all, train_x_all_split, root=0)
+            print(train_x_all_split, 'TEST2')
             self.train_x_all = train_x_all_split
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
