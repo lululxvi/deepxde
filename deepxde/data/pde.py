@@ -185,7 +185,7 @@ class PDE(Data):
                 self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
             config.comm.Bcast(self.train_x_bc, root=0)
         self.train_x = self.train_x_bc
-        if config.parallel_scaling == "strong" and config.hvd is not None:
+        if config.parallel_scaling == "strong":
             self.train_x_all = mpi_scatter_from_rank0(self.train_x_all)
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, self.train_x_all))
