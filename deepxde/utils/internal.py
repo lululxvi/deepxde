@@ -206,12 +206,12 @@ def mpi_scatter_from_rank0(array, drop_last=True):
     """Scatter the given array into continuous subarrays of equal size from rank 0 to all ranks.
 
     Args:
-        array (array or Tensor): Array to be split.
+        array: Numpy array to be split.
         drop_last (bool): Whether to discard the remainder samples
             not divisible by world_size. Default: True.
 
     Returns:
-        array or Tensor: Split array or Tensor.
+        array: Scattered Numpy array.
     """
     # TODO: support drop_last=False
     if config.world_size == 1:
