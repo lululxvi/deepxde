@@ -204,10 +204,12 @@ def get_num_args(func):
 
 def mpi_split_in_rank(array, drop_last=True):
     """Split given array into continuous subarray according to world size and rank.
+
     Args:
         array (array or Tensor): Array to be split.
         drop_last (bool): Whether to discard the remainder samples
             not divisible by world_size. Default: True.
+
     Returns:
         array or Tensor: Split array or Tensor.
     """
