@@ -217,7 +217,7 @@ def mpi_scatter_from_rank0(array, drop_last=True):
     if config.world_size == 1:
         return array
     if not drop_last:
-        raise ValueError("Only support drop_last=True now.")    
+        raise ValueError("Only support drop_last=True now.")
     if len(array) < config.world_size:
         raise ValueError(
             "The number of training points is smaller than the number of processes. Please use more points."
@@ -226,6 +226,8 @@ def mpi_scatter_from_rank0(array, drop_last=True):
     num_split = array_shape[0] // config.world_size
     array_shape[0] = num_split
     array_split = np.empty(array_shape, dtype=array.dtype)
-    array = array[:num_split * config.world_size] # We truncate array size to be a multiple of num_split to prevent a MPI error.
+    array = array[
+        : num_split * config.world_size
+    ]  # We truncate array size to be a multiple of num_split to prevent a MPI error.
     config.comm.Scatter(array, array_split, root=0)
     return array_split
