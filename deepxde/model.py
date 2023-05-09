@@ -369,6 +369,7 @@ class Model:
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
             nn_params, ext_params = params
+
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(nn_params, inputs, training=training)
@@ -447,7 +448,7 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            losses = paddle.concat(losses, axis=0)
+            losses = paddle.stack(losses, axis=0)
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
