@@ -71,8 +71,7 @@ def as_tensor(data, dtype=None):
         if dtype is None or data.dtype == dtype:
             return data
         return data.astype(dtype)
-    output = paddle.to_tensor(data, dtype=dtype)
-    return output.reshape([1]) if output.shape == [] else output
+    return paddle.to_tensor(data, dtype=dtype)
 
 
 def sparse_tensor(indices, values, shape):
