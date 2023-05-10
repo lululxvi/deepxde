@@ -57,6 +57,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - many **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled (adaptively) every certain iterations.
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
+- **data-parallel training** on multiple GPUs.
 - different **optimizers**: Adam, L-BFGS, etc.
 - conveniently **save** the model during training, and **load** a trained model.
 - **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
