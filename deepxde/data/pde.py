@@ -200,10 +200,10 @@ class PDE(Data):
             self.anchors = anchors
         else:
             self.anchors = np.vstack((anchors, self.anchors))
-        self.train_x_all = np.vstack((anchors, split_in_rank(self.train_x_all)))
+        self.train_x_all = np.vstack((anchors, self.train_x_all))
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
+            self.train_x = np.vstack((self.train_x, split_in_rank(self.train_x_all)))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(

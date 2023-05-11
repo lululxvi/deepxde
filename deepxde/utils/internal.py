@@ -220,6 +220,9 @@ def split_in_rank(array, drop_last=True):
         return array
 
     n_total = len(array)
+    if n_total < config.world_size:
+        return array
+
     n_split = n_total // config.world_size
     beg = n_split * config.rank
     end = n_split * (config.rank + 1)

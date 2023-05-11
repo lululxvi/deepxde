@@ -22,7 +22,7 @@ elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n")
-# Data parallel
+# Data parallel via paddle.distributed
 world_size = 1
 rank = 0
 if backend_name == "paddle":

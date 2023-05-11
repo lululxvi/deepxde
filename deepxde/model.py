@@ -50,12 +50,12 @@ class Model:
             self.saver = None
         elif backend_name in ["pytorch", "paddle"]:
             self.lr_scheduler = None
-        elif backend_name == "jax":
-            self.opt_state = None
-            self.params = None
         elif backend_name == "paddle":
             if config.world_size > 1:
                 self.net = paddle.distributed.fleet.distributed_model(self.net)
+        elif backend_name == "jax":
+            self.opt_state = None
+            self.params = None
 
     @utils.timing
     def compile(
