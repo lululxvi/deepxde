@@ -280,7 +280,8 @@ class Model:
             grad.clear()
             return self.net(inputs)
 
-        def outputs_losses(training, inputs, targets, losses_fn):
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+            self.net.auxiliary_vars = auxiliary_vars
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
                 inputs = tuple(
@@ -304,11 +305,15 @@ class Model:
             grad.clear()
             return outputs_, losses
 
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                True, inputs, targets, auxiliary_vars, self.data.losses_train
+            )
 
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                False, inputs, targets, auxiliary_vars, self.data.losses_test
+            )
 
         # Another way is using per-parameter options
         # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
@@ -331,13 +336,13 @@ class Model:
                 )
             else:
                 raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularizaiton to be implemented for "
+                    f"{self.net.regularizer[0]} regularization to be implemented for "
                     "backend pytorch."
                 )
 
-        def train_step(inputs, targets):
+        def train_step(inputs, targets, auxiliary_vars):
             def closure():
-                losses = outputs_losses_train(inputs, targets)[1]
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
                 total_loss.backward()
@@ -523,9 +528,8 @@ class Model:
         if backend_name == "tensorflow":
             outs = outputs_losses(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
-            # TODO: auxiliary_vars
             self.net.requires_grad_(requires_grad=False)
-            outs = outputs_losses(inputs, targets)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
@@ -541,8 +545,7 @@ class Model:
         elif backend_name in ["tensorflow", "paddle"]:
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
-            # TODO: auxiliary_vars
-            self.train_step(inputs, targets)
+            self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
