@@ -3,6 +3,7 @@ import numpy as np
 from .geometry import Geometry
 from .. import config
 from ..data import BatchSampler
+from ..utils import isclose
 
 
 class PointCloud(Geometry):
@@ -23,14 +24,10 @@ class PointCloud(Geometry):
         self.boundary_normals = None
         all_points = self.points
         if boundary_points is not None:
-            self.boundary_points = np.asarray(
-                boundary_points, dtype=config.real(np)
-            )
+            self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
             self.num_boundary_points = len(boundary_points)
             all_points = np.vstack((self.points, self.boundary_points))
-            self.boundary_sampler = BatchSampler(
-                self.num_boundary_points, shuffle=True
-            )
+            self.boundary_sampler = BatchSampler(self.num_boundary_points, shuffle=True)
             if boundary_normals is not None:
                 if len(boundary_normals) != len(boundary_points):
                     raise ValueError(
@@ -48,21 +45,18 @@ class PointCloud(Geometry):
 
     def inside(self, x):
         return (
-            np.isclose((x[:, None, :] - self.points[None, :, :]), 0, atol=1e-6)
+            isclose((x[:, None, :] - self.points[None, :, :]), 0)
             .all(axis=2)
             .any(axis=1)
         )
 
     def on_boundary(self, x):
         if self.boundary_points is None:
-            raise ValueError(
-                "boundary_points must be defined to test on_boundary"
-            )
+            raise ValueError("boundary_points must be defined to test on_boundary")
         return (
-            np.isclose(
+            isclose(
                 (x[:, None, :] - self.boundary_points[None, :, :]),
                 0,
-                atol=1e-6,
             )
             .all(axis=2)
             .any(axis=1)
@@ -79,9 +73,7 @@ class PointCloud(Geometry):
 
     def random_boundary_points(self, n, random="pseudo"):
         if self.boundary_points is None:
-            raise ValueError(
-                "boundary_points must be defined to test on_boundary"
-            )
+            raise ValueError("boundary_points must be defined to test on_boundary")
         if n <= self.num_boundary_points:
             indices = self.boundary_sampler.get_next(n)
             return self.boundary_points[indices]

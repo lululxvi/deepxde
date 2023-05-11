@@ -42,12 +42,12 @@ Next, we express the PDE residual of the Poisson equation:
 
 The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordinate. The second argument is the network output, i.e., the solution :math:`u(x)`, but here we use ``y`` as the name of the variable.
 
-Next, we consider the Dirichlet boundary condition. A simple Python function, returning a boolean, is used to define the subdomain for the Dirichlet boundary condition (:math:`\{-1, 1\}`). The function should return ``True`` for those points inside the subdomain and ``False`` for the points outside. In our case, the points :math:`x` of the Dirichlet boundary condition are :math:`x=-1` and :math:`x=1`. (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent.)
+Next, we consider the Dirichlet boundary condition. A simple Python function, returning a boolean, is used to define the subdomain for the Dirichlet boundary condition (:math:`\{-1, 1\}`). The function should return ``True`` for those points inside the subdomain and ``False`` for the points outside. In our case, the points :math:`x` of the Dirichlet boundary condition are :math:`x=-1` and :math:`x=1`. (Note that because of rounding-off errors, it is often wise to use ``dde.utils.isclose`` to test whether two floating point values are equivalent.)
 
 .. code-block:: python
 
     def boundary(x, _):
-        return np.isclose(x[0], -1) or np.isclose(x[0], 1)
+        return dde.utils.isclose(x[0], -1) or dde.utils.isclose(x[0], 1)
 
 The argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. To facilitate the implementation of ``boundary``, a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the entire boundary of the geometry (the left and right endpoints of the interval in this case), then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``. Thus, we can also define ``boundary`` in a simpler way:
 

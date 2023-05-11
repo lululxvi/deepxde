@@ -7,6 +7,7 @@ from sklearn import preprocessing
 from .geometry import Geometry
 from .sampler import sample
 from .. import config
+from ..utils import isclose
 
 
 class Hypercube(Geometry):
@@ -32,15 +33,13 @@ class Hypercube(Geometry):
 
     def on_boundary(self, x):
         _on_boundary = np.logical_or(
-            np.any(np.isclose(x, self.xmin), axis=-1),
-            np.any(np.isclose(x, self.xmax), axis=-1),
+            np.any(isclose(x, self.xmin), axis=-1),
+            np.any(isclose(x, self.xmax), axis=-1),
         )
         return np.logical_and(self.inside(x), _on_boundary)
 
     def boundary_normal(self, x):
-        _n = -np.isclose(x, self.xmin).astype(config.real(np)) + np.isclose(
-            x, self.xmax
-        )
+        _n = -isclose(x, self.xmin).astype(config.real(np)) + isclose(x, self.xmax)
         # For vertices, the normal is averaged for all directions
         idx = np.count_nonzero(_n, axis=-1) > 1
         if np.any(idx):
@@ -94,8 +93,8 @@ class Hypercube(Geometry):
 
     def periodic_point(self, x, component):
         y = np.copy(x)
-        _on_xmin = np.isclose(y[:, component], self.xmin[component])
-        _on_xmax = np.isclose(y[:, component], self.xmax[component])
+        _on_xmin = isclose(y[:, component], self.xmin[component])
+        _on_xmax = isclose(y[:, component], self.xmax[component])
         y[:, component][_on_xmin] = self.xmax[component]
         y[:, component][_on_xmax] = self.xmin[component]
         return y
@@ -109,19 +108,21 @@ class Hypersphere(Geometry):
             len(center), (self.center - radius, self.center + radius), 2 * radius
         )
 
-        self._r2 = radius ** 2
+        self._r2 = radius**2
 
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
+        return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
-        return (-ad + (ad ** 2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(config.real(np))
+        return (-ad + (ad**2 - np.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+            config.real(np)
+        )
 
     def distance2boundary(self, x, dirn):
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
@@ -132,7 +133,7 @@ class Hypersphere(Geometry):
     def boundary_normal(self, x):
         _n = x - self.center
         l = np.linalg.norm(_n, axis=-1, keepdims=True)
-        _n = _n / l * np.isclose(l, self.radius)
+        _n = _n / l * isclose(l, self.radius)
         return _n
 
     def random_points(self, n, random="pseudo"):
@@ -163,5 +164,10 @@ class Hypersphere(Geometry):
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
         h = dx / n
-        pts = x - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None] * h * dirn
+        pts = (
+            x
+            - np.arange(-shift, n - shift + 1, dtype=config.real(np))[:, None]
+            * h
+            * dirn
+        )
         return pts

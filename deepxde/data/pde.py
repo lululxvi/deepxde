@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none, split_in_rank
+from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0, split_in_rank
 
 
 class PDE(Data):
@@ -92,6 +92,19 @@ class PDE(Data):
         self.num_domain = num_domain
         self.num_boundary = num_boundary
         self.train_distribution = train_distribution
+        if config.hvd is not None:
+            if self.train_distribution != "pseudo":
+                raise ValueError(
+                    "Parallel training via Horovod only supports pseudo train distribution."
+                )
+            if config.parallel_scaling == "weak":
+                print(
+                    "For weak scaling, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
+                )
+            elif config.parallel_scaling == "strong":
+                print(
+                    "For strong scaling, num_domain and num_boundary are the total number of points."
+                )
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
@@ -161,7 +174,20 @@ class PDE(Data):
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
-        self.train_x = self.bc_points()
+        self.bc_points()  # Generate self.num_bcs and self.train_x_bc
+        if self.bcs and config.hvd is not None:
+            num_bcs = np.array(self.num_bcs)
+            config.comm.Bcast(num_bcs, root=0)
+            self.num_bcs = list(num_bcs)
+
+            x_bc_shape = np.array(self.train_x_bc.shape)
+            config.comm.Bcast(x_bc_shape, root=0)
+            if len(self.train_x_bc) != x_bc_shape[0]:
+                self.train_x_bc = np.empty(x_bc_shape, dtype=self.train_x_bc.dtype)
+            config.comm.Bcast(self.train_x_bc, root=0)
+        self.train_x = self.train_x_bc
+        if config.parallel_scaling == "strong":
+            self.train_x_all = mpi_scatter_from_rank0(self.train_x_all)
         if self.pde is not None:
             self.train_x = np.vstack((self.train_x, split_in_rank(self.train_x_all)))
         self.train_y = self.soln(self.train_x) if self.soln else None

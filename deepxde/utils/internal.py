@@ -21,8 +21,9 @@ def timing(f):
         ts = timeit.default_timer()
         result = f(*args, **kwargs)
         te = timeit.default_timer()
-        print("%r took %f s\n" % (f.__name__, te - ts))
-        sys.stdout.flush()
+        if config.rank == 0:
+            print("%r took %f s\n" % (f.__name__, te - ts))
+            sys.stdout.flush()
         return result
 
     return wrapper
@@ -199,6 +200,37 @@ def get_num_args(func):
     # g = dummy(a.f)
     params = inspect.signature(func).parameters
     return len(params) - ("self" in params)
+
+
+def mpi_scatter_from_rank0(array, drop_last=True):
+    """Scatter the given array into continuous subarrays of equal size from rank 0 to all ranks.
+
+    Args:
+        array: Numpy array to be split.
+        drop_last (bool): Whether to discard the remainder samples
+            not divisible by world_size. Default: True.
+
+    Returns:
+        array: Scattered Numpy array.
+    """
+    # TODO: support drop_last=False
+    if config.world_size == 1:
+        return array
+    if not drop_last:
+        raise ValueError("Only support drop_last=True now.")
+    if len(array) < config.world_size:
+        raise ValueError(
+            "The number of training points is smaller than the number of processes. Please use more points."
+        )
+    array_shape = list(array.shape)  # We transform to list to support item assignment
+    num_split = array_shape[0] // config.world_size
+    array_shape[0] = num_split
+    array_split = np.empty(array_shape, dtype=array.dtype)
+    array = array[
+        : num_split * config.world_size
+    ]  # We truncate array size to be a multiple of num_split to prevent a MPI error.
+    config.comm.Scatter(array, array_split, root=0)
+    return array_split
 
 
 def split_in_rank(array, drop_last=True):

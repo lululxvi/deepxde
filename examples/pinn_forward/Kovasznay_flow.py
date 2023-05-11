@@ -5,7 +5,7 @@ import numpy as np
 
 Re = 20
 nu = 1 / Re
-l = 1 / (2 * nu) - np.sqrt(1 / (4 * nu ** 2) + 4 * np.pi ** 2)
+l = 1 / (2 * nu) - np.sqrt(1 / (4 * nu**2) + 4 * np.pi**2)
 
 
 def pde(x, u):
@@ -47,7 +47,7 @@ def p_func(x):
 
 
 def boundary_outflow(x, on_boundary):
-    return on_boundary and np.isclose(x[0], 1)
+    return on_boundary and dde.utils.isclose(x[0], 1)
 
 
 spatial_domain = dde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])

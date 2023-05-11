@@ -10,7 +10,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 - TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
 - PyTorch: `PyTorch <https://pytorch.org>`_>=1.9.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
-- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn/en>`_ (`develop version <https://www.paddlepaddle.org.cn/documentation/docs/en/install/compile/fromsource_en.html>`_)
+- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn/en>`_ (`develop version <https://www.paddlepaddle.org.cn/en/install/quick?docurl=/documentation/docs/en/develop/install/pip/linux-pip_en.html>`_)
 
 Then, you can install DeepXDE itself.
 
@@ -58,7 +58,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 * Use the ``DDE_BACKEND`` environment variable:
 
-    - You can use ``DDE_BACKEND=BACKEND python pde.py`` to specify the backend:
+    - You can use ``DDE_BACKEND=BACKEND python pde.py`` to specify the backend. Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "jax" (JAX), and "paddle" (PaddlePaddle).
 
     $ DDE_BACKEND=tensorflow.compat.v1 python pde.py
 
@@ -78,15 +78,15 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
     - In Windows, you can find ``config.json`` file under "C:/Users/Username/.deepxde" directory
 
-Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "jax" (JAX), and "paddle" (PaddlePaddle). The default backend is TensorFlow 1.x.
+* If no backend is selected as above, DeepXDE will automatically find an available backend.
 
 Which backend should I choose?
 ``````````````````````````````
 
-Although TensorFlow 1.x is the default backend, it may not be your best choice. Here is a comparison between different backends:
+Here is a comparison between different backends:
 
 - Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error.
-    - Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch > JAX.
+    - Currently, the number of features supported is: PaddlePaddle ≈ TensorFlow 1.x > TensorFlow 2.x ≈ PyTorch > JAX.
     - Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
 - Different backends have different computational speed, and switch to another backend if the speed is an issue in your case.
     - We find that there is no backend that is always faster than the others.

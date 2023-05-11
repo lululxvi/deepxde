@@ -14,7 +14,7 @@ def dy_x(x, y, X):
 
 
 def boundary_l(x, on_boundary):
-    return on_boundary and np.isclose(x[0], -1)
+    return on_boundary and dde.utils.isclose(x[0], -1)
 
 
 def func(x):
@@ -28,7 +28,7 @@ def d_func(x):
 geom = dde.geometry.Interval(-1, 1)
 bc_l = dde.icbc.DirichletBC(geom, func, boundary_l)
 boundary_pts = geom.random_boundary_points(2)
-r_boundary_pts = boundary_pts[np.isclose(boundary_pts, 1)].reshape(-1, 1)
+r_boundary_pts = boundary_pts[dde.utils.isclose(boundary_pts, 1)].reshape(-1, 1)
 bc_r = dde.icbc.PointSetOperatorBC(r_boundary_pts, d_func(r_boundary_pts), dy_x)
 
 data = dde.data.PDE(

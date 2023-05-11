@@ -50,12 +50,12 @@ We define the initial condition, setting the value of the function at :math:`t=0
     
 Now we deal with the initial condition :math:`y'(0)=2`.
 
-The location of the intial condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`t=0` and ``False`` otherwise (note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``t`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``t`` (the first argument) is on the boundary of the geometry, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The location of the intial condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`t=0` and ``False`` otherwise (note that because of rounding-off errors, it is often wise to use ``dde.utils.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``t`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``t`` (the first argument) is on the boundary of the geometry, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
     def boundary_l(t, on_boundary):
-        return on_boundary and np.isclose(t[0], 0)
+        return on_boundary and dde.utils.isclose(t[0], 0)
 
 Now we define a function that returns the error of the initial condition, :math:`y'(0)=2`, which is the difference between the derivative of the output of the network at 0, and 2. The function takes arguments (``inputs``, ``outputs``, ``X``) and outputs a tensor of size ``N x 1``, where ``N`` is the length of ``inputs``. ``inputs`` and ``outputs`` are the network input and output tensors, respectively; ``X`` is the NumPy array of the ``inputs``.
 

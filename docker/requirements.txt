@@ -3,9 +3,11 @@ scipy
 sklearn
 matplotlib
 scikit-optimize
+seaborn
 tensorflow-probability==0.12.2
 jupyter
 jupyterlab
 notebook
 pandas
+mpi4py
 deepxde
