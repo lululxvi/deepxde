@@ -61,7 +61,12 @@ if backend_name == "paddle":
     if world_size > 1:
         paddle.distributed.fleet.init(is_collective=True)
         rank = paddle.distributed.get_rank()
+        random_seed = 42
+        random.seed(random_seed)
+        np.random.seed(random_seed)
+        paddle.seed(random_seed)
         print(f"\nParallel training with {world_size} processes.\n")
+        print("\nSet random seed to 42 for correct data split in each procesor.\n")
 
 
 def default_float():
