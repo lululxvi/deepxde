@@ -173,6 +173,8 @@ def reduce_sum(input_tensor):
 
 
 def norm(x, ord=None, axis=None, keepdims=False):
+    if ord is None:
+        ord = 2
     return paddle.linalg.norm(x, p=ord, axis=axis, keepdim=keepdims)
 
 
