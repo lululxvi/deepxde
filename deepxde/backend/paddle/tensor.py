@@ -59,6 +59,8 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
+    if paddle.in_dynamic_mode():
+        return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
     return paddle.create_parameter(
         shape=[1],
         dtype=paddle.get_default_dtype() if dtype is None else dtype,
