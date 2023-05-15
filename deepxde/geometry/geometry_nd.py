@@ -103,7 +103,7 @@ class Hypercube(Geometry):
         return y
 
     def approxdist2boundary(self, x, 
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "C0",
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0",
         where: None = None,
         inside: bool = True):
         """Compute the approximate distance at x to the boundary.
@@ -120,26 +120,25 @@ class Hypercube(Geometry):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
                 Default is "C0".
 
                 - C0
-                The distance function is continuous but can be non-differentiable on a
-                set of points, which has measure zero.
+                The distance function is continuous but may not be non-differentiable.
 
-                - Cinf
-                The distance function is continuous and differentiable at any order. The
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - Cinf+
+                - Cinf
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
                 
                 - WARNING
                 In current implementation, 
                 numerical underflow may happen for high dimensionalities
-                when `smoothness="Cinf"` or `smoothness="Cinf+"`. 
+                when `smoothness="C0+"` or `smoothness="Cinf"`. 
 
             where (string, optional): This option is currently not supported for Hypercube.
             inside (bool, optional): The `x` is either inside or outside the geometry.
@@ -147,9 +146,10 @@ class Hypercube(Geometry):
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
 
         Returns:
-            A NumPy array of shape (n, 1). The distance at each point in `x`.
+            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
         """
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "smoothness must be one of C0, Cinf, Cinf+"
+        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
         assert where is None, "where is currently not supported for Hypercube"
         assert self.dim >= 2
         assert inside, "inside=False is not supported for Hypercube"
@@ -201,8 +201,8 @@ class Hypersphere(Geometry):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
 
     def approxdist2boundary(self, x, 
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf"):
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "smoothness must be one of C0, Cinf, Cinf+"
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
+        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
 
         if not hasattr(self, "self.center_tensor"):
             self.center_tensor = bkd.as_tensor(self.center)
@@ -210,7 +210,7 @@ class Hypersphere(Geometry):
 
         dist = bkd.norm(
             x - self.center_tensor, axis=-1, keepdims=True) - self.radius
-        if smoothness == "Cinf+":
+        if smoothness == "Cinf":
             dist = bkd.square(dist)
         else:
             dist = bkd.abs(dist)

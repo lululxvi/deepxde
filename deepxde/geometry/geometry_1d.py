@@ -26,7 +26,7 @@ class Interval(Geometry):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
     def approxdist2boundary(self, x,
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf",
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
         where: Union[None, Literal["left", "right"]] = None):
         """Compute the approximate distance at x to the boundary.
 
@@ -42,19 +42,18 @@ class Interval(Geometry):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
-                Default is "Cinf".
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
 
                 - C0
-                The distance function is continuous but can be non-differentiable on a
-                set of points, which has measure zero.
+                The distance function is continuous but may not be non-differentiable.
 
-                - Cinf
-                The distance function is continuous and differentiable at any order. The
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - Cinf+
+                - Cinf
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
@@ -62,11 +61,12 @@ class Interval(Geometry):
                 e.g., "left", "right". If `None`, compute the distance to the whole boundary. Default is `None`.
 
         Returns:
-            A NumPy array of shape (n, 1). The distance at each point in `x`.
+            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
         """
 
         assert where in [None, "left", "right"], "where must be None, left, or right"
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "smoothness must be one of C0, Cinf, Cinf+"
+        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
         
         # To convert self.l and self.r to tensor,
         # and avoid repeated conversion in the loop
@@ -85,14 +85,14 @@ class Interval(Geometry):
         if where is None:
             if smoothness == "C0":
                 return bkd.minimum(dist_l, dist_r)
-            if smoothness == "Cinf":
+            if smoothness == "C0+":
                 return dist_l * dist_r
             return bkd.square(dist_l * dist_r)
         if where == "left":
-            if smoothness == "Cinf+":
+            if smoothness == "Cinf":
                 dist_l = bkd.square(dist_l)
             return dist_l
-        if smoothness == "Cinf+":
+        if smoothness == "Cinf":
             dist_r = bkd.square(dist_r)
         return dist_r
 

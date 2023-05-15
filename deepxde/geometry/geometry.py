@@ -28,7 +28,7 @@ class Geometry(abc.ABC):
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
     
-    def approxdist2boundary(self, x, smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf"):
+    def approxdist2boundary(self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
         """Compute the approximate distance at x to the boundary.
 
         This function is used for the hard-constraint methods. The approximate distance function 
@@ -43,24 +43,24 @@ class Geometry(abc.ABC):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
-                Default is "Cinf".
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
 
                 - C0
-                The distance function is continuous but can be non-differentiable on a
-                set of points, which has measure zero.
+                The distance function is continuous but may not be non-differentiable.
 
-                - Cinf
-                The distance function is continuous and differentiable at any order. The
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - Cinf+
+                - Cinf
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
         Returns:
-            A NumPy array of shape (n, 1). The distance at each point in `x`.
+            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
         """
         raise NotImplementedError(
             "{}.approxdist2boundary to be implemented".format(self.idstr)

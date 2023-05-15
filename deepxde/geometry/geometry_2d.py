@@ -175,8 +175,8 @@ class Ellipse(Geometry):
         return np.matmul(self.rotation_mat, X.T).T + self.center
 
     def approxdist2boundary(self, x, 
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf"):
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "`smoothness` must be one of C0, Cinf, Cinf+"
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
+        assert smoothness in ["C0", "C0+", "Cinf"], "`smoothness` must be one of C0, C0+, Cinf"
         
         if not hasattr(self, "self.focus1_tensor"):
             self.focus1_tensor = bkd.as_tensor(self.focus1)
@@ -186,7 +186,7 @@ class Ellipse(Geometry):
         d2 = bkd.norm(x - self.focus2_tensor, axis=-1, keepdims=True)
         dist = d1 + d2 - 2 * self.semimajor
 
-        if smoothness == "Cinf+":
+        if smoothness == "Cinf":
             dist = bkd.square(dist)
         else:
             dist = bkd.abs(dist)
@@ -269,7 +269,7 @@ class Rectangle(Hypercube):
     def approxdist2boundary_inside(self, x, where: Union[
             None, Literal["left", "right",
                         "bottom", "top"]] = None,
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf"):
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
 
         if not hasattr(self, "self.xmin_tensor"):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
@@ -299,7 +299,7 @@ class Rectangle(Hypercube):
         return dist_l * dist_r
 
     def approxdist2boundary(self, x,
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf",
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
         where: Union[None, Literal["left", "right",
             "bottom", "top"]] = None,
         inside: bool = True):
@@ -317,19 +317,18 @@ class Rectangle(Hypercube):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
-                Default is "Cinf".
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
 
                 - C0
-                The distance function is continuous but can be non-differentiable on a
-                set of points, which has measure zero.
+                The distance function is continuous but may not be non-differentiable.
 
-                - Cinf
-                The distance function is continuous and differentiable at any order. The
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - Cinf+
+                - Cinf
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
@@ -340,11 +339,12 @@ class Rectangle(Hypercube):
                 outside the geometry are NOT allowed. Default is `True`.
 
         Returns:
-            A NumPy array of shape (n, 1). The distance at each point in `x`.
+            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
         """
         assert where in [None, "left", "right", "bottom", "top"], \
             "where must be one of None, left, right, bottom, top"
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "smoothness must be one of C0, Cinf, Cinf+"
+        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
         assert self.dim == 2
 
         if inside:
@@ -552,7 +552,7 @@ class Triangle(Geometry):
         return np.vstack(x)
 
     def approxdist2boundary(self, x, 
-        smoothness: Literal["C0", "Cinf", "Cinf+"] = "Cinf",
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
         where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None, ):
         """Compute the approximate distance at x to the boundary.
 
@@ -568,19 +568,18 @@ class Triangle(Geometry):
                 `dim` is the dimension of the geometry. Note that `x` should be a tensor type
                 of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
             smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "Cinf", "Cinf+". "C0" is the least smooth, "Cinf+" is the most smooth.
-                Default is "Cinf".
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
 
                 - C0
-                The distance function is continuous but can be non-differentiable on a
-                set of points, which has measure zero.
+                The distance function is continuous but may not be non-differentiable.
 
-                - Cinf
-                The distance function is continuous and differentiable at any order. The
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
                 non-differentiable points can only appear on boundaries. If the points in `x` are
                 all inside or outside the geometry, the distance function is smooth.
 
-                - Cinf+
+                - Cinf
                 The distance function is continuous and differentiable at any order on any 
                 points. This option may result in a polynomial of HIGH order.
 
@@ -588,11 +587,12 @@ class Triangle(Geometry):
                 If `None`, compute the distance to the whole boundary. "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). Default is `None`.
 
         Returns:
-            A NumPy array of shape (n, 1). The distance at each point in `x`.
+            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
         """
 
         assert where in [None, "x1-x2", "x1-x3", "x2-x3"], "Invalid value for `where`."
-        assert smoothness in ["C0", "Cinf", "Cinf+"], "Invalid value for `smoothness`."
+        assert smoothness in ["C0", "C0+", "Cinf"], "Invalid value for `smoothness`."
 
         if not hasattr(self, "self.x1_tensor"):
             self.x1_tensor = bkd.as_tensor(self.x1)
