@@ -112,6 +112,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. B\. Fan, E. Qiao, A. Jiao, Z. Gu, W. Li, L. Lu. `Deep learning for solving and estimating dynamic macro-finance models <https://doi.org/10.48550/arXiv.2305.09783>`_. *arXiv preprint arXiv:2305.09783*, 2023.
 #. S\. Li, G. Wang, Y. Di, L. Wang, H. Wang, & Q. Zhou. `A physics-informed neural network framework to predict 3D temperature field without labeled data in process of laser metal deposition <https://www.sciencedirect.com/science/article/pii/S0952197623000921?casa_token=0B1dHbaZcUMAAAAA:GLb73w6Ey4fEHTM4k6q5YbITizLtSqfn-mxNbxgBWKTGLOiPLAN7mR0e8WyDLTlx0PJJxriuqQ0>`_. *Engineering Applications of Artificial Intelligence*, 120, p.105908, 2023.
 #. M\. Bazmara, M. Silani, & M. Mianroodi. `Physics-informed neural networks for nonlinear bending of 3D functionally graded beam <https://www.sciencedirect.com/science/article/pii/S2352012423001169>`_. *Structures*, Vol. 49, Elsevier, 2023.
 #. Y\. Huang, Z. Xu, C. Qian, & L. Liu. `Solving free-surface problems for non-shallow water using boundary and initial conditions-free physics-informed neural network (bif-PINN) <https://www.sciencedirect.com/science/article/pii/S0021999123000980?casa_token=8BLfjYZRFEIAAAAA:SGSFk_XdumSVBV83RReAstGdGtIEY5Z5TLZzYKXYX_vp8b0OqksWmhvJclVEctAI8wH3hcVDuZc>`_. *Journal of Computational Physics*, p.112003, 2023.
@@ -202,6 +203,7 @@ PINN
 DeepONet
 --------
 
+#. S\. Mao, R. Dong, L. Lu, K. M. Yi, S. Wang, & P. Perdikaris. `PPDONet: Deep operator networks for fast prediction of steady=state solutions in disk-planet systems <https://doi.org/10.48550/arXiv.2305.11111>`_. *arXiv preprint arXiv:2305.11111*, 2023.
 #. Z\. Jiang, M. Zhu, D. Li, Q. Li, Y. Yuan, & L. Lu. `Fourier-MIONet: Fourier-enhanced multiple-input neural operators for multiphase modeling of geological carbon sequestration <https://arxiv.org/pdf/2303.04778.pdf>`_. *arXiv preprint arXiv:2303.04778*, 2023.
 #. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
 #. K\. Kobayashi, J. Daniell, & S. Alam. `Operator learning framework for digital twin and complex engineering systems <https://arxiv.org/pdf/2301.06701.pdf>`_. *arXiv e-prints*, pp.arXiv-2301, 2023.
