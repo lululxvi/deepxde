@@ -102,18 +102,21 @@ class Hypercube(Geometry):
         y[:, component][_on_xmax] = self.xmin[component]
         return y
 
-    def approxdist2boundary(self, x, 
+    def boundary_constraint_factor(self, x, 
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0",
         where: None = None,
         inside: bool = True):
-        """Compute the approximate distance at x to the boundary.
+        """Compute the hard constraint factor at x for the boundary.
 
-        This function is used for the hard-constraint methods. The approximate distance function 
-        satisfies the following properties:
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs). 
+        The hard constraint factor satisfies the following properties:
 
         - The function is zero on the boundary and positive elsewhere.
-        - The function is almost differentiable at any order.
-        - The function is not necessarily equal to the exact distance function.
+        - The function is at least continuous.
+
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary, 
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in 
+        turn makes the boundary condition a "hard constraint".
 
         Args:
             x: A 2D array of shape (n, dim), where `n` is the number of points and
@@ -125,6 +128,8 @@ class Hypercube(Geometry):
 
                 - C0
                 The distance function is continuous but may not be non-differentiable.
+                But the set of non-differentiable points should have measure zero, 
+                which makes the probability of the collocation point falling in this set be zero.
 
                 - C0+
                 The distance function is continuous and differentiable almost everywhere. The
@@ -147,7 +152,7 @@ class Hypercube(Geometry):
 
         Returns:
             A tensor of a type determined by the backend, which will have a shape of (n, 1). 
-            Each element in the tensor corresponds to the computed distance value for the respective point in 'x'.
+            Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
         assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
         assert where is None, "where is currently not supported for Hypercube"
@@ -200,7 +205,7 @@ class Hypersphere(Geometry):
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
 
-    def approxdist2boundary(self, x, 
+    def boundary_constraint_factor(self, x, 
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
         assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
 
