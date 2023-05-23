@@ -266,10 +266,16 @@ class Rectangle(Hypercube):
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return np.vstack(x)
 
-    def boundary_constraint_factor_inside(self, x, where: Union[
+    def _boundary_constraint_factor_inside(self, x, where: Union[
             None, Literal["left", "right",
                         "bottom", "top"]] = None,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
+        """(Internal use only) Compute the hard constraint factor at `x` for the boundary.
+        The points in `x` are assumed to live inside the geometry.  
+
+        This function is a helper function used internally by the `boundary_constraint_factor` function. 
+        It should not be called directly in most cases.
+        """
 
         if not hasattr(self, "self.xmin_tensor"):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
@@ -353,7 +359,7 @@ class Rectangle(Hypercube):
         assert self.dim == 2
 
         if inside:
-            return self.boundary_constraint_factor_inside(x, where, smoothness)
+            return self._boundary_constraint_factor_inside(x, where, smoothness)
 
         if not hasattr(self, "self.x11_tensor"):
             self.x11_tensor = bkd.as_tensor(self.xmin)
