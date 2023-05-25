@@ -1,5 +1,6 @@
 import abc
 from typing import Literal
+
 import numpy as np
 
 
@@ -27,18 +28,20 @@ class Geometry(abc.ABC):
         raise NotImplementedError(
             "{}.mindist2boundary to be implemented".format(self.idstr)
         )
-    
-    def boundary_constraint_factor(self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"):
+
+    def boundary_constraint_factor(
+        self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
+    ):
         """Compute the hard constraint factor at x for the boundary.
 
-        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs). 
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
         The hard constraint factor satisfies the following properties:
 
         - The function is zero on the boundary and positive elsewhere.
         - The function is at least continuous.
 
-        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary, 
-        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in 
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
         turn makes the boundary condition a "hard constraint".
 
         Args:
@@ -51,7 +54,7 @@ class Geometry(abc.ABC):
 
                 - C0
                 The distance function is continuous but may not be non-differentiable.
-                But the set of non-differentiable points should have measure zero, 
+                But the set of non-differentiable points should have measure zero,
                 which makes the probability of the collocation point falling in this set be zero.
 
                 - C0+
@@ -60,11 +63,11 @@ class Geometry(abc.ABC):
                 all inside or outside the geometry, the distance function is smooth.
 
                 - Cinf
-                The distance function is continuous and differentiable at any order on any 
+                The distance function is continuous and differentiable at any order on any
                 points. This option may result in a polynomial of HIGH order.
 
         Returns:
-            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
         raise NotImplementedError(

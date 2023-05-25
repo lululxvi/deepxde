@@ -25,19 +25,22 @@ class Interval(Geometry):
     def mindist2boundary(self, x):
         return min(np.amin(x - self.l), np.amin(self.r - x))
 
-    def boundary_constraint_factor(self, x,
+    def boundary_constraint_factor(
+        self,
+        x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["left", "right"]] = None):
+        where: Union[None, Literal["left", "right"]] = None,
+    ):
         """Compute the hard constraint factor at x for the boundary.
 
-        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs). 
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
         The hard constraint factor satisfies the following properties:
 
         - The function is zero on the boundary and positive elsewhere.
         - The function is at least continuous.
 
-        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary, 
-        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in 
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
         turn makes the boundary condition a "hard constraint".
 
         Args:
@@ -50,7 +53,7 @@ class Interval(Geometry):
 
                 - C0
                 The distance function is continuous but may not be non-differentiable.
-                But the set of non-differentiable points should have measure zero, 
+                But the set of non-differentiable points should have measure zero,
                 which makes the probability of the collocation point falling in this set be zero.
 
                 - C0+
@@ -59,33 +62,35 @@ class Interval(Geometry):
                 all inside or outside the geometry, the distance function is smooth.
 
                 - Cinf
-                The distance function is continuous and differentiable at any order on any 
+                The distance function is continuous and differentiable at any order on any
                 points. This option may result in a polynomial of HIGH order.
 
-            where (string, optional): A string to specify which part of the boundary to compute the distance, 
+            where (string, optional): A string to specify which part of the boundary to compute the distance,
                 e.g., "left", "right". If `None`, compute the distance to the whole boundary. Default is `None`.
 
         Returns:
-            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
 
         assert where in [None, "left", "right"], "where must be None, left, or right"
-        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
-        
+        assert smoothness in [
+            "C0",
+            "C0+",
+            "Cinf",
+        ], "smoothness must be one of C0, C0+, Cinf"
+
         # To convert self.l and self.r to tensor,
         # and avoid repeated conversion in the loop
-        if not hasattr(self, 'self.l_tensor'):
+        if not hasattr(self, "self.l_tensor"):
             self.l_tensor = bkd.as_tensor(self.l)
             self.r_tensor = bkd.as_tensor(self.r)
 
         dist_l = dist_r = None
         if where != "right":
-            dist_l = bkd.abs((x - self.l_tensor) 
-                / (self.r_tensor - self.l_tensor) * 2)
+            dist_l = bkd.abs((x - self.l_tensor) / (self.r_tensor - self.l_tensor) * 2)
         if where != "left":
-            dist_r = bkd.abs((x - self.r_tensor) 
-                / (self.r_tensor - self.l_tensor) * 2)
+            dist_r = bkd.abs((x - self.r_tensor) / (self.r_tensor - self.l_tensor) * 2)
 
         if where is None:
             if smoothness == "C0":

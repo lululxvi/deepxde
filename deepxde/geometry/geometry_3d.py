@@ -68,21 +68,25 @@ class Cuboid(Hypercube):
             )
         return pts
 
-    def boundary_constraint_factor(self, x, 
+    def boundary_constraint_factor(
+        self,
+        x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["back", "front", "left", "right", 
-            "bottom", "top"]] = None,
-        inside: bool = True):
+        where: Union[
+            None, Literal["back", "front", "left", "right", "bottom", "top"]
+        ] = None,
+        inside: bool = True,
+    ):
         """Compute the hard constraint factor at x for the boundary.
 
-        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs). 
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
         The hard constraint factor satisfies the following properties:
 
         - The function is zero on the boundary and positive elsewhere.
         - The function is at least continuous.
 
-        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary, 
-        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in 
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
         turn makes the boundary condition a "hard constraint".
 
         Args:
@@ -95,7 +99,7 @@ class Cuboid(Hypercube):
 
                 - C0
                 The distance function is continuous but may not be non-differentiable.
-                But the set of non-differentiable points should have measure zero, 
+                But the set of non-differentiable points should have measure zero,
                 which makes the probability of the collocation point falling in this set be zero.
 
                 - C0+
@@ -104,22 +108,33 @@ class Cuboid(Hypercube):
                 all inside or outside the geometry, the distance function is smooth.
 
                 - Cinf
-                The distance function is continuous and differentiable at any order on any 
+                The distance function is continuous and differentiable at any order on any
                 points. This option may result in a polynomial of HIGH order.
 
-            where (string, optional): A string to specify which part of the boundary to compute the distance, 
+            where (string, optional): A string to specify which part of the boundary to compute the distance,
                 e.g., "left", "right", "front", "back", "bottom", "top". If `None`, compute the distance to the whole boundary. Default is `None`.
             inside (bool, optional): The `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
 
         Returns:
-            A tensor of a type determined by the backend, which will have a shape of (n, 1). 
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
-        assert where in [None, "back", "front", "left", "right", "bottom", "top"], \
-            "where must be one of None, back, front, left, right, bottom, top"
-        assert smoothness in ["C0", "C0+", "Cinf"], "smoothness must be one of C0, C0+, Cinf"
+        assert where in [
+            None,
+            "back",
+            "front",
+            "left",
+            "right",
+            "bottom",
+            "top",
+        ], "where must be one of None, back, front, left, right, bottom, top"
+        assert smoothness in [
+            "C0",
+            "C0+",
+            "Cinf",
+        ], "smoothness must be one of C0, C0+, Cinf"
         assert self.dim == 3
         assert inside, "inside=False is not supported for Cuboid"
 
@@ -129,12 +144,14 @@ class Cuboid(Hypercube):
 
         dist_l = dist_r = None
         if where not in ["front", "right", "top"]:
-            dist_l = bkd.abs((x - self.xmin_tensor) /
-                            (self.xmax_tensor - self.xmin_tensor) * 2)
+            dist_l = bkd.abs(
+                (x - self.xmin_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+            )
         if where not in ["back", "left", "bottom"]:
-            dist_r = bkd.abs((x - self.xmax_tensor) /
-                            (self.xmax_tensor - self.xmin_tensor) * 2)
-        
+            dist_r = bkd.abs(
+                (x - self.xmax_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+            )
+
         if where == "back":
             return dist_l[:, 0:1]
         if where == "front":
