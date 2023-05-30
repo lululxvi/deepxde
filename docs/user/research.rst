@@ -9,10 +9,12 @@ DeepXDE has been used in
   `University of California, Berkeley <https://www.berkeley.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
   `University of Pennsylvania <https://www.upenn.edu>`_,
+  `Princeton University <https://www.princeton.edu/>`_,
   `Imperial College London <https://www.imperial.ac.uk>`_,
   `University of California, Los Angeles <https://www.ucla.edu>`_,
   `Cornell University <https://www.cornell.edu>`_,
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
+  `University of British Columbia <https://www.ubc.ca/>`_,
   `Peking University <https://english.pku.edu.cn>`_,
   `University of Texas at Austin <utexas.edu>`_,
   `Georgia Institute of Technology <https://www.gatech.edu>`_,
@@ -49,6 +51,7 @@ DeepXDE has been used in
   `University Duisburg-Essen <https://www.uni-due.org/category/english>`_,
   `University of Rome Tor Vergata <http://web.uniroma2.it>`_,
   `Chalmers University of Technology <https://www.chalmers.se/en>`_,
+  `University of Victoria <https://www.uvic.ca/>`_,
   `Wuhan University of Technology <http://english.whut.edu.cn>`_,
   `University of Delaware <https://www.udel.edu>`_,
   `University of Kentucky <https://www.uky.edu>`_,
@@ -80,8 +83,6 @@ DeepXDE has been used in
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_
-  `University of Victoria <https://www.uvic.ca/>`_
-  `University of British Columbia <https://www.ubc.ca/>`_
 - > 15 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
