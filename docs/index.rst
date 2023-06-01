@@ -18,6 +18,7 @@ DeepXDE
 - (physics-informed) deep operator network (DeepONet)
     - DeepONet: learning operators [`Nat. Mach. Intell. <https://doi.org/10.1038/s42256-021-00302-5>`_]
     - DeepONet extensions, e.g., POD-DeepONet [`Comput. Methods Appl. Mech. Eng. <https://doi.org/10.1016/j.cma.2022.114778>`_]
+    - Fourier-DeepONet [`arXiv <https://arxiv.org/abs/2305.17289>`_]
     - MIONet: learning multiple-input operators [`SIAM J. Sci. Comput. <https://doi.org/10.1137/22M1477751>`_]
     - Fourier-MIONet [`arXiv <https://arxiv.org/abs/2303.04778>`_]
     - physics-informed DeepONet [`Sci. Adv. <https://doi.org/10.1126/sciadv.abi8605>`_]
