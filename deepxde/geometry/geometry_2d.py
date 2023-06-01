@@ -179,11 +179,8 @@ class Ellipse(Geometry):
     def boundary_constraint_factor(
         self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
     ):
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "`smoothness` must be one of C0, C0+, Cinf"
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("`smoothness` must be one of C0, C0+, Cinf")
 
         if not hasattr(self, "self.focus1_tensor"):
             self.focus1_tensor = bkd.as_tensor(self.focus1)
@@ -366,19 +363,12 @@ class Rectangle(Hypercube):
             A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
-        assert where in [
-            None,
-            "left",
-            "right",
-            "bottom",
-            "top",
-        ], "where must be one of None, left, right, bottom, top"
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "smoothness must be one of C0, C0+, Cinf"
-        assert self.dim == 2
+        if where not in [None, "left", "right", "bottom", "top"]:
+            raise ValueError("where must be one of None, left, right, bottom, top")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+        if self.dim != 2:
+            raise ValueError("self.dim must be 2")
 
         if inside:
             return self._boundary_constraint_factor_inside(x, where, smoothness)
@@ -640,8 +630,10 @@ class Triangle(Geometry):
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
 
-        assert where in [None, "x1-x2", "x1-x3", "x2-x3"], "Invalid value for `where`."
-        assert smoothness in ["C0", "C0+", "Cinf"], "Invalid value for `smoothness`."
+        if where not in [None, "x1-x2", "x1-x3", "x2-x3"]:
+            raise ValueError("where must be one of None, x1-x2, x1-x3, x2-x3")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
         if not hasattr(self, "self.x1_tensor"):
             self.x1_tensor = bkd.as_tensor(self.x1)

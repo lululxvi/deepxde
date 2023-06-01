@@ -157,14 +157,12 @@ class Hypercube(Geometry):
             A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "smoothness must be one of C0, C0+, Cinf"
-        assert where is None, "where is currently not supported for Hypercube"
-        assert self.dim >= 2
-        assert inside, "inside=False is not supported for Hypercube"
+        if where is not None:
+            raise ValueError("where is currently not supported for Hypercube")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+        if not inside:
+            raise ValueError("inside=False is not supported for Hypercube")
 
         if not hasattr(self, "self.xmin_tensor"):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
@@ -219,11 +217,8 @@ class Hypersphere(Geometry):
     def boundary_constraint_factor(
         self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
     ):
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "smoothness must be one of C0, C0+, Cinf"
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
         if not hasattr(self, "self.center_tensor"):
             self.center_tensor = bkd.as_tensor(self.center)

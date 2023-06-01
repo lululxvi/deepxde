@@ -73,12 +73,10 @@ class Interval(Geometry):
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
 
-        assert where in [None, "left", "right"], "where must be None, left, or right"
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "smoothness must be one of C0, C0+, Cinf"
+        if where not in [None, "left"]:
+            raise ValueError("where must be None or left")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
         # To convert self.l and self.r to tensor,
         # and avoid repeated conversion in the loop

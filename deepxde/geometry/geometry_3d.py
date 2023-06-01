@@ -121,22 +121,16 @@ class Cuboid(Hypercube):
             A tensor of a type determined by the backend, which will have a shape of (n, 1).
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
-        assert where in [
-            None,
-            "back",
-            "front",
-            "left",
-            "right",
-            "bottom",
-            "top",
-        ], "where must be one of None, back, front, left, right, bottom, top"
-        assert smoothness in [
-            "C0",
-            "C0+",
-            "Cinf",
-        ], "smoothness must be one of C0, C0+, Cinf"
-        assert self.dim == 3
-        assert inside, "inside=False is not supported for Cuboid"
+        if where not in [None, "back", "front", "left", "right", "bottom", "top"]:
+            raise ValueError(
+                "where must be one of None, back, front, left, right, bottom, top"
+            )
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+        if self.dim != 3:
+            raise ValueError("self.dim must be 3")
+        if not inside:
+            raise ValueError("inside=False is not supported for Cuboid")
 
         if not hasattr(self, "self.xmin_tensor"):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
