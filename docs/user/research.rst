@@ -206,6 +206,7 @@ PINN
 DeepONet
 --------
 
+#. M\. Zhu, S. Feng, Y. Lin, & L. Lu. `Fourier-DeepONet: Fourier-enhanced deep operator networks for full waveform inversion with improved accuracy, generalizability, and robustness <https://arxiv.org/abs/2305.17289>`_. *arXiv preprint arXiv:2305.17289*, 2023.
 #. S\. Mao, R. Dong, L. Lu, K. M. Yi, S. Wang, & P. Perdikaris. `PPDONet: Deep operator networks for fast prediction of steady-state solutions in disk-planet systems <https://doi.org/10.48550/arXiv.2305.11111>`_. *arXiv preprint arXiv:2305.11111*, 2023.
 #. Z\. Jiang, M. Zhu, D. Li, Q. Li, Y. Yuan, & L. Lu. `Fourier-MIONet: Fourier-enhanced multiple-input neural operators for multiphase modeling of geological carbon sequestration <https://arxiv.org/pdf/2303.04778.pdf>`_. *arXiv preprint arXiv:2303.04778*, 2023.
 #. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
