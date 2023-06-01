@@ -623,7 +623,8 @@ class Triangle(Geometry):
                 points. This option may result in a polynomial of HIGH order.
 
             where (string, optional): A string to specify which part of the boundary to compute the distance.
-                If `None`, compute the distance to the whole boundary. "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). Default is `None`.
+                If `None`, compute the distance to the whole boundary. 
+                "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). Default is `None`.
 
         Returns:
             A tensor of a type determined by the backend, which will have a shape of (n, 1).
