@@ -26,8 +26,8 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
 - (physics-informed) deep operator network (DeepONet)
     - DeepONet: learning operators [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5)]
     - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
-    - Fourier-DeepONet [[arXiv](https://arxiv.org/abs/2305.17289)]
     - MIONet: learning multiple-input operators [[SIAM J. Sci. Comput.](https://doi.org/10.1137/22M1477751)]
+    - Fourier-DeepONet [[arXiv](https://arxiv.org/abs/2305.17289)]
     - Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
     - physics-informed DeepONet [[Sci. Adv.](https://doi.org/10.1126/sciadv.abi8605)]
     - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
