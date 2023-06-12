@@ -115,6 +115,8 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. Alkhadhr, S., & Almekkawy, M. (2023). `Wave Equation Modeling via Physics-Informed Neural Networks: Models of Soft and Hard Constraints for Initial and Boundary Conditions<https://www.mdpi.com/1424-8220/23/5/2792>`_. Sensors, 23(5), 2792.
+
 #. B\. Fan, E. Qiao, A. Jiao, Z. Gu, W. Li, & L. Lu. `Deep learning for solving and estimating dynamic macro-finance models <https://doi.org/10.48550/arXiv.2305.09783>`_. *arXiv preprint arXiv:2305.09783*, 2023.
 #. S\. Li, G. Wang, Y. Di, L. Wang, H. Wang, & Q. Zhou. `A physics-informed neural network framework to predict 3D temperature field without labeled data in process of laser metal deposition <https://www.sciencedirect.com/science/article/pii/S0952197623000921?casa_token=0B1dHbaZcUMAAAAA:GLb73w6Ey4fEHTM4k6q5YbITizLtSqfn-mxNbxgBWKTGLOiPLAN7mR0e8WyDLTlx0PJJxriuqQ0>`_. *Engineering Applications of Artificial Intelligence*, 120, p.105908, 2023.
 #. M\. Bazmara, M. Silani, & M. Mianroodi. `Physics-informed neural networks for nonlinear bending of 3D functionally graded beam <https://www.sciencedirect.com/science/article/pii/S2352012423001169>`_. *Structures*, Vol. 49, Elsevier, 2023.
@@ -224,7 +226,6 @@ DeepONet
 #. S\. Cai, Z. Wang, L. Lu, T. Zaki, & G. Karniadakis. `DeepM&Mnet: Inferring the electroconvection multiphysics fields based on operator approximation by neural networks <https://doi.org/10.1016/j.jcp.2021.110296>`_. *Journal of Computational Physics*, 436, 110296, 2021.
 #. L\. Lu, P. Jin, G. Pang, Z. Zhang, & G. Karniadakis. `Learning nonlinear operators via DeepONet based on the universal approximation theorem of operators <https://doi.org/10.1038/s42256-021-00302-5>`_. *Nature Machine Intelligence*, 3, 218--229, 2021.
 #. C\. Lin, Z. Li, L. Lu, S. Cai, M. Maxey, & G. Karniadakis. `Operator learning for predicting multiscale bubble growth dynamics <https://doi.org/10.1063/5.0041203>`_. *The Journal of Chemical Physics*, 154(10), 104118, 2021.
-#. Alkhadhr, S., & Almekkawy, M. (2023). `Wave Equation Modeling via Physics-Informed Neural Networks: Models of Soft and Hard Constraints for Initial and Boundary Conditions<https://www.mdpi.com/1424-8220/23/5/2792>`_. Sensors, 23(5), 2792.
 
 Multi-fidelity NN
 -----------------
