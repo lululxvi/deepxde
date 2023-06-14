@@ -83,7 +83,7 @@ DeepXDE has been used in
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_,
-  `Kuwait University < https://kuweb.ku.edu.kw>`_
+  `Kuwait University <https://kuweb.ku.edu.kw>`_
 - > 15 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
