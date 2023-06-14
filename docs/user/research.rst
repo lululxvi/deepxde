@@ -82,7 +82,8 @@ DeepXDE has been used in
   `Swansea University <https://www.swansea.ac.uk>`_,
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
-  `University of Los Andes <https://uniandes.edu.co/en>`_
+  `University of Los Andes <https://uniandes.edu.co/en>`_,
+  `Kuwait University < https://kuweb.ku.edu.kw>`_
 - > 15 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
@@ -108,8 +109,7 @@ DeepXDE has been used in
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
-  `Saudi Aramco <https://www.aramco.com>`_,
-  `Kuwait University < https://kuweb.ku.edu.kw>`_
+  `Saudi Aramco <https://www.aramco.com>`_
 
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
 
