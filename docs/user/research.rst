@@ -108,7 +108,7 @@ DeepXDE has been used in
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
-  `Saudi Aramco <https://www.aramco.com>`_
+  `Saudi Aramco <https://www.aramco.com>`_,
   `Kuwait University < https://kuweb.ku.edu.kw>`_
 
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
