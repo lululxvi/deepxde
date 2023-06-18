@@ -1,4 +1,4 @@
-__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
+__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
 
 import numpy as np
 from scipy import spatial
@@ -152,6 +152,7 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
+
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
@@ -262,6 +263,97 @@ class Rectangle(Hypercube):
             and isclose(np.prod(vertices[3] - vertices[2]), 0)
             and isclose(np.prod(vertices[0] - vertices[3]), 0)
         )
+
+
+class StarShaped(Geometry):
+    """Star-shaped 2d domain.
+
+    Args:
+        center: Center of the domain.
+        radius: 0th-order term of the parametrization
+        coeffs_cos: i-th order coefficients for the i-th cos term
+        coeffs_sin: i-th order coefficients for the i-th sin term
+    """
+
+    def __init__(self, center, radius, coeffs_cos, coeffs_sin):
+        self.center = np.array(center, dtype=config.real(np))
+        self.radius = radius
+        self.coeffs_cos = coeffs_cos
+        self.coeffs_sin = coeffs_sin
+        self.max_radius = radius + np.sum(coeffs_cos) + np.sum(coeffs_sin)
+        super().__init__(
+            2,
+            (self.center - self.max_radius, self.center + self.max_radius),
+            2 * self.max_radius,
+        )
+
+        self._r2 = radius**2
+
+    def r_theta(self, theta):
+        """Define the parametrization r(theta) at angles theta."""
+        result = self.radius * np.ones(theta.shape)
+        for i, (coeff_cos, coeff_sin) in enumerate(
+            zip(self.coeffs_cos, self.coeffs_sin), start=1
+        ):
+            result += coeff_cos * np.cos(i * theta) + coeff_sin * np.sin(i * theta)
+        return result
+
+    def dr_theta(self, theta):
+        """Evalutate the polar derivative r'(theta) at angles theta"""
+        result = np.zeros(theta.shape)
+        for i, (coeff_cos, coeff_sin) in enumerate(
+            zip(self.coeffs_cos, self.coeffs_sin), start=1
+        ):
+            result += -coeff_cos * i * np.sin(i * theta) + coeff_sin * i * np.cos(
+                i * theta
+            )
+        return result
+
+    def inside(self, x):
+        r, theta = polar(x)
+        r_theta = self.r_theta(theta)
+        return r_theta >= r
+
+    def on_boundary(self, x):
+        r, theta = polar(x)
+        r_theta = self.r_theta(theta)
+        return isclose(np.linalg.norm(r_theta - r))
+
+    def boundary_normal(self, x):
+        _, theta = polar(x)
+        dr_theta = self.dr_theta(theta)
+        r_theta = self.r_theta(theta)
+
+        dxt = np.vstack(
+            (
+                dr_theta * np.cos(theta) - r_theta * np.sin(theta),
+                dr_theta * np.sin(theta) + r_theta * np.cos(theta),
+            )
+        ).T
+        l = np.linalg.norm(dxt, axis=-1, keepdims=True)
+        dxt /= l
+        return np.array([dxt[:, 1], -dxt[:, 0]]).T
+
+    def random_points(self, n, random="pseudo"):
+        x = np.empty((0, 2), dtype=config.real(np))
+        vbbox = self.bbox[1] - self.bbox[0]
+        while len(x) < n:
+            x_new = sample(n, 2, sampler="pseudo") * vbbox + self.bbox[0]
+            x = np.vstack((x, x_new[self.inside(x_new)]))
+        return x[:n]
+
+    def uniform_boundary_points(self, n):
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        r_theta = self.r_theta(theta)
+        X = np.vstack((r_theta * np.cos(theta), r_theta * np.sin(theta))).T
+        return X + self.center
+
+    def random_boundary_points(self, n, random="pseudo"):
+        u = sample(n, 1, random)
+        theta = 2 * np.pi * u
+        r_theta = self.r_theta(theta)
+        X = np.hstack((r_theta * np.cos(theta), r_theta * np.sin(theta)))
+        return X + self.center
 
 
 class Triangle(Geometry):
@@ -648,3 +740,10 @@ def is_on_line_segment(P0, P1, P2):
     # Not between P0 and P1, but close to P0 or P1
     # or isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
     # or isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
+
+
+def polar(x):
+    """Get the polar coordinated for a 2d vector in cartesian coordinates."""
+    r = np.sqrt(x[:, 0] ** 2 + x[:, 1] ** 2)
+    theta = np.arctan2(x[:, 1], x[:, 0])
+    return r, theta

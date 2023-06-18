@@ -6,7 +6,7 @@ scikit-optimize
 seaborn
 tensorflow-probability==0.12.2
 jupyter
-jupyterlab
+jupyterlab==3.6.3
 notebook
 pandas
 mpi4py
