@@ -317,7 +317,7 @@ class StarShaped(Geometry):
     def on_boundary(self, x):
         r, theta = polar(x)
         r_theta = self.r_theta(theta)
-        return isclose(np.linalg.norm(r_theta - r))
+        return isclose(np.linalg.norm(r_theta - r), 0)
 
     def boundary_normal(self, x):
         _, theta = polar(x)
@@ -330,8 +330,8 @@ class StarShaped(Geometry):
                 dr_theta * np.sin(theta) + r_theta * np.cos(theta),
             )
         ).T
-        l = np.linalg.norm(dxt, axis=-1, keepdims=True)
-        dxt /= l
+        norm = np.linalg.norm(dxt, axis=-1, keepdims=True)
+        dxt /= norm
         return np.array([dxt[:, 1], -dxt[:, 0]]).T
 
     def random_points(self, n, random="pseudo"):
