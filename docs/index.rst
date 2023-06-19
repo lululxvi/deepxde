@@ -74,6 +74,7 @@ User guide
   demos/pinn_forward
   demos/pinn_inverse
   demos/operator
+  user/parallel
   user/faq
 
 .. toctree::
