@@ -266,13 +266,20 @@ class Rectangle(Hypercube):
 
 
 class StarShaped(Geometry):
-    """Star-shaped 2d domain.
+    """Star-shaped 2d domain. Computes a geometry whose boundary is parametrized in polar coordinates as:
+    
+    .. math::
 
+    r(\theta) := r_0 + \sum_{i = 1}^N [a_i \cos( i \theta) + b_i \sin(i \theta) ],\quad \theta \in [0,2\pi]
+
+	For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
+	Hiptmair et. al., Adv. Comp. Math. (2018)
+    
     Args:
         center: Center of the domain.
-        radius: 0th-order term of the parametrization
-        coeffs_cos: i-th order coefficients for the i-th cos term
-        coeffs_sin: i-th order coefficients for the i-th sin term
+        radius: 0th-order term of the parametrization (r_0)
+        coeffs_cos: i-th order coefficients for the i-th cos term (a_i)
+        coeffs_sin: i-th order coefficients for the i-th sin term (b_i)
     """
 
     def __init__(self, center, radius, coeffs_cos, coeffs_sin):
