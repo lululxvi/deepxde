@@ -272,7 +272,7 @@ class StarShaped(Geometry):
     $$
     
     For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
-    Hiptmair et. al., Adv. Comp. Math. (2018)
+    Hiptmair et. al., Adv. Comp. Math. (2018).
     
     Args:
         center: Center of the domain.
