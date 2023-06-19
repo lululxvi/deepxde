@@ -152,7 +152,6 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
-
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
@@ -272,8 +271,8 @@ class StarShaped(Geometry):
 
     r(\theta) := r_0 + \sum_{i = 1}^N [a_i \cos( i \theta) + b_i \sin(i \theta) ],\quad \theta \in [0,2\pi]
 
-	For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
-	Hiptmair et. al., Adv. Comp. Math. (2018)
+    For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
+    Hiptmair et. al., Adv. Comp. Math. (2018)
     
     Args:
         center: Center of the domain.
