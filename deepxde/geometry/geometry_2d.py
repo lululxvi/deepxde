@@ -268,7 +268,7 @@ class StarShaped(Geometry):
     """Star-shaped 2d domain. Computes a geometry whose boundary is parametrized in polar coordinates as:
     
     $$
-    r(\theta) := r_0 + \sum_{i = 1}^N [a_i \cos( i \theta) + b_i \sin(i \theta) ],\quad \theta \in [0,2\pi]
+    r(theta) := r_0 + sum_{i = 1}^N [a_i cos( i theta) + b_i sin(i theta) ],  theta in [0,2 pi].
     $$
     
     For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
