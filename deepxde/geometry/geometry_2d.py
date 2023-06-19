@@ -265,14 +265,15 @@ class Rectangle(Hypercube):
 
 
 class StarShaped(Geometry):
-    """Star-shaped 2d domain. Computes a geometry whose boundary is parametrized in polar coordinates as:
+    """Star-shaped 2d domain, i.e., a geometry whose boundary is parametrized in polar coordinates as:
     
     $$
     r(theta) := r_0 + sum_{i = 1}^N [a_i cos( i theta) + b_i sin(i theta) ],  theta in [0,2 pi].
     $$
     
     For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
-    Hiptmair et. al., Adv. Comp. Math. (2018).
+    Hiptmair et. al., Adv. Comp. Math. (2018). 
+    Link: https://link.springer.com/article/10.1007/s10444-018-9594-8
     
     Args:
         center: Center of the domain.
