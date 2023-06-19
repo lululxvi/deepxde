@@ -276,9 +276,9 @@ class StarShaped(Geometry):
     
     Args:
         center: Center of the domain.
-        radius: 0th-order term of the parametrization (r_0)
-        coeffs_cos: i-th order coefficients for the i-th cos term (a_i)
-        coeffs_sin: i-th order coefficients for the i-th sin term (b_i)
+        radius: 0th-order term of the parametrization (r_0).
+        coeffs_cos: i-th order coefficients for the i-th cos term (a_i).
+        coeffs_sin: i-th order coefficients for the i-th sin term (b_i).
     """
 
     def __init__(self, center, radius, coeffs_cos, coeffs_sin):
