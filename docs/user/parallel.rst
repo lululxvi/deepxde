@@ -37,7 +37,7 @@ For the sake of understanding, we portray below weak and strong scaling for 16 t
 Parallel training with DeepXDE
 ------------------------------
 
-Data-parallel acceleration is straightforward with DeepXDE. Currently, it is supported with TensorFlow 1.x. Acknowledge that Horovod supports PyTorch, TensorFlow 2.x, paving the way towards multiple backend acceleration.
+Data-parallel acceleration is straightforward with DeepXDE. Currently, it is supported with TensorFlow 1.x and random collocation points sampling. Acknowledge that Horovod supports PyTorch, TensorFlow 2.x, paving the way towards multiple backend acceleration.
 
 To perform the data-parallel acceleration for 2 GPUs, simply run::
 
