@@ -6,7 +6,7 @@ Introduction
 
 DeepXDE utilizes data-parallel acceleration through the `Horovod <https://horovod.readthedocs.io/>`_ training framework. To compensate for the memory shortcomings of GPUs, batch size can be increased while employing data-parallel acceleration.
 
-For :math:`\textrm{size}` GPUs and :math:`\textrm{rank}=1, \cdots, \mathrm{size}`, the data-parallel approach is as follows-
+For :math:`\textrm{size}` GPUs and :math:`\textrm{rank}=1, \cdots, \mathrm{size}`, the data-parallel approach is as follows.
 
 - We define a dataset :math:`\mathcal{T}_\textrm{rank}` for each rank;
 
