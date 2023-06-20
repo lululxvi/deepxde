@@ -288,14 +288,12 @@ class StarShaped(Geometry):
         self.radius = radius
         self.coeffs_cos = coeffs_cos
         self.coeffs_sin = coeffs_sin
-        self.max_radius = radius + np.sum(coeffs_cos) + np.sum(coeffs_sin)
+        max_radius = radius + np.sum(coeffs_cos) + np.sum(coeffs_sin)
         super().__init__(
             2,
             (self.center - self.max_radius, self.center + self.max_radius),
             2 * self.max_radius,
         )
-
-        self._r2 = radius**2
 
     def _r_theta(self, theta):
         """Define the parametrization r(theta) at angles theta."""
