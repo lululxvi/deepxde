@@ -15,6 +15,7 @@ DeepXDE has been used in
   `Cornell University <https://www.cornell.edu>`_,
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
   `University of British Columbia <https://www.ubc.ca>`_,
+  `Tsinghua University <https://www.tsinghua.edu.cn/en/>`_,
   `Peking University <https://english.pku.edu.cn>`_,
   `University of Texas at Austin <utexas.edu>`_,
   `Georgia Institute of Technology <https://www.gatech.edu>`_,
@@ -116,6 +117,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. Z\. Hao, J. Yao, C. Su, H. Su, Z. Wang, F. Lu, Z. Xia, Y. Zhang, S. Liu, L. Lu, & J. Zhu. `PINNacle: A comprehensive benchmark of physics-informed neural networks for solving PDEs <https://arxiv.org/abs/2306.08827>`_. *arXiv preprint arXiv:2306.08827*, 2023.
 #. S\. Alkhadhr, & M. Almekkawy. `Wave equation modeling via physics-informed neural networks: models of soft and hard constraints for initial and boundary conditions <https://www.mdpi.com/1424-8220/23/5/2792>`_. *Sensors*, 23(5), 2792, 2023.
 #. B\. Fan, E. Qiao, A. Jiao, Z. Gu, W. Li, & L. Lu. `Deep learning for solving and estimating dynamic macro-finance models <https://doi.org/10.48550/arXiv.2305.09783>`_. *arXiv preprint arXiv:2305.09783*, 2023.
 #. S\. Li, G. Wang, Y. Di, L. Wang, H. Wang, & Q. Zhou. `A physics-informed neural network framework to predict 3D temperature field without labeled data in process of laser metal deposition <https://www.sciencedirect.com/science/article/pii/S0952197623000921?casa_token=0B1dHbaZcUMAAAAA:GLb73w6Ey4fEHTM4k6q5YbITizLtSqfn-mxNbxgBWKTGLOiPLAN7mR0e8WyDLTlx0PJJxriuqQ0>`_. *Engineering Applications of Artificial Intelligence*, 120, p.105908, 2023.
@@ -209,7 +211,7 @@ DeepONet
 --------
 
 #. M\. Zhu, S. Feng, Y. Lin, & L. Lu. `Fourier-DeepONet: Fourier-enhanced deep operator networks for full waveform inversion with improved accuracy, generalizability, and robustness <https://arxiv.org/abs/2305.17289>`_. *arXiv preprint arXiv:2305.17289*, 2023.
-#. S\. Mao, R. Dong, L. Lu, K. M. Yi, S. Wang, & P. Perdikaris. `PPDONet: Deep operator networks for fast prediction of steady-state solutions in disk-planet systems <https://doi.org/10.48550/arXiv.2305.11111>`_. *arXiv preprint arXiv:2305.11111*, 2023.
+#. S\. Mao, R. Dong, L. Lu, K. M. Yi, S. Wang, & P. Perdikaris. `PPDONet: Deep operator networks for fast prediction of steady-state solutions in disk-planet systems <https://iopscience.iop.org/article/10.3847/2041-8213/acd77f>`_. *The Astrophysical Journal Letters*, 950(2), L12, 2023.
 #. Z\. Jiang, M. Zhu, D. Li, Q. Li, Y. Yuan, & L. Lu. `Fourier-MIONet: Fourier-enhanced multiple-input neural operators for multiphase modeling of geological carbon sequestration <https://arxiv.org/pdf/2303.04778.pdf>`_. *arXiv preprint arXiv:2303.04778*, 2023.
 #. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.
 #. K\. Kobayashi, J. Daniell, & S. Alam. `Operator learning framework for digital twin and complex engineering systems <https://arxiv.org/pdf/2301.06701.pdf>`_. *arXiv e-prints*, pp.arXiv-2301, 2023.
