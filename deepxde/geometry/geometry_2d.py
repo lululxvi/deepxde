@@ -291,8 +291,8 @@ class StarShaped(Geometry):
         max_radius = radius + np.sum(coeffs_cos) + np.sum(coeffs_sin)
         super().__init__(
             2,
-            (self.center - self.max_radius, self.center + self.max_radius),
-            2 * self.max_radius,
+            (self.center - max_radius, self.center + max_radius),
+            2 * max_radius,
         )
 
     def _r_theta(self, theta):
