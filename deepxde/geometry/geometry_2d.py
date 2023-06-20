@@ -152,7 +152,6 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
-
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
