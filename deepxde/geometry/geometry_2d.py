@@ -152,6 +152,7 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
+
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
@@ -266,15 +267,15 @@ class Rectangle(Hypercube):
 
 class StarShaped(Geometry):
     """Star-shaped 2d domain, i.e., a geometry whose boundary is parametrized in polar coordinates as:
-    
+
     $$
     r(theta) := r_0 + sum_{i = 1}^N [a_i cos( i theta) + b_i sin(i theta) ],  theta in [0,2 pi].
     $$
-    
-    For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering, 
-    Hiptmair et. al., Adv. Comp. Math. (2018). 
+
+    For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering,
+    Hiptmair et. al., Adv. Comp. Math. (2018).
     Link: https://link.springer.com/article/10.1007/s10444-018-9594-8
-    
+
     Args:
         center: Center of the domain.
         radius: 0th-order term of the parametrization (r_0).
@@ -296,7 +297,7 @@ class StarShaped(Geometry):
 
         self._r2 = radius**2
 
-    def r_theta(self, theta):
+    def _r_theta(self, theta):
         """Define the parametrization r(theta) at angles theta."""
         result = self.radius * np.ones(theta.shape)
         for i, (coeff_cos, coeff_sin) in enumerate(
@@ -305,7 +306,7 @@ class StarShaped(Geometry):
             result += coeff_cos * np.cos(i * theta) + coeff_sin * np.sin(i * theta)
         return result
 
-    def dr_theta(self, theta):
+    def _dr_theta(self, theta):
         """Evalutate the polar derivative r'(theta) at angles theta"""
         result = np.zeros(theta.shape)
         for i, (coeff_cos, coeff_sin) in enumerate(
@@ -317,19 +318,19 @@ class StarShaped(Geometry):
         return result
 
     def inside(self, x):
-        r, theta = polar(x)
-        r_theta = self.r_theta(theta)
+        r, theta = polar(x - self.center)
+        r_theta = self._r_theta(theta)
         return r_theta >= r
 
     def on_boundary(self, x):
-        r, theta = polar(x)
-        r_theta = self.r_theta(theta)
+        r, theta = polar(x - self.center)
+        r_theta = self._r_theta(theta)
         return isclose(np.linalg.norm(r_theta - r), 0)
 
     def boundary_normal(self, x):
-        _, theta = polar(x)
-        dr_theta = self.dr_theta(theta)
-        r_theta = self.r_theta(theta)
+        _, theta = polar(x - self.center)
+        dr_theta = self._dr_theta(theta)
+        r_theta = self._r_theta(theta)
 
         dxt = np.vstack(
             (
@@ -351,14 +352,14 @@ class StarShaped(Geometry):
 
     def uniform_boundary_points(self, n):
         theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
-        r_theta = self.r_theta(theta)
+        r_theta = self._r_theta(theta)
         X = np.vstack((r_theta * np.cos(theta), r_theta * np.sin(theta))).T
         return X + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
         u = sample(n, 1, random)
         theta = 2 * np.pi * u
-        r_theta = self.r_theta(theta)
+        r_theta = self._r_theta(theta)
         X = np.hstack((r_theta * np.cos(theta), r_theta * np.sin(theta)))
         return X + self.center
 
