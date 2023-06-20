@@ -272,9 +272,10 @@ class StarShaped(Geometry):
     r(theta) := r_0 + sum_{i = 1}^N [a_i cos( i theta) + b_i sin(i theta) ],  theta in [0,2 pi].
     $$
 
-    For more details, refer to Large deformation shape uncertainty quantification in acoustic scattering,
-    Hiptmair et. al., Adv. Comp. Math. (2018).
-    Link: https://link.springer.com/article/10.1007/s10444-018-9594-8
+    For more details, refer to:
+    `Hiptmair et al. Large deformation shape uncertainty quantification in acoustic
+    scattering. Adv Comp Math, 2018.
+    <https://link.springer.com/article/10.1007/s10444-018-9594-8>`_
 
     Args:
         center: Center of the domain.
