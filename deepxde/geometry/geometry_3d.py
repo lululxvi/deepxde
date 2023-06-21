@@ -111,8 +111,10 @@ class Cuboid(Hypercube):
                 The distance function is continuous and differentiable at any order on any
                 points. This option may result in a polynomial of HIGH order.
 
-            where (string, optional): A string to specify which part of the boundary to compute the distance,
-                e.g., "left", "right", "front", "back", "bottom", "top". If `None`, compute the distance to the whole boundary. Default is `None`.
+            where (string, optional): A string to specify which part of the boundary to compute the distance.
+                "back": x[0] = xmin[0], "front": x[0] = xmax[0], "left": x[1] = xmin[1], 
+                "right": x[1] = xmax[1], "bottom": x[2] = xmin[2], "top": x[2] = xmax[2]. 
+                If `None`, compute the distance to the whole boundary. Default is `None`.
             inside (bool, optional): The `x` is either inside or outside the geometry.
                 The cases where there are both points inside and points
                 outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
