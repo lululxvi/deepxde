@@ -267,7 +267,12 @@ class PDE(Data):
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
-            if self.train_distribution == "uniform":
+
+            if self.train_distribution == "perturbed_uniform_np":
+                X = self.geom.perturbed_uniform_np(self.num_domain)
+            elif self.train_distribution == "perturbed_uniform_tf":
+                X = self.geom.perturbed_uniform_tf(self.num_domain)
+            elif self.train_distribution == "uniform":
                 X = self.geom.uniform_points(self.num_domain, boundary=False)
             else:
                 X = self.geom.random_points(
