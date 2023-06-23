@@ -211,9 +211,10 @@ def plot_loss_history(loss_history, fname=None):
         plt.savefig(fname)
 
 
-def save_loss_history(loss_history, fname):
+def save_loss_history(loss_history, fname, verbose = True):
     """Save the training and testing loss history to a file."""
-    print("Saving loss history to {} ...".format(fname))
+    if verbose:
+        print("Saving loss history to {} ...".format(fname))
     loss = np.hstack(
         (
             np.array(loss_history.steps)[:, None],
@@ -323,7 +324,7 @@ def plot_best_state(train_state):
     #     plt.ylabel("std(y)")
 
 
-def save_best_state(train_state, fname_train, fname_test):
+def save_best_state(train_state, fname_train, fname_test, verbose = True):
     """Save the best result of the smallest training loss to a file."""
     if isinstance(train_state.X_train, (list, tuple)):
         print(
@@ -331,7 +332,9 @@ def save_best_state(train_state, fname_train, fname_test):
         )
         return
 
-    print("Saving training data to {} ...".format(fname_train))
+    if verbose:
+        print("Saving training data to {} ...".format(fname_train))
+
     y_train, y_test, best_y, best_ystd = _pack_data(train_state)
     if y_train is None:
         np.savetxt(fname_train, train_state.X_train, header="x")
@@ -339,7 +342,8 @@ def save_best_state(train_state, fname_train, fname_test):
         train = np.hstack((train_state.X_train, y_train))
         np.savetxt(fname_train, train, header="x, y")
 
-    print("Saving test data to {} ...".format(fname_test))
+    if verbose:
+        print("Saving test data to {} ...".format(fname_test))
     if y_test is None:
         test = np.hstack((train_state.X_test, best_y))
         if best_ystd is None:
