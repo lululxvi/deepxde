@@ -37,6 +37,7 @@ class Model:
         self.train_state = TrainState()
         self.losshistory = LossHistory()
         self.stop_training = False
+        self.display_progress = True
 
         # Backend-dependent attributes
         self.opt = None
@@ -110,8 +111,9 @@ class Model:
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
         """
-        if config.rank == 0:
-            print("Compiling model...")
+        if self.display_progress:
+            if config.rank == 0:
+                print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
         self.losshistory.set_loss_weights(loss_weights)
@@ -632,9 +634,10 @@ class Model:
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
-        if config.rank == 0:
-            print("")
-            display.training_display.summary(self.train_state)
+        if self.display_progress:
+            if config.rank == 0:
+                print("")
+                display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
@@ -825,7 +828,7 @@ class Model:
             ]
         else:
             self.train_state.metrics_test = [
-                m(self.train_state.y_test, self.train_state.y_pred_test)
+                m(self.train_state)
                 for m in self.metrics
             ]
 
@@ -842,8 +845,10 @@ class Model:
             or np.isnan(self.train_state.loss_test).any()
         ):
             self.stop_training = True
-        if config.rank == 0:
-            display.training_display(self.train_state)
+
+        if self.display_progress:
+            if config.rank == 0:
+                display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,
