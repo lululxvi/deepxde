@@ -4,7 +4,7 @@ from .geometry import Geometry
 from .sampler import sample
 from .. import config
 from ..utils import isclose
-
+from ..backend import tf
 
 class Interval(Geometry):
     def __init__(self, l, r):
@@ -48,6 +48,25 @@ class Interval(Geometry):
     def random_points(self, n, random="pseudo"):
         x = sample(n, 1, random)
         return (self.diam * x + self.l).astype(config.real(np))
+
+    def perturbed_uniform_tf(self, n):
+
+        # Get required precision
+        precision = getattr(tf, config.default_float())
+
+        # Create times
+        grid = tf.linspace(tf.constant(self.l, precision),
+                           tf.constant(self.r, precision),
+                           n)
+        std = (grid[1] - grid[0])*0.2
+        noise = tf.random.normal([n], mean = 0, stddev = std, dtype = precision)
+        new_times = grid + noise
+
+        # Make sure time is not outside [t0, tf]: set to t0 or tf if violated
+        new_times = tf.where(tf.less(new_times, self.l), self.l, new_times)
+        new_times = tf.where(tf.greater(new_times, self.r), self.r, new_times)
+
+        return tf.reshape(new_times, (-1, 1))
 
     def uniform_boundary_points(self, n):
         if n == 1:
