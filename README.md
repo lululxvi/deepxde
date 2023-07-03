@@ -27,11 +27,11 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
     - DeepONet: learning operators [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5)]
     - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
     - MIONet: learning multiple-input operators [[SIAM J. Sci. Comput.](https://doi.org/10.1137/22M1477751)]
-    - Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
+    - Fourier-DeepONet [[arXiv](https://arxiv.org/abs/2305.17289)], Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
     - physics-informed DeepONet [[Sci. Adv.](https://doi.org/10.1126/sciadv.abi8605)]
     - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
     - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
-    - Reliable extrapolation [[arXiv](https://arxiv.org/abs/2212.06347)]
+    - Reliable extrapolation [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2023.116064)]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
@@ -57,6 +57,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - many **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled (adaptively) every certain iterations.
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
+- **data-parallel training** on multiple GPUs.
 - different **optimizers**: Adam, L-BFGS, etc.
 - conveniently **save** the model during training, and **load** a trained model.
 - **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.

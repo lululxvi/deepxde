@@ -1,4 +1,5 @@
 import itertools
+from typing import Literal
 
 import numpy as np
 from scipy import stats
@@ -6,6 +7,7 @@ from sklearn import preprocessing
 
 from .geometry import Geometry
 from .sampler import sample
+from .. import backend as bkd
 from .. import config
 from ..utils import isclose
 
@@ -99,6 +101,87 @@ class Hypercube(Geometry):
         y[:, component][_on_xmax] = self.xmin[component]
         return y
 
+    def boundary_constraint_factor(
+        self,
+        x,
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0",
+        where: None = None,
+        inside: bool = True,
+    ):
+        """Compute the hard constraint factor at x for the boundary.
+
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
+        The hard constraint factor satisfies the following properties:
+
+        - The function is zero on the boundary and positive elsewhere.
+        - The function is at least continuous.
+
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
+        turn makes the boundary condition a "hard constraint".
+
+        Args:
+            x: A 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            smoothness (string, optional): A string to specify the smoothness of the distance function,
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0".
+
+                - C0
+                The distance function is continuous but may not be non-differentiable.
+                But the set of non-differentiable points should have measure zero,
+                which makes the probability of the collocation point falling in this set be zero.
+
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+
+                - Cinf
+                The distance function is continuous and differentiable at any order on any
+                points. This option may result in a polynomial of HIGH order.
+
+                - WARNING
+                In current implementation,
+                numerical underflow may happen for high dimensionalities
+                when `smoothness="C0+"` or `smoothness="Cinf"`.
+
+            where (string, optional): This option is currently not supported for Hypercube.
+            inside (bool, optional): The `x` is either inside or outside the geometry.
+                The cases where there are both points inside and points
+                outside the geometry are NOT allowed. NOTE: currently only support `inside=True`.
+
+        Returns:
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
+            Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
+        """
+        if where is not None:
+            raise ValueError("where is currently not supported for Hypercube")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+        if not inside:
+            raise ValueError("inside=False is not supported for Hypercube")
+
+        if not hasattr(self, "self.xmin_tensor"):
+            self.xmin_tensor = bkd.as_tensor(self.xmin)
+            self.xmax_tensor = bkd.as_tensor(self.xmax)
+
+        dist_l = bkd.abs(
+            (x - self.xmin_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+        )
+        dist_r = bkd.abs(
+            (x - self.xmax_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+        )
+        if smoothness == "C0":
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+            return bkd.minimum(dist_l, dist_r)
+        # TODO: fix potential numerical underflow
+        dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+        dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+        return dist_l * dist_r
+
 
 class Hypersphere(Geometry):
     def __init__(self, center, radius):
@@ -129,6 +212,23 @@ class Hypersphere(Geometry):
 
     def mindist2boundary(self, x):
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
+
+    def boundary_constraint_factor(
+        self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
+    ):
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+
+        if not hasattr(self, "self.center_tensor"):
+            self.center_tensor = bkd.as_tensor(self.center)
+            self.radius_tensor = bkd.as_tensor(self.radius)
+
+        dist = bkd.norm(x - self.center_tensor, axis=-1, keepdims=True) - self.radius
+        if smoothness == "Cinf":
+            dist = bkd.square(dist)
+        else:
+            dist = bkd.abs(dist)
+        return dist
 
     def boundary_normal(self, x):
         _n = x - self.center

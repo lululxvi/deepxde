@@ -111,6 +111,15 @@ def square(x):
     return tf.math.square(x)
 
 
+# pylint: disable=redefined-builtin
+def abs(x):
+    return tf.math.abs(x)
+
+
+def minimum(x, y):
+    return tf.math.minimum(x, y)
+
+
 def tanh(x):
     return tf.math.tanh(x)
 
@@ -129,6 +138,32 @@ def sum(input_tensor, dim, keepdims=False):
 
 def reduce_sum(input_tensor):
     return tf.math.reduce_sum(input_tensor)
+
+
+def prod(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_prod(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return tf.math.reduce_prod(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def min(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_min(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_min(input_tensor):
+    return tf.math.reduce_min(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def max(input_tensor, dim, keepdims=False):
+    return tf.math.reduce_max(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_max(input_tensor):
+    return tf.math.reduce_max(input_tensor)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):

@@ -110,7 +110,8 @@ class Model:
                 tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
                 trainable ``dde.Variable`` objects are automatically collected.
         """
-        print("Compiling model...")
+        if config.rank == 0:
+            print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
         self.losshistory.set_loss_weights(loss_weights)
@@ -152,6 +153,10 @@ class Model:
                 cfg.graph_options.optimizer_options.global_jit_level = (
                     tf.OptimizerOptions.ON_2
                 )
+                self.sess = tf.Session(config=cfg)
+            elif config.hvd is not None:
+                cfg = tf.ConfigProto()
+                cfg.gpu_options.visible_device_list = str(config.rank)
                 self.sess = tf.Session(config=cfg)
             else:
                 self.sess = tf.Session()
@@ -275,7 +280,8 @@ class Model:
             grad.clear()
             return self.net(inputs)
 
-        def outputs_losses(training, inputs, targets, losses_fn):
+        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+            self.net.auxiliary_vars = auxiliary_vars
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
                 inputs = tuple(
@@ -299,11 +305,15 @@ class Model:
             grad.clear()
             return outputs_, losses
 
-        def outputs_losses_train(inputs, targets):
-            return outputs_losses(True, inputs, targets, self.data.losses_train)
+        def outputs_losses_train(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                True, inputs, targets, auxiliary_vars, self.data.losses_train
+            )
 
-        def outputs_losses_test(inputs, targets):
-            return outputs_losses(False, inputs, targets, self.data.losses_test)
+        def outputs_losses_test(inputs, targets, auxiliary_vars):
+            return outputs_losses(
+                False, inputs, targets, auxiliary_vars, self.data.losses_test
+            )
 
         # Another way is using per-parameter options
         # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
@@ -326,13 +336,13 @@ class Model:
                 )
             else:
                 raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularizaiton to be implemented for "
+                    f"{self.net.regularizer[0]} regularization to be implemented for "
                     "backend pytorch."
                 )
 
-        def train_step(inputs, targets):
+        def train_step(inputs, targets, auxiliary_vars):
             def closure():
-                losses = outputs_losses_train(inputs, targets)[1]
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
                 total_loss.backward()
@@ -364,6 +374,7 @@ class Model:
 
         def outputs_losses(params, training, inputs, targets, losses_fn):
             nn_params, ext_params = params
+
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
                 return self.net.apply(nn_params, inputs, training=training)
@@ -442,7 +453,7 @@ class Model:
             if not isinstance(losses, list):
                 losses = [losses]
             # TODO: regularization
-            losses = paddle.concat(losses, axis=0)
+            losses = paddle.stack(losses, axis=0)
             # Weighted losses
             if loss_weights is not None:
                 losses *= paddle.to_tensor(loss_weights)
@@ -517,9 +528,8 @@ class Model:
         if backend_name == "tensorflow":
             outs = outputs_losses(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
-            # TODO: auxiliary_vars
             self.net.requires_grad_(requires_grad=False)
-            outs = outputs_losses(inputs, targets)
+            outs = outputs_losses(inputs, targets, auxiliary_vars)
             self.net.requires_grad_()
         elif backend_name == "jax":
             # TODO: auxiliary_vars
@@ -535,8 +545,7 @@ class Model:
         elif backend_name in ["tensorflow", "paddle"]:
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "pytorch":
-            # TODO: auxiliary_vars
-            self.train_step(inputs, targets)
+            self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "jax":
             # TODO: auxiliary_vars
             self.params, self.opt_state = self.train_step(
@@ -595,15 +604,18 @@ class Model:
 
         if backend_name == "tensorflow.compat.v1":
             if self.train_state.step == 0:
-                print("Initializing variables...")
                 self.sess.run(tf.global_variables_initializer())
+                if config.hvd is not None:
+                    bcast = config.hvd.broadcast_global_variables(0)
+                    self.sess.run(bcast)
             else:
                 utils.guarantee_initialized_variables(self.sess)
 
         if model_restore_path is not None:
             self.restore(model_restore_path, verbose=1)
 
-        print("Training model...\n")
+        if config.rank == 0:
+            print("Training model...\n")
         self.stop_training = False
         self.train_state.set_data_train(*self.data.train_next_batch(self.batch_size))
         self.train_state.set_data_test(*self.data.test())
@@ -624,8 +636,9 @@ class Model:
             self._train_sgd(iterations, display_every)
         self.callbacks.on_train_end()
 
-        print("")
-        display.training_display.summary(self.train_state)
+        if config.rank == 0:
+            print("")
+            display.training_display.summary(self.train_state)
         if model_save_path is not None:
             self.save(model_save_path, verbose=1)
         return self.losshistory, self.train_state
@@ -791,6 +804,7 @@ class Model:
                 break
 
     def _test(self):
+        # TODO Now only print the training loss in rank 0. The correct way is to print the average training loss of all ranks.
         (
             self.train_state.y_pred_train,
             self.train_state.loss_train,
@@ -832,7 +846,8 @@ class Model:
             or np.isnan(self.train_state.loss_test).any()
         ):
             self.stop_training = True
-        display.training_display(self.train_state)
+        if config.rank == 0:
+            display.training_display(self.train_state)
 
     def predict(self, x, operator=None, callbacks=None):
         """Generates predictions for the input samples. If `operator` is ``None``,

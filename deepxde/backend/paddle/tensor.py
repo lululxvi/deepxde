@@ -59,10 +59,12 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
+    if paddle.in_dynamic_mode():
+        return paddle.to_tensor(initial_value, dtype=dtype, stop_gradient=False)
     return paddle.create_parameter(
         shape=[1],
         dtype=paddle.get_default_dtype() if dtype is None else dtype,
-        default_initializer=paddle.nn.initializer.Constant(value=initial_value)
+        default_initializer=paddle.nn.initializer.Constant(value=initial_value),
     )
 
 
@@ -75,7 +77,9 @@ def as_tensor(data, dtype=None):
 
 
 def sparse_tensor(indices, values, shape):
-    return paddle.sparse.sparse_coo_tensor(list(zip(*indices)), values, shape, stop_gradient=False)
+    return paddle.sparse.sparse_coo_tensor(
+        list(zip(*indices)), values, shape, stop_gradient=False
+    )
 
 
 def from_numpy(np_array):
@@ -146,6 +150,15 @@ def square(x):
     return paddle.square(x)
 
 
+# pylint: disable=redefined-builtin
+def abs(x):
+    return paddle.abs(x)
+
+
+def minimum(x, y):
+    return paddle.minimum(x, y)
+
+
 def tanh(x):
     return paddle.tanh(x)
 
@@ -170,7 +183,35 @@ def reduce_sum(input_tensor):
     return paddle.sum(input_tensor)
 
 
+def prod(input_tensor, dim, keepdims=False):
+    return paddle.prod(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return paddle.prod(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def min(input_tensor, dim, keepdims=False):
+    return paddle.min(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_min(input_tensor):
+    return paddle.min(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def max(input_tensor, dim, keepdims=False):
+    return paddle.max(input_tensor, axis=dim, keepdim=keepdims)
+
+
+def reduce_max(input_tensor):
+    return paddle.max(input_tensor)
+
+
 def norm(x, ord=None, axis=None, keepdims=False):
+    if ord is None:
+        ord = 2
     return paddle.linalg.norm(x, p=ord, axis=axis, keepdim=keepdims)
 
 
