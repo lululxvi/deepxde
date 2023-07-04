@@ -58,7 +58,7 @@ class DeepONet(NN):
         self.kernel_initializer = initializers.get(kernel_initializer)
         if stacked:
             self.kernel_initializer_stacked = initializers.get(
-                kernel_initializer + "stacked"
+                "stacked " + kernel_initializer
             )
         self.regularizer = regularizers.get(regularization)
         self.use_bias = use_bias
