@@ -22,7 +22,7 @@ def convert_to_array(value):
 
 
 def hstack(tup):
-    if not is_tensor(tup[0]) and tup[0] == []:
+    if not is_tensor(tup[0]) and isinstance(tup[0],list) and tup[0] == []:
         tup = list(tup)
         if istensorlist(tup[1:]):
             tup[0] = bkd.as_tensor([], dtype=config.real(bkd.lib))
