@@ -75,8 +75,8 @@ def to_numpy(input_tensor):
     return input_tensor.numpy()
 
 
-def elu(x):
-    return tf.nn.elu(x)
+def stack(values, axis):
+    return tf.stack(values, axis)
 
 
 def relu(x):
