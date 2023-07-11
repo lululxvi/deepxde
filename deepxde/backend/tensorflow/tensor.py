@@ -79,6 +79,10 @@ def stack(values, axis):
     return tf.stack(values, axis)
 
 
+def elu(x):
+    return tf.nn.elu(x)
+
+
 def relu(x):
     return tf.nn.relu(x)
 

@@ -281,7 +281,8 @@ class Model:
             return self.net(inputs)
 
         def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
-            self.net.auxiliary_vars = auxiliary_vars
+            if auxiliary_vars is not None:
+                self.net.auxiliary_vars = torch.as_tensor(auxiliary_vars)
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
                 inputs = tuple(
