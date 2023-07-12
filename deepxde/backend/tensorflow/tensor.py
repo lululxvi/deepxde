@@ -75,8 +75,28 @@ def to_numpy(input_tensor):
     return input_tensor.numpy()
 
 
+def concat(values, axis):
+    return tf.concat(values, axis)
+
+
 def stack(values, axis):
     return tf.stack(values, axis)
+
+
+def expand_dims(tensor, axis):
+    return tf.expand_dims(tensor, axis)
+
+
+def reverse(tensor, axis):
+    return tf.reverse(tensor, axis)
+
+
+def roll(tensor, shift, axis):
+    return tf.roll(tensor, shift, axis)
+
+
+def lgamma(x):
+    return tf.math.lgamma(x)
 
 
 def elu(x):
@@ -126,6 +146,10 @@ def minimum(x, y):
 
 def tanh(x):
     return tf.math.tanh(x)
+
+
+def pow(x, y):
+    return tf.math.pow(x, y)
 
 
 def mean(input_tensor, dim, keepdims=False):
@@ -182,3 +206,7 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return tf.zeros_like(input_tensor)
+
+
+def matmul(x, y):
+    return tf.linalg.matmul(x, y)
