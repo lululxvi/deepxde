@@ -64,6 +64,10 @@ def _get_learningrate_scheduler(optim, decay):
         return torch.optim.lr_scheduler.StepLR(
             optim, step_size=decay[1], gamma=decay[2]
         )
+    elif decay[0] == "lambda":
+        return torch.optim.lr_scheduler.LambdaLR(optim, decay[1])
+    elif isinstance(decay[0], torch.optim.Optimizer):
+        return decay[0]
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(
