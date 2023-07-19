@@ -38,7 +38,7 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
 
 
 # Default float type
-real = Real(32)
+real = Real(8 * np.dtype(np.double).itemsize)
 # Random seed
 random_seed = None
 if backend_name == "jax":
