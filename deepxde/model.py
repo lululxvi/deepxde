@@ -282,20 +282,21 @@ class Model:
 
         def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
             self.net.auxiliary_vars = None
+            dtype = torch.get_default_dtype()
             if auxiliary_vars is not None:
-                self.net.auxiliary_vars = torch.as_tensor(auxiliary_vars)
+                self.net.auxiliary_vars = torch.as_tensor(auxiliary_vars, dtype=dtype)
             self.net.train(mode=training)
             if isinstance(inputs, tuple):
                 inputs = tuple(
-                    map(lambda x: torch.as_tensor(x).requires_grad_(), inputs)
+                    map(lambda x: torch.as_tensor(x, dtype=dtype).requires_grad_(), inputs)
                 )
             else:
-                inputs = torch.as_tensor(inputs)
+                inputs = torch.as_tensor(inputs, dtype=dtype)
                 inputs.requires_grad_()
             outputs_ = self.net(inputs)
             # Data losses
             if targets is not None:
-                targets = torch.as_tensor(targets)
+                targets = torch.as_tensor(targets, dtype=dtype)
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
             if not isinstance(losses, list):
                 losses = [losses]
@@ -881,7 +882,10 @@ class Model:
 
         # operator is not None
         if utils.get_num_args(operator) == 3:
-            aux_vars = self.data.auxiliary_var_fn(x).astype(config.real(np))
+            if hasattr(self.data, "auxiliary_var_fn"):
+                aux_vars = self.data.auxiliary_var_fn(x).astype(config.real(np))
+            else:
+                aux_vars = None
         if backend_name == "tensorflow.compat.v1":
             if utils.get_num_args(operator) == 2:
                 op = operator(self.net.inputs, self.net.outputs)
@@ -911,21 +915,42 @@ class Model:
             y = utils.to_numpy(y)
         elif backend_name == "pytorch":
             self.net.eval()
-            inputs = torch.as_tensor(x)
-            inputs.requires_grad_()
+            dtype = torch.get_default_dtype()
+            if isinstance(x, tuple):
+                inputs = tuple(map(lambda x: torch.as_tensor(x, dtype=dtype).requires_grad_(), x))
+            else:
+                inputs = torch.as_tensor(x, dtype=dtype).requires_grad_()
+
             outputs = self.net(inputs)
-            if utils.get_num_args(operator) == 2:
-                y = operator(inputs, outputs)
-            elif utils.get_num_args(operator) == 3:
-                # TODO: Pytorch backend Implementation of Auxiliary variables.
-                # y = operator(inputs, outputs, torch.as_tensor(aux_vars))
-                raise NotImplementedError(
-                    "Model.predict() with auxiliary variable hasn't been implemented "
-                    "for backend pytorch."
-                )
+            
+            # For CartesianProd, we have to do autograd on each batch sample. 
+            #TODO: too complicated for CartesianProd because there is outer-product in forward pass. We need to do autograd on each batch sample.
+            isCartesianProd = "CartesianProd" in str(self.data.__class__) # this may not be the best way to check if it is CartesianProd
+            if isCartesianProd:
+                ys = []
+                for i in range(len(inputs[0])): # this check the length of brench inputs,
+                    branch = inputs[0][i]
+                    out = outputs[i][:, None]
+                    if utils.get_num_args(operator) == 2:
+                        y = operator((branch, inputs[1]), out).detach()
+                    elif utils.get_num_args(operator) == 3:
+                        if aux_vars is not None:
+                            aux_vars = torch.as_tensor(aux_vars, dtype=dtype)
+                        y = operator((branch, inputs[1]), out, aux_vars).detach()
+                    ys.append(y)
+                    grad.clear()
+                ys = torch.stack(ys)
+            else:
+                if utils.get_num_args(operator) == 2:
+                    y = operator(inputs, outputs)
+                elif utils.get_num_args(operator) == 3:
+                    if aux_vars is not None:
+                        aux_vars = torch.as_tensor(aux_vars, dtype=dtype)
+                    y = operator(inputs, outputs, aux_vars)
+                ys = y
             # Clear cached Jacobians and Hessians.
             grad.clear()
-            y = utils.to_numpy(y)
+            y = utils.to_numpy(ys)
         elif backend_name == "paddle":
             self.net.eval()
             inputs = paddle.to_tensor(x, stop_gradient=False)
