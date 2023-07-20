@@ -94,7 +94,7 @@ class Model:
 
                     - `StepLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.StepLR.html>`_: ("step", step_size, gamma)
                     - `CosineAnnealingLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CosineAnnealingLR.html>`_: ("cosine", T_max, eta_min)
-                    - `InverseTimeLR see the document from TensorFlow`_: ("inverse time", decay_steps, decay_rate)
+                    - `InverseTimeLR <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
                     - `ExponentialLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ExponentialLR.html>`_: ("exponential", gamma)
                     - `LambdaLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.LambdaLR.html>`_: ("lambda", lambda_fn: Callable[[step], float])
                     - `torch.optim.Optimizer <https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer>`_: (optimizer, )
