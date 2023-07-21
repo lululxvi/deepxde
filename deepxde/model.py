@@ -911,8 +911,10 @@ class Model:
             y = utils.to_numpy(y)
         elif backend_name == "pytorch":
             self.net.eval()
-            inputs = torch.as_tensor(x)
-            inputs.requires_grad_()
+            if isinstance(x, tuple):
+                inputs = tuple(map(lambda x: torch.as_tensor(x).requires_grad_(), x))
+            else:
+                inputs = torch.as_tensor(x).requires_grad_()
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
                 y = operator(inputs, outputs)
