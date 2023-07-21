@@ -97,7 +97,7 @@ class Model:
                     - `InverseTimeLR <https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules/InverseTimeDecay>`_: ("inverse time", decay_steps, decay_rate)
                     - `ExponentialLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ExponentialLR.html>`_: ("exponential", gamma)
                     - `LambdaLR <https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.LambdaLR.html>`_: ("lambda", lambda_fn: Callable[[step], float])
-                    - `torch.optim.Optimizer <https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer>`_: (optimizer, )
+                    - `torch.optim.lr_scheduler.LRScheduler <https://pytorch.org/docs/stable/optim.html#torch.optim.Optimizer>`_: (LRScheduler, args, kwargs)
                     
                 - For backend PaddlePaddle:
 

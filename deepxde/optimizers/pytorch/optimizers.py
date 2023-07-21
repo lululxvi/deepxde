@@ -76,8 +76,8 @@ def _get_learningrate_scheduler(optim, decay):
         return torch.optim.lr_scheduler.LambdaLR(
             optim, lambda step: 1 / (1 + decay[2] * (step / decay[1]))
         )
-    elif isinstance(decay[0], torch.optim.Optimizer):
-        return decay[0]
+    elif issubclass(decay[0], torch.optim.lr_scheduler.LRScheduler):
+        return decay[0](optim, *decay[1], **decay[2])
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(
