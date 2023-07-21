@@ -64,6 +64,18 @@ def _get_learningrate_scheduler(optim, decay):
         return torch.optim.lr_scheduler.StepLR(
             optim, step_size=decay[1], gamma=decay[2]
         )
+    elif decay[0] == "cosine":
+        return torch.optim.lr_scheduler.CosineAnnealingLR(
+            optim, decay[1], eta_min=decay[2]
+        )
+    elif decay[0] == "inverse time":
+        return torch.optim.lr_scheduler.LambdaLR(
+            optim, lambda step: 1 / (1 + decay[2] * (step / decay[1]))
+        )
+    elif decay[0] == "exponential":
+        return torch.optim.lr_scheduler.ExponentialLR(optim, decay[1])
+    elif decay[0] == "lambda":
+        return torch.optim.lr_scheduler.LambdaLR(optim, decay[1])
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(
