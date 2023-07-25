@@ -94,7 +94,7 @@ class PowerSeries(FunctionSpace):
         mat = np.ones((self.N, len(xs)))
         for i in range(1, self.N):
             mat[i] = np.ravel(xs**i)
-        return np.dot(features, mat)
+        return np.dot(features, mat).astype(config.real(np))
 
 
 class Chebyshev(FunctionSpace):
@@ -120,7 +120,7 @@ class Chebyshev(FunctionSpace):
         return np.polynomial.chebyshev.chebval(2 * x - 1, feature)
 
     def eval_batch(self, features, xs):
-        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T)
+        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T).astype(config.real(np))
 
 
 class GRF(FunctionSpace):
@@ -226,7 +226,7 @@ class GRF_KL(FunctionSpace):
 
     def eval_batch(self, features, xs):
         eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun])
-        return np.dot(features, eigfun)
+        return np.dot(features, eigfun).astype(config.real(np))
 
 
 class GRF2D(FunctionSpace):
@@ -287,7 +287,7 @@ class GRF2D(FunctionSpace):
         points = (self.x, self.y)
         ys = np.reshape(features, (-1, self.N, self.N))
         res = map(lambda y: interpolate.interpn(points, y, xs, method=self.interp), ys)
-        return np.vstack(list(res))
+        return np.vstack(list(res)).astype(config.real(np))
 
 
 def wasserstein2(space1, space2):
