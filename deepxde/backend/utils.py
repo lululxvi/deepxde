@@ -139,9 +139,9 @@ def get_cuda(platform):
         cuda_verion (str) or None
     """
     if platform == "linux":
-        cuda_list = [101, 102, 110, 111, 112, 116, 117, 118]
+        cuda_list = [101, 102, 110, 111, 112, 116, 117, 118, 120]
     elif platform == "windows":
-        cuda_list = [101, 102, 110, 111, 112, 113, 114, 115, 116, 117, 118]
+        cuda_list = [101, 102, 110, 111, 112, 113, 114, 115, 116, 117, 118, 120]
     nvcc_text = os.popen("nvcc -V").read()
     if nvcc_text != "":
         cuda_version = nvcc_text.split("Cuda compilation tools, release ")[-1].split(
