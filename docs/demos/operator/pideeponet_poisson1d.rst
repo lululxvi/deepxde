@@ -27,8 +27,8 @@ First, we define the PDE with boundary conditions and the domain:
 .. code-block:: python
 
     def equation(x, y, f):
-    dy_xx = dde.grad.hessian(y, x)
-    return -dy_xx - f
+        dy_xx = dde.grad.hessian(y, x)
+        return -dy_xx - f
 
     geom = dde.geometry.Interval(0, 1)
 
@@ -40,13 +40,7 @@ First, we define the PDE with boundary conditions and the domain:
 
     bc = dde.icbc.DirichletBC(geom, u_boundary, boundary)
 
-    pde = dde.data.PDE(
-        geom,
-        equation,
-        bc,
-        num_domain=100,
-        num_boundary=2
-    )
+    pde = dde.data.PDE(geom, equation, bc, num_domain=100, num_boundary=2)
 
 
 Next, we specify the function space for :math:`f` and the corresponding evaluation points.
@@ -59,7 +53,7 @@ the loss function.
 .. code-block:: python
 
     degree = 3
-    space = dde.data.PowerSeries(N=degree+1)
+    space = dde.data.PowerSeries(N=degree + 1)
 
     num_eval_points = 10
     evaluation_points = geom.uniform_points(num_eval_points, boundary=True)
@@ -88,18 +82,14 @@ and the trunk net is a fully connected neural network of size ``[dim_x, 32, p]``
     )
 
 
-We define the ``Model`` and train it with either L-BFGS (pytorch) or Adam:
+We define the ``Model`` and train it with L-BFGS:
 
 .. code-block:: python
 
     model = dde.Model(pde_op, net)
-    if dde.backend.backend_name == "pytorch":
-        dde.optimizers.set_LBFGS_options(maxiter=1000)
-        model.compile("L-BFGS", metrics=["l2 relative error"])
-        model.train()
-    else:
-        model.compile("adam", lr=0.001, metrics=["l2 relative error"])
-        model.train(iterations=10000)
+    dde.optimizers.set_LBFGS_options(maxiter=1000)
+    model.compile("L-BFGS")
+    model.train()
 
 Finally, the trained model can be used to predict the solution of the Poisson
 equation. We sample the solution for three random representations of :math:`f`.
