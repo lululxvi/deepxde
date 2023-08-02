@@ -1,5 +1,5 @@
-Physics-informed DeepONet for 1D Poisson equation
-=================================================
+Physics-informed DeepONet for Poisson equation in 1D
+====================================================
 
 Problem setup
 -------------
