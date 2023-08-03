@@ -99,8 +99,7 @@ class DeepONet(NN):
     def prepare_multiple_outputs(self, outputs):
         if self.output_count > 1:
             return tf.reshape(outputs, (tf.shape(outputs)[0], tf.shape(outputs)[2]))
-        else:
-            return outputs
+        return outputs
 
     @timing
     def build(self):
@@ -315,8 +314,7 @@ class DeepONetCartesianProd(NN):
     def prepare_multiple_outputs(self, outputs):
         if self.output_count > 1:
             return tf.reshape(outputs, (tf.shape(outputs)[0], tf.shape(outputs)[2]))
-        else:
-            return outputs
+        return outputs
 
     @timing
     def build(self):
