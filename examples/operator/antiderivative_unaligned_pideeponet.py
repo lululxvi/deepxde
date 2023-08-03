@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,6 +29,7 @@ net = dde.nn.DeepONet(
     "tanh",
     "Glorot normal",
 )
+
 
 # Hard constraint zero IC
 def zero_ic(inputs, outputs):

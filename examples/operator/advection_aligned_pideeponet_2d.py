@@ -1,8 +1,23 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+
+if dde.backend.backend_name == "paddle":
+    import paddle
+
+    dim_x = 5
+    sin = paddle.sin
+    cos = paddle.cos
+    concat = paddle.concat
+else:
+    from deepxde.backend import tf
+
+    dim_x = 2
+    sin = tf.sin
+    cos = tf.cos
+    concat = tf.concat
+
 
 # PDE
 def pde(x, y, v):
@@ -41,7 +56,7 @@ data = dde.data.PDEOperatorCartesianProd(
 # Net
 net = dde.nn.DeepONetCartesianProd(
     [50, 128, 128, 128],
-    [2, 128, 128, 128],
+    [dim_x, 128, 128, 128],
     "tanh",
     "Glorot normal",
 )
@@ -50,9 +65,7 @@ net = dde.nn.DeepONetCartesianProd(
 def periodic(x):
     x, t = x[:, :1], x[:, 1:]
     x *= 2 * np.pi
-    return tf.concat(
-        [tf.math.cos(x), tf.math.sin(x), tf.math.cos(2 * x), tf.math.sin(2 * x), t], 1
-    )
+    return concat([cos(x), sin(x), cos(2 * x), sin(2 * x), t], 1)
 
 
 net.apply_feature_transform(periodic)
