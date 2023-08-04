@@ -108,6 +108,21 @@ class DeepONet(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
+        if self.output_count == 1:
+            self.y = self._build_vanilla_deeponet()
+        else:
+            ys = []
+            for _ in range(self.output_count):
+                ys.append(self._build_vanilla_deeponet())
+            self.y = tf.stack(ys, axis=2)
+
+        if self._output_transform is not None:
+            self.y = self._output_transform(self._inputs, self.y)
+
+        self.target = tf.placeholder(config.real(tf), [None, self.output_count])
+        self.built = True
+
+    def _build_vanilla_deeponet(self):
         # Branch net to encode the input function
         y_func = self.X_func
         if callable(self.layer_size_func[1]):
@@ -169,26 +184,17 @@ class DeepONet(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        ys = []
-        for _ in range(self.output_count):
-            y = tf.einsum("bi,bi->b", y_func, y_loc)
-            y = tf.expand_dims(y, axis=1)
-            # Add bias
-            if self.use_bias:
-                b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
-                y += b
-            ys.append(y)
-
-        if self.output_count == 1:
-            self.y = ys[0]
-        else:
-            self.y = tf.stack(ys, axis=2)
-
-        if self._output_transform is not None:
-            self.y = self._output_transform(self._inputs, self.y)
-
-        self.target = tf.placeholder(config.real(tf), [None, self.output_count])
-        self.built = True
+        y = tf.einsum(
+            "bi,bi->b",
+            y_func,
+            y_loc
+        )
+        y = tf.expand_dims(y, axis=1)
+        # Add bias
+        if self.use_bias:
+            b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+            y += b
+        return y
 
     def _dense(
         self,
@@ -210,7 +216,7 @@ class DeepONet(NN):
         )
 
     def _stacked_dense(
-        self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
+            self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
     ):
         """Stacked densely-connected NN layer.
 
@@ -323,7 +329,21 @@ class DeepONetCartesianProd(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        # Branch net to encode the input function
+        if self.output_count == 1:
+            self.y = self._build_vanilla_deeponet()
+        else:
+            ys = []
+            for _ in range(0, self.output_count):
+                ys.append(self._build_vanilla_deeponet())
+            self.y = tf.stack(ys, axis=2)
+
+        if self._output_transform is not None:
+            self.y = self._output_transform(self._inputs, self.y)
+
+        self.target = tf.placeholder(config.real(tf), [None, None])
+        self.built = True
+
+    def _build_vanilla_deeponet(self):
         y_func = self.X_func
         if callable(self.layer_size_func[1]):
             # User-defined network
@@ -358,29 +378,16 @@ class DeepONetCartesianProd(NN):
                 kernel_regularizer=self.regularizer,
             )
 
-        # Dot product
         if y_func.shape[-1] != y_loc.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        ys = []
-        for _ in range(0, self.output_count):
-            y = tf.einsum(
-                "bi,ni->bn",
-                tf.identity(y_func),
-                tf.identity(y_loc)
-            )
-            # Add bias
-            b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
-            y += b
-            ys.append(y)
-        if self.output_count == 1:
-            self.y = ys[0]
-        else:
-            self.y = tf.stack(ys, axis=2)
-
-        if self._output_transform is not None:
-            self.y = self._output_transform(self._inputs, self.y)
-
-        self.target = tf.placeholder(config.real(tf), [None, None])
-        self.built = True
+        y = tf.einsum(
+            "bi,ni->bn",
+            y_func,
+            y_loc
+        )
+        # Add bias
+        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+        y += b
+        return y
