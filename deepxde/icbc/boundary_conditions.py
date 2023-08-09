@@ -175,13 +175,13 @@ class PointSetBC:
         component: Integer or a list of integers. The output components satisfying this BC.
             List of integers only supported for the backend PyTorch.
         batch_size: The number of points per minibatch, or `None` to return all points.
-            This is only supported for the backend PyTorch.
+            This is only supported for the backend PyTorch and PaddlePaddle.
+            Note, If you want to use batch size here, you should also set callback
+            'dde.callbacks.PDEPointResampler(bc_points=True)' in training.
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(
-        self, points, values, component=0, batch_size=None, shuffle=True
-    ):
+    def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
@@ -193,13 +193,11 @@ class PointSetBC:
         self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
-            if backend_name != "pytorch":
+            if backend_name not in ["pytorch", "paddle"]:
                 raise RuntimeError(
-                    "batch_size only implemented for pytorch backend"
+                    "batch_size only implemented for pytorch and paddle backend"
                 )
-            self.batch_sampler = data.sampler.BatchSampler(
-                len(self), shuffle=shuffle
-            )
+            self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle=shuffle)
             self.batch_indices = None
 
     def __len__(self):
@@ -218,15 +216,9 @@ class PointSetBC:
                     outputs[beg:end, self.component : self.component + 1]
                     - self.values[self.batch_indices]
                 )
-            return (
-                outputs[beg:end, self.component]
-                - self.values[self.batch_indices]
-            )
+            return outputs[beg:end, self.component] - self.values[self.batch_indices]
         if isinstance(self.component, numbers.Number):
-            return (
-                outputs[beg:end, self.component : self.component + 1]
-                - self.values
-            )
+            return outputs[beg:end, self.component : self.component + 1] - self.values
         # When a concat is provided, the following code works 'fast' in paddle cpu,
         # and slow in both tensorflow backends, jax untested.
         # tf.gather can be used instead of for loop but is also slow

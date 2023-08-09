@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, pytorch"""
+"""Backend supported: tensorflow.compat.v1, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,7 +27,7 @@ geom = dde.geometry.Interval(-1, 1)
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
 ob_x, ob_u = gen_traindata(10000)
 observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0, batch_size=100)
-pde_resampler = dde.callbacks.PDEPointResampler()
+pde_resampler = dde.callbacks.PDEPointResampler(bc_points=True)
 
 data = dde.data.PDE(
     geom,
@@ -57,7 +57,7 @@ plt.plot(x, utrue, "-", label="u_true")
 plt.plot(x, uhat, "--", label="u_NN")
 plt.legend()
 
-qtrue = -np.pi ** 2 * np.sin(np.pi * x)
+qtrue = -np.pi**2 * np.sin(np.pi * x)
 print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
 plt.figure()
 plt.plot(x, qtrue, "-", label="q_true")
