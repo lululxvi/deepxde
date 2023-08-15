@@ -64,26 +64,12 @@ jobs:
           python -m pip install jax flax optax
           python -c "import deepxde"
 
-      - name: Test build with Paddle (MacOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/mac/cpu/develop.html
-          python -c "import deepxde"
+      - name: Test build with Paddle
         env:
           DDE_BACKEND: paddle
-
-      - name: Test build with Paddle (Linux)
-        if: matrix.os == 'ubuntu-latest'
+          ubuntu-latest: "https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html"
+          macos-latest: "https://www.paddlepaddle.org.cn/whl/mac/cpu/develop.html"
+          windows-latest: "https://www.paddlepaddle.org.cn/whl/windows/cpu-mkl-avx/develop.html"
         run: |
-          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/linux/cpu-mkl/develop.html
+          python -m pip install paddlepaddle==0.0.0 -f ${{ env[matrix.os] }}
           python -c "import deepxde"
-        env:
-          DDE_BACKEND: paddle
-
-      - name: Test build with Paddle (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          python -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/windows/cpu-mkl-avx/develop.html
-          python -c "import deepxde"
-        env:
-          DDE_BACKEND: paddle
