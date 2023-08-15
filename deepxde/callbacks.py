@@ -396,24 +396,22 @@ class OperatorPredictor(Callback):
     def on_train_begin(self):
         self.on_predict_end()
         print(
-                self.model.train_state.epoch,
-                utils.list_to_str(
-                    self.value.flatten().tolist(), precision=self.precision
-                ),
-                file=self.file,
-            )
+            self.model.train_state.epoch,
+            utils.list_to_str(self.value.flatten().tolist(), precision=self.precision),
+            file=self.file,
+        )
         self.file.flush()
-    
+
     def on_train_end(self):
         if not self.epochs_since_last == 0:
             self.on_train_begin()
-        
+
     def on_epoch_end(self):
         self.epochs_since_last += 1
         if self.epochs_since_last >= self.period:
             self.epochs_since_last = 0
             self.on_train_begin()
-            
+
     def on_predict_end(self):
         if backend_name == "tensorflow.compat.v1":
             self.value = self.model.sess.run(
@@ -545,7 +543,7 @@ class PDEPointResampler(Callback):
         pde_points: If True, resample the training points for PDE losses (default is
             True).
         bc_points: If True, resample the training points for BC losses (default is
-            False; only supported by pytorch backend currently).
+            False; only supported by PyTorch and PaddlePaddle backend currently).
     """
 
     def __init__(self, period=100, pde_points=True, bc_points=False):
