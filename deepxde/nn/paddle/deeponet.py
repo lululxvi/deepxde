@@ -57,8 +57,7 @@ class DeepONet(NN):
         if use_bias:
             # register bias to parameter for updating in optimizer and storage
             self.b = self.create_parameter(
-                shape=(1, ),
-                default_initializer=initializers.get("zeros")
+                shape=(1,), default_initializer=initializers.get("zeros")
             )
 
     def forward(self, inputs):
@@ -75,8 +74,7 @@ class DeepONet(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        x = paddle.einsum("bi,bi->b", x_func, x_loc)  # [batch_size, ]
-        x = paddle.reshape(x, [-1, 1])  # reshape [batch_size, ] to [batch_size, 1]
+        x = paddle.sum(x_func * x_loc, axis=1, keepdim=True)
         # Add bias
         if self.use_bias:
             x += self.b
@@ -124,8 +122,7 @@ class DeepONetCartesianProd(NN):
         self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
         # register bias to parameter for updating in optimizer and storage
         self.b = self.create_parameter(
-            shape=(1, ),
-            default_initializer=initializers.get("zeros")
+            shape=(1,), default_initializer=initializers.get("zeros")
         )
         self.regularizer = regularization
 
@@ -143,7 +140,7 @@ class DeepONetCartesianProd(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        x = paddle.einsum("bi,ni->bn", x_func, x_loc)
+        x = x_func @ x_loc.T
         # Add bias
         x += self.b
 

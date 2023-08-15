@@ -1,8 +1,16 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+
+if dde.backend.backend_name == "paddle":
+    import paddle
+
+    transpose = paddle.transpose
+else:
+    from deepxde.backend import tf
+
+    transpose = tf.transpose
 
 
 dde.config.disable_xla_jit()
@@ -35,9 +43,10 @@ net = dde.nn.DeepONetCartesianProd(
     "Glorot normal",
 )
 
+
 # Hard constraint zero IC
 def zero_ic(inputs, outputs):
-    return outputs * tf.transpose(inputs[1])
+    return outputs * transpose(inputs[1], [1, 0])
 
 
 net.apply_output_transform(zero_ic)
