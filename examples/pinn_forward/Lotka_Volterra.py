@@ -93,7 +93,7 @@ def input_transform(t):
 # def input_transform(t):
 #     if t.ndim == 1:
 #         t = t[None]
-# 
+#
 #     return jnp.concatenate(
 #         [
 #             jnp.sin(t),
@@ -131,9 +131,9 @@ net.apply_output_transform(output_transform)
 model = dde.Model(data, net)
 
 model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(iterations=1000)
+losshistory, train_state = model.train(iterations=50000)
 # Most backends except jax can have a second fine tuning of the solution
-model.compile("L-BFGS", lr=0.001)
+model.compile("L-BFGS")
 losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
