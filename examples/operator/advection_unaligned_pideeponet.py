@@ -66,7 +66,7 @@ net = dde.nn.DeepONet(
 
 def periodic(x):
     x, t = x[:, :1], x[:, 1:]
-    x *= 2 * np.pi
+    x = x * 2 * np.pi
     return concat([cos(x), sin(x), cos(2 * x), sin(2 * x), t], 1)
 
 
