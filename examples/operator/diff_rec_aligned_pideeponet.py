@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np

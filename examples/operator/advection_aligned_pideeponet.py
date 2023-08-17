@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,6 +10,13 @@ if dde.backend.backend_name == "paddle":
     sin = paddle.sin
     cos = paddle.cos
     concat = paddle.concat
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    dim_x = 5
+    sin = torch.sin
+    cos = torch.cos
+    concat = torch.cat
 else:
     from deepxde.backend import tf
 
