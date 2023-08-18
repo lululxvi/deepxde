@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +7,10 @@ if dde.backend.backend_name == "paddle":
     import paddle
 
     transpose = paddle.transpose
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    transpose = lambda x, y: torch.transpose(x, y[0], y[1])
 else:
     from deepxde.backend import tf
 
