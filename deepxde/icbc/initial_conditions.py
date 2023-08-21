@@ -13,10 +13,17 @@ from .. import utils
 from ..geometry import Geometry
 from ..types import _Tensor, _TensorOrTensors
 
-class IC():
+
+class IC:
     """Initial conditions: y([x, t0]) = func([x, t0])."""
 
-    def __init__(self, geom: Geometry, func: Callable[[NDArray[np.float_]], NDArray[np.float_]], on_initial: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], component: Union[List[int], int] = 0):
+    def __init__(
+        self,
+        geom: Geometry,
+        func: Callable[[NDArray[np.float_]], NDArray[np.float_]],
+        on_initial: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
+        component: Union[List[int], int] = 0,
+    ):
         self.geom = geom
         self.func = npfunc_range_autocache(utils.return_tensor(func))
         self.on_initial = lambda x, on: np.array(
@@ -30,7 +37,15 @@ class IC():
     def collocation_points(self, X: NDArray[np.float_]) -> NDArray[np.float_]:
         return self.filter(X)
 
-    def error(self, X: NDArray[np.float_], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int, aux_var: Union[NDArray[np.float_], None] = None) -> _Tensor:
+    def error(
+        self,
+        X: NDArray[np.float_],
+        inputs: _TensorOrTensors,
+        outputs: _Tensor,
+        beg: int,
+        end: int,
+        aux_var: Union[NDArray[np.float_], None] = None,
+    ) -> _Tensor:
         values = self.func(X, beg, end, aux_var)
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
