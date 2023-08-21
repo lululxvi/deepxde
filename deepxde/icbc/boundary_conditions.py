@@ -48,19 +48,19 @@ class BC(ABC):
             utils.return_tensor(self.geom.boundary_normal)
         )
 
-    def filter(self, X: NDArray[Any]):
+    def filter(self, X: NDArray[Any]) -> NDArray[np.bool_]:
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
-    def collocation_points(self, X: NDArray[Any]):
+    def collocation_points(self, X: NDArray[Any]) -> NDArray[Any]:
         return self.filter(X)
 
-    def normal_derivative(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int):
+    def normal_derivative(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int) -> _Tensor:
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
     @abstractmethod
-    def error(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int, aux_var: Union[NDArray[np.float_], None] = None):
+    def error(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int, aux_var: Union[NDArray[np.float_], None] = None) -> _Tensor:
         """Returns the loss."""
         # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
         # at x.
