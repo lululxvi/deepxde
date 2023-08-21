@@ -14,8 +14,10 @@ __all__ = [
 import numbers
 from abc import ABC, abstractmethod
 from functools import wraps
+from typing import Any, Callable, List, Optional, overload, Union
 
 import numpy as np
+from numpy.typing import NDArray, ArrayLike
 
 from .. import backend as bkd
 from .. import config
@@ -23,6 +25,8 @@ from .. import data
 from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
+from ..geometry import Geometry
+from ..types import _Tensor, _TensorOrTensors
 
 
 class BC(ABC):
@@ -30,11 +34,10 @@ class BC(ABC):
 
     Args:
         geom: A ``deepxde.geometry.Geometry`` instance.
-        on_boundary: A function: (x, Geometry.on_boundary(x)) -> True/False.
-        component: The output component satisfying this BC.
+        on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
+        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
     """
-
-    def __init__(self, geom, on_boundary, component):
+    def __init__(self, geom: Geometry, on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], component: Union[List[int], int]):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
             [on_boundary(x[i], on[i]) for i in range(len(x))]
@@ -45,32 +48,39 @@ class BC(ABC):
             utils.return_tensor(self.geom.boundary_normal)
         )
 
-    def filter(self, X):
+    def filter(self, X: NDArray[Any]):
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
-    def collocation_points(self, X):
+    def collocation_points(self, X: NDArray[Any]):
         return self.filter(X)
 
-    def normal_derivative(self, X, inputs, outputs, beg, end):
+    def normal_derivative(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int):
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
     @abstractmethod
-    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+    def error(self, X: NDArray[Any], inputs: _TensorOrTensors, outputs: _Tensor, beg: int, end: int, aux_var: Union[NDArray[np.float_], None] = None):
         """Returns the loss."""
         # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
         # at x.
 
 
 class DirichletBC(BC):
-    """Dirichlet boundary conditions: y(x) = func(x)."""
-
-    def __init__(self, geom, func, on_boundary, component=0):
+    """Dirichlet boundary conditions: `y(x) = func(x)`.
+    
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function: `x` -> `y`.
+        on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
+        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+    """
+    
+    def __init__(self, geom: Geometry, func: Callable[[NDArray[np.float_]], NDArray[np.float_]], on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], component: Union[List[int], int] = 0):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
-    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+    def error(self, X, inputs, outputs, beg, end, aux_var = None):
         values = self.func(X, beg, end, aux_var)
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
@@ -81,9 +91,16 @@ class DirichletBC(BC):
 
 
 class NeumannBC(BC):
-    """Neumann boundary conditions: dy/dn(x) = func(x)."""
+    """Neumann boundary conditions: `dy/dn(x) = func(x)`.
+    
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function: `x` -> `dy/dn`.
+        on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
+        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+    """
 
-    def __init__(self, geom, func, on_boundary, component=0):
+    def __init__(self, geom: Geometry, func: Callable[[NDArray[np.float_]], NDArray[np.float_]], on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], component: Union[List[int], int] = 0):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
@@ -93,9 +110,16 @@ class NeumannBC(BC):
 
 
 class RobinBC(BC):
-    """Robin boundary conditions: dy/dn(x) = func(x, y)."""
+    """Robin boundary conditions: `dy/dn(x) = func(x, y)`.
+    
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function: `(x, y)` -> `dy/dn`.
+        on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
+        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+    """
 
-    def __init__(self, geom, func, on_boundary, component=0):
+    def __init__(self, geom: Geometry, func: Callable[[NDArray[np.float_]], NDArray[np.float_]], on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], component: Union[List[int], int] = 0):
         super().__init__(geom, on_boundary, component)
         self.func = func
 
@@ -106,9 +130,17 @@ class RobinBC(BC):
 
 
 class PeriodicBC(BC):
-    """Periodic boundary conditions on component_x."""
+    """Periodic boundary conditions on component_x.
+    
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        component_x: The component of the input satisfying this BC.
+        on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
+        derivative_order: The derivative order of the output satisfying this BC.
+        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+    """
 
-    def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
+    def __init__(self, geom: Geometry, component_x: int, on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]], derivative_order: int = 0, component: Union[List[int], int] = 0):
         super().__init__(geom, on_boundary, component)
         self.component_x = component_x
         self.derivative_order = derivative_order
@@ -122,7 +154,7 @@ class PeriodicBC(BC):
         X2 = self.geom.periodic_point(X1, self.component_x)
         return np.vstack((X1, X2))
 
-    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+    def error(self, X, inputs, outputs, beg, end, aux_var = None):
         mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
             yleft = outputs[beg:mid, self.component : self.component + 1]
@@ -135,16 +167,16 @@ class PeriodicBC(BC):
 
 
 class OperatorBC(BC):
-    """General operator boundary conditions: func(inputs, outputs, X) = 0.
+    """General operator boundary conditions: `func(inputs, outputs, X) = 0`.
 
     Args:
-        geom: ``Geometry``.
-        func: A function takes arguments (`inputs`, `outputs`, `X`)
-            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
-            `inputs` and `outputs` are the network input and output tensors,
-            respectively; `X` are the NumPy array of the `inputs`.
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function takes arguments `(inputs, outputs, X)` 
+        and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+        `inputs` and `outputs` are the network input and output tensors,
+        respectively; `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
-
+        
     Warning:
         If you use `X` in `func`, then do not set ``num_test`` when you define
         ``dde.data.PDE`` or ``dde.data.TimePDE``, otherwise DeepXDE would throw an
@@ -153,7 +185,7 @@ class OperatorBC(BC):
         which cannot be fixed in an easy way for all backends.
     """
 
-    def __init__(self, geom, func, on_boundary):
+    def __init__(self, geom: Geometry, func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor], on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]]):
         super().__init__(geom, on_boundary, 0)
         self.func = func
 
@@ -161,7 +193,7 @@ class OperatorBC(BC):
         return self.func(inputs, outputs, X)[beg:end]
 
 
-class PointSetBC:
+class PointSetBC(BC):
     """Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
@@ -181,7 +213,7 @@ class PointSetBC:
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
+    def __init__(self, points: ArrayLike, values: ArrayLike, component: Union[List[int], int] = 0, batch_size: Union[int, None] = None, shuffle: bool = True):
         self.points = np.array(points, dtype=config.real(np))
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
@@ -233,7 +265,7 @@ class PointSetBC:
         return outputs[beg:end, self.component] - self.values
 
 
-class PointSetOperatorBC:
+class PointSetOperatorBC(BC):
     """General operator boundary conditions for a set of points.
 
     Compare the function output, func, (that associates with `points`)
@@ -249,7 +281,7 @@ class PointSetOperatorBC:
             tensors, respectively; `X` are the NumPy array of the `inputs`.
     """
 
-    def __init__(self, points, values, func):
+    def __init__(self, points: ArrayLike, values: ArrayLike, func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor]):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
@@ -262,6 +294,11 @@ class PointSetOperatorBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
+@overload
+def npfunc_range_autocache(func: Callable[[NDArray[np.float_]], NDArray[np.float_]]) -> NDArray[np.float_]: ...
+
+@overload
+def npfunc_range_autocache(func: Callable[[NDArray[np.float_], NDArray[np.float_]], Optional[NDArray[np.float_]]]) -> NDArray[np.float_]: ...
 
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
@@ -288,25 +325,26 @@ def npfunc_range_autocache(func):
     # key. However, IC/BC is only for dde.data.PDE, where the ndarray is fixed. So we
     # can simply use id of X as the key, as what we do for gradients.
 
-    cache = {}
+    cache = {}    
 
     @wraps(func)
-    def wrapper_nocache(X, beg, end, _):
+    def wrapper_nocache(X: NDArray[np.float_], beg: int, end: int, _) -> NDArray[np.float_]:
         return func(X[beg:end])
 
     @wraps(func)
-    def wrapper_nocache_auxiliary(X, beg, end, aux_var):
+    def wrapper_nocache_auxiliary(X: NDArray[np.float_], beg: int, end: int, aux_var: NDArray[np.float_]) -> NDArray[np.float_]:
+        aux_var: callable
         return func(X[beg:end], aux_var[beg:end])
 
     @wraps(func)
-    def wrapper_cache(X, beg, end, _):
+    def wrapper_cache(X: NDArray[np.float_], beg: int, end: int, _) -> NDArray[np.float_]:
         key = (id(X), beg, end)
         if key not in cache:
             cache[key] = func(X[beg:end])
         return cache[key]
 
     @wraps(func)
-    def wrapper_cache_auxiliary(X, beg, end, aux_var):
+    def wrapper_cache_auxiliary(X: NDArray[np.float_], beg: int, end: int, aux_var: NDArray[np.float_]) -> NDArray[np.float_]:
         # Even if X is the same one, aux_var could be different
         key = (id(X), beg, end)
         if key not in cache:
