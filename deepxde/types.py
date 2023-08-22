@@ -5,4 +5,3 @@ from numpy.typing import NDArray, ArrayLike
 
 # Tensor from any backend
 _Tensor = TypeVar("_Tensor")
-_TensorOrTensors = Union[_Tensor, Sequence[_Tensor]]

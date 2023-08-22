@@ -14,7 +14,7 @@ __all__ = [
 import numbers
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Any, Callable, List, Optional, overload, Union
+from typing import Any, Callable, List, Optional, overload, Tuple, Union
 
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
@@ -26,7 +26,7 @@ from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
 from ..geometry import Geometry
-from ..types import _Tensor, _TensorOrTensors
+from ..types import _Tensor
 
 
 class BC(ABC):
@@ -63,7 +63,7 @@ class BC(ABC):
     def normal_derivative(
         self,
         X: NDArray[Any],
-        inputs: _TensorOrTensors,
+        inputs: Union[Tuple[_Tensor, ...], List[_Tensor], _Tensor],
         outputs: _Tensor,
         beg: int,
         end: int,
@@ -76,7 +76,7 @@ class BC(ABC):
     def error(
         self,
         X: NDArray[Any],
-        inputs: _TensorOrTensors,
+        inputs: Union[Tuple[_Tensor, ...], List[_Tensor], _Tensor],
         outputs: _Tensor,
         beg: int,
         end: int,
@@ -234,7 +234,7 @@ class OperatorBC(BC):
     def __init__(
         self,
         geom: Geometry,
-        func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor],
+        func: Callable[[Union[Tuple[_Tensor, ...], List[_Tensor], _Tensor], _Tensor, NDArray[np.float_]], _Tensor],
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
     ):
         super().__init__(geom, on_boundary, 0)
@@ -343,7 +343,7 @@ class PointSetOperatorBC(BC):
         self,
         points: ArrayLike,
         values: ArrayLike,
-        func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor],
+        func: Callable[[Union[Tuple[_Tensor, ...], List[_Tensor], _Tensor], _Tensor, NDArray[np.float_]], _Tensor],
     ):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
