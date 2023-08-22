@@ -11,7 +11,7 @@ from .boundary_conditions import npfunc_range_autocache
 from .. import backend as bkd
 from .. import utils
 from ..geometry import Geometry
-from ..types import _Tensor, _TensorOrTensors
+from ..types import Tensor, TensorOrTensors
 
 
 class IC:
@@ -40,12 +40,12 @@ class IC:
     def error(
         self,
         X: NDArray[np.float_],
-        inputs: _TensorOrTensors,
-        outputs: _Tensor,
+        inputs: TensorOrTensors,
+        outputs: Tensor,
         beg: int,
         end: int,
         aux_var: Union[NDArray[np.float_], None] = None,
-    ) -> _Tensor:
+    ) -> Tensor:
         values = self.func(X, beg, end, aux_var)
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(

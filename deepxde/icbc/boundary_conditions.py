@@ -26,7 +26,7 @@ from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
 from ..geometry import Geometry
-from ..types import _Tensor, _TensorOrTensors
+from ..types import Tensor, TensorOrTensors
 
 
 class BC(ABC):
@@ -63,11 +63,11 @@ class BC(ABC):
     def normal_derivative(
         self,
         X: NDArray[Any],
-        inputs: _TensorOrTensors,
-        outputs: _Tensor,
+        inputs: TensorOrTensors,
+        outputs: Tensor,
         beg: int,
         end: int,
-    ) -> _Tensor:
+    ) -> Tensor:
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
@@ -76,12 +76,12 @@ class BC(ABC):
     def error(
         self,
         X: NDArray[Any],
-        inputs: _TensorOrTensors,
-        outputs: _Tensor,
+        inputs: TensorOrTensors,
+        outputs: Tensor,
         beg: int,
         end: int,
         aux_var: Union[NDArray[np.float_], None] = None,
-    ) -> _Tensor:
+    ) -> Tensor:
         """Returns the loss."""
         # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
         # at x.
@@ -234,7 +234,7 @@ class OperatorBC(BC):
     def __init__(
         self,
         geom: Geometry,
-        func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor],
+        func: Callable[[TensorOrTensors, Tensor, NDArray[np.float_]], Tensor],
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
     ):
         super().__init__(geom, on_boundary, 0)
@@ -343,7 +343,7 @@ class PointSetOperatorBC(BC):
         self,
         points: ArrayLike,
         values: ArrayLike,
-        func: Callable[[_TensorOrTensors, _Tensor, NDArray[np.float_]], _Tensor],
+        func: Callable[[TensorOrTensors, Tensor, NDArray[np.float_]], Tensor],
     ):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
