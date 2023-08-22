@@ -11,7 +11,7 @@ from .boundary_conditions import npfunc_range_autocache
 from .. import backend as bkd
 from .. import utils
 from ..geometry import Geometry
-from ..types import _Tensor
+from ..types import _Tensor, _TensorOrTensors
 
 
 class IC:
@@ -40,7 +40,7 @@ class IC:
     def error(
         self,
         X: NDArray[np.float_],
-        inputs: Union[Tuple[_Tensor, ...], List[_Tensor], _Tensor],
+        inputs: _TensorOrTensors,
         outputs: _Tensor,
         beg: int,
         end: int,
