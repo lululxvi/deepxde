@@ -35,7 +35,8 @@ class BC(ABC):
     Args:
         geom: A ``deepxde.geometry.Geometry`` instance.
         on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
-        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+        component: The output component satisfying this BC, should be provided 
+            if ``BC.error`` involves derivatives and the output has multiple components.
     """
 
     def __init__(
@@ -94,7 +95,8 @@ class DirichletBC(BC):
         geom: A ``deepxde.geometry.Geometry`` instance.
         func: A function: `x` -> `y`.
         on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
-        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+        component: The output component satisfying this BC, should be provided 
+            if ``BC.error`` involves derivatives and the output has multiple components.
     """
 
     def __init__(
@@ -124,7 +126,8 @@ class NeumannBC(BC):
         geom: A ``deepxde.geometry.Geometry`` instance.
         func: A function: `x` -> `dy/dn`.
         on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
-        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+        component: The output component satisfying this BC, should be provided 
+            if ``BC.error`` involves derivatives and the output has multiple components.
     """
 
     def __init__(
@@ -149,7 +152,8 @@ class RobinBC(BC):
         geom: A ``deepxde.geometry.Geometry`` instance.
         func: A function: `(x, y)` -> `dy/dn`.
         on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
-        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+        component: The output component satisfying this BC, should be provided 
+            if ``BC.error`` involves derivatives and the output has multiple components.
     """
 
     def __init__(
@@ -176,7 +180,8 @@ class PeriodicBC(BC):
         component_x: The component of the input satisfying this BC.
         on_boundary: A function: `(x, Geometry.on_boundary(x))` -> True/False.
         derivative_order: The derivative order of the output satisfying this BC.
-        component: The output component satisfying this BC, should be provided if ``BC.error`` involves derivatives and the output has multiple components.
+        component: The output component satisfying this BC, should be provided 
+            if ``BC.error`` involves derivatives and the output has multiple components.
     """
 
     def __init__(
@@ -218,9 +223,9 @@ class OperatorBC(BC):
     Args:
         geom: A ``deepxde.geometry.Geometry`` instance.
         func: A function takes arguments `(inputs, outputs, X)`
-        and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
-        `inputs` and `outputs` are the network input and output tensors,
-        respectively; `X` are the NumPy array of the `inputs`.
+            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+            `inputs` and `outputs` are the network input and output tensors,
+            respectively; `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
 
     Warning:
@@ -255,7 +260,7 @@ class PointSetBC(BC):
         points: An array of points where the corresponding target values are known and
             used for training.
         values: A scalar or a 2D-array of values that gives the exact solution of the problem.
-        component: Integer or a list of integers. The output components satisfying this BC.
+            omponent: Integer or a list of integers. The output components satisfying this BC.
             List of integers only supported for the backend PyTorch.
         batch_size: The number of points per minibatch, or `None` to return all points.
             This is only supported for the backend PyTorch and PaddlePaddle.
