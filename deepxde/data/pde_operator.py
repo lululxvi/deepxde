@@ -72,8 +72,6 @@ class PDEOperator(Data):
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         f = []
-        if hasattr(model.net, 'prepare_multiple_outputs'):
-            outputs = model.net.prepare_multiple_outputs(outputs)
         if self.pde.pde is not None:
             f = self.pde.pde(inputs[1], outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
@@ -238,9 +236,7 @@ class PDEOperatorCartesianProd(Data):
 
         losses = []
         for i in range(num_func):
-            out = outputs[i][:, None]
-            if hasattr(model.net, 'prepare_multiple_outputs'):
-                out = model.net.prepare_multiple_outputs(out)
+            out = outputs[i] if model.net.output_count > 1 else outputs[i][:, None]
             f = []
             if self.pde.pde is not None:
                 f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])

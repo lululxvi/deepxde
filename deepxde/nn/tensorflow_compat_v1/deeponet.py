@@ -96,11 +96,6 @@ class DeepONet(NN):
             inputs = [np.tile(self._X_func_default, (n, 1)), inputs]
         return dict(zip([self.X_func, self.X_loc], inputs))
 
-    def prepare_multiple_outputs(self, outputs):
-        if self.output_count > 1:
-            return tf.reshape(outputs, (tf.shape(outputs)[0], tf.shape(outputs)[2]))
-        return outputs
-
     @timing
     def build(self):
         print("Building DeepONet...")
@@ -114,7 +109,7 @@ class DeepONet(NN):
             ys = []
             for _ in range(self.output_count):
                 ys.append(self._build_vanilla_deeponet())
-            self.y = tf.stack(ys, axis=2)
+            self.y = tf.concat(ys, axis=1)
 
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
@@ -316,11 +311,6 @@ class DeepONetCartesianProd(NN):
     @property
     def targets(self):
         return self.target
-
-    def prepare_multiple_outputs(self, outputs):
-        if self.output_count > 1:
-            return tf.reshape(outputs, (tf.shape(outputs)[0], tf.shape(outputs)[2]))
-        return outputs
 
     @timing
     def build(self):
