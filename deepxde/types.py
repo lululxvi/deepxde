@@ -1,7 +1,6 @@
-import numpy as np
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union, TypeVar
-from numpy.typing import NDArray, ArrayLike
+from __future__ import annotations
+from typing import Sequence, TypeVar
 
 # Tensor from any backend
 Tensor = TypeVar("Tensor")
-TensorOrTensors = Union[Tensor, Sequence[Tensor]]
+TensorOrTensors = Tensor | Sequence[Tensor]

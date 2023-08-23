@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Boundary conditions."""
 
 __all__ = [
@@ -14,7 +15,7 @@ __all__ = [
 import numbers
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Any, Callable, List, Optional, overload, Tuple, Union
+from typing import Any, Callable, overload
 
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
@@ -43,7 +44,7 @@ class BC(ABC):
         self,
         geom: Geometry,
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
-        component: Union[List[int], int],
+        component: list[int] | int,
     ):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
@@ -81,7 +82,7 @@ class BC(ABC):
         outputs: Tensor,
         beg: int,
         end: int,
-        aux_var: Union[NDArray[np.float_], None] = None,
+        aux_var: NDArray[np.float_] | None = None,
     ) -> Tensor:
         """Returns the loss."""
         # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
@@ -104,7 +105,7 @@ class DirichletBC(BC):
         geom: Geometry,
         func: Callable[[NDArray[np.float_]], NDArray[np.float_]],
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
-        component: Union[List[int], int] = 0,
+        component: list[int] | int = 0,
     ):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
@@ -135,7 +136,7 @@ class NeumannBC(BC):
         geom: Geometry,
         func: Callable[[NDArray[np.float_]], NDArray[np.float_]],
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
-        component: Union[List[int], int] = 0,
+        component: list[int] | int = 0,
     ):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
@@ -161,7 +162,7 @@ class RobinBC(BC):
         geom: Geometry,
         func: Callable[[NDArray[np.float_]], NDArray[np.float_]],
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
-        component: Union[List[int], int] = 0,
+        component: list[int] | int = 0,
     ):
         super().__init__(geom, on_boundary, component)
         self.func = func
@@ -190,7 +191,7 @@ class PeriodicBC(BC):
         component_x: int,
         on_boundary: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
         derivative_order: int = 0,
-        component: Union[List[int], int] = 0,
+        component: list[int] | int = 0,
     ):
         super().__init__(geom, on_boundary, component)
         self.component_x = component_x
@@ -273,8 +274,8 @@ class PointSetBC(BC):
         self,
         points: ArrayLike,
         values: ArrayLike,
-        component: Union[List[int], int] = 0,
-        batch_size: Union[int, None] = None,
+        component: list[int] | int = 0,
+        batch_size: int | None = None,
         shuffle: bool = True,
     ):
         self.points = np.array(points, dtype=config.real(np))
@@ -372,9 +373,7 @@ def npfunc_range_autocache(
 
 @overload
 def npfunc_range_autocache(
-    func: Callable[
-        [NDArray[np.float_], NDArray[np.float_]], Optional[NDArray[np.float_]]
-    ]
+    func: Callable[[NDArray[np.float_], NDArray[np.float_]], NDArray[np.float_]]
 ) -> NDArray[np.float_]:
     ...
 
@@ -416,7 +415,6 @@ def npfunc_range_autocache(func):
     def wrapper_nocache_auxiliary(
         X: NDArray[np.float_], beg: int, end: int, aux_var: NDArray[np.float_]
     ) -> NDArray[np.float_]:
-        aux_var: callable
         return func(X[beg:end], aux_var[beg:end])
 
     @wraps(func)

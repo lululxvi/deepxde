@@ -1,8 +1,9 @@
+from __future__ import annotations
 """Initial conditions."""
 
 __all__ = ["IC"]
 
-from typing import Any, Callable, List, Optional, overload, Union
+from typing import Any, Callable
 
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
@@ -22,7 +23,7 @@ class IC:
         geom: Geometry,
         func: Callable[[NDArray[np.float_]], NDArray[np.float_]],
         on_initial: Callable[[NDArray[Any], NDArray[Any]], NDArray[np.bool_]],
-        component: Union[List[int], int] = 0,
+        component: list[int] | int = 0,
     ):
         self.geom = geom
         self.func = npfunc_range_autocache(utils.return_tensor(func))
@@ -44,7 +45,7 @@ class IC:
         outputs: Tensor,
         beg: int,
         end: int,
-        aux_var: Union[NDArray[np.float_], None] = None,
+        aux_var: NDArray[np.float_] | None = None,
     ) -> Tensor:
         values = self.func(X, beg, end, aux_var)
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
