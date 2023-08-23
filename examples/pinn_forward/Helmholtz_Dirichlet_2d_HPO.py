@@ -9,6 +9,11 @@ from skopt.plots import plot_convergence, plot_objective
 from skopt.space import Real, Categorical, Integer
 from skopt.utils import use_named_args
 
+# Function 'gp_minimize' of package 'skopt(scikit-optimize)' is used in this example.
+# However 'np.int' used in skopt 0.9.0(the latest version) was deprecated since NumPy 1.20.
+# Monkey patch here to fix the error.
+np.int = int
+
 if dde.backend.backend_name == "pytorch":
     sin = dde.backend.pytorch.sin
 elif dde.backend.backend_name == "paddle":
