@@ -236,7 +236,7 @@ class PDEOperatorCartesianProd(Data):
 
         losses = []
         for i in range(num_func):
-            out = outputs[i] if model.net.output_count > 1 else outputs[i][:, None]
+            out = outputs[i] if model.net.num_outputs > 1 else outputs[i][:, None]
             f = []
             if self.pde.pde is not None:
                 f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])

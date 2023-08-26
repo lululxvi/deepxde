@@ -42,7 +42,7 @@ class DeepONet(NN):
         stacked=False,
         trainable_branch=True,
         trainable_trunk=True,
-        output_count=1
+        num_outputs=1,
     ):
         super().__init__()
         if isinstance(trainable_trunk, (list, tuple)):
@@ -51,7 +51,7 @@ class DeepONet(NN):
 
         self.layer_size_func = layer_sizes_branch
         self.layer_size_loc = layer_sizes_trunk
-        self.output_count = output_count
+        self.num_outputs = num_outputs
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
@@ -103,18 +103,18 @@ class DeepONet(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        if self.output_count == 1:
+        if self.num_outputs == 1:
             self.y = self._build_vanilla_deeponet()
         else:
             ys = []
-            for _ in range(self.output_count):
+            for _ in range(self.num_outputs):
                 ys.append(self._build_vanilla_deeponet())
             self.y = tf.concat(ys, axis=1)
 
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
-        self.target = tf.placeholder(config.real(tf), [None, self.output_count])
+        self.target = tf.placeholder(config.real(tf), [None, self.num_outputs])
         self.built = True
 
     def _build_vanilla_deeponet(self):
@@ -179,11 +179,7 @@ class DeepONet(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        y = tf.einsum(
-            "bi,bi->b",
-            y_func,
-            y_loc
-        )
+        y = tf.einsum("bi,bi->b", y_func, y_loc)
         y = tf.expand_dims(y, axis=1)
         # Add bias
         if self.use_bias:
@@ -211,7 +207,7 @@ class DeepONet(NN):
         )
 
     def _stacked_dense(
-            self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
+        self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
     ):
         """Stacked densely-connected NN layer.
 
@@ -284,12 +280,12 @@ class DeepONetCartesianProd(NN):
         activation,
         kernel_initializer,
         regularization=None,
-        output_count=1
+        num_outputs=1,
     ):
         super().__init__()
         self.layer_size_func = layer_size_branch
         self.layer_size_loc = layer_size_trunk
-        self.output_count = output_count
+        self.num_outputs = num_outputs
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
@@ -319,11 +315,11 @@ class DeepONetCartesianProd(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        if self.output_count == 1:
+        if self.num_outputs == 1:
             self.y = self._build_vanilla_deeponet()
         else:
             ys = []
-            for _ in range(0, self.output_count):
+            for _ in range(0, self.num_outputs):
                 ys.append(self._build_vanilla_deeponet())
             self.y = tf.stack(ys, axis=2)
 
@@ -372,11 +368,7 @@ class DeepONetCartesianProd(NN):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        y = tf.einsum(
-            "bi,ni->bn",
-            y_func,
-            y_loc
-        )
+        y = tf.einsum("bi,ni->bn", y_func, y_loc)
         # Add bias
         b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
         y += b
