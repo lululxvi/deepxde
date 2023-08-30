@@ -104,11 +104,13 @@ equation. We sample the solution for three random representations of :math:`f`.
     y = model.predict((fx, x))
 
 
-![](pideeponet_poisson1d.png)
+.. image:: poisson_1d_pideeponet.png
+   :width: 400
+
 
 
 Complete code
 -------------
 
-.. literalinclude:: ../../../examples/operator/pideeponet_1d_poisson.py
+.. literalinclude:: ../../../examples/operator/poisson_1d_pideeponet.py
   :language: python
