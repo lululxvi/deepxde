@@ -18,7 +18,7 @@ PI-DeepONet
 .. toctree::
    :maxdepth: 1
 
-   operator/poisson_1d_pideeponet
+   operator/poisson.1d.pideeponet
 
 
 - `Antiderivative operator with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_aligned_pideeponet.py>`_
