@@ -54,3 +54,8 @@ exclude = ["docker", "docs*", "examples*"]
 
 [tool.setuptools_scm]
 write_to = "deepxde/_version.py"
+
+[mypy]
+python_version = 3.8
+strict = false
+ignore_missing_imports = true
