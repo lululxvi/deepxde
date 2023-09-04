@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import numpy as np
+from numpy.typing import NDArray
 
 from .geometry import Geometry
 from .. import config
@@ -17,7 +20,7 @@ class PointCloud(Geometry):
         boundary_normals: A 2-D NumPy array.
     """
 
-    def __init__(self, points, boundary_points=None, boundary_normals=None):
+    def __init__(self, points: NDArray[np.float_], boundary_points: NDArray[np.float_] | None = None, boundary_normals: NDArray[np.float_] | None = None):
         self.points = np.asarray(points, dtype=config.real(np))
         self.num_points = len(points)
         self.boundary_points = None

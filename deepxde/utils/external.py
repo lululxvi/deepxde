@@ -1,3 +1,4 @@
+from __future__ import annotations
 """External utilities."""
 
 import csv
@@ -6,6 +7,7 @@ from multiprocessing import Pool
 
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.typing import NDArray
 import scipy.spatial.distance
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn import preprocessing
@@ -376,7 +378,7 @@ def dat_to_csv(dat_file_path, csv_file_path, columns):
             csv_writer.writerow(row)
 
 
-def isclose(a, b):
+def isclose(a: NDArray[np.float_], b: NDArray[np.float_]) -> NDArray[np.bool_]:
     """A modified version of `np.isclose` for DeepXDE.
 
     This function changes the value of `atol` due to the dtype of `a` and `b`.
