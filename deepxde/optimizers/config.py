@@ -42,7 +42,7 @@ def set_LBFGS_options(
             Maximum number of iterations.
         maxfun (int): `maxfun` (scipy), `max_eval` (torch), `max_eval` (paddle).
             Maximum number of function evaluations. If ``None``, `maxiter` * 1.25.
-        maxls (int): `maxls` (scipy), `max_line_search_iterations` (tfp).
+        maxls (int): `maxls` (scipy), `max_line_search_iterations` (tfp), `maxls=0` disables line search and otherwise defaults to 25 (torch).
             Maximum number of line search steps (per iteration).
 
     Warning:
