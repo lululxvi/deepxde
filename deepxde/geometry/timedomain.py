@@ -23,7 +23,7 @@ class TimeDomain(Interval):
         return isclose(t, self.t0).flatten()
 
 
-class GeometryXTime(Geometry):
+class GeometryXTime():
     def __init__(self, geometry: Geometry, timedomain: TimeDomain):
         self.geometry = geometry
         self.timedomain = timedomain

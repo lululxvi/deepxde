@@ -516,4 +516,3 @@ def sparse_dense_matmul(x, y):
     Returns:
         Tensor: The multiplication result.
     """
-sparse_dense_matmul()

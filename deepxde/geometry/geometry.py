@@ -7,7 +7,7 @@ from numbers import Number
 import numpy as np
 from numpy.typing import NDArray
 
-from ..types import Tensor, TensorOrTensors
+from ..types import Tensor
 
 class Geometry(abc.ABC):
     def __init__(self, dim: int, bbox: NDArray[np.float_], diam: Number):

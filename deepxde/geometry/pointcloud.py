@@ -5,7 +5,7 @@ from numpy.typing import NDArray
 
 from .geometry import Geometry
 from .. import config
-from ..data import BatchSampler
+from ..data.sampler import BatchSampler
 from ..utils import isclose
 
 
