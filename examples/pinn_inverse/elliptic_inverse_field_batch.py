@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, pytorch, paddle"""
+"""Backend supported: pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,7 +42,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform"
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
-losshistory, train_state = model.train(epochs=20000, callbacks=[pde_resampler])
+losshistory, train_state = model.train(iterations=20000, callbacks=[pde_resampler])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # view results

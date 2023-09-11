@@ -29,7 +29,7 @@ n = 2
 k0 = 2 * np.pi * n
 precision_train = 10
 precision_test = 30
-epochs = 10000
+iterations = 10000
 
 
 def pde(x, y):
@@ -89,7 +89,7 @@ def create_model(config):
 
 
 def train_model(model, config):
-    losshistory, train_state = model.train(epochs=epochs)
+    losshistory, train_state = model.train(iterations=iterations)
     train = np.array(losshistory.loss_train).sum(axis=1).ravel()
     test = np.array(losshistory.loss_test).sum(axis=1).ravel()
     metric = np.array(losshistory.metrics_test).sum(axis=1).ravel()
