@@ -52,7 +52,7 @@ while err > 0.005:
     data.add_anchors(X[x_id])
     early_stopping = dde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
     model.compile("adam", lr=1e-3)
-    model.train(epochs=10000, disregard_previous_best=True, callbacks=[early_stopping])
+    model.train(iterations=10000, disregard_previous_best=True, callbacks=[early_stopping])
     model.compile("L-BFGS")
     losshistory, train_state = model.train()
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

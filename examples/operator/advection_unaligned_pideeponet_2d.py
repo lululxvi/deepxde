@@ -77,7 +77,7 @@ net.apply_feature_transform(periodic)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0005)
-losshistory, train_state = model.train(epochs=10000)
+losshistory, train_state = model.train(iterations=10000)
 dde.utils.plot_loss_history(losshistory)
 
 x = np.linspace(0, 1, num=100)

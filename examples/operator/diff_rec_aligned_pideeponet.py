@@ -51,7 +51,7 @@ net = dde.nn.DeepONetCartesianProd(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0005)
-losshistory, train_state = model.train(epochs=20000)
+losshistory, train_state = model.train(iterations=20000)
 dde.utils.plot_loss_history(losshistory)
 
 func_feats = func_space.random(1)
