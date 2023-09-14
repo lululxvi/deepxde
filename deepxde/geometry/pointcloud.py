@@ -67,7 +67,11 @@ class PointCloud(Geometry):
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
             )
-        return self.boundary_normals
+        boundary_point_matches = np.isclose(
+            (self.boundary_points[:, None, :] - x[None, :, :]), 0, atol=1e-6
+        ).all(axis=2)
+        normals_idx = np.where(boundary_point_matches == True)[0]
+        return self.boundary_normals[normals_idx, :]
     
     def random_points(self, n, random="pseudo"):
         if n <= self.num_points:
