@@ -67,7 +67,7 @@ class PointCloud(Geometry):
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
             )
-        boundary_point_matches = np.isclose(
+        boundary_point_matches = isclose(
             (self.boundary_points[:, None, :] - x[None, :, :]), 0, atol=1e-6
         ).all(axis=2)
         normals_idx = np.where(boundary_point_matches == True)[0]
