@@ -124,7 +124,7 @@ We then train the model for 60000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=60000, callbacks=[variable])
+    losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
 
 Complete code
 --------------

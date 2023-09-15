@@ -67,7 +67,7 @@ Then, we begin by defining the general parameters for the problem. The PINN will
 .. code-block:: python
 
   weights = 1
-  epochs = 10000
+  iterations = 10000
   learning_rate = 1e-3
   num_dense_layers = 3
   num_dense_nodes = 350
@@ -216,7 +216,7 @@ We first train the model for 5000 iterations with Adam optimizer:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=epochs)
+    losshistory, train_state = model.train(iterations=iterations)
 
 
 Complete code
