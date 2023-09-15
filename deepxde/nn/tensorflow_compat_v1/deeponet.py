@@ -7,6 +7,131 @@ from .. import regularizers
 from ... import config
 from ...backend import tf
 from ...utils import timing
+from abc import ABC, abstractmethod
+
+
+class DeepONetStrategy(ABC):
+    """DeepONet building strategy.
+
+    See the section 3.1.6. in
+    L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis.
+    A comprehensive and fair comparison of two neural operators
+    (with practical extensions) based on FAIR data.
+    Computer Methods in Applied Mechanics and Engineering, 393, 114778, 2022.
+    """
+
+    def __init__(self, net):
+        self.net = net
+
+    def _build_branch_and_trunk(self):
+        # Branch net to encode the input function
+        branch = self.net.build_branch_net()
+        # Trunk net to encode the domain of the output function
+        trunk = self.net.build_trunk_net()
+        return branch, trunk
+
+    @abstractmethod
+    def build(self):
+        pass
+
+
+class VanillaStrategy(DeepONetStrategy):
+    def build(self):
+        branch, trunk = self._build_branch_and_trunk()
+        if branch.shape[-1] != trunk.shape[-1]:
+            raise AssertionError(
+                "Output sizes of branch net and trunk net do not match."
+            )
+        y = self.net.merge(branch, trunk)
+        return y
+
+
+class IndependentStrategy(DeepONetStrategy):
+    """Directly use n independent DeepONets,
+    and each DeepONet outputs only one function.
+    """
+
+    def build(self):
+        vanilla_strategy = VanillaStrategy(self.net)
+        ys = []
+        for _ in range(self.net.num_outputs):
+            ys.append(vanilla_strategy.build())
+        return self.net.concatenate_outputs(ys)
+
+
+class SplitBothStrategy(DeepONetStrategy):
+    """Split the outputs of both the branch net and the trunk net into n groups,
+    and then the kth group outputs the kth solution.
+
+    For example, if n = 2 and both the branch and trunk nets have 100 output neurons,
+    then the dot product between the first 50 neurons of
+    the branch and trunk nets generates the first function,
+    and the remaining 50 neurons generate the second function.
+    """
+
+    def build(self):
+        branch, trunk = self._build_branch_and_trunk()
+        if branch.shape[-1] != trunk.shape[-1]:
+            raise AssertionError(
+                "Output sizes of branch net and trunk net do not match."
+            )
+        if branch.shape[-1] % self.net.num_outputs != 0:
+            raise AssertionError(
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
+            )
+        branch_groups = tf.split(
+            branch, num_or_size_splits=self.net.num_outputs, axis=1
+        )
+        trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
+        ys = []
+        for i in range(self.net.num_outputs):
+            y = self.net.merge(branch_groups[i], trunk_groups[i])
+            ys.append(y)
+        return self.net.concatenate_outputs(ys)
+
+
+class SplitBranchStrategy(DeepONetStrategy):
+    """Split the branch net and share the trunk net."""
+
+    def build(self):
+        branch, trunk = self._build_branch_and_trunk()
+        if branch.shape[-1] % self.net.num_outputs != 0:
+            raise AssertionError(
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
+            )
+        if branch.shape[-1] / self.net.num_outputs != trunk.shape[-1]:
+            raise AssertionError(
+                f"Output size of the trunk net does not equal to {branch.shape[-1] // self.net.num_outputs}."
+            )
+        branch_groups = tf.split(
+            branch, num_or_size_splits=self.net.num_outputs, axis=1
+        )
+        ys = []
+        for i in range(self.net.num_outputs):
+            y = self.net.merge(branch_groups[i], trunk)
+            ys.append(y)
+        return self.net.concatenate_outputs(ys)
+
+
+class SplitTrunkStrategy(DeepONetStrategy):
+    """Split the trunk net and share the branch net."""
+
+    def build(self):
+        branch, trunk = self._build_branch_and_trunk()
+        if trunk.shape[-1] % self.net.num_outputs != 0:
+            raise AssertionError(
+                f"Output size of the trunk net is not evenly divisible by {self.net.num_outputs}."
+            )
+        if trunk.shape[-1] / self.net.num_outputs != branch.shape[-1]:
+            raise AssertionError(
+                f"Output size of the branch net does not equal to {trunk.shape[-1] // self.net.num_outputs}."
+            )
+        trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
+        ys = []
+        for i in range(self.net.num_outputs):
+            y = self.net.merge(branch, trunk_groups[i])
+            ys.append(y)
+        return self.net.concatenate_outputs(ys)
 
 
 class DeepONet(NN):
@@ -29,6 +154,8 @@ class DeepONet(NN):
             `activation["branch"]`.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
+        num_outputs (integer): number of outputs.
+        strategy (str): "vanilla", "independent", "split_both", "split_branch" or "split_trunk".
     """
 
     def __init__(
@@ -43,6 +170,7 @@ class DeepONet(NN):
         trainable_branch=True,
         trainable_trunk=True,
         num_outputs=1,
+        strategy="independent",
     ):
         super().__init__()
         if isinstance(trainable_trunk, (list, tuple)):
@@ -51,7 +179,6 @@ class DeepONet(NN):
 
         self.layer_size_func = layer_sizes_branch
         self.layer_size_loc = layer_sizes_trunk
-        self.num_outputs = num_outputs
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
@@ -70,6 +197,22 @@ class DeepONet(NN):
 
         self._inputs = None
         self._X_func_default = None
+
+        self.num_outputs = num_outputs
+        if self.num_outputs == 1:
+            if strategy != "vanilla":
+                strategy = "vanilla"
+                print('Strategy is forcibly changed to "vanilla".')
+        elif strategy == "vanilla":
+            strategy = "independent"
+            print('Strategy is forcibly changed to "independent".')
+        self.strategy = {
+            "independent": IndependentStrategy,
+            "split_both": SplitBothStrategy,
+            "split_branch": SplitBranchStrategy,
+            "split_trunk": SplitTrunkStrategy,
+            "vanilla": VanillaStrategy,
+        }.get(strategy, IndependentStrategy)(self)
 
     @property
     def inputs(self):
@@ -103,22 +246,14 @@ class DeepONet(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        if self.num_outputs == 1:
-            self.y = self._build_vanilla_deeponet()
-        else:
-            ys = []
-            for _ in range(self.num_outputs):
-                ys.append(self._build_vanilla_deeponet())
-            self.y = tf.concat(ys, axis=1)
-
+        self.y = self.strategy.build()
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
         self.target = tf.placeholder(config.real(tf), [None, self.num_outputs])
         self.built = True
 
-    def _build_vanilla_deeponet(self):
-        # Branch net to encode the input function
+    def build_branch_net(self):
         y_func = self.X_func
         if callable(self.layer_size_func[1]):
             # User-defined network
@@ -158,8 +293,9 @@ class DeepONet(NN):
                 regularizer=self.regularizer,
                 trainable=self.trainable_branch,
             )
+        return y_func
 
-        # Trunk net to encode the domain of the output function
+    def build_trunk_net(self):
         y_loc = self.X_loc
         if self._input_transform is not None:
             y_loc = self._input_transform(y_loc)
@@ -173,19 +309,20 @@ class DeepONet(NN):
                 if isinstance(self.trainable_trunk, (list, tuple))
                 else self.trainable_trunk,
             )
+        return y_loc
 
+    def merge(self, branch, trunk):
         # Dot product
-        if y_func.shape[-1] != y_loc.shape[-1]:
-            raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
-            )
-        y = tf.einsum("bi,bi->b", y_func, y_loc)
+        y = tf.einsum("bi,bi->b", branch, trunk)
         y = tf.expand_dims(y, axis=1)
-        # Add bias
         if self.use_bias:
             b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
             y += b
         return y
+
+    @staticmethod
+    def concatenate_outputs(ys):
+        return tf.concat(ys, axis=1)
 
     def _dense(
         self,
@@ -271,6 +408,8 @@ class DeepONetCartesianProd(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
+        num_outputs (integer): number of outputs.
+        strategy (str): "vanilla", "independent", "split_both", "split_branch" or "split_trunk".
     """
 
     def __init__(
@@ -281,11 +420,11 @@ class DeepONetCartesianProd(NN):
         kernel_initializer,
         regularization=None,
         num_outputs=1,
+        strategy="independent",
     ):
         super().__init__()
         self.layer_size_func = layer_size_branch
         self.layer_size_loc = layer_size_trunk
-        self.num_outputs = num_outputs
         if isinstance(activation, dict):
             self.activation_branch = activations.get(activation["branch"])
             self.activation_trunk = activations.get(activation["trunk"])
@@ -293,8 +432,23 @@ class DeepONetCartesianProd(NN):
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
-
         self._inputs = None
+
+        self.num_outputs = num_outputs
+        if self.num_outputs == 1:
+            if strategy != "vanilla":
+                strategy = "vanilla"
+                print('Strategy is forcibly changed to "vanilla".')
+        elif strategy == "vanilla":
+            strategy = "independent"
+            print('Strategy is forcibly changed to "independent".')
+        self.strategy = {
+            "independent": IndependentStrategy,
+            "split_both": SplitBothStrategy,
+            "split_branch": SplitBranchStrategy,
+            "split_trunk": SplitTrunkStrategy,
+            "vanilla": VanillaStrategy,
+        }.get(strategy, IndependentStrategy)(self)
 
     @property
     def inputs(self):
@@ -315,21 +469,14 @@ class DeepONetCartesianProd(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        if self.num_outputs == 1:
-            self.y = self._build_vanilla_deeponet()
-        else:
-            ys = []
-            for _ in range(0, self.num_outputs):
-                ys.append(self._build_vanilla_deeponet())
-            self.y = tf.stack(ys, axis=2)
-
+        self.y = self.strategy.build()
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
         self.target = tf.placeholder(config.real(tf), [None, None])
         self.built = True
 
-    def _build_vanilla_deeponet(self):
+    def build_branch_net(self):
         y_func = self.X_func
         if callable(self.layer_size_func[1]):
             # User-defined network
@@ -350,7 +497,9 @@ class DeepONetCartesianProd(NN):
                 kernel_initializer=self.kernel_initializer,
                 kernel_regularizer=self.regularizer,
             )
+        return y_func
 
+    def build_trunk_net(self):
         # Trunk net to encode the domain of the output function
         y_loc = self.X_loc
         if self._input_transform is not None:
@@ -363,13 +512,15 @@ class DeepONetCartesianProd(NN):
                 kernel_initializer=self.kernel_initializer,
                 kernel_regularizer=self.regularizer,
             )
+        return y_loc
 
-        if y_func.shape[-1] != y_loc.shape[-1]:
-            raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
-            )
-        y = tf.einsum("bi,ni->bn", y_func, y_loc)
+    def merge(self, branch, trunk):
+        y = tf.einsum("bi,ni->bn", branch, trunk)
         # Add bias
         b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
         y += b
         return y
+
+    @staticmethod
+    def concatenate_outputs(ys):
+        return tf.stack(ys, axis=2)
