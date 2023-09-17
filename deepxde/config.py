@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 
 import numpy as np
@@ -52,7 +53,7 @@ if backend_name in ["tensorflow.compat.v1", "tensorflow"] and hvd is None:
 elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
-    print("Enable just-in-time compilation with XLA.\n")
+    print("Enable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
 
 
 def default_float():
@@ -179,9 +180,9 @@ def enable_xla_jit(mode=True):
     global xla_jit
     xla_jit = mode
     if xla_jit:
-        print("Enable just-in-time compilation with XLA.\n")
+        print("Enable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
     else:
-        print("Disable just-in-time compilation with XLA.\n")
+        print("Disable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
 
 
 def disable_xla_jit():

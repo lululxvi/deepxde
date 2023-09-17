@@ -9,9 +9,10 @@ The transformed code is written to stdout.
 
 import re
 import sys
+import deepxde as dde
 
 
-EPOCHS_RE = re.compile(r"^(.*)epochs\s*=\s*(\d+)(.*)$", re.DOTALL)
+ITERATIONS_RE = re.compile(r"^(.*)iterations\s*=\s*(\d+)(.*)$", re.DOTALL)
 
 PROLOG = """
 from deepxde.optimizers import set_LBFGS_options
@@ -24,9 +25,9 @@ matplotlib.use('template')
 
 def transform(line, file_name):
     """Apply transformations to line."""
-    m = re.match(EPOCHS_RE, line)
+    m = re.match(ITERATIONS_RE, line)
     if m is not None:
-        line = m.expand(r"\1epochs=1\3")
+        line = m.expand(r"\1iterations=1\3")
 
     # Burgers_RAR.py has an additional convergence loop: force 1 single pass
     if file_name == "Burgers_RAR.py" and line.startswith("while"):
@@ -45,5 +46,42 @@ if __name__ == "__main__":
 
     print(PROLOG)
     with open(file_name, "r") as input:
-        for line in input:
-            sys.stdout.write(transform(line, file_name))
+        if file_name not in (
+            # this example uses skopt which is not maintained
+            # and uses deprecated numpy API
+            "Allen_Cahn.py",
+            # the below examples have different code for different
+            # backends
+            "Beltrami_flow.py",
+            "Helmholtz_Dirichlet_2d_HPO.py",
+            "Laplace_disk.py",
+            "Lotka_Volterra.py",
+            "Poisson_Dirichlet_1d.py",
+            "Poisson_periodic_1d.py",
+            "diffusion_1d_exactBC.py",
+            "diffusion_1d_resample.py",
+            "diffusion_1d.py",
+            "diffusion_reaction.py",
+            "fractional_diffusion_1d.py",
+            "fractional_Poisson_1d.py",
+            "fractional_Poisson_2d.py",
+            "fractional_Poisson_3d.py",
+            "ide.py",
+            "diffusion_1d_inverse.py",
+            "fractional_Poisson_1d_inverse.py",
+            "fractional_Poisson_2d_inverse.py",
+            "Poisson_Lshape.py",
+            "ode_system.py",
+            "Lorenz_inverse.py",
+            # gives error with tensorflow.compat.v1
+            "Volterra_IDE.py",
+            # the dataset is large and not included in repo
+            "antiderivative_unaligned.py",
+            "antiderivative_aligned.py",
+        ):
+            lines = input.readlines()
+            if dde.backend.get_preferred_backend() in lines[0].replace(",", "").replace(
+                '"""', ""
+            ).replace("\n", "").split(" "):
+                for line in lines:
+                    sys.stdout.write(transform(line, file_name))
