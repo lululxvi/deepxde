@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
-  deepxde:
+  import:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
