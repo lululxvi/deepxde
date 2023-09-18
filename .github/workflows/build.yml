@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 
 jobs:
-  build_with_tensorflow_v1:
+  backend_tensorflow_v1:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,7 +44,7 @@ jobs:
           make run_all_examples
           make clean
 
-  build_with_tensorflow:
+  backend_tensorflow:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -74,7 +74,7 @@ jobs:
           make run_all_examples
           make clean
 
-  build_with_pytorch:
+  backend_pytorch:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -104,7 +104,7 @@ jobs:
           make run_all_examples
           make clean
 
-  build_with_jax:
+  backend_jax:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -134,7 +134,7 @@ jobs:
           make run_all_examples
           make clean
 
-  build_with_paddle:
+  backend_paddle:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
