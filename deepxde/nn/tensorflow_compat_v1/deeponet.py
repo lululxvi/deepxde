@@ -158,11 +158,23 @@ class DeepONet(NN):
         strategy (str): "vanilla", "independent", "split_both", "split_branch" or "split_trunk".
             It makes sense to set in case of multiple outputs.
 
-            - Сhoose "vanilla" for classical implementation of DeepONet. Can not be used with num_outputs > 1.
-            - Сhoose "independent" to use num_outputs independent DeepONets, and each DeepONet outputs only one function.
-            - Сhoose "split_both" to split the outputs of both the branch net and the trunk net into num_outputs groups, and then the kth group outputs the kth solution.
-            - Сhoose "split_branch" to split the branch net and share the trunk net. The width of the last layer in the branch net should be equal to the one in the trunk net multiplied by the number of outputs.
-            - Сhoose "split_trunk" to split the trunk net and share the branch net. The width of the last layer in the trunk net should be equal to the one in the branch net multiplied by the number of outputs.
+            - vanilla
+            Classical implementation of DeepONet. Can not be used with num_outputs > 1.
+
+            - independent
+            Use num_outputs independent DeepONets, and each DeepONet outputs only one function.
+
+            - split_both
+            Split the outputs of both the branch net and the trunk net into num_outputs groups,
+            and then the kth group outputs the kth solution.
+
+            - split_branch
+            Split the branch net and share the trunk net. The width of the last layer in the branch net
+            should be equal to the one in the trunk net multiplied by the number of outputs.
+
+            - split_trunk
+            Split the trunk net and share the branch net. The width of the last layer in the trunk net
+            should be equal to the one in the branch net multiplied by the number of outputs.
     """
 
     def __init__(
@@ -419,11 +431,23 @@ class DeepONetCartesianProd(NN):
         strategy (str): "vanilla", "independent", "split_both", "split_branch" or "split_trunk".
             It makes sense to set in case of multiple outputs.
 
-            - Сhoose "vanilla" for classical implementation of DeepONet. Can not be used with num_outputs > 1.
-            - Сhoose "independent" to use num_outputs independent DeepONets, and each DeepONet outputs only one function.
-            - Сhoose "split_both" to split the outputs of both the branch net and the trunk net into num_outputs groups, and then the kth group outputs the kth solution.
-            - Сhoose "split_branch" to split the branch net and share the trunk net. The width of the last layer in the branch net should be equal to the one in the trunk net multiplied by the number of outputs.
-            - Сhoose "split_trunk" to split the trunk net and share the branch net. The width of the last layer in the trunk net should be equal to the one in the branch net multiplied by the number of outputs.
+            - vanilla
+            Classical implementation of DeepONet. Can not be used with num_outputs > 1.
+
+            - independent
+            Use num_outputs independent DeepONets, and each DeepONet outputs only one function.
+
+            - split_both
+            Split the outputs of both the branch net and the trunk net into num_outputs groups,
+            and then the kth group outputs the kth solution.
+
+            - split_branch
+            Split the branch net and share the trunk net. The width of the last layer in the branch net
+            should be equal to the one in the trunk net multiplied by the number of outputs.
+
+            - split_trunk
+            Split the trunk net and share the branch net. The width of the last layer in the trunk net
+            should be equal to the one in the branch net multiplied by the number of outputs.
     """
 
     def __init__(
