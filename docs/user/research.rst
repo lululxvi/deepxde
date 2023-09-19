@@ -206,6 +206,7 @@ PINN
 #. Y\. Chen, L. Lu, G. Karniadakis, & L. Negro. `Physics-informed neural networks for inverse problems in nano-optics and metamaterials <https://doi.org/10.1364/OE.384875>`_. *Optics Express*, 28(8), 11618--11633, 2020.
 #. G\. Pang, L. Lu, & G. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019.
 #. D\. Zhang, L. Lu, L. Guo, & G. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
+#. S\. Song & H. Jin. `Identifying Constitutive Parameters for Complex Hyperelastic Solids using Physics-Informed Neural Networks <https://arxiv.org/pdf/2308.15640.pdf>`_. *arXiv preprint*, arXiv:2308.15640, 2023
 
 DeepONet
 --------
