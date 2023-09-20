@@ -116,7 +116,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 
 PINN
 ----
-
+#. S\. Song, & H. Jin. `Identifying constitutive parameters for complex hyperelastic solids using physics-informed neural networks <https://arxiv.org/abs/2308.15640>`_. *arXiv preprint arXiv:2308.15640*, 2023.
 #. Z\. Hao, J. Yao, C. Su, H. Su, Z. Wang, F. Lu, Z. Xia, Y. Zhang, S. Liu, L. Lu, & J. Zhu. `PINNacle: A comprehensive benchmark of physics-informed neural networks for solving PDEs <https://arxiv.org/abs/2306.08827>`_. *arXiv preprint arXiv:2306.08827*, 2023.
 #. S\. Alkhadhr, & M. Almekkawy. `Wave equation modeling via physics-informed neural networks: models of soft and hard constraints for initial and boundary conditions <https://www.mdpi.com/1424-8220/23/5/2792>`_. *Sensors*, 23(5), 2792, 2023.
 #. B\. Fan, E. Qiao, A. Jiao, Z. Gu, W. Li, & L. Lu. `Deep learning for solving and estimating dynamic macro-finance models <https://doi.org/10.48550/arXiv.2305.09783>`_. *arXiv preprint arXiv:2305.09783*, 2023.
