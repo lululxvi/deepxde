@@ -52,9 +52,11 @@ class BC(ABC):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
-        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
+        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)
+        if backend_name == "jax":
+            dydx = dydx[0]
         n = self.boundary_normal(X, beg, end, None)
-        return bkd.sum(dydx * n, 1, keepdims=True)
+        return bkd.sum(dydx[beg:end] * n, 1, keepdims=True)
 
     @abstractmethod
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -77,6 +79,8 @@ class DirichletBC(BC):
                 "DirichletBC function should return an array of shape N by 1 for each "
                 "component. Use argument 'component' for different output components."
             )
+        if backend_name == "jax":
+            outputs = outputs[0]
         return outputs[beg:end, self.component : self.component + 1] - values
 
 
@@ -100,9 +104,11 @@ class RobinBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
-            X[beg:end], outputs[beg:end]
-        )
+        normal_derivative = self.normal_derivative(X, inputs, outputs, beg, end)
+        if backend_name == "jax":
+            outputs = outputs[0]
+        values = self.func(X[beg:end], outputs[beg:end])
+        return normal_derivative - values
 
 
 class PeriodicBC(BC):
@@ -125,10 +131,14 @@ class PeriodicBC(BC):
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
+            if backend_name == "jax":
+                outputs = outputs[0]
             yleft = outputs[beg:mid, self.component : self.component + 1]
             yright = outputs[mid:end, self.component : self.component + 1]
         else:
             dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
+            if backend_name == "jax":
+                dydx = dydx[0]
             yleft = dydx[beg:mid]
             yright = dydx[mid:end]
         return yleft - yright
@@ -158,6 +168,8 @@ class OperatorBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        # User defined func is responsible for handling compatibility with the 
+        # desired backend, this allows sel.func to include dde.grad components.
         return self.func(inputs, outputs, X)[beg:end]
 
 
@@ -210,6 +222,8 @@ class PointSetBC:
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        if backend_name == "jax":
+            outputs = outputs[0]
         if self.batch_size is not None:
             if isinstance(self.component, numbers.Number):
                 return (
@@ -260,6 +274,8 @@ class PointSetOperatorBC:
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        # User defined func is responsible for handling compatibility with the 
+        # desired backend.
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
 
