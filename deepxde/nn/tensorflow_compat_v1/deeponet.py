@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 import numpy as np
 
 from .nn import NN
@@ -7,7 +9,6 @@ from .. import regularizers
 from ... import config
 from ...backend import tf
 from ...utils import timing
-from abc import ABC, abstractmethod
 
 
 class DeepONetStrategy(ABC):
@@ -42,7 +43,7 @@ class VanillaStrategy(DeepONetStrategy):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        y = self.net.merge(branch, trunk)
+        y = self.net.merge_branch_trunk(branch, trunk)
         return y
 
 
@@ -85,7 +86,7 @@ class SplitBothStrategy(DeepONetStrategy):
         trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
         ys = []
         for i in range(self.net.num_outputs):
-            y = self.net.merge(branch_groups[i], trunk_groups[i])
+            y = self.net.merge_branch_trunk(branch_groups[i], trunk_groups[i])
             ys.append(y)
         return self.net.concatenate_outputs(ys)
 
@@ -108,7 +109,7 @@ class SplitBranchStrategy(DeepONetStrategy):
         )
         ys = []
         for i in range(self.net.num_outputs):
-            y = self.net.merge(branch_groups[i], trunk)
+            y = self.net.merge_branch_trunk(branch_groups[i], trunk)
             ys.append(y)
         return self.net.concatenate_outputs(ys)
 
@@ -129,7 +130,7 @@ class SplitTrunkStrategy(DeepONetStrategy):
         trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
         ys = []
         for i in range(self.net.num_outputs):
-            y = self.net.merge(branch, trunk_groups[i])
+            y = self.net.merge_branch_trunk(branch, trunk_groups[i])
             ys.append(y)
         return self.net.concatenate_outputs(ys)
 
@@ -558,7 +559,7 @@ class DeepONetCartesianProd(NN):
             )
         return y_loc
 
-    def merge(self, branch, trunk):
+    def merge_branch_trunk(self, branch, trunk):
         y = tf.einsum("bi,ni->bn", branch, trunk)
         # Add bias
         b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
