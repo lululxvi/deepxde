@@ -33,4 +33,6 @@ class IC:
                 "IC function should return an array of shape N by 1 for each component."
                 "Use argument 'component' for different output components."
             )
+        if bkd.backend_name == "jax":
+            outputs = outputs[0]
         return outputs[beg:end, self.component : self.component + 1] - values
