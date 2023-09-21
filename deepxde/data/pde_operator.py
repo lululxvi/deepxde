@@ -80,13 +80,19 @@ class PDEOperator(Data):
         bcs_start = np.cumsum([0] + self.num_bcs)
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
+
+        outputs_pdeoperator = outputs
+        if bkd.backend_name == "jax":
+            # JAX requries pure functions
+            outputs_pdeoperator = (outputs, aux[0])        
+        
         for i, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
             error = bc.error(
                 self.train_x[1],
                 inputs[1],
-                outputs,
+                outputs_pdeoperator,
                 beg,
                 end,
                 aux_var=self.train_aux_vars,
