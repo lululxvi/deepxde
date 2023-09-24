@@ -52,11 +52,11 @@ class BC(ABC):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
-        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
+        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)
         if backend_name == "jax":
             dydx = dydx[0]
         n = self.boundary_normal(X, beg, end, None)
-        return bkd.sum(dydx * n, 1, keepdims=True)
+        return bkd.sum(dydx[beg:end] * n, 1, keepdims=True)
 
     @abstractmethod
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
