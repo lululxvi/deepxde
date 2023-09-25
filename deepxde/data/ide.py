@@ -57,9 +57,14 @@ class IDE(PDE):
         f = [fi[bcs_start[-1] :] for fi in f]
         losses = [loss_fn(bkd.zeros_like(fi), fi) for fi in f]
 
+        outputs_ide = outputs
+        if bkd.backend_name == "jax":
+            # JAX requires pure functions
+            outputs_ide = (outputs, aux[0])
+
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
-            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            error = bc.error(self.train_x, inputs, outputs_ide, beg, end)
             losses.append(loss_fn(bkd.zeros_like(error), error))
         return losses
 
