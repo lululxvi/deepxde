@@ -37,6 +37,7 @@ classifiers = [
 dependencies = [
     "matplotlib",
     "numpy",
+    "orbax-checkpoint",
     "scikit-learn",
     "scikit-optimize>=0.9.0",
     "scipy",

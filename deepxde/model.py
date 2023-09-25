@@ -4,6 +4,7 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
+import orbax.checkpoint as ocp
 
 from . import config
 from . import display
@@ -1012,9 +1013,7 @@ class Model:
                 save_path += ".ckpt"
                 self.net.save_weights(save_path)
             elif backend_name == "jax":
-                # Lazy load Orbax to avoid a hard dependancy when using JAX
                 # TODO: identify a better solution that complies with PEP8 
-                import orbax.checkpoint as ocp
                 from flax.training import orbax_utils 
                 save_path += ".ckpt"
                 checkpoint = {
