@@ -262,7 +262,104 @@ class PointSetOperatorBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
+class DiscontinuityDirectionBC(BC):
+    """2D Discontinuity boundary condition to impose the difference of output between two borders in a given direction ('t' tangent or 'n' normal).
 
+    Compare the difference of the output on two different borders on the normal/tangent direction with values
+    uniform_boundary_points should be used for boundary collocation points to ensure both borders have the same numbers of points.
+    
+    The error is calculated as (border1-border2)-values
+    where "border1" is the output on the given direction (tangent or normal) on first given border.
+    "border2" the same on second given border, but using the opposite tangent/normal vector of the border.
+    and "values" is the given function
+    
+    Args:
+        geom: a 2D Polygon/Rectangle class geometry.
+        func: the target discontinuity between borders, evaluated on first border, e.g. giving a null function means no discontinuity is wanted.
+        on_boundary1: First border function.
+        on_boundary2: Second border function.
+        direction: direction of output to compare, "n" for normal direction, "t" for tangent
+    """
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="n"):
+        
+        super().__init__(geom, on_boundary2, component=0)
+        self.func = npfunc_range_autocache(utils.return_tensor(func))
+        
+        self.on_boundary1 = lambda x, on: np.array(
+            [on_boundary1(x[i], on[i]) for i in range(len(x))]
+        )
+        
+        self.on_boundary2 = lambda x, on: np.array(
+            [on_boundary2(x[i], on[i]) for i in range(len(x))]
+        )   
+        self.direction=direction
+
+    def filter1(self, X):
+        return X[self.on_boundary1(X, self.geom.on_boundary(X))]
+    
+    def filter2(self, X):
+        return X[self.on_boundary2(X, self.geom.on_boundary(X))]
+    
+    def collocation_points(self, X):
+        X1 = self.filter1(X)
+        X2 = self.filter2(X)
+        
+        #Flipping the order of X2 is necessary when dde.geometry.Polygon is used
+        if not self.geom.__class__.__name__=="Rectangle":
+            X2 = np.flip(X2, axis=0)
+        return np.vstack((X1, X2))
+    
+    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        mid = beg + (end - beg) // 2
+        
+        end1=np.copy(end)
+        beg1=np.copy(beg)
+        
+        
+        while mid-1-beg1<end1-1-mid:
+            end1-=1
+            print("sampled different number of points, omitted a point on second border")
+        while mid-1-beg1>end1-1-mid:
+            beg1+=1
+            print("sampled different number of points, omitted a point on first border")
+        values = self.func(X, beg1, mid, aux_var)
+        
+        if deepxde.icbc.boundary_conditions.bkd.ndim(values) == 2 and deepxde.icbc.boundary_conditions.bkd.shape(values)[1] != 1:
+            raise RuntimeError(
+                "BC function should return an array of shape N by 1 for each component"
+            )
+        
+        if self.direction=="n":
+            left_side=outputs[beg1:mid,  :]
+            right_side=outputs[mid:end1, :]
+        
+            left_n = self.boundary_normal(X, beg1, mid, None)
+            right_n = self.boundary_normal(X, mid, end1, None)
+            
+            left_values  = deepxde.icbc.boundary_conditions.bkd.sum(left_side * left_n, 1, keepdims=True)
+            right_values = deepxde.icbc.boundary_conditions.bkd.sum(-right_side * right_n, 1, keepdims=True)
+
+            diff = right_values - left_values
+                
+        elif self.direction=="t":
+            #implemented for dim=2 where tangent vector is [n[1],-n[0]]
+            
+            left_side1=outputs[beg1:mid,  0:1]
+            left_side2=outputs[beg1:mid,  1:2]
+            
+            right_side1=outputs[mid:end1, 0:1]
+            right_side2=outputs[mid:end1, 1:2]
+
+            left_n = self.boundary_normal(X, beg1, mid, None)            
+            right_n = self.boundary_normal(X, mid, end1, None)
+            
+            left_values  = deepxde.icbc.boundary_conditions.bkd.sum(left_side1 * left_n[:,1:2], 1, keepdims=True)+deepxde.icbc.boundary_conditions.bkd.sum(-left_side2 * left_n[:,0:1], 1, keepdims=True)       
+            right_values = deepxde.icbc.boundary_conditions.bkd.sum(-right_side1 * right_n[:,1:2], 1, keepdims=True)+deepxde.icbc.boundary_conditions.bkd.sum(right_side2 * right_n[:,0:1], 1, keepdims=True)
+
+            diff = left_values-right_values
+        
+        return  diff - values
+    
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
 
