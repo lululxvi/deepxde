@@ -36,10 +36,13 @@ def boundary_bottom(x, on_boundary):
 def func(x):
     ux = np.cos(2 * np.pi * x[:, 0:1]) * np.sin(np.pi * x[:, 1:2])
     uy = np.sin(pi * x[:, 0:1]) * Q * x[:, 1:2] ** 4 / 4
-    
-    E_xx = np.diff(ux) / np.diff(x[:, 0:1])
-    E_yy = np.diff(uy) / np.diff(x[:, 1:2])
-    E_xy = 0.5 * (np.diff(ux) / np.diff(x[:, 1:2]) + np.diff(uy) / np.diff(x[:, 0:1]))
+
+    E_xx = -2 * np.pi * np.sin(2 * np.pi * x[:, 0:1]) * np.sin(np.pi * x[:, 1:2])
+    E_yy = np.sin(pi * x[:, 0:1]) * Q * x[:, 1:2] ** 3
+    E_xy = 0.5 * (
+        np.pi * np.cos(2 * np.pi * x[:, 0:1]) * np.cos(np.pi * x[:, 1:2])
+        + np.pi * np.cos(np.pi * x[:, 0:1]) * Q * x[:, 1:2] ** 4 / 4
+    )
 
     Sxx = E_xx * (2 * mu + lmbd) + E_yy * lmbd
     Syy = E_yy * (2 * mu + lmbd) + E_xx * lmbd
