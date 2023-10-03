@@ -119,7 +119,7 @@ Next, for better comparsion, we define a function which is the exact solution to
         Syy = E_yy * (2 * mu + lmbd) + E_xx * lmbd
         Sxy = 2 * E_xy * mu
 
-    return np.hstack((ux, uy, Sxx, Syy, Sxy))
+        return np.hstack((ux, uy, Sxx, Syy, Sxy))
 
 The displacement boundary conditions on the boundary are defined as follows.
 
