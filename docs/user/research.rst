@@ -108,6 +108,7 @@ DeepXDE has been used in
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
+  `Data Observatory Foundation <https://dataobservatory.net/>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
@@ -172,7 +173,7 @@ PINN
 #. A\. Ncube. `Investigating new computational approaches for solving black hole perturbation equations <https://ujcontent.uj.ac.za/view/pdfCoverPage?instCode=27UOJ_INST&filePid=136787410007691&download=true>`_. *Doctoral dissertation, University of Johannesburg*, 2022.
 #. C\. Garcıa-Cervera, M. Kessler, & F. Periago. `A first step towards controllability of partial differential equations via physics-informed neural networks <https://www.researchgate.net/profile/Francisco-Periago/publication/359524458_A_first_step_towards_controllability_of_partial_differential_equations_via_physics-informed_neural_networks/links/6242e24c8068956f3c56d679/A-first-step-towards-controllability-of-partial-differential-equations-via-physics-informed-neural-networks.pdf>`_. 2022.
 #. L\. Guo, H. Wu, X. Yu, & T. Zhou. `Monte Carlo PINNs: Deep learning approach for forward and inverse problems involving high dimensional fractional partial differential equations <https://arxiv.org/pdf/2203.08501.pdf>`_. *arXiv preprint arXiv:2203.08501*, 2022.
-#. P\. Escapil-Inchauspé, & G. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://arxiv.org/pdf/2205.06704.pdf>`_. *arXiv preprint arXiv:2205.06704*, 2022.
+#. P\. Escapil-Inchauspé, & G. A. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://doi.org/10.1016/j.neucom.2023.126826>`_. *Neurocomputing*, 126826, 2023.
 #. P\. Escapil-Inchauspé, & G. Ruz. `Physics-informed neural networks for operator equations with stochastic data <https://arxiv.org/abs/2211.10344>`_. *arXiv preprint arXiv:2211.10344*, 2022.
 #. H\. Xie, C. Zhai, L. Liu, & H. Yong. `A weighted first-order formulation for solving anisotropic diffusion equations with deep neural networks <https://arxiv.org/pdf/2205.06658.pdf>`_. *arXiv preprint arXiv:2205.06658*, 2022.
 #. Y\. Lu, G. Mei, & F. Piccialli.  `A deep learning approach for predicting two-dimensional soil consolidation using physics-informed neural networks (PINN) <https://arxiv.org/pdf/2205.05710.pdf>`_. *arXiv preprint arXiv:2205.05710*, 2022.
