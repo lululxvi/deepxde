@@ -334,7 +334,7 @@ class DeepONet(NN):
             )
         return y_loc
 
-    def merge(self, branch, trunk):
+    def merge_branch_trunk(self, branch, trunk):
         # Dot product
         y = tf.einsum("bi,bi->b", branch, trunk)
         y = tf.expand_dims(y, axis=1)
