@@ -38,7 +38,7 @@ and traction boundary conditions,
 
 .. math:: \sigma_{xx}(0, y)=0, \qquad \sigma_{xx}(1, y)=0, \qquad \sigma_{xx}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
 
-The parameters :math:`\lambda = 1,` :math:`\mu = 0.5,` and :math:`Q = 4.`
+We set parameters :math:`\lambda = 1,` :math:`\mu = 0.5,` and :math:`Q = 4.`
 
 The exact solution is :math:`u_x(x, y) = cos(2\pi x)sin(\pi y)` and :math:`u_y(x, y) = sin(\pi x)Qy^4/4.`
 
