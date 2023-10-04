@@ -40,7 +40,7 @@ with displacement boundary conditions
 
 and traction boundary conditions
 
-.. math:: \sigma_{xx}(0, y)=0, \qquad \sigma_{xx}(1, y)=0, \qquad \sigma_{xx}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
+.. math:: \sigma_{xx}(0, y)=0, \qquad \sigma_{xx}(1, y)=0, \qquad \sigma_{yy}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
 
 We set parameters :math:`\lambda = 1,` :math:`\mu = 0.5,` and :math:`Q = 4.`
 
