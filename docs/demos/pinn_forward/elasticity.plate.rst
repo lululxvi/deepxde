@@ -10,7 +10,7 @@ We will solve a 2D linear elasticity solid mechanic problem:
 
 	  \frac{\partial \sigma_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + f_y= 0, \qquad \Omega = [0, 1]^2,
 
-where the linear elastic constitutive model is defined as,
+where the linear elastic constitutive model is defined as
 
 .. math:: \sigma_{xx} = (\lambda + 2\mu)\epsilon_{xx} + \lambda\epsilon_{yy},
 
