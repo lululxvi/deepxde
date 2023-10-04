@@ -193,7 +193,7 @@ class DeepONet(NN):
         trainable_branch=True,
         trainable_trunk=True,
         num_outputs=1,
-        strategy="independent",
+        strategy="vanilla",
     ):
         super().__init__()
         if isinstance(trainable_trunk, (list, tuple)):
@@ -465,7 +465,7 @@ class DeepONetCartesianProd(NN):
         kernel_initializer,
         regularization=None,
         num_outputs=1,
-        strategy="independent",
+        strategy="vanilla",
     ):
         super().__init__()
         self.layer_size_func = layer_size_branch
