@@ -108,7 +108,7 @@ DeepXDE has been used in
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
-  `Data Observatory Foundation <https://dataobservatory.net/>`_,
+  `Data Observatory Foundation <https://dataobservatory.net>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
