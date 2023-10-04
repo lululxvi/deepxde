@@ -34,7 +34,7 @@ with displacement boundary conditions
 
 .. math::  u_y(0, y)=0, \qquad u_y(1, y)=0, \qquad u_x(x, 0)=u_y(x, 0) = 0, 
 
-and traction boundary conditions,
+and traction boundary conditions
 
 .. math:: \sigma_{xx}(0, y)=0, \qquad \sigma_{xx}(1, y)=0, \qquad \sigma_{xx}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
 
