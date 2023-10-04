@@ -18,7 +18,7 @@ where the linear elastic constitutive model is defined as
 
 	  \sigma_{xy} =  2\mu\epsilon_{xy},
 
-with kinematic relation,
+with kinematic relation
 
 .. math:: \epsilon_{xx} = \frac{\partial u_{x}}{\partial x}, \qquad
 	  \epsilon_{yy} = \frac{\partial u_{y}}{\partial y}, \qquad
