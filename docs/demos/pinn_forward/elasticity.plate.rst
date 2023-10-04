@@ -24,7 +24,7 @@ with kinematic relation
 	  \epsilon_{yy} = \frac{\partial u_{y}}{\partial y}, \qquad
           \epsilon_{xy} = \frac{1}{2}(\frac{\partial u_{x}}{\partial y} + \frac{\partial u_{y}}{\partial x}).
 
-The 2D square domain is subjected to body forces, 
+The 2D square domain is subjected to body forces: 
 
 .. math:: f_x = \lambda[4\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3] + \mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
 
