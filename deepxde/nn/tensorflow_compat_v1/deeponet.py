@@ -36,7 +36,11 @@ class DeepONetStrategy(ABC):
         pass
 
 
-class VanillaStrategy(DeepONetStrategy):
+class SingleOutputStrategy(DeepONetStrategy):
+    """
+    Single output build strategy is the standard build method.
+    """
+
     def build(self):
         branch, trunk = self._build_branch_and_trunk()
         if branch.shape[-1] != trunk.shape[-1]:
@@ -53,10 +57,10 @@ class IndependentStrategy(DeepONetStrategy):
     """
 
     def build(self):
-        vanilla_strategy = VanillaStrategy(self.net)
+        single_output_strategy = SingleOutputStrategy(self.net)
         ys = []
         for _ in range(self.net.num_outputs):
-            ys.append(vanilla_strategy.build())
+            ys.append(single_output_strategy.build())
         return self.net.concatenate_outputs(ys)
 
 
@@ -156,10 +160,10 @@ class DeepONet(NN):
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
         num_outputs (integer): number of outputs.
-        strategy (str): "vanilla", "independent", "split_both", "split_branch" or
+        multi_output_strategy (str) or None: None, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
-            - vanilla
+            - None
             Classical implementation of DeepONet. Can not be used with num_outputs > 1.
 
             - independent
@@ -193,7 +197,7 @@ class DeepONet(NN):
         trainable_branch=True,
         trainable_trunk=True,
         num_outputs=1,
-        strategy="vanilla",
+        multi_output_strategy=None,
     ):
         super().__init__()
         if isinstance(trainable_trunk, (list, tuple)):
@@ -223,19 +227,19 @@ class DeepONet(NN):
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
-            if strategy != "vanilla":
-                strategy = "vanilla"
-                print('Strategy is forcibly changed to "vanilla".')
-        elif strategy == "vanilla":
-            strategy = "independent"
-            print('Strategy is forcibly changed to "independent".')
-        self.strategy = {
+            if multi_output_strategy != None:
+                multi_output_strategy = None
+                print("multi_output_strategy is forcibly changed to None.")
+        elif multi_output_strategy == None:
+            multi_output_strategy = "independent"
+            print('multi_output_strategy is forcibly changed to "independent".')
+        self.multi_output_strategy = {
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
-            "vanilla": VanillaStrategy,
-        }.get(strategy, IndependentStrategy)(self)
+            None: SingleOutputStrategy,
+        }.get(multi_output_strategy, IndependentStrategy)(self)
 
     @property
     def inputs(self):
@@ -269,7 +273,7 @@ class DeepONet(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        self.y = self.strategy.build()
+        self.y = self.multi_output_strategy.build()
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
@@ -432,10 +436,10 @@ class DeepONetCartesianProd(NN):
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
         num_outputs (integer): number of outputs.
-        strategy (str): "vanilla", "independent", "split_both", "split_branch" or
+        multi_output_strategy (str) or None: None, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
-            - vanilla
+            - None
             Classical implementation of DeepONet. Can not be used with num_outputs > 1.
 
             - independent
@@ -465,7 +469,7 @@ class DeepONetCartesianProd(NN):
         kernel_initializer,
         regularization=None,
         num_outputs=1,
-        strategy="vanilla",
+        multi_output_strategy=None,
     ):
         super().__init__()
         self.layer_size_func = layer_size_branch
@@ -481,19 +485,19 @@ class DeepONetCartesianProd(NN):
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
-            if strategy != "vanilla":
-                strategy = "vanilla"
-                print('Strategy is forcibly changed to "vanilla".')
-        elif strategy == "vanilla":
-            strategy = "independent"
-            print('Strategy is forcibly changed to "independent".')
-        self.strategy = {
+            if multi_output_strategy != None:
+                multi_output_strategy = None
+                print("multi_output_strategy is forcibly changed to None.")
+        elif multi_output_strategy == None:
+            multi_output_strategy = "independent"
+            print('multi_output_strategy is forcibly changed to "independent".')
+        self.multi_output_strategy = {
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
-            "vanilla": VanillaStrategy,
-        }.get(strategy, IndependentStrategy)(self)
+            None: SingleOutputStrategy,
+        }.get(multi_output_strategy, IndependentStrategy)(self)
 
     @property
     def inputs(self):
@@ -514,7 +518,7 @@ class DeepONetCartesianProd(NN):
         self.X_loc = tf.placeholder(config.real(tf), [None, self.layer_size_loc[0]])
         self._inputs = [self.X_func, self.X_loc]
 
-        self.y = self.strategy.build()
+        self.y = self.multi_output_strategy.build()
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
