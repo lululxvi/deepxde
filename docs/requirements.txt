@@ -19,5 +19,5 @@ flax
 optax
 
 sphinx-copybutton
-protobuf==3.20.*
 sphinx-rtd-theme
+
