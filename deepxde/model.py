@@ -118,7 +118,6 @@ class Model:
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
-        self.losshistory.set_loss_weights(loss_weights)  # Check what it is for.
         self.loss_weights = loss_weights
         if external_trainable_variables is None:
             self.external_trainable_variables = []
@@ -1146,10 +1145,6 @@ class LossHistory:
         self.loss_train = []
         self.loss_test = []
         self.metrics_test = []
-        self.loss_weights = None
-
-    def set_loss_weights(self, loss_weights):
-        self.loss_weights = loss_weights
 
     def append(self, step, loss_train, loss_test, metrics_test):
         self.steps.append(step)
