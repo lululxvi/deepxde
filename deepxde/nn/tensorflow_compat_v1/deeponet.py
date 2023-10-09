@@ -227,10 +227,10 @@ class DeepONet(NN):
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
-            if multi_output_strategy != None:
+            if multi_output_strategy is not None:
                 multi_output_strategy = None
                 print("multi_output_strategy is forcibly changed to None.")
-        elif multi_output_strategy == None:
+        elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print('multi_output_strategy is forcibly changed to "independent".')
         self.multi_output_strategy = {
@@ -485,10 +485,10 @@ class DeepONetCartesianProd(NN):
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
-            if multi_output_strategy != None:
+            if multi_output_strategy is not None:
                 multi_output_strategy = None
                 print("multi_output_strategy is forcibly changed to None.")
-        elif multi_output_strategy == None:
+        elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print('multi_output_strategy is forcibly changed to "independent".')
         self.multi_output_strategy = {
