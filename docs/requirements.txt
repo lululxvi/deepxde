@@ -18,7 +18,6 @@ jax
 flax
 optax
 
-docutils<0.18  # https://github.com/readthedocs/readthedocs.org/issues/8616
 sphinx-copybutton
 protobuf==3.20.*
 sphinx-rtd-theme
