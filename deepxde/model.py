@@ -31,6 +31,7 @@ class Model:
 
         self.opt_name = None
         self.batch_size = None
+        self.loss_weights = None  
         self.callbacks = None
         self.metrics = None
         self.external_trainable_variables = []
