@@ -71,7 +71,7 @@ class SingleOutputStrategy(DeepONetStrategy):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        x = tf.einsum("bi,ni->bn", x_func, x_loc)
+        x = self.net.merge_branch_trunk(x_func, x_loc)
         # Add bias
         x += self.net.b
         if self.net._output_transform is not None:
@@ -136,7 +136,7 @@ class IndependentStrategy(DeepONetStrategy):
             # Trunk net to encode the domain of the output function
             x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
             # Dot product
-            x_i = tf.einsum("bi,ni->bn", x_func_i, x_loc_i)
+            x_i = self.net.merge_branch_trunk(x_func_i, x_loc_i)
             x_i += self.net.b[i]
             x.append(x_i)
 
@@ -207,7 +207,7 @@ class SplitStrategy(DeepONetStrategy):
             widths += width
             x_func_i = x_func[:, :widths][:, widths - width :]
             x_loc_i = x_loc[:, :widths][:, widths - width :]
-            x_i = tf.einsum("bi,ni->bn", x_func_i, x_loc_i)
+            x_i = self.net.merge_branch_trunk(x_func_i, x_loc_i)
             x_i += self.net.b[i]
             x.append(x_i)
         x = bkd.stack(x, 0)
@@ -265,7 +265,7 @@ class SplitBranchStrategy(DeepONetStrategy):
             # Branch net to encode the input function
             x_func_i = self.net.branch[i](x_func)
             # Dot product
-            x_i = tf.einsum("bi,ni->bn", x_func_i, x_loc)
+            x_i = self.net.merge_branch_trunk(x_func_i, x_loc)
             x_i += self.net.b[i]
             x.append(x_i)
 
@@ -325,13 +325,129 @@ class SplitTrunkStrategy(DeepONetStrategy):
             # Trunk net to encode the domain of the output function
             x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
             # Dot product
-            x_i = tf.einsum("bi,ni->bn", x_func, x_loc_i)
+            x_i = self.net.merge_branch_trunk(x_func, x_loc_i)
             x_i += self.net.b[i]
             x.append(x_i)
 
         x = bkd.stack(x, 0)
         if self.net._output_transform is not None:
             x = self.net._output_transform(inputs, x)
+
+        return x
+
+
+class DeepONet(NN):
+    """Deep operator network.
+
+    Args:
+        layer_sizes_branch: A list of integers as the width of a fully connected network,
+            or `(dim, f)` where `dim` is the input dimension and `f` is a network
+            function. The width of the last layer in the branch and trunk net should be
+            equal.
+        layer_sizes_trunk (list): A list of integers as the width of a fully connected
+            network.
+        activation: If `activation` is a ``string``, then the same activation is used in
+            both trunk and branch nets. If `activation` is a ``dict``, then the trunk
+            net uses the activation `activation["trunk"]`, and the branch net uses
+            `activation["branch"]`.
+        num_outputs (integer): number of outputs.
+        multi_output_strategy (str) or None: None, "independent", "split_both", "split_branch" or
+            "split_trunk". It makes sense to set in case of multiple outputs.
+
+            - None
+            Classical implementation of DeepONet. Can not be used with num_outputs > 1.
+
+            - independent
+            Use num_outputs independent DeepONets, and each DeepONet outputs only
+            one function.
+
+            - split_both
+            Split the outputs of both the branch net and the trunk net into num_outputs
+            groups, and then the kth group outputs the kth solution.
+
+            - split_branch
+            Split the branch net and share the trunk net. The width of the last layer
+            in the branch net should be equal to the one in the trunk net multiplied
+            by the number of outputs.
+
+            - split_trunk
+            Split the trunk net and share the branch net. The width of the last layer
+            in the trunk net should be equal to the one in the branch net multiplied
+            by the number of outputs.
+    """
+
+    def __init__(
+        self,
+        layer_sizes_branch,
+        layer_sizes_trunk,
+        activation,
+        kernel_initializer,
+        num_outputs=1,
+        multi_output_strategy=None,
+    ):
+        super().__init__()
+        if isinstance(activation, dict):
+            self.activation_branch = activation["branch"]
+            self.activation_trunk = activations.get(activation["trunk"])
+        else:
+            self.activation_branch = self.activation_trunk = activations.get(
+                activation
+            )
+        self.kernel_initializer = kernel_initializer
+        self.num_outputs = num_outputs
+        if self.num_outputs == 1:
+            if multi_output_strategy is not None:
+                multi_output_strategy = None
+                print("multi_output_strategy is forcibly changed to None.")
+        elif multi_output_strategy == None:
+            multi_output_strategy = "independent"
+            print(
+                'multi_output_strategy is forcibly changed to "independent".'
+            )
+        self.multi_output_strategy = {
+            "independent": IndependentStrategy,
+            "split": SplitStrategy,
+            "split_branch": SplitBranchStrategy,
+            "split_trunk": SplitTrunkStrategy,
+            None: SingleOutputStrategy,
+        }.get(multi_output_strategy, IndependentStrategy)(self)
+
+        self.branch, self.trunk = self.multi_output_strategy.build(
+            layer_sizes_branch, layer_sizes_trunk
+        )
+
+        self.b = []
+        for i in range(self.num_outputs):
+            self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
+
+    def build_branch_net(self, layer_sizes_branch):
+        if callable(layer_sizes_branch[1]):
+            # User-defined network
+            branch = layer_sizes_branch[1]
+        else:
+            # Fully connected network
+            branch = FNN(
+                layer_sizes_branch,
+                self.activation_branch,
+                self.kernel_initializer,
+            )
+        return branch
+
+    def build_trunk_net(self, layer_sizes_trunk):
+        trunk = FNN(
+            layer_sizes_trunk,
+            self.activation_trunk,
+            self.kernel_initializer,
+        )
+        return trunk
+
+    def merge_branch_trunk(self, x_func, x_loc):
+        y = tf.einsum("bi,bi->b", x_func, x_loc)
+        y = tf.expand_dims(y, axis=1)
+        return y
+
+    def call(self, inputs, training=False):
+        x = self.multi_output_strategy.call(inputs, training)
 
         return x
 
@@ -444,6 +560,10 @@ class DeepONetCartesianProd(NN):
             regularization=self.regularization,
         )
         return trunk
+
+    def merge_branch_trunk(self, x_func, x_loc):
+        y = tf.einsum("bi,bi->b", x_func, x_loc)
+        return y
 
     def call(self, inputs, training=False):
         x = self.multi_output_strategy.call(inputs, training)
