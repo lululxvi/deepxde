@@ -562,7 +562,7 @@ class DeepONetCartesianProd(NN):
         return trunk
 
     def merge_branch_trunk(self, x_func, x_loc):
-        y = tf.einsum("bi,bi->b", x_func, x_loc)
+        y = tf.einsum("bi,ni->bn", x_func, x_loc)
         return y
 
     def call(self, inputs, training=False):
