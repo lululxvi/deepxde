@@ -103,6 +103,7 @@ DeepXDE has been used in
   `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai>`_,
   `Erich Schmid Institute of Materials Science <https://www.oeaw.ac.at/esi/erich-schmid-institute>`_,
   `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org>`_,
+  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_,
   `Data Observatory Foundation <https://dataobservatory.net>`_,
   `Fraunhofer Institute for Integrated Systems and Device Technology IISB <https://www.iisb.fraunhofer.de>`_
 - industry, e.g.,
