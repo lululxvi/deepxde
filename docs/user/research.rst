@@ -103,12 +103,12 @@ DeepXDE has been used in
   `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai>`_,
   `Erich Schmid Institute of Materials Science <https://www.oeaw.ac.at/esi/erich-schmid-institute>`_,
   `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org>`_,
+  `Data Observatory Foundation <https://dataobservatory.net>`_,
   `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
-  `Data Observatory Foundation <https://dataobservatory.net>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
