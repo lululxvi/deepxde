@@ -35,7 +35,8 @@ The 2D square domain is subjected to body forces:
 
 with displacement boundary conditions
 
-.. math::  u_y(0, y)=0, \quad u_y(1, y)=0, \quad u_x(x, 0)=u_y(x, 0) = 0, 
+.. math:: u_x(x, 0) = u_x(x, 1) = 0,
+.. math:: u_y(0, y) = u_y(1, y) = u_y(x, 0) = 0, 
 
 and traction boundary conditions
 
