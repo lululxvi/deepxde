@@ -31,7 +31,7 @@ class Model:
 
         self.opt_name = None
         self.batch_size = None
-        self.loss_weights = None  
+        self.loss_weights = None
         self.callbacks = None
         self.metrics = None
         self.external_trainable_variables = []
@@ -367,6 +367,8 @@ class Model:
 
     def _compile_jax(self, lr, loss_fn, decay):
         """jax"""
+        if self.loss_weights is not None:
+            raise NotImplementedError("Loss weights are not supported for backend jax.")
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
