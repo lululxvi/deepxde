@@ -6,8 +6,8 @@ Problem setup
 
 We will solve a 2D linear elasticity solid mechanic problem:
 
-.. math:: \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \sigma_{xy}}{\partial y} + f_x= 0, \quad
-\frac{\partial \sigma_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + f_y= 0, 
+.. math:: \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \sigma_{xy}}{\partial y} + f_x= 0, \quad 
+          \frac{\partial \sigma_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + f_y= 0, 
 
           x \in [-1, 1], \quad y \in [0, 1],
 
@@ -27,11 +27,11 @@ The 2D square domain is subjected to body forces:
 
 .. math:: f_x = \lambda[4\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3] + 
 
-\mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
+          \mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
 
           f_y = \lambda[-3sin(\pi x)Qy^2 + 2\pi^2sin(2\pi x) cos(\pi y)] + 
 	
-\mu[-6 sin(\pi x)Qy^2 + 2 \pi^2 sin(2\pi x)cos(\pi y) + \pi^2 sin(\pi x)Qy^4/4],
+          \mu[-6 sin(\pi x)Qy^2 + 2 \pi^2 sin(2\pi x)cos(\pi y) + \pi^2 sin(\pi x)Qy^4/4],
 
 with displacement boundary conditions
 
@@ -39,7 +39,7 @@ with displacement boundary conditions
 
 and traction boundary conditions
 
-.. math:: \sigma_{xx}(0, y)=0, \qquad \sigma_{xx}(1, y)=0, \qquad \sigma_{yy}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
+.. math:: \sigma_{xx}(0, y)=0, \quad \sigma_{xx}(1, y)=0, \quad \sigma_{yy}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
 
 We set parameters :math:`\lambda = 1,` :math:`\mu = 0.5,` and :math:`Q = 4.`
 
