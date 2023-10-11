@@ -9,7 +9,7 @@ We will solve a 2D linear elasticity solid mechanic problem:
 .. math:: \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \sigma_{xy}}{\partial y} + f_x= 0, \quad 
           \frac{\partial \sigma_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + f_y= 0, 
 
-.. math:: x \in [-1, 1], \quad y \in [0, 1],
+.. math:: x \in [0, 1], \quad y \in [0, 1],
 
 where the linear elastic constitutive model is defined as
 
