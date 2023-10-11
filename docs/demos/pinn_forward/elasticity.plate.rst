@@ -9,7 +9,7 @@ We will solve a 2D linear elasticity solid mechanic problem:
 .. math:: \frac{\partial \sigma_{xx}}{\partial x} + \frac{\partial \sigma_{xy}}{\partial y} + f_x= 0, \quad 
           \frac{\partial \sigma_{xy}}{\partial x} + \frac{\partial \sigma_{yy}}{\partial y} + f_y= 0, 
 
-          x \in [-1, 1], \quad y \in [0, 1],
+.. math:: x \in [-1, 1], \quad y \in [0, 1],
 
 where the linear elastic constitutive model is defined as
 
@@ -27,11 +27,11 @@ The 2D square domain is subjected to body forces:
 
 .. math:: f_x = \lambda[4\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3] + 
 
-          \mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
+.. math:: \mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
 
-          f_y = \lambda[-3sin(\pi x)Qy^2 + 2\pi^2sin(2\pi x) cos(\pi y)] + 
+.. math:: f_y = \lambda[-3sin(\pi x)Qy^2 + 2\pi^2sin(2\pi x) cos(\pi y)] + 
 	
-          \mu[-6 sin(\pi x)Qy^2 + 2 \pi^2 sin(2\pi x)cos(\pi y) + \pi^2 sin(\pi x)Qy^4/4],
+.. math:: \mu[-6 sin(\pi x)Qy^2 + 2 \pi^2 sin(2\pi x)cos(\pi y) + \pi^2 sin(\pi x)Qy^4/4],
 
 with displacement boundary conditions
 
