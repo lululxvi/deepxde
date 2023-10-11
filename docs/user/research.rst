@@ -104,7 +104,7 @@ DeepXDE has been used in
   `Erich Schmid Institute of Materials Science <https://www.oeaw.ac.at/esi/erich-schmid-institute>`_,
   `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org>`_,
   `Data Observatory Foundation <https://dataobservatory.net>`_,
-  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_
+  `Fraunhofer Institute for Integrated Systems and Device Technology IISB <https://www.iisb.fraunhofer.de>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -119,6 +119,7 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. V\. Medvedev, A. Erdmann, & A. Rosskopf. `Modeling of near- and far-field diffraction from EUV absorbers using physics-informed neural networks <https://ieeexplore.ieee.org/abstract/document/10221390>`_. *Photonics & Electromagnetics Research Symposium (PIERS)*, 297-305, 2023.
 #. S\. Song, & H. Jin. `Identifying constitutive parameters for complex hyperelastic solids using physics-informed neural networks <https://arxiv.org/abs/2308.15640>`_. *arXiv preprint arXiv:2308.15640*, 2023.
 #. Z\. Hao, J. Yao, C. Su, H. Su, Z. Wang, F. Lu, Z. Xia, Y. Zhang, S. Liu, L. Lu, & J. Zhu. `PINNacle: A comprehensive benchmark of physics-informed neural networks for solving PDEs <https://arxiv.org/abs/2306.08827>`_. *arXiv preprint arXiv:2306.08827*, 2023.
 #. S\. Alkhadhr, & M. Almekkawy. `Wave equation modeling via physics-informed neural networks: models of soft and hard constraints for initial and boundary conditions <https://www.mdpi.com/1424-8220/23/5/2792>`_. *Sensors*, 23(5), 2792, 2023.
