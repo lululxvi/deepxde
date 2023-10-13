@@ -1,5 +1,6 @@
 import os
 
+# os.environ["DDEBACKEND"] = "tensorflow.combat.v1"
 os.environ["DDEBACKEND"] = "tensorflow"
 
 import deepxde as dde
@@ -29,7 +30,7 @@ Loss function from:
 
 def log_likelihood(y_true, model_output):
     # y_pred = model_output[0]
-    sigma_pred = model_output[1]
+    sigma_pred = model_output[:, :, 1]
 
     value = tf.math.reduce_mean(
         tf.math.log(2 * np.pi * tf.math.square(sigma_pred))
@@ -39,8 +40,8 @@ def log_likelihood(y_true, model_output):
 
 
 def my_MSE(y_true, model_output):
-    y_pred = model_output[0]
-    sigma_pred = model_output[1]
+    y_pred = model_output[:, :, 0]
+    sigma_pred = model_output[:, :, 1]
 
     value = tf.math.reduce_mean(
         tf.math.square(y_pred - y_true) / (tf.math.square(sigma_pred))
@@ -50,7 +51,7 @@ def my_MSE(y_true, model_output):
 
 
 def L2metric(y_true, y_pred):
-    return dde.metrics.mean_l2_relative_error(y_test, y_pred[0])
+    return dde.metrics.mean_l2_relative_error(y_test, y_pred[:, :, 0])
 
 
 # Choose a network
@@ -62,14 +63,14 @@ net = dde.nn.DeepONetCartesianProd(
     "relu",
     "Glorot normal",
     num_outputs=2,
-    multi_output_strategy="indepenent",
+    multi_output_strategy="independent",
 )
 
 
 def output_transform(inputs, outputs):
-    y_pred = outputs[0]
-    sigma_pred = tf.math.exp(outputs[1])
-    return tf.stack([y_pred, sigma_pred])
+    y_pred = outputs[:, :, 0]
+    sigma_pred = tf.math.exp(outputs[:, :, 1])
+    return tf.stack([y_pred, sigma_pred], 2)
 
 
 net.apply_output_transform(output_transform)
@@ -77,12 +78,14 @@ net.apply_output_transform(output_transform)
 # Define a Model
 model = dde.Model(data, net)
 
+
 # Compile and Train
+
 model.compile(
     "adam", lr=0.001, loss=[my_MSE, log_likelihood], metrics=[L2metric]
 )
 losshistory, train_state = model.train(iterations=10000)
-
+print(model.predict(X_test).shape)
 
 # Plot the loss trajectory
 dde.utils.plot_loss_history(losshistory)
