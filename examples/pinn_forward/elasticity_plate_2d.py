@@ -1,6 +1,6 @@
 """Backend supported: tensorflow.compat.v1, paddle
 
-Implementation of the  linear elasticity 2D example in paper https://www.sciencedirect.com/science/article/pii/S0045782521000773?casa_token=cqzZTCdxm9kAAAAA:FWwk9lkEaLJMUCq_m_ZY0J2YhZp-uA9_UdxS8DmUqTF-dz1BObM25uUGJKRbtkG-q1O-OAdhpQ.
+Implementation of the  linear elasticity 2D example in paper https://doi.org/10.1016/j.cma.2021.113741.
 References:
     https://github.com/sciann/sciann-applications/blob/master/SciANN-Elasticity/Elasticity-Forward.ipynb.
 """
