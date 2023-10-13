@@ -4,7 +4,6 @@ from .nn import NN
 from .. import activations
 from ... import config
 from ...backend import tf
-from ... import backend as bkd
 
 
 class DeepONetStrategy(ABC):
@@ -140,7 +139,7 @@ class IndependentStrategy(DeepONetStrategy):
             x_i += self.net.b[i]
             x.append(x_i)
 
-        x = bkd.stack(x, 0)
+        x = self.net.concatenate_outputs(x)
         if self.net._output_transform is not None:
             x = self.net._output_transform(inputs, x)
 
@@ -210,7 +209,8 @@ class SplitBothStrategy(DeepONetStrategy):
             x_i = self.net.merge_branch_trunk(x_func_i, x_loc_i)
             x_i += self.net.b[i]
             x.append(x_i)
-        x = bkd.stack(x, 0)
+
+        x = self.net.concatenate_outputs(x)
         if self.net._output_transform is not None:
             x = self.net._output_transform(inputs, x)
 
@@ -269,7 +269,7 @@ class SplitBranchStrategy(DeepONetStrategy):
             x_i += self.net.b[i]
             x.append(x_i)
 
-        x = bkd.stack(x, 0)
+        x = self.net.concatenate_outputs(x)
         if self.net._output_transform is not None:
             x = self.net._output_transform(inputs, x)
 
@@ -325,11 +325,11 @@ class SplitTrunkStrategy(DeepONetStrategy):
             # Trunk net to encode the domain of the output function
             x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
             # Dot product
-            x_i = self.net.merge_branch_trunk(x_func, x_loc)
+            x_i = self.net.merge_branch_trunk(x_func, x_loc_i)
             x_i += self.net.b[i]
             x.append(x_i)
 
-        x = bkd.stack(x, 0)
+        x = self.net.concatenate_outputs(x)
         if self.net._output_transform is not None:
             x = self.net._output_transform(inputs, x)
 
@@ -445,6 +445,10 @@ class DeepONet(NN):
         y = tf.einsum("bi,bi->b", x_func, x_loc)
         y = tf.expand_dims(y, axis=1)
         return y
+
+    @staticmethod
+    def concatenate_outputs(x):
+        return tf.concat(x, axis=1)
 
     def call(self, inputs, training=False):
         x = self.multi_output_strategy.call(inputs, training)
@@ -564,6 +568,10 @@ class DeepONetCartesianProd(NN):
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,ni->bn", x_func, x_loc)
         return y
+
+    @staticmethod
+    def concatenate_outputs(x):
+        return tf.stack(x, axis=2)
 
     def call(self, inputs, training=False):
         x = self.multi_output_strategy.call(inputs, training)
