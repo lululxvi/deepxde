@@ -147,7 +147,7 @@ class IndependentStrategy(DeepONetStrategy):
         return x
 
 
-class SplitStrategy(DeepONetStrategy):
+class SplitBothStrategy(DeepONetStrategy):
     """
     Split the outputs of both the branch net and the trunk net into n groups.
         Define desired widths in the last layer of the branch and trunk...
@@ -167,7 +167,7 @@ class SplitStrategy(DeepONetStrategy):
             and isinstance(layer_sizes_branch[-1], list)
         ):
             raise AssertionError(
-                "For split strategy, last layer must be a list of widths"
+                "For split both strategy, last layer must be a list of widths"
             )
         if len(layer_sizes_branch[-1]) != len(layer_sizes_trunk[-1]):
             raise AssertionError(
@@ -325,7 +325,7 @@ class SplitTrunkStrategy(DeepONetStrategy):
             # Trunk net to encode the domain of the output function
             x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
             # Dot product
-            x_i = self.net.merge_branch_trunk(x_func, x_loc_i)
+            x_i = self.net.merge_branch_trunk(x_func, x_loc)
             x_i += self.net.b[i]
             x.append(x_i)
 
@@ -406,7 +406,7 @@ class DeepONet(NN):
             )
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
-            "split": SplitStrategy,
+            "split": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
             None: SingleOutputStrategy,
