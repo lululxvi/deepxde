@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, pytorch"""
+"""Backend supported: pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,7 +27,7 @@ geom = dde.geometry.Interval(-1, 1)
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
 ob_x, ob_u = gen_traindata(10000)
 observe_u = dde.icbc.PointSetBC(ob_x, ob_u, component=0, batch_size=100)
-pde_resampler = dde.callbacks.PDEPointResampler()
+pde_resampler = dde.callbacks.PDEPointResampler(bc_points=True)
 
 data = dde.data.PDE(
     geom,
@@ -42,7 +42,7 @@ net = dde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", "Glorot uniform"
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[1, 100, 1000])
-losshistory, train_state = model.train(epochs=20000, callbacks=[pde_resampler])
+losshistory, train_state = model.train(iterations=20000, callbacks=[pde_resampler])
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # view results
@@ -57,7 +57,7 @@ plt.plot(x, utrue, "-", label="u_true")
 plt.plot(x, uhat, "--", label="u_NN")
 plt.legend()
 
-qtrue = -np.pi ** 2 * np.sin(np.pi * x)
+qtrue = -np.pi**2 * np.sin(np.pi * x)
 print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
 plt.figure()
 plt.plot(x, qtrue, "-", label="q_true")

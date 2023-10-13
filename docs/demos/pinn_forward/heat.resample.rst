@@ -110,7 +110,7 @@ We then train the model for 20000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=200000, callbacks=[pde_resampler])
+    losshistory, train_state = model.train(iterations=200000, callbacks=[pde_resampler])
     
 After we train the network using Adam, we continue to train the network using L-BFGS to achieve a smaller loss:
 

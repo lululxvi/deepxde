@@ -3,9 +3,10 @@ Research
 
 DeepXDE has been used in
 
-- > 70 universities, e.g.,
+- > 80 universities, e.g.,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
+  `California Institute of Technology <https://www.caltech.edu>`_,
   `University of California, Berkeley <https://www.berkeley.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
   `University of Pennsylvania <https://www.upenn.edu>`_,
@@ -102,7 +103,9 @@ DeepXDE has been used in
   `Zienkiewicz Institute for Modelling, Data and AI <https://www.swansea.ac.uk/science-and-engineering/research/zienkiewicz-institute-for-modelling-data-ai>`_,
   `Erich Schmid Institute of Materials Science <https://www.oeaw.ac.at/esi/erich-schmid-institute>`_,
   `Athinoula A. Martinos Center for Biomedical Imaging <https://www.martinos.org>`_,
-  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_
+  `Friedrich-Alexander-Universität Erlangen-Nürnberg Research Center for Mathematics of Data <https://mod.fau.eu>`_,
+  `Data Observatory Foundation <https://dataobservatory.net>`_,
+  `Fraunhofer Institute for Integrated Systems and Device Technology IISB <https://www.iisb.fraunhofer.de>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -117,6 +120,8 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
+#. V\. Medvedev, A. Erdmann, & A. Rosskopf. `Modeling of near- and far-field diffraction from EUV absorbers using physics-informed neural networks <https://ieeexplore.ieee.org/abstract/document/10221390>`_. *Photonics & Electromagnetics Research Symposium (PIERS)*, 297-305, 2023.
+#. S\. Song, & H. Jin. `Identifying constitutive parameters for complex hyperelastic solids using physics-informed neural networks <https://arxiv.org/abs/2308.15640>`_. *arXiv preprint arXiv:2308.15640*, 2023.
 #. Z\. Hao, J. Yao, C. Su, H. Su, Z. Wang, F. Lu, Z. Xia, Y. Zhang, S. Liu, L. Lu, & J. Zhu. `PINNacle: A comprehensive benchmark of physics-informed neural networks for solving PDEs <https://arxiv.org/abs/2306.08827>`_. *arXiv preprint arXiv:2306.08827*, 2023.
 #. S\. Alkhadhr, & M. Almekkawy. `Wave equation modeling via physics-informed neural networks: models of soft and hard constraints for initial and boundary conditions <https://www.mdpi.com/1424-8220/23/5/2792>`_. *Sensors*, 23(5), 2792, 2023.
 #. B\. Fan, E. Qiao, A. Jiao, Z. Gu, W. Li, & L. Lu. `Deep learning for solving and estimating dynamic macro-finance models <https://doi.org/10.48550/arXiv.2305.09783>`_. *arXiv preprint arXiv:2305.09783*, 2023.
@@ -170,7 +175,7 @@ PINN
 #. A\. Ncube. `Investigating new computational approaches for solving black hole perturbation equations <https://ujcontent.uj.ac.za/view/pdfCoverPage?instCode=27UOJ_INST&filePid=136787410007691&download=true>`_. *Doctoral dissertation, University of Johannesburg*, 2022.
 #. C\. Garcıa-Cervera, M. Kessler, & F. Periago. `A first step towards controllability of partial differential equations via physics-informed neural networks <https://www.researchgate.net/profile/Francisco-Periago/publication/359524458_A_first_step_towards_controllability_of_partial_differential_equations_via_physics-informed_neural_networks/links/6242e24c8068956f3c56d679/A-first-step-towards-controllability-of-partial-differential-equations-via-physics-informed-neural-networks.pdf>`_. 2022.
 #. L\. Guo, H. Wu, X. Yu, & T. Zhou. `Monte Carlo PINNs: Deep learning approach for forward and inverse problems involving high dimensional fractional partial differential equations <https://arxiv.org/pdf/2203.08501.pdf>`_. *arXiv preprint arXiv:2203.08501*, 2022.
-#. P\. Escapil-Inchauspé, & G. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://arxiv.org/pdf/2205.06704.pdf>`_. *arXiv preprint arXiv:2205.06704*, 2022.
+#. P\. Escapil-Inchauspé, & G. A. Ruz. `Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems <https://doi.org/10.1016/j.neucom.2023.126826>`_. *Neurocomputing*, 126826, 2023.
 #. P\. Escapil-Inchauspé, & G. Ruz. `Physics-informed neural networks for operator equations with stochastic data <https://arxiv.org/abs/2211.10344>`_. *arXiv preprint arXiv:2211.10344*, 2022.
 #. H\. Xie, C. Zhai, L. Liu, & H. Yong. `A weighted first-order formulation for solving anisotropic diffusion equations with deep neural networks <https://arxiv.org/pdf/2205.06658.pdf>`_. *arXiv preprint arXiv:2205.06658*, 2022.
 #. Y\. Lu, G. Mei, & F. Piccialli.  `A deep learning approach for predicting two-dimensional soil consolidation using physics-informed neural networks (PINN) <https://arxiv.org/pdf/2205.05710.pdf>`_. *arXiv preprint arXiv:2205.05710*, 2022.
@@ -210,7 +215,7 @@ PINN
 DeepONet
 --------
 
-#. M\. Zhu, S. Feng, Y. Lin, & L. Lu. `Fourier-DeepONet: Fourier-enhanced deep operator networks for full waveform inversion with improved accuracy, generalizability, and robustness <https://arxiv.org/abs/2305.17289>`_. *arXiv preprint arXiv:2305.17289*, 2023.
+#. M\. Zhu, S. Feng, Y. Lin, & L. Lu. `Fourier-DeepONet: Fourier-enhanced deep operator networks for full waveform inversion with improved accuracy, generalizability, and robustness <https://doi.org/10.1016/j.cma.2023.116300>`_. *Computer Methods in Applied Mechanics and Engineering*, 416, 116300, 2023.
 #. S\. Mao, R. Dong, L. Lu, K. M. Yi, S. Wang, & P. Perdikaris. `PPDONet: Deep operator networks for fast prediction of steady-state solutions in disk-planet systems <https://iopscience.iop.org/article/10.3847/2041-8213/acd77f>`_. *The Astrophysical Journal Letters*, 950(2), L12, 2023.
 #. Z\. Jiang, M. Zhu, D. Li, Q. Li, Y. Yuan, & L. Lu. `Fourier-MIONet: Fourier-enhanced multiple-input neural operators for multiphase modeling of geological carbon sequestration <https://arxiv.org/pdf/2303.04778.pdf>`_. *arXiv preprint arXiv:2303.04778*, 2023.
 #. S\. Wang, & P. Perdikaris. `Long-time integration of parametric evolution equations with physics-informed deeponets <https://www.sciencedirect.com/science/article/pii/S0021999122009184>`_. *Journal of Computational Physics*, 475, p.111855, 2023.

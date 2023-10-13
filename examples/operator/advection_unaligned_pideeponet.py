@@ -1,8 +1,30 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde.backend import tf
+
+if dde.backend.backend_name == "paddle":
+    import paddle
+
+    dim_x = 5
+    sin = paddle.sin
+    cos = paddle.cos
+    concat = paddle.concat
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    dim_x = 5
+    sin = torch.sin
+    cos = torch.cos
+    concat = torch.cat
+else:
+    from deepxde.backend import tf
+
+    dim_x = 2
+    sin = tf.sin
+    cos = tf.cos
+    concat = tf.concat
+
 
 # PDE
 def pde(x, y, v):
@@ -36,7 +58,7 @@ data = dde.data.PDEOperator(
 # Net
 net = dde.nn.DeepONet(
     [50, 128, 128, 128],
-    [2, 128, 128, 128],
+    [dim_x, 128, 128, 128],
     "tanh",
     "Glorot normal",
 )
@@ -44,17 +66,15 @@ net = dde.nn.DeepONet(
 
 def periodic(x):
     x, t = x[:, :1], x[:, 1:]
-    x *= 2 * np.pi
-    return tf.concat(
-        [tf.math.cos(x), tf.math.sin(x), tf.math.cos(2 * x), tf.math.sin(2 * x), t], 1
-    )
+    x = x * 2 * np.pi
+    return concat([cos(x), sin(x), cos(2 * x), sin(2 * x), t], 1)
 
 
 net.apply_feature_transform(periodic)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0005)
-losshistory, train_state = model.train(epochs=50000)
+losshistory, train_state = model.train(iterations=50000)
 dde.utils.plot_loss_history(losshistory)
 
 x = np.linspace(0, 1, num=100)

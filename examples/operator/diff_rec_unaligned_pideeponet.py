@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,7 +51,7 @@ net = dde.nn.DeepONet(
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0005)
-losshistory, train_state = model.train(epochs=50000)
+losshistory, train_state = model.train(iterations=50000)
 dde.utils.plot_loss_history(losshistory)
 
 func_feats = func_space.random(1)

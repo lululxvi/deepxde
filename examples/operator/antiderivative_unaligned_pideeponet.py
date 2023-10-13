@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1"""
+"""Backend supported: tensorflow.compat.v1, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,6 +30,7 @@ net = dde.nn.DeepONet(
     "Glorot normal",
 )
 
+
 # Hard constraint zero IC
 def zero_ic(inputs, outputs):
     return outputs * inputs[1]
@@ -39,7 +40,7 @@ net.apply_output_transform(zero_ic)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0005)
-losshistory, train_state = model.train(epochs=40000)
+losshistory, train_state = model.train(iterations=40000)
 
 dde.utils.plot_loss_history(losshistory)
 

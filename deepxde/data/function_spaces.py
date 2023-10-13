@@ -85,13 +85,13 @@ class PowerSeries(FunctionSpace):
         self.M = M
 
     def random(self, size):
-        return 2 * self.M * np.random.rand(size, self.N) - self.M
+        return 2 * self.M * np.random.rand(size, self.N).astype(config.real(np)) - self.M
 
     def eval_one(self, feature, x):
         return np.dot(feature, x ** np.arange(self.N))
 
     def eval_batch(self, features, xs):
-        mat = np.ones((self.N, len(xs)))
+        mat = np.ones((self.N, len(xs)), dtype=config.real(np))
         for i in range(1, self.N):
             mat[i] = np.ravel(xs**i)
         return np.dot(features, mat)
@@ -120,7 +120,7 @@ class Chebyshev(FunctionSpace):
         return np.polynomial.chebyshev.chebval(2 * x - 1, feature)
 
     def eval_batch(self, features, xs):
-        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T)
+        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T).astype(config.real(np))
 
 
 class GRF(FunctionSpace):
@@ -218,14 +218,14 @@ class GRF_KL(FunctionSpace):
         return np.array([np.ravel(f(sensors)) for f in self.eigfun])
 
     def random(self, size):
-        return np.random.randn(size, self.num_eig)
+        return np.random.randn(size, self.num_eig).astype(config.real(np))
 
     def eval_one(self, feature, x):
         eigfun = [f(x) for f in self.eigfun]
         return np.sum(eigfun * feature)
 
     def eval_batch(self, features, xs):
-        eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun])
+        eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun], dtype=config.real(np))
         return np.dot(features, eigfun)
 
 
@@ -287,7 +287,7 @@ class GRF2D(FunctionSpace):
         points = (self.x, self.y)
         ys = np.reshape(features, (-1, self.N, self.N))
         res = map(lambda y: interpolate.interpn(points, y, xs, method=self.interp), ys)
-        return np.vstack(list(res))
+        return np.vstack(list(res)).astype(config.real(np))
 
 
 def wasserstein2(space1, space2):
