@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, paddle
+"""Backend supported: pytorch
 
 Implementation of the linear elasticity 2D example in paper https://doi.org/10.1016/j.cma.2021.113741.
 References:
