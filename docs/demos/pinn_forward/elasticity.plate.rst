@@ -25,15 +25,10 @@ with kinematic relation
 
 The 2D square domain is subjected to body forces: 
 
-.. math:: 
-   :nowrap:
-
-    \\begin{eqnarray}
-    f_x = & \lambda[4\pi^2\cos(2\pi x)\sin(\pi y) - \pi \cos(\pi x)Qy^3] \\\\
-        + & \mu[9\pi^2\cos(2\pi x)sin(\pi y) - \pi \cos(\pi x)Qy^3], \\\\
-    f_y = & \lambda[-3\sin(\pi x)Qy^2 + 2\pi^2\sin(2\pi x) \cos(\pi y)] \\\\
-        + & \mu[-6 \sin(\pi x)Qy^2 + 2 \pi^2 \sin(2\pi x)\cos(\pi y) + \pi^2 \sin(\pi x)Qy^4/4],
-    \\end{eqnarray}    
+.. math:: f_x = \lambda[4\pi^2\cos(2\pi x)\sin(\pi y) - \pi \cos(\pi x)Qy^3]
+.. math::     + \mu[9\pi^2\cos(2\pi x)sin(\pi y) - \pi \cos(\pi x)Qy^3],
+.. math:: f_y = \lambda[-3\sin(\pi x)Qy^2 + 2\pi^2\sin(2\pi x) \cos(\pi y)]
+.. math::     + \mu[-6 \sin(\pi x)Qy^2 + 2 \pi^2 \sin(2\pi x)\cos(\pi y) + \pi^2 \sin(\pi x)Qy^4/4],   
 
 with displacement boundary conditions
 
