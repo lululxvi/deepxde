@@ -27,7 +27,7 @@ The 2D square domain is subjected to body forces:
 
 .. math:: f_x = \lambda[4\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3] + 
 
-.. math:: \mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
+.. math:: +\mu[9\pi^2cos(2\pi x)sin(\pi y) - \pi cos(\pi x)Qy^3],
 
 .. math:: f_y = \lambda[-3sin(\pi x)Qy^2 + 2\pi^2sin(2\pi x) cos(\pi y)] + 
 	
