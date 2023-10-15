@@ -26,14 +26,14 @@ with kinematic relation
 The 2D square domain is subjected to body forces: 
 
 .. math:: 
+   :nowrap:
 
+    \\begin{eqnarray}
     f_x = & \lambda[4\pi^2\cos(2\pi x)\sin(\pi y) - \pi \cos(\pi x)Qy^3] \\\\
-
-          & +\mu[9\pi^2\cos(2\pi x)sin(\pi y) - \pi \cos(\pi x)Qy^3],
-
+        + & \mu[9\pi^2\cos(2\pi x)sin(\pi y) - \pi \cos(\pi x)Qy^3], \\\\
     f_y = & \lambda[-3\sin(\pi x)Qy^2 + 2\pi^2\sin(2\pi x) \cos(\pi y)] \\\\
-	
-          & +\mu[-6 \sin(\pi x)Qy^2 + 2 \pi^2 \sin(2\pi x)\cos(\pi y) + \pi^2 \sin(\pi x)Qy^4/4],
+        + & \mu[-6 \sin(\pi x)Qy^2 + 2 \pi^2 \sin(2\pi x)\cos(\pi y) + \pi^2 \sin(\pi x)Qy^4/4],
+    \\end{eqnarray}    
 
 with displacement boundary conditions
 
@@ -42,7 +42,7 @@ with displacement boundary conditions
 
 and traction boundary conditions
 
-.. math:: \sigma_{xx}(0, y)=0, \quad \sigma_{xx}(1, y)=0, \quad \sigma_{yy}(x, 1)=(\lambda + 2\mu)Qsin(\pi x). 
+.. math:: \sigma_{xx}(0, y)=0, \quad \sigma_{xx}(1, y)=0, \quad \sigma_{yy}(x, 1)=(\lambda + 2\mu)Q\sin(\pi x). 
 
 We set parameters :math:`\lambda = 1,` :math:`\mu = 0.5,` and :math:`Q = 4.`
 
@@ -240,7 +240,7 @@ Now, we have specified the geometry, PDE residuals, and boundary conditions. We 
 
 The number 500 is the number of training residual points sampled inside the domain, and the number 500 is the number of training points sampled on the boundary. The argument ``solution=func`` is the reference solution to compute the error of our solution, and can be ignored if we don't have a reference solution. We use 100 residual points for testing the PDE residual.
 
-Next, we choose the network. Here, we use 5 fully connected independent neural network of depth 5 (i.e., 4 hidden layers) and width 40:
+Next, we choose the network. Here, we use 5 fully connected independent neural networks of depth 5 (i.e., 4 hidden layers) and width 40:
 
 .. code-block:: python
 
