@@ -148,7 +148,7 @@ Similarly, the traction boundary conditions are defined as,
         component=3,
     )
 
-Next, we define the body forces,
+Next, we define the body forces
 
 .. code-block:: python
 
