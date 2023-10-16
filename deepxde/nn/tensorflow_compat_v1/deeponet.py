@@ -1,3 +1,5 @@
+__all__ = ["DeepONet", "DeepONetCartesianProd"]
+
 from abc import ABC, abstractmethod
 
 import numpy as np
