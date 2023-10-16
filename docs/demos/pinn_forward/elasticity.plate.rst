@@ -56,7 +56,7 @@ First, the DeepXDE, NumPy (``np``) and PyTorch (``torch``) modules are imported:
 
     import deepxde as dde
     import numpy as np
-    from deepxde.backend import torch
+    import torch
 
 
 We begin by defining the general parameters for the problem.
