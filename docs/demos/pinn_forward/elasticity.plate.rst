@@ -262,5 +262,5 @@ We then train the model for 5000 iterations:
 Complete code
 --------------
 
-.. literalinclude:: ../../../examples/pinn_forward/elasticity_plate_2d.py
+.. literalinclude:: ../../../examples/pinn_forward/elasticity_plate.py
   :language: python
