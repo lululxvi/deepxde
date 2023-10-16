@@ -406,7 +406,7 @@ class DeepONet(NN):
             )
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
-            "split": SplitBothStrategy,
+            "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
             None: SingleOutputStrategy,
@@ -528,7 +528,7 @@ class DeepONetCartesianProd(NN):
             )
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
-            "split": SplitBothStrategy,
+            "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
             None: SingleOutputStrategy,
