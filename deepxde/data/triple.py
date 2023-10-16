@@ -33,15 +33,9 @@ class Triple(Data):
         if isinstance(loss_fn, list):
             losses = []
             for i in range(len(loss_fn)):
-                if get_num_args(loss_fn[i]) == 2:
-                    losses.append(loss_fn[i](targets, outputs))
-                if get_num_args(loss_fn[i]) == 3:
-                    losses.append(loss_fn[i](targets, outputs, inputs))
+                losses.append(loss_fn[i](targets, outputs))
             return losses
-        if get_num_args(loss_fn) == 2:
-            return loss_fn(targets, outputs)
-        if get_num_args(loss_fn) == 3:
-            return loss_fn(targets, outputs, inputs)
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
