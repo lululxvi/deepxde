@@ -3,9 +3,7 @@
 __all__ = [
     "DeepONet",
     "DeepONetCartesianProd",
-    "DeepONetStrategy",
     "FNN",
-    "IndependentStrategy",
     "MfNN",
     "MIONet",
     "MIONetCartesianProd",
@@ -13,23 +11,10 @@ __all__ = [
     "NN",
     "PFNN",
     "ResNet",
-    "SingleOutputStrategy",
-    "SplitBothStrategy",
-    "SplitBranchStrategy",
-    "SplitTrunkStrategy",
     "STMsFFN",
 ]
 
-from .deeponet import (
-    DeepONet,
-    DeepONetCartesianProd,
-    DeepONetStrategy,
-    IndependentStrategy,
-    SingleOutputStrategy,
-    SplitBothStrategy,
-    SplitBranchStrategy,
-    SplitTrunkStrategy,
-)
+from .deeponet import DeepONet, DeepONetCartesianProd
 from .fnn import FNN, PFNN
 from .mfnn import MfNN
 from .mionet import MIONet, MIONetCartesianProd
