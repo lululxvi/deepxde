@@ -1,4 +1,4 @@
-"""Backend supported: pytorch
+"""Backend supported: pytorch, paddle
 
 Implementation of the linear elasticity 2D example in paper https://doi.org/10.1016/j.cma.2021.113741.
 References:
@@ -6,12 +6,22 @@ References:
 """
 import deepxde as dde
 import numpy as np
-import torch
 
 lmbd = 1.0
 mu = 0.5
 Q = 4.0
-pi = torch.pi
+
+# Define function
+if dde.backend.backend_name == "pytorch":
+    import torch
+
+    sin = torch.sin
+    cos = torch.cos
+elif dde.backend.backend_name == "paddle":
+    import paddle
+
+    sin = paddle.sin
+    cos = paddle.cos
 
 geom = dde.geometry.Rectangle([0, 0], [1, 1])
 
@@ -35,10 +45,10 @@ def boundary_bottom(x, on_boundary):
 # Exact solutions
 def func(x):
     ux = np.cos(2 * np.pi * x[:, 0:1]) * np.sin(np.pi * x[:, 1:2])
-    uy = np.sin(pi * x[:, 0:1]) * Q * x[:, 1:2] ** 4 / 4
+    uy = np.sin(np.pi * x[:, 0:1]) * Q * x[:, 1:2] ** 4 / 4
 
     E_xx = -2 * np.pi * np.sin(2 * np.pi * x[:, 0:1]) * np.sin(np.pi * x[:, 1:2])
-    E_yy = np.sin(pi * x[:, 0:1]) * Q * x[:, 1:2] ** 3
+    E_yy = np.sin(np.pi * x[:, 0:1]) * Q * x[:, 1:2] ** 3
     E_xy = 0.5 * (
         np.pi * np.cos(2 * np.pi * x[:, 0:1]) * np.cos(np.pi * x[:, 1:2])
         + np.pi * np.cos(np.pi * x[:, 0:1]) * Q * x[:, 1:2] ** 4 / 4
@@ -60,7 +70,7 @@ sxx_left_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_left, component=2
 sxx_right_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_right, component=2)
 syy_top_bc = dde.icbc.DirichletBC(
     geom,
-    lambda x: (2 * mu + lmbd) * Q * np.sin(pi * x[:, 0:1]),
+    lambda x: (2 * mu + lmbd) * Q * np.sin(np.pi * x[:, 0:1]),
     boundary_top,
     component=3,
 )
@@ -70,15 +80,15 @@ def fx(x):
     return (
         -lmbd
         * (
-            4 * pi**2 * torch.cos(2 * pi * x[:, 0:1]) * torch.sin(pi * x[:, 1:2])
-            - Q * x[:, 1:2] ** 3 * pi * torch.cos(pi * x[:, 0:1])
+            4 * np.pi**2 * cos(2 * np.pi * x[:, 0:1]) * sin(np.pi * x[:, 1:2])
+            - Q * x[:, 1:2] ** 3 * np.pi * cos(np.pi * x[:, 0:1])
         )
         - mu
         * (
-            pi**2 * torch.cos(2 * pi * x[:, 0:1]) * torch.sin(pi * x[:, 1:2])
-            - Q * x[:, 1:2] ** 3 * pi * torch.cos(pi * x[:, 0:1])
+            np.pi**2 * cos(2 * np.pi * x[:, 0:1]) * sin(np.pi * x[:, 1:2])
+            - Q * x[:, 1:2] ** 3 * np.pi * cos(np.pi * x[:, 0:1])
         )
-        - 8 * mu * pi**2 * torch.cos(2 * pi * x[:, 0:1]) * torch.sin(pi * x[:, 1:2])
+        - 8 * mu * np.pi**2 * cos(2 * np.pi * x[:, 0:1]) * sin(np.pi * x[:, 1:2])
     )
 
 
@@ -86,15 +96,15 @@ def fy(x):
     return (
         lmbd
         * (
-            3 * Q * x[:, 1:2] ** 2 * torch.sin(pi * x[:, 0:1])
-            - 2 * pi**2 * torch.cos(pi * x[:, 1:2]) * torch.sin(2 * pi * x[:, 0:1])
+            3 * Q * x[:, 1:2] ** 2 * sin(np.pi * x[:, 0:1])
+            - 2 * np.pi**2 * cos(np.pi * x[:, 1:2]) * sin(2 * np.pi * x[:, 0:1])
         )
         - mu
         * (
-            2 * pi**2 * torch.cos(pi * x[:, 1:2]) * torch.sin(2 * pi * x[:, 0:1])
-            + (Q * x[:, 1:2] ** 4 * pi**2 * torch.sin(pi * x[:, 0:1])) / 4
+            2 * np.pi**2 * cos(np.pi * x[:, 1:2]) * sin(2 * np.pi * x[:, 0:1])
+            + (Q * x[:, 1:2] ** 4 * np.pi**2 * sin(np.pi * x[:, 0:1])) / 4
         )
-        + 6 * Q * mu * x[:, 1:2] ** 2 * torch.sin(pi * x[:, 0:1])
+        + 6 * Q * mu * x[:, 1:2] ** 2 * sin(np.pi * x[:, 0:1])
     )
 
 
