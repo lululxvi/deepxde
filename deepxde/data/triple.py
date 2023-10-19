@@ -82,11 +82,11 @@ class TripleCartesianProd(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if isinstance(loss_fn, list):
             losses = []
-            for i in range(len(loss_fn)):
-                if get_num_args(loss_fn[i]) == 2:
-                    losses.append(loss_fn[i](targets, outputs))
-                if get_num_args(loss_fn[i]) == 3:
-                    losses.append(loss_fn[i](targets, outputs, inputs))
+            for fn in loss_fn:
+                if get_num_args(fn) == 2:
+                    losses.append(fn(targets, outputs))
+                if get_num_args(fn) == 3:
+                    losses.append(fn(targets, outputs, inputs))
             return losses
         if get_num_args(loss_fn) == 2:
             return loss_fn(targets, outputs)
