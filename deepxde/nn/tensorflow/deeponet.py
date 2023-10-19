@@ -1,3 +1,5 @@
+__all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
+
 from abc import ABC
 from .fnn import FNN
 from .nn import NN
@@ -390,9 +392,7 @@ class DeepONet(NN):
             self.activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            self.activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
@@ -401,9 +401,7 @@ class DeepONet(NN):
                 print("multi_output_strategy is forcibly changed to None.")
         elif multi_output_strategy == None:
             multi_output_strategy = "independent"
-            print(
-                'multi_output_strategy is forcibly changed to "independent".'
-            )
+            print('multi_output_strategy is forcibly changed to "independent".')
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
@@ -511,9 +509,7 @@ class DeepONetCartesianProd(NN):
             self.activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            self.activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.regularization = regularization
         self.num_outputs = num_outputs
@@ -523,9 +519,7 @@ class DeepONetCartesianProd(NN):
                 print("multi_output_strategy is forcibly changed to None.")
         elif multi_output_strategy == None:
             multi_output_strategy = "independent"
-            print(
-                'multi_output_strategy is forcibly changed to "independent".'
-            )
+            print('multi_output_strategy is forcibly changed to "independent".')
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
@@ -618,9 +612,7 @@ class PODDeepONet(NN):
             activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            activation_branch = self.activation_trunk = activations.get(activation)
 
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -656,9 +648,7 @@ class PODDeepONet(NN):
             x = tf.einsum("bi,ni->bn", x_func, self.pod_basis)
         else:
             x_loc = self.activation_trunk(self.trunk(x_loc))
-            x = tf.einsum(
-                "bi,ni->bn", x_func, tf.concat((self.pod_basis, x_loc), 1)
-            )
+            x = tf.einsum("bi,ni->bn", x_func, tf.concat((self.pod_basis, x_loc), 1))
             x += self.b
 
         if self._output_transform is not None:

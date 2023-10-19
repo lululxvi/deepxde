@@ -98,9 +98,7 @@ class TripleCartesianProd(Data):
             return self.train_x, self.train_y
         if not isinstance(batch_size, (tuple, list)):
             indices = self.branch_sampler.get_next(batch_size)
-            return (self.train_x[0][indices], self.train_x[1]), self.train_y[
-                indices
-            ]
+            return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
         indices_branch = self.branch_sampler.get_next(batch_size[0])
         indices_trunk = self.trunk_sampler.get_next(batch_size[1])
         return (
