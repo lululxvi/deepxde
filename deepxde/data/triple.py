@@ -32,8 +32,8 @@ class Triple(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if isinstance(loss_fn, list):
             losses = []
-            for i in range(len(loss_fn)):
-                losses.append(loss_fn[i](targets, outputs))
+            for fn in loss_fn:
+                losses.append(fn(targets, outputs))
             return losses
         return loss_fn(targets, outputs)
 
@@ -82,8 +82,8 @@ class TripleCartesianProd(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if isinstance(loss_fn, list):
             losses = []
-            for i in range(len(loss_fn)):
-                losses.append(loss_fn[i](targets, outputs))
+            for fn in loss_fn:
+                losses.append(fn(targets, outputs))
             return losses
         return loss_fn(targets, outputs)
 
