@@ -32,8 +32,8 @@ class Triple(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if isinstance(loss_fn, list):
             losses = []
-            for fn in loss_fn:
-                losses.append(fn(targets, outputs))
+            for i in range(len(loss_fn)):
+                losses.append(loss_fn[i](targets, outputs))
             return losses
         return loss_fn(targets, outputs)
 
@@ -82,23 +82,19 @@ class TripleCartesianProd(Data):
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if isinstance(loss_fn, list):
             losses = []
-            for fn in loss_fn:
-                if get_num_args(fn) == 2:
-                    losses.append(fn(targets, outputs))
-                if get_num_args(fn) == 3:
-                    losses.append(fn(targets, outputs, inputs))
+            for i in range(len(loss_fn)):
+                losses.append(loss_fn[i](targets, outputs))
             return losses
-        if get_num_args(loss_fn) == 2:
-            return loss_fn(targets, outputs)
-        if get_num_args(loss_fn) == 3:
-            return loss_fn(targets, outputs, inputs)
+        return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
         if batch_size is None:
             return self.train_x, self.train_y
         if not isinstance(batch_size, (tuple, list)):
             indices = self.branch_sampler.get_next(batch_size)
-            return (self.train_x[0][indices], self.train_x[1]), self.train_y[indices]
+            return (self.train_x[0][indices], self.train_x[1]), self.train_y[
+                indices
+            ]
         indices_branch = self.branch_sampler.get_next(batch_size[0])
         indices_trunk = self.trunk_sampler.get_next(batch_size[1])
         return (
