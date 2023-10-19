@@ -399,7 +399,7 @@ class DeepONet(NN):
             if multi_output_strategy is not None:
                 multi_output_strategy = None
                 print("multi_output_strategy is forcibly changed to None.")
-        elif multi_output_strategy == None:
+        elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print('multi_output_strategy is forcibly changed to "independent".')
         self.multi_output_strategy = {
@@ -415,7 +415,7 @@ class DeepONet(NN):
         )
 
         self.b = []
-        for i in range(self.num_outputs):
+        for _ in range(self.num_outputs):
             self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
 
     def build_branch_net(self, layer_sizes_branch):
@@ -533,7 +533,7 @@ class DeepONetCartesianProd(NN):
         )
 
         self.b = []
-        for i in range(self.num_outputs):
+        for _ in range(self.num_outputs):
             self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
 
     def build_branch_net(self, layer_sizes_branch):
