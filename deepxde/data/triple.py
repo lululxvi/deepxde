@@ -1,6 +1,5 @@
 from .data import Data
 from .sampler import BatchSampler
-from ..utils import get_num_args
 
 
 class Triple(Data):
