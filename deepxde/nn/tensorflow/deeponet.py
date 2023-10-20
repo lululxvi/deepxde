@@ -232,7 +232,7 @@ class SplitBranchStrategy(DeepONetStrategy):
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
 
-    def call(self, inputs, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc, training=False):
         # Trunk net to encode the domain of the output function
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         x = []
