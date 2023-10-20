@@ -1,3 +1,5 @@
+__all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
+
 from abc import ABC
 from .fnn import FNN
 from .nn import NN
@@ -362,14 +364,14 @@ class DeepONet(NN):
             if multi_output_strategy is not None:
                 multi_output_strategy = None
                 print("multi_output_strategy is forcibly changed to None.")
-        elif multi_output_strategy == None:
+        elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
                 'multi_output_strategy is forcibly changed to "independent".'
             )
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
-            "split": SplitBothStrategy,
+            "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
             None: SingleOutputStrategy,
@@ -380,7 +382,7 @@ class DeepONet(NN):
         )
 
         self.b = []
-        for i in range(self.num_outputs):
+        for _ in range(self.num_outputs):
             self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
 
     def build_branch_net(self, layer_sizes_branch):
@@ -405,7 +407,6 @@ class DeepONet(NN):
         return trunk
 
     def merge_branch_trunk(self, x_func, x_loc):
-        # Dot product
         y = tf.einsum("bi,bi->b", x_func, x_loc)
         y = tf.expand_dims(y, axis=1)
         return y
@@ -492,14 +493,14 @@ class DeepONetCartesianProd(NN):
             if multi_output_strategy is not None:
                 multi_output_strategy = None
                 print("multi_output_strategy is forcibly changed to None.")
-        elif multi_output_strategy == None:
+        elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
                 'multi_output_strategy is forcibly changed to "independent".'
             )
         self.multi_output_strategy = {
             "independent": IndependentStrategy,
-            "split": SplitBothStrategy,
+            "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
             None: SingleOutputStrategy,
@@ -510,7 +511,7 @@ class DeepONetCartesianProd(NN):
         )
 
         self.b = []
-        for i in range(self.num_outputs):
+        for _ in range(self.num_outputs):
             self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
 
     def build_branch_net(self, layer_sizes_branch):
@@ -537,7 +538,6 @@ class DeepONetCartesianProd(NN):
         return trunk
 
     def merge_branch_trunk(self, x_func, x_loc):
-        # Dot product
         y = tf.einsum("bi,ni->bn", x_func, x_loc)
         return y
 
