@@ -17,7 +17,7 @@ if Version(torch.__version__) < Version("1.9.0"):
 # TensorFlow.
 if torch.cuda.is_available():
     if Version(torch.__version__) >= Version("2.1.0"):
-        torch.set_default_device(torch.device("cuda"))
+        torch.set_default_device("cuda")
     else:
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
