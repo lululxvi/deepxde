@@ -9,6 +9,14 @@ class NN:
     """Base class for all neural network modules."""
 
     def __init__(self):
+        try:
+            seed = tf.random.get_seed(None)[0]
+        except RuntimeError:
+            seed = None
+        tf.reset_default_graph()
+        if seed is not None:
+            tf.set_random_seed(seed)
+
         self.training = tf.placeholder(tf.bool)
         self.regularizer = None
 
