@@ -35,13 +35,11 @@ class DeepONetStrategy(ABC):
 
     @abstractmethod
     def build(self):
-        pass
+        """Return the output tensor."""
 
 
 class SingleOutputStrategy(DeepONetStrategy):
-    """
-    Single output build strategy is the standard build method.
-    """
+    """Single output build strategy is the standard build method."""
 
     def build(self):
         branch, trunk = self._build_branch_and_trunk()
@@ -60,9 +58,7 @@ class IndependentStrategy(DeepONetStrategy):
 
     def build(self):
         single_output_strategy = SingleOutputStrategy(self.net)
-        ys = []
-        for _ in range(self.net.num_outputs):
-            ys.append(single_output_strategy.build())
+        ys = [single_output_strategy.build() for _ in range(self.net.num_outputs)]
         return self.net.concatenate_outputs(ys)
 
 
@@ -152,7 +148,7 @@ class DeepONet(NN):
         layer_sizes_branch: A list of integers as the width of a fully connected
             network, or `(dim, f)` where `dim` is the input dimension and `f` is a
             network function. The width of the last layer in the branch and trunk net
-            should be equal. The exception is the use of "split_branch" and "split_trunk" strategies.
+            should be the same for all strategies except "split_branch" and "split_trunk".
         layer_sizes_trunk (list): A list of integers as the width of a fully connected
             network.
         activation: If `activation` is a ``string``, then the same activation is used in
@@ -161,19 +157,21 @@ class DeepONet(NN):
             `activation["branch"]`.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
-        num_outputs (integer): number of outputs.
-        multi_output_strategy (str) or None: None, "independent", "split_both", "split_branch" or
+        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e.,
+        `num_outputs` > 1, `multi_output_strategy` below should be set.
+        multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
             - None
-            Classical implementation of DeepONet. Can not be used with num_outputs > 1.
+            Classical implementation of DeepONet with a single output.
+            Cannot be used with `num_outputs` > 1.
 
             - independent
-            Use num_outputs independent DeepONets, and each DeepONet outputs only
+            Use `num_outputs` independent DeepONets, and each DeepONet outputs only
             one function.
 
             - split_both
-            Split the outputs of both the branch net and the trunk net into num_outputs
+            Split the outputs of both the branch net and the trunk net into `num_outputs`
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
@@ -230,18 +228,22 @@ class DeepONet(NN):
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
             if multi_output_strategy is not None:
-                multi_output_strategy = None
-                print("multi_output_strategy is forcibly changed to None.")
+                raise ValueError(
+                    "num_outputs is set to 1, but multi_output_strategy is not None."
+                )
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
-            print('multi_output_strategy is forcibly changed to "independent".')
+            print(
+                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                'Use "independent" as the multi_output_strategy.'
+            )
         self.multi_output_strategy = {
+            None: SingleOutputStrategy,
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
-            None: SingleOutputStrategy,
-        }.get(multi_output_strategy, IndependentStrategy)(self)
+        }[multi_output_strategy](self)
 
     @property
     def inputs(self):
@@ -429,27 +431,29 @@ class DeepONetCartesianProd(NN):
     Args:
         layer_size_branch: A list of integers as the width of a fully connected network,
             or `(dim, f)` where `dim` is the input dimension and `f` is a network
-            function. The width of the last layer in the branch and trunk net should be
-            equal. The exception is the use of "split_branch" and "split_trunk" strategies.
+            function. The width of the last layer in the branch and trunk net
+            should be the same for all strategies except "split_branch" and "split_trunk".
         layer_size_trunk (list): A list of integers as the width of a fully connected
             network.
         activation: If `activation` is a ``string``, then the same activation is used in
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        num_outputs (integer): number of outputs.
-        multi_output_strategy (str) or None: None, "independent", "split_both", "split_branch" or
+        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e.,
+        `num_outputs` > 1, `multi_output_strategy` below should be set.
+        multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
             - None
-            Classical implementation of DeepONet. Can not be used with num_outputs > 1.
+            Classical implementation of DeepONet with a single output.
+            Cannot be used with `num_outputs` > 1.
 
             - independent
-            Use num_outputs independent DeepONets, and each DeepONet outputs only
+            Use `num_outputs` independent DeepONets, and each DeepONet outputs only
             one function.
 
             - split_both
-            Split the outputs of both the branch net and the trunk net into num_outputs
+            Split the outputs of both the branch net and the trunk net into `num_outputs`
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
@@ -488,18 +492,22 @@ class DeepONetCartesianProd(NN):
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
             if multi_output_strategy is not None:
-                multi_output_strategy = None
-                print("multi_output_strategy is forcibly changed to None.")
+                raise ValueError(
+                    "num_outputs is set to 1, but multi_output_strategy is not None."
+                )
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
-            print('multi_output_strategy is forcibly changed to "independent".')
+            print(
+                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                'Use "independent" as the multi_output_strategy.'
+            )
         self.multi_output_strategy = {
+            None: SingleOutputStrategy,
             "independent": IndependentStrategy,
             "split_both": SplitBothStrategy,
             "split_branch": SplitBranchStrategy,
             "split_trunk": SplitTrunkStrategy,
-            None: SingleOutputStrategy,
-        }.get(multi_output_strategy, IndependentStrategy)(self)
+        }[multi_output_strategy](self)
 
     @property
     def inputs(self):
