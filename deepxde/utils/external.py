@@ -192,8 +192,8 @@ def plot_loss_history(loss_history, fname=None):
         fname (string): If `fname` is a string (e.g., 'loss_history.png'), then save the
             figure to the file of the file name `fname`.
     """
-    loss_train = np.sum(loss_history.loss_train, axis=1)
-    loss_test = np.sum(loss_history.loss_test, axis=1)
+    loss_train = np.array([np.sum(loss) for loss in loss_history.loss_train])
+    loss_test = np.array([np.sum(loss) for loss in loss_history.loss_test])
 
     plt.figure()
     plt.semilogy(loss_history.steps, loss_train, label="Train loss")
