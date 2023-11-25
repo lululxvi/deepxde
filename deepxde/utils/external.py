@@ -193,11 +193,8 @@ def plot_loss_history(loss_history, fname=None):
             figure to the file of the file name `fname`.
     """
     
-    """Updated loss calculations to handle irregular array sizes. 
-    Previous method with np.sum was error-prone for arrays of varying lengths. 
-
-    loss_train = np.array([np.sum(loss) for loss in loss_history.loss_train])
-    """
+    # Updated loss calculations to handle irregular array sizes. 
+    # Previous method with np.sum was error-prone for arrays of varying lengths.
     loss_train = np.array([np.sum(loss) for loss in loss_history.loss_train])
     loss_test = np.array([np.sum(loss) for loss in loss_history.loss_test])
     
