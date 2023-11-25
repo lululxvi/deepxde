@@ -192,7 +192,6 @@ def plot_loss_history(loss_history, fname=None):
         fname (string): If `fname` is a string (e.g., 'loss_history.png'), then save the
             figure to the file of the file name `fname`.
     """
-    
     # np.sum(loss_history.loss_train, axis=1) is error-prone for arrays of varying lengths.
     # Handle irregular array sizes.
     loss_train = np.array([np.sum(loss) for loss in loss_history.loss_train])
