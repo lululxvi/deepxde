@@ -31,6 +31,7 @@ class Model:
 
         self.opt_name = None
         self.batch_size = None
+        self.loss_weights = None
         self.callbacks = None
         self.metrics = None
         self.external_trainable_variables = []
@@ -118,7 +119,7 @@ class Model:
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
-        self.losshistory.set_loss_weights(loss_weights)
+        self.loss_weights = loss_weights
         if external_trainable_variables is None:
             self.external_trainable_variables = []
         else:
@@ -133,21 +134,21 @@ class Model:
             self.external_trainable_variables = external_trainable_variables
 
         if backend_name == "tensorflow.compat.v1":
-            self._compile_tensorflow_compat_v1(lr, loss_fn, decay, loss_weights)
+            self._compile_tensorflow_compat_v1(lr, loss_fn, decay)
         elif backend_name == "tensorflow":
-            self._compile_tensorflow(lr, loss_fn, decay, loss_weights)
+            self._compile_tensorflow(lr, loss_fn, decay)
         elif backend_name == "pytorch":
-            self._compile_pytorch(lr, loss_fn, decay, loss_weights)
+            self._compile_pytorch(lr, loss_fn, decay)
         elif backend_name == "jax":
-            self._compile_jax(lr, loss_fn, decay, loss_weights)
+            self._compile_jax(lr, loss_fn, decay)
         elif backend_name == "paddle":
-            self._compile_paddle(lr, loss_fn, decay, loss_weights)
+            self._compile_paddle(lr, loss_fn, decay)
         # metrics may use model variables such as self.net, and thus are instantiated
         # after backend compile.
         metrics = metrics or []
         self.metrics = [metrics_module.get(m) for m in metrics]
 
-    def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay, loss_weights):
+    def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay):
         """tensorflow.compat.v1"""
         if not self.net.built:
             self.net.build()
@@ -178,8 +179,8 @@ class Model:
                 losses.append(tf.losses.get_regularization_loss())
             losses = tf.convert_to_tensor(losses)
             # Weighted losses
-            if loss_weights is not None:
-                losses *= loss_weights
+            if self.loss_weights is not None:
+                losses *= self.loss_weights
             return losses
 
         losses_train = losses(self.data.losses_train)
@@ -194,7 +195,7 @@ class Model:
             total_loss, self.opt_name, learning_rate=lr, decay=decay
         )
 
-    def _compile_tensorflow(self, lr, loss_fn, decay, loss_weights):
+    def _compile_tensorflow(self, lr, loss_fn, decay):
         """tensorflow"""
 
         @tf.function(jit_compile=config.xla_jit)
@@ -215,8 +216,8 @@ class Model:
                 losses += [tf.math.reduce_sum(self.net.losses)]
             losses = tf.convert_to_tensor(losses)
             # Weighted losses
-            if loss_weights is not None:
-                losses *= loss_weights
+            if self.loss_weights is not None:
+                losses *= self.loss_weights
             return outputs_, losses
 
         @tf.function(jit_compile=config.xla_jit)
@@ -267,7 +268,7 @@ class Model:
             else train_step_tfp
         )
 
-    def _compile_pytorch(self, lr, loss_fn, decay, loss_weights):
+    def _compile_pytorch(self, lr, loss_fn, decay):
         """pytorch"""
 
         def outputs(training, inputs):
@@ -305,8 +306,8 @@ class Model:
                 losses = [losses]
             losses = torch.stack(losses)
             # Weighted losses
-            if loss_weights is not None:
-                losses *= torch.as_tensor(loss_weights)
+            if self.loss_weights is not None:
+                losses *= torch.as_tensor(self.loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -364,8 +365,10 @@ class Model:
         self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
-    def _compile_jax(self, lr, loss_fn, decay, loss_weights):
+    def _compile_jax(self, lr, loss_fn, decay):
         """jax"""
+        if self.loss_weights is not None:
+            raise NotImplementedError("Loss weights are not supported for backend jax.")
         # Initialize the network's parameters
         key = jax.random.PRNGKey(config.jax_random_seed)
         self.net.params = self.net.init(key, self.data.test()[0])
@@ -421,7 +424,7 @@ class Model:
         self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
 
-    def _compile_paddle(self, lr, loss_fn, decay, loss_weights):
+    def _compile_paddle(self, lr, loss_fn, decay):
         """paddle"""
 
         def outputs(training, inputs):
@@ -461,8 +464,8 @@ class Model:
             # TODO: regularization
             losses = paddle.stack(losses, axis=0)
             # Weighted losses
-            if loss_weights is not None:
-                losses *= paddle.to_tensor(loss_weights)
+            if self.loss_weights is not None:
+                losses *= paddle.to_tensor(self.loss_weights)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -1145,10 +1148,6 @@ class LossHistory:
         self.loss_train = []
         self.loss_test = []
         self.metrics_test = []
-        self.loss_weights = None
-
-    def set_loss_weights(self, loss_weights):
-        self.loss_weights = loss_weights
 
     def append(self, step, loss_train, loss_test, metrics_test):
         self.steps.append(step)

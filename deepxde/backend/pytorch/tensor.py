@@ -16,7 +16,10 @@ if Version(torch.__version__) < Version("1.9.0"):
 # An alternative way is to use GPU by default if GPU is available, which is similar to
 # TensorFlow.
 if torch.cuda.is_available():
-    torch.set_default_tensor_type(torch.cuda.FloatTensor)
+    if Version(torch.__version__) >= Version("2.1.0"):
+        torch.set_default_device("cuda")
+    else:
+        torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
 
 lib = torch

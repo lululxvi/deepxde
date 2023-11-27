@@ -110,7 +110,7 @@ class MIONetCartesianProd(NN):
             y_func = x_merger
         # Trunk net to encode the domain of the output function
         if self._input_transform is not None:
-            y_loc = self._input_transform(x_loc)
+            x_loc = self._input_transform(x_loc)
         y_loc = self.trunk(x_loc)
         if self.trunk_last_activation:
             y_loc = self.activation_trunk(y_loc)
