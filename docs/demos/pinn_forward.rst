@@ -29,6 +29,7 @@ Time-independent PDEs
    pinn_forward/poisson.Lshape
    pinn_forward/laplace.disk
    pinn_forward/eulerbeam
+   pinn_forward/elasticity.plate
    pinn_forward/helmholtz.2d.dirichlet
    pinn_forward/helmholtz.2d.dirichlet.hpo
    pinn_forward/helmholtz.2d.neumann.hole
