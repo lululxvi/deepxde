@@ -262,16 +262,16 @@ class PointSetOperatorBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
-class DiscontinuityDirectionBC(BC):
+class InterfaceBC(BC):
     """2D Discontinuity boundary condition to impose the difference of output between two borders in a given direction ('t' tangent or 'n' normal).
 
     Compare the difference of the output on two different borders on the normal/tangent direction with values
-    uniform_boundary_points should be used for boundary collocation points to ensure both borders have the same numbers of points.
+    uniform_boundary_points should be used with boundary collocation points to ensure both borders have the same numbers of points.
     
     The error is calculated as (border1-border2)-values
     where "border1" is the output on the given direction (tangent or normal) on first given border.
-    "border2" the same on second given border, but using the opposite tangent/normal vector of the border.
-    and "values" is the given function
+    "border2" the same on second given border, but using opposite tangent/normal vector.
+    and "values" is the given function.
     
     Args:
         geom: a 2D Polygon/Rectangle class geometry.
@@ -315,7 +315,6 @@ class DiscontinuityDirectionBC(BC):
         end1=np.copy(end)
         beg1=np.copy(beg)
         
-        
         while mid-1-beg1<end1-1-mid:
             end1-=1
             print("sampled different number of points, omitted a point on second border")
@@ -324,7 +323,7 @@ class DiscontinuityDirectionBC(BC):
             print("sampled different number of points, omitted a point on first border")
         values = self.func(X, beg1, mid, aux_var)
         
-        if deepxde.icbc.boundary_conditions.bkd.ndim(values) == 2 and deepxde.icbc.boundary_conditions.bkd.shape(values)[1] != 1:
+        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
                 "BC function should return an array of shape N by 1 for each component"
             )
@@ -336,10 +335,10 @@ class DiscontinuityDirectionBC(BC):
             left_n = self.boundary_normal(X, beg1, mid, None)
             right_n = self.boundary_normal(X, mid, end1, None)
             
-            left_values  = deepxde.icbc.boundary_conditions.bkd.sum(left_side * left_n, 1, keepdims=True)
-            right_values = deepxde.icbc.boundary_conditions.bkd.sum(-right_side * right_n, 1, keepdims=True)
+            left_values  = bkd.sum(left_side * left_n, 1, keepdims=True)
+            right_values = bkd.sum(-right_side * right_n, 1, keepdims=True)
 
-            diff = right_values - left_values
+            diff = left_values - right_values
                 
         elif self.direction=="t":
             #implemented for dim=2 where tangent vector is [n[1],-n[0]]
@@ -353,8 +352,8 @@ class DiscontinuityDirectionBC(BC):
             left_n = self.boundary_normal(X, beg1, mid, None)            
             right_n = self.boundary_normal(X, mid, end1, None)
             
-            left_values  = deepxde.icbc.boundary_conditions.bkd.sum(left_side1 * left_n[:,1:2], 1, keepdims=True)+deepxde.icbc.boundary_conditions.bkd.sum(-left_side2 * left_n[:,0:1], 1, keepdims=True)       
-            right_values = deepxde.icbc.boundary_conditions.bkd.sum(-right_side1 * right_n[:,1:2], 1, keepdims=True)+deepxde.icbc.boundary_conditions.bkd.sum(right_side2 * right_n[:,0:1], 1, keepdims=True)
+            left_values  = bkd.sum(left_side1 * left_n[:,1:2], 1, keepdims=True)+bkd.sum(-left_side2 * left_n[:,0:1], 1, keepdims=True)       
+            right_values = bkd.sum(-right_side1 * right_n[:,1:2], 1, keepdims=True)+bkd.sum(right_side2 * right_n[:,0:1], 1, keepdims=True)
 
             diff = left_values-right_values
         
