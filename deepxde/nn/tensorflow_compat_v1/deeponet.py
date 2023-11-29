@@ -157,8 +157,8 @@ class DeepONet(NN):
             `activation["branch"]`.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
-        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e.,
-        `num_outputs` > 1, `multi_output_strategy` below should be set.
+        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
+            `multi_output_strategy` below should be set.
         multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
@@ -439,8 +439,8 @@ class DeepONetCartesianProd(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e.,
-        `num_outputs` > 1, `multi_output_strategy` below should be set.
+        num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
+            `multi_output_strategy` below should be set.
         multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
             "split_trunk". It makes sense to set in case of multiple outputs.
 
@@ -532,7 +532,10 @@ class DeepONetCartesianProd(NN):
         if self._output_transform is not None:
             self.y = self._output_transform(self._inputs, self.y)
 
-        self.target = tf.placeholder(config.real(tf), [None, None])
+        if self.num_outputs > 1:
+            self.target = tf.placeholder(config.real(tf), [None, None, None])
+        else:
+            self.target = tf.placeholder(config.real(tf), [None, None])
         self.built = True
 
     def build_branch_net(self):
