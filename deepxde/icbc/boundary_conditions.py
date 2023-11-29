@@ -265,11 +265,11 @@ class PointSetOperatorBC:
 
 
 class InterfaceBC(BC):
-    """2D Interface boundary condition
-    Imposes the difference of output between two borders in a given direction
-    ('t' tangent or 'n' normal).
+    """2D interface boundary condition
 
-    Compares the difference of output on two borders on the n/t direction with 'values'
+    Compare the difference of output on two borders
+    on the n/t direction ('n' normal or 't' tangent) with 'values'.
+
     uniform_boundary_points should be used
     to ensure both borders have the same numbers of points.
 
