@@ -265,18 +265,15 @@ class PointSetOperatorBC:
 
 
 class InterfaceBC(BC):
-    """2D interface boundary condition
+    """2D interface boundary condition.
 
     Compare the difference of output on two borders
     on the n/t direction ('n' normal or 't' tangent) with 'values'.
-
+    i.e. the error is calculated as (border1-border2)-values,
+    where "border1" is the output on the direction (n/t) on first border,
+    "border2" the same on second border and using opposite n/t vector.
     uniform_boundary_points should be used
     to ensure both borders have the same numbers of points.
-
-    The error is calculated as (border1-border2)-values
-    "border1" is output on the given direction (n/t) on first given border.
-    "border2" the same on second given border, using opposite n/t vector.
-    and "values" the given function.
 
     Args:
         geom: a 2D Polygon/Rectangle class geometry.
