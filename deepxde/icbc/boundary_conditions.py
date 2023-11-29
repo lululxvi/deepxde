@@ -9,7 +9,7 @@ __all__ = [
     "PointSetBC",
     "PointSetOperatorBC",
     "RobinBC",
-    "InterfaceBC",
+    "Interface2DBC",
 ]
 
 import numbers
@@ -264,7 +264,7 @@ class PointSetOperatorBC:
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
 
-class InterfaceBC(BC):
+class Interface2DBC(BC):
     """2D interface boundary condition.
 
     Compare the difference of output on two borders

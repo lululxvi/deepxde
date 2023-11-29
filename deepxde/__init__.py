@@ -40,7 +40,7 @@ from .icbc import (
     RobinBC,
     PointSetBC,
     PointSetOperatorBC,
-    InterfaceBC,
+    Interface2DBC,
     IC,
 )
 

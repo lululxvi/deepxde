@@ -9,7 +9,7 @@ __all__ = [
     "OperatorBC",
     "PointSetBC",
     "PointSetOperatorBC",
-    "InterfaceBC",
+    "Interface2DBC",
     "IC",
 ]
 
@@ -22,6 +22,6 @@ from .boundary_conditions import (
     OperatorBC,
     PointSetBC,
     PointSetOperatorBC,
-    InterfaceBC,
+    Interface2DBC,
 )
 from .initial_conditions import IC
