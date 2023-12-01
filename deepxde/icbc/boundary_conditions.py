@@ -278,7 +278,7 @@ class Interface2DBC(BC):
     Args:
         geom: a 2D Polygon/Rectangle instance.
         func: the target discontinuity between borders, evaluated on first border
-            (e.g. null function means no discontinuity is wanted).
+            (e.g. func=lambda X: 0 means no discontinuity is wanted).
         on_boundary1: First border func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second border func. (x, Geometry.on_boundary(x)) -> True/False.
         direction: "n" for normal direction, "t" for tangent.
