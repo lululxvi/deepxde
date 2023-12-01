@@ -3,13 +3,13 @@
 __all__ = [
     "BC",
     "DirichletBC",
+    "Interface2DBC",
     "NeumannBC",
     "OperatorBC",
     "PeriodicBC",
     "PointSetBC",
     "PointSetOperatorBC",
     "RobinBC",
-    "Interface2DBC",
 ]
 
 import numbers

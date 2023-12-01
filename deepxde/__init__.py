@@ -34,13 +34,13 @@ from .utils import saveplot
 # Backward compatibility
 from .icbc import (
     DirichletBC,
+    Interface2DBC,
     NeumannBC,
     OperatorBC,
     PeriodicBC,
     RobinBC,
     PointSetBC,
     PointSetOperatorBC,
-    Interface2DBC,
     IC,
 )
 
