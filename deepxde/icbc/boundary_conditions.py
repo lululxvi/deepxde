@@ -276,11 +276,11 @@ class Interface2DBC(BC):
     to ensure both borders have the same numbers of points.
 
     Args:
-        geom: a 2D Polygon/Rectangle class geometry.
+        geom: a 2D Polygon/Rectangle instance.
         func: the target discontinuity between borders, evaluated on first border
-        (e.g. giving a null function means no discontinuity is wanted).
-        on_boundary1: First border function.
-        on_boundary2: Second border function.
+            (e.g. null function means no discontinuity is wanted).
+        on_boundary1: First border func. (x, Geometry.on_boundary(x)) -> True/False.
+        on_boundary2: Second border func. (x, Geometry.on_boundary(x)) -> True/False.
         direction: "n" for normal direction, "t" for tangent.
     """
 
