@@ -1,6 +1,7 @@
 __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 
 from abc import ABC
+
 from .fnn import FNN
 from .nn import NN
 from .. import activations
