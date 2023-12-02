@@ -270,8 +270,9 @@ class Interface2DBC(BC):
     Compare the difference of output on two borders
     on the n/t direction ('n' normal or 't' tangent) with 'values'.
     i.e. the error is calculated as (border1-border2)-values,
-    where "border1" is the output on the direction (n/t) on first border,
-    "border2" the same on second border and using opposite n/t vector.
+    where 'border1' is the output on the direction (n/t) on first border,
+    'border2' the same on second border using opposite n/t vector
+    and 'values' is the argument `func` evaluated on first border.
     uniform_boundary_points should be used
     to ensure both borders have the same numbers of points.
 
