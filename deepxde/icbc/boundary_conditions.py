@@ -272,7 +272,7 @@ class Interface2DBC(BC):
     i.e. the error is calculated as (border1-border2)-values,
     where 'border1' is the output on the direction (n/t) on first border,
     'border2' the same on second border using opposite n/t vector
-    and 'values' is the argument `func` evaluated on first border.
+    and 'values' is the argument func evaluated on first border.
     uniform_boundary_points should be used
     to ensure both borders have the same numbers of points.
 
