@@ -14,11 +14,15 @@ y_test = d["y"].astype(np.float32)
 # Add random noise
 noisy_y_train = y_train + 0.1 * np.random.randn(*y_train.shape)
 y_train = np.concatenate(
-    [y_train[:, :, np.newaxis], noisy_y_train[:, :, np.newaxis]], axis=-1
+    [y_train[:, :, np.newaxis], noisy_y_train[:, :, np.newaxis]],
+    axis=-1,
+    dtype=np.float32,
 )
 noisy_y_test = y_test + 0.1 * np.random.randn(*y_test.shape)
 y_test = np.concatenate(
-    [y_test[:, :, np.newaxis], noisy_y_test[:, :, np.newaxis]], axis=-1
+    [y_test[:, :, np.newaxis], noisy_y_test[:, :, np.newaxis]],
+    axis=-1,
+    dtype=np.float32,
 )
 
 data = dde.data.TripleCartesianProd(
