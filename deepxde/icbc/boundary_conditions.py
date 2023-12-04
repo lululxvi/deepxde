@@ -267,10 +267,11 @@ class PointSetOperatorBC:
 class Interface2DBC(BC):
     """2D interface boundary condition.
 
-    Compare the difference of 2D output on two borders
+    Compare the difference of 2D vectorial output on two borders of domain
     on the n/t direction ('n' normal or 't' tangent) with 'values'.
-    i.e. the error is calculated as (output_1*d1-output_2*d2)-values,
-    with output_1 and output_2 as the output evaluated on first and second border resp.,
+    i.e. the error is calculated as (<output_1,d1>-<output_2,d2>)-values,
+    with <v1,v2> being the dot product between vectors v1 and v2,
+    output_1 and output_2 as the output evaluated on first and second border resp.,
     d1 is the n/t vector of first border, d2 the n/t vector of second border
     with a change of sign respect to d1
     and values is the argument func evaluated on first border.
@@ -283,6 +284,8 @@ class Interface2DBC(BC):
             (e.g. func=lambda x: 0 means no discontinuity is wanted).
         on_boundary1: First border func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second border func. (x, Geometry.on_boundary(x)) -> True/False.
+            (This border should have the same length as on_boundary1,
+            no matter the geometry given)
         direction: string "n" for normal direction, "t" for tangent.
     """
 
