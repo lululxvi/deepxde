@@ -574,12 +574,12 @@ class PDEPointResampler(Callback):
 
 
 class SoftAdapt(Callback):
-    """Use adaptive loss balancing. 
+    """Use adaptive loss balancing.
 
     Args:
         warmup: number of steps without applying any weighting.
         epsilon: parameter to prevent overflows.
-        
+
     """
 
     def __init__(self, warmup=0, epsilon=1e-8):
@@ -592,4 +592,4 @@ class SoftAdapt(Callback):
         # Allow instances to be re-used.
         # Evaluate coefficients.
         # Update weights.
-
+        print("work in progress")
