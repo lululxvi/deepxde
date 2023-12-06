@@ -571,3 +571,25 @@ class PDEPointResampler(Callback):
             raise ValueError(
                 "`num_bcs` changed! Please update the loss function by `model.compile`."
             )
+
+
+class SoftAdapt(Callback):
+    """Use adaptive loss balancing. 
+
+    Args:
+        warmup: number of steps without applying any weighting.
+        epsilon: parameter to prevent overflows.
+        
+    """
+
+    def __init__(self, warmup=0, epsilon=1e-8):
+        super().__init__()
+
+        self.baseline = warmup
+        self.loss = None
+
+    def on_train_begin(self):
+        # Allow instances to be re-used.
+        # Evaluate coefficients.
+        # Update weights.
+
