@@ -577,19 +577,28 @@ class SoftAdapt(Callback):
     """Use adaptive loss balancing.
 
     Args:
-        warmup: number of steps without applying any weighting.
+        beta: If beta > 0, then softAdapt will pay more attention the worst performing
+            loss component. If beta < 0, then SoftAdapt will assign higher weights
+            to the better performing components. Beta==0 is the trivial case and
+            all loss components will have coefficient 1.
         epsilon: parameter to prevent overflows.
 
     """
 
-    def __init__(self, warmup=0, epsilon=1e-8):
+    def __init__(self, beta=.1, epsilon=1e-8):
         super().__init__()
 
-        self.baseline = warmup
-        self.loss = None
+        self.beta = beta
+        self.epsilon = epsilon
 
     def on_train_begin(self):
+        loss_weights = tf.constant(self.model.loss_weights)
+        loss_weights = dde.Variable(loss_weights, trainable=False, dtype=loss_weights.dtype)
+        loss_weights *= 0
+        
+        self.model.loss_weights = loss_weights
+        
+        print(loss_weights, 'loss_weights')
         # Allow instances to be re-used.
         # Evaluate coefficients.
         # Update weights.
-        print("work in progress")
