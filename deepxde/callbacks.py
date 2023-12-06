@@ -6,7 +6,7 @@ import numpy as np
 from . import config
 from . import gradients as grad
 from . import utils
-from .backend import backend_name, tf, torch, paddle
+from .backend import backend_name, tf, torch, paddle, Variable
 
 
 class Callback:
@@ -585,7 +585,7 @@ class SoftAdapt(Callback):
 
     """
 
-    def __init__(self, beta=.1, epsilon=1e-8):
+    def __init__(self, beta=0.1, epsilon=1e-8):
         super().__init__()
 
         self.beta = beta
@@ -593,12 +593,12 @@ class SoftAdapt(Callback):
 
     def on_train_begin(self):
         loss_weights = tf.constant(self.model.loss_weights)
-        loss_weights = dde.Variable(loss_weights, trainable=False, dtype=loss_weights.dtype)
+        loss_weights = Variable(loss_weights, dtype=loss_weights.dtype)
         loss_weights *= 0
-        
+
         self.model.loss_weights = loss_weights
-        
-        print(loss_weights, 'loss_weights')
+
+        print(loss_weights, "loss_weights")
         # Allow instances to be re-used.
         # Evaluate coefficients.
         # Update weights.
