@@ -29,9 +29,7 @@ class DeepONetStrategy(ABC):
 
 
 class SingleOutputStrategy(DeepONetStrategy):
-    """
-    Single output build strategy is the standard build method.
-    """
+    """Single output build strategy is the standard build method."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
         if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
@@ -121,10 +119,9 @@ class SplitBothStrategy(DeepONetStrategy):
 
 
 class SplitBranchStrategy(DeepONetStrategy):
-    """
-    Uses independent branch nets and shares the trunk net. Different branch net
-        architectures can be used but must all have the same last layer width
-        as the trunk net.
+    """Uses independent branch nets and shares the trunk net. Different branch net
+    architectures can be used but must all have the same last layer width
+    as the trunk net.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
@@ -150,10 +147,9 @@ class SplitBranchStrategy(DeepONetStrategy):
 
 
 class SplitTrunkStrategy(DeepONetStrategy):
-    """
-    Uses independent trunk nets and shares the branch net. Different trunk net
-        architectures can be used but must all have the same last layer width
-        as the branch net.
+    """Uses independent trunk nets and shares the branch net. Different trunk net
+    architectures can be used but must all have the same last layer width
+    as the branch net.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
