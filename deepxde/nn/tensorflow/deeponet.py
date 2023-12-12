@@ -62,7 +62,7 @@ class IndependentStrategy(DeepONetStrategy):
     def build(self, layer_sizes_branch, layer_sizes_trunk):
         single_output_strategy = SingleOutputStrategy(self.net)
         branch, trunk = [], []
-        for i in range(self.net.num_outputs):
+        for _ in range(self.net.num_outputs):
             branch_, trunk_ = single_output_strategy.build(
                 layer_sizes_branch, layer_sizes_trunk
             )
@@ -112,8 +112,8 @@ class SplitBothStrategy(DeepONetStrategy):
         xs = []
         for i in range(self.net.num_outputs):
             shift += size
-            x_func_ = x_func[:, :shift][:, shift - size:]
-            x_loc_ = x_loc[:, :shift][:, shift - size:]
+            x_func_ = x_func[:, :shift][:, shift - size :]
+            x_loc_ = x_loc[:, :shift][:, shift - size :]
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
             x += self.net.b[i]
             xs.append(x)
@@ -133,7 +133,7 @@ class SplitBranchStrategy(DeepONetStrategy):
                 "Output sizes of branch net and trunk net do not match."
             )
         branch = []
-        for i in range(self.net.num_outputs):
+        for _ in range(self.net.num_outputs):
             branch.append(self.net.build_branch_net(layer_sizes_branch))
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
@@ -162,7 +162,7 @@ class SplitTrunkStrategy(DeepONetStrategy):
                 "Output sizes of branch net and trunk net do not match."
             )
         trunk = []
-        for i in range(self.net.num_outputs):
+        for _ in range(self.net.num_outputs):
             trunk.append(self.net.build_trunk_net(layer_sizes_trunk))
         branch = self.net.build_branch_net(layer_sizes_branch)
         return branch, trunk
@@ -230,9 +230,7 @@ class DeepONet(NN):
             self.activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            self.activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
 
         self.num_outputs = num_outputs
@@ -358,9 +356,7 @@ class DeepONetCartesianProd(NN):
             self.activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            self.activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.regularization = regularization
 
@@ -475,9 +471,7 @@ class PODDeepONet(NN):
             activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
         else:
-            activation_branch = self.activation_trunk = activations.get(
-                activation
-            )
+            activation_branch = self.activation_trunk = activations.get(activation)
 
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -513,9 +507,7 @@ class PODDeepONet(NN):
             x = tf.einsum("bi,ni->bn", x_func, self.pod_basis)
         else:
             x_loc = self.activation_trunk(self.trunk(x_loc))
-            x = tf.einsum(
-                "bi,ni->bn", x_func, tf.concat((self.pod_basis, x_loc), 1)
-            )
+            x = tf.einsum("bi,ni->bn", x_func, tf.concat((self.pod_basis, x_loc), 1))
             x += self.b
 
         if self._output_transform is not None:
