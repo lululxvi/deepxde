@@ -30,108 +30,55 @@ class DeepONetStrategy(ABC):
 
 class SingleOutputStrategy(DeepONetStrategy):
     """
-    Single output build strategy is the standard build method. Example:
-
-    net = dde.nn.DeepONetCartesianProd(
-        [m, 40, 40],
-        [dim_x, 40, 40],
-        "relu",
-        "Glorot normal",
-        num_outputs = 1,
-    )
+    Single output build strategy is the standard build method.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        if any(isinstance(i, list) for i in layer_sizes_branch) or any(
-            isinstance(i, list) for i in layer_sizes_trunk
-        ):
-            raise AssertionError(
-                "Nested lists cannot be used with single output strategy."
-            )
         if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-
-        # Branch net to encode the input function
         branch = self.net.build_branch_net(layer_sizes_branch)
-        # Trunk net to encode the domain of the output function
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
 
     def call(self, x_func, x_loc, training=False):
-        # Branch net to encode the input function
         x_func = self.net.branch(x_func)
-        # Trunk net to encode the domain of the output function
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         if x_func.shape[-1] != x_loc.shape[-1]:
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
         x = self.net.merge_branch_trunk(x_func, x_loc)
-        # Add bias
         x += self.net.b
         return x
 
 
 class IndependentStrategy(DeepONetStrategy):
-    """
-    Directly use n independent DeepONets, and each DeepONet outputs only one
-        function. For the same architectures, use the single output strategy
-        format. You can use nested lists for different architectures:
-
-    net = dde.nn.DeepONetCartesianProd(
-        [[m, 40, 40],[m, 80, 80]],
-        [[dim_x, 40, 40],[dim_x, 80, 80]],
-        "relu",
-        "Glorot normal",
-        num_outputs = 2,
-    )
+    """Directly use n independent DeepONets,
+    and each DeepONet outputs only one function.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        single_strategy = SingleOutputStrategy(self.net)
-        branch = []
-        trunk = []
-        if any(isinstance(i, list) for i in layer_sizes_branch):
-            if not any(isinstance(i, list) for i in layer_sizes_trunk):
-                raise AssertionError(
-                    "Trunk and branch must both be nested for different architectures."
-                )
-            for i in range(self.net.num_outputs):
-                branch_tmp, trunk_tmp = single_strategy.build(
-                    layer_sizes_branch[i], layer_sizes_trunk[i]
-                )
-                branch.append(branch_tmp)
-                trunk.append(trunk_tmp)
-            return branch, trunk
-        if any(isinstance(i, list) for i in layer_sizes_trunk):
-            raise AssertionError(
-                "Trunk and branch must both be nested for different architectures."
-            )
+        single_output_strategy = SingleOutputStrategy(self.net)
+        branch, trunk = [], []
         for i in range(self.net.num_outputs):
-            branch_tmp, trunk_tmp = single_strategy.build(
+            branch_, trunk_ = single_output_strategy.build(
                 layer_sizes_branch, layer_sizes_trunk
             )
-            branch.append(branch_tmp)
-            trunk.append(trunk_tmp)
+            branch.append(branch_)
+            trunk.append(trunk_)
         return branch, trunk
 
     def call(self, x_func, x_loc, training=False):
-        x = []
+        xs = []
         for i in range(self.net.num_outputs):
-            # Branch net to encode the input function
-            x_func_i = self.net.branch[i](x_func)
-            # Trunk net to encode the domain of the output function
-            x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
-            x_i = self.net.merge_branch_trunk(x_func_i, x_loc_i)
-            # Add bias
-            x_i += self.net.b[i]
-            x.append(x_i)
-
-        x = self.net.concatenate_outputs(x)
-
-        return x
+            x_func_ = self.net.branch[i](x_func)
+            x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
+            x = self.net.merge_branch_trunk(x_func_, x_loc_)
+            x += self.net.b[i]
+            xs.append(x)
+        return self.net.concatenate_outputs(xs)
 
 
 class SplitBothStrategy(DeepONetStrategy):
@@ -142,168 +89,93 @@ class SplitBothStrategy(DeepONetStrategy):
     then the dot product between the first 50 neurons of
     the branch and trunk nets generates the first function,
     and the remaining 50 neurons generate the second function.
-
-    You can define desired widths in the last layer of the branch and trunk:
-
-    net = dde.nn.DeepONetCartesianProd(
-        [m, 40, [40, 40, 60]],
-        [dim_x, 40, [40, 40, 60]],
-        "relu",
-        "Glorot normal",
-        num_outputs = 3,
-    )
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        if not (
-            isinstance(layer_sizes_branch[-1], list)
-            and isinstance(layer_sizes_branch[-1], list)
-        ):
+        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
             raise AssertionError(
-                "For split both strategy, last layer must be a list of widths"
+                "Output sizes of branch net and trunk net do not match."
             )
-        if len(layer_sizes_branch[-1]) != len(layer_sizes_trunk[-1]):
+        if layer_sizes_branch[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                "Number of outputs in trunk ({}) and branch ({}) do not match".format(
-                    len(layer_sizes_branch[-1]), len(layer_sizes_trunk[-1])
-                )
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
             )
-        for i in range(len(layer_sizes_branch[-1])):
-            if layer_sizes_branch[-1][i] != layer_sizes_trunk[-1][i]:
-                raise AssertionError(
-                    "Output width of branch ({}) and trunk ({}) does not match".format(
-                        layer_sizes_branch[-1][i], layer_sizes_trunk[-1][i]
-                    )
-                )
-        self.net.output_widths = layer_sizes_branch[-1]
-        layer_sizes_branch[-1] = sum(layer_sizes_branch[-1])
-        layer_sizes_trunk[-1] = layer_sizes_branch[-1]
-        single_strategy = SingleOutputStrategy(self.net)
-        return single_strategy.build(layer_sizes_branch, layer_sizes_trunk)
+        single_output_strategy = SingleOutputStrategy(self.net)
+        return single_output_strategy.build(layer_sizes_branch, layer_sizes_trunk)
 
     def call(self, x_func, x_loc, training=False):
-        # Branch net to encode the input function
         x_func = self.net.branch(x_func)
-        # Trunk net to encode the domain of the output function
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
-
         # Split x_func and x_loc into respective outputs
-        widths = 0
-        x = []
-        for i, width in enumerate(self.net.output_widths):
-            widths += width
-            x_func_i = x_func[:, :widths][:, widths - width :]
-            x_loc_i = x_loc[:, :widths][:, widths - width :]
-            x_i = self.net.merge_branch_trunk(x_func_i, x_loc_i)
-            # Add bias
-            x_i += self.net.b[i]
-            x.append(x_i)
-
-        x = self.net.concatenate_outputs(x)
-
-        return x
+        shift = 0
+        size = x_func.shape[1] // self.net.num_outputs
+        xs = []
+        for i in range(self.net.num_outputs):
+            shift += size
+            x_func_ = x_func[:, :shift][:, shift - size:]
+            x_loc_ = x_loc[:, :shift][:, shift - size:]
+            x = self.net.merge_branch_trunk(x_func_, x_loc_)
+            x += self.net.b[i]
+            xs.append(x)
+        return self.net.concatenate_outputs(xs)
 
 
 class SplitBranchStrategy(DeepONetStrategy):
     """
     Uses independent branch nets and shares the trunk net. Different branch net
         architectures can be used but must all have the same last layer width
-        as the trunk net. For the same architectures, use the single output format.
-        You can use nested lists for different architectures:
-
-    net = dde.nn.DeepONetCartesianProd(
-        [[m, 40, 40],[m, 80, 40]],
-        [dim_x, 40, 40],
-        "relu",
-        "Glorot normal",
-        num_outputs = 2
-    )
+        as the trunk net.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        branch = []
-        if any(isinstance(i, list) for i in layer_sizes_trunk):
+        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
             raise AssertionError(
-                "Trunk net cannot be nested for split_branch strategy."
+                "Output sizes of branch net and trunk net do not match."
             )
-
+        branch = []
         for i in range(self.net.num_outputs):
-            if layer_sizes_branch[i][-1] != layer_sizes_trunk[-1]:
-                raise AssertionError(
-                    "Output sizes of branch net and trunk net do not match."
-                )
-            # Branch net to encode the input function
-            branch.append(self.net.build_branch_net(layer_sizes_branch[i]))
-            # Trunk net to encode the domain of the output function
+            branch.append(self.net.build_branch_net(layer_sizes_branch))
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
 
     def call(self, x_func, x_loc, training=False):
-        # Trunk net to encode the domain of the output function
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
-        x = []
+        xs = []
         for i in range(self.net.num_outputs):
-            # Branch net to encode the input function
-            x_func_i = self.net.branch[i](x_func)
-            x_i = self.net.merge_branch_trunk(x_func_i, x_loc)
-            # Add bias
-            x_i += self.net.b[i]
-            x.append(x_i)
-
-        x = self.net.concatenate_outputs(x)
-
-        return x
+            x_func_ = self.net.branch[i](x_func)
+            x = self.net.merge_branch_trunk(x_func_, x_loc)
+            x += self.net.b[i]
+            xs.append(x)
+        return self.net.concatenate_outputs(xs)
 
 
 class SplitTrunkStrategy(DeepONetStrategy):
     """
     Uses independent trunk nets and shares the branch net. Different trunk net
         architectures can be used but must all have the same last layer width
-        as the branch net. For the same architectures, use the single output
-        format. You can use nested lists for different architectures:
-
-    net = dde.nn.DeepONetCartesianProd(
-        [m, 40, 40],
-        [[dim_x, 40, 40], [dim_x, 80, 40]],
-        "relu",
-        "Glorot normal",
-        num_outputs = 2
-    )
+        as the branch net.
     """
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        trunk = []
-        if any(isinstance(i, list) for i in layer_sizes_branch):
+        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
             raise AssertionError(
-                "Branch net cannot be nested for split_trunk strategy."
+                "Output sizes of branch net and trunk net do not match."
             )
-
+        trunk = []
         for i in range(self.net.num_outputs):
-            if layer_sizes_branch[-1] != layer_sizes_trunk[i][-1]:
-                raise AssertionError(
-                    "Output sizes of branch net and trunk net do not match."
-                )
-            # Trunk net to encode the domain of the output function
-            trunk.append(self.net.build_trunk_net(layer_sizes_trunk[i]))
-        # Branch net to encode the input function
+            trunk.append(self.net.build_trunk_net(layer_sizes_trunk))
         branch = self.net.build_branch_net(layer_sizes_branch)
         return branch, trunk
 
     def call(self, x_func, x_loc, training=False):
-        # Branch net to encode the input function
         x_func = self.net.branch(x_func)
-        x = []
+        xs = []
         for i in range(self.net.num_outputs):
-            # Trunk net to encode the domain of the output function
-            x_loc_i = self.net.activation_trunk(self.net.trunk[i](x_loc))
-            x_i = self.net.merge_branch_trunk(x_func, x_loc_i)
-            # Add bias
-            x_i += self.net.b[i]
-            x.append(x_i)
-
-        x = self.net.concatenate_outputs(x)
-
-        return x
+            x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
+            x = self.net.merge_branch_trunk(x_func, x_loc_)
+            x += self.net.b[i]
+            xs.append(x)
+        return self.net.concatenate_outputs(xs)
 
 
 class DeepONet(NN):
@@ -338,14 +210,10 @@ class DeepONet(NN):
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
-            Split the branch net and share the trunk net. The width of the last layer
-            in the branch net should be equal to the one in the trunk net multiplied
-            by the number of outputs.
+            Split the branch net and share the trunk net.
 
             - split_trunk
-            Split the trunk net and share the branch net. The width of the last layer
-            in the trunk net should be equal to the one in the branch net multiplied
-            by the number of outputs.
+            Split the trunk net and share the branch net.
     """
 
     def __init__(
@@ -376,7 +244,7 @@ class DeepONet(NN):
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
-                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
                 'Use "independent" as the multi_output_strategy.'
             )
         self.multi_output_strategy = {
@@ -434,7 +302,6 @@ class DeepONet(NN):
         x = self.multi_output_strategy.call(x_func, x_loc, training)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
-
         return x
 
 
@@ -470,14 +337,10 @@ class DeepONetCartesianProd(NN):
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
-            Split the branch net and share the trunk net. The width of the last layer
-            in the branch net should be equal to the one in the trunk net multiplied
-            by the number of outputs.
+            Split the branch net and share the trunk net.
 
             - split_trunk
-            Split the trunk net and share the branch net. The width of the last layer
-            in the trunk net should be equal to the one in the branch net multiplied
-            by the number of outputs.
+            Split the trunk net and share the branch net.
     """
 
     def __init__(
@@ -510,7 +373,7 @@ class DeepONetCartesianProd(NN):
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
-                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
                 'Use "independent" as the multi_output_strategy.'
             )
         self.multi_output_strategy = {
