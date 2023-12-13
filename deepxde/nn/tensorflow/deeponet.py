@@ -11,6 +11,7 @@ from ...backend import tf
 
 class DeepONetStrategy(ABC):
     """DeepONet building strategy.
+
     See the section 3.1.6. in
     L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. Karniadakis.
     A comprehensive and fair comparison of two neural operators
@@ -22,10 +23,10 @@ class DeepONetStrategy(ABC):
         self.net = net
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        pass
+        """Build branch and trunk nets."""
 
     def call(self, x_func, x_loc, training=False):
-        pass
+        """Forward pass."""
 
 
 class SingleOutputStrategy(DeepONetStrategy):
@@ -48,7 +49,6 @@ class SingleOutputStrategy(DeepONetStrategy):
                 "Output sizes of branch net and trunk net do not match."
             )
         x = self.net.merge_branch_trunk(x_func, x_loc)
-        x += self.net.b
         return x
 
 
@@ -74,7 +74,6 @@ class IndependentStrategy(DeepONetStrategy):
             x_func_ = self.net.branch[i](x_func)
             x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
-            x += self.net.b[i]
             xs.append(x)
         return self.net.concatenate_outputs(xs)
 
@@ -113,16 +112,12 @@ class SplitBothStrategy(DeepONetStrategy):
             x_func_ = x_func[:, :shift][:, shift - size :]
             x_loc_ = x_loc[:, :shift][:, shift - size :]
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
-            x += self.net.b[i]
             xs.append(x)
         return self.net.concatenate_outputs(xs)
 
 
 class SplitBranchStrategy(DeepONetStrategy):
-    """Uses independent branch nets and shares the trunk net. Different branch net
-    architectures can be used but must all have the same last layer width
-    as the trunk net.
-    """
+    """Split the branch net and share the trunk net."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
         if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
@@ -141,16 +136,12 @@ class SplitBranchStrategy(DeepONetStrategy):
         for i in range(self.net.num_outputs):
             x_func_ = self.net.branch[i](x_func)
             x = self.net.merge_branch_trunk(x_func_, x_loc)
-            x += self.net.b[i]
             xs.append(x)
         return self.net.concatenate_outputs(xs)
 
 
 class SplitTrunkStrategy(DeepONetStrategy):
-    """Uses independent trunk nets and shares the branch net. Different trunk net
-    architectures can be used but must all have the same last layer width
-    as the branch net.
-    """
+    """Split the trunk net and share the branch net."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
         if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
@@ -169,13 +160,16 @@ class SplitTrunkStrategy(DeepONetStrategy):
         for i in range(self.net.num_outputs):
             x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
             x = self.net.merge_branch_trunk(x_func, x_loc_)
-            x += self.net.b[i]
             xs.append(x)
         return self.net.concatenate_outputs(xs)
 
 
 class DeepONet(NN):
     """Deep operator network.
+
+    `Lu et al. Learning nonlinear operators via DeepONet based on the universal
+    approximation theorem of operators. Nat Mach Intell, 2021.
+    <https://doi.org/10.1038/s42256-021-00302-5>`_
 
     Args:
         layer_sizes_branch: A list of integers as the width of a fully connected network,
@@ -253,10 +247,6 @@ class DeepONet(NN):
             layer_sizes_branch, layer_sizes_trunk
         )
 
-        self.b = []
-        for _ in range(self.num_outputs):
-            self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
-
     def build_branch_net(self, layer_sizes_branch):
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -281,11 +271,13 @@ class DeepONet(NN):
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,bi->b", x_func, x_loc)
         y = tf.expand_dims(y, axis=1)
+        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+        y += b
         return y
 
     @staticmethod
-    def concatenate_outputs(x):
-        return tf.concat(x, axis=1)
+    def concatenate_outputs(ys):
+        return tf.concat(ys, axis=1)
 
     def call(self, inputs, training=False):
         x_func = inputs[0]
@@ -380,10 +372,6 @@ class DeepONetCartesianProd(NN):
             layer_sizes_branch, layer_sizes_trunk
         )
 
-        self.b = []
-        for _ in range(self.num_outputs):
-            self.b.append(tf.Variable(tf.zeros(1, dtype=config.real(tf))))
-
     def build_branch_net(self, layer_sizes_branch):
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -409,11 +397,13 @@ class DeepONetCartesianProd(NN):
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,ni->bn", x_func, x_loc)
+        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+        y += b
         return y
 
     @staticmethod
-    def concatenate_outputs(x):
-        return tf.stack(x, axis=2)
+    def concatenate_outputs(ys):
+        return tf.stack(ys, axis=2)
 
     def call(self, inputs, training=False):
         x_func = inputs[0]
@@ -424,7 +414,6 @@ class DeepONetCartesianProd(NN):
         x = self.multi_output_strategy.call(x_func, x_loc, training)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
-
         return x
 
 
