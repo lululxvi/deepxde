@@ -1,6 +1,6 @@
 __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from .fnn import FNN
 from .nn import NN
@@ -22,9 +22,11 @@ class DeepONetStrategy(ABC):
     def __init__(self, net):
         self.net = net
 
+    @abstractmethod
     def build(self, layer_sizes_branch, layer_sizes_trunk):
         """Build branch and trunk nets."""
 
+    @abstractmethod
     def call(self, x_func, x_loc, training=False):
         """Forward pass."""
 
