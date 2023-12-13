@@ -107,7 +107,7 @@ class SplitBothStrategy(DeepONetStrategy):
         shift = 0
         size = x_func.shape[1] // self.net.num_outputs
         xs = []
-        for i in range(self.net.num_outputs):
+        for _ in range(self.net.num_outputs):
             shift += size
             x_func_ = x_func[:, :shift][:, shift - size :]
             x_loc_ = x_loc[:, :shift][:, shift - size :]
