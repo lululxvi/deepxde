@@ -1,6 +1,8 @@
+"""Compute gradients using reverse mode."""
+
 __all__ = ["jacobian", "hessian"]
 
-from .backend import backend_name, tf, torch, jax, paddle
+from ..backend import backend_name, tf, torch, jax, paddle
 
 
 class Jacobian:
