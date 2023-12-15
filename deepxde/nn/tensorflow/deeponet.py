@@ -1,6 +1,7 @@
 __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 
 from abc import ABC, abstractmethod
+from itertools import cycle
 
 from .fnn import FNN
 from .nn import NN
@@ -249,6 +250,13 @@ class DeepONet(NN):
             layer_sizes_branch, layer_sizes_trunk
         )
 
+        self.b = cycle(
+            [
+                tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+                for _ in range(self.num_outputs)
+            ]
+        )
+
     def build_branch_net(self, layer_sizes_branch):
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -273,8 +281,7 @@ class DeepONet(NN):
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,bi->b", x_func, x_loc)
         y = tf.expand_dims(y, axis=1)
-        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
-        y += b
+        y += next(self.b)
         return y
 
     @staticmethod
@@ -374,6 +381,13 @@ class DeepONetCartesianProd(NN):
             layer_sizes_branch, layer_sizes_trunk
         )
 
+        self.b = cycle(
+            [
+                tf.Variable(tf.zeros(1, dtype=config.real(tf)))
+                for _ in range(self.num_outputs)
+            ]
+        )
+
     def build_branch_net(self, layer_sizes_branch):
         if callable(layer_sizes_branch[1]):
             # User-defined network
@@ -399,8 +413,7 @@ class DeepONetCartesianProd(NN):
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,ni->bn", x_func, x_loc)
-        b = tf.Variable(tf.zeros(1, dtype=config.real(tf)))
-        y += b
+        y += next(self.b)
         return y
 
     @staticmethod
