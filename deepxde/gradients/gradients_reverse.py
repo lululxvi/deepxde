@@ -1,4 +1,4 @@
-"""Compute gradients using reverse mode."""
+"""Compute gradients using reverse-mode autodiff."""
 
 __all__ = ["jacobian", "hessian"]
 
