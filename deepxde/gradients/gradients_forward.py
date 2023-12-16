@@ -46,10 +46,13 @@ class Jacobian:
         if j is not None and not 0 <= j < self.dim_x:
             raise ValueError("j={} is not valid.".format(j))
         # Computing gradient is not supported in forward mode, unless there is only one input.
-        if j is None and self.dim_x > 1:
-            raise NotImplementedError(
-                "Forward-mode autodiff doesn't support computing gradient."
-            )
+        if j is None:
+            if self.dim_x == 1:
+                j = 0
+            else:
+                raise NotImplementedError(
+                    "Forward-mode autodiff doesn't support computing gradient."
+                )
         # Compute J[:, j]
         if j not in self.J:
             if backend_name == "jax":
