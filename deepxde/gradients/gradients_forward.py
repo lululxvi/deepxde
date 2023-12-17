@@ -179,3 +179,35 @@ def jacobian(ys, xs, i=0, j=None):
 
 # TODO: Refactor duplicate code
 jacobian._Jacobians = Jacobians()
+
+
+def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
+    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j=0,...,dim_x-1.
+
+    Use this function to compute second-order derivatives instead of ``tf.gradients()``
+    or ``torch.autograd.grad()``, because
+
+    - It is lazy evaluation, i.e., it only computes H[i][j] when needed.
+    - It will remember the gradients that have already been computed to avoid duplicate
+      computation.
+
+    Args:
+        ys: Output Tensor of shape (batch_size, dim_y).
+        xs: Input Tensor of shape (batch_size, dim_x).
+        component: If dim_y > 1, then `ys[:, component]` is used as y to compute the
+            Hessian. If dim_y = 1, `component` must be ``None``.
+        i (int):
+        j (int):
+        grad_y: The gradient of y w.r.t. `xs`. Provide `grad_y` if known to avoid
+            duplicate computation. `grad_y` can be computed from ``jacobian``. Even if
+            you do not provide `grad_y`, there is no duplicate computation if you use
+            ``jacobian`` to compute first-order derivatives.
+
+    Returns:
+        H[`i`][`j`].
+    """
+    # TODO: Naive implementation. To be improved.
+    # This jacobian is OK, as it will reuse cached Jacobians.
+    dy_xi = jacobian(ys, xs, i=component, j=i)
+    # This jacobian may not reuse cached Jacobians.
+    return jacobian(dy_xi, xs, i=0, j=j)
