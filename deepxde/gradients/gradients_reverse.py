@@ -205,7 +205,7 @@ class Hessian:
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             dim_y = y.shape[1]
         elif backend_name == "jax":
-            dim_y = y[0].shape[0]
+            dim_y = y[0].shape[1]
 
         if dim_y > 1:
             if component is None:
