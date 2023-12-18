@@ -70,11 +70,18 @@ class Jacobian:
 
         if self.dim_y == 1:
             return self.J[j]
-        if backend_name == "jax":
-            # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that
-            # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
-            # e.g. Hessian.
-            return self.J[j][0][:, i : i + 1], lambda x: self.J[j][1](x)[i : i + 1]
+
+        # Compute J[i, j]
+        if (i, j) not in self.J:
+            if backend_name == "jax":
+                # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that
+                # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
+                # e.g. Hessian.
+                self.J[i, j] = (
+                    self.J[j][0][:, i : i + 1],
+                    lambda x: self.J[j][1](x)[i : i + 1],
+                )
+        return self.J[i, j]
 
 
 # TODO: Refactor duplicate code
