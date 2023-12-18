@@ -111,11 +111,11 @@ class SplitBothStrategy(DeepONetStrategy):
         size = x_func.shape[1] // self.net.num_outputs
         xs = []
         for _ in range(self.net.num_outputs):
-            shift += size
-            x_func_ = x_func[:, shift: shift+size]
-            x_loc_ = x_loc[:, shift: shift+size]
+            x_func_ = x_func[:, shift:shift+size]
+            x_loc_ = x_loc[:, shift:shift+size]
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
             xs.append(x)
+            shift += size
         return self.net.concatenate_outputs(xs)
 
 
@@ -123,23 +123,30 @@ class SplitBranchStrategy(DeepONetStrategy):
     """Split the branch net and share the trunk net."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
+        if layer_sizes_branch[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
             )
-        branch = []
-        for _ in range(self.net.num_outputs):
-            branch.append(self.net.build_branch_net(layer_sizes_branch))
-        trunk = self.net.build_trunk_net(layer_sizes_trunk)
-        return branch, trunk
+        if layer_sizes_branch[-1] / self.net.num_outputs != layer_sizes_trunk[-1]:
+            raise AssertionError(
+                f"Output size of the trunk net does not equal to {layer_sizes_branch[-1] // self.net.num_outputs}."
+            )
+        return self.net.build_branch_net(layer_sizes_branch), self.net.build_trunk_net(
+            layer_sizes_trunk
+        )
 
     def call(self, x_func, x_loc, training=False):
+        x_func = self.net.branch(x_func)
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
+        # Split x_func into respective outputs
+        shift = 0
+        size = x_loc.shape[1]
         xs = []
         for i in range(self.net.num_outputs):
-            x_func_ = self.net.branch[i](x_func)
+            x_func_ = x_func[:, shift:shift+size]
             x = self.net.merge_branch_trunk(x_func_, x_loc)
             xs.append(x)
+            shift += size
         return self.net.concatenate_outputs(xs)
 
 
@@ -147,23 +154,30 @@ class SplitTrunkStrategy(DeepONetStrategy):
     """Split the trunk net and share the branch net."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
+        if layer_sizes_trunk[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
+                f"Output size of the trunk net is not evenly divisible by {self.net.num_outputs}."
             )
-        trunk = []
-        for _ in range(self.net.num_outputs):
-            trunk.append(self.net.build_trunk_net(layer_sizes_trunk))
-        branch = self.net.build_branch_net(layer_sizes_branch)
-        return branch, trunk
+        if layer_sizes_trunk[-1] / self.net.num_outputs != layer_sizes_branch[-1]:
+            raise AssertionError(
+                f"Output size of the branch net does not equal to {layer_sizes_trunk[-1] // self.net.num_outputs}."
+            )
+        return self.net.build_branch_net(layer_sizes_branch), self.net.build_trunk_net(
+            layer_sizes_trunk
+        )
 
     def call(self, x_func, x_loc, training=False):
         x_func = self.net.branch(x_func)
+        x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
+        # Split x_loc into respective outputs
+        shift = 0
+        size = x_func.shape[1]
         xs = []
         for i in range(self.net.num_outputs):
-            x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
+            x_loc_ = x_loc[:, shift:shift+size]
             x = self.net.merge_branch_trunk(x_func, x_loc_)
             xs.append(x)
+            shift += size
         return self.net.concatenate_outputs(xs)
 
 
@@ -177,8 +191,8 @@ class DeepONet(NN):
     Args:
         layer_sizes_branch: A list of integers as the width of a fully connected network,
             or `(dim, f)` where `dim` is the input dimension and `f` is a network
-            function. The width of the last layer in the branch and trunk net should be
-            equal.
+            function. The width of the last layer in the branch and trunk net
+            should be the same for all strategies except "split_branch" and "split_trunk".
         layer_sizes_trunk (list): A list of integers as the width of a fully connected
             network.
         activation: If `activation` is a ``string``, then the same activation is used in
@@ -203,10 +217,14 @@ class DeepONet(NN):
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
-            Split the branch net and share the trunk net.
+            Split the branch net and share the trunk net. The width of the last layer
+            in the branch net should be equal to the one in the trunk net multiplied
+            by the number of outputs.
 
             - split_trunk
-            Split the trunk net and share the branch net.
+            Split the trunk net and share the branch net. The width of the last layer
+            in the trunk net should be equal to the one in the branch net multiplied
+            by the number of outputs.
     """
 
     def __init__(
@@ -293,10 +311,10 @@ class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 
     Args:
-        layer_sizes_branch: A list of integers as the width of a fully connected network,
+        layer_size_branch: A list of integers as the width of a fully connected network,
             or `(dim, f)` where `dim` is the input dimension and `f` is a network
-            function. The width of the last layer in the branch and trunk net should be
-            equal.
+            function. The width of the last layer in the branch and trunk net
+            should be the same for all strategies except "split_branch" and "split_trunk".
         layer_sizes_trunk (list): A list of integers as the width of a fully connected
             network.
         activation: If `activation` is a ``string``, then the same activation is used in
@@ -321,10 +339,14 @@ class DeepONetCartesianProd(NN):
             groups, and then the kth group outputs the kth solution.
 
             - split_branch
-            Split the branch net and share the trunk net.
+            Split the branch net and share the trunk net. The width of the last layer
+            in the branch net should be equal to the one in the trunk net multiplied
+            by the number of outputs.
 
             - split_trunk
-            Split the trunk net and share the branch net.
+            Split the trunk net and share the branch net. The width of the last layer
+            in the trunk net should be equal to the one in the branch net multiplied
+            by the number of outputs.
     """
 
     def __init__(
