@@ -16,8 +16,8 @@ def pde(x, y):
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     # Backend jax
-    # dy_t, _ = dde.grad.jacobian(y, x, j=1)
-    # dy_xx, _ = dde.grad.hessian(y, x, j=0)
+    # dy_t, _ = dde.grad.jacobian(y, x, i=0, j=1)
+    # dy_xx, _ = dde.grad.hessian(y, x, i=0, j=0)
     # Backend tensorflow.compat.v1 or tensorflow
     return (
         dy_t
