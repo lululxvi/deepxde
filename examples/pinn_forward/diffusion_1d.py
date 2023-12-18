@@ -44,7 +44,7 @@ def pde(x, y):
     #     dy_t
     #     - dy_xx
     #     + jnp.exp(-x[:, 1:])
-    #     * (jnp.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * jnp.sin(np.pi * x[:, 0:1]))
+    #     * (jnp.sin(np.pi * x[..., 0:1]) - np.pi ** 2 * jnp.sin(np.pi * x[..., 0:1]))
     # )
 
 
