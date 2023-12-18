@@ -935,6 +935,24 @@ class Model:
             # Clear cached Jacobians and Hessians.
             grad.clear()
             y = utils.to_numpy(y)
+        elif backend_name == "jax":
+            if utils.get_num_args(operator) == 2:
+
+                @jax.jit
+                def op(inputs):
+                    y_fn = lambda _x: self.net.apply(self.params[0], _x)
+                    return operator(inputs, (y_fn(inputs), y_fn))
+
+            elif utils.get_num_args(operator) == 3:
+                # TODO: JAX backend Implementation of Auxiliary variables.
+                raise NotImplementedError(
+                    "Model.predict() with auxiliary variable hasn't been implemented "
+                    "for backend jax."
+                )
+            y = op(x)
+            # Clear cached Jacobians and Hessians.
+            grad.clear()
+            y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
             inputs = paddle.to_tensor(x, stop_gradient=False)
