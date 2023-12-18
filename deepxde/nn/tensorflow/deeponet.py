@@ -112,8 +112,8 @@ class SplitBothStrategy(DeepONetStrategy):
         xs = []
         for _ in range(self.net.num_outputs):
             shift += size
-            x_func_ = x_func[:, :shift][:, shift - size :]
-            x_loc_ = x_loc[:, :shift][:, shift - size :]
+            x_func_ = x_func[:, shift: shift+size]
+            x_loc_ = x_loc[:, shift: shift+size]
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
             xs.append(x)
         return self.net.concatenate_outputs(xs)
@@ -258,25 +258,14 @@ class DeepONet(NN):
         )
 
     def build_branch_net(self, layer_sizes_branch):
+        # User-defined network
         if callable(layer_sizes_branch[1]):
-            # User-defined network
-            branch = layer_sizes_branch[1]
-        else:
-            # Fully connected network
-            branch = FNN(
-                layer_sizes_branch,
-                self.activation_branch,
-                self.kernel_initializer,
-            )
-        return branch
+            return layer_sizes_branch[1]
+        # Fully connected network
+        return FNN(layer_sizes_branch, self.activation_branch, self.kernel_initializer)
 
     def build_trunk_net(self, layer_sizes_trunk):
-        trunk = FNN(
-            layer_sizes_trunk,
-            self.activation_trunk,
-            self.kernel_initializer,
-        )
-        return trunk
+        return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,bi->b", x_func, x_loc)
