@@ -68,18 +68,13 @@ class Jacobian:
                 grad_fn = lambda x: jax.jvp(self.ys[1], (x,), (tangent,))[1]
                 self.J[j] = (jax.vmap(grad_fn)(self.xs), grad_fn)
 
+        if self.dim_y == 1:
+            return self.J[j]
         if backend_name == "jax":
             # Unlike other backends, in backend jax, a tuple of a jax array and a callable is returned, so that
             # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
             # e.g. Hessian.
-            return (
-                self.J[j]
-                if self.dim_y == 1
-                else (
-                    self.J[j][0][:, i : i + 1],
-                    lambda inputs: self.J[j][1](inputs)[i : i + 1],
-                )
-            )
+            return self.J[j][0][:, i : i + 1], lambda x: self.J[j][1](x)[i : i + 1]
 
 
 # TODO: Refactor duplicate code
