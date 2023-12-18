@@ -73,7 +73,7 @@ class Jacobian:
             # it is consistent with the argument, which is also a tuple. This may be useful for further computation,
             # e.g. Hessian.
             return (
-                self.J[i]
+                self.J[j]
                 if self.dim_y == 1
                 else (
                     self.J[j][0][:, i : i + 1],
@@ -206,6 +206,8 @@ def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
     Returns:
         H[`i`][`j`].
     """
+    if component is None:
+        component = 0
     # TODO: Naive implementation. To be improved.
     # This jacobian is OK, as it will reuse cached Jacobians.
     dy_xi = jacobian(ys, xs, i=component, j=i)
