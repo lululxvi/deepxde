@@ -5,10 +5,10 @@ import numpy as np
 from deepxde.backend import tf
 # Backend pytorch
 # import torch
-# Backend paddle
-# import paddle
 # Backend jax
 # import jax.numpy as jnp
+# Backend paddle
+# import paddle
 
 
 def pde(x, y):
