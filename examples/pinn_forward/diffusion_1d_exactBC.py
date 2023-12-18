@@ -32,19 +32,19 @@ def pde(x, y):
     #     + torch.exp(-x[:, 1:])
     #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
     # )
-    # Backend paddle
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + paddle.exp(-x[:, 1:])
-    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
-    # )
     # Backend jax
     # return (
     #     dy_t
     #     - dy_xx
     #     + jnp.exp(-x[:, 1:])
     #     * (jnp.sin(np.pi * x[..., 0:1]) - np.pi ** 2 * jnp.sin(np.pi * x[..., 0:1]))
+    # )
+    # Backend paddle
+    # return (
+    #     dy_t
+    #     - dy_xx
+    #     + paddle.exp(-x[:, 1:])
+    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
     # )
 
 
