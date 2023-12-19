@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,16 +6,23 @@ import numpy as np
 from deepxde.backend import tf
 # Import torch if using backend pytorch
 # import torch
+# Import jax.numpy if using backend jax
+# import jax.numpy as jnp
 # Import paddle if using backend paddle
 # import paddle
 
 
 def pde(x, y):
+    # Most backends
     dy_xx = dde.grad.hessian(y, x)
+    # Backend jax
+    # dy_xx, _ = dde.grad.hessian(y, x)
     # Use tf.sin for backend tensorflow.compat.v1 or tensorflow
     return -dy_xx - np.pi ** 2 * tf.sin(np.pi * x)
     # Use torch.sin for backend pytorch
     # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
+    # Use jax.numpy.sin for backend jax
+    # return -dy_xx - np.pi ** 2 * jnp.sin(np.pi * x)
     # Use paddle.sin for backend paddle
     # return -dy_xx - np.pi ** 2 * paddle.sin(np.pi * x)
 
