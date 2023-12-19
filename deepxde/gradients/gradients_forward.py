@@ -39,9 +39,11 @@ class Jacobian:
 
     def __call__(self, i=0, j=None):
         """Returns J[`i`][`j`]. If `j` is ``None``, returns the gradient of y_i, i.e.,
-        J[i].
+        J[i]. If `i` is ``None``, returns J[:, j]. `i` and `j` cannot be both ``None``.
         """
-        if not 0 <= i < self.dim_y:
+        if i is None and j is None:
+            raise ValueError("i and j cannot be both None.")
+        if i is not None and not 0 <= i < self.dim_y:
             raise ValueError("i={} is not valid.".format(i))
         if j is not None and not 0 <= j < self.dim_x:
             raise ValueError("j={} is not valid.".format(j))
@@ -68,7 +70,7 @@ class Jacobian:
                 grad_fn = lambda x: jax.jvp(self.ys[1], (x,), (tangent,))[1]
                 self.J[j] = (jax.vmap(grad_fn)(self.xs), grad_fn)
 
-        if self.dim_y == 1:
+        if i is None or self.dim_y == 1:
             return self.J[j]
 
         # Compute J[i, j]
@@ -210,8 +212,5 @@ def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
     """
     if component is None:
         component = 0
-    # TODO: Naive implementation. To be improved.
-    # This jacobian is OK, as it will reuse cached Jacobians.
-    dy_xi = jacobian(ys, xs, i=component, j=i)
-    # This jacobian may not reuse cached Jacobians.
-    return jacobian(dy_xi, xs, i=0, j=j)
+    dys_xj = jacobian(ys, xs, i=None, j=j)
+    return jacobian(dys_xj, xs, i=component, j=i)
