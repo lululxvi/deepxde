@@ -950,8 +950,6 @@ class Model:
                     "for backend jax."
                 )
             y = op(x)
-            # Clear cached Jacobians and Hessians.
-            grad.clear()
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()
