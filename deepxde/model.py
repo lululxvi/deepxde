@@ -940,7 +940,7 @@ class Model:
 
                 @jax.jit
                 def op(inputs):
-                    y_fn = lambda _x: self.net.apply(self.params[0], _x)
+                    y_fn = lambda _x: self.net.apply(self.net.params, _x)
                     return operator(inputs, (y_fn(inputs), y_fn))
 
             elif utils.get_num_args(operator) == 3:
