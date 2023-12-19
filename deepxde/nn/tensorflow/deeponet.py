@@ -111,8 +111,8 @@ class SplitBothStrategy(DeepONetStrategy):
         size = x_func.shape[1] // self.net.num_outputs
         xs = []
         for _ in range(self.net.num_outputs):
-            x_func_ = x_func[:, shift:shift+size]
-            x_loc_ = x_loc[:, shift:shift+size]
+            x_func_ = x_func[:, shift : shift + size]
+            x_loc_ = x_loc[:, shift : shift + size]
             x = self.net.merge_branch_trunk(x_func_, x_loc_)
             xs.append(x)
             shift += size
@@ -143,7 +143,7 @@ class SplitBranchStrategy(DeepONetStrategy):
         size = x_loc.shape[1]
         xs = []
         for _ in range(self.net.num_outputs):
-            x_func_ = x_func[:, shift:shift+size]
+            x_func_ = x_func[:, shift : shift + size]
             x = self.net.merge_branch_trunk(x_func_, x_loc)
             xs.append(x)
             shift += size
@@ -174,7 +174,7 @@ class SplitTrunkStrategy(DeepONetStrategy):
         size = x_func.shape[1]
         xs = []
         for _ in range(self.net.num_outputs):
-            x_loc_ = x_loc[:, shift:shift+size]
+            x_loc_ = x_loc[:, shift : shift + size]
             x = self.net.merge_branch_trunk(x_func, x_loc_)
             xs.append(x)
             shift += size
