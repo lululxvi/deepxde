@@ -311,7 +311,7 @@ class DeepONetCartesianProd(NN):
     """Deep operator network for dataset in the format of Cartesian product.
 
     Args:
-        layer_size_branch: A list of integers as the width of a fully connected network,
+        layer_sizes_branch: A list of integers as the width of a fully connected network,
             or `(dim, f)` where `dim` is the input dimension and `f` is a network
             function. The width of the last layer in the branch and trunk net
             should be the same for all strategies except "split_branch" and "split_trunk".
