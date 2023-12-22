@@ -400,27 +400,24 @@ class DeepONetCartesianProd(NN):
         )
 
     def build_branch_net(self, layer_sizes_branch):
+        # User-defined network
         if callable(layer_sizes_branch[1]):
-            # User-defined network
-            branch = layer_sizes_branch[1]
-        else:
-            # Fully connected network
-            branch = FNN(
-                layer_sizes_branch,
-                self.activation_branch,
-                self.kernel_initializer,
-                regularization=self.regularization,
-            )
-        return branch
+            return layer_sizes_branch[1]
+        # Fully connected network
+        return FNN(
+            layer_sizes_branch,
+            self.activation_branch,
+            self.kernel_initializer,
+            regularization=self.regularization,
+        )
 
     def build_trunk_net(self, layer_sizes_trunk):
-        trunk = FNN(
+        return FNN(
             layer_sizes_trunk,
             self.activation_trunk,
             self.kernel_initializer,
             regularization=self.regularization,
         )
-        return trunk
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,ni->bn", x_func, x_loc)
