@@ -235,6 +235,7 @@ class DeepONet(NN):
         kernel_initializer,
         num_outputs=1,
         multi_output_strategy=None,
+        regularization=None,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -243,6 +244,7 @@ class DeepONet(NN):
         else:
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
+        self.regularization = regularization
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
@@ -280,10 +282,20 @@ class DeepONet(NN):
         if callable(layer_sizes_branch[1]):
             return layer_sizes_branch[1]
         # Fully connected network
-        return FNN(layer_sizes_branch, self.activation_branch, self.kernel_initializer)
+        return FNN(
+            layer_sizes_branch,
+            self.activation_branch,
+            self.kernel_initializer,
+            regularization=self.regularization,
+        )
 
     def build_trunk_net(self, layer_sizes_trunk):
-        return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
+        return FNN(
+            layer_sizes_trunk,
+            self.activation_trunk,
+            self.kernel_initializer,
+            regularization=self.regularization,
+        )
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = tf.einsum("bi,bi->b", x_func, x_loc)
