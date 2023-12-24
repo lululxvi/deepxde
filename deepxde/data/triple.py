@@ -59,11 +59,11 @@ class TripleCartesianProd(Data):
     """
 
     def __init__(self, X_train, y_train, X_test, y_test):
-        if len(X_train[0]) * len(X_train[1]) != y_train.size:
+        if len(X_train[0]) != y_train.shape[0] or len(X_train[1]) != y_train.shape[1]:
             raise ValueError(
                 "The training dataset does not have the format of Cartesian product."
             )
-        if len(X_test[0]) * len(X_test[1]) != y_test.size:
+        if len(X_test[0]) != y_test.shape[0] or len(X_test[1]) != y_test.shape[1]:
             raise ValueError(
                 "The testing dataset does not have the format of Cartesian product."
             )

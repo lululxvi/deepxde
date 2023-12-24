@@ -97,6 +97,7 @@ If you are looking for information on a specific function, class or method, this
   modules/deepxde
   modules/deepxde.data
   modules/deepxde.geometry
+  modules/deepxde.gradients
   modules/deepxde.icbc
   modules/deepxde.nn
   modules/deepxde.nn.jax
