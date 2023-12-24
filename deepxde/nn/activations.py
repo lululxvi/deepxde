@@ -36,7 +36,8 @@ def get(identifier):
     """Returns function.
 
     Args:
-        identifier: Function or string.
+        identifier: Function or string (ELU, GELU, ReLU, SELU, Sigmoid, SiLU, sin,
+            Swish, tanh).
 
     Returns:
         Function corresponding to the input string or input function.
@@ -50,15 +51,15 @@ def get(identifier):
             return layer_wise_locally_adaptive(get(identifier[1]), n=n)
         return {
             "elu": bkd.elu,
-            "relu": bkd.relu,
             "gelu": bkd.gelu,
+            "relu": bkd.relu,
             "selu": bkd.selu,
             "sigmoid": bkd.sigmoid,
             "silu": bkd.silu,
             "sin": bkd.sin,
             "swish": bkd.silu,
             "tanh": bkd.tanh,
-        }[identifier]
+        }[identifier.lower()]
     if callable(identifier):
         return identifier
     raise TypeError(

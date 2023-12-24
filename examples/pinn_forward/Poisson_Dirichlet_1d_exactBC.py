@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, jax, paddle"""
 import deepxde as dde
 import numpy as np
 
@@ -10,6 +10,10 @@ if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
     from deepxde.backend import tf
 
     sin = tf.sin
+elif dde.backend.backend_name == "jax":
+    import jax
+
+    sin = jax.numpy.sin
 elif dde.backend.backend_name == "paddle":
     import paddle
 
@@ -17,7 +21,10 @@ elif dde.backend.backend_name == "paddle":
 
 
 def pde(x, y):
+    # Most backends
     dy_xx = dde.grad.hessian(y, x)
+    # Backend jax
+    # dy_xx, _ = dde.grad.hessian(y, x)
     summation = sum([i * sin(i * x) for i in range(1, 5)])
     return -dy_xx - summation - 8 * sin(8 * x)
 
