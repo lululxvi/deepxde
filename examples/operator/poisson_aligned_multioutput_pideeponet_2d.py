@@ -2,22 +2,15 @@
 Poisson-like 2D problem
 Supported backend: tensorflow.compat.v1, tensorflow
 """
-import os
-
-os.environ["DDEBACKEND"] = "tensorflow.compat.v1"
-
 import numpy as np
-import deepxde as dde
-from deepxde.backend import tf
-import matplotlib.pyplot as plt
 
+import deepxde as dde
 
 
 # Two target variables: A and B
 # Equations: dA_xx = f, dB_tt = f
 def equation(x, y, f):
-    A = y[:, 0:1]
-    B = y[:, 1:2]
+    # A = y[:, 0:1] and B = y[:, 1:2]
     dA_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
     dB_tt = dde.grad.hessian(y, x, component=1, i=1, j=1)
     return [dA_xx - f, dB_tt - f]
@@ -54,13 +47,16 @@ data = dde.data.PDEOperatorCartesianProd(
     num_function=10,
 )
 
-# Define DeepONet with two outputs
+# Define DeepONet with two outputs.
+# Use `split_branch` strategy. The output size of the trunk net is equal
+# to the output size of the branch net divided by the number of outputs.
 net = dde.nn.DeepONetCartesianProd(
     [evaluation_points.shape[0], 100, 100],
-    [geomtime.dim, 100, 100],
+    [geomtime.dim, 100, 50],
     activation="tanh",
     kernel_initializer="Glorot normal",
     num_outputs=2,
+    multi_output_strategy="split_branch",
 )
 
 # Train model
