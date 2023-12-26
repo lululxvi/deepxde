@@ -185,8 +185,8 @@ def jacobian(ys, xs, i=0, j=None):
 jacobian._Jacobians = Jacobians()
 
 
-def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
-    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j=0,...,dim_x-1.
+def hessian(ys, xs, component=0, i=0, j=0):
+    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j = 0,..., dim_x-1.
 
     Use this function to compute second-order derivatives instead of ``tf.gradients()``
     or ``torch.autograd.grad()``, because
@@ -198,19 +198,12 @@ def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
     Args:
         ys: Output Tensor of shape (batch_size, dim_y).
         xs: Input Tensor of shape (batch_size, dim_x).
-        component: If dim_y > 1, then `ys[:, component]` is used as y to compute the
-            Hessian. If dim_y = 1, `component` must be ``None``.
+        component: `ys[:, component]` is used as y to compute the Hessian.
         i (int):
         j (int):
-        grad_y: The gradient of y w.r.t. `xs`. Provide `grad_y` if known to avoid
-            duplicate computation. `grad_y` can be computed from ``jacobian``. Even if
-            you do not provide `grad_y`, there is no duplicate computation if you use
-            ``jacobian`` to compute first-order derivatives.
 
     Returns:
         H[`i`][`j`].
     """
-    if component is None:
-        component = 0
     dys_xj = jacobian(ys, xs, i=None, j=j)
     return jacobian(dys_xj, xs, i=component, j=i)

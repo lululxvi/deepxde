@@ -197,42 +197,30 @@ class Hessian:
     It is lazy evaluation, i.e., it only computes H[i][j] when needed.
 
     Args:
-        y: Output Tensor of shape (batch_size, 1) or (batch_size, dim_y > 1).
+        ys: Output Tensor of shape (batch_size, dim_y).
         xs: Input Tensor of shape (batch_size, dim_x).
-        component: If `y` has the shape (batch_size, dim_y > 1), then `y[:, component]`
-            is used to compute the Hessian. Do not use if `y` has the shape (batch_size,
-            1).
-        grad_y: The gradient of `y` w.r.t. `xs`. Provide `grad_y` if known to avoid
-            duplicate computation. `grad_y` can be computed from ``Jacobian``.
+        component: `ys[:, component]` is used as y to compute the Hessian.
     """
 
-    def __init__(self, y, xs, component=None, grad_y=None):
+    def __init__(self, ys, xs, component=0):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
-            dim_y = y.shape[1]
+            dim_y = ys.shape[1]
         elif backend_name == "jax":
-            dim_y = y[0].shape[1]
-
-        if dim_y > 1:
-            if component is None:
-                raise ValueError("The component of y is missing.")
-            if component >= dim_y:
-                raise ValueError(
-                    "The component of y={} cannot be larger than the dimension={}.".format(
-                        component, dim_y
-                    )
+            dim_y = ys[0].shape[1]
+        if component >= dim_y:
+            raise ValueError(
+                "The component of ys={} cannot be larger than the dimension={}.".format(
+                    component, dim_y
                 )
-        else:
-            if component is not None:
-                raise ValueError("Do not use component for 1D y.")
-            component = 0
+            )
 
-        if grad_y is None:
-            grad_y = jacobian(y, xs, i=component, j=None)
+        # There is no duplicate computation of grad_y.
+        grad_y = jacobian(ys, xs, i=component, j=None)
         self.H = Jacobian(grad_y, xs)
 
     def __call__(self, i=0, j=0):
         """Returns H[`i`][`j`]."""
-        return self.H(i, j)
+        return self.H(j, i)
 
 
 class Hessians:
@@ -246,15 +234,15 @@ class Hessians:
     def __init__(self):
         self.Hs = {}
 
-    def __call__(self, y, xs, component=None, i=0, j=0, grad_y=None):
+    def __call__(self, ys, xs, component=0, i=0, j=0):
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-            key = (y.ref(), xs.ref(), component)
+            key = (ys.ref(), xs.ref(), component)
         elif backend_name in ["pytorch", "paddle"]:
-            key = (y, xs, component)
+            key = (ys, xs, component)
         elif backend_name == "jax":
-            key = (id(y[0]), id(xs), component)
+            key = (id(ys[0]), id(xs), component)
         if key not in self.Hs:
-            self.Hs[key] = Hessian(y, xs, component=component, grad_y=grad_y)
+            self.Hs[key] = Hessian(ys, xs, component=component)
         return self.Hs[key](i, j)
 
     def clear(self):
@@ -262,8 +250,8 @@ class Hessians:
         self.Hs = {}
 
 
-def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
-    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j=0,...,dim_x-1.
+def hessian(ys, xs, component=0, i=0, j=0):
+    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j = 0,..., dim_x-1.
 
     Use this function to compute second-order derivatives instead of ``tf.gradients()``
     or ``torch.autograd.grad()``, because
@@ -275,19 +263,14 @@ def hessian(ys, xs, component=None, i=0, j=0, grad_y=None):
     Args:
         ys: Output Tensor of shape (batch_size, dim_y).
         xs: Input Tensor of shape (batch_size, dim_x).
-        component: If dim_y > 1, then `ys[:, component]` is used as y to compute the
-            Hessian. If dim_y = 1, `component` must be ``None``.
+        component: `ys[:, component]` is used as y to compute the Hessian.
         i (int):
         j (int):
-        grad_y: The gradient of y w.r.t. `xs`. Provide `grad_y` if known to avoid
-            duplicate computation. `grad_y` can be computed from ``jacobian``. Even if
-            you do not provide `grad_y`, there is no duplicate computation if you use
-            ``jacobian`` to compute first-order derivatives.
 
     Returns:
         H[`i`][`j`].
     """
-    return hessian._Hessians(ys, xs, component=component, i=i, j=j, grad_y=grad_y)
+    return hessian._Hessians(ys, xs, component=component, i=i, j=j)
 
 
 hessian._Hessians = Hessians()
