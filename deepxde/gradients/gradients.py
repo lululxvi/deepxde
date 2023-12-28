@@ -1,4 +1,6 @@
-"""Compute Jacobian matrix."""
+"""Compute gradients using reverse-mode or forward-mode autodiff."""
+
+__all__ = ["jacobian", "hessian"]
 
 from abc import ABC, abstractmethod
 
@@ -145,3 +147,26 @@ def jacobian(ys, xs, i=None, j=None):
 
 
 jacobian._Jacobians = Jacobians(Jacobian)
+
+
+def hessian(ys, xs, component=0, i=0, j=0):
+    """Compute `Hessian matrix <https://en.wikipedia.org/wiki/Hessian_matrix>`_ H as
+    H[i, j] = d^2y / dx_i dx_j, where i,j = 0, ..., dim_x - 1.
+
+    Use this function to compute second-order derivatives instead of ``tf.gradients()``
+    or ``torch.autograd.grad()``, because
+
+    - It is lazy evaluation, i.e., it only computes H[i, j] when needed.
+    - It will remember the gradients that have already been computed to avoid duplicate
+      computation.
+
+    Args:
+        ys: Output Tensor of shape (batch_size, dim_y).
+        xs: Input Tensor of shape (batch_size, dim_x).
+        component: `ys[:, component]` is used as y to compute the Hessian.
+        i (int): `i`th row.
+        j (int): `j`th column.
+
+    Returns:
+        H[`i`, `j`].
+    """
