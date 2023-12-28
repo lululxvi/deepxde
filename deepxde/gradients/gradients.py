@@ -44,7 +44,10 @@ class Jacobian(ABC):
         - `i` and `j` cannot be both ``None``.
         """
         if i is None and j is None:
-            raise ValueError("i and j cannot be both None.")
+            if self.dim_x > 1 or self.dim_y > 1:
+                raise ValueError("i and j cannot be both None.")
+            i = 0
+            j = 0
         if i is not None and not 0 <= i < self.dim_y:
             raise ValueError("i={} is not valid.".format(i))
         if j is not None and not 0 <= j < self.dim_x:
@@ -138,7 +141,8 @@ def jacobian(ys, xs, i=None, j=None):
         i (int or None): `i`th row. If `i` is ``None``, returns the `j`th column
             J[:, `j`].
         j (int or None): `j`th column. If `j` is ``None``, returns the `i`th row
-            J[`i`, :], i.e., the gradient of y_i. `i` and `j` cannot be both ``None``.
+            J[`i`, :], i.e., the gradient of y_i. `i` and `j` cannot be both ``None``,
+            unless J has only one element, which is returned.
 
     Returns:
         (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
