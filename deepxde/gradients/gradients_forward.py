@@ -64,12 +64,13 @@ jacobian._Jacobians = Jacobians(JacobianForward)
 
 
 def hessian(ys, xs, component=0, i=0, j=0):
-    """Compute Hessian matrix H: H[i][j] = d^2y / dx_i dx_j, where i,j = 0,..., dim_x-1.
+    """Compute `Hessian matrix <https://en.wikipedia.org/wiki/Hessian_matrix>`_ H as
+    H[i, j] = d^2y / dx_i dx_j, where i,j = 0, ..., dim_x - 1.
 
     Use this function to compute second-order derivatives instead of ``tf.gradients()``
     or ``torch.autograd.grad()``, because
 
-    - It is lazy evaluation, i.e., it only computes H[i][j] when needed.
+    - It is lazy evaluation, i.e., it only computes H[i, j] when needed.
     - It will remember the gradients that have already been computed to avoid duplicate
       computation.
 
@@ -77,11 +78,11 @@ def hessian(ys, xs, component=0, i=0, j=0):
         ys: Output Tensor of shape (batch_size, dim_y).
         xs: Input Tensor of shape (batch_size, dim_x).
         component: `ys[:, component]` is used as y to compute the Hessian.
-        i (int):
-        j (int):
+        i (int): `i`th row.
+        j (int): `j`th column.
 
     Returns:
-        H[`i`][`j`].
+        H[`i`, `j`].
     """
     dys_xj = jacobian(ys, xs, i=None, j=j)
     return jacobian(dys_xj, xs, i=component, j=i)

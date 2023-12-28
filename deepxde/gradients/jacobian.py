@@ -7,7 +7,7 @@ from ..backend import backend_name
 
 class Jacobian(ABC):
     """Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
-    J with J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
+    J as J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
 
     It is lazy evaluation, i.e., it only computes J[i, j] when needed.
 
@@ -121,7 +121,7 @@ class Jacobians:
 
 def jacobian(ys, xs, i=None, j=None):
     """Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
-    J with J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
+    J as J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
 
     Use this function to compute first-order derivatives instead of ``tf.gradients()``
     or ``torch.autograd.grad()``, because
@@ -136,10 +136,10 @@ def jacobian(ys, xs, i=None, j=None):
         i (int or None): `i`th row. If `i` is ``None``, returns the `j`th column
             J[:, `j`].
         j (int or None): `j`th column. If `j` is ``None``, returns the `i`th row
-            J[`i`, :], i.e., the gradient of y_i.
+            J[`i`, :], i.e., the gradient of y_i. `i` and `j` cannot be both ``None``.
 
     Returns:
-        (`i`, `j`)th entry J[`i`, `j`]. `i` and `j` cannot be both ``None``.
+        (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
     """
     return jacobian._Jacobians(ys, xs, i=i, j=j)
 
