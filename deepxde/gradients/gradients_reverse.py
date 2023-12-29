@@ -1,8 +1,8 @@
 """Compute gradients using reverse-mode autodiff."""
 
-__all__ = ["jacobian", "hessian"]
+__all__ = ["hessian", "jacobian"]
 
-from .gradients import Jacobian, Jacobians, jacobian
+from .jacobian import Jacobian, Jacobians
 from ..backend import backend_name, tf, torch, jax, paddle
 
 
@@ -67,6 +67,10 @@ class JacobianReverse(Jacobian):
                     lambda x: self.J[i][1](x)[j : j + 1],
                 )
         return self.J[i, j]
+
+
+def jacobian(ys, xs, i=None, j=None):
+    return jacobian._Jacobians(ys, xs, i=i, j=j)
 
 
 jacobian._Jacobians = Jacobians(JacobianReverse)
