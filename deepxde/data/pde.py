@@ -3,7 +3,6 @@ import numpy as np
 from .data import Data
 from .. import backend as bkd
 from .. import config
-from ..backend import backend_name
 from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0
 
 
@@ -128,9 +127,8 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
-            outputs_pde = outputs
-        elif backend_name == "jax":
+        outputs_pde = outputs
+        if bkd.backend_name == "jax":
             # JAX requires pure functions
             outputs_pde = (outputs, aux[0])
 
@@ -166,7 +164,7 @@ class PDE(Data):
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
             # The same BC points are used for training and testing.
-            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            error = bc.error(self.train_x, inputs, outputs_pde, beg, end)
             losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 

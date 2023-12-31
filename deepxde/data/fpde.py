@@ -7,7 +7,6 @@ import numpy as np
 from .pde import PDE
 from .. import backend as bkd
 from .. import config
-from ..backend import is_tensor, backend_name
 from ..utils import array_ops_compat, run_if_all_none
 
 
@@ -100,7 +99,7 @@ class FPDE(PDE):
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         bcs_start = np.cumsum([0] + self.num_bcs)
         # do not cache int_mat when alpha is a learnable parameter
-        if is_tensor(self.alpha):
+        if bkd.is_tensor(self.alpha):
             int_mat = self.get_int_matrix(True)
         else:
             if self.int_mat_train is not None:
@@ -119,9 +118,14 @@ class FPDE(PDE):
             loss_fn(bkd.zeros_like(fi), fi) for fi in f
         ]
 
+        outputs_fpde = outputs
+        if bkd.backend_name == "jax":
+            # JAX requires pure functions
+            outputs_fpde = (outputs, aux[0])
+
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
-            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            error = bc.error(self.train_x, inputs, outputs_fpde, beg, end)
             losses.append(
                 loss_fn(bkd.zeros_like(error), error)
             )
@@ -138,7 +142,7 @@ class FPDE(PDE):
 
     def train_next_batch(self, batch_size=None):
         # do not cache train data when alpha is a learnable parameter
-        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+        if not bkd.is_tensor(self.alpha) or bkd.backend_name == "tensorflow.compat.v1":
             if self.train_x is not None:
                 return self.train_x, self.train_y
         if self.disc.meshtype == "static":
@@ -168,7 +172,7 @@ class FPDE(PDE):
 
     def test(self):
         # do not cache test data when alpha is a learnable parameter
-        if not is_tensor(self.alpha) or backend_name == "tensorflow.compat.v1":
+        if not bkd.is_tensor(self.alpha) or bkd.backend_name == "tensorflow.compat.v1":
             if self.test_x is not None:
                 return self.test_x, self.test_y
 
