@@ -302,7 +302,7 @@ class Model:
             if targets is not None:
                 targets = torch.as_tensor(targets)
             # if forward-mode AD is used, then a forward call needs to be passed
-            aux = [lambda _x: self.net(_x)] if config.autodiff == "forward" else None
+            aux = [self.net] if config.autodiff == "forward" else None
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
