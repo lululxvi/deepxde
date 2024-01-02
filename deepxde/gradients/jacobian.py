@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from ..backend import backend_name
 from .. import config
+from ..backend import backend_name
 
 
 class Jacobian(ABC):
