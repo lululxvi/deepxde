@@ -3,7 +3,7 @@
 __all__ = ["hessian", "jacobian"]
 
 from .jacobian import Jacobian, Jacobians
-from ..backend import backend_name, torch, jax
+from ..backend import backend_name, jax, torch
 
 
 class JacobianForward(Jacobian):
