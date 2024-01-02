@@ -3,7 +3,7 @@
 __all__ = ["hessian", "jacobian"]
 
 from .jacobian import Jacobian, Jacobians
-from ..backend import backend_name, jax
+from ..backend import backend_name, torch, jax
 
 
 class JacobianForward(Jacobian):
@@ -23,13 +23,28 @@ class JacobianForward(Jacobian):
             if backend_name in [
                 "tensorflow.compat.v1",
                 "tensorflow",
-                "pytorch",
                 "paddle",
             ]:
                 # TODO: Other backends
                 raise NotImplementedError(
                     "Backend f{backend_name} doesn't support forward-mode autodiff."
                 )
+            elif backend_name == "pytorch":
+                # Here we use torch.func.jvp to compute the gradient of a function.
+                # The implementation is similiar to backend JAX. Vectorization is not
+                # not necessary but could be done through torch.func.vmap. We note that
+                # torch.func, previously known as functorch, is integrated into PyTorch
+                # and requires torch >= 2.1.
+                # Another option is torch.autograd.functional.jvp. However, this
+                # implementation computes the jvp by using the double backwards trick.
+                # It is sometimes faster than torch.func.jvp because torch.func is
+                # currently in beta. But we decided to go with torch.func.jvp.
+                tangent = torch.zeros_like(self.xs)
+                tangent[:, j] = 1
+                grad_fn = lambda x: torch.func.jvp(self.ys[1], (x,), (tangent,))[1]
+                # jvp by torch.autograd.functional.jvp
+                # grad_fn = lambda x: torch.autograd.functional.jvp(self.ys[1], (x,), (tangent,), create_graph=True)[1]
+                self.J[j] = (grad_fn(self.xs), grad_fn)
             elif backend_name == "jax":
                 # Here, we use jax.jvp to compute the gradient of a function. This is
                 # different from TensorFlow and PyTorch that the input of a function is
@@ -49,10 +64,10 @@ class JacobianForward(Jacobian):
 
         # Compute J[i, j]
         if (i, j) not in self.J:
-            if backend_name == "jax":
-                # In backend jax, a tuple of a jax array and a callable is returned, so
-                # that it is consistent with the argument, which is also a tuple. This
-                # is useful for further computation, e.g., Hessian.
+            if backend_name in ["pytorch", "jax"]:
+                # In backend pytorch/jax, a tuple of a tensor/array and a callable is
+                # returned, so that it is consistent with the argument, which is also
+                # a tuple. This is useful for further computation, e.g., Hessian.
                 self.J[i, j] = (
                     self.J[j][0][:, i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],

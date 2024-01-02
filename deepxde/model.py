@@ -926,6 +926,8 @@ class Model:
                 inputs = torch.as_tensor(x).requires_grad_()
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
+                if config.autodiff == "forward":
+                    outputs = (outputs, self.net)
                 y = operator(inputs, outputs)
             elif utils.get_num_args(operator) == 3:
                 # TODO: Pytorch backend Implementation of Auxiliary variables.
