@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from .. import config
 from ..backend import backend_name
 
 
@@ -18,8 +19,16 @@ class Jacobian(ABC):
         self.ys = ys
         self.xs = xs
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "paddle"]:
             self.dim_y = ys.shape[1]
+        elif backend_name == "pytorch":
+            if config.autodiff == "reverse":
+                # For backend pytorch with reverse-mode AD, only a tensor is passed.
+                self.dim_y = ys.shape[1]
+            elif config.autodiff == "forward":
+                # For backend pytorch with forward-mode AD, a tuple of a tensor and
+                # a callable is passed, similar to backend jax.
+                self.dim_y = ys[0].shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
