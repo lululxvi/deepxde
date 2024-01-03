@@ -20,14 +20,21 @@ class JacobianForward(Jacobian):
 
         # Compute J[:, j]
         if j not in self.J:
-            if backend_name in [
-                "tensorflow.compat.v1",
-                "paddle",
-            ]:
+            if backend_name == "paddle":
                 # TODO: Other backends
                 raise NotImplementedError(
                     "Backend f{backend_name} doesn't support forward-mode autodiff."
                 )
+            elif backend_name == "tensorflow.compat.v1":
+                # We use the double backwards trick to compute the jvp of a function in
+                # backend tensorflow.compat.v1, because autodiff.ForwardAccumulator is
+                # not supported. We note that this is not the exact jvp.
+                tangent = tf.one_hot([j], depth=self.xs.shape[1]) * tf.ones_like(
+                    self.xs
+                )
+                u = tf.ones_like(self.ys)
+                g = tf.gradients(self.ys, self.xs, grad_ys=u)
+                self.J[j] = tf.gradients(g, u, grad_ys=tangent)[0]
             elif backend_name == "tensorflow":
                 # We use tensorflow.autodiff.ForwardAccumulator to compute the jvp of
                 # a function.
@@ -87,6 +94,8 @@ class JacobianForward(Jacobian):
                     self.J[j][0][:, i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
                 )
+            elif backend_name == "tensorflow.compat.v1":
+                self.J[i, j] = self.J[j][:, i : i + 1]
         return self.J[i, j]
 
 
