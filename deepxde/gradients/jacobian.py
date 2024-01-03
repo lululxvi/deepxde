@@ -19,8 +19,16 @@ class Jacobian(ABC):
         self.ys = ys
         self.xs = xs
 
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "paddle"]:
+        if backend_name in ["tensorflow.compat.v1", "paddle"]:
             self.dim_y = ys.shape[1]
+        elif backend_name == "tensorflow":
+            if config.autodiff == "reverse":
+                # For backend tensorflow with reverse-mode AD, only a tensor is passed.
+                self.dim_y = ys.shape[1]
+            elif config.autodiff == "forward":
+                # For backend tensorflow with forward-mode AD, a tuple of a tensor and
+                # a callable is passed, similar to backend jax.
+                self.dim_y = ys[0].shape[1]
         elif backend_name == "pytorch":
             if config.autodiff == "reverse":
                 # For backend pytorch with reverse-mode AD, only a tensor is passed.
@@ -115,7 +123,10 @@ class Jacobians:
         #     x.requires_grad_()
         #     f(x)
         if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-            key = (ys.ref(), xs.ref())
+            if config.autodiff == "reverse":
+                key = (ys.ref(), xs.ref())
+            elif config.autodiff == "forward":
+                key = (ys[0].ref(), xs.ref())
         elif backend_name in ["pytorch", "paddle"]:
             key = (ys, xs)
         elif backend_name == "jax":

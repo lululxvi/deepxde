@@ -3,7 +3,7 @@
 __all__ = ["hessian", "jacobian"]
 
 from .jacobian import Jacobian, Jacobians
-from ..backend import backend_name, jax, torch
+from ..backend import backend_name, jax, torch, tf
 
 
 class JacobianForward(Jacobian):
@@ -22,13 +22,27 @@ class JacobianForward(Jacobian):
         if j not in self.J:
             if backend_name in [
                 "tensorflow.compat.v1",
-                "tensorflow",
                 "paddle",
             ]:
                 # TODO: Other backends
                 raise NotImplementedError(
                     "Backend f{backend_name} doesn't support forward-mode autodiff."
                 )
+            elif backend_name == "tensorflow":
+                # We use tensorflow.autodiff.ForwardAccumulator to compute the jvp of
+                # a function.
+                # TODO: create the tangent in a smarter way
+                tangent = tf.one_hot(self.xs.shape[0] * [j], depth=self.xs.shape[1])
+
+                def grad_fn(x):
+                    with tf.autodiff.ForwardAccumulator(
+                        primals=x,
+                        tangents=tangent,
+                    ) as acc:
+                        u = self.ys[1](x)
+                    return acc.jvp(u)
+
+                self.J[j] = (grad_fn(self.xs), grad_fn)
             elif backend_name == "pytorch":
                 # Here we use torch.func.jvp to compute the gradient of a function.
                 # The implementation is similiar to backend JAX. Vectorization is not
@@ -64,10 +78,11 @@ class JacobianForward(Jacobian):
 
         # Compute J[i, j]
         if (i, j) not in self.J:
-            if backend_name in ["pytorch", "jax"]:
-                # In backend pytorch/jax, a tuple of a tensor/array and a callable is
-                # returned, so that it is consistent with the argument, which is also
-                # a tuple. This is useful for further computation, e.g., Hessian.
+            if backend_name in ["tensorflow", "pytorch", "jax"]:
+                # In backend tensorflow/pytorch/jax, a tuple of a tensor/tensor/array
+                # and a callable is returned, so that it is consistent with the argument,
+                # which is also a tuple. This is useful for further computation, e.g.,
+                # Hessian.
                 self.J[i, j] = (
                     self.J[j][0][:, i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
