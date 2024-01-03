@@ -20,12 +20,7 @@ class JacobianForward(Jacobian):
 
         # Compute J[:, j]
         if j not in self.J:
-            if backend_name == "paddle":
-                # TODO: Other backends
-                raise NotImplementedError(
-                    "Backend f{backend_name} doesn't support forward-mode autodiff."
-                )
-            elif backend_name == "tensorflow.compat.v1":
+            if backend_name == "tensorflow.compat.v1":
                 # We use the double backwards trick to compute the jvp of a function in
                 # backend tensorflow.compat.v1, because autodiff.ForwardAccumulator is
                 # not supported. We note that this is not the exact jvp.
@@ -80,13 +75,20 @@ class JacobianForward(Jacobian):
                 tangent = jax.numpy.zeros(self.dim_x).at[j].set(1)
                 grad_fn = lambda x: jax.jvp(self.ys[1], (x,), (tangent,))[1]
                 self.J[j] = (jax.vmap(grad_fn)(self.xs), grad_fn)
+            elif backend_name == "paddle":
+                # TODO: Other backends
+                raise NotImplementedError(
+                    "Backend f{backend_name} doesn't support forward-mode autodiff."
+                )
 
         if i is None or self.dim_y == 1:
             return self.J[j]
 
         # Compute J[i, j]
         if (i, j) not in self.J:
-            if backend_name in ["tensorflow", "pytorch", "jax"]:
+            if backend_name == "tensorflow.compat.v1":
+                self.J[i, j] = self.J[j][:, i : i + 1]
+            elif backend_name in ["tensorflow", "pytorch", "jax"]:
                 # In backend tensorflow/pytorch/jax, a tuple of a tensor/tensor/array
                 # and a callable is returned, so that it is consistent with the argument,
                 # which is also a tuple. This is useful for further computation, e.g.,
@@ -95,8 +97,6 @@ class JacobianForward(Jacobian):
                     self.J[j][0][:, i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
                 )
-            elif backend_name == "tensorflow.compat.v1":
-                self.J[i, j] = self.J[j][:, i : i + 1]
         return self.J[i, j]
 
 
