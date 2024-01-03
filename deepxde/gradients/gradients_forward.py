@@ -38,8 +38,9 @@ class JacobianForward(Jacobian):
             elif backend_name == "tensorflow":
                 # We use tensorflow.autodiff.ForwardAccumulator to compute the jvp of
                 # a function.
-                # TODO: create the tangent in a smarter way
-                tangent = tf.one_hot(self.xs.shape[0] * [j], depth=self.xs.shape[1])
+                tangent = tf.one_hot([j], depth=self.xs.shape[1]) * tf.ones_like(
+                    self.xs
+                )
 
                 def grad_fn(x):
                     with tf.autodiff.ForwardAccumulator(
