@@ -208,7 +208,9 @@ class Model:
             # gradient of outputs wrt inputs will be lost here.
             outputs_ = self.net(inputs, training=training)
             # Data losses
-            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
+            # if forward-mode AD is used, then a forward call needs to be passed
+            aux = [self.net] if config.autodiff == "forward" else None
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
@@ -907,6 +909,8 @@ class Model:
                 @tf.function
                 def op(inputs):
                     y = self.net(inputs)
+                    if config.autodiff == "forward":
+                        y = (y, self.net)
                     return operator(inputs, y)
 
             elif utils.get_num_args(operator) == 3:

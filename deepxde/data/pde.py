@@ -128,13 +128,13 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        if backend_name in ["tensorflow.compat.v1", "tensorflow", "paddle"]:
+        if backend_name in ["tensorflow.compat.v1", "paddle"]:
             outputs_pde = outputs
-        elif backend_name == "pytorch":
+        elif backend_name in ["tensorflow", "pytorch"]:
             if config.autodiff == "reverse":
                 outputs_pde = outputs
             elif config.autodiff == "forward":
-                # forward-mode AD in PyTorch requires functions
+                # forward-mode AD requires functions
                 outputs_pde = (outputs, aux[0])
         elif backend_name == "jax":
             # JAX requires pure functions
