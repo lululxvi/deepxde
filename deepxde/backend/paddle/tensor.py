@@ -3,8 +3,8 @@ from packaging.version import Version
 
 import paddle
 
-if Version(paddle.__version__) != Version("0.0.0"):
-    raise RuntimeError("DeepXDE requires PaddlePaddle==0.0.0(develop).")
+if Version(paddle.__version__) < Version("2.6.0") and Version(paddle.__version__) != Version("0.0.0"):
+    raise RuntimeError("DeepXDE requires PaddlePaddle>=2.6.0 or PaddlePaddle==0.0.0(develop).")
 
 if paddle.device.is_compiled_with_cuda():
     paddle.device.set_device("gpu")
