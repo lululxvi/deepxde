@@ -486,7 +486,7 @@ class PODDeepONet(NN):
         regularization=None,
     ):
         super().__init__()
-        self.pod_basis = tf.convert_to_tensor(pod_basis, dtype=tf.float32)
+        self.pod_basis = tf.convert_to_tensor(pod_basis, dtype=config.real(tf))
         if isinstance(activation, dict):
             activation_branch = activation["branch"]
             self.activation_trunk = activations.get(activation["trunk"])
