@@ -9,6 +9,7 @@ __all__ = [
     "utils",
     "Model",
     "Variable",
+    "zcs"
 ]
 
 try:
@@ -44,3 +45,6 @@ from .icbc import (
 )
 
 maps = nn
+
+# zcs
+from . import zcs
