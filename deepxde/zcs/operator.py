@@ -21,7 +21,7 @@ class PDEOperatorCartesianProd(dde.data.PDEOperatorCartesianProd):
             if not isinstance(f, (list, tuple)):
                 f = [f]
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
-        error_f = [fi[:, bcs_start[-1]:] for fi in f]
+        error_f = [fi[:, bcs_start[-1] :] for fi in f]
         losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]  # noqa
 
         # BC

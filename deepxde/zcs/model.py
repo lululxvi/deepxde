@@ -19,11 +19,13 @@ class Model(dde.Model):
         self.zcs_parameters = None
 
     def _compile_tensorflow_compat_v1(self, lr, loss_fn, decay):
-        """ tensorflow.compat.v1 """
-        raise NotImplementedError("ZCS is not implemented for backend tensorflow.compat.v1")
+        """tensorflow.compat.v1"""
+        raise NotImplementedError(
+            "ZCS is not implemented for backend tensorflow.compat.v1"
+        )
 
     def _compile_tensorflow(self, lr, loss_fn, decay):
-        """ tensorflow """
+        """tensorflow"""
         super()._compile_tensorflow(lr, loss_fn, decay)
 
         def process_inputs_zcs(inputs):
@@ -36,19 +38,20 @@ class Model(dde.Model):
 
             # create ZCS scalars
             n_dim_crds = trunk_inputs.shape[1]
-            zcs_scalars = [tf.Variable(0., trainable=True)
-                           for _ in range(n_dim_crds)]
+            zcs_scalars = [tf.Variable(0.0, trainable=True) for _ in range(n_dim_crds)]
 
             # add ZCS to truck inputs
             # from now until loss must be taped
-            with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
+            with tf.GradientTape(
+                persistent=True, watch_accessed_variables=False
+            ) as tape:
                 for z in zcs_scalars:
                     tape.watch(z)
                 zcs_vector = tf.stack(zcs_scalars)
                 trunk_inputs = trunk_inputs + zcs_vector[None, :]
 
             # return inputs and ZCS parameters
-            return (branch_inputs, trunk_inputs), {'leaves': zcs_scalars, 'tape': tape}
+            return (branch_inputs, trunk_inputs), {"leaves": zcs_scalars, "tape": tape}
 
         def outputs_losses_zcs(training, inputs, targets, auxiliary_vars, losses_fn):
             # aux
@@ -58,7 +61,7 @@ class Model(dde.Model):
             inputs, self.zcs_parameters = process_inputs_zcs(inputs)
 
             # forward and loss must be taped
-            with self.zcs_parameters['tape']:
+            with self.zcs_parameters["tape"]:
                 # forward
                 outputs_ = self.net(inputs, training=training)
 
@@ -97,20 +100,20 @@ class Model(dde.Model):
                 losses = outputs_losses_train_zcs(inputs, targets, auxiliary_vars)[1]
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
-                    self.net.trainable_variables + self.external_trainable_variables
+                self.net.trainable_variables + self.external_trainable_variables
             )
             grads = tape.gradient(total_loss, trainable_variables)
             self.opt.apply_gradients(zip(grads, trainable_variables))
 
         def train_step_tfp_zcs(
-                inputs, targets, auxiliary_vars, previous_optimizer_results=None
+            inputs, targets, auxiliary_vars, previous_optimizer_results=None
         ):
             def build_loss():
                 losses = outputs_losses_train_zcs(inputs, targets, auxiliary_vars)[1]
                 return tf.math.reduce_sum(losses)
 
             trainable_variables = (
-                    self.net.trainable_variables + self.external_trainable_variables
+                self.net.trainable_variables + self.external_trainable_variables
             )
             return self.opt(trainable_variables, build_loss, previous_optimizer_results)
 
@@ -124,7 +127,7 @@ class Model(dde.Model):
         )
 
     def _compile_pytorch(self, lr, loss_fn, decay):
-        """ pytorch """
+        """pytorch"""
         super()._compile_pytorch(lr, loss_fn, decay)
 
         def process_inputs_zcs(inputs):
@@ -137,15 +140,16 @@ class Model(dde.Model):
 
             # create ZCS scalars
             n_dim_crds = trunk_inputs.shape[1]
-            zcs_scalars = [torch.as_tensor(0.).requires_grad_()
-                           for _ in range(n_dim_crds)]
+            zcs_scalars = [
+                torch.as_tensor(0.0).requires_grad_() for _ in range(n_dim_crds)
+            ]
 
             # add ZCS to truck inputs
             zcs_vector = torch.stack(zcs_scalars)
             trunk_inputs = trunk_inputs + zcs_vector[None, :]
 
             # return inputs and ZCS scalars
-            return (branch_inputs, trunk_inputs), {'leaves': zcs_scalars}
+            return (branch_inputs, trunk_inputs), {"leaves": zcs_scalars}
 
         def outputs_losses_zcs(training, inputs, targets, auxiliary_vars, losses_fn):
             # aux
@@ -206,11 +210,11 @@ class Model(dde.Model):
         self.train_step = train_step_zcs
 
     def _compile_jax(self, lr, loss_fn, decay):
-        """ jax """
+        """jax"""
         raise NotImplementedError("ZCS is not implemented for backend jax")
 
     def _compile_paddle(self, lr, loss_fn, decay):
-        """ paddle """
+        """paddle"""
         super()._compile_paddle(lr, loss_fn, decay)
 
         def process_inputs_zcs(inputs):
@@ -223,15 +227,19 @@ class Model(dde.Model):
 
             # create ZCS scalars
             n_dim_crds = trunk_inputs.shape[1]
-            zcs_scalars = [paddle.to_tensor(0., stop_gradient=False)  # noqa
-                           for _ in range(n_dim_crds)]
+            zcs_scalars = [
+                paddle.to_tensor(0.0, stop_gradient=False)  # noqa
+                for _ in range(n_dim_crds)
+            ]
 
             # add ZCS to truck inputs
-            zcs_vector = paddle.concat([paddle.tile(z, 1) for z in zcs_scalars], axis=0)  # noqa
+            zcs_vector = paddle.concat(
+                [paddle.tile(z, 1) for z in zcs_scalars], axis=0
+            )  # noqa
             trunk_inputs = trunk_inputs + zcs_vector[None, :]
 
             # return inputs and ZCS scalars
-            return (branch_inputs, trunk_inputs), {'leaves': zcs_scalars}
+            return (branch_inputs, trunk_inputs), {"leaves": zcs_scalars}
 
         def outputs_losses_zcs(training, inputs, targets, auxiliary_vars, losses_fn):
             # aux
