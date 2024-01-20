@@ -1,30 +1,27 @@
-"""
-Gradients for ZCS
-"""
+"""Gradients for ZCS"""
 
 from typing import Tuple
 
 import numpy as np
-from deepxde.backend import backend_name, tf, torch, paddle  # noqa
+
+from ..backend import backend_name, tf, torch, paddle  # noqa
 
 
 class LazyGrad:
-    """
-    Gradients for ZCS with lazy evaluation.
-    """
+    """Gradients for ZCS with lazy evaluation"""
 
     def __init__(self, zcs_parameters, u):
         self.zcs_parameters = zcs_parameters
         self.n_dims = len(zcs_parameters["leaves"])
 
         # create tensor $a_{ij}$
-        if backend_name == "pytorch":
+        if backend_name == "tensorflow":
+            self.a = tf.Variable(tf.ones_like(u), trainable=True)
+        elif backend_name == "pytorch":
             self.a = torch.ones_like(u).requires_grad_()
         elif backend_name == "paddle":
             self.a = paddle.ones_like(u)  # noqa
             self.a.stop_gradient = False
-        elif backend_name == "tensorflow":
-            self.a = tf.Variable(tf.ones_like(u), trainable=True)
         else:
             raise NotImplementedError(
                 f"ZCS is not implemented for backend {backend_name}"
@@ -49,26 +46,26 @@ class LazyGrad:
         }
 
     def grad_wrt_z(self, y, z):
-        if backend_name == "pytorch":
+        if backend_name == "tensorflow":
+            with self.a_tape:  # z_tape is already watching
+                return self.zcs_parameters["tape"].gradient(y, z)
+        elif backend_name == "pytorch":
             return torch.autograd.grad(y, z, create_graph=True)[0]
         elif backend_name == "paddle":
             return paddle.grad(y, z, create_graph=True)[0]  # noqa
-        elif backend_name == "tensorflow":
-            with self.a_tape:  # z_tape is already watching
-                return self.zcs_parameters["tape"].gradient(y, z)
         else:
             raise NotImplementedError(
                 f"ZCS is not implemented for backend {backend_name}"
             )
 
     def grad_wrt_a(self, y):
-        if backend_name == "pytorch":
+        if backend_name == "tensorflow":
+            # no need to watch here because we don't need higher-orders w.r.t. a
+            return self.a_tape.gradient(y, self.a)
+        elif backend_name == "pytorch":
             return torch.autograd.grad(y, self.a, create_graph=True)[0]
         elif backend_name == "paddle":
             return paddle.grad(y, self.a, create_graph=True)[0]  # noqa
-        elif backend_name == "tensorflow":
-            # no need to watch here because we don't need higher-orders w.r.t. a
-            return self.a_tape.gradient(y, self.a)
         else:
             raise NotImplementedError(
                 f"ZCS is not implemented for backend {backend_name}"

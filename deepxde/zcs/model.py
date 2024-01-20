@@ -1,6 +1,4 @@
-"""
-Model extension for ZCS support
-"""
+"""Model extension for ZCS support"""
 
 import deepxde as dde
 import deepxde.gradients as grad
@@ -9,9 +7,7 @@ from deepxde.backend import tf, torch, paddle  # noqa
 
 
 class Model(dde.Model):
-    """
-    Derived `Model` class for ZCS support.
-    """
+    """Derived `Model` class for ZCS support"""
 
     def __init__(self, data, net):
         super().__init__(data, net)
