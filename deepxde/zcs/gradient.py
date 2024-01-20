@@ -8,7 +8,7 @@ from ..backend import backend_name, tf, torch, paddle  # noqa
 
 
 class LazyGrad:
-    """Gradients for ZCS with lazy evaluation"""
+    """Gradients for ZCS with lazy evaluation."""
 
     def __init__(self, zcs_parameters, u):
         self.zcs_parameters = zcs_parameters

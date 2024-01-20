@@ -7,7 +7,7 @@ from deepxde.backend import tf, torch, paddle  # noqa
 
 
 class Model(dde.Model):
-    """Derived `Model` class for ZCS support"""
+    """Derived `Model` class for ZCS support."""
 
     def __init__(self, data, net):
         super().__init__(data, net)
