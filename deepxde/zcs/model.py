@@ -1,12 +1,11 @@
 """Model extension for ZCS support"""
 
-import deepxde as dde
-import deepxde.gradients as grad
-from deepxde import optimizers
-from deepxde.backend import tf, torch, paddle  # noqa
+from ..model import Model as BaseModel
+from .. import gradients as grad
+from ..backend import tf, torch, paddle  # noqa
 
 
-class Model(dde.Model):
+class Model(BaseModel):
     """Derived `Model` class for ZCS support."""
 
     def __init__(self, data, net):

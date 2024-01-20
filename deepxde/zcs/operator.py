@@ -1,15 +1,15 @@
 """PDE operator extensions for ZCS support"""
 
-import deepxde as dde
 import numpy as np
 
+from ..backend import backend as bkd
+from ..data import PDEOperatorCartesianProd as BasePDEOperatorCartesianProd
 
-class PDEOperatorCartesianProd(dde.data.PDEOperatorCartesianProd):
+
+class PDEOperatorCartesianProd(BasePDEOperatorCartesianProd):
     """Derived `PDEOperatorCartesianProd` class for ZCS support."""
 
     def _losses(self, outputs, loss_fn, inputs, model, num_func):
-        bkd = dde.backend
-
         # PDE
         f = []
         if self.pde.pde is not None:
