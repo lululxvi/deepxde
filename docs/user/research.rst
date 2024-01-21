@@ -158,6 +158,8 @@ DeepXDE has been used in
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Argonne National Laboratory <https://www.anl.gov>`_,
+  `Los Alamos National Laboratory <https://www.lanl.gov>`_,
+  `Oak Ridge National Laboratory <https://www.ornl.gov>`_,
   `Idaho National Laboratory <https://inl.gov>`_,
   `Institute of Applied Physics and Computational Mathematics <http://www.iapcm.ac.cn>`_,
   `Institute of Computational Mathematics and Scientific/Engineering Computing <http://icmsec.cc.ac.cn>`_,
@@ -177,7 +179,6 @@ DeepXDE has been used in
   `ONERA, The French Aerospace Lab <https://www.onera.fr/en>`_,
   `Ministry of Natural Resources (China) <https://www.mnr.gov.cn>`_,
   `Zhejiang Lab <https://en.zhejianglab.com>`_,
-  `Los Alamos National Laboratory <https://www.lanl.gov>`_,
   `United Kingdom Atomic Energy Authority <https://www.gov.uk/government/organisations/uk-atomic-energy-authority>`_,
   `Russian Academy of Sciences <https://new.ras.ru/en>`_,
   `Chinese Academy of Sciences <https://english.cas.cn>`_,
@@ -185,8 +186,7 @@ DeepXDE has been used in
   `Rutherford Appleton Laboratory <https://www.ukri.org/who-we-are/stfc/locations/rutherford-appleton-laboratory>`_,
   `Mathematical Sciences Research Laboratory <http://math.uth.gr/laboratory/?lang=en>`_,
   `German Aerospace Center <https://www.dlr.de/en>`_,
-  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
-  `Oak Ridge National Laboratory <https://www.ornl.gov>`_
+  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
