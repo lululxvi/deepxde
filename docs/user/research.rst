@@ -187,7 +187,7 @@ DeepXDE has been used in
   `Mathematical Sciences Research Laboratory <http://math.uth.gr/laboratory/?lang=en>`_,
   `German Aerospace Center <https://www.dlr.de/en>`_,
   `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_
-- industry, e.g.,
+- > 10 industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
@@ -195,7 +195,7 @@ DeepXDE has been used in
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
   `Saudi Aramco <https://www.aramco.com>`_,
-  `Shell India Markets Private Limited <https://www.shell.in/about-us/contact-us.html>`_,
+  `Shell <https://www.shell.com>`_,
   `SoftServe <https://www.softserveinc.com/en-us>`_,
   `Fraunhofer Institute for Integrated Systems and Device Technology IISB <https://www.iisb.fraunhofer.de>`_,
   `Quantiph <https://quantiphi.com>`_
