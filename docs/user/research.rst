@@ -185,7 +185,8 @@ DeepXDE has been used in
   `Rutherford Appleton Laboratory <https://www.ukri.org/who-we-are/stfc/locations/rutherford-appleton-laboratory>`_,
   `Mathematical Sciences Research Laboratory <http://math.uth.gr/laboratory/?lang=en>`_,
   `German Aerospace Center <https://www.dlr.de/en>`_,
-  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_
+  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
+  `Oak Ridge National Laboratory <https://www.ornl.gov>`_
 - industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
@@ -197,7 +198,6 @@ DeepXDE has been used in
   `Shell India Markets Private Limited <https://www.shell.in/about-us/contact-us.html>`_,
   `SoftServe <https://www.softserveinc.com/en-us>`_,
   `Fraunhofer Institute for Integrated Systems and Device Technology IISB <https://www.iisb.fraunhofer.de>`_,
-  `Oak Ridge National Laboratory <https://www.ornl.gov>`_,
   `Quantiph <https://quantiphi.com>`_
 
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
