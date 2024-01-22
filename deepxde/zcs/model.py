@@ -1,8 +1,8 @@
 """Model extension for ZCS support"""
 
-from ..model import Model as BaseModel
 from .. import gradients as grad
-from ..backend import tf, torch, paddle  # noqa
+from ..backend import tf, torch, paddle # noqa
+from ..model import Model as BaseModel
 
 
 class Model(BaseModel):

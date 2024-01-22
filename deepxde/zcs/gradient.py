@@ -49,27 +49,25 @@ class LazyGrad:
         if backend_name == "tensorflow":
             with self.a_tape:  # z_tape is already watching
                 return self.zcs_parameters["tape"].gradient(y, z)
-        elif backend_name == "pytorch":
+        if backend_name == "pytorch":
             return torch.autograd.grad(y, z, create_graph=True)[0]
-        elif backend_name == "paddle":
+        if backend_name == "paddle":
             return paddle.grad(y, z, create_graph=True)[0]  # noqa
-        else:
-            raise NotImplementedError(
-                f"ZCS is not implemented for backend {backend_name}"
-            )
+        raise NotImplementedError(
+            f"ZCS is not implemented for backend {backend_name}"
+        )
 
     def grad_wrt_a(self, y):
         if backend_name == "tensorflow":
             # no need to watch here because we don't need higher-orders w.r.t. a
             return self.a_tape.gradient(y, self.a)
-        elif backend_name == "pytorch":
+        if backend_name == "pytorch":
             return torch.autograd.grad(y, self.a, create_graph=True)[0]
-        elif backend_name == "paddle":
+        if backend_name == "paddle":
             return paddle.grad(y, self.a, create_graph=True)[0]  # noqa
-        else:
-            raise NotImplementedError(
-                f"ZCS is not implemented for backend {backend_name}"
-            )
+        raise NotImplementedError(
+            f"ZCS is not implemented for backend {backend_name}"
+        )
 
     def compute(self, required_orders: Tuple[int, ...]):
         if required_orders in self.cached_omega_grads.keys():
