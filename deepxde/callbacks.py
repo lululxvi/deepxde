@@ -1,5 +1,7 @@
+import os
 import sys
 import time
+from tempfile import TemporaryDirectory
 
 import numpy as np
 
@@ -105,6 +107,65 @@ class CallbackList(Callback):
         if not isinstance(callback, Callback):
             raise Exception(str(callback) + " is an invalid Callback object")
         self.callbacks.append(callback)
+
+
+class BestModelRestoring(Callback):
+    """Restore the best model at the end of training.
+
+    Args:
+        verbose: Verbosity mode, 0 or 1.
+        period: Interval (number of epochs) between checkpoints.
+        monitor: The loss function that is monitored. Either 'train loss' or 'test loss'.
+    """
+
+    def __init__(
+        self,
+        verbose=0,
+        period=1,
+        monitor="train loss",
+    ):
+        super().__init__()
+        self.tmp_directory = TemporaryDirectory()
+        self.filepath = os.path.join(self.tmp_directory.name, "model")
+        self.verbose = verbose
+        self.period = period
+
+        self.monitor = monitor
+        self.monitor_op = np.less
+        self.epochs_since_last_save = 0
+        self.best = np.Inf
+        self.restore_path = None
+
+    def on_train_end(self):
+        if self.restore_path is not None:
+            self.model.restore(self.restore_path, verbose=self.verbose)
+        self.tmp_directory.cleanup()
+
+    def on_epoch_end(self):
+        self.epochs_since_last_save += 1
+        if self.epochs_since_last_save < self.period:
+            return
+        self.epochs_since_last_save = 0
+        current = self.get_monitor_value()
+        if self.monitor_op(current, self.best):
+            self.restore_path = self.model.save(self.filepath, verbose=0)
+            if self.verbose > 0:
+                print(
+                    "Epoch {}: {} improved from {:.2e} to {:.2e}, model is saved\n".format(
+                        self.model.train_state.epoch, self.monitor, self.best, current
+                    )
+                )
+            self.best = current
+
+    def get_monitor_value(self):
+        if self.monitor == "train loss":
+            result = sum(self.model.train_state.loss_train)
+        elif self.monitor == "test loss":
+            result = sum(self.model.train_state.loss_test)
+        else:
+            raise ValueError("The specified monitor function is incorrect.")
+
+        return result
 
 
 class ModelCheckpoint(Callback):
