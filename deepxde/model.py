@@ -374,9 +374,10 @@ class Model:
         if self.loss_weights is not None:
             raise NotImplementedError("Loss weights are not supported for backend jax.")
         # Initialize the network's parameters
-        key = jax.random.PRNGKey(config.jax_random_seed)
-        self.net.params = self.net.init(key, self.data.test()[0])
-        self.params = [self.net.params, self.external_trainable_variables]
+        if self.params is None:
+            key = jax.random.PRNGKey(config.jax_random_seed)
+            self.net.params = self.net.init(key, self.data.test()[0])
+            self.params = [self.net.params, self.external_trainable_variables]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
