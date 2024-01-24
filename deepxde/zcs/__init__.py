@@ -1,3 +1,8 @@
+"""Enhancing the performance of DeepONets using Zero Coordinate Shift.
+
+Reference: https://arxiv.org/abs/2311.00860
+"""
+
 __all__ = [
     "LazyGrad",
     "Model",
