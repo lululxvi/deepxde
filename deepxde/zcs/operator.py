@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ..backend import backend as bkd
+from .. import backend as bkd
 from ..data import PDEOperatorCartesianProd as BasePDEOperatorCartesianProd
 
 
