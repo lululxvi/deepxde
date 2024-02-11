@@ -40,6 +40,8 @@ if "OMPI_COMM_WORLD_SIZE" in os.environ:
 
 # Default float type
 real = Real(32)
+# Using mixed precision
+mixed = False
 # Random seed
 random_seed = None
 if backend_name == "jax":
@@ -71,11 +73,14 @@ def default_float():
 def set_default_float(value):
     """Sets the default float type.
 
-    The default floating point type is 'float32'.
+    The default floating point type is 'float32'. Mixed precision uses the method in the paper:
+    `J. Hayford, J. Goldman-Wetzler, E. Wang, & L. Lu. Speeding up and reducing memory usage for scientific machine learning via mixed precision.
+    Computer Methods in Applied Mechanics and Engineering, 428, 117093, 2024 <https://doi.org/10.1016/j.cma.2024.117093>`_.
 
     Args:
-        value (String): 'float16', 'float32', or 'float64'.
+        value (String): 'float16', 'float32', 'float64', or 'mixed' (mixed precision).
     """
+    global mixed
     if value == "float16":
         print("Set the default float type to float16")
         real.set_float16()
@@ -85,6 +90,20 @@ def set_default_float(value):
     elif value == "float64":
         print("Set the default float type to float64")
         real.set_float64()
+    elif value == "mixed":
+        print("Set the float type to mixed precision of float16 and float32")
+        mixed = True
+        if backend_name == "tensorflow":
+            real.set_float16()
+            tf.keras.mixed_precision.set_global_policy("mixed_float16")
+            return # don't try to set it again below
+        if backend_name == "pytorch":
+            # Use float16 during the forward and backward passes, but store in float32
+            real.set_float32()
+        else:
+            raise ValueError(
+                f"{backend_name} backend does not currently support mixed precision."
+            )
     else:
         raise ValueError(f"{value} not supported in deepXDE")
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
