@@ -46,7 +46,7 @@ data = dde.data.PDE(
 
 net = dde.nn.FNN([1, 40, 40, 40, 2], "tanh", "Glorot uniform")
 PrintLossWeight_cb = PrintLossWeight(period = 1)
-ManualDynamicLossWeight_cb = ManualDynamicLossWeight(epoch2change = 5000, value = 1, Loss_idx = 0)
+ManualDynamicLossWeight_cb = ManualDynamicLossWeight(epoch2change = 5000, value = 1, loss_idx = 0)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[0, 100, 1000])
 losshistory, train_state = model.train(iterations=20000, display_every=1, callbacks = [PrintLossWeight_cb, ManualDynamicLossWeight_cb])
