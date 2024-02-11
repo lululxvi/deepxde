@@ -276,9 +276,9 @@ def plot_best_state(train_state):
             plt.plot(X, best_y[idx, i], "--r", label="Prediction")
             if best_ystd is not None:
                 plt.plot(
-                    X, best_y[idx, i] + 2 * best_ystd[idx, i], "-b", label="95% CI"
+                    X, best_y[idx, i] + 1.96 * best_ystd[idx, i], "-b", label="95% CI"
                 )
-                plt.plot(X, best_y[idx, i] - 2 * best_ystd[idx, i], "-b")
+                plt.plot(X, best_y[idx, i] - 1.96 * best_ystd[idx, i], "-b")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
