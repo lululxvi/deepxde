@@ -102,13 +102,12 @@ class DeepONet(NN):
         self.branch, self.trunk = self.multi_output_strategy.build(
             layer_sizes_branch, layer_sizes_trunk
         )
-
-        self.b = cycle(
-            [
-                torch.nn.parameter.Parameter(torch.tensor(0.0))
-                for _ in range(self.num_outputs)
-            ]
+        self.branch = torch.nn.ModuleList(self.branch)
+        self.trunk = torch.nn.ModuleList(self.trunk)
+        self.biases = torch.nn.ParameterList(
+            [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
+        self.b = cycle(range(self.num_outputs))
 
     def build_branch_net(self, layer_sizes_branch):
         # User-defined network
@@ -123,7 +122,7 @@ class DeepONet(NN):
     def merge_branch_trunk(self, x_func, x_loc):
         y = torch.einsum("bi,bi->b", x_func, x_loc)
         y = torch.unsqueeze(y, dim=1)
-        y += next(self.b)
+        y += self.biases[next(self.b)]
         return y
 
     @staticmethod
@@ -224,13 +223,12 @@ class DeepONetCartesianProd(NN):
         self.branch, self.trunk = self.multi_output_strategy.build(
             layer_sizes_branch, layer_sizes_trunk
         )
-
-        self.b = cycle(
-            [
-                torch.nn.parameter.Parameter(torch.tensor(0.0))
-                for _ in range(self.num_outputs)
-            ]
+        self.branch = torch.nn.ModuleList(self.branch)
+        self.trunk = torch.nn.ModuleList(self.trunk)
+        self.biases = torch.nn.ParameterList(
+            [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
+        self.b = cycle(range(self.num_outputs))
 
     def build_branch_net(self, layer_sizes_branch):
         # User-defined network
@@ -244,7 +242,7 @@ class DeepONetCartesianProd(NN):
 
     def merge_branch_trunk(self, x_func, x_loc):
         y = torch.einsum("bi,ni->bn", x_func, x_loc)
-        y += next(self.b)
+        y += self.biases[next(self.b)]
         return y
 
     @staticmethod
