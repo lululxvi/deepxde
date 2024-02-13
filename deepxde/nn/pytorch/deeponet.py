@@ -5,8 +5,6 @@ from itertools import cycle
 from .fnn import FNN
 from .nn import NN
 from .. import activations
-from ... import config
-from ...backend import torch
 from ..deeponet_strategy import (
     SingleOutputStrategy,
     IndependentStrategy,
@@ -14,6 +12,8 @@ from ..deeponet_strategy import (
     SplitBranchStrategy,
     SplitTrunkStrategy,
 )
+from ... import config
+from ...backend import torch
 
 
 class DeepONet(NN):
