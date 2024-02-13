@@ -102,8 +102,10 @@ class DeepONet(NN):
         self.branch, self.trunk = self.multi_output_strategy.build(
             layer_sizes_branch, layer_sizes_trunk
         )
-        self.branch = torch.nn.ModuleList(self.branch)
-        self.trunk = torch.nn.ModuleList(self.trunk)
+        if isinstance(self.branch, list):
+            self.branch = torch.nn.ModuleList(self.branch)
+        if isinstance(self.trunk, list):
+            self.trunk = torch.nn.ModuleList(self.trunk)
         self.biases = torch.nn.ParameterList(
             [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
@@ -223,8 +225,10 @@ class DeepONetCartesianProd(NN):
         self.branch, self.trunk = self.multi_output_strategy.build(
             layer_sizes_branch, layer_sizes_trunk
         )
-        self.branch = torch.nn.ModuleList(self.branch)
-        self.trunk = torch.nn.ModuleList(self.trunk)
+        if isinstance(self.branch, list):
+            self.branch = torch.nn.ModuleList(self.branch)
+        if isinstance(self.trunk, list):
+            self.trunk = torch.nn.ModuleList(self.trunk)
         self.biases = torch.nn.ParameterList(
             [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
