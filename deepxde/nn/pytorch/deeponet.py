@@ -13,7 +13,7 @@ from ..deeponet_strategy import (
     SplitTrunkStrategy,
 )
 from ... import config
-from ...backend import torch
+import torch
 
 
 class DeepONet(NN):
@@ -131,13 +131,13 @@ class DeepONet(NN):
     def concatenate_outputs(ys):
         return torch.concat(ys, dim=1)
 
-    def forward(self, inputs, training=False):
+    def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
         # Trunk net input transform
         if self._input_transform is not None:
             x_loc = self._input_transform(x_loc)
-        x = self.multi_output_strategy.call(x_func, x_loc, training)
+        x = self.multi_output_strategy.call(x_func, x_loc)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
@@ -253,13 +253,13 @@ class DeepONetCartesianProd(NN):
     def concatenate_outputs(ys):
         return torch.stack(ys, dim=2)
 
-    def forward(self, inputs, training=False):
+    def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
         # Trunk net input transform
         if self._input_transform is not None:
             x_loc = self._input_transform(x_loc)
-        x = self.multi_output_strategy.call(x_func, x_loc, training)
+        x = self.multi_output_strategy.call(x_func, x_loc)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
@@ -319,7 +319,7 @@ class PODDeepONet(NN):
             )
             self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
 
-    def forward(self, inputs, training=False):
+    def forward(self, inputs):
         x_func = inputs[0]
         x_loc = inputs[1]
 
