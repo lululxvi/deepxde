@@ -68,7 +68,6 @@ class DeepONet(NN):
         kernel_initializer,
         num_outputs=1,
         multi_output_strategy=None,
-        regularization=None,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -77,7 +76,6 @@ class DeepONet(NN):
         else:
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
-        self.regularization = regularization  # TODO: currently unused
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
@@ -192,7 +190,6 @@ class DeepONetCartesianProd(NN):
         kernel_initializer,
         num_outputs=1,
         multi_output_strategy=None,
-        regularization=None,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -201,7 +198,6 @@ class DeepONetCartesianProd(NN):
         else:
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
-        self.regularization = regularization  # TODO: currently unused
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
