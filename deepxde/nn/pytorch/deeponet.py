@@ -1,7 +1,5 @@
 __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 
-from itertools import cycle
-
 import torch
 
 from .fnn import FNN
@@ -106,10 +104,9 @@ class DeepONet(NN):
             self.branch = torch.nn.ModuleList(self.branch)
         if isinstance(self.trunk, list):
             self.trunk = torch.nn.ModuleList(self.trunk)
-        self.biases = torch.nn.ParameterList(
+        self.b = torch.nn.ParameterList(
             [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
-        self.b = cycle(range(self.num_outputs))
 
     def build_branch_net(self, layer_sizes_branch):
         # User-defined network
@@ -121,10 +118,10 @@ class DeepONet(NN):
     def build_trunk_net(self, layer_sizes_trunk):
         return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
 
-    def merge_branch_trunk(self, x_func, x_loc):
+    def merge_branch_trunk(self, x_func, x_loc, index):
         y = torch.einsum("bi,bi->b", x_func, x_loc)
         y = torch.unsqueeze(y, dim=1)
-        y += self.biases[next(self.b)]
+        y += self.b[index]
         return y
 
     @staticmethod
@@ -229,10 +226,9 @@ class DeepONetCartesianProd(NN):
             self.branch = torch.nn.ModuleList(self.branch)
         if isinstance(self.trunk, list):
             self.trunk = torch.nn.ModuleList(self.trunk)
-        self.biases = torch.nn.ParameterList(
+        self.b = torch.nn.ParameterList(
             [torch.nn.Parameter(torch.tensor(0.0)) for _ in range(self.num_outputs)]
         )
-        self.b = cycle(range(self.num_outputs))
 
     def build_branch_net(self, layer_sizes_branch):
         # User-defined network
@@ -244,9 +240,9 @@ class DeepONetCartesianProd(NN):
     def build_trunk_net(self, layer_sizes_trunk):
         return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
 
-    def merge_branch_trunk(self, x_func, x_loc):
+    def merge_branch_trunk(self, x_func, x_loc, index):
         y = torch.einsum("bi,ni->bn", x_func, x_loc)
-        y += self.biases[next(self.b)]
+        y += self.b[index]
         return y
 
     @staticmethod

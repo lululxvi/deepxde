@@ -42,7 +42,7 @@ class SingleOutputStrategy(DeepONetStrategy):
             raise AssertionError(
                 "Output sizes of branch net and trunk net do not match."
             )
-        x = self.net.merge_branch_trunk(x_func, x_loc)
+        x = self.net.merge_branch_trunk(x_func, x_loc, 0)
         return x
 
 
@@ -67,7 +67,7 @@ class IndependentStrategy(DeepONetStrategy):
         for i in range(self.net.num_outputs):
             x_func_ = self.net.branch[i](x_func)
             x_loc_ = self.net.activation_trunk(self.net.trunk[i](x_loc))
-            x = self.net.merge_branch_trunk(x_func_, x_loc_)
+            x = self.net.merge_branch_trunk(x_func_, x_loc_, i)
             xs.append(x)
         return self.net.concatenate_outputs(xs)
 
@@ -101,10 +101,10 @@ class SplitBothStrategy(DeepONetStrategy):
         shift = 0
         size = x_func.shape[1] // self.net.num_outputs
         xs = []
-        for _ in range(self.net.num_outputs):
+        for i in range(self.net.num_outputs):
             x_func_ = x_func[:, shift : shift + size]
             x_loc_ = x_loc[:, shift : shift + size]
-            x = self.net.merge_branch_trunk(x_func_, x_loc_)
+            x = self.net.merge_branch_trunk(x_func_, x_loc_, i)
             xs.append(x)
             shift += size
         return self.net.concatenate_outputs(xs)
@@ -133,9 +133,9 @@ class SplitBranchStrategy(DeepONetStrategy):
         shift = 0
         size = x_loc.shape[1]
         xs = []
-        for _ in range(self.net.num_outputs):
+        for i in range(self.net.num_outputs):
             x_func_ = x_func[:, shift : shift + size]
-            x = self.net.merge_branch_trunk(x_func_, x_loc)
+            x = self.net.merge_branch_trunk(x_func_, x_loc, i)
             xs.append(x)
             shift += size
         return self.net.concatenate_outputs(xs)
@@ -164,9 +164,9 @@ class SplitTrunkStrategy(DeepONetStrategy):
         shift = 0
         size = x_func.shape[1]
         xs = []
-        for _ in range(self.net.num_outputs):
+        for i in range(self.net.num_outputs):
             x_loc_ = x_loc[:, shift : shift + size]
-            x = self.net.merge_branch_trunk(x_func, x_loc_)
+            x = self.net.merge_branch_trunk(x_func, x_loc_, i)
             xs.append(x)
             shift += size
         return self.net.concatenate_outputs(xs)
