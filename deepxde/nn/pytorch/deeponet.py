@@ -2,6 +2,8 @@ __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 
 from itertools import cycle
 
+import torch
+
 from .fnn import FNN
 from .nn import NN
 from .. import activations
@@ -12,8 +14,6 @@ from ..deeponet_strategy import (
     SplitBranchStrategy,
     SplitTrunkStrategy,
 )
-from ... import config
-import torch
 
 
 class DeepONet(NN):
