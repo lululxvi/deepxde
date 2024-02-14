@@ -148,7 +148,7 @@ class DeepONet(NN):
         # Trunk net input transform
         if self._input_transform is not None:
             x_loc = self._input_transform(x_loc)
-        x = self.multi_output_strategy.call(x_func, x_loc, training)
+        x = self.multi_output_strategy.call(x_func, x_loc)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x
@@ -281,7 +281,7 @@ class DeepONetCartesianProd(NN):
         # Trunk net input transform
         if self._input_transform is not None:
             x_loc = self._input_transform(x_loc)
-        x = self.multi_output_strategy.call(x_func, x_loc, training)
+        x = self.multi_output_strategy.call(x_func, x_loc)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
         return x

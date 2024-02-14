@@ -19,7 +19,7 @@ class DeepONetStrategy(ABC):
         """Build branch and trunk nets."""
 
     @abstractmethod
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         """Forward pass."""
 
 
@@ -35,7 +35,7 @@ class SingleOutputStrategy(DeepONetStrategy):
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
 
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         x_func = self.net.branch(x_func)
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         if x_func.shape[-1] != x_loc.shape[-1]:
@@ -62,7 +62,7 @@ class IndependentStrategy(DeepONetStrategy):
             trunk.append(trunk_)
         return branch, trunk
 
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         xs = []
         for i in range(self.net.num_outputs):
             x_func_ = self.net.branch[i](x_func)
@@ -94,7 +94,7 @@ class SplitBothStrategy(DeepONetStrategy):
         single_output_strategy = SingleOutputStrategy(self.net)
         return single_output_strategy.build(layer_sizes_branch, layer_sizes_trunk)
 
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         x_func = self.net.branch(x_func)
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         # Split x_func and x_loc into respective outputs
@@ -126,7 +126,7 @@ class SplitBranchStrategy(DeepONetStrategy):
             layer_sizes_trunk
         )
 
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         x_func = self.net.branch(x_func)
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         # Split x_func into respective outputs
@@ -157,7 +157,7 @@ class SplitTrunkStrategy(DeepONetStrategy):
             layer_sizes_trunk
         )
 
-    def call(self, x_func, x_loc, training=False):
+    def call(self, x_func, x_loc):
         x_func = self.net.branch(x_func)
         x_loc = self.net.activation_trunk(self.net.trunk(x_loc))
         # Split x_loc into respective outputs
