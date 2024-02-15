@@ -53,7 +53,7 @@ func_space = dde.data.GRF(length_scale=0.2)
 # Data
 n_pts_edge = 101  # using the size of true solution, but this is unnecessary
 eval_pts = np.linspace(0, 1, num=n_pts_edge)[:, None]
-data = dde.zcs.PDEOperatorCartesianProd(
+data = dde.data.PDEOperatorCartesianProd(
     pde, func_space, eval_pts, num_function=1000,
     function_variables=[0], num_test=100, batch_size=50
 )
@@ -81,7 +81,7 @@ def out_transform(inputs, outputs):
 net.apply_output_transform(out_transform)
 
 # Model
-model = dde.zcs.Model(data, net)
+model = dde.Model(data, net)
 model.compile("adam", lr=0.001, decay=("inverse time", 10000, 0.5))
 losshistory, train_state = model.train(iterations=50000)
 dde.utils.plot_loss_history(losshistory)
