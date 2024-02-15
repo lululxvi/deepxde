@@ -106,11 +106,11 @@ print('Error on pressure:', dde.metrics.l2_relative_error(sol_true[:, 2], sol_pr
 
 # Plot
 def plot_sol(sol, ax, pressure_lim=0.03, vec_space=4, vec_scale=.5, label=""):
-    ax.imshow(sol[:, :, 2].T, origin="lower", 
+    ax.imshow(sol[:, :, 2].T, origin="lower",
               vmin=-pressure_lim, vmax=pressure_lim, cmap="turbo", alpha=.6)
-    ax.quiver(xv[::vec_space, ::vec_space] * 100, 
-              yv[::vec_space, ::vec_space] * 100, 
-              sol[::vec_space, ::vec_space, 0], 
+    ax.quiver(xv[::vec_space, ::vec_space] * 100,
+              yv[::vec_space, ::vec_space] * 100,
+              sol[::vec_space, ::vec_space, 0],
               sol[::vec_space, ::vec_space, 1], color="k", scale=vec_scale)
     ax.axis('off')
     ax.set_title(label)
