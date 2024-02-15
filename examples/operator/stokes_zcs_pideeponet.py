@@ -105,7 +105,7 @@ print('Error on vertical velocity:', dde.metrics.l2_relative_error(sol_true[:, 1
 print('Error on pressure:', dde.metrics.l2_relative_error(sol_true[:, 2], sol_pred[:, 2]))
 
 # Plot
-def plot_sol(sol, ax, pressure_lim=5, vec_space=4, vec_scale=.5, label=""):
+def plot_sol(sol, ax, pressure_lim=0.03, vec_space=4, vec_scale=.5, label=""):
     ax.imshow(sol[:, :, 2].T, origin="lower", 
               vmin=-pressure_lim, vmax=pressure_lim, cmap="turbo", alpha=.6)
     ax.quiver(xv[::vec_space, ::vec_space] * 100, 
