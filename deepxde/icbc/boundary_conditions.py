@@ -268,8 +268,8 @@ class Interface2DBC(BC):
     """2D interface boundary condition.
 
     This BC applies to the case with the following conditions:
-    (1) the network has two outputs (u1, u2)
-    (2) the 2D geometry is a rectangle or polygon, which has two boundaries of the same length.
+    (1) the network has two outputs (u1, u2),
+    (2) the 2D geometry is a rectangle or polygon, which has two edges of the same length,
     (3) uniform_boundary_points is used to sample boundary points.
     Compare the difference of 2D vectorial output on two borders of domain
     on the n/t direction ('n' normal or 't' tangent) with 'values'.
