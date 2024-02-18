@@ -271,21 +271,21 @@ class Interface2DBC(BC):
     (1) the network has two outputs (u1, u2),
     (2) the 2D geometry is a rectangle or polygon, which has two edges of the same length,
     (3) uniform_boundary_points is used to sample boundary points.
-    Compare the difference of 2D vectorial output on two borders of domain
-    on the n/t direction ('n' normal or 't' tangent) with 'values'.
-    i.e. the error is calculated as (<output_1,d1>-<output_2,d2>)-values,
+    Compare the difference of 2D vectorial output on two boundary edges
+    on the n/t direction ('n' normal or 't' tangent) with 'values',
+    i.e., the error is calculated as (<output_1, d1> - <output_2, d2>) - values,
     with <v1,v2> being the dot product between vectors v1 and v2,
-    output_1 and output_2 as the output evaluated on first and second border resp.,
-    d1 is the n/t vector of first border, d2 the n/t vector of second border
-    with a change of sign respect to d1
-    and values is the argument func evaluated on first border.
+    output_1 and output_2 as the output evaluated on first and second edge resp.,
+    d1 is the n/t vector of first edge, d2 the n/t vector of second edge
+    with a change of orientation respect to d1
+    and values is the argument func evaluated on first edge.
 
     Args:
         geom: a 2D Polygon/Rectangle instance.
-        func: the target discontinuity between borders, evaluated on first border
+        func: the target discontinuity between edges, evaluated on first edge
             (e.g. func=lambda x: 0 means no discontinuity is wanted).
-        on_boundary1: First border func. (x, Geometry.on_boundary(x)) -> True/False.
-        on_boundary2: Second border func. (x, Geometry.on_boundary(x)) -> True/False.
+        on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
+        on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
         direction: string "n" for normal direction, "t" for tangent.
     """
 
