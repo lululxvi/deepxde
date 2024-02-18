@@ -1,5 +1,5 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
-import sys
+# import sys
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
