@@ -288,7 +288,7 @@ class Interface2DBC(BC):
             (e.g. func=lambda x: 0 means no discontinuity is wanted).
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        direction: string "n" for normal direction, "t" for tangent.
+        direction: string "n" for normal direction, "t" for tangent direction.
     """
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="n"):
