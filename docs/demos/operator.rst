@@ -19,6 +19,7 @@ PI-DeepONet
    :maxdepth: 1
 
    operator/poisson.1d.pideeponet
+   operator/zcs
 
 
 - `Antiderivative operator with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_aligned_pideeponet.py>`_
@@ -29,3 +30,6 @@ PI-DeepONet
 - `Advection equation 2D with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/advection_unaligned_pideeponet_2d.py>`_
 - `Diffusion reaction equation with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_pideeponet.py>`_
 - `Diffusion reaction equation with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_unaligned_pideeponet.py>`_
+- `Diffusion reaction equation with aligned points using ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_zcs_pideeponet.py>`_
+- `Stokes flow with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_pideeponet.py>`_
+- `Stokes flow with aligned points using ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_zcs_pideeponet.py>`_
