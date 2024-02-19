@@ -1,8 +1,7 @@
 """Backend supported: tensorflow, pytorch"""
+import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
-
-import deepxde as dde
 
 
 # PDE equation
