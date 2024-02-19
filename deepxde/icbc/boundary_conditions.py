@@ -278,7 +278,9 @@ class Interface2DBC(BC):
     output_1 and output_2 as the output evaluated on first and second edge resp.,
     d1 is the n/t vector of first edge, d2 the n/t vector of second edge
     with a change of orientation respect to d1
-    and values is the argument func evaluated on first edge.
+    and values is the argument func evaluated on first edge,
+    in the tangent case, d1 is the outward normal vector rotated 90 degrees clockwise
+    and d2 is the outward normal vector rotated 90 degrees counterclockwise.
 
     Args:
         geom: a 2D Polygon/Rectangle instance.
@@ -349,7 +351,7 @@ class Interface2DBC(BC):
             diff = left_values - right_values
 
         elif self.direction == "t":
-            # implemented for dim=2 where tangent vector is [n[1],-n[0]]
+            # Tangent vector is [n[1],-n[0]] on edge 1
 
             left_side1 = outputs[beg1:mid, 0:1]
             left_side2 = outputs[beg1:mid, 1:2]
