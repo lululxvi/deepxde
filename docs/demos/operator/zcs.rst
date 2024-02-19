@@ -243,8 +243,6 @@ Complete code
 
 -  `Diffusion reaction equation with aligned
    points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_pideeponet.py>`__
--  `Diffusion reaction equation with unaligned
-   points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_unaligned_pideeponet.py>`__
 -  `Diffusion reaction equation with aligned points using
    ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_zcs_pideeponet.py>`__
 -  `Stokes flow with aligned
