@@ -14,10 +14,10 @@ def pde(xy, uvp, aux):
     dp_x = dde.grad.jacobian(uvp, xy, i=2, j=0)
     dp_y = dde.grad.jacobian(uvp, xy, i=2, j=1)
     # second order
-    du_xx = dde.grad.hessian(uvp, xy, i=0, j=0)
-    du_yy = dde.grad.hessian(uvp, xy, i=0, j=1)
-    dv_xx = dde.grad.hessian(uvp, xy, i=1, j=0)
-    dv_yy = dde.grad.hessian(uvp, xy, i=1, j=1)
+    du_xx = dde.grad.hessian(uvp, xy, component=0, i=0, j=0)
+    du_yy = dde.grad.hessian(uvp, xy, component=0, i=1, j=1)
+    dv_xx = dde.grad.hessian(uvp, xy, component=1, i=0, j=0)
+    dv_yy = dde.grad.hessian(uvp, xy, component=1, i=1, j=1)
     motion_x = mu * (du_xx + du_yy) - dp_x
     motion_y = mu * (dv_xx + dv_yy) - dp_y
     mass = du_x + dv_y
