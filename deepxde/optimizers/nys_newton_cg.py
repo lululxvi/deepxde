@@ -3,6 +3,7 @@ from torch.optim import Optimizer
 from torch.func import vmap
 from functools import reduce
 
+
 def _armijo(f, x, gx, dx, t, alpha=0.1, beta=0.5):
     """Line search to find a step size that satisfies the Armijo condition."""
     f0 = f(x, 0, dx)
@@ -12,16 +13,18 @@ def _armijo(f, x, gx, dx, t, alpha=0.1, beta=0.5):
         f1 = f(x, t, dx)
     return t
 
+
 def _apply_nys_precond_inv(U, S_mu_inv, mu, lambd_r, x):
     """Applies the inverse of the Nystrom approximation of the Hessian to a vector."""
     z = U.T @ x
     z = (lambd_r + mu) * (U @ (S_mu_inv * z)) + (x - U @ z)
     return z
 
+
 def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
     """Solves a positive-definite linear system using NyströmPCG.
 
-    `Frangella et al. Randomized Nyström Preconditioning. 
+    `Frangella et al. Randomized Nyström Preconditioning.
     SIAM Journal on Matrix Analysis and Applications, 2023.
     <https://epubs.siam.org/doi/10.1137/21M1466244>`"""
     lambd_r = S[r - 1]
@@ -50,13 +53,16 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
         i += 1
 
     if torch.norm(resid) > tol:
-        print(f"Warning: PCG did not converge to tolerance. Tolerance was {tol} but norm of residual is {torch.norm(resid)}")
+        print(
+            f"Warning: PCG did not converge to tolerance. Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
+        )
 
     return x
 
+
 class NysNewtonCG(Optimizer):
     """Implementation of NysNewtonCG, a damped Newton-CG method that uses Nyström preconditioning.
-    
+
     `Rathore et al. Challenges in Training PINNs: A Loss Landscape Perspective.
     Preprint, 2024. <https://arxiv.org/abs/2402.01868>`
 
@@ -64,11 +70,11 @@ class NysNewtonCG(Optimizer):
         This optimizer doesn't support per-parameter options and parameter
         groups (there can be only one).
 
-    NOTE: This optimizer is currently a beta version. 
+    NOTE: This optimizer is currently a beta version.
 
-    Our implementation is inspired by the PyTorch implementation of `L-BFGS 
+    Our implementation is inspired by the PyTorch implementation of `L-BFGS
     <https://pytorch.org/docs/stable/_modules/torch/optim/lbfgs.html#LBFGS>`.
-    
+
     The parameters rank and mu will probably need to be tuned for your specific problem.
     If the optimizer is running very slowly, you can try one of the following:
     - Increase the rank (this should increase the accuracy of the Nyström approximation in PCG)
@@ -86,12 +92,30 @@ class NysNewtonCG(Optimizer):
         cg_max_iters (int, optional): maximum number of PCG iterations (default: 1000)
         line_search_fn (str, optional): either 'armijo' or None (default: None)
         verbose (bool, optional): verbosity (default: False)
-    
+
     """
-    def __init__(self, params, lr=1.0, rank=10, mu=1e-4, chunk_size=1,
-                 cg_tol=1e-16, cg_max_iters=1000, line_search_fn=None, verbose=False):
-        defaults = dict(lr=lr, rank=rank, chunk_size=chunk_size, mu=mu, cg_tol=cg_tol,
-                        cg_max_iters=cg_max_iters, line_search_fn=line_search_fn)
+
+    def __init__(
+        self,
+        params,
+        lr=1.0,
+        rank=10,
+        mu=1e-4,
+        chunk_size=1,
+        cg_tol=1e-16,
+        cg_max_iters=1000,
+        line_search_fn=None,
+        verbose=False,
+    ):
+        defaults = dict(
+            lr=lr,
+            rank=rank,
+            chunk_size=chunk_size,
+            mu=mu,
+            cg_tol=cg_tol,
+            cg_max_iters=cg_max_iters,
+            line_search_fn=line_search_fn,
+        )
         self.rank = rank
         self.mu = mu
         self.chunk_size = chunk_size
@@ -106,12 +130,13 @@ class NysNewtonCG(Optimizer):
 
         if len(self.param_groups) > 1:
             raise ValueError(
-                "NysNewtonCG doesn't currently support per-parameter options (parameter groups)")
+                "NysNewtonCG doesn't currently support per-parameter options (parameter groups)"
+            )
 
-        if self.line_search_fn is not None and self.line_search_fn != 'armijo':
+        if self.line_search_fn is not None and self.line_search_fn != "armijo":
             raise ValueError("NysNewtonCG only supports Armijo line search")
 
-        self._params = self.param_groups[0]['params']
+        self._params = self.param_groups[0]["params"]
         self._params_list = list(self._params)
         self._numel_cache = None
 
@@ -124,8 +149,7 @@ class NysNewtonCG(Optimizer):
         """
         if self.n_iters == 0:
             # Store the previous direction for warm starting PCG
-            self.old_dir = torch.zeros(
-                self._numel(), device=self._params[0].device)
+            self.old_dir = torch.zeros(self._numel(), device=self._params[0].device)
 
         # NOTE: The closure must return both the loss and the gradient
         loss = None
@@ -137,12 +161,22 @@ class NysNewtonCG(Optimizer):
 
         # One step update
         for group_idx, group in enumerate(self.param_groups):
+
             def hvp_temp(x):
                 return self._hvp(g, self._params_list, x)
 
             # Calculate the Newton direction
-            d = _nystrom_pcg(hvp_temp, g, self.old_dir,
-                             self.mu, self.U, self.S, self.rank, self.cg_tol, self.cg_max_iters)
+            d = _nystrom_pcg(
+                hvp_temp,
+                g,
+                self.old_dir,
+                self.mu,
+                self.U,
+                self.S,
+                self.rank,
+                self.cg_tol,
+                self.cg_max_iters,
+            )
 
             # Store the previous direction for warm starting PCG
             self.old_dir = d
@@ -151,7 +185,7 @@ class NysNewtonCG(Optimizer):
             if torch.dot(d, g) <= 0:
                 print("Warning: d is not a descent direction")
 
-            if self.line_search_fn == 'armijo':
+            if self.line_search_fn == "armijo":
                 x_init = self._clone_param()
 
                 def obj_func(x, t, dx):
@@ -161,17 +195,17 @@ class NysNewtonCG(Optimizer):
                     return loss
 
                 # Use -d for convention
-                t = _armijo(obj_func, x_init, g, -d, group['lr'])
+                t = _armijo(obj_func, x_init, g, -d, group["lr"])
             else:
-                t = group['lr']
+                t = group["lr"]
 
-            self.state[group_idx]['t'] = t
+            self.state[group_idx]["t"] = t
 
             # update parameters
             ls = 0
-            for p in group['params']:
+            for p in group["params"]:
                 np = torch.numel(p)
-                dp = d[ls:ls+np].view(p.shape)
+                dp = d[ls : ls + np].view(p.shape)
                 ls += np
                 p.data.add_(-dp, alpha=t)
 
@@ -183,19 +217,19 @@ class NysNewtonCG(Optimizer):
         """Update the Nystrom approximation of the Hessian.
 
         Args:
-            grad_tuple (tuple): tuple of Tensors containing the gradients of the loss w.r.t. the parameters. 
+            grad_tuple (tuple): tuple of Tensors containing the gradients of the loss w.r.t. the parameters.
             This tuple can be obtained by calling torch.autograd.grad on the loss with create_graph=True.
         """
 
         # Flatten and concatenate the gradients
-        gradsH = torch.cat([gradient.view(-1)
-                           for gradient in grad_tuple if gradient is not None])
+        gradsH = torch.cat(
+            [gradient.view(-1) for gradient in grad_tuple if gradient is not None]
+        )
 
         # Generate test matrix (NOTE: This is transposed test matrix)
         p = gradsH.shape[0]
-        Phi = torch.randn(
-            (self.rank, p), device=gradsH.device) / (p ** 0.5)
-        Phi = torch.linalg.qr(Phi.t(), mode='reduced')[0].t()
+        Phi = torch.randn((self.rank, p), device=gradsH.device) / (p**0.5)
+        Phi = torch.linalg.qr(Phi.t(), mode="reduced")[0].t()
 
         Y = self._hvp_vmap(gradsH, self._params_list)(Phi)
 
@@ -218,16 +252,17 @@ class NysNewtonCG(Optimizer):
             eigs = eigs + shift
             # put back the matrix for Cholesky by eigenvector * eigenvalues after shift * eigenvector^T
             C = torch.linalg.cholesky(
-                torch.mm(eigvectors, torch.mm(torch.diag(eigs), eigvectors.T)))
+                torch.mm(eigvectors, torch.mm(torch.diag(eigs), eigvectors.T))
+            )
 
         try:
-            B = torch.linalg.solve_triangular(
-                C, Y_shifted, upper=False, left=True)
+            B = torch.linalg.solve_triangular(C, Y_shifted, upper=False, left=True)
         # temporary fix for issue @ https://github.com/pytorch/pytorch/issues/97211
         except:
-            B = torch.linalg.solve_triangular(C.to('cpu'), Y_shifted.to(
-                'cpu'), upper=False, left=True).to(C.device)
-            
+            B = torch.linalg.solve_triangular(
+                C.to("cpu"), Y_shifted.to("cpu"), upper=False, left=True
+            ).to(C.device)
+
         # B = V * S * U^T b/c we have been using transposed sketch
         _, S, UT = torch.linalg.svd(B, full_matrices=False)
         self.U = UT.t()
@@ -236,21 +271,25 @@ class NysNewtonCG(Optimizer):
         self.rho = self.S[-1]
 
         if self.verbose:
-            print(f'Approximate eigenvalues = {self.S}')
+            print(f"Approximate eigenvalues = {self.S}")
 
     def _hvp_vmap(self, grad_params, params):
-        return vmap(lambda v: self._hvp(grad_params, params, v), in_dims=0, chunk_size=self.chunk_size)
+        return vmap(
+            lambda v: self._hvp(grad_params, params, v),
+            in_dims=0,
+            chunk_size=self.chunk_size,
+        )
 
     def _hvp(self, grad_params, params, v):
-        Hv = torch.autograd.grad(grad_params, params, grad_outputs=v,
-                                 retain_graph=True)
+        Hv = torch.autograd.grad(grad_params, params, grad_outputs=v, retain_graph=True)
         Hv = tuple(Hvi.detach() for Hvi in Hv)
         return torch.cat([Hvi.reshape(-1) for Hvi in Hv])
 
     def _numel(self):
         if self._numel_cache is None:
             self._numel_cache = reduce(
-                lambda total, p: total + p.numel(), self._params, 0)
+                lambda total, p: total + p.numel(), self._params, 0
+            )
         return self._numel_cache
 
     def _add_grad(self, step_size, update):
@@ -259,7 +298,8 @@ class NysNewtonCG(Optimizer):
             numel = p.numel()
             # Avoid in-place operation by creating a new tensor
             p.data = p.data.add(
-                update[offset:offset + numel].view_as(p), alpha=step_size)
+                update[offset : offset + numel].view_as(p), alpha=step_size
+            )
             offset += numel
         assert offset == self._numel()
 
