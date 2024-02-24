@@ -576,8 +576,7 @@ class PDEPointResampler(Callback):
 class PrintLossWeight(Callback):
     def __init__(self, period):
         super().__init__()
-        """
-        Print the loss weights every period epochs
+        """Print the loss weights every period epochs
 
         Args:
             period: Interval (number of epochs) between printing loss weights.
@@ -600,8 +599,7 @@ class PrintLossWeight(Callback):
 class ManualDynamicLossWeight(Callback):
     def __init__(self, epoch2change, value, loss_idx):
         super().__init__()
-        """
-        Change the loss weights at a specific epoch
+        """Change the loss weights at a specific epoch
 
         Args:
             epoch2change: The epoch at which to change the loss weight
