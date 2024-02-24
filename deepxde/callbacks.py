@@ -614,8 +614,6 @@ class ManualDynamicLossWeight(Callback):
         self.loss_idx = loss_idx
 
     def on_epoch_begin(self):
-        import tensorflow as tf
-
         if self.model.train_state.epoch == self.epoch2change:
             current_loss_weights = self.model.loss_weights.numpy()
             current_loss_weights[self.loss_idx] = self.value
