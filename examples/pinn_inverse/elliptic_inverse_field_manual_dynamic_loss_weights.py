@@ -1,11 +1,14 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+
 # import sys
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 from deepxde.callbacks import PrintLossWeight, ManualDynamicLossWeight
+
 dde.config.disable_xla_jit()
 from deepxde.backend import set_default_backend
+
 set_default_backend("tensorflow")
 
 
@@ -21,9 +24,11 @@ def pde(x, y):
     du_xx = dde.grad.hessian(y, x, component=0, i=0, j=0)
     return -du_xx + q
 
+
 def sol(x):
     # solution is u(x) = sin(pi*x), q(x) = -pi^2 * sin(pi*x)
     return np.sin(np.pi * x)
+
 
 geom = dde.geometry.Interval(-1, 1)
 bc = dde.icbc.DirichletBC(geom, sol, lambda _, on_boundary: on_boundary, component=0)
@@ -41,11 +46,17 @@ data = dde.data.PDE(
 )
 
 net = dde.nn.FNN([1, 40, 40, 40, 2], "tanh", "Glorot uniform")
-PrintLossWeight_cb = PrintLossWeight(period = 1)
-ManualDynamicLossWeight_cb = ManualDynamicLossWeight(epoch2change = 5000, value = 1, loss_idx = 0)
+PrintLossWeight_cb = PrintLossWeight(period=1)
+ManualDynamicLossWeight_cb = ManualDynamicLossWeight(
+    epoch2change=5000, value=1, loss_idx=0
+)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.0001, loss_weights=[0, 100, 1000])
-losshistory, train_state = model.train(iterations=20000, display_every=1, callbacks = [PrintLossWeight_cb, ManualDynamicLossWeight_cb])
+losshistory, train_state = model.train(
+    iterations=20000,
+    display_every=1,
+    callbacks=[PrintLossWeight_cb, ManualDynamicLossWeight_cb],
+)
 # dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 # view results
@@ -60,7 +71,7 @@ plt.plot(x, utrue, "-", label="u_true")
 plt.plot(x, uhat, "--", label="u_NN")
 plt.legend()
 
-qtrue = -np.pi ** 2 * np.sin(np.pi * x)
+qtrue = -np.pi**2 * np.sin(np.pi * x)
 print("l2 relative error for q: " + str(dde.metrics.l2_relative_error(qtrue, qhat)))
 plt.figure()
 plt.plot(x, qtrue, "-", label="q_true")

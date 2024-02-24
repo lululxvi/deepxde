@@ -119,7 +119,9 @@ class Model:
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
-        self.loss_weights = tf.convert_to_tensor(loss_weights, dtype=config.default_float())
+        self.loss_weights = tf.convert_to_tensor(
+            loss_weights, dtype=config.default_float()
+        )
         if external_trainable_variables is None:
             self.external_trainable_variables = []
         else:
@@ -201,8 +203,10 @@ class Model:
         @tf.function(jit_compile=config.xla_jit)
         def outputs(training, inputs):
             return self.net(inputs, training=training)
-        
-        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn, loss_weights):
+
+        def outputs_losses(
+            training, inputs, targets, auxiliary_vars, losses_fn, loss_weights
+        ):
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
@@ -222,51 +226,27 @@ class Model:
                 losses *= loss_weights
             return outputs_, losses
 
-        # Original code:
-        # def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
-        #     self.net.auxiliary_vars = auxiliary_vars
-        #     # Don't call outputs() decorated by @tf.function above, otherwise the
-        #     # gradient of outputs wrt inputs will be lost here.
-        #     outputs_ = self.net(inputs, training=training)
-        #     # Data losses
-        #     # if forward-mode AD is used, then a forward call needs to be passed
-        #     aux = [self.net] if config.autodiff == "forward" else None
-        #     losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
-        #     if not isinstance(losses, list):
-        #         losses = [losses]
-        #     # Regularization loss
-        #     if self.net.regularizer is not None:
-        #         losses += [tf.math.reduce_sum(self.net.losses)]
-        #     losses = tf.convert_to_tensor(losses)
-        #     # Weighted losses
-        #     if self.loss_weights is not None:
-        #         losses *= self.loss_weights
-        #     return outputs_, losses
-
         @tf.function(jit_compile=config.xla_jit)
         def outputs_losses_train(inputs, targets, auxiliary_vars, loss_weights):
             return outputs_losses(
-                True, inputs, targets, auxiliary_vars, self.data.losses_train, loss_weights
-            )      
-        # Original code:
-        # @tf.function(jit_compile=config.xla_jit)
-        # def outputs_losses_train(inputs, targets, auxiliary_vars):
-        #     return outputs_losses(
-        #         True, inputs, targets, auxiliary_vars, self.data.losses_trains
-        #     )
+                True,
+                inputs,
+                targets,
+                auxiliary_vars,
+                self.data.losses_train,
+                loss_weights,
+            )
 
         @tf.function(jit_compile=config.xla_jit)
         def outputs_losses_test(inputs, targets, auxiliary_vars, loss_weights):
             return outputs_losses(
-                False, inputs, targets, auxiliary_vars, self.data.losses_test, loss_weights
+                False,
+                inputs,
+                targets,
+                auxiliary_vars,
+                self.data.losses_test,
+                loss_weights,
             )
-
-        # Original code:
-        # @tf.function(jit_compile=config.xla_jit)
-        # def outputs_losses_test(inputs, targets, auxiliary_vars):
-        #     return outputs_losses(
-        #         False, inputs, targets, auxiliary_vars, self.data.losses_test
-        #     )
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
@@ -274,26 +254,15 @@ class Model:
         def train_step(inputs, targets, auxiliary_vars, loss_weights):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
-                losses = outputs_losses_train(inputs, targets, auxiliary_vars, loss_weights)[1]
+                losses = outputs_losses_train(
+                    inputs, targets, auxiliary_vars, loss_weights
+                )[1]
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
             )
             grads = tape.gradient(total_loss, trainable_variables)
             opt.apply_gradients(zip(grads, trainable_variables))
-        
-        # Original code:
-        # @tf.function(jit_compile=config.xla_jit)
-        # def train_step(inputs, targets, auxiliary_vars):
-        #     # inputs and targets are np.ndarray and automatically converted to Tensor.
-        #     with tf.GradientTape() as tape:
-        #         losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
-        #         total_loss = tf.math.reduce_sum(losses)
-        #     trainable_variables = (
-        #         self.net.trainable_variables + self.external_trainable_variables
-        #     )
-        #     grads = tape.gradient(total_loss, trainable_variables)
-        #     opt.apply_gradients(zip(grads, trainable_variables))
 
         def train_step_tfp(
             inputs, targets, auxiliary_vars, previous_optimizer_results=None
@@ -715,7 +684,8 @@ class Model:
             self._train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
-                self.train_state.train_aux_vars, self.loss_weights
+                self.train_state.train_aux_vars,
+                self.loss_weights,
             )
 
             self.train_state.epoch += 1
@@ -728,31 +698,6 @@ class Model:
 
             if self.stop_training:
                 break
-    # Original code:           
-    # def _train_sgd(self, iterations, display_every):
-    #     for i in range(iterations):
-    #         self.callbacks.on_epoch_begin()
-    #         self.callbacks.on_batch_begin()
-
-    #         self.train_state.set_data_train(
-    #             *self.data.train_next_batch(self.batch_size)
-    #         )
-    #         self._train_step(
-    #             self.train_state.X_train,
-    #             self.train_state.y_train,
-    #             self.train_state.train_aux_vars, self.loss_weights
-    #         )
-
-    #         self.train_state.epoch += 1
-    #         self.train_state.step += 1
-    #         if self.train_state.step % display_every == 0 or i + 1 == iterations:
-    #             self._test()
-
-    #         self.callbacks.on_batch_end()
-    #         self.callbacks.on_epoch_end()
-
-    #         if self.stop_training:
-    #             break
 
     def _train_tensorflow_compat_v1_scipy(self, display_every):
         def loss_callback(loss_train, loss_test, *args):
@@ -899,14 +844,14 @@ class Model:
             self.train_state.X_train,
             self.train_state.y_train,
             self.train_state.train_aux_vars,
-            self.loss_weights
+            self.loss_weights,
         )
         self.train_state.y_pred_test, self.train_state.loss_test = self._outputs_losses(
             False,
             self.train_state.X_test,
             self.train_state.y_test,
             self.train_state.test_aux_vars,
-            self.loss_weights
+            self.loss_weights,
         )
 
         if isinstance(self.train_state.y_test, (list, tuple)):

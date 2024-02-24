@@ -592,10 +592,10 @@ class PrintLossWeight(Callback):
             self.initial_loss_weights = self.model.loss_weights.numpy().tolist()
         else:
             self.current_loss_weights = self.model.loss_weights.numpy().tolist()
-        if self.model.train_state.epoch % self.period  == 0:
-            print('Initial loss weights:', self.initial_loss_weights)
-            print('Current loss weights:', self.current_loss_weights)
-        
+        if self.model.train_state.epoch % self.period == 0:
+            print("Initial loss weights:", self.initial_loss_weights)
+            print("Current loss weights:", self.current_loss_weights)
+
 
 class ManualDynamicLossWeight(Callback):
     def __init__(self, epoch2change, value, loss_idx):
@@ -615,7 +615,10 @@ class ManualDynamicLossWeight(Callback):
 
     def on_epoch_begin(self):
         import tensorflow as tf
+
         if self.model.train_state.epoch == self.epoch2change:
             current_loss_weights = self.model.loss_weights.numpy()
             current_loss_weights[self.loss_idx] = self.value
-            self.model.loss_weights = tf.convert_to_tensor(current_loss_weights,dtype=config.default_float())
+            self.model.loss_weights = tf.convert_to_tensor(
+                current_loss_weights, dtype=config.default_float()
+            )
