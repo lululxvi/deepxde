@@ -22,8 +22,6 @@ PI-DeepONet
    operator/zcs
 
 
-Complete code
--------------
 - `Antiderivative operator with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_aligned_pideeponet.py>`_
 - `Antiderivative operator with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_unaligned_pideeponet.py>`_
 - `Advection equation with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/advection_aligned_pideeponet.py>`_
