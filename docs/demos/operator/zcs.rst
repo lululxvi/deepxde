@@ -125,7 +125,7 @@ Example 2: Stokes flow
 ----------------------
 
 The Problem
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 In this example, we use a PI-DeepONet to approach the system of Stokes
 for fluids. The domain is a 2D square full of liquid, with its lid
@@ -152,7 +152,7 @@ solution for validation is computed using
 tutorial <https://doc.freefem.org/tutorials/stokes.html>`__.
 
 PDE implementation
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 Without ZCS, `the script with aligned
 points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_pideeponet.py>`__
@@ -207,7 +207,7 @@ implements the PDE as
 Both of them should be self-explanatory.
 
 Results
-~~~~~~~
+^^^^^^^
 
 After 50,000 iterations of training, the relative errors for both
 velocity and pressure should converge to around 10%. The following
