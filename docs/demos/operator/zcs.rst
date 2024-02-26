@@ -238,14 +238,12 @@ TensorFlow  Aligned    Failed\ :sup:`†`  Failed\ :sup:`†`
 both the two machines we tested on. If you manage to run it
 successfully, please report the results in an issue.
 
-Complete code
--------------
+Related code
+------------
 
--  `Diffusion reaction equation with aligned
-   points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_pideeponet.py>`__
--  `Diffusion reaction equation with aligned points using
-   ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_zcs_pideeponet.py>`__
--  `Stokes flow with aligned
-   points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_pideeponet.py>`__
--  `Stokes flow with aligned points using
-   ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_zcs_pideeponet.py>`__
+-  `Diffusion reaction equation with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_pideeponet.py>`__
+-  `Diffusion reaction equation with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_unaligned_pideeponet.py>`__
+-  `Stokes flow with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_pideeponet.py>`__
+- PI-DeepONets with Zero Coordinate Shift (ZCS)
+    - `Diffusion reaction equation with aligned points using ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_zcs_pideeponet.py>`__
+    - `Stokes flow with aligned points using ZCS <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_zcs_pideeponet.py>`__
