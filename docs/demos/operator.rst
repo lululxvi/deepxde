@@ -19,14 +19,6 @@ PI-DeepONet
    :maxdepth: 1
 
    operator/poisson.1d.pideeponet
-
-
-Zero Coordinate Shift
----------------------
-
-.. toctree::
-   :maxdepth: 1
-
    operator/zcs
 
 
