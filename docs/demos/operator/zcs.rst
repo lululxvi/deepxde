@@ -217,7 +217,7 @@ gears up the training while saving GPU memory. You may want to decrease
 the number of iterations for a quicker run.
 
 
-.. image:: ../../images/stokes.png
+.. image:: stokes.png
    :width: 600
 
 
