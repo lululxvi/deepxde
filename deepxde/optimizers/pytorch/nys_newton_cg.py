@@ -1,7 +1,8 @@
-import torch
-from torch.optim import Optimizer
-from torch.func import vmap
 from functools import reduce
+
+import torch
+from torch.func import vmap
+from torch.optim import Optimizer
 
 
 def _armijo(f, x, gx, dx, t, alpha=0.1, beta=0.5):
@@ -26,7 +27,8 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
 
     `Frangella et al. Randomized Nyström Preconditioning.
     SIAM Journal on Matrix Analysis and Applications, 2023.
-    <https://epubs.siam.org/doi/10.1137/21M1466244>`"""
+    <https://epubs.siam.org/doi/10.1137/21M1466244>`
+    """
     lambd_r = S[r - 1]
     S_mu_inv = (S + mu) ** (-1)
 
@@ -92,7 +94,6 @@ class NysNewtonCG(Optimizer):
         cg_max_iters (int, optional): maximum number of PCG iterations (default: 1000)
         line_search_fn (str, optional): either 'armijo' or None (default: None)
         verbose (bool, optional): verbosity (default: False)
-
     """
 
     def __init__(
@@ -144,8 +145,10 @@ class NysNewtonCG(Optimizer):
         """Perform a single optimization step.
 
         Args:
-            closure (callable, optional): A closure that reevaluates the model and returns (i) the loss and (ii) gradient w.r.t. the parameters.
-            The closure can compute the gradient w.r.t. the parameters by calling torch.autograd.grad on the loss with create_graph=True.
+            closure (callable, optional): A closure that reevaluates the model
+              and returns (i) the loss and (ii) gradient w.r.t. the parameters. 
+              The closure can compute the gradient w.r.t. the parameters by 
+              calling torch.autograd.grad on the loss with create_graph=True.
         """
         if self.n_iters == 0:
             # Store the previous direction for warm starting PCG
@@ -217,8 +220,10 @@ class NysNewtonCG(Optimizer):
         """Update the Nystrom approximation of the Hessian.
 
         Args:
-            grad_tuple (tuple): tuple of Tensors containing the gradients of the loss w.r.t. the parameters.
-            This tuple can be obtained by calling torch.autograd.grad on the loss with create_graph=True.
+            grad_tuple (tuple): tuple of Tensors containing the gradients
+              of the loss w.r.t. the parameters.
+              This tuple can be obtained by calling torch.autograd.grad
+              on the loss with create_graph=True.
         """
 
         # Flatten and concatenate the gradients
