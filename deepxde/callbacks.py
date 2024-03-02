@@ -580,7 +580,6 @@ class PrintLossWeight(Callback):
 
         Args:
             period: Interval (number of epochs) between printing loss weights.
-
         """
         self.period = period
         self.initial_loss_weights = None
@@ -605,7 +604,6 @@ class ManualDynamicLossWeight(Callback):
             epoch2change: The epoch at which to change the loss weight
             value: The value to change the loss weight to
             idx: The index of the loss weight to change
-
         """
         self.epoch2change = epoch2change
         self.value = value
