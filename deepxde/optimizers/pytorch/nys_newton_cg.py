@@ -56,14 +56,16 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
 
     if torch.norm(resid) > tol:
         print(
-            f"Warning: PCG did not converge to tolerance. Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
+            f"Warning: PCG did not converge to tolerance. 
+            Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
         )
 
     return x
 
 
 class NysNewtonCG(Optimizer):
-    """Implementation of NysNewtonCG, a damped Newton-CG method that uses Nyström preconditioning.
+    """Implementation of NysNewtonCG, a damped Newton-CG method
+      that uses Nyström preconditioning.
 
     `Rathore et al. Challenges in Training PINNs: A Loss Landscape Perspective.
     Preprint, 2024. <https://arxiv.org/abs/2402.01868>`
@@ -79,7 +81,8 @@ class NysNewtonCG(Optimizer):
 
     The parameters rank and mu will probably need to be tuned for your specific problem.
     If the optimizer is running very slowly, you can try one of the following:
-    - Increase the rank (this should increase the accuracy of the Nyström approximation in PCG)
+    - Increase the rank (this should increase the 
+    accuracy of the Nyström approximation in PCG)
     - Reduce cg_tol (this will allow PCG to terminate with a less accurate solution)
     - Reduce cg_max_iters (this will allow PCG to terminate after fewer iterations)
 
@@ -89,7 +92,8 @@ class NysNewtonCG(Optimizer):
         lr (float, optional): learning rate (default: 1.0)
         rank (int, optional): rank of the Nyström approximation (default: 10)
         mu (float, optional): damping parameter (default: 1e-4)
-        chunk_size (int, optional): number of Hessian-vector products to be computed in parallel (default: 1)
+        chunk_size (int, optional): number of Hessian-vector products
+          to be computed in parallel (default: 1)
         cg_tol (float, optional): tolerance for PCG (default: 1e-16)
         cg_max_iters (int, optional): maximum number of PCG iterations (default: 1000)
         line_search_fn (str, optional): either 'armijo' or None (default: None)
@@ -131,7 +135,8 @@ class NysNewtonCG(Optimizer):
 
         if len(self.param_groups) > 1:
             raise ValueError(
-                "NysNewtonCG doesn't currently support per-parameter options (parameter groups)"
+                f"NysNewtonCG doesn't currently support 
+                per-parameter options (parameter groups)"
             )
 
         if self.line_search_fn is not None and self.line_search_fn != "armijo":
@@ -246,7 +251,8 @@ class NysNewtonCG(Optimizer):
         choleskytarget = torch.mm(Y_shifted, Phi.t())
 
         # Perform Cholesky, if fails, do eigendecomposition
-        # The new shift is the abs of smallest eigenvalue (negative) plus the original shift
+        # The new shift is the abs of smallest eigenvalue (negative)
+        # plus the original shift
         try:
             C = torch.linalg.cholesky(choleskytarget)
         except:
@@ -255,7 +261,8 @@ class NysNewtonCG(Optimizer):
             shift = shift + torch.abs(torch.min(eigs))
             # add shift to eigenvalues
             eigs = eigs + shift
-            # put back the matrix for Cholesky by eigenvector * eigenvalues after shift * eigenvector^T
+            # put back the matrix for Cholesky by eigenvector * eigenvalues
+            # after shift * eigenvector^T
             C = torch.linalg.cholesky(
                 torch.mm(eigvectors, torch.mm(torch.diag(eigs), eigvectors.T))
             )
