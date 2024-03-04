@@ -135,8 +135,8 @@ class NysNewtonCG(Optimizer):
 
         if len(self.param_groups) > 1:
             raise ValueError(
-                f"NysNewtonCG doesn't currently support 
-                per-parameter options (parameter groups)"
+                "NysNewtonCG doesn't currently support "
+                "per-parameter options (parameter groups)"
             )
 
         if self.line_search_fn is not None and self.line_search_fn != "armijo":
@@ -270,7 +270,7 @@ class NysNewtonCG(Optimizer):
         try:
             B = torch.linalg.solve_triangular(C, Y_shifted, upper=False, left=True)
         # temporary fix for issue @ https://github.com/pytorch/pytorch/issues/97211
-        except:
+        except RuntimeError:
             B = torch.linalg.solve_triangular(
                 C.to("cpu"), Y_shifted.to("cpu"), upper=False, left=True
             ).to(C.device)
