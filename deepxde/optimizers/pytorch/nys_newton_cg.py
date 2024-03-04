@@ -56,8 +56,8 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
 
     if torch.norm(resid) > tol:
         print(
-            f"Warning: PCG did not converge to tolerance. 
-            Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
+            "Warning: PCG did not converge to tolerance. "
+            "Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
         )
 
     return x
@@ -255,7 +255,7 @@ class NysNewtonCG(Optimizer):
         # plus the original shift
         try:
             C = torch.linalg.cholesky(choleskytarget)
-        except:
+        except torch.linalg.LinAlgError:
             # eigendecomposition, eigenvalues and eigenvector matrix
             eigs, eigvectors = torch.linalg.eigh(choleskytarget)
             shift = shift + torch.abs(torch.min(eigs))
