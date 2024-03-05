@@ -54,6 +54,8 @@ elif backend_name == "jax":
     xla_jit = True
 if xla_jit:
     print("Enable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
+# Automatic differentiation
+autodiff = "reverse"
 
 
 def default_float():
@@ -180,9 +182,9 @@ def enable_xla_jit(mode=True):
     global xla_jit
     xla_jit = mode
     if xla_jit:
-        print("Enable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
+        print("Enable just-in-time compilation with XLA.", file=sys.stderr, flush=True)
     else:
-        print("Disable just-in-time compilation with XLA.\n", file=sys.stderr, flush=True)
+        print("Disable just-in-time compilation with XLA.", file=sys.stderr, flush=True)
 
 
 def disable_xla_jit():
@@ -202,6 +204,19 @@ def disable_xla_jit():
     This is equivalent with ``enable_xla_jit(False)``.
     """
     enable_xla_jit(False)
+
+
+def set_default_autodiff(value):
+    """Sets the default automatic differentiation mode.
+
+    The default automatic differentiation uses reverse mode.
+
+    Args:
+        value (String): 'reverse' or 'forward'.
+    """
+    global autodiff
+    autodiff = value
+    print(f"Set the default automatic differentiation to {value} mode.")
 
 
 def set_parallel_scaling(scaling_mode):

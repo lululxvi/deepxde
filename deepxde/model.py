@@ -208,7 +208,9 @@ class Model:
             # gradient of outputs wrt inputs will be lost here.
             outputs_ = self.net(inputs, training=training)
             # Data losses
-            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
+            # if forward-mode AD is used, then a forward call needs to be passed
+            aux = [self.net] if config.autodiff == "forward" else None
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
             # Regularization loss
@@ -301,7 +303,9 @@ class Model:
             # Data losses
             if targets is not None:
                 targets = torch.as_tensor(targets)
-            losses = losses_fn(targets, outputs_, loss_fn, inputs, self)
+            # if forward-mode AD is used, then a forward call needs to be passed
+            aux = [self.net] if config.autodiff == "forward" else None
+            losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
             losses = torch.stack(losses)
@@ -370,9 +374,10 @@ class Model:
         if self.loss_weights is not None:
             raise NotImplementedError("Loss weights are not supported for backend jax.")
         # Initialize the network's parameters
-        key = jax.random.PRNGKey(config.jax_random_seed)
-        self.net.params = self.net.init(key, self.data.test()[0])
-        self.params = [self.net.params, self.external_trainable_variables]
+        if self.params is None:
+            key = jax.random.PRNGKey(config.jax_random_seed)
+            self.net.params = self.net.init(key, self.data.test()[0])
+            self.params = [self.net.params, self.external_trainable_variables]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
@@ -905,6 +910,8 @@ class Model:
                 @tf.function
                 def op(inputs):
                     y = self.net(inputs)
+                    if config.autodiff == "forward":
+                        y = (y, self.net)
                     return operator(inputs, y)
 
             elif utils.get_num_args(operator) == 3:
@@ -924,6 +931,8 @@ class Model:
                 inputs = torch.as_tensor(x).requires_grad_()
             outputs = self.net(inputs)
             if utils.get_num_args(operator) == 2:
+                if config.autodiff == "forward":
+                    outputs = (outputs, self.net)
                 y = operator(inputs, outputs)
             elif utils.get_num_args(operator) == 3:
                 # TODO: Pytorch backend Implementation of Auxiliary variables.
@@ -934,6 +943,22 @@ class Model:
                 )
             # Clear cached Jacobians and Hessians.
             grad.clear()
+            y = utils.to_numpy(y)
+        elif backend_name == "jax":
+            if utils.get_num_args(operator) == 2:
+
+                @jax.jit
+                def op(inputs):
+                    y_fn = lambda _x: self.net.apply(self.net.params, _x)
+                    return operator(inputs, (y_fn(inputs), y_fn))
+
+            elif utils.get_num_args(operator) == 3:
+                # TODO: JAX backend Implementation of Auxiliary variables.
+                raise NotImplementedError(
+                    "Model.predict() with auxiliary variable hasn't been implemented "
+                    "for backend jax."
+                )
+            y = op(x)
             y = utils.to_numpy(y)
         elif backend_name == "paddle":
             self.net.eval()

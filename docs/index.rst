@@ -47,6 +47,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - enables the user code to be compact, resembling closely the mathematical formulation.
 - **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, ellipse, star-shaped, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
 - 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set; and approximate distance functions for **hard constraints**.
+- 3 **automatic differentiation** (AD) methods to compute derivatives: reverse mode (i.e., backpropagation), forward mode, and zero coordinate shift (ZCS).
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - many **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled (adaptively) every certain iterations.
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
