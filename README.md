@@ -76,25 +76,25 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 - TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
 - PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
-- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn/en) ([develop version](https://www.paddlepaddle.org.cn/en/install/quick?docurl=/documentation/docs/en/develop/install/pip/linux-pip_en.html))
+- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn/en)>=2.6.0
 
 Then, you can install DeepXDE itself.
 
 - Install the stable version with `pip`:
 
-```
+``` sh
 $ pip install deepxde
 ```
 
 - Install the stable version with `conda`:
 
-```
+``` sh
 $ conda install -c conda-forge deepxde
 ```
 
 - For developers, you should clone the folder to your local machine and put it along with your project scripts.
 
-```
+``` sh
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
