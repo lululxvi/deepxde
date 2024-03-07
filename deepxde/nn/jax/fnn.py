@@ -85,13 +85,13 @@ class PFNN(NN):
             raise ValueError("input size must be integer")
         
         list_layer = [layer_size for layer_size in self.layer_sizes if isinstance(layer_size, (list,tuple))]
-        if not list_layer:
+        if not list_layer: # if there is only one subnetwork (=FNN)
             n_subnetworks = 1
         else:
             n_subnetworks = len(list_layer[0])
             if not all(len(sublist) == n_subnetworks for sublist in list_layer):
                 raise ValueError("all layer_size lists must have the same length(=number of subnetworks)")
-        if isinstance(self.layer_sizes[-1], int) and n_subnetworks != self.layer_sizes[-1]:
+            if isinstance(self.layer_sizes[-1], int) and n_subnetworks != self.layer_sizes[-1]:
                 raise ValueError("if output layer is an integer, it must be equal to the number of subnetworks")
 
         self._activation = activations.get(self.activation)
