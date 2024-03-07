@@ -114,7 +114,8 @@ class PFNN(NN):
         else:
             denses.append(make_dense(n_output))
 
-        self.denses = denses #can't assign directly to self.denses because linen list attributes are converted to tuple, see https://github.com/google/flax/issues/524
+        self.denses = denses  # can't assign directly to self.denses because linen list attributes are converted to tuple
+        # see https://github.com/google/flax/issues/524
 
     def __call__(self, inputs, training=False):
         x = inputs
