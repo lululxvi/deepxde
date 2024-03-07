@@ -4,6 +4,7 @@ Implementation of the linear elasticity 2D example in paper https://doi.org/10.1
 References:
     https://github.com/sciann/sciann-applications/blob/master/SciANN-Elasticity/Elasticity-Forward.ipynb.
 """
+
 import deepxde as dde
 import numpy as np
 
@@ -112,11 +113,13 @@ def fy(x):
         + 6 * Q * mu * x[:, 1:2] ** 2 * sin(np.pi * x[:, 0:1])
     )
 
+
 def jacobian(f, x, i, j):
     if dde.backend.backend_name == "jax":
-        return dde.grad.jacobian(f, x, i=i, j=j)[0] # second element is the function used by jax to compute the gradients
+        return dde.grad.jacobian(f, x, i=i, j=j)[0]
     else:
         return dde.grad.jacobian(f, x, i=i, j=j)
+
 
 def pde(x, f):
     E_xx = jacobian(f, x, i=0, j=0)
@@ -136,13 +139,14 @@ def pde(x, f):
     momentum_y = Sxy_x + Syy_y - fy(x)
 
     if dde.backend.backend_name == "jax":
-        f = f[0] # f[1] is the function used by jax to compute the gradients
+        f = f[0]  # f[1] is the function used by jax to compute the gradients
 
     stress_x = S_xx - f[:, 2:3]
     stress_y = S_yy - f[:, 3:4]
     stress_xy = S_xy - f[:, 4:5]
 
     return [momentum_x, momentum_y, stress_x, stress_y, stress_xy]
+
 
 data = dde.data.PDE(
     geom,
