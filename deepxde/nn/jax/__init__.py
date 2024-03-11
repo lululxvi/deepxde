@@ -1,6 +1,6 @@
 """Package for jax NN modules."""
 
-__all__ = ["PFNN", "FNN", "NN"]
+__all__ = ["FNN", "NN","PFNN"]
 
 from .fnn import FNN, PFNN
 from .nn import NN
