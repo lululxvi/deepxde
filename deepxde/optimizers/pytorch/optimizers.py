@@ -2,11 +2,12 @@ __all__ = ["get", "is_external_optimizer"]
 
 import torch
 
-from ..config import LBFGS_options
+from ..config import LBFGS_options, NNCG_options
+from .nncg import NNCG
 
 
 def is_external_optimizer(optimizer):
-    return optimizer in ["L-BFGS", "L-BFGS-B"]
+    return optimizer in ["L-BFGS", "L-BFGS-B", "NNCG"]
 
 
 def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
@@ -14,21 +15,36 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
     # Custom Optimizer
     if isinstance(optimizer, torch.optim.Optimizer):
         optim = optimizer
-    elif optimizer in ["L-BFGS", "L-BFGS-B"]:
+    elif optimizer in ["L-BFGS", "L-BFGS-B", "NNCG"]:
         if weight_decay > 0:
-            raise ValueError("L-BFGS optimizer doesn't support weight_decay > 0")
+            error_optim = "L-BFGS" if optimizer in ["L-BFGS", "L-BFGS-B"] else "NNCG"
+            raise ValueError(f"{error_optim} optimizer doesn't support
+                              weight_decay > 0")
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
-        optim = torch.optim.LBFGS(
-            params,
-            lr=1,
-            max_iter=LBFGS_options["iter_per_step"],
-            max_eval=LBFGS_options["fun_per_step"],
-            tolerance_grad=LBFGS_options["gtol"],
-            tolerance_change=LBFGS_options["ftol"],
-            history_size=LBFGS_options["maxcor"],
-            line_search_fn=("strong_wolfe" if LBFGS_options["maxls"] > 0 else None),
-        )
+        if optimizer in ["L-BFGS", "L-BFGS-B"]:
+            optim = torch.optim.LBFGS(
+                params,
+                lr=1,
+                max_iter=LBFGS_options["iter_per_step"],
+                max_eval=LBFGS_options["fun_per_step"],
+                tolerance_grad=LBFGS_options["gtol"],
+                tolerance_change=LBFGS_options["ftol"],
+                history_size=LBFGS_options["maxcor"],
+                line_search_fn=("strong_wolfe" if LBFGS_options["maxls"] > 0 else None),
+            )
+        else:
+            optim = NNCG(
+                params,
+                lr=NNCG_options["lr"],
+                rank=NNCG_options["rank"],
+                mu=NNCG_options["mu"],
+                chunk_size=NNCG_options["chunksz"],
+                cg_tol=NNCG_options["cgtol"],
+                cg_max_iters=NNCG_options["cgmaxiter"],
+                line_search_fn=NNCG_options["lsfun"],
+                verbose=NNCG_options["verbose"],
+            )
     else:
         if learning_rate is None:
             raise ValueError("No learning rate for {}.".format(optimizer))

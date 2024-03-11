@@ -63,7 +63,7 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
     return x
 
 
-class NysNewtonCG(Optimizer):
+class NNCG(Optimizer):
     """Implementation of NysNewtonCG, a damped Newton-CG method
       that uses Nyström preconditioning.
 
@@ -131,16 +131,16 @@ class NysNewtonCG(Optimizer):
         self.U = None
         self.S = None
         self.n_iters = 0
-        super(NysNewtonCG, self).__init__(params, defaults)
+        super(NNCG, self).__init__(params, defaults)
 
         if len(self.param_groups) > 1:
             raise ValueError(
-                "NysNewtonCG doesn't currently support "
+                "NNCG doesn't currently support "
                 "per-parameter options (parameter groups)"
             )
 
         if self.line_search_fn is not None and self.line_search_fn != "armijo":
-            raise ValueError("NysNewtonCG only supports Armijo line search")
+            raise ValueError("NNCG only supports Armijo line search")
 
         self._params = self.param_groups[0]["params"]
         self._params_list = list(self._params)
