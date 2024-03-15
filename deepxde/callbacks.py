@@ -6,7 +6,7 @@ import numpy as np
 from . import config
 from . import gradients as grad
 from . import utils
-from .backend import backend_name, tf, torch, paddle, jax
+from .backend import backend_name, jax, paddle, tf, torch
 
 
 class Callback:
