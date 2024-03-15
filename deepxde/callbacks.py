@@ -437,11 +437,6 @@ class OperatorPredictor(Callback):
             self.model.net.eval()
             outputs = self.model.net(self.x)
             self.value = utils.to_numpy(self.op(self.x, outputs))
-        else:
-            # TODO: other backends
-            raise NotImplementedError(
-                f"OperatorPredictor not implemented for backend {backend_name}."
-            )
 
     def get_value(self):
         return self.value
