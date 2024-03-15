@@ -377,12 +377,12 @@ PINN
 DeepONet
 --------
 
+#. K\. Leng, M. Shankar, & J. Thiyagalingam. `Zero coordinate shift: Whetted automatic differentiation for physics-informed operator learning <https://doi.org/10.1016/j.jcp.2024.112904>`_. *Journal of Computational Physics*, 505, 112904, 2024.
 #. M\. Lamarque, L. Bhan, R. Vazquez, & M. Krstic. `Gain Scheduling with a Neural Operator for a Transport PDE with Nonlinear Recirculation <https://arxiv.org/abs/2401.02511>`_. *arXiv preprint arXiv:2401.02511*, 2024.
 #. A\. Xavier. `Solving Heat Conduction Problems with DeepONets <https://mediatum.ub.tum.de/doc/1728141/document.pdf>`_. 2023.
 #. L\. Xu, H. Zhang, & M. Zhang. `Training a deep operator network as a surrogate solver for two-dimensional parabolic-equation models <https://pubs.aip.org/asa/jasa/article/154/5/3276/2922093>`_. *The Journal of the Acoustical Society of America*, 154(5), 3276-3284, 2023.
 #. N\. Ford, V. J. Leon, H. Merman, J. Gilbert, & A. New. `Data-efficient operator learning for solving high Mach number fluid flow problems <https://arxiv.org/abs/2311.16860>`_. *arXiv preprint arXiv:2311.16860*, 2023.
 #. J\. He, S. Kushwaha, J. Park, S. Koric, D. Abueidda, & I. Jasiuk. `Multi-component predictions of transient solution fields with sequential deep operator network <https://arxiv.org/abs/2311.11500>`_. *arXiv preprint arXiv:2311.11500*, 2023.
-#. K\. Leng, M. Shankar, & J. Thiyagalingam. `Zero coordinate shift: Whetted automatic differentiation for physics-informed operator learning <https://arxiv.org/pdf/2311.00860.pdf>`_. *arXiv preprint arXiv:2311.00860*, 2023.
 #. B\. Chen, C. Wang, W. Li, & H. Fu. `A hybrid Decoder-DeepONet operator regression framework for unaligned observation data <https://arxiv.org/pdf/2308.09274.pdf>`_. *arXiv preprint arXiv:2308.09274*, 2023.
 #. K\. Kobayashi, & S. B. Alam. `Potential of deep operator networks in digital twin-enabling technology for nuclear system <https://arxiv.org/pdf/2308.07523.pdf>`_. *arXiv preprint arXiv:2308.07523*, 2023.
 #. J\. He, S. Kushwaha, J. Park, S. Koric, D. Abueidda, & I. Jasiuk. `Sequential deep operator networks (S-DeepONet) for predicting full-field solutions under time-dependent loads <https://arxiv.org/abs/2306.08218>`_. *Engineering Applications of Artificial Intelligence*, 127:107258, 2024.
