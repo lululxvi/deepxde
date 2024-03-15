@@ -6,7 +6,7 @@ import numpy as np
 from . import config
 from . import gradients as grad
 from . import utils
-from .backend import backend_name, tf, torch, paddle
+from .backend import backend_name, jax, paddle, tf, torch
 
 
 class Callback:
@@ -390,6 +390,14 @@ class OperatorPredictor(Callback):
         elif backend_name == "pytorch":
             self.x = torch.as_tensor(self.x)
             self.x.requires_grad_()
+        elif backend_name == "jax":
+
+            @jax.jit
+            def op(inputs, params):
+                y_fn = lambda _x: self.model.net.apply(params, _x)
+                return self.op(inputs, (y_fn(inputs), y_fn))
+
+            self.jax_op = op
         elif backend_name == "paddle":
             self.x = paddle.to_tensor(self.x, stop_gradient=False)
 
@@ -423,15 +431,12 @@ class OperatorPredictor(Callback):
             self.model.net.eval()
             outputs = self.model.net(self.x)
             self.value = utils.to_numpy(self.op(self.x, outputs))
+        elif backend_name == "jax":
+            self.value = utils.to_numpy(self.jax_op(self.x, self.model.net.params))
         elif backend_name == "paddle":
             self.model.net.eval()
             outputs = self.model.net(self.x)
             self.value = utils.to_numpy(self.op(self.x, outputs))
-        else:
-            # TODO: other backends
-            raise NotImplementedError(
-                f"OperatorPredictor not implemented for backend {backend_name}."
-            )
 
     def get_value(self):
         return self.value
