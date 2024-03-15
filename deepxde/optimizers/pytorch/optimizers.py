@@ -2,8 +2,8 @@ __all__ = ["get", "is_external_optimizer"]
 
 import torch
 
-from ..config import LBFGS_options, NNCG_options
 from .nncg import NNCG
+from ..config import LBFGS_options, NNCG_options
 
 
 def is_external_optimizer(optimizer):
