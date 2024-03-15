@@ -1,4 +1,5 @@
-from typing import Literal, Union
+from numbers import Number
+from typing import Literal
 
 import numpy as np
 
@@ -10,7 +11,7 @@ from ..utils import isclose
 
 
 class Interval(Geometry):
-    def __init__(self, l, r):
+    def __init__(self, l: Number, r: Number):
         super().__init__(1, (np.array([l]), np.array([r])), r - l)
         self.l, self.r = l, r
 
@@ -30,7 +31,7 @@ class Interval(Geometry):
         self,
         x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["left", "right"]] = None,
+        where: Literal["left", "right"] | None = None,
     ):
         """Compute the hard constraint factor at x for the boundary.
 
@@ -115,7 +116,7 @@ class Interval(Geometry):
             self.l, self.r, num=n + 1, endpoint=False, dtype=config.real(np)
         )[1:, None]
 
-    def log_uniform_points(self, n, boundary=True):
+    def log_uniform_points(self, n: int, boundary: bool = True):
         eps = 0 if self.l > 0 else np.finfo(config.real(np)).eps
         l = np.log(self.l + eps)
         r = np.log(self.r + eps)

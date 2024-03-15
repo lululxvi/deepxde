@@ -1,7 +1,10 @@
 import itertools
+from numbers import Number
 
 import numpy as np
+from numpy.typing import NDArray
 
+from .geometry import Geometry
 from .geometry_1d import Interval
 from .geometry_2d import Rectangle
 from .geometry_3d import Cuboid
@@ -11,17 +14,17 @@ from ..utils import isclose
 
 
 class TimeDomain(Interval):
-    def __init__(self, t0, t1):
+    def __init__(self, t0: Number, t1: Number):
         super().__init__(t0, t1)
         self.t0 = t0
         self.t1 = t1
 
-    def on_initial(self, t):
+    def on_initial(self, t: NDArray[np.float_]) -> NDArray[np.bool_]:
         return isclose(t, self.t0).flatten()
 
 
-class GeometryXTime:
-    def __init__(self, geometry, timedomain):
+class GeometryXTime():
+    def __init__(self, geometry: Geometry, timedomain: TimeDomain):
         self.geometry = geometry
         self.timedomain = timedomain
         self.dim = geometry.dim + timedomain.dim

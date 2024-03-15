@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import itertools
-from typing import Literal
+from numbers import Number
+from typing import Callable, Literal
 
 import numpy as np
+from numpy.typing import NDArray
+
 from scipy import stats
 from sklearn import preprocessing
 
@@ -9,11 +14,12 @@ from .geometry import Geometry
 from .sampler import sample
 from .. import backend as bkd
 from .. import config
+from ..types import Tensor
 from ..utils import isclose
 
 
 class Hypercube(Geometry):
-    def __init__(self, xmin, xmax):
+    def __init__(self, xmin: NDArray[np.float_], xmax: NDArray[np.float_]):
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
 
@@ -28,19 +34,19 @@ class Hypercube(Geometry):
         )
         self.volume = np.prod(self.side_length)
 
-    def inside(self, x):
+    def inside(self, x: NDArray[np.float_]) -> NDArray[np.bool_]:
         return np.logical_and(
             np.all(x >= self.xmin, axis=-1), np.all(x <= self.xmax, axis=-1)
         )
 
-    def on_boundary(self, x):
+    def on_boundary(self, x: NDArray[np.float_]) -> NDArray[np.bool_]:
         _on_boundary = np.logical_or(
             np.any(isclose(x, self.xmin), axis=-1),
             np.any(isclose(x, self.xmax), axis=-1),
         )
         return np.logical_and(self.inside(x), _on_boundary)
 
-    def boundary_normal(self, x):
+    def boundary_normal(self, x: NDArray[np.float_]) -> NDArray[np.float_]:
         _n = -isclose(x, self.xmin).astype(config.real(np)) + isclose(x, self.xmax)
         # For vertices, the normal is averaged for all directions
         idx = np.count_nonzero(_n, axis=-1) > 1
@@ -53,7 +59,7 @@ class Hypercube(Geometry):
             _n[idx] /= l
         return _n
 
-    def uniform_points(self, n, boundary=True):
+    def uniform_points(self, n: int, boundary: bool = True) -> NDArray[np.float_]:
         dx = (self.volume / n) ** (1 / self.dim)
         xi = []
         for i in range(self.dim):
@@ -81,11 +87,11 @@ class Hypercube(Geometry):
             )
         return x
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n: int, random: str = "pseudo") -> NDArray[np.float_]:
         x = sample(n, self.dim, random)
         return (self.xmax - self.xmin) * x + self.xmin
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n: int, random: str = "pseudo") -> NDArray[np.float_]:
         x = sample(n, self.dim, random)
         # Randomly pick a dimension
         rand_dim = np.random.randint(self.dim, size=n)
@@ -93,7 +99,7 @@ class Hypercube(Geometry):
         x[np.arange(n), rand_dim] = np.round(x[np.arange(n), rand_dim])
         return (self.xmax - self.xmin) * x + self.xmin
 
-    def periodic_point(self, x, component):
+    def periodic_point(self, x: NDArray[np.float_], component: int | list[int]) -> NDArray[np.float_]:
         y = np.copy(x)
         _on_xmin = isclose(y[:, component], self.xmin[component])
         _on_xmax = isclose(y[:, component], self.xmax[component])
@@ -103,11 +109,11 @@ class Hypercube(Geometry):
 
     def boundary_constraint_factor(
         self,
-        x,
+        x: NDArray[np.float_],
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0",
-        where: None = None,
+        where: str | None = None,
         inside: bool = True,
-    ):
+    ) -> Tensor:
         """Compute the hard constraint factor at x for the boundary.
 
         This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
@@ -184,7 +190,7 @@ class Hypercube(Geometry):
 
 
 class Hypersphere(Geometry):
-    def __init__(self, center, radius):
+    def __init__(self, center: Number, radius: Number):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
         super().__init__(
@@ -193,13 +199,13 @@ class Hypersphere(Geometry):
 
         self._r2 = radius**2
 
-    def inside(self, x):
+    def inside(self, x: NDArray[np.float_]) -> NDArray[np.bool_]:
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
-    def on_boundary(self, x):
+    def on_boundary(self, x: NDArray[np.float_]) -> NDArray[np.bool_]:
         return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
-    def distance2boundary_unitdirn(self, x, dirn):
+    def distance2boundary_unitdirn(self, x: NDArray[np.float_], dirn: Number) -> NDArray[np.float_]:
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
         xc = x - self.center
         ad = np.dot(xc, dirn)
@@ -207,15 +213,15 @@ class Hypersphere(Geometry):
             config.real(np)
         )
 
-    def distance2boundary(self, x, dirn):
+    def distance2boundary(self, x: NDArray[np.float_], dirn: Number) -> NDArray[np.float_]:
         return self.distance2boundary_unitdirn(x, dirn / np.linalg.norm(dirn))
 
-    def mindist2boundary(self, x):
+    def mindist2boundary(self, x: NDArray[np.float_]) -> NDArray[np.float_]:
         return np.amin(self.radius - np.linalg.norm(x - self.center, axis=-1))
 
     def boundary_constraint_factor(
-        self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
-    ):
+        self, x: NDArray[np.float_], smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
+    ) -> Tensor:
         if smoothness not in ["C0", "C0+", "Cinf"]:
             raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
@@ -230,13 +236,13 @@ class Hypersphere(Geometry):
             dist = bkd.abs(dist)
         return dist
 
-    def boundary_normal(self, x):
+    def boundary_normal(self, x: NDArray[np.float_]) -> NDArray[np.float_]:
         _n = x - self.center
         l = np.linalg.norm(_n, axis=-1, keepdims=True)
         _n = _n / l * isclose(l, self.radius)
         return _n
 
-    def random_points(self, n, random="pseudo"):
+    def random_points(self, n: int, random: str = "pseudo") -> NDArray[np.float_]:
         # https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
         if random == "pseudo":
             U = np.random.rand(n, 1).astype(config.real(np))
@@ -249,7 +255,7 @@ class Hypersphere(Geometry):
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
 
-    def random_boundary_points(self, n, random="pseudo"):
+    def random_boundary_points(self, n: int, random: str = "pseudo") -> NDArray[np.float_]:
         # http://mathworld.wolfram.com/HyperspherePointPicking.html
         if random == "pseudo":
             X = np.random.normal(size=(n, self.dim)).astype(config.real(np))
@@ -259,7 +265,7 @@ class Hypersphere(Geometry):
         X = preprocessing.normalize(X)
         return self.radius * X + self.center
 
-    def background_points(self, x, dirn, dist2npt, shift):
+    def background_points(self, x: NDArray[np.float_], dirn: Number, dist2npt: Callable[[NDArray[np.float_]], int], shift: int) -> NDArray[np.float_]:
         dirn = dirn / np.linalg.norm(dirn)
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)

@@ -1,12 +1,14 @@
 __all__ = ["sample"]
+from typing import Literal
 
 import numpy as np
+from numpy.typing import NDArray
 import skopt
 
 from .. import config
 
 
-def sample(n_samples, dimension, sampler="pseudo"):
+def sample(n_samples: int, dimension: int, sampler: Literal["pseudo", "LHS", "Halton", "Hammersley", "Sobol"] = "pseudo"):
     """Generate pseudorandom or quasirandom samples in [0, 1]^dimension.
 
     Args:
@@ -23,7 +25,7 @@ def sample(n_samples, dimension, sampler="pseudo"):
     raise ValueError("f{sampler} sampling is not available.")
 
 
-def pseudorandom(n_samples, dimension):
+def pseudorandom(n_samples: int, dimension: int) -> NDArray[np.float_]:
     """Pseudo random."""
     # If random seed is set, then the rng based code always returns the same random
     # number, which may not be what we expect.
@@ -32,7 +34,7 @@ def pseudorandom(n_samples, dimension):
     return np.random.random(size=(n_samples, dimension)).astype(config.real(np))
 
 
-def quasirandom(n_samples, dimension, sampler):
+def quasirandom(n_samples: int, dimension: int, sampler: Literal["LHS", "Halton", "Hammersley", "Sobol"]) -> NDArray[np.float_]:
     # Certain points should be removed:
     # - Boundary points such as [..., 0, ...]
     # - Special points [0, 0, 0, ...] and [0.5, 0.5, 0.5, ...], which cause error in

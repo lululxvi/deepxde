@@ -1,13 +1,12 @@
 import numpy as np
 
-from . import geometry
+from .geometry import Geometry
 from .. import config
 
-
-class CSGUnion(geometry.Geometry):
+class CSGUnion(Geometry):
     """Construct an object by CSG Union."""
 
-    def __init__(self, geom1, geom2):
+    def __init__(self, geom1: Geometry, geom2: Geometry):
         if geom1.dim != geom2.dim:
             raise ValueError(
                 "{} | {} failed (dimensions do not match).".format(
@@ -101,10 +100,10 @@ class CSGUnion(geometry.Geometry):
         return x
 
 
-class CSGDifference(geometry.Geometry):
+class CSGDifference(Geometry):
     """Construct an object by CSG Difference."""
 
-    def __init__(self, geom1, geom2):
+    def __init__(self, geom1: Geometry, geom2: Geometry):
         if geom1.dim != geom2.dim:
             raise ValueError(
                 "{} - {} failed (dimensions do not match).".format(
@@ -183,10 +182,10 @@ class CSGDifference(geometry.Geometry):
         return x
 
 
-class CSGIntersection(geometry.Geometry):
+class CSGIntersection(Geometry):
     """Construct an object by CSG Intersection."""
 
-    def __init__(self, geom1, geom2):
+    def __init__(self, geom1: Geometry, geom2: Geometry):
         if geom1.dim != geom2.dim:
             raise ValueError(
                 "{} & {} failed (dimensions do not match).".format(

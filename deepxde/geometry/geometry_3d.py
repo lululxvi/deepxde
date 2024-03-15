@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import itertools
-from typing import Union, Literal
+from typing import Literal
 
 import numpy as np
 
@@ -72,9 +74,7 @@ class Cuboid(Hypercube):
         self,
         x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[
-            None, Literal["back", "front", "left", "right", "bottom", "top"]
-        ] = None,
+        where: Literal["back", "front", "left", "right", "bottom", "top"] | None = None,
         inside: bool = True,
     ):
         """Compute the hard constraint factor at x for the boundary.
@@ -138,7 +138,6 @@ class Cuboid(Hypercube):
             self.xmin_tensor = bkd.as_tensor(self.xmin)
             self.xmax_tensor = bkd.as_tensor(self.xmax)
 
-        dist_l = dist_r = None
         if where not in ["front", "right", "top"]:
             dist_l = bkd.abs(
                 (x - self.xmin_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2

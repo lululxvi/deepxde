@@ -1,8 +1,11 @@
-__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
+from __future__ import annotations
 
-from typing import Union, Literal
+__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
+from numbers import Number
+from typing import Any, Literal
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 from scipy import spatial
 
 from .geometry import Geometry
@@ -10,10 +13,13 @@ from .geometry_nd import Hypercube, Hypersphere
 from .sampler import sample
 from .. import backend as bkd
 from .. import config
+from ..types import Tensor
 from ..utils import isclose, vectorize
 
-
 class Disk(Hypersphere):
+    def __init__(self, center, radius):
+        super().__init__(center, radius)
+    
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
@@ -84,7 +90,7 @@ class Ellipse(Geometry):
             counterclockwise about the center.
     """
 
-    def __init__(self, center, semimajor, semiminor, angle=0):
+    def __init__(self, center: ArrayLike, semimajor: Number, semiminor: Number, angle: Number = 0):
         self.center = np.array(center, dtype=config.real(np))
         self.semimajor = semimajor
         self.semiminor = semiminor
@@ -272,10 +278,10 @@ class Rectangle(Hypercube):
 
     def _boundary_constraint_factor_inside(
         self,
-        x,
-        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
+        x: NDArray[np.float_],
+        where: Literal["left", "right", "bottom", "top"] | None = None,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-    ):
+    ) -> Tensor:
         """(Internal use only) Compute the hard constraint factor at `x` for the boundary.
         The points in `x` are assumed to live inside the geometry.
 
@@ -316,9 +322,9 @@ class Rectangle(Hypercube):
         self,
         x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
+        where: Literal["left", "right", "bottom", "top"] | None = None,
         inside: bool = True,
-    ):
+    ) -> Tensor:
         """Compute the hard constraint factor at x for the boundary.
 
         This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
@@ -380,7 +386,7 @@ class Rectangle(Hypercube):
             self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
             self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
 
-        dist_left = dist_right = dist_bottom = dist_top = None
+        dist_left = dist_right = dist_bottom = dist_top = 0.0
         if where is None or where == "left":
             dist_left = bkd.abs(
                 bkd.norm(x - self.x11_tensor, axis=-1, keepdims=True)
@@ -421,7 +427,7 @@ class Rectangle(Hypercube):
         return dist_left * dist_right * dist_bottom * dist_top
 
     @staticmethod
-    def is_valid(vertices):
+    def is_valid(vertices: NDArray[np.float_]) -> bool:
         """Check if the geometry is a Rectangle."""
         return (
             len(vertices) == 4
@@ -451,7 +457,7 @@ class StarShaped(Geometry):
         coeffs_sin: i-th order coefficients for the i-th sin term (b_i).
     """
 
-    def __init__(self, center, radius, coeffs_cos, coeffs_sin):
+    def __init__(self, center: NDArray[np.float_], radius: Number, coeffs_cos: NDArray[np.float_], coeffs_sin: NDArray[np.float_]):
         self.center = np.array(center, dtype=config.real(np))
         self.radius = radius
         self.coeffs_cos = coeffs_cos
@@ -463,7 +469,7 @@ class StarShaped(Geometry):
             2 * max_radius,
         )
 
-    def _r_theta(self, theta):
+    def _r_theta(self, theta: Number) -> NDArray[np.float_]:
         """Define the parametrization r(theta) at angles theta."""
         result = self.radius * np.ones(theta.shape)
         for i, (coeff_cos, coeff_sin) in enumerate(
@@ -472,7 +478,7 @@ class StarShaped(Geometry):
             result += coeff_cos * np.cos(i * theta) + coeff_sin * np.sin(i * theta)
         return result
 
-    def _dr_theta(self, theta):
+    def _dr_theta(self, theta: Number) -> NDArray[np.float_]:
         """Evalutate the polar derivative r'(theta) at angles theta"""
         result = np.zeros(theta.shape)
         for i, (coeff_cos, coeff_sin) in enumerate(
@@ -483,7 +489,7 @@ class StarShaped(Geometry):
             )
         return result
 
-    def inside(self, x):
+    def inside(self, x) -> NDArray[np.bool_]:
         r, theta = polar(x - self.center)
         r_theta = self._r_theta(theta)
         return r_theta >= r
@@ -537,7 +543,7 @@ class Triangle(Geometry):
     vertices will be re-ordered in counterclockwise (right hand rule).
     """
 
-    def __init__(self, x1, x2, x3):
+    def __init__(self, x1: Number, x2: Number, x3: Number):
         self.area = polygon_signed_area([x1, x2, x3])
         # Clockwise
         if self.area < 0:
@@ -684,7 +690,7 @@ class Triangle(Geometry):
         self,
         x,
         smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None,
+        where: Literal["x1-x2", "x1-x3", "x2-x3"] | None = None,
     ):
         """Compute the hard constraint factor at x for the boundary.
 
@@ -739,7 +745,7 @@ class Triangle(Geometry):
             self.x2_tensor = bkd.as_tensor(self.x2)
             self.x3_tensor = bkd.as_tensor(self.x3)
 
-        diff_x1_x2 = diff_x1_x3 = diff_x2_x3 = None
+        # diff_x1_x2 = diff_x1_x3 = diff_x2_x3 = 0.0
         if where not in ["x1-x3", "x2-x3"]:
             diff_x1_x2 = (
                 bkd.norm(x - self.x1_tensor, axis=-1, keepdims=True)
@@ -779,7 +785,7 @@ class Polygon(Geometry):
             rule).
     """
 
-    def __init__(self, vertices):
+    def __init__(self, vertices: ArrayLike):
         self.vertices = np.array(vertices, dtype=config.real(np))
         if len(vertices) == 3:
             raise ValueError("The polygon is a triangle. Use Triangle instead.")
@@ -813,7 +819,7 @@ class Polygon(Geometry):
         self.normal = clockwise_rotation_90(self.segments.T).T
         self.normal = self.normal / np.linalg.norm(self.normal, axis=1).reshape(-1, 1)
 
-    def inside(self, x):
+    def inside(self, x) -> NDArray[np.bool_]:
         def wn_PnPoly(P, V):
             """Winding number algorithm.
 
@@ -927,7 +933,7 @@ class Polygon(Geometry):
         return np.vstack(x)
 
 
-def polygon_signed_area(vertices):
+def polygon_signed_area(vertices: ArrayLike) -> Number:
     """The (signed) area of a simple polygon.
 
     If the vertices are in the counterclockwise direction, then the area is positive; if
@@ -941,12 +947,12 @@ def polygon_signed_area(vertices):
     return 0.5 * (np.sum(x[:-1] * y[1:]) - np.sum(x[1:] * y[:-1]))
 
 
-def clockwise_rotation_90(v):
+def clockwise_rotation_90(v: NDArray[np.float_]) -> NDArray[np.float_]:
     """Rotate a vector of 90 degrees clockwise about the origin."""
     return np.array([v[1], -v[0]])
 
 
-def is_left(P0, P1, P2):
+def is_left(P0: ArrayLike, P1: ArrayLike, P2: ArrayLike) -> NDArray[Any]:
     """Test if a point is Left|On|Right of an infinite line.
 
     See: the January 2001 Algorithm "Area of 2D and 3D Triangles and Polygons".
@@ -963,7 +969,7 @@ def is_left(P0, P1, P2):
     return np.cross(P1 - P0, P2 - P0, axis=-1).reshape((-1, 1))
 
 
-def is_rectangle(vertices):
+def is_rectangle(vertices: ArrayLike) -> bool:
     """Check if the geometry is a rectangle.
 
     https://stackoverflow.com/questions/2303278/find-if-4-points-on-a-plane-form-a-rectangle/2304031
@@ -979,7 +985,7 @@ def is_rectangle(vertices):
     return np.allclose(d, np.full(4, d[0]))
 
 
-def is_on_line_segment(P0, P1, P2):
+def is_on_line_segment(P0: ArrayLike, P1: ArrayLike, P2: ArrayLike) -> bool:
     """Test if a point is between two other points on a line segment.
 
     Args:
@@ -1005,7 +1011,7 @@ def is_on_line_segment(P0, P1, P2):
     # or isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
 
 
-def polar(x):
+def polar(x: NDArray[np.float_]) -> tuple[NDArray[np.float_], NDArray[np.float_]]:
     """Get the polar coordinated for a 2d vector in cartesian coordinates."""
     r = np.sqrt(x[:, 0] ** 2 + x[:, 1] ** 2)
     theta = np.arctan2(x[:, 1], x[:, 0])
