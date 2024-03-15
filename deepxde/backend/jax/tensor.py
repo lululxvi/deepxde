@@ -1,5 +1,4 @@
 """jax backend implementation"""
-
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -62,14 +61,6 @@ def to_numpy(input_tensor):
     return np.asarray(input_tensor)
 
 
-def concat(values, axis):
-    return jnp.concatenate(values, axis=axis)
-
-
-def stack(values, axis):
-    return jnp.stack(values, axis=axis)
-
-
 def elu(x):
     return jax.nn.elu(x)
 
@@ -92,10 +83,6 @@ def silu(x):
 
 def sin(x):
     return jnp.sin(x)
-
-
-def cos(x):
-    return jnp.cos(x)
 
 
 def square(x):
