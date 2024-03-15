@@ -390,8 +390,6 @@ class OperatorPredictor(Callback):
         elif backend_name == "pytorch":
             self.x = torch.as_tensor(self.x)
             self.x.requires_grad_()
-        elif backend_name == "paddle":
-            self.x = paddle.to_tensor(self.x, stop_gradient=False)
         elif backend_name == "jax":
 
             @jax.jit
@@ -400,6 +398,8 @@ class OperatorPredictor(Callback):
                 return self.op(inputs, (y_fn(inputs), y_fn))
 
             self.jax_op = op
+        elif backend_name == "paddle":
+            self.x = paddle.to_tensor(self.x, stop_gradient=False)
 
     def on_train_begin(self):
         self.on_predict_end()
@@ -431,12 +431,12 @@ class OperatorPredictor(Callback):
             self.model.net.eval()
             outputs = self.model.net(self.x)
             self.value = utils.to_numpy(self.op(self.x, outputs))
+        elif backend_name == "jax":
+            self.value = utils.to_numpy(self.jax_op(self.x, self.model.net.params))
         elif backend_name == "paddle":
             self.model.net.eval()
             outputs = self.model.net(self.x)
             self.value = utils.to_numpy(self.op(self.x, outputs))
-        elif backend_name == "jax":
-            self.value = utils.to_numpy(self.jax_op(self.x, self.model.net.params))
         else:
             # TODO: other backends
             raise NotImplementedError(
