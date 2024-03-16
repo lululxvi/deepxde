@@ -67,10 +67,12 @@ class PFNN(NN):
             (how the layers are connected). If `layer_sizes[i]` is an int, it represents
             one layer shared by all the outputs; if `layer_sizes[i]` is a list, it
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
-            used by one output. Every layer_sizes[i] list must have the same length (= number of subnetworks).
-            If the last element of `layer_sizes` is an int (=number of output), it must be equal to the number
-            of subnetworks: all subnetworks have an output size of 1 and are then concatenated.
-            If the last element is a list, it specifies the output size for each subnetwork before concatenation.
+            used by one output. Every layer_sizes[i] list must have the same length 
+            (= number of subnetworks). If the last element of `layer_sizes` is an int 
+            (= output size), it must be equal to the number of subnetworks: all 
+            subnetworks have an output size of 1 and are then concatenated. If the last
+            element is a list, it specifies the output size for each subnetwork before 
+            concatenation.
     """
 
     layer_sizes: Any
