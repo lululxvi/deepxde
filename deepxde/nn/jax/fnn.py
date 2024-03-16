@@ -96,19 +96,18 @@ class PFNN(NN):
             raise ValueError(
                 "no list in layer_sizes, use FNN instead of PFNN for single subnetwork"
             )
-        else:
-            n_subnetworks = len(list_layer[0])
-            if not all(len(sublist) == n_subnetworks for sublist in list_layer):
-                raise ValueError(
-                    "all layer_size lists must have the same length(=number of subnetworks)"
-                )
-            if (
-                isinstance(self.layer_sizes[-1], int)
-                and n_subnetworks != self.layer_sizes[-1]
-            ):
-                raise ValueError(
-                    "if the last element of layer_sizes is an int, it must be equal to the number of subnetworks"
-                )
+        n_subnetworks = len(list_layer[0])
+        if not all(len(sublist) == n_subnetworks for sublist in list_layer):
+            raise ValueError(
+                "all layer_size lists must have the same length(=number of subnetworks)"
+            )
+        if (
+            isinstance(self.layer_sizes[-1], int)
+            and n_subnetworks != self.layer_sizes[-1]
+        ):
+            raise ValueError(
+                "if the last element of layer_sizes is an int, it must be equal to the number of subnetworks"
+            )
 
         self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
@@ -146,7 +145,7 @@ class PFNN(NN):
         if self._input_transform is not None:
             x = self._input_transform(x)
 
-        for layer in self.denses:
+        for layer in self.denses[:-1]:
             if isinstance(layer, (list, tuple)):
                 if isinstance(x, list):
                     x = [self._activation(dense(x_)) for dense, x_ in zip(layer, x)]
@@ -157,11 +156,11 @@ class PFNN(NN):
             else:
                 x = self._activation(layer(x))
 
-        # concatenate subnetwork outputs
+        # output layers
         if x[0].ndim == 1:
-            x = jnp.concatenate(x, axis=0)
+            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=0)
         else:
-            x = jnp.concatenate(x, axis=1)
+            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=1)
 
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
