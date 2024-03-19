@@ -357,9 +357,12 @@ class Model:
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
                 total_loss.backward()
-                return total_loss
 
-            self.opt.step(closure)
+            def closure_mixed():
+                with torch.autocast(device_type="cuda", dtype=torch.float16):
+                    closure()
+
+            self.opt.step(closure if not config.real.mixed else closure_mixed)
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 

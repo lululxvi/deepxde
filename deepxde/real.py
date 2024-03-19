@@ -7,6 +7,7 @@ class Real:
     def __init__(self, precision):
         self.precision = None
         self.reals = None
+        self.mixed = False
         if precision == 16:
             self.set_float16()
         elif precision == 32:
@@ -28,3 +29,6 @@ class Real:
     def set_float64(self):
         self.precision = 64
         self.reals = {np: np.float64, bkd.lib: bkd.float64}
+
+    def set_mixed(self):
+        self.mixed = True
