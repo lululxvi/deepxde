@@ -3,7 +3,6 @@ from packaging.version import Version
 
 import tensorflow.compat.v1 as tf
 
-
 if Version(tf.__version__) < Version("2.7.0"):
     raise RuntimeError("DeepXDE requires TensorFlow>=2.7.0.")
 
@@ -81,6 +80,8 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
+    if dtype is None:
+        dtype = tf.keras.backend.floatx()
     return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
 
 
