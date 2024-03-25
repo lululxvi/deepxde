@@ -3,6 +3,7 @@ from packaging.version import Version
 
 import tensorflow.compat.v1 as tf
 
+
 if Version(tf.__version__) < Version("2.7.0"):
     raise RuntimeError("DeepXDE requires TensorFlow>=2.7.0.")
 
