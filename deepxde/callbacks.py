@@ -330,6 +330,11 @@ class VariableValue(Callback):
             self.value = [var.numpy() for var in self.var_list]
         elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
+        if backend_name == "jax" and any(
+                type(callback).__name__ == "VariableValue"
+                for callback in self.callbacks.callbacks
+            ):
+                self.callbacks.set_model(self)
         print(
             self.model.train_state.epoch,
             utils.list_to_str(self.value, precision=self.precision),

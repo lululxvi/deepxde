@@ -661,6 +661,11 @@ class Model:
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
+            if backend_name == "jax" and any(
+                type(callback).__name__ == "VariableValue"
+                for callback in self.callbacks.callbacks
+            ):
+                self.callbacks.set_model(self)
 
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
