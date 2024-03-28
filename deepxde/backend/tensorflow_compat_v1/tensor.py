@@ -81,6 +81,8 @@ def reshape(tensor, shape):
 
 
 def Variable(initial_value, dtype=None):
+    if dtype is None:
+        dtype = tf.keras.backend.floatx()
     return tf.Variable(initial_value=initial_value, trainable=True, dtype=dtype)
 
 
