@@ -273,6 +273,8 @@ class Interface2DBC(BC):
     (3) uniform boundary points are used, i.e., in ``dde.data.PDE`` or ``dde.data.TimePDE``, ``train_distribution="uniform"``.
     Compare the sum of 2D vectorial output on two boundary edges
     on the n/t direction ('n' normal or 't' tangent) with 'values',
+    the two edges are related with a change of orientation, meaning that boundary points
+    on one edge are sampled clockwise and sampled counterclockwise on the other edge,
     i.e., the error is calculated as (<output_1, d1> + <output_2, d2>) - values,
     with <v1,v2> being the dot product between vectors v1 and v2,
     output_1 and output_2 as the output evaluated on first and second edge resp.,
@@ -288,7 +290,7 @@ class Interface2DBC(BC):
             e.g., ``func=lambda x: 0`` means no discontinuity is wanted.
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        direction: string "n" for normal direction, or "t" for tangent direction.
+        direction (string): "n" for normal direction, or "t" for tangent direction.
     """
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="n"):
@@ -348,7 +350,7 @@ class Interface2DBC(BC):
             left_values = bkd.sum(left_side * left_n, 1, keepdims=True)
             right_values = bkd.sum(right_side * right_n, 1, keepdims=True)
 
-            diff = left_values + right_values
+            summ = left_values + right_values
 
         elif self.direction == "t":
             # Tangent vector is [n[1],-n[0]] on edge 1
@@ -372,9 +374,9 @@ class Interface2DBC(BC):
 
             right_values = right_values_1 + right_values_2
 
-            diff = left_values + right_values
+            summ = left_values + right_values
 
-        return diff - values
+        return summ - values
 
 
 def npfunc_range_autocache(func):
