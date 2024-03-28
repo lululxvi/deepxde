@@ -277,18 +277,18 @@ class Interface2DBC(BC):
     with <v1,v2> being the dot product between vectors v1 and v2,
     output_1 and output_2 as the output evaluated on first and second edge resp.,
     d1 and d2 are the n/t vector on first and second edge resp.
-    and values is the argument func evaluated on first edge,
-    in the normal case, d1 and d2 are the outward normal vectors,
-    in the tangent case, d1 and d2 are the outward normal vectors
+    and `values` is the argument func evaluated on first edge.
+    In the normal case, d1 and d2 are the outward normal vectors;
+    and in the tangent case, d1 and d2 are the outward normal vectors
     rotated 90 degrees clockwise.
 
     Args:
-        geom: a 2D Polygon/Rectangle instance.
-        func: the target discontinuity between edges, evaluated on first edge
-            (e.g. func=lambda x: 0 means no discontinuity is wanted).
+        geom: a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
+        func: the target discontinuity between edges, evaluated on the first edge,
+            e.g., ``func=lambda x: 0`` means no discontinuity is wanted.
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        direction: string "n" for normal direction, "t" for tangent direction.
+        direction: string "n" for normal direction, or "t" for tangent direction.
     """
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="n"):
