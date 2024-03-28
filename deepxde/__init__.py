@@ -36,6 +36,7 @@ from .utils import saveplot
 # Backward compatibility
 from .icbc import (
     DirichletBC,
+    Interface2DBC,
     NeumannBC,
     OperatorBC,
     PeriodicBC,
