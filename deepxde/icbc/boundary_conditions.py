@@ -269,8 +269,8 @@ class Interface2DBC(BC):
 
     This BC applies to the case with the following conditions:
     (1) the network has two outputs (u1, u2),
-    (2) the 2D geometry is `dde.geometry.Rectangle` or `dde.geometry.Polygon`, which has two edges of the same length,
-    (3) uniform_boundary_points is used to sample boundary points.
+    (2) the 2D geometry is ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon``, which has two edges of the same length,
+    (3) uniform boundary points are used, i.e., in ``dde.data.PDE`` or ``dde.data.TimePDE``, ``train_distribution="uniform"``.
     Compare the sum of 2D vectorial output on two boundary edges
     on the n/t direction ('n' normal or 't' tangent) with 'values',
     i.e., the error is calculated as (<output_1, d1> + <output_2, d2>) - values,
