@@ -264,7 +264,7 @@ class PointSetOperatorBC:
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
 
-class Interface2DBC(BC):
+class Interface2DBC:
     """2D interface boundary condition.
 
     This BC applies to the case with the following conditions:
@@ -280,7 +280,7 @@ class Interface2DBC(BC):
     The points on the two edges are paired as follows: the boundary points on one edge are sampled clockwise,
     and the points on the other edge are sampled counterclockwise. Then, compare the sum with 'values',
     i.e., the error is calculated as <output_1, d1> + <output_2, d2> - values,
-    where values is the argument func evaluated on the first edge.
+    where 'values' is the argument `func` evaluated on the first edge.
 
     Args:
         geom: a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
@@ -288,11 +288,16 @@ class Interface2DBC(BC):
             e.g., ``func=lambda x: 0`` means no discontinuity is wanted.
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        direction (string): "n" for normal direction, or "t" for tangent direction.
+        direction (string): "normal" or "tangent".
     """
 
-    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="n"):
-        super().__init__(geom, on_boundary2, component=0)
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
+        self.geom = geom
+
+        self.boundary_normal = npfunc_range_autocache(
+            utils.return_tensor(self.geom.boundary_normal)
+        )
+
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
         self.on_boundary1 = lambda x, on: np.array(
@@ -338,7 +343,7 @@ class Interface2DBC(BC):
                 "BC function should return an array of shape N by 1 for each component"
             )
 
-        if self.direction == "n":
+        if self.direction == "normal":
             left_side = outputs[beg1:mid, :]
             right_side = outputs[mid:end1, :]
 
@@ -348,7 +353,7 @@ class Interface2DBC(BC):
             left_values = bkd.sum(left_side * left_n, 1, keepdims=True)
             right_values = bkd.sum(right_side * right_n, 1, keepdims=True)
 
-        elif self.direction == "t":
+        elif self.direction == "tangent":
             # Tangent vector is [n[1],-n[0]] on edge 1
 
             left_side1 = outputs[beg1:mid, 0:1]
