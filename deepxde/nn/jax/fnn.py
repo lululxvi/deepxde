@@ -134,7 +134,7 @@ class PFNN(NN):
         if isinstance(self.layer_sizes[-1], int):
             # if output layer size is an int (=number of subnetworks),
             # all subnetworks have an output size of 1 and are then concatenated
-            denses.append([make_dense(1)] * n_subnetworks)
+            denses.append([make_dense(1) for _ in range(n_subnetworks)])
         else:
             # if the output layer size is a list, it specifies the output size for each subnetwork before concatenation
             denses.append([make_dense(unit) for unit in self.layer_sizes[-1]])
