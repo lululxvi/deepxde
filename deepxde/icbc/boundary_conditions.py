@@ -293,50 +293,39 @@ class Interface2DBC:
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
         self.geom = geom
-
-        self.boundary_normal = npfunc_range_autocache(
-            utils.return_tensor(self.geom.boundary_normal)
-        )
-
         self.func = npfunc_range_autocache(utils.return_tensor(func))
-
         self.on_boundary1 = lambda x, on: np.array(
             [on_boundary1(x[i], on[i]) for i in range(len(x))]
         )
-
         self.on_boundary2 = lambda x, on: np.array(
             [on_boundary2(x[i], on[i]) for i in range(len(x))]
         )
         self.direction = direction
 
-    def filter1(self, X):
-        return X[self.on_boundary1(X, self.geom.on_boundary(X))]
-
-    def filter2(self, X):
-        return X[self.on_boundary2(X, self.geom.on_boundary(X))]
+        self.boundary_normal = npfunc_range_autocache(
+            utils.return_tensor(self.geom.boundary_normal)
+        )
 
     def collocation_points(self, X):
-        X1 = self.filter1(X)
-        X2 = self.filter2(X)
+        on_boundary = self.geom.on_boundary(X)
+        X1 = X[self.on_boundary1(X, on_boundary)]
+        X2 = X[self.on_boundary2(X, on_boundary)]
 
         # Flip order of X2 when dde.geometry.Polygon is used
-        if not self.geom.__class__.__name__ == "Rectangle":
+        if self.geom.__class__.__name__ == "Polygon":
             X2 = np.flip(X2, axis=0)
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
 
-        end1 = np.copy(end)
-        beg1 = np.copy(beg)
-
-        while mid - beg1 < end1 - mid:
-            end1 -= 1
+        while mid - beg < end - mid:
+            end -= 1
             print("Omitted a point on second border")
-        while mid - beg1 > end1 - mid:
-            beg1 += 1
+        while mid - beg > end - mid:
+            beg += 1
             print("Omitted a point on first border")
-        values = self.func(X, beg1, mid, aux_var)
+        values = self.func(X, beg, mid, aux_var)
 
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
@@ -344,11 +333,11 @@ class Interface2DBC:
             )
 
         if self.direction == "normal":
-            left_side = outputs[beg1:mid, :]
-            right_side = outputs[mid:end1, :]
+            left_side = outputs[beg:mid, :]
+            right_side = outputs[mid:end, :]
 
-            left_n = self.boundary_normal(X, beg1, mid, None)
-            right_n = self.boundary_normal(X, mid, end1, None)
+            left_n = self.boundary_normal(X, beg, mid, None)
+            right_n = self.boundary_normal(X, mid, end, None)
 
             left_values = bkd.sum(left_side * left_n, 1, keepdims=True)
             right_values = bkd.sum(right_side * right_n, 1, keepdims=True)
@@ -356,14 +345,14 @@ class Interface2DBC:
         elif self.direction == "tangent":
             # Tangent vector is [n[1],-n[0]] on edge 1
 
-            left_side1 = outputs[beg1:mid, 0:1]
-            left_side2 = outputs[beg1:mid, 1:2]
+            left_side1 = outputs[beg:mid, 0:1]
+            left_side2 = outputs[beg:mid, 1:2]
 
-            right_side1 = outputs[mid:end1, 0:1]
-            right_side2 = outputs[mid:end1, 1:2]
+            right_side1 = outputs[mid:end, 0:1]
+            right_side2 = outputs[mid:end, 1:2]
 
-            left_n = self.boundary_normal(X, beg1, mid, None)
-            right_n = self.boundary_normal(X, mid, end1, None)
+            left_n = self.boundary_normal(X, beg, mid, None)
+            right_n = self.boundary_normal(X, mid, end, None)
 
             left_values_1 = bkd.sum(left_side1 * left_n[:, 1:2], 1, keepdims=True)
             left_values_2 = bkd.sum(-left_side2 * left_n[:, 0:1], 1, keepdims=True)
