@@ -59,20 +59,18 @@ class FNN(NN):
 
 
 class PFNN(NN):
-    """Parallel fully-connected network that uses independent sub-networks for each
-    network output.
+    """Parallel fully-connected network that can have multiple subnetworks.
 
     Args:
         layer_sizes: A nested list that defines the architecture of the neural network
             (how the layers are connected). If `layer_sizes[i]` is an int, it represents
             one layer shared by all the outputs; if `layer_sizes[i]` is a list, it
-            represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
-            used by one output. Every layer_sizes[i] list must have the same length 
-            (= number of subnetworks). If the last element of `layer_sizes` is an int 
-            (= output size), it must be equal to the number of subnetworks: all 
-            subnetworks have an output size of 1 and are then concatenated. If the last
-            element is a list, it specifies the output size for each subnetwork before 
-            concatenation.
+            represents `len(layer_sizes[i])` sub-layers. If a list layer is followed by
+            an int layer, the output of each sub-layer will be concatenated and fed into
+            the int layer. Two consecutive list layers must have the same length.
+            If the last layer is a list, it specifies the output size for each subnetwork
+            before concatenation. If the last layer is an int and preceded by a list layer,
+            the output size must be equal to the number of subnetworks (=len(layer_sizes[-2])).
     """
 
     layer_sizes: Any
@@ -89,26 +87,11 @@ class PFNN(NN):
         if not isinstance(self.layer_sizes[0], int):
             raise ValueError("input size must be integer")
 
-        list_layer = [
-            layer_size
-            for layer_size in self.layer_sizes
-            if isinstance(layer_size, (list, tuple))
-        ]
-        if not list_layer:  # if there is only one subnetwork (=FNN)
-            raise ValueError(
-                "no list in layer_sizes, use FNN instead of PFNN for single subnetwork"
-            )
-        n_subnetworks = len(list_layer[0])
-        if not all(len(sublist) == n_subnetworks for sublist in list_layer):
-            raise ValueError(
-                "all layer_size lists must have the same length(=number of subnetworks)"
-            )
-        if (
-            isinstance(self.layer_sizes[-1], int)
-            and n_subnetworks != self.layer_sizes[-1]
+        if not any(
+            isinstance(layer_size, (list, tuple)) for layer_size in self.layer_sizes
         ):
             raise ValueError(
-                "if the last element of layer_sizes is an int, it must be equal to the number of subnetworks"
+                "no list in layer_sizes, use FNN instead of PFNN for single subnetwork"
             )
 
         self._activation = activations.get(self.activation)
@@ -122,19 +105,35 @@ class PFNN(NN):
                 bias_init=initializer,
             )
 
-        denses = [
-            (
-                make_dense(unit)
-                if isinstance(unit, int)
-                else [make_dense(unit[j]) for j in range(n_subnetworks)]
-            )
-            for unit in self.layer_sizes[1:-1]
-        ]
+        denses = []
+        for i in range(1, len(self.layer_sizes) - 1):
+            prev_layer_size = self.layer_sizes[i - 1]
+            curr_layer_size = self.layer_sizes[i]
+            if isinstance(curr_layer_size, int):
+                denses.append(make_dense(curr_layer_size))
+            else:
+                if isinstance(prev_layer_size, (list, tuple)) and len(
+                    prev_layer_size
+                ) != len(curr_layer_size):
+                    raise ValueError(
+                        "number of sub-networks should be the same between two consecutive list layers"
+                    )
+                else:
+                    denses.append([make_dense(unit) for unit in curr_layer_size])
 
         if isinstance(self.layer_sizes[-1], int):
-            # if output layer size is an int (=number of subnetworks),
-            # all subnetworks have an output size of 1 and are then concatenated
-            denses.append([make_dense(1) for _ in range(n_subnetworks)])
+            if isinstance(self.layer_sizes[-2], (list, tuple)):
+                # if output layer size is an int and the previous layer size is a list,
+                # the output size must be equal to the number of subnetworks (=len(layer_sizes[-2])),
+                # then all subnetworks have an output size of 1 and are then concatenated
+                if len(self.layer_sizes[-2]) != self.layer_sizes[-1]:
+                    raise ValueError(
+                        "if layer_sizes[-1] is an int and layer_sizes[-2] is a list, len(layer_sizes[-2]) must be equal to layer_sizes[-1]"
+                    )
+                else:
+                    denses.append([make_dense(1) for _ in range(self.layer_sizes[-1])])
+            else:
+                denses.append(make_dense(self.layer_sizes[-1]))
         else:
             # if the output layer size is a list, it specifies the output size for each subnetwork before concatenation
             denses.append([make_dense(unit) for unit in self.layer_sizes[-1]])
@@ -153,16 +152,28 @@ class PFNN(NN):
                     x = [self._activation(dense(x_)) for dense, x_ in zip(layer, x)]
                 else:
                     x = [self._activation(dense(x)) for dense in layer]
-            elif isinstance(x, list):
-                x = [self._activation(layer(x_)) for x_ in x]
             else:
+                if isinstance(x, list):
+                    x = jnp.concatenate(x, axis=0 if x[0].ndim == 1 else 1)
                 x = self._activation(layer(x))
 
         # output layers
-        if x[0].ndim == 1:
-            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=0)
+        if isinstance(x, list):
+            if len(x) != len(self.denses[-1]):
+                raise ValueError(
+                    "number of sub-networks should be the same between two consecutive list layers"
+                )
+            x = jnp.concatenate(
+                [f(x_) for f, x_ in zip(self.denses[-1], x)],
+                axis=0 if x[0].ndim == 1 else 1,
+            )
         else:
-            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=1)
+            if isinstance(self.denses[-1], (list, tuple)):
+                x = jnp.concatenate(
+                    [f(x) for f in self.denses[-1]], axis=0 if x.ndim == 1 else 1
+                )
+            else:
+                x = self.denses[-1](x)
 
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
