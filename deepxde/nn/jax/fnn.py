@@ -69,8 +69,8 @@ class PFNN(NN):
             an int layer, the output of each sub-layer will be concatenated and fed into
             the int layer. Two consecutive list layers must have the same length.
             If the last layer is a list, it specifies the output size for each subnetwork
-            before concatenation. If the last layer is an int preceded by a list layer,
-            layer_sizes[-1] must be equal to the number of subnetworks (=len(layer_sizes[-2])).
+            before concatenation. If the last layer is an int and preceded by a list layer,
+            the output size must be equal to the number of subnetworks (=len(layer_sizes[-2])).
     """
 
     layer_sizes: Any
@@ -118,7 +118,8 @@ class PFNN(NN):
                     raise ValueError(
                         "number of sub-networks should be the same between two consecutive list layers"
                     )
-                denses.append([make_dense(unit) for unit in curr_layer_size])
+                else:
+                    denses.append([make_dense(unit) for unit in curr_layer_size])
 
         if isinstance(self.layer_sizes[-1], int):
             if isinstance(self.layer_sizes[-2], (list, tuple)):
@@ -129,7 +130,8 @@ class PFNN(NN):
                     raise ValueError(
                         "if layer_sizes[-1] is an int and layer_sizes[-2] is a list, len(layer_sizes[-2]) must be equal to layer_sizes[-1]"
                     )
-                denses.append([make_dense(1) for _ in range(self.layer_sizes[-1])])
+                else:
+                    denses.append([make_dense(1) for _ in range(self.layer_sizes[-1])])
             else:
                 denses.append(make_dense(self.layer_sizes[-1]))
         else:
