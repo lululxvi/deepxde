@@ -69,7 +69,7 @@ class PFNN(NN):
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
             used by one output. Every layer_sizes[i] list must have the same length 
             (= number of subnetworks). If the last element of `layer_sizes` is an int 
-            (= output size), it must be equal to the number of subnetworks: all 
+            preceded by a list, it must be equal to the number of subnetworks: all 
             subnetworks have an output size of 1 and are then concatenated. If the last
             element is a list, it specifies the output size for each subnetwork before 
             concatenation.
@@ -106,9 +106,10 @@ class PFNN(NN):
         if (
             isinstance(self.layer_sizes[-1], int)
             and n_subnetworks != self.layer_sizes[-1]
+            and isinstance(self.layer_sizes[-2], (list, tuple))
         ):
             raise ValueError(
-                "if the last element of layer_sizes is an int, it must be equal to the number of subnetworks"
+                "if the last element of layer_sizes is an int preceded by a list, it must be equal to the number of subnetworks"
             )
 
         self._activation = activations.get(self.activation)
@@ -132,12 +133,17 @@ class PFNN(NN):
         ]
 
         if isinstance(self.layer_sizes[-1], int):
-            # if output layer size is an int (=number of subnetworks),
-            # all subnetworks have an output size of 1 and are then concatenated
-            denses.append([make_dense(1) for _ in range(n_subnetworks)])
+            if isinstance(self.layer_sizes[-2], (list, tuple)):
+                # if output layer size is an int and the previous layer size is a list,
+                # the output size must be equal to the number of subnetworks:
+                # all subnetworks have an output size of 1 and are then concatenated
+                denses.append([make_dense(1) for _ in range(self.layer_sizes[-1])])
+            else:
+                denses.append(make_dense(self.layer_sizes[-1]))
         else:
             # if the output layer size is a list, it specifies the output size for each subnetwork before concatenation
             denses.append([make_dense(unit) for unit in self.layer_sizes[-1]])
+
 
         self.denses = denses  # can't assign directly to self.denses because linen list attributes are converted to tuple
         # see https://github.com/google/flax/issues/524
@@ -153,16 +159,19 @@ class PFNN(NN):
                     x = [self._activation(dense(x_)) for dense, x_ in zip(layer, x)]
                 else:
                     x = [self._activation(dense(x)) for dense in layer]
-            elif isinstance(x, list):
-                x = [self._activation(layer(x_)) for x_ in x]
             else:
+                if isinstance(x, list):
+                    x = jnp.concatenate(x, axis=0 if x[0].ndim == 1 else 1)
                 x = self._activation(layer(x))
 
         # output layers
-        if x[0].ndim == 1:
-            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=0)
+        if isinstance(x, list):
+            x = jnp.concatenate(
+                [f(x_) for f, x_ in zip(self.denses[-1], x)],
+                axis=0 if x[0].ndim == 1 else 1,
+            )
         else:
-            x = jnp.concatenate([f(x_) for f, x_ in zip(self.denses[-1], x)], axis=1)
+            x = self.denses[-1](x)
 
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
