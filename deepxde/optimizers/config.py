@@ -64,6 +64,7 @@ def set_NNCG_options(
     lr=1,
     rank=10,
     mu=1e-4,
+    updatefreq=20,
     chunksz=1,
     cgtol=1e-16,
     cgmaxiter=1000,
@@ -79,6 +80,9 @@ def set_NNCG_options(
             Rank of preconditioner matrix used in preconditioned conjugate gradient.
         mu (float): `mu` (torch).
             Hessian damping parameter.
+        updatefreq (int): How often the preconditioner matrix in preconditioned 
+            conjugate gradient is updated. This parameter is not directly used in NNCG,
+            instead it is used in _train_pytorch_nncg in deepxde/model.py.
         chunksz (int): `chunk_size` (torch).
             Number of Hessian-vector products to compute in parallel when constructing 
             preconditioner. If `chunk_size` is 1, the Hessian-vector products are
@@ -99,6 +103,7 @@ def set_NNCG_options(
     NNCG_options["lr"] = lr
     NNCG_options["rank"] = rank
     NNCG_options["mu"] = mu
+    NNCG_options["updatefreq"] = updatefreq
     NNCG_options["chunksz"] = chunksz
     NNCG_options["cgtol"] = cgtol
     NNCG_options["cgmaxiter"] = cgmaxiter
