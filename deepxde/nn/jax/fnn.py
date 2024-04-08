@@ -67,11 +67,11 @@ class PFNN(NN):
             (how the layers are connected). If `layer_sizes[i]` is an int, it represents
             one layer shared by all the outputs; if `layer_sizes[i]` is a list, it
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
-            used by one output. Every layer_sizes[i] list must have the same length 
-            (= number of subnetworks). If the last element of `layer_sizes` is an int 
-            preceded by a list, it must be equal to the number of subnetworks: all 
+            used by one output. Every layer_sizes[i] list must have the same length
+            (= number of subnetworks). If the last element of `layer_sizes` is an int
+            preceded by a list, it must be equal to the number of subnetworks: all
             subnetworks have an output size of 1 and are then concatenated. If the last
-            element is a list, it specifies the output size for each subnetwork before 
+            element is a list, it specifies the output size for each subnetwork before
             concatenation.
     """
 
@@ -143,7 +143,6 @@ class PFNN(NN):
         else:
             # if the output layer size is a list, it specifies the output size for each subnetwork before concatenation
             denses.append([make_dense(unit) for unit in self.layer_sizes[-1]])
-
 
         self.denses = denses  # can't assign directly to self.denses because linen list attributes are converted to tuple
         # see https://github.com/google/flax/issues/524

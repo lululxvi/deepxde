@@ -1,10 +1,9 @@
-"""Backend supported: pytorch, paddle, jax
+"""Backend supported: pytorch, jax, paddle
 
 Implementation of the linear elasticity 2D example in paper https://doi.org/10.1016/j.cma.2021.113741.
 References:
     https://github.com/sciann/sciann-applications/blob/master/SciANN-Elasticity/Elasticity-Forward.ipynb.
 """
-
 import deepxde as dde
 import numpy as np
 
