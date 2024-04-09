@@ -45,7 +45,10 @@ class FNN(NN):
     def __call__(self, inputs, training=False):
         x = inputs
         if self._input_transform is not None:
-            x = self._input_transform(x)
+            if x.ndim == 1:
+                x = self._input_transform(x.reshape(1, -1)).squeeze()
+            else:
+                x = self._input_transform(x)
         for j, linear in enumerate(self.denses[:-1]):
             x = (
                 self._activation[j](linear(x))
@@ -54,7 +57,12 @@ class FNN(NN):
             )
         x = self.denses[-1](x)
         if self._output_transform is not None:
-            x = self._output_transform(inputs, x)
+            if x.ndim == 1:
+                x = self._output_transform(
+                    inputs.reshape(1, -1), x.reshape(1, -1)
+                ).squeeze()
+            else:
+                x = self._output_transform(inputs, x)
         return x
 
 
@@ -150,7 +158,10 @@ class PFNN(NN):
     def __call__(self, inputs, training=False):
         x = inputs
         if self._input_transform is not None:
-            x = self._input_transform(x)
+            if x.ndim == 1:
+                x = self._input_transform(x.reshape(1, -1)).squeeze()
+            else:
+                x = self._input_transform(x)
 
         for layer in self.denses[:-1]:
             if isinstance(layer, (list, tuple)):
@@ -173,5 +184,10 @@ class PFNN(NN):
             x = self.denses[-1](x)
 
         if self._output_transform is not None:
-            x = self._output_transform(inputs, x)
+            if x.ndim == 1:
+                x = self._output_transform(
+                    inputs.reshape(1, -1), x.reshape(1, -1)
+                ).squeeze()
+            else:
+                x = self._output_transform(inputs, x)
         return x
