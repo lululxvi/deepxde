@@ -12,23 +12,13 @@ mu = 0.5
 Q = 4.0
 
 # Define function
-if dde.backend.backend_name == "pytorch":
-    import torch
-
-    sin = torch.sin
-    cos = torch.cos
-elif dde.backend.backend_name == "paddle":
-    import paddle
-
-    sin = paddle.sin
-    cos = paddle.cos
-elif dde.backend.backend_name == "jax":
-    import jax.numpy as jnp
-
-    sin = jnp.sin
-    cos = jnp.cos
+sin = dde.backend.sin
+cos = dde.backend.cos
+stack = dde.backend.stack
+pi = dde.backend.as_tensor(np.pi)
 
 geom = dde.geometry.Rectangle([0, 0], [1, 1])
+BC_type = ["hard", "soft"][0]
 
 
 def boundary_left(x, on_boundary):
@@ -66,6 +56,7 @@ def func(x):
     return np.hstack((ux, uy, Sxx, Syy, Sxy))
 
 
+# Soft Boundary Conditions
 ux_top_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_top, component=0)
 ux_bottom_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_bottom, component=0)
 uy_left_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_left, component=1)
@@ -79,6 +70,18 @@ syy_top_bc = dde.icbc.DirichletBC(
     boundary_top,
     component=3,
 )
+
+
+# Hard Boundary Conditions
+def hard_BC(x, f):
+
+    Ux = f[:, 0] * x[:, 1] * (1 - x[:, 1])
+    Uy = f[:, 1] * x[:, 0] * (1 - x[:, 0]) * x[:, 1]
+
+    Sxx = f[:, 2] * x[:, 0] * (1 - x[:, 0])
+    Syy = f[:, 3] * (1 - x[:, 1]) + (lmbd + 2 * mu) * Q * sin(pi * x[:, 0])
+    Sxy = f[:, 4]
+    return stack((Ux, Uy, Sxx, Syy, Sxy), axis=1)
 
 
 def fx(x):
@@ -147,10 +150,10 @@ def pde(x, f):
     return [momentum_x, momentum_y, stress_x, stress_y, stress_xy]
 
 
-data = dde.data.PDE(
-    geom,
-    pde,
-    [
+if BC_type == "hard":
+    bcs = []
+else:
+    bcs = [
         ux_top_bc,
         ux_bottom_bc,
         uy_left_bc,
@@ -159,7 +162,12 @@ data = dde.data.PDE(
         sxx_left_bc,
         sxx_right_bc,
         syy_top_bc,
-    ],
+    ]
+
+data = dde.data.PDE(
+    geom,
+    pde,
+    bcs,
     num_domain=500,
     num_boundary=500,
     solution=func,
@@ -170,6 +178,8 @@ layers = [2, [40] * 5, [40] * 5, [40] * 5, [40] * 5, 5]
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.PFNN(layers, activation, initializer)
+if BC_type == "hard":
+    net.apply_output_transform(hard_BC)
 
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, metrics=["l2 relative error"])
