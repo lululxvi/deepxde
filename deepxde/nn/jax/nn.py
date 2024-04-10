@@ -13,10 +13,24 @@ class NN(nn.Module):
         """Compute the features by appling a transform to the network inputs, i.e.,
         features = transform(inputs). Then, outputs = network(features).
         """
-        self._input_transform = transform
+
+        def transform_handling_flat(x):
+            """Handle inputs of shape (n,)"""
+            if x.ndim == 1:
+                return transform(x.reshape(1, -1)).squeeze()
+            return transform(x)
+
+        self._input_transform = transform_handling_flat
 
     def apply_output_transform(self, transform):
         """Apply a transform to the network outputs, i.e.,
         outputs = transform(inputs, outputs).
         """
-        self._output_transform = transform
+
+        def transform_handling_flat(inputs, x):
+            """Handle inputs of shape (n,)"""
+            if x.ndim == 1:
+                return transform(inputs.reshape(1, -1), x.reshape(1, -1)).squeeze()
+            return transform(inputs, x)
+
+        self._output_transform = transform_handling_flat
