@@ -319,18 +319,16 @@ class Interface2DBC:
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
 
-        while mid - beg < end - mid:
-            end -= 1
-            print("Omitted a point on second border")
-        while mid - beg > end - mid:
-            beg += 1
-            print("Omitted a point on first border")
+        if not mid - beg == end - mid:
+            raise RuntimeError(
+                "There is a different number of points on each edge,\n\
+                this is likely because the chosen edges do not have the same length."
+            )
+
         values = self.func(X, beg, mid, aux_var)
 
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
-            raise RuntimeError(
-                "BC function should return an array of shape N by 1 for each component"
-            )
+            raise RuntimeError("BC function should return an array of shape N by 1")
 
         if self.direction == "normal":
             left_side = outputs[beg:mid, :]
