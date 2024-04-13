@@ -74,7 +74,6 @@ syy_top_bc = dde.icbc.DirichletBC(
 
 # Hard Boundary Conditions
 def hard_BC(x, f):
-
     Ux = f[:, 0] * x[:, 1] * (1 - x[:, 1])
     Uy = f[:, 1] * x[:, 0] * (1 - x[:, 0]) * x[:, 1]
 
