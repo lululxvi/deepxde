@@ -310,7 +310,6 @@ class Interface2DBC:
         on_boundary = self.geom.on_boundary(X)
         X1 = X[self.on_boundary1(X, on_boundary)]
         X2 = X[self.on_boundary2(X, on_boundary)]
-
         # Flip order of X2 when dde.geometry.Polygon is used
         if self.geom.__class__.__name__ == "Polygon":
             X2 = np.flip(X2, axis=0)
@@ -318,48 +317,33 @@ class Interface2DBC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
-
         if not mid - beg == end - mid:
             raise RuntimeError(
                 "There is a different number of points on each edge,\n\
                 this is likely because the chosen edges do not have the same length."
             )
-
         values = self.func(X, beg, mid, aux_var)
-
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError("BC function should return an array of shape N by 1")
-
+        left_n = self.boundary_normal(X, beg, mid, None)
+        right_n = self.boundary_normal(X, mid, end, None)
         if self.direction == "normal":
             left_side = outputs[beg:mid, :]
             right_side = outputs[mid:end, :]
-
-            left_n = self.boundary_normal(X, beg, mid, None)
-            right_n = self.boundary_normal(X, mid, end, None)
-
             left_values = bkd.sum(left_side * left_n, 1, keepdims=True)
             right_values = bkd.sum(right_side * right_n, 1, keepdims=True)
 
         elif self.direction == "tangent":
             # Tangent vector is [n[1],-n[0]] on edge 1
-
             left_side1 = outputs[beg:mid, 0:1]
             left_side2 = outputs[beg:mid, 1:2]
-
             right_side1 = outputs[mid:end, 0:1]
             right_side2 = outputs[mid:end, 1:2]
-
-            left_n = self.boundary_normal(X, beg, mid, None)
-            right_n = self.boundary_normal(X, mid, end, None)
-
             left_values_1 = bkd.sum(left_side1 * left_n[:, 1:2], 1, keepdims=True)
             left_values_2 = bkd.sum(-left_side2 * left_n[:, 0:1], 1, keepdims=True)
-
             left_values = left_values_1 + left_values_2
-
             right_values_1 = bkd.sum(right_side1 * right_n[:, 1:2], 1, keepdims=True)
             right_values_2 = bkd.sum(-right_side2 * right_n[:, 0:1], 1, keepdims=True)
-
             right_values = right_values_1 + right_values_2
 
         return left_values + right_values - values
