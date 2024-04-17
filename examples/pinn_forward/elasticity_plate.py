@@ -11,11 +11,10 @@ lmbd = 1.0
 mu = 0.5
 Q = 4.0
 
-# Define function
+# Define functions
 sin = dde.backend.sin
 cos = dde.backend.cos
 stack = dde.backend.stack
-pi = dde.backend.as_tensor(np.pi)
 
 geom = dde.geometry.Rectangle([0, 0], [1, 1])
 BC_type = ["hard", "soft"][0]
@@ -78,7 +77,7 @@ def hard_BC(x, f):
     Uy = f[:, 1] * x[:, 0] * (1 - x[:, 0]) * x[:, 1]
 
     Sxx = f[:, 2] * x[:, 0] * (1 - x[:, 0])
-    Syy = f[:, 3] * (1 - x[:, 1]) + (lmbd + 2 * mu) * Q * sin(pi * x[:, 0])
+    Syy = f[:, 3] * (1 - x[:, 1]) + (lmbd + 2 * mu) * Q * sin(np.pi * x[:, 0])
     Sxy = f[:, 4]
     return stack((Ux, Uy, Sxx, Syy, Sxy), axis=1)
 
