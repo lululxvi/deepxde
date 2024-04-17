@@ -1,4 +1,5 @@
 """jax backend implementation"""
+
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -41,8 +42,14 @@ def reshape(tensor, shape):
     return jnp.reshape(tensor, shape)
 
 
+class ArrayWrapper:
+    def __init__(self, arr):
+        self.arr = arr
+
+
 def Variable(initial_value, dtype=None):
-    return jnp.array(initial_value, dtype=dtype)
+    arr = jnp.array(initial_value, dtype=dtype)
+    return ArrayWrapper(arr)
 
 
 def as_tensor(data, dtype=None):

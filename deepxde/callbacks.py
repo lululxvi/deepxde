@@ -331,7 +331,7 @@ class VariableValue(Callback):
         elif backend_name in ["pytorch", "paddle"]:
             self.value = [var.detach().item() for var in self.var_list]
         elif backend_name == "jax":
-            self.value = [var.item() for var in self.model.external_trainable_variables]
+            self.value = [var.arr.item() for var in self.var_list]
         print(
             self.model.train_state.epoch,
             utils.list_to_str(self.value, precision=self.precision),
