@@ -382,6 +382,7 @@ class Model:
         self.opt_state = self.opt.init(self.params)
 
         @jax.jit
+        @utils.list_handler
         def outputs(params, training, inputs):
             return self.net.apply(params, inputs, training=training)
 
@@ -390,9 +391,9 @@ class Model:
 
             # TODO: Add auxiliary vars
             def outputs_fn(inputs):
-                return self.net.apply(nn_params, inputs, training=training)
+                return outputs(nn_params, training, inputs)
 
-            outputs_ = self.net.apply(nn_params, inputs, training=training)
+            outputs_ = outputs(nn_params, training, inputs)
             # Data losses
             # We use aux so that self.data.losses is a pure function.
             aux = [outputs_fn, ext_params] if ext_params else [outputs_fn]

@@ -235,10 +235,10 @@ def mpi_scatter_from_rank0(array, drop_last=True):
 
 def list_handler(func):
     @wraps(func)
-    def wrapper(*args):
+    def wrapper(*args, **kwargs):
         inputs = args[-1]
         if isinstance(inputs, (list, tuple)):
-            results = [func(*args[:-1], input_item) for input_item in inputs]
+            results = [func(*args[:-1], input_item, **kwargs) for input_item in inputs]
             return bkd.concat(results, axis=0)
         return func(*args)
 

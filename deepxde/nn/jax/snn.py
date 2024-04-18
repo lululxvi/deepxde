@@ -9,7 +9,6 @@ from .. import activations
 from .. import initializers
 from ...utils import list_handler
 
-@list_handler
 class SPINN(NN):
     layer_sizes: Any
     activation: Any
