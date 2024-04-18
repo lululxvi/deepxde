@@ -374,7 +374,8 @@ class Model:
         # Initialize the network's parameters
         if self.params is None:
             key = jax.random.PRNGKey(config.jax_random_seed)
-            self.net.params = self.net.init(key, self.data.test()[0])
+            X_test = self.data.test()[0][-1] if isinstance(self.data.test()[0], (list, tuple)) else self.data.test()[0]
+            self.net.params = self.net.init(key, X_test)
             self.params = [self.net.params, self.external_trainable_variables]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
