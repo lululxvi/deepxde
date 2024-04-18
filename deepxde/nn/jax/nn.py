@@ -16,6 +16,9 @@ class NN(nn.Module):
 
         def transform_handling_flat(x):
             """Handle inputs of shape (n,)"""
+            # TODO: Support tuple or list inputs.
+            if isinstance(x, (list, tuple)):
+                return transform(x)
             if x.ndim == 1:
                 return transform(x.reshape(1, -1)).squeeze()
             return transform(x)
@@ -29,6 +32,9 @@ class NN(nn.Module):
 
         def transform_handling_flat(inputs, x):
             """Handle inputs of shape (n,)"""
+            # TODO: Support tuple or list inputs.
+            if isinstance(x, (list, tuple)):
+                return transform(inputs, x)
             if x.ndim == 1:
                 return transform(inputs.reshape(1, -1), x.reshape(1, -1)).squeeze()
             return transform(inputs, x)
