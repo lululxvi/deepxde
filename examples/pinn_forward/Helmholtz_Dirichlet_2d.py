@@ -1,6 +1,7 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
+import deepxde.backend as bkd
 
 # General parameters
 n = 2
@@ -10,16 +11,17 @@ hard_constraint = True
 weights = 100  # if hard_constraint == False
 iterations = 5000
 parameters = [1e-3, 3, 150, "sin"]
+net_type = "pinn"
+
+if net_type == "spinn":
+    dde.config.set_default_autodiff("forward")
+
 
 # Define sine function
-if dde.backend.backend_name == "pytorch":
-    sin = dde.backend.pytorch.sin
-elif dde.backend.backend_name == "paddle":
-    sin = dde.backend.paddle.sin
-else:
-    from deepxde.backend import tf
+sin = bkd.sin
 
-    sin = tf.sin
+if bkd.backend_name == "jax":
+    import jax.numpy as jnp
 
 learning_rate, num_dense_layers, num_dense_nodes, activation = parameters
 
@@ -28,15 +30,26 @@ def pde(x, y):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
     dy_yy = dde.grad.hessian(y, x, i=1, j=1)
 
+    if dde.backend.backend_name == "jax":
+        y = y[0]
+        dy_xx = dy_xx[0]
+        dy_yy = dy_yy[0]
+
     f = k0 ** 2 * sin(k0 * x[:, 0:1]) * sin(k0 * x[:, 1:2])
     return -dy_xx - dy_yy - k0 ** 2 * y - f
 
 
 def func(x):
+    if net_type == "spinn":
+        x_mesh = [x_.ravel() for x_ in jnp.meshgrid(x[:, 0], x[:, 1], indexing="ij")]
+        x = jnp.stack(x_mesh, axis=-1)
     return np.sin(k0 * x[:, 0:1]) * np.sin(k0 * x[:, 1:2])
 
 
 def transform(x, y):
+    if net_type == "spinn":
+        x_mesh = [x_.ravel() for x_ in jnp.meshgrid(x[:, 0], x[:, 1], indexing="ij")]
+        x = jnp.stack(x_mesh, axis=-1)
     res = x[:, 0:1] * (1 - x[:, 0:1]) * x[:, 1:2] * (1 - x[:, 1:2])
     return res * y
 
@@ -71,9 +84,12 @@ data = dde.data.PDE(
     num_test=nx_test ** 2,
 )
 
-net = dde.nn.FNN(
-    [2] + [num_dense_nodes] * num_dense_layers + [1], activation, "Glorot uniform"
-)
+if net_type == "spinn":
+    net = dde.nn.SPINN([2] + [num_dense_nodes] * num_dense_layers + [36, 1], activation, "Glorot uniform", "modified_mlp")
+else:
+    net = dde.nn.FNN(
+        [2] + [num_dense_nodes] * num_dense_layers + [1], activation, "Glorot uniform"
+    )
 
 if hard_constraint == True:
     net.apply_output_transform(transform)
