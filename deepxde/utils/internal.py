@@ -231,3 +231,15 @@ def mpi_scatter_from_rank0(array, drop_last=True):
     ]  # We truncate array size to be a multiple of num_split to prevent a MPI error.
     config.comm.Scatter(array, array_split, root=0)
     return array_split
+
+
+def list_handler(func):
+    @wraps(func)
+    def wrapper(*args):
+        inputs = args[-1]
+        if isinstance(inputs, (list, tuple)):
+            results = [func(*args[:-1], input_item) for input_item in inputs]
+            return bkd.concat(results, axis=0)
+        return func(*args)
+
+    return wrapper
