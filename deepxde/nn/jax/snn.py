@@ -22,21 +22,22 @@ class SPINN(NN):
     _output_transform: Callable = None
 
     def setup(self):
-        self.r = self.layer_sizes[-2]  # rank of the approximated tensor
         self.in_dim = self.layer_sizes[0]  # input dimension
+        self.r = self.layer_sizes[-2]  # rank of the approximated tensor
         self.out_dim = self.layer_sizes[-1]  # output dimension
+        self.init = initializers.get(self.kernel_initializer)
+        self.features = self.layer_sizes[1:-2]
 
 
     @nn.compact
     def __call__(self, inputs, training=False):
 
-        self.init = initializers.get(self.kernel_initializer)
         if self._input_transform is not None:
             x = self._input_transform(x)
 
         list_inputs = []
-        for i in range(len(inputs)):
-            if inputs[i].ndim == 1:
+        for i in range(self.in_dim):
+            if inputs.ndim == 1:
                 list_inputs.append(inputs[i:i+1])
             else:
                 list_inputs.append(inputs[:, i:i+1])
@@ -59,38 +60,42 @@ class SPINN(NN):
 
     def SPINN2d(self, inputs):
         # inputs = [x, y]
-        outputs, pred = []
+        flat_inputs = inputs[0].ndim == 1
+        if flat_inputs:
+            inputs = [inputs_elem.reshape(-1, 1) for inputs_elem in inputs]
+        outputs, pred = [], []
         if self.mlp == 'mlp':
             for X in inputs:
-                for fs in self.features[:-1]:
+                for fs in self.features:
                     X = nn.Dense(fs, kernel_init=self.init)(X)
                     X = nn.activation.tanh(X)
-                X = nn.Dense(self.r, kernel_init=self.init)(X)
+                X = nn.Dense(self.r*self.out_dim, kernel_init=self.init)(X)
                 outputs += [X]
         else:
             for X in inputs:
                 U = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
                 V = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
                 H = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
-                for fs in self.features[:-1]:
+                for fs in self.features:
                     Z = nn.Dense(fs, kernel_init=self.init)(H)
                     Z = nn.activation.tanh(Z)
                     H = (jnp.ones_like(Z)-Z)*U + Z*V
-                H = nn.Dense(self.r, kernel_init=self.init)(H)
+                H = nn.Dense(self.r*self.out_dim, kernel_init=self.init)(H)
                 outputs += [H]
-            for i in range(self.out_dim):
-                pred += [
-                    jnp.dot(
-                        outputs[0][:, self.r * i : self.r * (i + 1)],
-                        outputs[-1][:, self.r * i : self.r * (i + 1)].T,
-                    ).ravel()
-                ]
+
+        for i in range(self.out_dim):
+            pred += [
+                jnp.dot(
+                    outputs[0][:,self.r * i : self.r * (i + 1)],
+                    outputs[-1][:,self.r * i : self.r * (i + 1)].T,
+                ).ravel()
+            ]
         
         if len(pred) == 1:
             # 1-dimensional output
-            return pred[0]
+            return pred[0].squeeze() if flat_inputs else pred[0]
         else:
-            return jnp.stack(pred, axis=1)
+            return jnp.stack(pred, axis=1).squeeze() if flat_inputs else jnp.stack(pred, axis=1) 
 
     def SPINN3d(self, inputs):
         '''
@@ -115,7 +120,7 @@ class SPINN(NN):
 
         if self.mlp == 'mlp':
             for X in inputs:
-                for fs in self.features[:-1]:
+                for fs in self.features:
                     X = nn.Dense(fs, kernel_init=self.init)(X)
                     X = nn.activation.tanh(X)
                 X = nn.Dense(self.r*self.out_dim, kernel_init=self.init)(X)
@@ -126,7 +131,7 @@ class SPINN(NN):
                 U = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
                 V = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
                 H = nn.activation.tanh(nn.Dense(self.features[0], kernel_init=self.init)(X))
-                for fs in self.features[:-1]:
+                for fs in self.features:
                     Z = nn.Dense(fs, kernel_init=self.init)(H)
                     Z = nn.activation.tanh(Z)
                     H = (jnp.ones_like(Z)-Z)*U + Z*V
@@ -149,7 +154,7 @@ class SPINN(NN):
         # inputs = [t, x, y, z]
         init = nn.initializers.glorot_normal()
         for X in inputs:
-            for fs in self.features[:-1]:
+            for fs in self.features:
                 X = nn.Dense(fs, kernel_init=self.init)(X)
                 X = nn.activation.tanh(X)
             X = nn.Dense(self.r*self.out_dim, kernel_init=self.init)(X)
