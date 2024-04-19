@@ -20,7 +20,7 @@ class NN(nn.Module):
             if isinstance(x, (list, tuple)):
                 return transform(x)
             if x.ndim == 1:
-                return transform(x.reshape(1, -1)).squeeze()
+                return transform(x.reshape(1, -1)).reshape(-1)
             return transform(x)
 
         self._input_transform = transform_handling_flat
@@ -36,7 +36,7 @@ class NN(nn.Module):
             if isinstance(inputs, (list, tuple)):
                 return transform(inputs, outputs)
             if inputs.ndim == 1:
-                return transform(inputs.reshape(1, -1), outputs.reshape(1, -1)).squeeze()
+                return transform(inputs.reshape(1, -1), outputs.reshape(1, -1)).reshape(-1)
             return transform(inputs, outputs)
 
         self._output_transform = transform_handling_flat
