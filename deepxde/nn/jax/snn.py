@@ -87,14 +87,14 @@ class SPINN(NN):
                 jnp.dot(
                     outputs[0][:,self.r * i : self.r * (i + 1)],
                     outputs[-1][:,self.r * i : self.r * (i + 1)].T,
-                ).reshape(-1,1)
+                ).reshape(-1)
             ]
         
         if len(pred) == 1:
             # 1-dimensional output
-            return pred[0].reshape(-1) if flat_inputs else pred[0]
+            return pred[0].reshape(-1) if flat_inputs else pred[0].reshape(-1, 1)
         else:
-            return jnp.stack(pred, axis=1).squeeze() if flat_inputs else jnp.stack(pred, axis=1) 
+            return jnp.stack(pred, axis=-1).reshape(-1) if flat_inputs else jnp.stack(pred, axis=-1) 
 
     def SPINN3d(self, inputs):
         '''
