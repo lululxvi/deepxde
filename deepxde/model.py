@@ -376,7 +376,7 @@ class Model:
             key = jax.random.PRNGKey(config.jax_random_seed)
             self.net.params = self.net.init(key, self.data.test()[0])
             external_trainable_variables_arr = [
-                var.arr for var in self.external_trainable_variables
+                var.value for var in self.external_trainable_variables
             ]
             self.params = [self.net.params, external_trainable_variables_arr]
         # TODO: learning rate decay
@@ -570,7 +570,7 @@ class Model:
             )
             self.net.params, external_trainable_variables = self.params
             for i, var in enumerate(self.external_trainable_variables):
-                var.arr = external_trainable_variables[i]
+                var.value = external_trainable_variables[i]
 
     @utils.timing
     def train(

@@ -42,14 +42,17 @@ def reshape(tensor, shape):
     return jnp.reshape(tensor, shape)
 
 
-class ArrayWrapper:
-    def __init__(self, arr):
-        self.arr = arr
+class Variable:
+    def __init__(self, initial_value, dtype=None):
+        self._value = jnp.array(initial_value, dtype=dtype)
 
+    @property
+    def value(self):
+        return self._value
 
-def Variable(initial_value, dtype=None):
-    arr = jnp.array(initial_value, dtype=dtype)
-    return ArrayWrapper(arr)
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 
 def as_tensor(data, dtype=None):
