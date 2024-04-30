@@ -80,6 +80,35 @@ class Hypercube(Geometry):
                 "Warning: {} points required, but {} points sampled.".format(n, len(x))
             )
         return x
+    
+    def uniform_spinn_points(self, n, boundary=True):
+        dx = (self.volume / n) ** (1 / self.dim)
+        xi = []
+        for i in range(self.dim):
+            ni = int(np.ceil(self.side_length[i] / dx))
+            if boundary:
+                xi.append(
+                    np.linspace(
+                        self.xmin[i], self.xmax[i], num=ni, dtype=config.real(np)
+                    )
+                )
+            else:
+                xi.append(
+                    np.linspace(
+                        self.xmin[i],
+                        self.xmax[i],
+                        num=ni + 1,
+                        endpoint=False,
+                        dtype=config.real(np),
+                    )[1:]
+                )
+        x = np.array(xi).T
+        if n != len(x)**self.dim:
+            print(
+                "Warning: {} points required, but {} points sampled.".format(n, len(x)**self.dim)
+            )
+        return x
+
 
     def random_points(self, n, random="pseudo"):
         x = sample(n, self.dim, random)

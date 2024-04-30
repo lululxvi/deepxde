@@ -330,11 +330,12 @@ class PDE(Data):
 
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
-        x = self.geom.uniform_points(self.num_test, boundary=False)
-
-        if self.is_SPINN and len(self.train_x_bc) > 0:
-            x = self.train_x_bc + [x]
+        if self.is_SPINN:
+            x = self.geom.uniform_spinn_points(self.num_test, boundary=False)
+            if len(self.train_x_bc) > 0:
+                x = self.train_x_bc + [x]
         else:
+            x = self.geom.uniform_points(self.num_test, boundary=False)
             x = np.vstack((self.train_x_bc, x))
         return x
 
