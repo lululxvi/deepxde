@@ -1,5 +1,4 @@
 """jax backend implementation"""
-
 import jax
 import jax.numpy as jnp
 import numpy as np
