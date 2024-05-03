@@ -666,7 +666,6 @@ class Model:
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
-            
             self.train_state.set_data_train(
                 *self.data.train_next_batch(self.batch_size)
             )
