@@ -85,7 +85,7 @@ model.compile(
 )
 losshistory, train_state = model.train(iterations=20000, callbacks=[variable])
 
-# train lbfgs
+# train lbfgs (not implemented in JAX)
 model.compile("L-BFGS", external_trainable_variables=external_trainable_variables)
 losshistory, train_state = model.train(callbacks=[variable])
 

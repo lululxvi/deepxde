@@ -375,7 +375,10 @@ class Model:
         if self.params is None:
             key = jax.random.PRNGKey(config.jax_random_seed)
             self.net.params = self.net.init(key, self.data.test()[0])
-            self.params = [self.net.params, self.external_trainable_variables]
+            external_trainable_variables_arr = [
+                var.value for var in self.external_trainable_variables
+            ]
+            self.params = [self.net.params, external_trainable_variables_arr]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
@@ -565,7 +568,9 @@ class Model:
             self.params, self.opt_state = self.train_step(
                 self.params, self.opt_state, inputs, targets
             )
-            self.net.params, self.external_trainable_variables = self.params
+            self.net.params, external_trainable_variables = self.params
+            for i, var in enumerate(self.external_trainable_variables):
+                var.value = external_trainable_variables[i]
 
     @utils.timing
     def train(
