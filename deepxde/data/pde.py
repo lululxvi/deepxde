@@ -127,6 +127,17 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
+    def _filter_exclusions(self, x):
+        if self.exclusions is not None:
+
+            def is_not_excluded(point):
+                return not np.any(
+                    [np.allclose(point, exclusion) for exclusion in self.exclusions]
+                )
+
+            return np.array(list(filter(is_not_excluded, x)))
+        return x
+
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if backend_name in ["tensorflow.compat.v1", "paddle"]:
             outputs_pde = outputs
@@ -264,6 +275,15 @@ class PDE(Data):
                 X = self.geom.random_points(
                     self.num_domain, random=self.train_distribution
                 )
+        if self.anchors is not None:
+            X = np.vstack((self.anchors, X))
+        X = self._filter_exclusions(X)
+        self.train_x_all = X
+        return X
+
+    @run_if_all_none("train_x_bc")
+    def bc_points(self):
+        bc_points = self.train_x_all
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -271,27 +291,15 @@ class PDE(Data):
                 tmp = self.geom.random_boundary_points(
                     self.num_boundary, random=self.train_distribution
                 )
-            X = np.vstack((tmp, X))
-        if self.anchors is not None:
-            X = np.vstack((self.anchors, X))
-        if self.exclusions is not None:
-
-            def is_not_excluded(x):
-                return not np.any([np.allclose(x, y) for y in self.exclusions])
-
-            X = np.array(list(filter(is_not_excluded, X)))
-        self.train_x_all = X
-        return X
-
-    @run_if_all_none("train_x_bc")
-    def bc_points(self):
-        x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
+            bc_points = np.vstack((tmp, bc_points))
+        x_bcs = [bc.collocation_points(bc_points) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
         self.train_x_bc = (
             np.vstack(x_bcs)
             if x_bcs
             else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
         )
+        self.train_x_bc = self._filter_exclusions(self.train_x_bc)
         return self.train_x_bc
 
     def test_points(self):
@@ -349,12 +357,7 @@ class TimePDE(PDE):
                 tmp = self.geom.random_initial_points(
                     self.num_initial, random=self.train_distribution
                 )
-            if self.exclusions is not None:
-
-                def is_not_excluded(x):
-                    return not np.any([np.allclose(x, y) for y in self.exclusions])
-
-                tmp = np.array(list(filter(is_not_excluded, tmp)))
+            tmp = self._filter_exclusions(tmp)
             X = np.vstack((tmp, X))
         self.train_x_all = X
         return X
