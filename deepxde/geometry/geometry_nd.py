@@ -85,7 +85,7 @@ class Hypercube(Geometry):
         dx = (self.volume / n) ** (1 / self.dim)
         xi = []
         for i in range(self.dim):
-            ni = int(np.ceil(self.side_length[i] / dx))
+            ni = int(np.sqrt(n))#int(np.ceil(self.side_length[i] / dx))
             if boundary:
                 xi.append(
                     np.linspace(
