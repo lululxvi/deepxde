@@ -42,9 +42,9 @@ def reshape(tensor, shape):
 
 
 class Variable:
-    def __init__(self, initial_value, dtype=None):
+    def __init__(self, initial_value, dtype=None, update_factor=1.0):
         self._value = jnp.array(initial_value, dtype=dtype)
-
+        self.update_factor = update_factor
     @property
     def value(self):
         return self._value
