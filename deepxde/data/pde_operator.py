@@ -167,6 +167,12 @@ class PDEOperator(Data):
         self.train_bc = (np.vstack(v), np.vstack(x), np.vstack(vx))
         return self.train_bc
 
+    def resample_train_points(self, pde_points=True, bc_points=True):
+        """Resample the training points for the operator."""
+        self.pde.resample_train_points(pde_points, bc_points)
+        self.train_x, self.train_y, self.train_aux_vars = None, None, None
+        self.train_next_batch()
+
 
 class PDEOperatorCartesianProd(Data):
     """PDE solution operator with data in the format of Cartesian product.
