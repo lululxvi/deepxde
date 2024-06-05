@@ -153,7 +153,8 @@ DeepXDE has been used in
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_,
-  `Kuwait University <https://kuweb.ku.edu.kw>`_
+  `Kuwait University <https://kuweb.ku.edu.kw>`_,
+  `Boise State University <https://www.boisestate.edu/>`_
 - > 30 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
@@ -373,6 +374,7 @@ PINN
 #. Y\. Chen, L. Lu, G. Karniadakis, & L. Negro. `Physics-informed neural networks for inverse problems in nano-optics and metamaterials <https://doi.org/10.1364/OE.384875>`_. *Optics Express*, 28(8), 11618--11633, 2020.
 #. G\. Pang, L. Lu, & G. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019.
 #. D\. Zhang, L. Lu, L. Guo, & G. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
+#. T\. Zhang, D. Wang, & Y. Lu. `RheologyNet: A physics-informed neural network solution to evaluate the thixotropic properties of cementitious materials <https://doi.org/10.1016/j.cemconres.2023.107157>`_. *Cement and Concrete Research, 168, 107157, 2023.
 
 DeepONet
 --------
