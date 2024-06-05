@@ -212,6 +212,7 @@ PINN
 #. J\. Li, Y. Lin, & K. Zhang. `Dynamic mode decomposition of the core surface flow inverted from geomagnetic field models <https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2023GL106362>`_. *Geophysical Research Letters*, 51(1), e2023GL106362, 2024.
 #. J\. M. Tucny, M. Durve, A. Montessori, and S. Succi. `Learning of viscosity functions in rarefied gas flows with physics-informed neural networks <https://www.sciencedirect.com/science/article/pii/S0045793023003390>`_. *Computers Fluids*, 269:106114, 2024.
 #. P\. Brendel, V. Medvedev, & A. Rosskopf. `Physics-informed neural networks for magnetostatic problems on axisymmetric transformer geometries <https://ieeexplore.ieee.org/abstract/document/10373037>`_. *IEEE Journal of Emerging and Selected Topics in Industrial Electronics*, 2023.
+#. T\. Zhang, D. Wang, & Y. Lu. `RheologyNet: A physics-informed neural network solution to evaluate the thixotropic properties of cementitious materials <https://doi.org/10.1016/j.cemconres.2023.107157>`_. *Cement and Concrete Research, 168, 107157, 2023.
 #. S\. C. Salas, A. O. Alvarado, F. Ortega-culaciati, & P. escapil-inchauspé. `Physics informed neural network for quasistatic fault slip forward and inverse problems <https://ci2ma.udec.cl/wonapde2024/abstract/Cobaise.pdf>`_. 2023.
 #. Z\. Wang, R. Keller, X. Deng, K. Hoshino, T. Tanaka, & Y. Nakahira. `Physics-informed representation and learning: Control and risk quantification <https://arxiv.org/abs/2312.10594>`_. *arXiv preprint arXiv:2312.10594*, 2023.
 #. S\. H. Radbakhsh, K. Zandi, & M. Nik-bakht. `Physics-informed neural network for analyzing elastic beam behavior <https://www.dpi-proceedings.com/index.php/shm2023/article/view/36810>`_. *Structural Health Monitoring*, 2023.
@@ -374,7 +375,6 @@ PINN
 #. Y\. Chen, L. Lu, G. Karniadakis, & L. Negro. `Physics-informed neural networks for inverse problems in nano-optics and metamaterials <https://doi.org/10.1364/OE.384875>`_. *Optics Express*, 28(8), 11618--11633, 2020.
 #. G\. Pang, L. Lu, & G. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019.
 #. D\. Zhang, L. Lu, L. Guo, & G. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
-#. T\. Zhang, D. Wang, & Y. Lu. `RheologyNet: A physics-informed neural network solution to evaluate the thixotropic properties of cementitious materials <https://doi.org/10.1016/j.cemconres.2023.107157>`_. *Cement and Concrete Research, 168, 107157, 2023.
 
 DeepONet
 --------
