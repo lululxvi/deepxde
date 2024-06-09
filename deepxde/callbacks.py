@@ -188,9 +188,19 @@ class EarlyStopping(Callback):
             Training will stop if the model doesn't show improvement
             over the baseline.
         monitor: The loss function that is monitored. Either 'loss_train' or 'loss_test'
+        start_from_epoch: Number of epochs to wait before starting
+            to monitor improvement. This allows for a warm-up period in which
+            no improvement is expected and thus training will not be stopped.
     """
 
-    def __init__(self, min_delta=0, patience=0, baseline=None, monitor="loss_train"):
+    def __init__(
+        self,
+        min_delta=0,
+        patience=0,
+        baseline=None,
+        monitor="loss_train",
+        start_from_epoch=0,
+    ):
         super().__init__()
 
         self.baseline = baseline
@@ -199,6 +209,7 @@ class EarlyStopping(Callback):
         self.min_delta = min_delta
         self.wait = 0
         self.stopped_epoch = 0
+        self.start_from_epoch = start_from_epoch
 
         self.monitor_op = np.less
         self.min_delta *= -1
@@ -213,6 +224,8 @@ class EarlyStopping(Callback):
             self.best = np.Inf if self.monitor_op == np.less else -np.Inf
 
     def on_epoch_end(self):
+        if self.model.train_state.epoch < self.start_from_epoch:
+            return
         current = self.get_monitor_value()
         if self.monitor_op(current - self.min_delta, self.best):
             self.best = current
