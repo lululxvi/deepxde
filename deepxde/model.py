@@ -570,7 +570,12 @@ class Model:
             )
             self.net.params, external_trainable_variables = self.params
             for i, var in enumerate(self.external_trainable_variables):
-                var.value = external_trainable_variables[i]
+                var.value = (
+                    var.value
+                    + (external_trainable_variables[i] - var.value) * var.update_factor
+                )
+                external_trainable_variables[i] = var.value
+            self.params = [self.net.params, external_trainable_variables]
 
     @utils.timing
     def train(
