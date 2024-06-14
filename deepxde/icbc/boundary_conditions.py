@@ -3,6 +3,7 @@
 __all__ = [
     "BC",
     "DirichletBC",
+    "Interface2DBC",
     "NeumannBC",
     "OperatorBC",
     "PeriodicBC",
@@ -261,6 +262,91 @@ class PointSetOperatorBC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         return self.func(inputs, outputs, X)[beg:end] - self.values
+
+
+class Interface2DBC:
+    """2D interface boundary condition.
+
+    This BC applies to the case with the following conditions:
+    (1) the network output has two elements, i.e., output = [y1, y2],
+    (2) the 2D geometry is ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon``, which has two edges of the same length,
+    (3) uniform boundary points are used, i.e., in ``dde.data.PDE`` or ``dde.data.TimePDE``, ``train_distribution="uniform"``.
+    For a pair of points on the two edges, compute <output_1, d1> for the point on the first edge
+    and <output_2, d2> for the point on the second edge in the n/t direction ('n' for normal or 't' for tangent).
+    Here, <v1, v2> is the dot product between vectors v1 and v2;
+    and d1 and d2 are the n/t vectors of the first and second edges, respectively.
+    In the normal case, d1 and d2 are the outward normal vectors;
+    and in the tangent case, d1 and d2 are the outward normal vectors rotated 90 degrees clockwise.
+    The points on the two edges are paired as follows: the boundary points on one edge are sampled clockwise,
+    and the points on the other edge are sampled counterclockwise. Then, compare the sum with 'values',
+    i.e., the error is calculated as <output_1, d1> + <output_2, d2> - values,
+    where 'values' is the argument `func` evaluated on the first edge.
+
+    Args:
+        geom: a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
+        func: the target discontinuity between edges, evaluated on the first edge,
+            e.g., ``func=lambda x: 0`` means no discontinuity is wanted.
+        on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
+        on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
+        direction (string): "normal" or "tangent".
+    """
+
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
+        self.geom = geom
+        self.func = npfunc_range_autocache(utils.return_tensor(func))
+        self.on_boundary1 = lambda x, on: np.array(
+            [on_boundary1(x[i], on[i]) for i in range(len(x))]
+        )
+        self.on_boundary2 = lambda x, on: np.array(
+            [on_boundary2(x[i], on[i]) for i in range(len(x))]
+        )
+        self.direction = direction
+
+        self.boundary_normal = npfunc_range_autocache(
+            utils.return_tensor(self.geom.boundary_normal)
+        )
+
+    def collocation_points(self, X):
+        on_boundary = self.geom.on_boundary(X)
+        X1 = X[self.on_boundary1(X, on_boundary)]
+        X2 = X[self.on_boundary2(X, on_boundary)]
+        # Flip order of X2 when dde.geometry.Polygon is used
+        if self.geom.__class__.__name__ == "Polygon":
+            X2 = np.flip(X2, axis=0)
+        return np.vstack((X1, X2))
+
+    def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        mid = beg + (end - beg) // 2
+        if not mid - beg == end - mid:
+            raise RuntimeError(
+                "There is a different number of points on each edge,\n\
+                this is likely because the chosen edges do not have the same length."
+            )
+        values = self.func(X, beg, mid, aux_var)
+        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
+            raise RuntimeError("BC function should return an array of shape N by 1")
+        left_n = self.boundary_normal(X, beg, mid, None)
+        right_n = self.boundary_normal(X, mid, end, None)
+        if self.direction == "normal":
+            left_side = outputs[beg:mid, :]
+            right_side = outputs[mid:end, :]
+            left_values = bkd.sum(left_side * left_n, 1, keepdims=True)
+            right_values = bkd.sum(right_side * right_n, 1, keepdims=True)
+
+        elif self.direction == "tangent":
+            # Tangent vector is [n[1],-n[0]] on edge 1
+            left_side1 = outputs[beg:mid, 0:1]
+            left_side2 = outputs[beg:mid, 1:2]
+            right_side1 = outputs[mid:end, 0:1]
+            right_side2 = outputs[mid:end, 1:2]
+            left_values_1 = bkd.sum(left_side1 * left_n[:, 1:2], 1, keepdims=True)
+            left_values_2 = bkd.sum(-left_side2 * left_n[:, 0:1], 1, keepdims=True)
+            left_values = left_values_1 + left_values_2
+            right_values_1 = bkd.sum(right_side1 * right_n[:, 1:2], 1, keepdims=True)
+            right_values_2 = bkd.sum(-right_side2 * right_n[:, 0:1], 1, keepdims=True)
+            right_values = right_values_1 + right_values_2
+
+        return left_values + right_values - values
 
 
 def npfunc_range_autocache(func):
