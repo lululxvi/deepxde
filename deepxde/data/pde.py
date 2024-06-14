@@ -289,12 +289,15 @@ class PDE(Data):
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
-            if self.train_distribution == "uniform":
-                X = self.geom.uniform_points(self.num_domain, boundary=False)
+            if self.is_SPINN:
+                X = self.geom.uniform_spinn_points(self.num_test, boundary=False)
             else:
-                X = self.geom.random_points(
-                    self.num_domain, random=self.train_distribution
-                )
+                if self.train_distribution == "uniform":
+                    X = self.geom.uniform_points(self.num_domain, boundary=False)
+                else:
+                    X = self.geom.random_points(
+                        self.num_domain, random=self.train_distribution
+                    )
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
