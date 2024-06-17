@@ -10,6 +10,11 @@ from .. import initializers
 from ...utils import list_handler
 
 class SPINN(NN):
+    """ 
+    This code is a direct adaptation of the original SPINN paper:
+    - paper : https://arxiv.org/abs/2306.15969
+    - code : https://github.com/stnamjef/SPINN
+    """
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
