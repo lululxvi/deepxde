@@ -1057,19 +1057,6 @@ class Model:
                     "optimizer_state_dict": self.opt.state_dict(),
                 }
                 torch.save(checkpoint, save_path)
-            elif backend_name == "jax":
-                try:
-                    import orbax.checkpoint as ocp
-                    from flax.training import orbax_utils
-                except ImportError:
-                    raise ImportError("Please install orbax to save the model")
-                checkpoint = {
-                    "model": self.net.params,
-                    "opt": self.opt_state,
-                }
-                checkpointer = ocp.PyTreeCheckpointer()
-                save_args = orbax_utils.save_args_from_target(checkpoint)
-                checkpointer.save(checkpoint, self.params, save_args=save_args)
             elif backend_name == "paddle":
                 save_path += ".pdparams"
                 checkpoint = {
@@ -1114,17 +1101,6 @@ class Model:
                 checkpoint = torch.load(save_path)
             self.net.load_state_dict(checkpoint["model_state_dict"])
             self.opt.load_state_dict(checkpoint["optimizer_state_dict"])
-        elif backend_name == "jax":
-            try:
-                import orbax.checkpoint as ocp
-            except ImportError:
-                raise ImportError("Please install orbax to restore the model")
-            checkpointer = ocp.StandardCheckpointer()
-            checkpoint = checkpointer.restore(save_path)
-            self.net.params, external_trainable_variables = checkpoint["model"]
-            self.opt_state = checkpoint["opt"]
-            for i, var in enumerate(self.external_trainable_variables):
-                var.value = external_trainable_variables[i]
         elif backend_name == "paddle":
             checkpoint = paddle.load(save_path)
             self.net.set_state_dict(checkpoint["model"])
