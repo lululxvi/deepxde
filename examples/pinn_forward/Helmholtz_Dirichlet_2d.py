@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle, jax"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import numpy as np
 import deepxde.backend as bkd
@@ -13,10 +13,9 @@ iterations = 5000
 parameters = [1e-3, 3, 150, "sin"]
 
 # Define sine function
-sin = bkd.sin
+sin = dde.backend.sin
 
 learning_rate, num_dense_layers, num_dense_nodes, activation = parameters
-
 
 def pde(x, y):
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)

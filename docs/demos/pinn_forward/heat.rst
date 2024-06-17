@@ -6,7 +6,7 @@ Problem setup
 
 We will solve a heat equation:
 
-.. math:: \frac{\partial u}{\partial t}=\alpha \frac{\partial^2u}{\partial x^2}, \qquad x \in [-1, 1], \quad t \in [0, 1]
+.. math:: \frac{\partial u}{\partial t}=\alpha \frac{\partial^2u}{\partial x^2}, \qquad x \in [0, 1], \quad t \in [0, 1]
 
 where :math:`\alpha=0.4` is the thermal diffusivity constant.
 
