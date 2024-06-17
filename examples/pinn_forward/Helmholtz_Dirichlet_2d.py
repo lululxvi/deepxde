@@ -1,7 +1,6 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import numpy as np
-import deepxde.backend as bkd
 
 # General parameters
 n = 2
@@ -35,12 +34,7 @@ def func(x):
 
 
 def transform(x, y):
-    
-    if x.ndim == 1:
-        res = x[0] * (1 - x[0]) * x[1] * (1 - x[1])
-    else:
-        res = x[:, 0:1] * (1 - x[:, 0:1]) * x[:, 1:2] * (1 - x[:, 1:2])
-
+    res = x[:, 0:1] * (1 - x[:, 0:1]) * x[:, 1:2] * (1 - x[:, 1:2])
     return res * y
 
 
