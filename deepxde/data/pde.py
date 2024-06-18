@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0
+from ..utils import get_num_args, has_default_values, run_if_all_none, mpi_scatter_from_rank0
 
 
 class PDE(Data):
@@ -147,6 +147,8 @@ class PDE(Data):
             elif get_num_args(self.pde) == 3:
                 if self.auxiliary_var_fn is None:
                     if aux is None or len(aux) == 1:
+                        if not has_default_values(self.pde)[-1]:
+                            raise ValueError("Auxiliary variable function not defined.")
                         f = self.pde(inputs, outputs_pde)
                     else:
                         f = self.pde(inputs, outputs_pde, unknowns=aux[1])
