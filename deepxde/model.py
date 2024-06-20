@@ -1031,8 +1031,7 @@ class Model:
         Returns:
             string: Path where model is saved.
         """
-        # TODO: Add assertions OR test the ending
-        #       Right now it seems kind of weird.
+        # TODO: backend tensorflow
         save_path = f"{save_path}-{self.train_state.epoch}"
         if protocol == "pickle":
             save_path += ".pkl"
