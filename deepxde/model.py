@@ -473,7 +473,7 @@ class Model:
             losses = paddle.stack(losses, axis=0)
             # Weighted losses
             if self.loss_weights is not None:
-                losses *= paddle.to_tensor(self.loss_weights)
+                losses *= paddle.to_tensor(self.loss_weights, dtype=losses.dtype)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
