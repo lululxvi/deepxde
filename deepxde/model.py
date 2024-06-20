@@ -1043,7 +1043,7 @@ class Model:
                 save_path += ".ckpt"
                 self.saver.save(self.sess, save_path)
             elif backend_name == "tensorflow":
-                save_path += ".weights.h5"
+                save_path += ".ckpt"
                 self.net.save_weights(save_path)
             elif backend_name == "pytorch":
                 save_path += ".pt"
