@@ -5,8 +5,8 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 
-if Version(tf.__version__) < Version("2.2.0"):
-    raise RuntimeError("DeepXDE requires TensorFlow>=2.2.0.")
+if Version(tf.__version__) < Version("2.3.0"):
+    raise RuntimeError("DeepXDE requires TensorFlow>=2.3.0.")
 if Version(tfp.__version__) < Version("0.10.0"):
     raise RuntimeError("DeepXDE requires TensorFlow Probability>=0.10.0.")
 
