@@ -1028,31 +1028,39 @@ class Model:
                 If `protocol` is "pickle", save using the Python pickle module. Only the
                 protocol "backend" supports ``restore()``.
 
+        Raises:
+            ValueError: If the provided `save_path` is empty.
+
         Returns:
             string: Path where model is saved.
         """
-        # TODO: backend tensorflow
+        if not save_path:
+            raise ValueError("The save_path cannot be empty.")
         save_path = f"{save_path}-{self.train_state.epoch}"
         if protocol == "pickle":
             save_path += ".pkl"
             with open(save_path, "wb") as f:
                 pickle.dump(self.state_dict(), f)
         elif protocol == "backend":
+            # Handle file endings
+            file_endings = {
+                "tensorflow.compat.v1": ".ckpt",
+                "tensorflow": ".weights.h5",
+                "pytorch": ".pt",
+                "paddle": ".pdparams",
+            }
+            save_path += file_endings[backend_name]
             if backend_name == "tensorflow.compat.v1":
-                save_path += ".ckpt"
                 self.saver.save(self.sess, save_path)
             elif backend_name == "tensorflow":
-                save_path += ".ckpt"
                 self.net.save_weights(save_path)
             elif backend_name == "pytorch":
-                save_path += ".pt"
                 checkpoint = {
                     "model_state_dict": self.net.state_dict(),
                     "optimizer_state_dict": self.opt.state_dict(),
                 }
                 torch.save(checkpoint, save_path)
             elif backend_name == "paddle":
-                save_path += ".pdparams"
                 checkpoint = {
                     "model": self.net.state_dict(),
                     "opt": self.opt.state_dict(),
