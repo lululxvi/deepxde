@@ -12,6 +12,6 @@ def get(identifier):
         else tf.keras.regularizers.L2(l2=scales[0])
         if name == "l2"
         else tf.keras.regularizers.L1L2(l1=scales[0], l2=scales[1])
-        if name == "l1+l2" or name == "l1l2"
+        if name in ("l1+l2", "l1l2")
         else None
     )
