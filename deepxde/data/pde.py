@@ -4,7 +4,7 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0
+from ..utils import get_num_args, run_if_all_none, mpi_scatter_from_rank0, list_handler
 
 
 class PDE(Data):
@@ -84,6 +84,7 @@ class PDE(Data):
         solution=None,
         num_test=None,
         auxiliary_var_function=None,
+        is_SPINN=False,
     ):
         self.geom = geometry
         self.pde = pde
@@ -108,10 +109,18 @@ class PDE(Data):
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
 
-        self.soln = solution
+        if solution is not None:
+            @list_handler
+            def solution_handling_list(inputs):
+                return solution(inputs)
+            self.soln = solution_handling_list
+        else:
+            self.soln = solution
+
         self.num_test = num_test
 
         self.auxiliary_var_fn = auxiliary_var_function
+        self.is_SPINN = is_SPINN
 
         # TODO: train_x_all is used for PDE losses. It is better to add train_x_pde
         # explicitly.
@@ -128,29 +137,41 @@ class PDE(Data):
         self.test()
 
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        
+        bcs_start = np.cumsum([0] + self.num_bcs)
+        bcs_start = list(map(int, bcs_start))
+    
+        if self.is_SPINN:
+            num_bcs_output = [num_bc**2 for num_bc in self.num_bcs]
+            bcs_start_output = np.cumsum([0] + num_bcs_output)
+            bcs_start_output = list(map(int, bcs_start_output))
+        else:
+            bcs_start_output = bcs_start
+        
         if backend_name in ["tensorflow.compat.v1", "paddle"]:
-            outputs_pde = outputs
+            outputs_pde = outputs[bcs_start_output[-1] :]
         elif backend_name in ["tensorflow", "pytorch"]:
             if config.autodiff == "reverse":
-                outputs_pde = outputs
+                outputs_pde = outputs[bcs_start_output[-1] :]
             elif config.autodiff == "forward":
                 # forward-mode AD requires functions
-                outputs_pde = (outputs, aux[0])
+                outputs_pde = (outputs[bcs_start_output[-1] :], aux[0])
         elif backend_name == "jax":
             # JAX requires pure functions
-            outputs_pde = (outputs, aux[0])
+            outputs_pde = (outputs[bcs_start_output[-1] :], aux[0])
 
+        inputs_pde = inputs[-1] if isinstance(inputs, (list, tuple)) else inputs[bcs_start[-1] :]
         f = []
         if self.pde is not None:
             if get_num_args(self.pde) == 2:
-                f = self.pde(inputs, outputs_pde)
+                f = self.pde(inputs_pde, outputs_pde)
             elif get_num_args(self.pde) == 3:
                 if self.auxiliary_var_fn is None:
                     if aux is None or len(aux) == 1:
                         raise ValueError("Auxiliary variable function not defined.")
-                    f = self.pde(inputs, outputs_pde, unknowns=aux[1])
+                    f = self.pde(inputs_pde, outputs_pde, unknowns=aux[1])
                 else:
-                    f = self.pde(inputs, outputs_pde, model.net.auxiliary_vars)
+                    f = self.pde(inputs_pde, outputs_pde, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
@@ -163,16 +184,19 @@ class PDE(Data):
                 )
             )
 
-        bcs_start = np.cumsum([0] + self.num_bcs)
-        bcs_start = list(map(int, bcs_start))
-        error_f = [fi[bcs_start[-1] :] for fi in f]
+
+        error_f = f
         losses = [
             loss_fn[i](bkd.zeros_like(error), error) for i, error in enumerate(error_f)
         ]
         for i, bc in enumerate(self.bcs):
-            beg, end = bcs_start[i], bcs_start[i + 1]
-            # The same BC points are used for training and testing.
-            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            if isinstance(inputs, (list, tuple)):
+                beg, end = bcs_start_output[i], bcs_start_output[i + 1]
+                error = bc.error(self.train_x, inputs[i], outputs[beg:end,:], 0, end-beg)
+            else:
+                beg, end = bcs_start_output[i], bcs_start_output[i + 1]
+                # The same BC points are used for training and testing.
+                error = bc.error(self.train_x, inputs, outputs, beg, end)
             losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
 
@@ -194,7 +218,10 @@ class PDE(Data):
         if config.parallel_scaling == "strong":
             self.train_x_all = mpi_scatter_from_rank0(self.train_x_all)
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
+            if self.is_SPINN and len(self.train_x) > 0:
+                self.train_x = self.train_x + [self.train_x_all]
+            else:
+                self.train_x = np.vstack((self.train_x, self.train_x_all))
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
@@ -247,7 +274,11 @@ class PDE(Data):
         self.train_x_all = self.anchors
         self.train_x = self.bc_points()
         if self.pde is not None:
-            self.train_x = np.vstack((self.train_x, self.train_x_all))
+            if self.is_SPINN and len(self.train_x) > 0:
+                self.train_x = self.train_x + [self.train_x_all]
+            else:
+                self.train_x = np.vstack((self.train_x, self.train_x_all))
+
         self.train_y = self.soln(self.train_x) if self.soln else None
         if self.auxiliary_var_fn is not None:
             self.train_aux_vars = self.auxiliary_var_fn(self.train_x).astype(
@@ -258,12 +289,15 @@ class PDE(Data):
     def train_points(self):
         X = np.empty((0, self.geom.dim), dtype=config.real(np))
         if self.num_domain > 0:
-            if self.train_distribution == "uniform":
-                X = self.geom.uniform_points(self.num_domain, boundary=False)
+            if self.is_SPINN:
+                X = self.geom.uniform_spinn_points(self.num_test, boundary=False)
             else:
-                X = self.geom.random_points(
-                    self.num_domain, random=self.train_distribution
-                )
+                if self.train_distribution == "uniform":
+                    X = self.geom.uniform_points(self.num_domain, boundary=False)
+                else:
+                    X = self.geom.random_points(
+                        self.num_domain, random=self.train_distribution
+                    )
         if self.num_boundary > 0:
             if self.train_distribution == "uniform":
                 tmp = self.geom.uniform_boundary_points(self.num_boundary)
@@ -287,17 +321,25 @@ class PDE(Data):
     def bc_points(self):
         x_bcs = [bc.collocation_points(self.train_x_all) for bc in self.bcs]
         self.num_bcs = list(map(len, x_bcs))
-        self.train_x_bc = (
-            np.vstack(x_bcs)
-            if x_bcs
-            else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
-        )
+        if self.is_SPINN:
+            self.train_x_bc = x_bcs if x_bcs else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
+        else:
+            self.train_x_bc = (
+                np.vstack(x_bcs)
+                if x_bcs
+                else np.empty([0, self.train_x_all.shape[-1]], dtype=config.real(np))
+            )
         return self.train_x_bc
 
     def test_points(self):
         # TODO: Use different BC points from self.train_x_bc
-        x = self.geom.uniform_points(self.num_test, boundary=False)
-        x = np.vstack((self.train_x_bc, x))
+        if self.is_SPINN:
+            x = self.geom.uniform_spinn_points(self.num_test, boundary=False)
+            if len(self.train_x_bc) > 0:
+                x = self.train_x_bc + [x]
+        else:
+            x = self.geom.uniform_points(self.num_test, boundary=False)
+            x = np.vstack((self.train_x_bc, x))
         return x
 
 
