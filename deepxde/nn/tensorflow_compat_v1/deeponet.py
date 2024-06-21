@@ -305,7 +305,7 @@ class DeepONet(NN):
                 )
                 if self.dropout_rate > 0:
                     y_func = tf.layers.dropout(
-                        y_func, rate=self.dropout_rate, training=self.trainable_branch
+                        y_func, rate=self.dropout_rate, training=self.training
                     )
             y_func = self._stacked_dense(
                 y_func,
@@ -326,7 +326,7 @@ class DeepONet(NN):
                 )
                 if self.dropout_rate > 0:
                     y_func = tf.layers.dropout(
-                        y_func, rate=self.dropout_rate, training=self.trainable_branch
+                        y_func, rate=self.dropout_rate, training=self.training
                     )
             y_func = self._dense(
                 y_func,
@@ -356,7 +356,7 @@ class DeepONet(NN):
             )
             if self.dropout_rate > 0:
                 y_loc = tf.layers.dropout(
-                    y_loc, rate=self.dropout_rate, training=trainable
+                    y_loc, rate=self.dropout_rate, training=self.training
                 )
         return y_loc
 
