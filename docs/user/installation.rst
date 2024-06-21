@@ -96,7 +96,7 @@ Here is a comparison between different backends:
 TensorFlow 1.x backend
 ``````````````````````
 
-Export ``DDE_BACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. The required TensorFlow version is 2.3.0 or later. Essentially, TensorFlow 1.x backend uses the API `tensorflow.compat.v1 <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution:
+Export ``DDE_BACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. Essentially, TensorFlow 1.x backend uses the API `tensorflow.compat.v1 <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution:
 
 .. code:: python
 
@@ -108,12 +108,12 @@ In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to preve
 TensorFlow 2.x backend
 ``````````````````````
 
-Export ``DDE_BACKEND`` as ``tensorflow`` to specify TensorFlow 2.x backend. The required TensorFlow version is 2.3.0 or later. In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to prevent TensorFlow take over the whole GPU memory.
+Export ``DDE_BACKEND`` as ``tensorflow`` to specify TensorFlow 2.x backend. In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to prevent TensorFlow take over the whole GPU memory.
 
 PyTorch backend
 ```````````````
 
-Export ``DDE_BACKEND`` as ``pytorch`` to specify PyTorch backend. The required PyTorch version is 1.9.0 or later. In addition, if GPU is available, DeepXDE will set  the default tensor type to cuda, so that all the tensors will be created on GPU as default:
+Export ``DDE_BACKEND`` as ``pytorch`` to specify PyTorch backend. In addition, if GPU is available, DeepXDE will set  the default tensor type to cuda, so that all the tensors will be created on GPU as default:
 
 .. code:: python
 
