@@ -342,17 +342,14 @@ class DeepONet(NN):
         if self._input_transform is not None:
             y_loc = self._input_transform(y_loc)
         for i in range(1, len(self.layer_size_loc)):
-            trainable = (
-                self.trainable_trunk[i - 1]
-                if isinstance(self.trainable_trunk, (list, tuple))
-                else self.trainable_trunk
-            )
             y_loc = self._dense(
                 y_loc,
                 self.layer_size_loc[i],
                 activation=self.activation_trunk,
                 regularizer=self.regularizer,
-                trainable=trainable,
+                trainable=self.trainable_trunk[i - 1]
+                if isinstance(self.trainable_trunk, (list, tuple))
+                else self.trainable_trunk,
             )
             if self.dropout_rate > 0:
                 y_loc = tf.layers.dropout(
@@ -575,7 +572,9 @@ class DeepONetCartesianProd(NN):
                     kernel_regularizer=self.regularizer,
                 )
                 if self.dropout_rate > 0:
-                    y_func = tf.layers.dropout(y_func, rate=self.dropout_rate)
+                    y_func = tf.layers.dropout(
+                        y_func, rate=self.dropout_rate, training=self.training
+                    )
             y_func = tf.layers.dense(
                 y_func,
                 self.layer_size_func[-1],
@@ -598,7 +597,9 @@ class DeepONetCartesianProd(NN):
                 kernel_regularizer=self.regularizer,
             )
             if self.dropout_rate > 0:
-                y_loc = tf.layers.dropout(y_loc, rate=self.dropout_rate)
+                y_loc = tf.layers.dropout(
+                    y_loc, rate=self.dropout_rate, training=self.training
+                )
         return y_loc
 
     def merge_branch_trunk(self, branch, trunk):
