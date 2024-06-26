@@ -176,7 +176,9 @@ class Model:
                 losses = [losses]
             # Regularization loss
             if self.net.regularizer is not None:
-                losses.append(tf.losses.get_regularization_loss())
+                losses.append(
+                    tf.losses.get_regularization_loss() + self.net.regularization_loss
+                )
             losses = tf.convert_to_tensor(losses)
             # Weighted losses
             if self.loss_weights is not None:

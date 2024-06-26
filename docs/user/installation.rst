@@ -8,7 +8,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 
 - TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org>`_>=2.7.0
 
-    - For TensorFlow 2.16+ with Keras 3, to keep using Keras 2, you can first install `tf-keras <https://pypi.org/project/tf-keras>`_, and then set the environment variable ``TF_USE_LEGACY_KERAS=1`` directly or in your python program with ``import os;os.environ["TF_USE_LEGACY_KERAS"]="1"``. [`Reference <https://keras.io/keras_3>`_]
+    - If you use TensorFlow 2.16+ and have an error with Keras 3, to keep using Keras 2, you can first install `tf-keras <https://pypi.org/project/tf-keras>`_, and then set the environment variable ``TF_USE_LEGACY_KERAS=1`` directly or in your python program with ``import os;os.environ["TF_USE_LEGACY_KERAS"]="1"``. [`Reference <https://keras.io/keras_3>`_]
 
 - TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org>`_>=2.3.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.11.0
 

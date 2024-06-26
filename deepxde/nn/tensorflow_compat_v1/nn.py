@@ -11,6 +11,15 @@ class NN:
     def __init__(self):
         self.training = tf.placeholder(tf.bool)
         self.regularizer = None
+        # tf.layers.dense() is not available for TensorFlow 2.16+ with Keras 3. The
+        # corresponding layer is tf.keras.layers.Dense(). However, tf.layers.dense()
+        # adds regularizer loss to the collection REGULARIZATION_LOSSES, which can be
+        # accessed by tf.losses.get_regularization_loss(), but tf.keras.layers.Dense()
+        # adds regularizer loss to Layer.losses. Hence, we use self.regularization_loss
+        # to collect tf.keras.layers.Dense() regularization loss.
+        # References:
+        # - https://github.com/tensorflow/tensorflow/issues/21587
+        self.regularization_loss = 0
 
         self._auxiliary_vars = tf.placeholder(config.real(tf), [None, None])
         self._input_transform = None
