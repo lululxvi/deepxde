@@ -777,7 +777,7 @@ class Model:
             )
 
             n_iter = self.opt.state_dict()["state"][0]["n_iter"]
-            if prev_n_iter == n_iter:
+            if prev_n_iter == n_iter - 1:
                 # Converged
                 break
 
@@ -809,7 +809,7 @@ class Model:
             )
 
             n_iter = self.opt.state_dict()["state"]["n_iter"]
-            if prev_n_iter == n_iter:
+            if prev_n_iter == n_iter - 1:
                 # Converged
                 break
 
