@@ -117,7 +117,7 @@ class Chebyshev(FunctionSpace):
         return 2 * self.M * np.random.rand(size, self.N) - self.M
 
     def eval_one(self, feature, x):
-        return np.polynomial.chebyshev.chebval(2 * x - 1, feature)
+        return np.polynomial.chebyshev.chebval(2 * x - 1, feature.T).astype(config.real(np))
 
     def eval_batch(self, features, xs):
         return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T).astype(config.real(np))
