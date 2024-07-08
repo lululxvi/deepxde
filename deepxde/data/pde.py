@@ -100,15 +100,18 @@ class PDE(Data):
         if config.hvd is not None:
             if self.train_distribution != "pseudo":
                 raise ValueError(
-                    "Parallel training via Horovod only supports pseudo train distribution."
+                    "Parallel training via Horovod only supports "
+                    "train_distribution=pseudo."
                 )
             if config.parallel_scaling == "weak":
                 print(
-                    "For weak scaling, num_domain and num_boundary are the numbers of points over each rank, not the total number of points."
+                    "For weak scaling, num_domain and num_boundary are the numbers of "
+                    "points over each rank, not the total number of points."
                 )
             elif config.parallel_scaling == "strong":
                 print(
-                    "For strong scaling, num_domain and num_boundary are the total number of points."
+                    "For strong scaling, num_domain and num_boundary are the total "
+                    "number of points."
                 )
         self.anchors = None if anchors is None else anchors.astype(config.real(np))
         self.exclusions = exclusions
@@ -236,7 +239,10 @@ class PDE(Data):
         self.train_next_batch()
 
     def add_anchors(self, anchors):
-        """Add new points for training PDE losses. The BC points will not be updated."""
+        """Add new points for training PDE losses.
+
+        The BC points will not be updated.
+        """
         anchors = anchors.astype(config.real(np))
         if self.anchors is None:
             self.anchors = anchors
@@ -253,7 +259,10 @@ class PDE(Data):
             )
 
     def replace_with_anchors(self, anchors):
-        """Replace the current PDE training points with anchors. The BC points will not be changed."""
+        """Replace the current PDE training points with anchors.
+
+        The BC points will not be changed.
+        """
         self.anchors = anchors.astype(config.real(np))
         self.train_x_all = self.anchors
         self.train_x = self.bc_points()

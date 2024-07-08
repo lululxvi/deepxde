@@ -34,7 +34,7 @@ def get(params, optimizer, learning_rate=None, decay=None):
             tolerance_grad=LBFGS_options["gtol"],
             tolerance_change=LBFGS_options["ftol"],
             history_size=LBFGS_options["maxcor"],
-            line_search_fn=None,
+            line_search_fn=("strong_wolfe" if LBFGS_options["maxls"] > 0 else None),
             parameters=params,
         )
         return optim
