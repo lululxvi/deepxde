@@ -4,7 +4,12 @@ from .data import Data
 from .. import backend as bkd
 from .. import config
 from ..backend import backend_name
-from ..utils import get_num_args, has_default_values, run_if_all_none, mpi_scatter_from_rank0
+from ..utils import (
+    get_num_args,
+    has_default_values,
+    run_if_all_none,
+    mpi_scatter_from_rank0,
+)
 
 
 class PDE(Data):
@@ -145,15 +150,18 @@ class PDE(Data):
             if get_num_args(self.pde) == 2:
                 f = self.pde(inputs, outputs_pde)
             elif get_num_args(self.pde) == 3:
-                if self.auxiliary_var_fn is None:
-                    if aux is None or len(aux) == 1:
-                        if not has_default_values(self.pde)[-1]:
-                            raise ValueError("Auxiliary variable function not defined.")
-                        f = self.pde(inputs, outputs_pde)
-                    else:
-                        f = self.pde(inputs, outputs_pde, unknowns=aux[1])
-                else:
+                if self.auxiliary_var_fn is not None:
                     f = self.pde(inputs, outputs_pde, model.net.auxiliary_vars)
+                elif backend_name == "jax":
+                    # JAX inverse problem requires unknowns as the input.
+                    if len(aux) == 2:
+                        # External trainable variables in aux[1] are used for unknowns
+                        f = self.pde(inputs, outputs_pde, unknowns=aux[1])
+                    if len(aux) == 1 and has_default_values(self.pde)[-1]:
+                        # No external trainable variables, default values are used for unknowns
+                        f = self.pde(inputs, outputs_pde)
+                else:
+                    raise ValueError("Auxiliary variable function not defined.")
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
