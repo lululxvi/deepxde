@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 150 universities, e.g.,
+- > 190 universities, e.g.,
   `Harvard University <https://www.harvard.edu>`_,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
@@ -54,7 +54,7 @@ DeepXDE has been used in
   `Kyoto University <https://www.kyoto-u.ac.jp/en>`_,
   `University of Liverpool <https://www.liverpool.ac.uk>`_,
   `Texas A&M University <https://www.tamu.edu>`_,
-  `Sun Yat-Sen University <https://www.sysu.edu.cn/sysuen/>`_,
+  `Sun Yat-Sen University <https://www.sysu.edu.cn/sysuen>`_,
   `University of Basel <https://www.unibas.ch/en.html>`_,
   `Arizona State University <https://www.asu.edu>`_,
   `George Mason University <https://www.gmu.edu>`_,
@@ -197,7 +197,7 @@ DeepXDE has been used in
   `Mathematical Sciences Research Laboratory <http://math.uth.gr/laboratory/?lang=en>`_,
   `German Aerospace Center <https://www.dlr.de/en>`_,
   `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
-  `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn/>`_
+  `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn>`_
 - > 10 industry, e.g.,
   `Bosch <https://www.bosch.us>`_,
   `Anailytica <https://anailytica.com>`_,
