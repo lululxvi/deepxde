@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 150 universities, e.g.,
+- > 190 universities, e.g.,
   `Harvard University <https://www.harvard.edu>`_,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
@@ -14,6 +14,7 @@ DeepXDE has been used in
   `Princeton University <https://www.princeton.edu>`_,
   `Imperial College London <https://www.imperial.ac.uk>`_,
   `University of California, Los Angeles <https://www.ucla.edu>`_,
+  `National University of Singapore <https://www.nus.edu.sg>`_,
   `Cornell University <https://www.cornell.edu>`_,
   `Nanyang Technological University <https://www.ntu.edu.sg>`_,
   `New York University Abu Dhabi <https://nyuad.nyu.edu/en>`_,
@@ -33,6 +34,7 @@ DeepXDE has been used in
   `University of Illinois at Urbana-Champaign <https://illinois.edu>`_,
   `Technical University of Munich <https://www.tum.de/en>`_,
   `University of Southern California <https://www.usc.edu>`_,
+  `University of Copenhagen <https://www.ku.dk/english>`_,
   `Pennsylvania State University <https://www.psu.edu>`_,
   `University of California Irvine <https://uci.edu>`_,
   `University of Birmingham <https://www.birmingham.ac.uk/index.aspx>`_,
@@ -52,8 +54,10 @@ DeepXDE has been used in
   `Kyoto University <https://www.kyoto-u.ac.jp/en>`_,
   `University of Liverpool <https://www.liverpool.ac.uk>`_,
   `Texas A&M University <https://www.tamu.edu>`_,
+  `Sun Yat-Sen University <https://www.sysu.edu.cn/sysuen>`_,
   `University of Basel <https://www.unibas.ch/en.html>`_,
   `Arizona State University <https://www.asu.edu>`_,
+  `George Mason University <https://www.gmu.edu>`_,
   `University of Massachusetts Amherst <https://www.umass.edu>`_,
   `Delft University of Technology <https://www.tudelft.nl/en>`_,
   `Tongji University <https://en.tongji.edu.cn>`_,
@@ -148,13 +152,18 @@ DeepXDE has been used in
   `Bundeswehr University Munich <https://www.unibw.de/home-en>`_,
   `Adolfo Ibáñez University <https://www.uai.cl/en>`_,
   `Bauhaus-Universität Weimar <https://www.uni-weimar.de/en/university/start>`_,
-  `Henan Institute of Economics and Trade <https://www.hnjmxy.cn/info/1107/1116.htm>`_
+  `Henan Institute of Economics and Trade <https://www.hnjmxy.cn/info/1107/1116.htm>`_,
   `Swansea University <https://www.swansea.ac.uk>`_,
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_,
   `University of Los Andes <https://uniandes.edu.co/en>`_,
   `Kuwait University <https://kuweb.ku.edu.kw>`_,
-  `Boise State University <https://www.boisestate.edu>`_
+  `University of Engineering and Management <https://uem.edu.in>`_,
+  `Boise State University <https://www.boisestate.edu>`_,
+  `International School for Advanced Studies <https://www.sissa.it>`_,
+  `University of Bayreuth <https://www.uni-bayreuth.de/en>`_,
+  `ITMO University <https://en.itmo.ru>`_,
+  `University of Calcutta <https://www.caluniv.ac.in>`_
 - > 30 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
@@ -187,11 +196,13 @@ DeepXDE has been used in
   `Rutherford Appleton Laboratory <https://www.ukri.org/who-we-are/stfc/locations/rutherford-appleton-laboratory>`_,
   `Mathematical Sciences Research Laboratory <http://math.uth.gr/laboratory/?lang=en>`_,
   `German Aerospace Center <https://www.dlr.de/en>`_,
-  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_
+  `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
+  `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn>`_
 - > 10 industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
+  `Bosch <https://www.bosch.us>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
@@ -208,24 +219,35 @@ PINN
 
 #. J\. Seo. `Solving real-world optimization tasks using physics-informed neural computing <https://www.nature.com/articles/s41598-023-49977-3>`_. *Scientific Reports*, 14(1), 202, 2024.
 #. J\. Wu, Y. Wu, G. Zhang, & Y. Zhang. `Variable linear transformation improved physics-informed neural networks to solve thin-layer flow problems <https://www.sciencedirect.com/science/article/pii/S002199912400010X>`_. *Journal of Computational Physics*, 112761, 2024.
+#. B\. Bhaumik, S. De, & S. Changdar. `Deep learning based solution of nonlinear partial differential equations arising in the process of arterial blood flow <https://www.sciencedirect.com/science/article/pii/S0378475423004469>`_. *Mathematics and Computers in Simulation*, 217, 21-36, 2024. 
+#. D\. Coscia, N. Demo, & G. Rozza. `PINA: a PyTorch framework for solving differential equations by deep learning for research and production environments <https://openreview.net/forum?id=9HSPRDSkwU>`_. *ICLR 2024 Workshop on AI4DifferentialEquations In Science*, 2024.
+#. S\. Liu, C. Su, J. Yao, Z. Hao, H. Su, Y. Wu, & J. Zhu. `Preconditioning for physics-informed neural networks <https://arxiv.org/abs/2402.00531>` *arXiv preprint arXiv:2402.00531*, 2024.
 #. N\. Patel, A. Aykutalp, & P. Laguna. `Calculating quasi-normal modes of Schwarzschild black holes with physics informed neural networks <https://arxiv.org/abs/2401.01440>`_. *arXiv preprint arXiv:2401.01440*, 2024.
 #. J\. Li, Y. Lin, & K. Zhang. `Dynamic mode decomposition of the core surface flow inverted from geomagnetic field models <https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2023GL106362>`_. *Geophysical Research Letters*, 51(1), e2023GL106362, 2024.
+#. G\. Lau, A. Hemachandra, S. Ng, & B. Low. `PINNACLE: PINN adaptive colLocation and experimental points selection <https://openreview.net/forum?id=GzNaCp6Vcg>`_. *The Twelfth International Conference on Learning Representations*, 2024.
 #. J\. M. Tucny, M. Durve, A. Montessori, and S. Succi. `Learning of viscosity functions in rarefied gas flows with physics-informed neural networks <https://www.sciencedirect.com/science/article/pii/S0045793023003390>`_. *Computers Fluids*, 269:106114, 2024.
 #. P\. Brendel, V. Medvedev, & A. Rosskopf. `Physics-informed neural networks for magnetostatic problems on axisymmetric transformer geometries <https://ieeexplore.ieee.org/abstract/document/10373037>`_. *IEEE Journal of Emerging and Selected Topics in Industrial Electronics*, 2023.
 #. T\. Zhang, D. Wang, & Y. Lu. `RheologyNet: A physics-informed neural network solution to evaluate the thixotropic properties of cementitious materials <https://doi.org/10.1016/j.cemconres.2023.107157>`_. *Cement and Concrete Research*, 168, 107157, 2023.
 #. S\. C. Salas, A. O. Alvarado, F. Ortega-culaciati, & P. escapil-inchauspé. `Physics informed neural network for quasistatic fault slip forward and inverse problems <https://ci2ma.udec.cl/wonapde2024/abstract/Cobaise.pdf>`_. 2023.
 #. Z\. Wang, R. Keller, X. Deng, K. Hoshino, T. Tanaka, & Y. Nakahira. `Physics-informed representation and learning: Control and risk quantification <https://arxiv.org/abs/2312.10594>`_. *arXiv preprint arXiv:2312.10594*, 2023.
+#. C\. Li, & Z. Han. `Shallow water equations-fused dam-break wave propagation prediction model ensembled with a training process resampling method <https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10396666>`_. *2023 International Conference on Intelligent Computing and Next Generation Networks（ICNGN)*, 1-6. 10.1109/ICNGN59831.2023.10396666. 
+#. X\. Yang, Y. Du, L. Li, Z. Zhou, & X. Zhang. `Physics-Informed Neural Network for Model Prediction and Dynamics Parameter Identification of Collaborative Robot Joints <https://ieeexplore.ieee.org/document/10305255>`_. *IEEE Robotics and Automation Letters*, vol. 8, no. 12, pp. 8462-8469, 2023.
 #. S\. H. Radbakhsh, K. Zandi, & M. Nik-bakht. `Physics-informed neural network for analyzing elastic beam behavior <https://www.dpi-proceedings.com/index.php/shm2023/article/view/36810>`_. *Structural Health Monitoring*, 2023.
 #. J\. Gong, Y. Han, J. Wu, & G. Hu. `Dynamical behavior of a particle-doped multi-segment dielectric elastomer minimal energy structure <https://iopscience.iop.org/article/10.1088/1361-665X/ad126c/meta>`_. *Smart Materials and Structures*, 33(1), 015016, 2023.
 #. S\. Burbulla. `Physics-informed neural networks for transformed geometries and manifolds <https://arxiv.org/abs/2311.15940>`_. *arXiv preprint arXiv:2311.15940*, 2023.
+#. J\. Shi, K. Manjunatha, & S. Reese. `Deep learning-based surrogate modeling of coronary in-stent restenosis <https://onlinelibrary.wiley.com/doi/full/10.1002/pamm.202300090>`_. *Proceedings in Applied Mathematics and Mechanics*, 23, e202300090.
+#. Y\. Jiang, W. Yang, Y. Zhu, & L. Hong. `Entropy structure informed learning for solving inverse problems of differential equations <https://www.sciencedirect.com/science/article/pii/S096007792300958X>`_. *Chaos, Solitons & Fractals*, Volume 175, Part 2, 2023.
+#. A\. Ogueda-Oliva, & P. Seshaiyer. `Literate programming for motivating and teaching neural network-based approaches to solve differential equations <https://www.tandfonline.com/doi/full/10.1080/0020739X.2023.2249901?scroll=top&needAccess=true>`_. *International Journal of Mathematical Education in Science and Technology*, 55(2), 509–542.
 #. B\. Jang, A. A. Kaptanoglu, R. Gaur, S. Pan, M. Landreman, & W. Dorland. `Grad-Shafranov equilibria via data-free physics informed neural networks <https://arxiv.org/abs/2311.13491>`_. *arXiv preprint arXiv:2311.13491*, 2023.
 #. C\. Li. `Enhancing Navier-Stokes flow learning through the level set approach <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4641595>`_. *Available at SSRN 4641595*.
 #. X\. Zhu, X. Hu, & P. Sun. `Physics-informed neural networks for solving dynamic two-phase interface problems <https://epubs.siam.org/doi/abs/10.1137/22M1517081>`_. *SIAM Journal on Scientific Computing*, 45(6), A2912-A2944, 2023.
 #. H\. Patel, A. Panda, T. Nikolaienko, S. Jaso, A. Lopez, & K. Kalyanaraman. `Accurate and fast Fischer-Tropsch reaction microkinetics using PINNs <https://arxiv.org/abs/2311.10456>`_. *arXiv preprint arXiv:2311.10456*, 2023.
 #. J\. Plata Salas. `Física asistida por redes neuronales artificiales <http://repositorioinstitucional.uaslp.mx/xmlui/handle/i/8438>`_. *Repositorio Nacional CONACYT*, 2023.
 #. N\. Namaki, M. R. Eslahchi, & R. Salehi. `The use of physics-informed neural network approach to image restoration via nonlinear PDE tools <https://www.sciencedirect.com/science/article/pii/S0898122123004431>`_. *Computers & Mathematics with Applications*, 152, 355-363, 2023.
+#. A\. Hvatov, D. Aminev, & N. Demyanchuk. `Easy to learn hard to master - how to solve an arbitrary equation with PINN <https://openreview.net/forum?id=0ipxdwZmFR>`_. *NeurIPS 2023 AI for Science Workshop*, 2023.
 #. H\. Son, H. Cho, & H. J. Hwang. `Physics-informed neural networks for microprocessor thermal management model <https://ieeexplore.ieee.org/abstract/document/10305255>`_. *IEEE Access*, 11, 122974-122979, 2023.
 #. S\. Savović, M. Ivanović, & R. Min. `A comparative study of the explicit finite difference method and physics-informed neural networks for solving the Burgers’ equation <https://www.mdpi.com/2075-1680/12/10/982>`_. *Axioms*, 12(10), 982, 2023.
+#. M\. Marian, S. Tremmel. `Physics-Informed Machine Learning—An Emerging Trend in Tribology <https://www.mdpi.com/2075-4442/11/11/463>`_. *Lubricants*, 2023, 11, 463.
 #. L\. S. de Oliveira, L. Kunstmann, D. Pina, D. de Oliveira, & M. Mattoso. `PINNProv: Provenance for physics-informed neural networks <https://ieeexplore.ieee.org/abstract/document/10306106>`_. *In 2023 International Symposium on Computer Architecture and High Performance Computing Workshops (SBAC-PADW) (pp. 16-23). IEEE*, 2023.
 #. Z\. Wang, Z. Zhou, W. Xu, C. Sun, & R. Yan. `Physics informed neural networks for fault severity identification of axial piston pumps <https://www.sciencedirect.com/science/article/pii/S0278612523002030>`_. *Journal of Manufacturing Systems*, 71, 421-437, 2023.
 #. K\. Prantikos, S. Chatzidakis, L. H. Tsoukalas, & A. Heifetz. `Physics-informed neural network with transfer learning (TL-PINN) based on domain similarity measure for prediction of nuclear reactor transients <https://www.nature.com/articles/s41598-023-43325-1>`_. *Scientific Reports*, 13(1), 16840, 2023.
@@ -379,6 +401,7 @@ PINN
 DeepONet
 --------
 
+#. J\. He, S. Kushwaha, J. Park, S. Koric, D. Abueidda, & I. Jasiuk. `Predictions of transient vector solution fields with sequential deep operator network <https://link.springer.com/article/10.1007/s00707-024-03991-2>`_. *Acta Mech*, 2024
 #. K\. Leng, M. Shankar, & J. Thiyagalingam. `Zero coordinate shift: Whetted automatic differentiation for physics-informed operator learning <https://doi.org/10.1016/j.jcp.2024.112904>`_. *Journal of Computational Physics*, 505, 112904, 2024.
 #. M\. Lamarque, L. Bhan, R. Vazquez, & M. Krstic. `Gain Scheduling with a Neural Operator for a Transport PDE with Nonlinear Recirculation <https://arxiv.org/abs/2401.02511>`_. *arXiv preprint arXiv:2401.02511*, 2024.
 #. A\. Xavier. `Solving Heat Conduction Problems with DeepONets <https://mediatum.ub.tum.de/doc/1728141/document.pdf>`_. 2023.
