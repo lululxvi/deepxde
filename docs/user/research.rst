@@ -7,8 +7,8 @@ DeepXDE has been used in
   `Harvard University <https://www.harvard.edu>`_,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
-  `California Institute of Technology <https://www.caltech.edu>`_,
   `University of California, Berkeley <https://www.berkeley.edu>`_,
+  `California Institute of Technology <https://www.caltech.edu>`_,
   `Johns Hopkins University <https://www.jhu.edu>`_,
   `University of Pennsylvania <https://www.upenn.edu>`_,
   `Princeton University <https://www.princeton.edu>`_,
@@ -189,7 +189,11 @@ DeepXDE has been used in
   `German Aerospace Center <https://www.dlr.de/en>`_,
   `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
   `Ecole Polytechnique <https://www.polytechnique.edu/en>`_,
-  `Scuola Superiore Meridionale <https://www.ssm.unina.it>`_
+  `Scuola Superiore Meridionale <https://www.ssm.unina.it>`_,
+  `Mitsubishi Electric Research Laboratories <https://www.merl.com>`_,
+  `Forschungszentrum Jülich <https://fz-juelich.de/de>`_,
+  `China Ship Scientific Research Center <http://www.cssrc.com>`_
+
 
 - > 10 industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
@@ -209,8 +213,8 @@ Here is a list of research papers that used DeepXDE. If you would like your pape
 PINN
 ----
 
-#. S\. K. Vemuri, T. Büchner, & J. Denzler. `Estimating soil hydraulic parameters for unsaturated flow using physics-informed neural networks <https://link.springer.com/chapter/10.1007/978-3-031-63751-3_14>`_. In L. Franco, C. de Mulatier, M. Paszynski, V. V. Krzhizhanovskaya, J. J. Dongarra, & P. M. A. Sloot (Eds.), *Computational Science – ICCS 2024*, pages 338–351, Cham, 2024. Springer Nature Switzerland.
-#. A\. Niewiadomska, P. Maczuga, A. Oliver-Serra, L. Siwik, P. Sepulveda-Salaz, A. Paszyńska, M. Paszyński, & K. Pingali. `Modeling tsunami waves at the coastline of Valparaiso area of Chile with physics-informed neural networks <https://doi.org/10.1007/978-3-030-50431-0_17>`_. In L. Franco, C. de Mulatier, M. Paszynski, V. V. Krzhizhanovskaya, J. J. Dongarra, & P. M. A. Sloot (Eds.), *Computational Science – ICCS 2024*, pages 204–218, Cham, 2024. Springer Nature Switzerland.
+#. S\. K. Vemuri, T. Büchner, & J. Denzler. `Estimating soil hydraulic parameters for unsaturated flow using physics-informed neural networks <https://link.springer.com/chapter/10.1007/978-3-031-63759-9_37>`_. In *International Conference on Computational Science*, 338-351, Cham: Springer Nature Switzerland, 2024, June.
+#. N\. A. Niewiadomska, P. Maczuga, A. Oliver-Serra, L. Siwik, P. Sepulveda-Salaz, A. Paszyńska, M. Paszyński, & K. Pingali. `Modeling tsunami waves at the coastline of Valparaiso area of Chile with physics informed neural networks <https://link.springer.com/chapter/10.1007/978-3-031-63751-3_14>`_. In *International Conference on Computational Science*, 204-218, Cham: Springer Nature Switzerland, 2024, June.
 #. N\. Alzhanov, E. Y. K. Ng, & Y. Zhao. `Three-dimensional physics-informed neural network simulation in coronary artery trees <https://www.mdpi.com/2311-5521/9/7/153>`_. *Fluids*, 9(7), 2024.
 #. S\. Sripada, A. U. Gaitonde, J. A. Weibel, & A. M. Marconnet. `Robust inverse parameter fitting of thermal properties from the laser-based Ångstrom method in the presence of measurement noise using physics-informed neural networks (PINNs) <https://pubs.aip.org/aip/jap/article/135/22/225106/3298073>`_. *Journal of Applied Physics*, 135(22):225106, June 2024.
 #. T\. Zou, T. Yajima, & Y. Kawajiri. `A parameter estimation method for chromatographic separation process based on physics-informed neural network <https://www.sciencedirect.com/science/article/pii/S0021967324004515>`_. *Journal of Chromatography A*, 1730:465077, 2024.
@@ -417,6 +421,18 @@ PINN
 DeepONet
 --------
 
+#. G\. Fabiani, I. G. Kevrekidis, C. Siettos, & A. N. Yannacopoulos. `RandONet: Shallow-networks with random projections for learning linear and nonlinear operators <https://arxiv.org/abs/2406.05470>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
+#. L\. Xiao, G. Mei, & N. Xu. `Knowledge-integrated deep learning for predicting stochastic thermal regime of embankment in permafrost region <https://www.sciencedirect.com/science/article/pii/S1674775524001999>`_. *Journal of Rock Mechanics and Geotechnical Engineering*, 2024.
+#. J\. He, S. Koric, D. Abueidda, A. Najafi, & I. Jasiuk. `Geom-DeepONet: A point-cloud-based deep operator network for field predictions on 3D parameterized geometries <https://www.sciencedirect.com/science/article/pii/S0045782524003864>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
+#. S\. Kushwaha, J. Park, S. Koric, J. He, I. Jasiuk, & D. Abueidda. `Advanced deep operator networks to predict multiphysics solution fields in materials processing and additive manufacturing <https://www.sciencedirect.com/science/article/pii/S2214860424003129>`_. *Additive Manufacturing*, 88:104266, 2024.
+#. S\. Zampini, U. Zerbinati, G. Turkyyiah, & D. Keyes. `PETScML: Second-order solvers for training regression problems in Scientific Machine Learning <https://dl.acm.org/doi/pdf/10.1145/3659914.3659931>`_. In *Proceedings of the Platform for Advanced Scientific Computing Conference*, 1-12, 2024, June.
+#. L\. Branca & A. Pallottini. `Emulating the interstellar medium chemistry with neural operators <https://www.aanda.org/articles/aa/full_html/2024/04/aa49193-24/aa49193-24.html>`_. *Astronomy & Astrophysics*, 684, A203, 2024.
+#. J\. Hayford, J. Goldman-Wetzler, E. Wang, & L. Lu. `Speeding up and reducing memory usage for scientific machine learning via mixed precision <https://www.sciencedirect.com/science/article/pii/S0045782524003499?casa_token=31avikLdx88AAAAA:a8yjXuZxri_9uqq77fqgwOagngb31SMJN0kmshDpto_TO3oJ1Lb0KlhqrGcTiTleTP1zHKh9fec>`_. *Computer Methods in Applied Mechanics and Engineering*, 428, 117093, 2024.
+#. K\. Kobayashi, J. Daniell, & S.B. Alam. `Improved generalization with deep neural operators for engineering systems: Path towards digital twin <https://www.sciencedirect.com/science/article/pii/S0952197624000022#d1e4572>`_. *Engineering Applications of Artificial Intelligence*, 131, 107844, 2024.
+#. K\. Kobayashi & S.B. Alam. `Deep neural operator-driven real-time inference to enable digital twin solutions for nuclear energy systems <https://www.nature.com/articles/s41598-024-51984-x#Abs1>`_. *Scientific Reports*, 14, 2101, 2024.
+#. H\. Liu, B. Dahal, R. Lai, & W. Liao. `Generalization error guaranteed auto-encoder-based nonlinear model reduction for operator learning <https://arxiv.org/abs/2401.10490>`_. *arXiv preprint* arXiv:2401.10490, 2024.
+#. J\. He, D. Pal, A. Najafi, D. Abueidda, S. Koric, & I. Jasiuk. `Material-response-informed DeepONet and its application to polycrystal stress–strain prediction in crystal plasticity <https://link.springer.com/article/10.1007/s11837-024-06681-5>`_. *JOM*, 1-11, 2024.
+#. M\. Lamarque, L. Bhan, Y. Shi, & M. Krstic. `Adaptive neural-operator backstepping control of a benchmark hyperbolic PDE <https://arxiv.org/abs/2401.07862>`_. *arXiv preprint* arXiv:2401.07862, 2024.
 #. K\. Leng, M. Shankar, & J. Thiyagalingam. `Zero coordinate shift: Whetted automatic differentiation for physics-informed operator learning <https://doi.org/10.1016/j.jcp.2024.112904>`_. *Journal of Computational Physics*, 505, 112904, 2024.
 #. M\. Lamarque, L. Bhan, R. Vazquez, & M. Krstic. `Gain Scheduling with a Neural Operator for a Transport PDE with Nonlinear Recirculation <https://arxiv.org/abs/2401.02511>`_. *arXiv preprint arXiv:2401.02511*, 2024.
 #. A\. Xavier. `Solving Heat Conduction Problems with DeepONets <https://mediatum.ub.tum.de/doc/1728141/document.pdf>`_. 2023.
