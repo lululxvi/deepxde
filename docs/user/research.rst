@@ -199,10 +199,10 @@ DeepXDE has been used in
   `Materials Center Leoben Forschung GmbH <https://www.mcl.at>`_,
   `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn>`_
 - > 10 industry, e.g.,
-  `Bosch <https://www.bosch.us>`_,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
+  `Bosch <https://www.bosch.us>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
   `General Motors <https://www.gm.com>`_,
   `RocketML <https://www.rocketml.net>`_,
@@ -219,8 +219,8 @@ PINN
 
 #. J\. Seo. `Solving real-world optimization tasks using physics-informed neural computing <https://www.nature.com/articles/s41598-023-49977-3>`_. *Scientific Reports*, 14(1), 202, 2024.
 #. J\. Wu, Y. Wu, G. Zhang, & Y. Zhang. `Variable linear transformation improved physics-informed neural networks to solve thin-layer flow problems <https://www.sciencedirect.com/science/article/pii/S002199912400010X>`_. *Journal of Computational Physics*, 112761, 2024.
-#. B\. Bhaumik, S. De, & S. Changdar. `Deep learning based solution of nonlinear partial differential equations arising in the process of arterial blood flow <https://www.sciencedirect.com/science/article/pii/S0378475423004469>`_. *Mathematics and Computers in Simulation*, 217. 21-36. 
-#. D\. Coscia, N. Demo, & G. Rozza. `PINA: a PyTorch Framework for Solving Differential Equations by Deep Learning for Research and Production Environments <https://openreview.net/forum?id=9HSPRDSkwU>`_. *ICLR 2024 Workshop on AI4DifferentialEquations In Science*, 2024.
+#. B\. Bhaumik, S. De, & S. Changdar. `Deep learning based solution of nonlinear partial differential equations arising in the process of arterial blood flow <https://www.sciencedirect.com/science/article/pii/S0378475423004469>`_. *Mathematics and Computers in Simulation*, 217, 21-36, 2024. 
+#. D\. Coscia, N. Demo, & G. Rozza. `PINA: a PyTorch framework for solving differential equations by deep learning for research and production environments <https://openreview.net/forum?id=9HSPRDSkwU>`_. *ICLR 2024 Workshop on AI4DifferentialEquations In Science*, 2024.
 #. S\. Liu, C. Su, J. Yao, Z. Hao, H. Su, Y. Wu, & J. Zhu. `Preconditioning for Physics-Informed Neural Networks <https://arxiv.org/abs/2402.00531>` *arXiv preprint arXiv:2402.00531*, 2024.
 #. N\. Patel, A. Aykutalp, & P. Laguna. `Calculating quasi-normal modes of Schwarzschild black holes with physics informed neural networks <https://arxiv.org/abs/2401.01440>`_. *arXiv preprint arXiv:2401.01440*, 2024.
 #. J\. Li, Y. Lin, & K. Zhang. `Dynamic mode decomposition of the core surface flow inverted from geomagnetic field models <https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2023GL106362>`_. *Geophysical Research Letters*, 51(1), e2023GL106362, 2024.
