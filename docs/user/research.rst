@@ -3,7 +3,7 @@ Research
 
 DeepXDE has been used in
 
-- > 150 universities, e.g.,
+- > 170 universities, e.g.,
   `Harvard University <https://www.harvard.edu>`_,
   `Massachusetts Institute of Technology <https://www.mit.edu>`_,
   `Stanford University <https://www.stanford.edu>`_,
@@ -178,7 +178,7 @@ DeepXDE has been used in
   `Henan Institute of Economics and Trade <https://www.hnjmxy.cn/info/1107/1116.htm>`_
   `National University of Defence Technology <https://english.nudt.edu.cn/About/index.htm>`_,
   `University of Applied Sciences and Arts Northwestern Switzerland <https://www.fhnw.ch/en/startseiteu>`_
-- > 30 national labs and research institutes, e.g.,
+- > 35 national labs and research institutes, e.g.,
   `Pacific Northwest National Laboratory <https://www.pnnl.gov>`_,
   `Sandia National Laboratories <https://www.sandia.gov>`_,
   `Argonne National Laboratory <https://www.anl.gov>`_,
@@ -256,9 +256,9 @@ PINN
 #. K\. Yuan, C. Bauinger, X. Zhang, P. Baehr, M. Kirchhart, D. Dabert, A. Tousnakhoff, P. Boudier, & M. Paulitsch. `Fully-fused multi-layer perceptrons on Intel data center GPUs <https://arxiv.org/abs/2403.17607>`_, 2024.
 #. L\. Shang, Y. Zhao, S. Zheng, J. Wang, T. Zhang, & J. Wang. `Quantification of gradient energy coefficients using physics-informed neural networks <https://www.sciencedirect.com/science/article/pii/S0020740324002522?casa_token=9E3Upu578F4AAAAA:8RPvmzLpg_z8swjLiaxKITEUKMJ6nZCP9lhp_P4fJynko0zucCJIbGGqscoe6oZ9tkNGtAg>`_. *International Journal of Mechanical Sciences*, 273:109210, 2024.
 #. Z\. Zhang, C. Lin, & B. Wang. `Physics-informed shape optimization using coordinate projection <https://www.nature.com/articles/s41598-024-57137-4>`_. *Scientific Reports*, 14, 6537, 2024.
-#. S\. Schoder & F. Kraxberger. `Feasibility study on solving the Helmholtz equation in 3D with PINNs <https://arxiv.org/abs/2403.06623>`_. *arXiv preprint* arXiv:2403.06623, 2024.
-#. V\. Trávníková, D. Wolff, N. Dirkes, S. Elgeti, E. von Lieres, & M. Behr. `A model hierarchy for predicting the flow in stirred tanks with physics-informed neural networks <https://arxiv.org/abs/2403.04576>`_. *arXiv preprint* arXiv:2403.04576, 2024.
-#. J\. S. Arnaud, T. Mark, & C.J. McDevitt. `A physics-constrained deep learning surrogate model of the runaway electron avalanche growth rate <https://arxiv.org/abs/2403.04948>`_. *arXiv preprint* arXiv:2403.04948, 2024.
+#. S\. Schoder & F. Kraxberger. `Feasibility study on solving the Helmholtz equation in 3D with PINNs <https://arxiv.org/abs/2403.06623>`_. *arXiv preprint arXiv:2403.06623*, 2024.
+#. V\. Trávníková, D. Wolff, N. Dirkes, S. Elgeti, E. von Lieres, & M. Behr. `A model hierarchy for predicting the flow in stirred tanks with physics-informed neural networks <https://arxiv.org/abs/2403.04576>`_. *arXiv preprint arXiv:2403.04576*, 2024.
+#. J\. S. Arnaud, T. Mark, & C.J. McDevitt. `A physics-constrained deep learning surrogate model of the runaway electron avalanche growth rate <https://arxiv.org/abs/2403.04948>`_. *arXiv preprint arXiv:2403.04948*, 2024.
 #. Y\. D. Hu, X.H. Wang, H. Zhou, & L. Wang. `A priori knowledge-based physics-informed neural networks for electromagnetic inverse scattering <https://ieeexplore.ieee.org/abstract/document/10454009?casa_token=yr3UALpvk1wAAAAA:V7o4wHaZxCBbqqkhpj2NCrs498gBPnIkUVnzunR4rqvDwi7HKyxRHUMEaJl7ZFRgtkhrLxbqtSw>`_. *IEEE Transactions on Geoscience and Remote Sensing*, 2024.
 #. R\. C. Sotero, J.M. Sanchez-Bornot, & I. Shaharabi-Farahani. `Parameter estimation in brain dynamics models from resting-state fMRI data using physics-informed neural networks <https://www.biorxiv.org/content/10.1101/2024.02.27.582428v1.full.pdf>`_. *bioRxiv*, 2024-02.
 #. W\. Wu, M. Daneker, K.T. Turner, M.A. Jolley, & L. Lu. `Identifying heterogeneous micromechanical properties of biological tissues via physics-informed neural networks <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11092874/pdf/nihpp-2402.10741v2.pdf>`_. *ArXiv*, 2024.
@@ -442,6 +442,7 @@ PINN
 DeepONet
 --------
 
+#. A\. Jiao, Q. Yan, J. Harlim, & L. Lu. `Solving forward and inverse PDE problems on unknown manifolds via physics-informed neural operators <https://arxiv.org/abs/2407.05477v1>`_. *arXiv preprint arXiv:2407.05477v1*, 2024.
 #. G\. Fabiani, I. G. Kevrekidis, C. Siettos, & A. N. Yannacopoulos. `RandONet: Shallow-networks with random projections for learning linear and nonlinear operators <https://arxiv.org/abs/2406.05470>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
 #. L\. Xiao, G. Mei, & N. Xu. `Knowledge-integrated deep learning for predicting stochastic thermal regime of embankment in permafrost region <https://www.sciencedirect.com/science/article/pii/S1674775524001999>`_. *Journal of Rock Mechanics and Geotechnical Engineering*, 2024.
 #. J\. He, S. Koric, D. Abueidda, A. Najafi, & I. Jasiuk. `Geom-DeepONet: A point-cloud-based deep operator network for field predictions on 3D parameterized geometries <https://www.sciencedirect.com/science/article/pii/S0045782524003864>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
@@ -451,9 +452,9 @@ DeepONet
 #. J\. Hayford, J. Goldman-Wetzler, E. Wang, & L. Lu. `Speeding up and reducing memory usage for scientific machine learning via mixed precision <https://www.sciencedirect.com/science/article/pii/S0045782524003499?casa_token=31avikLdx88AAAAA:a8yjXuZxri_9uqq77fqgwOagngb31SMJN0kmshDpto_TO3oJ1Lb0KlhqrGcTiTleTP1zHKh9fec>`_. *Computer Methods in Applied Mechanics and Engineering*, 428, 117093, 2024.
 #. K\. Kobayashi, J. Daniell, & S.B. Alam. `Improved generalization with deep neural operators for engineering systems: Path towards digital twin <https://www.sciencedirect.com/science/article/pii/S0952197624000022#d1e4572>`_. *Engineering Applications of Artificial Intelligence*, 131, 107844, 2024.
 #. K\. Kobayashi & S.B. Alam. `Deep neural operator-driven real-time inference to enable digital twin solutions for nuclear energy systems <https://www.nature.com/articles/s41598-024-51984-x#Abs1>`_. *Scientific Reports*, 14, 2101, 2024.
-#. H\. Liu, B. Dahal, R. Lai, & W. Liao. `Generalization error guaranteed auto-encoder-based nonlinear model reduction for operator learning <https://arxiv.org/abs/2401.10490>`_. *arXiv preprint* arXiv:2401.10490, 2024.
+#. H\. Liu, B. Dahal, R. Lai, & W. Liao. `Generalization error guaranteed auto-encoder-based nonlinear model reduction for operator learning <https://arxiv.org/abs/2401.10490>`_. *arXiv preprint arXiv:2401.10490*, 2024.
 #. J\. He, D. Pal, A. Najafi, D. Abueidda, S. Koric, & I. Jasiuk. `Material-response-informed DeepONet and its application to polycrystal stress–strain prediction in crystal plasticity <https://link.springer.com/article/10.1007/s11837-024-06681-5>`_. *JOM*, 1-11, 2024.
-#. M\. Lamarque, L. Bhan, Y. Shi, & M. Krstic. `Adaptive neural-operator backstepping control of a benchmark hyperbolic PDE <https://arxiv.org/abs/2401.07862>`_. *arXiv preprint* arXiv:2401.07862, 2024.
+#. M\. Lamarque, L. Bhan, Y. Shi, & M. Krstic. `Adaptive neural-operator backstepping control of a benchmark hyperbolic PDE <https://arxiv.org/abs/2401.07862>`_. *arXiv preprint arXiv:2401.07862*, 2024.
 #. K\. Leng, M. Shankar, & J. Thiyagalingam. `Zero coordinate shift: Whetted automatic differentiation for physics-informed operator learning <https://doi.org/10.1016/j.jcp.2024.112904>`_. *Journal of Computational Physics*, 505, 112904, 2024.
 #. M\. Lamarque, L. Bhan, R. Vazquez, & M. Krstic. `Gain Scheduling with a Neural Operator for a Transport PDE with Nonlinear Recirculation <https://arxiv.org/abs/2401.02511>`_. *arXiv preprint arXiv:2401.02511*, 2024.
 #. A\. Xavier. `Solving Heat Conduction Problems with DeepONets <https://mediatum.ub.tum.de/doc/1728141/document.pdf>`_. 2023.
@@ -495,4 +496,4 @@ Multi-fidelity NN
 Others
 ------
 
-#. A\. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2021.
+#. A\. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2024.
