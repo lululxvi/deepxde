@@ -466,6 +466,7 @@ DeepONet
 
 #. A\. Jiao, Q. Yan, J. Harlim, & L. Lu. `Solving forward and inverse PDE problems on unknown manifolds via physics-informed neural operators <https://arxiv.org/abs/2407.05477v1>`_. *arXiv preprint arXiv:2407.05477v1*, 2024.
 #. G\. Fabiani, I. G. Kevrekidis, C. Siettos, & A. N. Yannacopoulos. `RandONet: Shallow-networks with random projections for learning linear and nonlinear operators <https://arxiv.org/abs/2406.05470>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
+#. A\. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2024.
 #. L\. Xiao, G. Mei, & N. Xu. `Knowledge-integrated deep learning for predicting stochastic thermal regime of embankment in permafrost region <https://www.sciencedirect.com/science/article/pii/S1674775524001999>`_. *Journal of Rock Mechanics and Geotechnical Engineering*, 2024.
 #. J\. He, S. Koric, D. Abueidda, A. Najafi, & I. Jasiuk. `Geom-DeepONet: A point-cloud-based deep operator network for field predictions on 3D parameterized geometries <https://www.sciencedirect.com/science/article/pii/S0045782524003864>`_. *Computer Methods in Applied Mechanics and Engineering*, 429:117130, 2024.
 #. S\. Kushwaha, J. Park, S. Koric, J. He, I. Jasiuk, & D. Abueidda. `Advanced deep operator networks to predict multiphysics solution fields in materials processing and additive manufacturing <https://www.sciencedirect.com/science/article/pii/S2214860424003129>`_. *Additive Manufacturing*, 88:104266, 2024.
@@ -517,5 +518,3 @@ Multi-fidelity NN
 
 Others
 ------
-
-#. A\. Jiao, H. He, R. Ranade, J. Pathak, & L. Lu. `One-shot learning for solution operators of partial differential equations <https://arxiv.org/abs/2104.05512>`_. *arXiv preprint arXiv:2104.05512*, 2024.
