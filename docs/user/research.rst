@@ -138,7 +138,7 @@ DeepXDE has been used in
   `University of Stuttgart <https://www.uni-stuttgart.de/en>`_,
   `Universidad de salamanca <https://www.usal.es/universidad-de-salamanca>`_,
   `Harbin Engineering University <https://english.hrbeu.edu.cn>`_,
-  `Universiti Teknologi Petronas <https://www.utp.edu.my/Pages>`_,
+  `Universiti Teknologi Petronas <https://www.utp.edu.my>`_,
   `ITMO University <https://en.itmo.ru>`_,
   `University of Nevada, Las Vegas <https://www.unlv.edu>`_,
   `University of Bayreuth <https://www.uni-bayreuth.de/en>`_,
@@ -258,7 +258,7 @@ PINN
 #. H\. Nganguia & D. Palaniappan. `Ciliary propulsion through non-uniform flows <https://www.cambridge.org/core/journals/journal-of-fluid-mechanics/article/ciliary-propulsion-through-nonuniform-flows/124528EA9A3D0C1E4FC14A4B185FB949>`_. *Journal of Fluid Mechanics*, 986:A14, 2024.
 #. A\. T. Deresse & T. T. Dufera. `Exploring physics-informed neural networks for the generalized nonlinear Sine-Gordon equation <https://onlinelibrary.wiley.com/doi/full/10.1155/2024/3328977>`_. *Applied Computational Intelligence and Soft Computing*, 2024(1):3328977, 2024.
 #. H\. Qiumei, M. Jiaxuan, & X. Zhen. `Mass-preserving spatio-temporal adaptive PINN for Cahn-Hilliard equations with strong nonlinearity and singularity <https://arxiv.org/pdf/2404.18054>`_, 2024.
-#. Z.\ Zhang, J.-H. Lee, L. Sun, & G. X. Gu. `Weak-formulated physics-informed modeling and optimization for heterogeneous digital materials <https://academic.oup.com/pnasnexus/article/3/5/pgae186/7667149>`_. *J PNAS Nexus*, 3(5):pgae186, May 2024.
+#. Z.\ Zhang, J.-H. Lee, L. Sun, & G. X. Gu. `Weak-formulated physics-informed modeling and optimization for heterogeneous digital materials <https://academic.oup.com/pnasnexus/article/3/5/pgae186/7667149>`_. *PNAS Nexus*, 3(5):pgae186, May 2024.
 #. S\. Gao, Q. Li, M. A. Gosalvez, X. Lin, Y. Xing, & Z. Zhou. `Helium focused ion beam damage in silicon: Physics-informed neural network modeling of Helium bubble nucleation and early growth <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4795077>`_, 2024.
 #. J\. Son, N. Park, H. Kwak, & J. Nam. `Optimizing a physics-informed machine learning model for pulsatile shear-thinning channel flow <https://www.jstage.jst.go.jp/article/rheology/52/2/52_113/_article/-char/ja>`_. *Journal of the Japanese Society of Rheology*, 52(2):113–122, 2024.
 #. Raeisi, E., Yavuz, M., Khosravifarsani, M., & Fadaei, Y. `Mathematical modeling of interactions between colon cancer and immune system with a deep learning algorithm <https://epjplus.epj.org/articles/epjplus/abs/2024/04/13360_2024_Article_5111/13360_2024_Article_5111.html>`_. *Eur. Phys. J. Plus*, 139(4):345, 2024.
