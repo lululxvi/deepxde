@@ -461,7 +461,7 @@ PINN
 #. G\. Pang, L. Lu, & G. Karniadakis. `fPINNs: Fractional physics-informed neural networks <https://doi.org/10.1137/18M1229845>`_. *SIAM Journal on Scientific Computing*, 41(4), A2603--A2626, 2019.
 #. D\. Zhang, L. Lu, L. Guo, & G. Karniadakis. `Quantifying total uncertainty in physics-informed neural networks for solving forward and inverse stochastic problems <https://doi.org/10.1016/j.jcp.2019.07.048>`_. *Journal of Computational Physics*, 397, 108850, 2019.
 
-DeepONet
+Deep neural operators
 --------
 
 #. A\. Jiao, Q. Yan, J. Harlim, & L. Lu. `Solving forward and inverse PDE problems on unknown manifolds via physics-informed neural operators <https://arxiv.org/abs/2407.05477v1>`_. *arXiv preprint arXiv:2407.05477v1*, 2024.
