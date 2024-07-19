@@ -80,7 +80,8 @@ class SplitBothStrategy(DeepONetStrategy):
             )
         if branch.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
+                f"Output size of the branch net is not "
+                f"evenly divisible by {self.net.num_outputs}."
             )
         branch_groups = tf.split(
             branch, num_or_size_splits=self.net.num_outputs, axis=1
@@ -100,11 +101,13 @@ class SplitBranchStrategy(DeepONetStrategy):
         branch, trunk = self._build_branch_and_trunk()
         if branch.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
+                "Output size of the branch net is not evenly "
+                f"divisible by {self.net.num_outputs}."
             )
         if branch.shape[-1] / self.net.num_outputs != trunk.shape[-1]:
             raise AssertionError(
-                f"Output size of the trunk net does not equal to {branch.shape[-1] // self.net.num_outputs}."
+                "Output size of the trunk net does not equal "
+                f"to {branch.shape[-1] // self.net.num_outputs}."
             )
         branch_groups = tf.split(
             branch, num_or_size_splits=self.net.num_outputs, axis=1
@@ -123,11 +126,13 @@ class SplitTrunkStrategy(DeepONetStrategy):
         branch, trunk = self._build_branch_and_trunk()
         if trunk.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                f"Output size of the trunk net is not evenly divisible by {self.net.num_outputs}."
+                "Output size of the trunk net is not evenly "
+                f"divisible by {self.net.num_outputs}."
             )
         if trunk.shape[-1] / self.net.num_outputs != branch.shape[-1]:
             raise AssertionError(
-                f"Output size of the branch net does not equal to {trunk.shape[-1] // self.net.num_outputs}."
+                "Output size of the branch net does not equal "
+                f"to {trunk.shape[-1] // self.net.num_outputs}."
             )
         trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
         ys = []
@@ -155,13 +160,13 @@ class DeepONet(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the same rate is used in
-            both trunk and branch nets. If `dropout_rate` is a ``dict``, then the trunk
-            net uses the rate `dropout_rate["trunk"]`, and the branch net uses
-            `dropout_rate["branch"]`. Both `dropout_rate["trunk"]` and `dropout_rate["branch"]`
-            should be ``float`` or lists of ``float``. The list length should match
-            the length of `layer_size_trunk` - 1 for the trunk net and `layer_size_branch` - 2 for
-            the branch net.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
+            The list length should match the length of `layer_size_trunk` - 1 for the
+            trunk net and `layer_size_branch` - 2 for the branch net.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
         num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
@@ -233,7 +238,8 @@ class DeepONet(NN):
         if isinstance(self.dropout_rate_branch, list):
             if not (len(layer_sizes_branch) - 2) == len(self.dropout_rate_branch):
                 raise ValueError(
-                    f"Number of dropout rates of branch net must be equal to {len(layer_sizes_branch) - 2}"
+                    "Number of dropout rates of branch net must be "
+                    f"equal to {len(layer_sizes_branch) - 2}"
                 )
         else:
             self.dropout_rate_branch = [self.dropout_rate_branch] * (
@@ -242,7 +248,8 @@ class DeepONet(NN):
         if isinstance(self.dropout_rate_trunk, list):
             if not (len(layer_sizes_trunk) - 1) == len(self.dropout_rate_trunk):
                 raise ValueError(
-                    f"Number of dropout rates of trunk net must be equal to {len(layer_sizes_trunk) - 1}"
+                    "Number of dropout rates of trunk net must be "
+                    f"equal to {len(layer_sizes_trunk) - 1}"
                 )
         else:
             self.dropout_rate_trunk = [self.dropout_rate_trunk] * (
@@ -486,13 +493,13 @@ class DeepONetCartesianProd(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the same rate is used in
-            both trunk and branch nets. If `dropout_rate` is a ``dict``, then the trunk
-            net uses the rate `dropout_rate["trunk"]`, and the branch net uses
-            `dropout_rate["branch"]`. Both `dropout_rate["trunk"]` and `dropout_rate["branch"]`
-            should be ``float`` or lists of ``float``. The list length should match
-            the length of `layer_size_trunk` - 1 for the trunk net and `layer_size_branch` - 2 for
-            the branch net.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
+            The list length should match the length of `layer_size_trunk` - 1 for the
+            trunk net and `layer_size_branch` - 2 for the branch net.
         num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
             `multi_output_strategy` below should be set.
         multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
@@ -550,7 +557,8 @@ class DeepONetCartesianProd(NN):
         if isinstance(self.dropout_rate_branch, list):
             if not (len(layer_size_branch) - 2) == len(self.dropout_rate_branch):
                 raise ValueError(
-                    f"Number of dropout rates of branch net must be equal to {len(layer_size_branch) - 2}"
+                    "Number of dropout rates of branch net must be "
+                    f"equal to {len(layer_size_branch) - 2}"
                 )
         else:
             self.dropout_rate_branch = [self.dropout_rate_branch] * (
@@ -559,7 +567,8 @@ class DeepONetCartesianProd(NN):
         if isinstance(self.dropout_rate_trunk, list):
             if not (len(layer_size_trunk) - 1) == len(self.dropout_rate_trunk):
                 raise ValueError(
-                    f"Number of dropout rates of trunk net must be equal to {len(layer_size_trunk) - 1}"
+                    "Number of dropout rates of trunk net must be "
+                    f"equal to {len(layer_size_trunk) - 1}"
                 )
         else:
             self.dropout_rate_trunk = [self.dropout_rate_trunk] * (
