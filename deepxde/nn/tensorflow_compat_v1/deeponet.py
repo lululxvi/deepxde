@@ -80,8 +80,7 @@ class SplitBothStrategy(DeepONetStrategy):
             )
         if branch.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                f"Output size of the branch net is not "
-                f"evenly divisible by {self.net.num_outputs}."
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
             )
         branch_groups = tf.split(
             branch, num_or_size_splits=self.net.num_outputs, axis=1
@@ -101,13 +100,11 @@ class SplitBranchStrategy(DeepONetStrategy):
         branch, trunk = self._build_branch_and_trunk()
         if branch.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                "Output size of the branch net is not evenly "
-                f"divisible by {self.net.num_outputs}."
+                f"Output size of the branch net is not evenly divisible by {self.net.num_outputs}."
             )
         if branch.shape[-1] / self.net.num_outputs != trunk.shape[-1]:
             raise AssertionError(
-                "Output size of the trunk net does not equal "
-                f"to {branch.shape[-1] // self.net.num_outputs}."
+                f"Output size of the trunk net does not equal to {branch.shape[-1] // self.net.num_outputs}."
             )
         branch_groups = tf.split(
             branch, num_or_size_splits=self.net.num_outputs, axis=1
@@ -126,13 +123,11 @@ class SplitTrunkStrategy(DeepONetStrategy):
         branch, trunk = self._build_branch_and_trunk()
         if trunk.shape[-1] % self.net.num_outputs != 0:
             raise AssertionError(
-                "Output size of the trunk net is not evenly "
-                f"divisible by {self.net.num_outputs}."
+                f"Output size of the trunk net is not evenly divisible by {self.net.num_outputs}."
             )
         if trunk.shape[-1] / self.net.num_outputs != branch.shape[-1]:
             raise AssertionError(
-                "Output size of the branch net does not equal "
-                f"to {trunk.shape[-1] // self.net.num_outputs}."
+                f"Output size of the branch net does not equal to {trunk.shape[-1] // self.net.num_outputs}."
             )
         trunk_groups = tf.split(trunk, num_or_size_splits=self.net.num_outputs, axis=1)
         ys = []
