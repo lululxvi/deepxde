@@ -155,7 +155,13 @@ class DeepONet(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        dropout_rate (float): The dropout rate, between 0 and 1.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
+            The list length should match the length of `layer_size_trunk` - 1 for the
+            trunk net and `layer_size_branch` - 2 for the branch net.
         trainable_branch: Boolean.
         trainable_trunk: Boolean or a list of booleans.
         num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
@@ -219,7 +225,31 @@ class DeepONet(NN):
                 "stacked " + kernel_initializer
             )
         self.regularizer = regularizers.get(regularization)
-        self.dropout_rate = dropout_rate
+        if isinstance(dropout_rate, dict):
+            self.dropout_rate_branch = dropout_rate["branch"]
+            self.dropout_rate_trunk = dropout_rate["trunk"]
+        else:
+            self.dropout_rate_branch = self.dropout_rate_trunk = dropout_rate
+        if isinstance(self.dropout_rate_branch, list):
+            if not (len(layer_sizes_branch) - 2) == len(self.dropout_rate_branch):
+                raise ValueError(
+                    "Number of dropout rates of branch net must be "
+                    f"equal to {len(layer_sizes_branch) - 2}"
+                )
+        else:
+            self.dropout_rate_branch = [self.dropout_rate_branch] * (
+                len(layer_sizes_branch) - 2
+            )
+        if isinstance(self.dropout_rate_trunk, list):
+            if not (len(layer_sizes_trunk) - 1) == len(self.dropout_rate_trunk):
+                raise ValueError(
+                    "Number of dropout rates of trunk net must be "
+                    f"equal to {len(layer_sizes_trunk) - 1}"
+                )
+        else:
+            self.dropout_rate_trunk = [self.dropout_rate_trunk] * (
+                len(layer_sizes_trunk) - 1
+            )
         self.use_bias = use_bias
         self.stacked = stacked
         self.trainable_branch = trainable_branch
@@ -303,9 +333,11 @@ class DeepONet(NN):
                     activation=self.activation_branch,
                     trainable=self.trainable_branch,
                 )
-                if self.dropout_rate > 0:
+                if self.dropout_rate_branch[i - 1] > 0:
                     y_func = tf.layers.dropout(
-                        y_func, rate=self.dropout_rate, training=self.training
+                        y_func,
+                        rate=self.dropout_rate_branch[i - 1],
+                        training=self.training,
                     )
             y_func = self._stacked_dense(
                 y_func,
@@ -324,9 +356,11 @@ class DeepONet(NN):
                     regularizer=self.regularizer,
                     trainable=self.trainable_branch,
                 )
-                if self.dropout_rate > 0:
+                if self.dropout_rate_branch[i - 1] > 0:
                     y_func = tf.layers.dropout(
-                        y_func, rate=self.dropout_rate, training=self.training
+                        y_func,
+                        rate=self.dropout_rate_branch[i - 1],
+                        training=self.training,
                     )
             y_func = self._dense(
                 y_func,
@@ -351,9 +385,9 @@ class DeepONet(NN):
                 if isinstance(self.trainable_trunk, (list, tuple))
                 else self.trainable_trunk,
             )
-            if self.dropout_rate > 0:
+            if self.dropout_rate_trunk[i - 1] > 0:
                 y_loc = tf.layers.dropout(
-                    y_loc, rate=self.dropout_rate, training=self.training
+                    y_loc, rate=self.dropout_rate_trunk[i - 1], training=self.training
                 )
         return y_loc
 
@@ -454,7 +488,13 @@ class DeepONetCartesianProd(NN):
             both trunk and branch nets. If `activation` is a ``dict``, then the trunk
             net uses the activation `activation["trunk"]`, and the branch net uses
             `activation["branch"]`.
-        dropout_rate (float): The dropout rate, between 0 and 1.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
+            The list length should match the length of `layer_size_trunk` - 1 for the
+            trunk net and `layer_size_branch` - 2 for the branch net.
         num_outputs (integer): Number of outputs. In case of multiple outputs, i.e., `num_outputs` > 1,
             `multi_output_strategy` below should be set.
         multi_output_strategy (str or None): ``None``, "independent", "split_both", "split_branch" or
@@ -504,7 +544,31 @@ class DeepONetCartesianProd(NN):
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.regularizer = regularizers.get(regularization)
-        self.dropout_rate = dropout_rate
+        if isinstance(dropout_rate, dict):
+            self.dropout_rate_branch = dropout_rate["branch"]
+            self.dropout_rate_trunk = dropout_rate["trunk"]
+        else:
+            self.dropout_rate_branch = self.dropout_rate_trunk = dropout_rate
+        if isinstance(self.dropout_rate_branch, list):
+            if not (len(layer_size_branch) - 2) == len(self.dropout_rate_branch):
+                raise ValueError(
+                    "Number of dropout rates of branch net must be "
+                    f"equal to {len(layer_size_branch) - 2}"
+                )
+        else:
+            self.dropout_rate_branch = [self.dropout_rate_branch] * (
+                len(layer_size_branch) - 2
+            )
+        if isinstance(self.dropout_rate_trunk, list):
+            if not (len(layer_size_trunk) - 1) == len(self.dropout_rate_trunk):
+                raise ValueError(
+                    "Number of dropout rates of trunk net must be "
+                    f"equal to {len(layer_size_trunk) - 1}"
+                )
+        else:
+            self.dropout_rate_trunk = [self.dropout_rate_trunk] * (
+                len(layer_size_trunk) - 1
+            )
         self._inputs = None
 
         self.num_outputs = num_outputs
@@ -571,9 +635,11 @@ class DeepONetCartesianProd(NN):
                     kernel_initializer=self.kernel_initializer,
                     kernel_regularizer=self.regularizer,
                 )
-                if self.dropout_rate > 0:
+                if self.dropout_rate_branch[i - 1] > 0:
                     y_func = tf.layers.dropout(
-                        y_func, rate=self.dropout_rate, training=self.training
+                        y_func,
+                        rate=self.dropout_rate_branch[i - 1],
+                        training=self.training,
                     )
             y_func = tf.layers.dense(
                 y_func,
@@ -596,9 +662,9 @@ class DeepONetCartesianProd(NN):
                 kernel_initializer=self.kernel_initializer,
                 kernel_regularizer=self.regularizer,
             )
-            if self.dropout_rate > 0:
+            if self.dropout_rate_trunk[i - 1] > 0:
                 y_loc = tf.layers.dropout(
-                    y_loc, rate=self.dropout_rate, training=self.training
+                    y_loc, rate=self.dropout_rate_trunk[i - 1], training=self.training
                 )
         return y_loc
 
