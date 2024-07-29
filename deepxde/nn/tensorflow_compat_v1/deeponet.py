@@ -267,7 +267,7 @@ class DeepONet(NN):
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
-                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
                 'Use "independent" as the multi_output_strategy.'
             )
         self.multi_output_strategy = {
@@ -580,7 +580,7 @@ class DeepONetCartesianProd(NN):
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
             print(
-                "Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
                 'Use "independent" as the multi_output_strategy.'
             )
         self.multi_output_strategy = {
