@@ -227,6 +227,7 @@ DeepXDE has been used in
 - > 10 industry, e.g.,
   `Anailytica <https://anailytica.com>`_,
   `Ansys <https://www.ansys.com>`_,
+  `BioME <https://biome-science.com>`_,
   `BirenTech Research <https://www.birentech.com>`_,
   `Bosch <https://www.bosch.us>`_,
   `ExxonMobil <https://corporate.exxonmobil.com>`_,
