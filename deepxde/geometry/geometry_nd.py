@@ -81,6 +81,37 @@ class Hypercube(Geometry):
             )
         return x
 
+    def uniform_boundary_points(self, n):
+        points_per_face = max(1, n // (2 * self.dim))
+        points = []
+        for d in range(self.dim):
+            for boundary in [self.xmin[d], self.xmax[d]]:
+                xi = []
+                for i in range(self.dim):
+                    if i == d:
+                        xi.append(np.array([boundary], dtype=config.real(np)))
+                    else:
+                        ni = int(np.ceil(points_per_face ** (1 / (self.dim - 1))))
+                        xi.append(
+                            np.linspace(
+                                self.xmin[i],
+                                self.xmax[i],
+                                num=ni + 1,
+                                endpoint=False,
+                                dtype=config.real(np),
+                            )[1:]
+                        )
+                face_points = np.array(list(itertools.product(*xi)))
+                points.append(face_points)
+        points = np.vstack(points)
+        if n != len(points):
+            print(
+                "Warning: {} points required, but {} points sampled.".format(
+                    n, len(points)
+                )
+            )
+        return points
+
     def random_points(self, n, random="pseudo"):
         x = sample(n, self.dim, random)
         return (self.xmax - self.xmin) * x + self.xmin
