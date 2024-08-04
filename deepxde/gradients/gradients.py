@@ -32,7 +32,7 @@ def jacobian(ys, xs, i=None, j=None):
     """
     if config.autodiff == "reverse":
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
-    if config.autodiff == "forward":
+    elif config.autodiff == "forward":
         return gradients_forward.jacobian(ys, xs, i=i, j=j)
 
 
@@ -59,7 +59,7 @@ def hessian(ys, xs, component=0, i=0, j=0):
     """
     if config.autodiff == "reverse":
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
-    if config.autodiff == "forward":
+    elif config.autodiff == "forward":
         return gradients_forward.hessian(ys, xs, component=component, i=i, j=j)
 
 
@@ -67,5 +67,5 @@ def clear():
     """Clear cached Jacobians and Hessians."""
     if config.autodiff == "reverse":
         gradients_reverse.clear()
-    if config.autodiff == "forward":
+    elif config.autodiff == "forward":
         gradients_forward.clear()
