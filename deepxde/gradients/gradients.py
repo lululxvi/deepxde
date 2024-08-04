@@ -67,3 +67,5 @@ def clear():
     """Clear cached Jacobians and Hessians."""
     if config.autodiff == "reverse":
         gradients_reverse.clear()
+    elif config.autodiff == "forward":
+        gradients_forward.clear()
