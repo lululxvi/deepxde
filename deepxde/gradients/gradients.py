@@ -32,7 +32,7 @@ def jacobian(ys, xs, i=None, j=None):
     """
     if config.autodiff == "reverse":
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
-    elif config.autodiff == "forward":
+    if config.autodiff == "forward":
         return gradients_forward.jacobian(ys, xs, i=i, j=j)
 
 
@@ -59,7 +59,7 @@ def hessian(ys, xs, component=0, i=0, j=0):
     """
     if config.autodiff == "reverse":
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
-    elif config.autodiff == "forward":
+    if config.autodiff == "forward":
         return gradients_forward.hessian(ys, xs, component=component, i=i, j=j)
 
 
