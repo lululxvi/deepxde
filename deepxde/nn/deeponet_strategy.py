@@ -27,10 +27,6 @@ class SingleOutputStrategy(DeepONetStrategy):
     """Single output build strategy is the standard build method."""
 
     def build(self, layer_sizes_branch, layer_sizes_trunk):
-        if layer_sizes_branch[-1] != layer_sizes_trunk[-1]:
-            raise AssertionError(
-                "Output sizes of branch net and trunk net do not match."
-            )
         branch = self.net.build_branch_net(layer_sizes_branch)
         trunk = self.net.build_trunk_net(layer_sizes_trunk)
         return branch, trunk
