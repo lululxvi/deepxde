@@ -9,7 +9,7 @@ from ... import config
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
+    def __init__(self, layer_sizes, activation, kernel_initializer, regularization=None):
         super().__init__()
         if isinstance(activation, list):
             if not (len(layer_sizes) - 1) == len(activation):
@@ -31,7 +31,9 @@ class FNN(NN):
             )
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
-
+        self.regularizer=regularization
+        # currently list with two components: regularization type, weight decay
+        # currently supports l2 regularization
     def forward(self, inputs):
         x = inputs
         if self._input_transform is not None:
