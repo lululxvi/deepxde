@@ -23,6 +23,7 @@ class FNN(NN):
             self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
+        self.regularizer = regularization
 
         self.linears = torch.nn.ModuleList()
         for i in range(1, len(layer_sizes)):
@@ -33,9 +34,6 @@ class FNN(NN):
             )
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
-        self.regularizer = regularization
-        # currently list with two components: regularization type, weight decay
-        # currently supports l2 regularization
 
     def forward(self, inputs):
         x = inputs
