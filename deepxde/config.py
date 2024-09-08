@@ -74,7 +74,7 @@ def set_default_float(value):
     The default floating point type is 'float32'.
 
     Args:
-        value (String): 'float16', 'float32', or 'float64'.
+        value (String): 'float16', 'float32', 'float64', or 'mixed' (mixed precision in https://arxiv.org/abs/2401.16645).
     """
     if value == "float16":
         print("Set the default float type to float16")
@@ -85,6 +85,20 @@ def set_default_float(value):
     elif value == "float64":
         print("Set the default float type to float64")
         real.set_float64()
+    elif value == "mixed":
+        print("Set the float type to mixed precision of float16 and float32")
+        real.set_mixed()
+        if backend_name == "tensorflow":
+            real.set_float16()
+            tf.keras.mixed_precision.set_global_policy("mixed_float16")
+            return # don't try to set it again below
+        if backend_name == "pytorch":
+            # Use float16 during the forward and backward passes, but store in float32
+            real.set_float32()
+        else:
+            raise ValueError(
+                f"{backend_name} backend does not currently support mixed precision."
+            )
     else:
         raise ValueError(f"{value} not supported in deepXDE")
     if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
