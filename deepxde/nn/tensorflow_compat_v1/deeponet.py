@@ -318,38 +318,28 @@ class DeepONet(NN):
         self.built = True
 
     def build_branch_net(self):
-        y_func = self.X_func
         if callable(self.layer_size_func[1]):
             # User-defined network
-            return self.layer_size_func[1](y_func)
+            return self.layer_size_func[1](self.X_func)
+        
+        if self.stacked:
+            # Stacked fully connected network
+            return self._build_stacked_branch_net()
 
-        def _add_branch_layer(
-            inputs, units, stack_size=None, activation=None, use_bias=True
-        ):
-            if stack_size is None:
-                return self._dense(
-                    inputs,
-                    units,
-                    activation=activation,
-                    regularizer=self.regularizer,
-                    trainable=self.trainable_branch,
-                    use_bias=use_bias,
-                )
-            return self._stacked_dense(
-                inputs,
-                units,
-                stack_size,
-                activation=activation,
-                trainable=self.trainable_branch,
-                use_bias=use_bias,
-            )
+        # Unstacked fully connected network
+        return self._build_unstacked_branch_net()
+
+    def _build_stacked_branch_net(self):
+        y_func = self.X_func
+        stack_size = self.layer_size_func[-1]
 
         for i in range(1, len(self.layer_size_func) - 1):
-            y_func = _add_branch_layer(
+            y_func = self._stacked_dense(
                 y_func,
                 self.layer_size_func[i],
-                self.layer_size_func[-1] if self.stacked else None,
+                stack_size=stack_size,
                 activation=self.activation_branch,
+                trainable=self.trainable_branch,
             )
             if self.dropout_rate_branch[i - 1] > 0:
                 y_func = tf.layers.dropout(
@@ -357,13 +347,38 @@ class DeepONet(NN):
                     rate=self.dropout_rate_branch[i - 1],
                     training=self.training,
                 )
-        y_func = _add_branch_layer(
+        return self._stacked_dense(
             y_func,
-            1 if self.stacked else self.layer_size_func[-1],
-            self.layer_size_func[-1] if self.stacked else None,
+            1,
+            stack_size=stack_size,
             use_bias=self.use_bias,
+            trainable=self.trainable_branch,
         )
-        return y_func
+
+    def _build_unstacked_branch_net(self):
+        y_func = self.X_func
+
+        for i in range(1, len(self.layer_size_func) - 1):
+            y_func = self._dense(
+                y_func,
+                self.layer_size_func[i],
+                activation=self.activation_branch,
+                regularizer=self.regularizer,
+                trainable=self.trainable_branch,
+            )
+            if self.dropout_rate_branch[i - 1] > 0:
+                y_func = tf.layers.dropout(
+                    y_func,
+                    rate=self.dropout_rate_branch[i - 1],
+                    training=self.training,
+                )
+        return self._dense(
+            y_func,
+            self.layer_size_func[-1],
+            use_bias=self.use_bias,
+            regularizer=self.regularizer,
+            trainable=self.trainable_branch,
+        )
 
     def build_trunk_net(self):
         y_loc = self.X_loc
