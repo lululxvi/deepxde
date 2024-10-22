@@ -85,7 +85,7 @@ class Hypercube(Geometry):
         dx = (self.volume / n) ** (1 / self.dim)
         xi = []
         for i in range(self.dim):
-            ni = int(np.sqrt(n))#int(np.ceil(self.side_length[i] / dx))
+            ni = int(np.ceil(self.side_length[i] / dx))
             if boundary:
                 xi.append(
                     np.linspace(
@@ -103,9 +103,9 @@ class Hypercube(Geometry):
                     )[1:]
                 )
         x = np.array(xi).T
-        if n != len(x)**self.dim:
+        if n != np.prod([len(x) for x in xi]):
             print(
-                "Warning: {} points required, but {} points sampled.".format(n, len(x)**self.dim)
+                "Warning: {} points required, but {} points sampled.".format(n, np.prod([len(x) for x in xi]))
             )
         return x
 
