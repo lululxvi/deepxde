@@ -422,14 +422,18 @@ class DeepONet(NN):
         regularizer=None,
         trainable=True,
     ):
-        return tf.keras.layers.Dense(
+        dense = tf.keras.layers.Dense(
             units,
             activation=activation,
             use_bias=use_bias,
             kernel_initializer=self.kernel_initializer,
             kernel_regularizer=regularizer,
             trainable=trainable,
-        )(inputs)
+        )
+        out = dense(inputs)
+        if regularizer:
+            self.regularization_loss += tf.math.add_n(dense.losses)
+        return out
 
     def _stacked_dense(
         self, inputs, units, stack_size, activation=None, use_bias=True, trainable=True
@@ -636,23 +640,23 @@ class DeepONetCartesianProd(NN):
         else:
             # Fully connected network
             for i in range(1, len(self.layer_size_func) - 1):
-                y_func = tf.keras.layers.Dense(
+                y_func = self._dense(
+                    y_func,
                     self.layer_size_func[i],
                     activation=self.activation_branch,
-                    kernel_initializer=self.kernel_initializer,
-                    kernel_regularizer=self.regularizer,
-                )(y_func)
+                    regularizer=self.regularizer,
+                )
                 if self.dropout_rate_branch[i - 1] > 0:
                     y_func = tf.layers.dropout(
                         y_func,
                         rate=self.dropout_rate_branch[i - 1],
                         training=self.training,
                     )
-            y_func = tf.keras.layers.Dense(
+            y_func = self._dense(
+                y_func,
                 self.layer_size_func[-1],
-                kernel_initializer=self.kernel_initializer,
-                kernel_regularizer=self.regularizer,
-            )(y_func)
+                regularizer=self.regularizer,
+            )
         return y_func
 
     def build_trunk_net(self):
@@ -661,12 +665,12 @@ class DeepONetCartesianProd(NN):
         if self._input_transform is not None:
             y_loc = self._input_transform(y_loc)
         for i in range(1, len(self.layer_size_loc)):
-            y_loc = tf.keras.layers.Dense(
+            y_loc = self._dense(
+                y_loc,
                 self.layer_size_loc[i],
                 activation=self.activation_trunk,
-                kernel_initializer=self.kernel_initializer,
-                kernel_regularizer=self.regularizer,
-            )(y_loc)
+                regularizer=self.regularizer,
+            )
             if self.dropout_rate_trunk[i - 1] > 0:
                 y_loc = tf.layers.dropout(
                     y_loc, rate=self.dropout_rate_trunk[i - 1], training=self.training
@@ -683,3 +687,25 @@ class DeepONetCartesianProd(NN):
     @staticmethod
     def concatenate_outputs(ys):
         return tf.stack(ys, axis=2)
+
+    def _dense(
+        self,
+        inputs,
+        units,
+        activation=None,
+        use_bias=True,
+        regularizer=None,
+        trainable=True,
+    ):
+        dense = tf.keras.layers.Dense(
+            units,
+            activation=activation,
+            use_bias=use_bias,
+            kernel_initializer=self.kernel_initializer,
+            kernel_regularizer=regularizer,
+            trainable=trainable,
+        )
+        out = dense(inputs)
+        if regularizer:
+            self.regularization_loss += tf.math.add_n(dense.losses)
+        return out
