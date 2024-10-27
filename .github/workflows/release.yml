@@ -18,7 +18,7 @@ jobs:
         run: pipx run build
 
       - name: Upload SDist and wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: dist/*
           if-no-files-found: error
