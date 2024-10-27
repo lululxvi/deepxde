@@ -29,7 +29,7 @@ jobs:
   publish:
     needs: [build]
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && github.event.action == 'published'
+    # if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
       - name: Download SDist and wheel
