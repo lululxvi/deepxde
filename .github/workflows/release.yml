@@ -38,7 +38,7 @@ jobs:
           name: artifact
           path: dist
 
-      - name: Publish on PyPI
-        uses: pypa/gh-action-pypi-publish@v1.6.4
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
