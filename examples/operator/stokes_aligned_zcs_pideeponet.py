@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow, pytorch"""
+"""Backend supported: tensorflow, pytorch, paddle"""
 import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np

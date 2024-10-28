@@ -162,12 +162,10 @@ Then, we introduce the exact solution and both Neumann and Robin boundary condit
       return np.imag(-g)
 
   def func0_outer(x, y):
-      normal = outer.boundary_normal(x)
       result = - k0 * y[:, 1:2]
       return result
 
   def func1_outer(x, y):
-      normal = outer.boundary_normal(x)
       result =  k0 * y[:, 0:1]
       return result
     

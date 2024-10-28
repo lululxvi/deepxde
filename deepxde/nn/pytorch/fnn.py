@@ -9,7 +9,9 @@ from ... import config
 class FNN(NN):
     """Fully-connected neural network."""
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
+    def __init__(
+        self, layer_sizes, activation, kernel_initializer, regularization=None
+    ):
         super().__init__()
         if isinstance(activation, list):
             if not (len(layer_sizes) - 1) == len(activation):
@@ -21,6 +23,7 @@ class FNN(NN):
             self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
+        self.regularizer = regularization
 
         self.linears = torch.nn.ModuleList()
         for i in range(1, len(layer_sizes)):

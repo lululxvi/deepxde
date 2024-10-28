@@ -41,8 +41,17 @@ def reshape(tensor, shape):
     return jnp.reshape(tensor, shape)
 
 
-def Variable(initial_value, dtype=None):
-    return jnp.array(initial_value, dtype=dtype)
+class Variable:
+    def __init__(self, initial_value, dtype=None):
+        self._value = jnp.array(initial_value, dtype=dtype)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 
 def as_tensor(data, dtype=None):
@@ -59,6 +68,14 @@ def from_numpy(np_array):
 
 def to_numpy(input_tensor):
     return np.asarray(input_tensor)
+
+
+def concat(values, axis):
+    return jnp.concatenate(values, axis=axis)
+
+
+def stack(values, axis):
+    return jnp.stack(values, axis=axis)
 
 
 def elu(x):
@@ -83,6 +100,10 @@ def silu(x):
 
 def sin(x):
     return jnp.sin(x)
+
+
+def cos(x):
+    return jnp.cos(x)
 
 
 def square(x):

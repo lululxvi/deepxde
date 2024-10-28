@@ -176,7 +176,9 @@ class Model:
                 losses = [losses]
             # Regularization loss
             if self.net.regularizer is not None:
-                losses.append(tf.losses.get_regularization_loss())
+                losses.append(
+                    tf.losses.get_regularization_loss() + self.net.regularization_loss
+                )
             losses = tf.convert_to_tensor(losses)
             # Weighted losses
             if self.loss_weights is not None:
@@ -387,13 +389,14 @@ class Model:
 
     def _compile_jax(self, lr, loss_fn, decay):
         """jax"""
-        if self.loss_weights is not None:
-            raise NotImplementedError("Loss weights are not supported for backend jax.")
         # Initialize the network's parameters
         if self.params is None:
             key = jax.random.PRNGKey(config.jax_random_seed)
             self.net.params = self.net.init(key, self.data.test()[0])
-            self.params = [self.net.params, self.external_trainable_variables]
+            external_trainable_variables_arr = [
+                var.value for var in self.external_trainable_variables
+            ]
+            self.params = [self.net.params, external_trainable_variables_arr]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
@@ -414,10 +417,12 @@ class Model:
             # We use aux so that self.data.losses is a pure function.
             aux = [outputs_fn, ext_params] if ext_params else [outputs_fn]
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
-            # TODO: Add regularization loss, weighted losses
+            # TODO: Add regularization loss
             if not isinstance(losses, list):
                 losses = [losses]
             losses = jax.numpy.asarray(losses)
+            if self.loss_weights is not None:
+                losses *= jax.numpy.asarray(self.loss_weights)
             return outputs_, losses
 
         @jax.jit
@@ -486,7 +491,7 @@ class Model:
             losses = paddle.stack(losses, axis=0)
             # Weighted losses
             if self.loss_weights is not None:
-                losses *= paddle.to_tensor(self.loss_weights)
+                losses *= paddle.to_tensor(self.loss_weights, dtype=losses.dtype)
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -581,7 +586,9 @@ class Model:
             self.params, self.opt_state = self.train_step(
                 self.params, self.opt_state, inputs, targets
             )
-            self.net.params, self.external_trainable_variables = self.params
+            self.net.params, external_trainable_variables = self.params
+            for i, var in enumerate(self.external_trainable_variables):
+                var.value = external_trainable_variables[i]
 
     @utils.timing
     def train(
@@ -605,7 +612,7 @@ class Model:
                 - If you solve PDEs via ``dde.data.PDE`` or ``dde.data.TimePDE``, do not use `batch_size`, and instead use
                   `dde.callbacks.PDEPointResampler
                   <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEPointResampler>`_,
-                  see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/diffusion_1d_resample.py>`_.
+                  see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_1d_resample.py>`_.
                 - For DeepONet in the format of Cartesian product, if `batch_size` is an Integer,
                   then it is the batch size for the branch input; if you want to also use mini-batch for the trunk net input,
                   set `batch_size` as a tuple, where the fist number is the batch size for the branch net input
@@ -796,7 +803,7 @@ class Model:
             )
 
             n_iter = self.opt.state_dict()["state"][0]["n_iter"]
-            if prev_n_iter == n_iter:
+            if prev_n_iter == n_iter - 1:
                 # Converged
                 break
 
@@ -874,7 +881,7 @@ class Model:
             )
 
             n_iter = self.opt.state_dict()["state"]["n_iter"]
-            if prev_n_iter == n_iter:
+            if prev_n_iter == n_iter - 1:
                 # Converged
                 break
 
@@ -1098,7 +1105,6 @@ class Model:
         Returns:
             string: Path where model is saved.
         """
-        # TODO: backend tensorflow
         save_path = f"{save_path}-{self.train_state.epoch}"
         if protocol == "pickle":
             save_path += ".pkl"
@@ -1109,7 +1115,7 @@ class Model:
                 save_path += ".ckpt"
                 self.saver.save(self.sess, save_path)
             elif backend_name == "tensorflow":
-                save_path += ".ckpt"
+                save_path += ".weights.h5"
                 self.net.save_weights(save_path)
             elif backend_name == "pytorch":
                 save_path += ".pt"

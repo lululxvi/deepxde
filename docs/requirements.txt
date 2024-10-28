@@ -7,9 +7,9 @@ scipy
 # TensorFlow 1.x
 tensorflow>=2.7.0
 # TensorFlow 2.x
-tensorflow-probability>=0.10.0
+tensorflow-probability>=0.11.0
 # PyTorch
-torch<2.0.0    # build fails on RTD with torch 2.0.0
+torch<2.0.0  # build fails on RTD with torch 2.0.0
 # PaddlePaddle
 # https://paddle-wheel.bj.bcebos.com/develop/linux/linux-cpu-mkl-avx/paddlepaddle-0.0.0-cp38-cp38-linux_x86_64.whl
 paddlepaddle==2.6.0
@@ -20,4 +20,3 @@ optax
 
 sphinx-copybutton
 sphinx-rtd-theme
-

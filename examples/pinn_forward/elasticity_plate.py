@@ -1,4 +1,4 @@
-"""Backend supported: pytorch, paddle
+"""Backend supported: pytorch, jax, paddle
 
 Implementation of the linear elasticity 2D example in paper https://doi.org/10.1016/j.cma.2021.113741.
 References:
@@ -11,19 +11,13 @@ lmbd = 1.0
 mu = 0.5
 Q = 4.0
 
-# Define function
-if dde.backend.backend_name == "pytorch":
-    import torch
-
-    sin = torch.sin
-    cos = torch.cos
-elif dde.backend.backend_name == "paddle":
-    import paddle
-
-    sin = paddle.sin
-    cos = paddle.cos
+# Define functions
+sin = dde.backend.sin
+cos = dde.backend.cos
+stack = dde.backend.stack
 
 geom = dde.geometry.Rectangle([0, 0], [1, 1])
+BC_type = ["hard", "soft"][0]
 
 
 def boundary_left(x, on_boundary):
@@ -61,6 +55,7 @@ def func(x):
     return np.hstack((ux, uy, Sxx, Syy, Sxy))
 
 
+# Soft Boundary Conditions
 ux_top_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_top, component=0)
 ux_bottom_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_bottom, component=0)
 uy_left_bc = dde.icbc.DirichletBC(geom, lambda x: 0, boundary_left, component=1)
@@ -74,6 +69,17 @@ syy_top_bc = dde.icbc.DirichletBC(
     boundary_top,
     component=3,
 )
+
+
+# Hard Boundary Conditions
+def hard_BC(x, f):
+    Ux = f[:, 0] * x[:, 1] * (1 - x[:, 1])
+    Uy = f[:, 1] * x[:, 0] * (1 - x[:, 0]) * x[:, 1]
+
+    Sxx = f[:, 2] * x[:, 0] * (1 - x[:, 0])
+    Syy = f[:, 3] * (1 - x[:, 1]) + (lmbd + 2 * mu) * Q * sin(np.pi * x[:, 0])
+    Sxy = f[:, 4]
+    return stack((Ux, Uy, Sxx, Syy, Sxy), axis=1)
 
 
 def fx(x):
@@ -108,22 +114,32 @@ def fy(x):
     )
 
 
+def jacobian(f, x, i, j):
+    if dde.backend.backend_name == "jax":
+        return dde.grad.jacobian(f, x, i=i, j=j)[0]
+    else:
+        return dde.grad.jacobian(f, x, i=i, j=j)
+
+
 def pde(x, f):
-    E_xx = dde.grad.jacobian(f, x, i=0, j=0)
-    E_yy = dde.grad.jacobian(f, x, i=1, j=1)
-    E_xy = 0.5 * (dde.grad.jacobian(f, x, i=0, j=1) + dde.grad.jacobian(f, x, i=1, j=0))
+    E_xx = jacobian(f, x, i=0, j=0)
+    E_yy = jacobian(f, x, i=1, j=1)
+    E_xy = 0.5 * (jacobian(f, x, i=0, j=1) + jacobian(f, x, i=1, j=0))
 
     S_xx = E_xx * (2 * mu + lmbd) + E_yy * lmbd
     S_yy = E_yy * (2 * mu + lmbd) + E_xx * lmbd
     S_xy = E_xy * 2 * mu
 
-    Sxx_x = dde.grad.jacobian(f, x, i=2, j=0)
-    Syy_y = dde.grad.jacobian(f, x, i=3, j=1)
-    Sxy_x = dde.grad.jacobian(f, x, i=4, j=0)
-    Sxy_y = dde.grad.jacobian(f, x, i=4, j=1)
+    Sxx_x = jacobian(f, x, i=2, j=0)
+    Syy_y = jacobian(f, x, i=3, j=1)
+    Sxy_x = jacobian(f, x, i=4, j=0)
+    Sxy_y = jacobian(f, x, i=4, j=1)
 
     momentum_x = Sxx_x + Sxy_y - fx(x)
     momentum_y = Sxy_x + Syy_y - fy(x)
+
+    if dde.backend.backend_name == "jax":
+        f = f[0]  # f[1] is the function used by jax to compute the gradients
 
     stress_x = S_xx - f[:, 2:3]
     stress_y = S_yy - f[:, 3:4]
@@ -132,10 +148,10 @@ def pde(x, f):
     return [momentum_x, momentum_y, stress_x, stress_y, stress_xy]
 
 
-data = dde.data.PDE(
-    geom,
-    pde,
-    [
+if BC_type == "hard":
+    bcs = []
+else:
+    bcs = [
         ux_top_bc,
         ux_bottom_bc,
         uy_left_bc,
@@ -144,7 +160,12 @@ data = dde.data.PDE(
         sxx_left_bc,
         sxx_right_bc,
         syy_top_bc,
-    ],
+    ]
+
+data = dde.data.PDE(
+    geom,
+    pde,
+    bcs,
     num_domain=500,
     num_boundary=500,
     solution=func,
@@ -155,9 +176,11 @@ layers = [2, [40] * 5, [40] * 5, [40] * 5, [40] * 5, 5]
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.PFNN(layers, activation, initializer)
+if BC_type == "hard":
+    net.apply_output_transform(hard_BC)
 
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001)
-losshistory, train_state = model.train(epochs=5000)
+model.compile("adam", lr=0.001, metrics=["l2 relative error"])
+losshistory, train_state = model.train(iterations=5000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

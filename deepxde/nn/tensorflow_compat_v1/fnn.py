@@ -105,16 +105,7 @@ class FNN(NN):
         self.built = True
 
     def _dense(self, inputs, units, activation=None, use_bias=True):
-        # Cannot directly replace tf.layers.dense() with tf.keras.layers.Dense() due to
-        # some differences. One difference is that tf.layers.dense() will add
-        # regularizer loss to the collection REGULARIZATION_LOSSES, but
-        # tf.keras.layers.Dense() will not. Hence, tf.losses.get_regularization_loss()
-        # cannot be used for tf.keras.layers.Dense().
-        # References:
-        # - https://github.com/tensorflow/tensorflow/issues/21587
-        # - https://www.tensorflow.org/guide/migrate
-        return tf.layers.dense(
-            inputs,
+        dense = tf.keras.layers.Dense(
             units,
             activation=activation,
             use_bias=use_bias,
@@ -122,6 +113,10 @@ class FNN(NN):
             kernel_regularizer=self.regularizer,
             kernel_constraint=self.kernel_constraint,
         )
+        out = dense(inputs)
+        if self.regularizer:
+            self.regularization_loss += tf.math.add_n(dense.losses)
+        return out
 
     @staticmethod
     def _dense_weightnorm(inputs, units, activation=None, use_bias=True):
