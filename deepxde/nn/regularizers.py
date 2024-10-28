@@ -22,10 +22,10 @@ def get(identifier):
     """
 
     # TODO: other backends
-    if identifier is None:
+    if identifier is None or not identifier:
         return None
 
-    if isinstance(identifier, (list, tuple)) and identifier:
+    if isinstance(identifier, (list, tuple)):
         name = identifier[0].lower()
         factor = identifier[1:]
     else:
