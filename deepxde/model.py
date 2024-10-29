@@ -658,8 +658,10 @@ class Model:
                 elif self.opt_name == "NNCG":
                     self._train_pytorch_nncg(iterations, display_every)
                 else:
-                    raise ValueError("Only 'L-BFGS' and 'NNCG' are supported as \
-                                      external optimizers for PyTorch.")
+                    raise ValueError(
+                        "Only 'L-BFGS' and 'NNCG' are supported as \
+                                      external optimizers for PyTorch."
+                    )
             elif backend_name == "paddle":
                 self._train_paddle_lbfgs()
         else:
@@ -826,7 +828,6 @@ class Model:
 
             if self.stop_training:
                 break
-
 
     def _train_paddle_lbfgs(self):
         prev_n_iter = 0

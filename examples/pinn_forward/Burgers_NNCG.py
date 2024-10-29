@@ -1,4 +1,5 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+
 import deepxde as dde
 import numpy as np
 
@@ -49,7 +50,10 @@ X, y_true = gen_testdata()
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual after Adam+L-BFGS:", np.mean(np.absolute(f)))
-print("L2 relative error after Adam+L-BFGS:", dde.metrics.l2_relative_error(y_true, y_pred))
+print(
+    "L2 relative error after Adam+L-BFGS:",
+    dde.metrics.l2_relative_error(y_true, y_pred),
+)
 np.savetxt("test_adam_lbfgs.dat", np.hstack((X, y_true, y_pred)))
 
 # Run NNCG after Adam+L-BFGS
@@ -62,6 +66,8 @@ dde.saveplot(losshistory_nncg, train_state_nncg, issave=True, isplot=True)
 y_pred = model.predict(X)
 f = model.predict(X, operator=pde)
 print("Mean residual after Adam+L-BFGS+NNCG:", np.mean(np.absolute(f)))
-print("L2 relative error after Adam+L-BFGS+NNCG:",
-      dde.metrics.l2_relative_error(y_true, y_pred))
+print(
+    "L2 relative error after Adam+L-BFGS+NNCG:",
+    dde.metrics.l2_relative_error(y_true, y_pred),
+)
 np.savetxt("test_adam_lbfgs_nncg.dat", np.hstack((X, y_true, y_pred)))

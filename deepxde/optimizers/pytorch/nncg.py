@@ -81,7 +81,7 @@ class NNCG(Optimizer):
 
     The parameters rank and mu will probably need to be tuned for your specific problem.
     If the optimizer is running very slowly, you can try one of the following:
-    - Increase the rank (this should increase the 
+    - Increase the rank (this should increase the
     accuracy of the Nyström approximation in PCG)
     - Reduce cg_tol (this will allow PCG to terminate with a less accurate solution)
     - Reduce cg_max_iters (this will allow PCG to terminate after fewer iterations)
@@ -155,7 +155,7 @@ class NNCG(Optimizer):
 
         Args:
             closure (callable): A closure that reevaluates the model
-              and returns the loss w.r.t. the parameters. 
+              and returns the loss w.r.t. the parameters.
         """
         if self.n_iters == 0:
             # Store the previous direction for warm starting PCG

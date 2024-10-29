@@ -60,6 +60,7 @@ def set_LBFGS_options(
     LBFGS_options["maxfun"] = maxfun if maxfun is not None else int(maxiter * 1.25)
     LBFGS_options["maxls"] = maxls
 
+
 def set_NNCG_options(
     lr=1,
     rank=10,
@@ -69,7 +70,7 @@ def set_NNCG_options(
     cgtol=1e-16,
     cgmaxiter=1000,
     lsfun="armijo",
-    verbose=False
+    verbose=False,
 ):
     """Sets the hyperparameters of NysNewtonCG (NNCG).
 
@@ -80,11 +81,11 @@ def set_NNCG_options(
             Rank of preconditioner matrix used in preconditioned conjugate gradient.
         mu (float): `mu` (torch).
             Hessian damping parameter.
-        updatefreq (int): How often the preconditioner matrix in preconditioned 
+        updatefreq (int): How often the preconditioner matrix in preconditioned
             conjugate gradient is updated. This parameter is not directly used in NNCG,
             instead it is used in _train_pytorch_nncg in deepxde/model.py.
         chunksz (int): `chunk_size` (torch).
-            Number of Hessian-vector products to compute in parallel when constructing 
+            Number of Hessian-vector products to compute in parallel when constructing
             preconditioner. If `chunk_size` is 1, the Hessian-vector products are
             computed serially.
         cgtol (float): `cg_tol` (torch).
@@ -109,6 +110,7 @@ def set_NNCG_options(
     NNCG_options["cgmaxiter"] = cgmaxiter
     NNCG_options["lsfun"] = lsfun
     NNCG_options["verbose"] = verbose
+
 
 def set_hvd_opt_options(
     compression=None,
