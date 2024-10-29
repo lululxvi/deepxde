@@ -366,27 +366,11 @@ class Model:
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
-        # def train_step_nncg(inputs, targets, auxiliary_vars):
-        #     def closure():
-        #         return get_loss_grad_nncg(inputs, targets, auxiliary_vars)
-
-        #     self.opt.step(closure)
-
-        # def get_loss_grad_nncg(inputs, targets, auxiliary_vars):
-        #     losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
-        #     total_loss = torch.sum(losses)
-        #     self.opt.zero_grad()
-        #     grad_tuple = torch.autograd.grad(total_loss, trainable_variables,
-        #                                       create_graph=True)
-        #     return total_loss, grad_tuple
-
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
-        # self.train_step_nncg = train_step_nncg
-        # self.get_loss_grad_nncg = get_loss_grad_nncg
 
     def _compile_jax(self, lr, loss_fn, decay):
         """jax"""

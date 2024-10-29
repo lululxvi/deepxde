@@ -162,7 +162,6 @@ class NNCG(Optimizer):
             self.old_dir = torch.zeros(self._numel(), device=self._params[0].device)
 
         loss = closure()
-        # g = self._gather_flat_grad()
         # Compute gradient via torch.autograd.grad
         g_tuple = torch.autograd.grad(loss, self._params_list, create_graph=True)
         g = torch.cat([gi.view(-1) for gi in g_tuple if gi is not None])
@@ -225,7 +224,7 @@ class NNCG(Optimizer):
         return loss
 
     def _update_preconditioner(self, grad):
-        """Update the Nystrom approximation of the Hessian.
+        """Update the Nyström approximation of the Hessian.
 
         Args:
             grad (torch.Tensor): gradient of the loss w.r.t. the parameters.
@@ -297,23 +296,6 @@ class NNCG(Optimizer):
                 lambda total, p: total + p.numel(), self._params, 0
             )
         return self._numel_cache
-
-    # def _gather_flat_grad(self):
-    #     """Gathers the gradients of the parameters in a single vector.
-    #     Copied from torch.optim.lbfgs (https://pytorch.org/docs/stable/_modules/torch/optim/lbfgs.html#LBFGS).
-    #     """
-    #     views = []
-    #     for p in self._params:
-    #         if p.grad is None:
-    #             view = p.new(p.numel()).zero_()
-    #         elif p.grad.is_sparse:
-    #             view = p.grad.to_dense().view(-1)
-    #         else:
-    #             view = p.grad.view(-1)
-    #         if torch.is_complex(view):
-    #             view = torch.view_as_real(view).view(-1)
-    #         views.append(view)
-    #     return torch.cat(views, 0)
 
     def _add_grad(self, step_size, update):
         offset = 0
