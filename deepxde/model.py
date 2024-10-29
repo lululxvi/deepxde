@@ -644,10 +644,6 @@ class Model:
         self._test()
         self.callbacks.on_train_begin()
         if optimizers.is_external_optimizer(self.opt_name):
-            if self.opt_name == "NNCG" and backend_name != "pytorch":
-                raise ValueError(
-                    "The optimizer 'NNCG' is only supported for the backend PyTorch."
-                )
             if backend_name == "tensorflow.compat.v1":
                 self._train_tensorflow_compat_v1_scipy(display_every)
             elif backend_name == "tensorflow":
@@ -657,11 +653,6 @@ class Model:
                     self._train_pytorch_lbfgs()
                 elif self.opt_name == "NNCG":
                     self._train_pytorch_nncg(iterations, display_every)
-                else:
-                    raise ValueError(
-                        "Only 'L-BFGS' and 'NNCG' are supported as \
-                                      external optimizers for PyTorch."
-                    )
             elif backend_name == "paddle":
                 self._train_paddle_lbfgs()
         else:
