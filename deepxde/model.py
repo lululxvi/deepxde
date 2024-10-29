@@ -353,39 +353,40 @@ class Model:
                     "backend pytorch."
                 )
 
-        def train_step(inputs, targets, auxiliary_vars):
+        def train_step(inputs, targets, auxiliary_vars, perform_backward=True):
             def closure():
                 losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = torch.sum(losses)
                 self.opt.zero_grad()
-                total_loss.backward()
+                if perform_backward:
+                    total_loss.backward()
                 return total_loss
 
             self.opt.step(closure)
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
-        def train_step_nncg(inputs, targets, auxiliary_vars):
-            def closure():
-                return get_loss_grad_nncg(inputs, targets, auxiliary_vars)
+        # def train_step_nncg(inputs, targets, auxiliary_vars):
+        #     def closure():
+        #         return get_loss_grad_nncg(inputs, targets, auxiliary_vars)
 
-            self.opt.step(closure)
+        #     self.opt.step(closure)
 
-        def get_loss_grad_nncg(inputs, targets, auxiliary_vars):
-            losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
-            total_loss = torch.sum(losses)
-            self.opt.zero_grad()
-            grad_tuple = torch.autograd.grad(total_loss, trainable_variables,
-                                              create_graph=True)
-            return total_loss, grad_tuple
+        # def get_loss_grad_nncg(inputs, targets, auxiliary_vars):
+        #     losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
+        #     total_loss = torch.sum(losses)
+        #     self.opt.zero_grad()
+        #     grad_tuple = torch.autograd.grad(total_loss, trainable_variables,
+        #                                       create_graph=True)
+        #     return total_loss, grad_tuple
 
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
         self.train_step = train_step
-        self.train_step_nncg = train_step_nncg
-        self.get_loss_grad_nncg = get_loss_grad_nncg
+        # self.train_step_nncg = train_step_nncg
+        # self.get_loss_grad_nncg = get_loss_grad_nncg
 
     def _compile_jax(self, lr, loss_fn, decay):
         """jax"""
@@ -819,47 +820,26 @@ class Model:
                 break
 
     def _train_pytorch_nncg(self, iterations, display_every):
-        # Loop over the iterations -- take inspiration from _train_pytorch_lbfgs and _train_sgd
         for i in range(iterations):
-            # 1. Perform appropriate begin callbacks
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
-            # 2. Update the preconditioner (if applicable)
-            # 2.1. We can check if the preconditioner is updated by making an
-            # option in NNCG_options called update_freq. Do the usual modular arithmetic
-            # from there
-            if i % optimizers.NNCG_options["updatefreq"] == 0:
-                self.opt.zero_grad()         
-            # 2.2. How do we actually do this? Get the sum of the losses as in 
-            # train_step(), and use torch.autograd.grad to get a gradient
-                _, grad_tuple = self.get_loss_grad_nncg(
-                    self.train_state.X_train,
-                    self.train_state.y_train,
-                    self.train_state.train_aux_vars,
-                )
-            # 2.3. Plug the gradient into the NNCG update_preconditioner function
-            # to perform the update
-                self.opt.update_preconditioner(grad_tuple)
-
-            # 3. Call the train step
-            self.train_step_nncg(
+            # The train step should only use full gradients, so we do not use self.train_state.set_data_train()
+            self.train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
+                perform_backward=False,
             )
 
-            # 4. Use self._test() if needed
             self.train_state.epoch += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
                 self._test()
 
-            # 5. Perform appropriate end callbacks
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
 
-            # 6. Allow for training to stop (if self.stop_training)
             if self.stop_training:
                 break
 

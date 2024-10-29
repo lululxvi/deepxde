@@ -40,6 +40,7 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
             lr=NNCG_options["lr"],
             rank=NNCG_options["rank"],
             mu=NNCG_options["mu"],
+            update_freq=NNCG_options["updatefreq"],
             chunk_size=NNCG_options["chunksz"],
             cg_tol=NNCG_options["cgtol"],
             cg_max_iters=NNCG_options["cgmaxiter"],
