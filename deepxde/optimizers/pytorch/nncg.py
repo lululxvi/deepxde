@@ -114,16 +114,16 @@ class NNCG(Optimizer):
         line_search_fn=None,
         verbose=False,
     ):
-        defaults = dict(
-            lr=lr,
-            rank=rank,
-            mu=mu,
-            update_freq=update_freq,
-            chunk_size=chunk_size,
-            cg_tol=cg_tol,
-            cg_max_iters=cg_max_iters,
-            line_search_fn=line_search_fn,
-        )
+        defaults = {
+            "lr": lr,
+            "rank": rank,
+            "mu": mu,
+            "update_freq": update_freq,
+            "chunk_size": chunk_size,
+            "cg_tol": cg_tol,
+            "cg_max_iters": cg_max_iters,
+            "line_search_fn": line_search_fn,
+        }
         self.rank = rank
         self.mu = mu
         self.update_freq = update_freq
@@ -135,7 +135,7 @@ class NNCG(Optimizer):
         self.U = None
         self.S = None
         self.n_iters = 0
-        super(NNCG, self).__init__(params, defaults)
+        super().__init__(params, defaults)
 
         if len(self.param_groups) > 1:
             raise ValueError(
