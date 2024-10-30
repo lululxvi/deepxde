@@ -801,7 +801,9 @@ class Model:
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
 
-            # The train step should only use full gradients, so we do not use self.train_state.set_data_train()
+            self.train_state.set_data_train(
+                *self.data.train_next_batch(self.batch_size)
+            )
             self.train_step(
                 self.train_state.X_train,
                 self.train_state.y_train,
