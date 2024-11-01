@@ -7,7 +7,7 @@ def get(identifier):
     Args:
         identifier (list/tuple): Specifies the type of regularizer and
             regularization factor. The first element should be one of "l1", "l2",
-            "orthogonal", or "l1l2" ("l1+l2"). For "l1", "l2", or "orthogonal",
+            "l1l2" ("l1+l2"), or "orthogonal". For "l1", "l2", or "orthogonal",
             you can provide a single factor value. For "l1l2" ("l1+l2"),
             both "l1" and "l2" factors are required.
     """
