@@ -27,6 +27,10 @@ def get(identifier):
         return tf.keras.regularizers.L1(l1=factor[0])
     if name == "l2":
         return tf.keras.regularizers.L2(l2=factor[0])
+    if name in ("l1l2", "l1+l2"):
+        if len(factor) < 2:
+            raise ValueError("L1L2 regularizer requires both L1/L2 penalties.")
+        return tf.keras.regularizers.L1L2(l1=factor[0], l2=factor[1])
     if name == "orthogonal":
         if not hasattr(tf.keras.regularizers, "OrthogonalRegularizer"):
             raise ValueError(
@@ -34,8 +38,4 @@ def get(identifier):
                 "in your version of TensorFlow"
             )
         return tf.keras.regularizers.OrthogonalRegularizer(factor=factor[0])
-    if name in ("l1l2", "l1+l2"):
-        if len(factor) < 2:
-            raise ValueError("L1L2 regularizer requires both L1/L2 penalties.")
-        return tf.keras.regularizers.L1L2(l1=factor[0], l2=factor[1])
     raise ValueError(f"Unknown regularizer name: {name}")
