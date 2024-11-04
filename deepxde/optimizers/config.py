@@ -74,30 +74,33 @@ def set_NNCG_options(
 ):
     """Sets the hyperparameters of NysNewtonCG (NNCG).
 
+    The NNCG optimizer only supports PyTorch.
+
     Args:
-        lr (float): `lr` (torch).
+        lr (float):
             Learning rate (before line search).
-        rank (int): `rank` (torch).
+        rank (int):
             Rank of preconditioner matrix used in preconditioned conjugate gradient.
-        mu (float): `mu` (torch).
+        mu (float):
             Hessian damping parameter.
-        updatefreq (int): How often the preconditioner matrix in preconditioned
+        updatefreq (int): 
+            How often the preconditioner matrix in preconditioned
             conjugate gradient is updated. This parameter is not directly used in NNCG,
             instead it is used in _train_pytorch_nncg in deepxde/model.py.
-        chunksz (int): `chunk_size` (torch).
+        chunksz (int):
             Number of Hessian-vector products to compute in parallel when constructing
             preconditioner. If `chunk_size` is 1, the Hessian-vector products are
             computed serially.
-        cgtol (float): `cg_tol` (torch).
+        cgtol (float):
             Convergence tolerance for the conjugate gradient method. The iteration stops
             when `||r||_2 <= cgtol`, where `r` is the residual. Note that this condition
             is based on the absolute tolerance, not the relative tolerance.
-        cgmaxiter (int): `cg_max_iters` (torch).
+        cgmaxiter (int):
             Maximum number of iterations for the conjugate gradient method.
-        lsfun (str): `line_search_fn` (torch).
+        lsfun (str):
             The line search function used to find the step size. The default value is
             "armijo". The other option is None.
-        verbose (bool): `verbose` (torch).
+        verbose (bool):
             If `True`, prints the eigenvalues of the Nyström approximation
             of the Hessian.
     """
