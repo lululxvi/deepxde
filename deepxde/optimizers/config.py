@@ -83,7 +83,7 @@ def set_NNCG_options(
             Rank of preconditioner matrix used in preconditioned conjugate gradient.
         mu (float):
             Hessian damping parameter.
-        updatefreq (int): 
+        updatefreq (int):
             How often the preconditioner matrix in preconditioned
             conjugate gradient is updated. This parameter is not directly used in NNCG,
             instead it is used in _train_pytorch_nncg in deepxde/model.py.
