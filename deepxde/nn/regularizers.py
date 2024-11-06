@@ -7,7 +7,7 @@ def get(identifier):
     Args:
         identifier (list/tuple): Specifies the type of regularizer and
             regularization factor. The first element should be one of "l1", "l2",
-            "l1l2" ("l1+l2"), or "orthogonal". For "l1", "l2", or "orthogonal",
+            or "l1l2" ("l1+l2"). For "l1" and "l2",
             you can provide a single factor value. For "l1l2" ("l1+l2"),
             both "l1" and "l2" factors are required.
     """
@@ -31,11 +31,4 @@ def get(identifier):
         if len(factor) < 2:
             raise ValueError("L1L2 regularizer requires both L1/L2 penalties.")
         return tf.keras.regularizers.L1L2(l1=factor[0], l2=factor[1])
-    if name == "orthogonal":
-        if not hasattr(tf.keras.regularizers, "OrthogonalRegularizer"):
-            raise ValueError(
-                "The 'orthogonal' regularizer is not available "
-                "in your version of TensorFlow"
-            )
-        return tf.keras.regularizers.OrthogonalRegularizer(factor=factor[0])
     raise ValueError(f"Unknown regularizer name: {name}")
