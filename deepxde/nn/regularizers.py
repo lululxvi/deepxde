@@ -5,11 +5,10 @@ def get(identifier):
     """Retrieves a TensorFlow regularizer instance based on the given identifier.
 
     Args:
-        identifier (list/tuple): Specifies the type of regularizer and
-            regularization factor. The first element should be one of "l1", "l2",
-            or "l1l2" ("l1+l2"). For "l1" and "l2",
-            you can provide a single factor value. For "l1l2" ("l1+l2"),
-            both "l1" and "l2" factors are required.
+        identifier (list/tuple): Specifies the type and factor(s) of the regularizer.
+            The first element should be one of "l1", "l2", or "l1l2" ("l1+l2").
+            For "l1" and "l2", a single regularization factor is expected.
+            For "l1l2", provide both "l1" and "l2" factors.
     """
 
     # TODO: other backends
