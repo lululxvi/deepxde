@@ -18,15 +18,13 @@ def timing(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
+        ts = timeit.default_timer()
+        result = f(*args, **kwargs)
+        te = timeit.default_timer()
         verbose = kwargs.get('verbose', 1)
         if verbose > 0 and config.rank == 0:
-            ts = timeit.default_timer()
-            result = f(*args, **kwargs)
-            te = timeit.default_timer()
             print("%r took %f s\n" % (f.__name__, te - ts))
             sys.stdout.flush()
-        else:
-            result = f(*args, **kwargs)
         return result
 
     return wrapper
