@@ -336,29 +336,41 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
-        if self.net.regularizer is None:
+
+        l1_factor, l2_factor = None, None
+        if self.net.regularizer:
+            if self.net.regularizer[0] == "l1":
+                l1_factor = self.net.regularizer[1]
+            elif self.net.regularizer[0] == "l2":
+                l2_factor = self.net.regularizer[1]
+            elif self.net.regularizer[0] in ("l1l2", "l1+l2"):
+                l1_factor = self.net.regularizer[1]
+                l2_factor = self.net.regularizer[2]
+            else:
+                raise ValueError(f"Unknown regularizer name: {self.net.regularizer[0]}")
+
+        if l2_factor:
+            self.opt, self.lr_scheduler = optimizers.get(
+                trainable_variables,
+                self.opt_name,
+                learning_rate=lr,
+                decay=decay,
+                weight_decay=l2_factor,
+            )
+        else:
             self.opt, self.lr_scheduler = optimizers.get(
                 trainable_variables, self.opt_name, learning_rate=lr, decay=decay
             )
-        else:
-            if self.net.regularizer[0] == "l2":
-                self.opt, self.lr_scheduler = optimizers.get(
-                    trainable_variables,
-                    self.opt_name,
-                    learning_rate=lr,
-                    decay=decay,
-                    weight_decay=self.net.regularizer[1],
-                )
-            else:
-                raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularization to be implemented for "
-                    "backend pytorch."
-                )
 
         def train_step(inputs, targets, auxiliary_vars):
             def closure():
                 losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = torch.sum(losses)
+                if l1_factor:
+                    l1_loss = torch.sum(
+                        torch.stack([torch.sum(p.abs()) for p in trainable_variables])
+                    )
+                    total_loss += l1_factor * l1_loss
                 self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
