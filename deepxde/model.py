@@ -330,37 +330,32 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        # Another way is using per-parameter options
-        # https://pytorch.org/docs/stable/optim.html#per-parameter-options,
-        # but not all optimizers (such as L-BFGS) support this.
-        trainable_variables = (
-            list(self.net.parameters()) + self.external_trainable_variables
-        )
-
-        l1_factor, l2_factor = None, None
+        l1_factor, weight_decay = 0, 0
         if self.net.regularizer:
             if self.net.regularizer[0] == "l1":
                 l1_factor = self.net.regularizer[1]
             elif self.net.regularizer[0] == "l2":
-                l2_factor = self.net.regularizer[1]
+                weight_decay = self.net.regularizer[1]
             elif self.net.regularizer[0] in ("l1l2", "l1+l2"):
                 l1_factor = self.net.regularizer[1]
-                l2_factor = self.net.regularizer[2]
+                weight_decay = self.net.regularizer[2]
             else:
                 raise ValueError(f"Unknown regularizer name: {self.net.regularizer[0]}")
 
-        if l2_factor:
-            self.opt, self.lr_scheduler = optimizers.get(
-                trainable_variables,
-                self.opt_name,
-                learning_rate=lr,
-                decay=decay,
-                weight_decay=l2_factor,
+        if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
+            if weight_decay:
+                print(f"Warning: weight decay is ignored for {self.opt_name}")
+            optimizer_params = (
+                list(self.net.parameters()) + self.external_trainable_variables
             )
         else:
-            self.opt, self.lr_scheduler = optimizers.get(
-                trainable_variables, self.opt_name, learning_rate=lr, decay=decay
-            )
+            optimizer_params = [
+                {"params": self.net.parameters(), "weight_decay": weight_decay},
+                {"params": self.external_trainable_variables},
+            ]
+        self.opt, self.lr_scheduler = optimizers.get(
+            optimizer_params, self.opt_name, learning_rate=lr, decay=decay
+        )
 
         def train_step(inputs, targets, auxiliary_vars):
             def closure():
@@ -368,7 +363,7 @@ class Model:
                 total_loss = torch.sum(losses)
                 if l1_factor:
                     l1_loss = torch.sum(
-                        torch.stack([torch.sum(p.abs()) for p in trainable_variables])
+                        torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
                     )
                     total_loss += l1_factor * l1_loss
                 self.opt.zero_grad()
