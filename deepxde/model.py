@@ -330,29 +330,30 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        l1_factor, weight_decay = 0, 0
-        if self.net.regularizer:
-            if self.net.regularizer[0] == "l1":
-                l1_factor = self.net.regularizer[1]
-            elif self.net.regularizer[0] == "l2":
-                weight_decay = self.net.regularizer[1]
-            elif self.net.regularizer[0] in ("l1l2", "l1+l2"):
-                l1_factor = self.net.regularizer[1]
-                weight_decay = self.net.regularizer[2]
-            else:
-                raise ValueError(f"Unknown regularizer name: {self.net.regularizer[0]}")
-
-        if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
-            if weight_decay:
-                print(f"Warning: weight decay is ignored for {self.opt_name}")
+        if self.net.regularizer is None:
             optimizer_params = (
                 list(self.net.parameters()) + self.external_trainable_variables
             )
         else:
-            optimizer_params = [
-                {"params": self.net.parameters(), "weight_decay": weight_decay},
-                {"params": self.external_trainable_variables},
-            ]
+            if self.net.regularizer[0] == "l2":
+                if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
+                    print(f"Warning: weight decay is ignored for {self.opt_name}")
+                    optimizer_params = (
+                        list(self.net.parameters()) + self.external_trainable_variables
+                    )
+                else:
+                    optimizer_params = [
+                        {
+                            "params": self.net.parameters(),
+                            "weight_decay": self.net.regularizer[1],
+                        },
+                        {"params": self.external_trainable_variables},
+                    ]
+            else:
+                raise NotImplementedError(
+                    f"{self.net.regularizer[0]} regularization to be implemented for "
+                    "backend pytorch."
+                )
         self.opt, self.lr_scheduler = optimizers.get(
             optimizer_params, self.opt_name, learning_rate=lr, decay=decay
         )
@@ -361,11 +362,6 @@ class Model:
             def closure():
                 losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
                 total_loss = torch.sum(losses)
-                if l1_factor:
-                    l1_loss = torch.sum(
-                        torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
-                    )
-                    total_loss += l1_factor * l1_loss
                 self.opt.zero_grad()
                 total_loss.backward()
                 return total_loss
