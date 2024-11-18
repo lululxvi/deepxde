@@ -87,7 +87,17 @@ After we train the network using Adam, we continue to train the network using L-
 .. code-block:: python
 
     model.compile("L-BFGS-B")
-    losshistory, train_state = model.train()      
+    losshistory, train_state = model.train()
+
+However, L-BFGS can stall out early in optimization if it is unable to find a step size satisfying the strong Wolfe conditions. In such cases, we can use the NNCG optimizer (compatible with PyTorch only) to continue reducing the loss:
+
+.. code-block:: python
+
+    dde.optimizers.set_NNCG_options(rank=50, mu=1e-1)
+    model.compile("NNCG")
+    losshistory_nncg, train_state_nncg = model.train(iterations=1000, display_every=100)
+
+By default, NNCG does not run in this demo. You will have to uncomment the NNCG code block at the end of the demo to have it run after Adam and L-BFGS. Note that it can take some hyperparameter tuning to get the best performance from the NNCG optimizer.
 
 Complete code
 --------------

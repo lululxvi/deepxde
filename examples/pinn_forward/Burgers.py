@@ -1,4 +1,5 @@
 """Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+
 import deepxde as dde
 import numpy as np
 
@@ -46,3 +47,20 @@ f = model.predict(X, operator=pde)
 print("Mean residual:", np.mean(np.absolute(f)))
 print("L2 relative error:", dde.metrics.l2_relative_error(y_true, y_pred))
 np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))
+
+# """Backend supported: pytorch"""
+# # Run NNCG after Adam and L-BFGS
+# dde.optimizers.set_NNCG_options(rank=50, mu=1e-1)
+# model.compile("NNCG")
+# losshistory_nncg, train_state_nncg = model.train(iterations=1000, display_every=100)
+# dde.saveplot(losshistory_nncg, train_state_nncg, issave=True, isplot=True)
+
+# # Get the final results after running Adam+L-BFGS+NNCG
+# y_pred = model.predict(X)
+# f = model.predict(X, operator=pde)
+# print("Mean residual after Adam+L-BFGS+NNCG:", np.mean(np.absolute(f)))
+# print(
+#     "L2 relative error after Adam+L-BFGS+NNCG:",
+#     dde.metrics.l2_relative_error(y_true, y_pred),
+# )
+# np.savetxt("test_nncg.dat", np.hstack((X, y_true, y_pred)))

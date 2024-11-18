@@ -43,7 +43,6 @@ Time-dependent PDEs
    :maxdepth: 1
 
    pinn_forward/burgers
-   pinn_forward/burgers.nncg
    pinn_forward/heat
    pinn_forward/heat.resample
    pinn_forward/diffusion.1d
