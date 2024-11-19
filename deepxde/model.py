@@ -330,30 +330,31 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        if self.net.regularizer is None:
+        weight_decay = 0
+        if self.net.regularizer is not None:
+            if self.net.regularizer[0] != "l2":
+                raise NotImplementedError(
+                    f"{self.net.regularizer[0]} regularization to be implemented for "
+                    "backend pytorch"
+                )
+            weight_decay = self.net.regularizer[1]
+
+        if weight_decay == 0:
+            if self.opt_name == "adamw":
+                raise ValueError("AdamW optimizer requires non-zero weight decay")
             optimizer_params = (
                 list(self.net.parameters()) + self.external_trainable_variables
             )
         else:
-            if self.net.regularizer[0] == "l2":
-                if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
-                    print(f"Warning: weight decay is ignored for {self.opt_name}")
-                    optimizer_params = (
-                        list(self.net.parameters()) + self.external_trainable_variables
-                    )
-                else:
-                    optimizer_params = [
-                        {
-                            "params": self.net.parameters(),
-                            "weight_decay": self.net.regularizer[1],
-                        },
-                        {"params": self.external_trainable_variables},
-                    ]
-            else:
-                raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularization to be implemented for "
-                    "backend pytorch."
+            if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
+                raise ValueError(
+                    f"{self.opt_name} optimizer doesn't support weight_decay > 0"
                 )
+            optimizer_params = [
+                {"params": self.net.parameters(), "weight_decay": weight_decay},
+                {"params": self.external_trainable_variables, "weight_decay": 0},
+            ]
+
         self.opt, self.lr_scheduler = optimizers.get(
             optimizer_params, self.opt_name, learning_rate=lr, decay=decay
         )
