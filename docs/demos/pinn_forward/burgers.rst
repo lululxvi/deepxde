@@ -95,9 +95,9 @@ However, L-BFGS can stall out early in optimization if it is unable to find a st
 
     dde.optimizers.set_NNCG_options(rank=50, mu=1e-1)
     model.compile("NNCG")
-    losshistory_nncg, train_state_nncg = model.train(iterations=1000, display_every=100)
+    losshistory, train_state = model.train(iterations=1000, display_every=100)
 
-By default, NNCG does not run in this demo. You will have to uncomment the NNCG code block at the end of the demo to have it run after Adam and L-BFGS. Note that it can take some hyperparameter tuning to get the best performance from the NNCG optimizer.
+By default, NNCG does not run in this demo. You will have to uncomment the NNCG code block in the demo to have it run after Adam and L-BFGS. Note that it can take some hyperparameter tuning to get the best performance from the NNCG optimizer.
 
 Complete code
 --------------

@@ -63,8 +63,8 @@ def set_LBFGS_options(
 
 def set_NNCG_options(
     lr=1,
-    rank=10,
-    mu=1e-4,
+    rank=50,
+    mu=1e-1,
     updatefreq=20,
     chunksz=1,
     cgtol=1e-16,

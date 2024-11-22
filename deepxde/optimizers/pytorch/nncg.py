@@ -57,7 +57,7 @@ def _nystrom_pcg(hess, b, x, mu, U, S, r, tol, max_iters):
     if torch.norm(resid) > tol:
         print(
             "Warning: PCG did not converge to tolerance. "
-            "Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
+            f"Tolerance was {tol} but norm of residual is {torch.norm(resid)}"
         )
 
     return x
