@@ -112,9 +112,11 @@ class Model:
                 weighted by the `loss_weights` coefficients.
             external_trainable_variables: A trainable ``dde.Variable`` object or a list
                 of trainable ``dde.Variable`` objects. The unknown parameters in the
-                physics systems that need to be recovered. If the backend is
-                tensorflow.compat.v1, `external_trainable_variables` is ignored, and all
-                trainable ``dde.Variable`` objects are automatically collected.
+                physics systems that need to be recovered. Regularization will not be
+                applied to these variables. If the backend is tensorflow.compat.v1,
+                `external_trainable_variables` is ignored, and all trainable ``dde.Variable``
+                objects are automatically collected.
+
             verbose (Integer): Controls the verbosity of the compile process.
         """
         if verbose > 0 and config.rank == 0:
