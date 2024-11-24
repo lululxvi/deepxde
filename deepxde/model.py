@@ -339,24 +339,22 @@ class Model:
                 )
             weight_decay = self.net.regularizer[1]
 
-        if weight_decay == 0:
-            if self.opt_name == "adamw":
-                raise ValueError("AdamW optimizer requires non-zero weight decay")
+        if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
             optimizer_params = (
                 list(self.net.parameters()) + self.external_trainable_variables
             )
         else:
-            if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
-                raise ValueError(
-                    f"{self.opt_name} optimizer doesn't support weight_decay > 0"
-                )
             optimizer_params = [
-                {"params": self.net.parameters(), "weight_decay": weight_decay},
+                {"params": self.net.parameters()},
                 {"params": self.external_trainable_variables, "weight_decay": 0},
             ]
 
         self.opt, self.lr_scheduler = optimizers.get(
-            optimizer_params, self.opt_name, learning_rate=lr, decay=decay
+            optimizer_params,
+            self.opt_name,
+            learning_rate=lr,
+            decay=decay,
+            weight_decay=weight_decay,
         )
 
         def train_step(inputs, targets, auxiliary_vars):
