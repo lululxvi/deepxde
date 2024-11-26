@@ -116,7 +116,6 @@ class Model:
                 applied to these variables. If the backend is tensorflow.compat.v1,
                 `external_trainable_variables` is ignored, and all trainable ``dde.Variable``
                 objects are automatically collected.
-
             verbose (Integer): Controls the verbosity of the compile process.
         """
         if verbose > 0 and config.rank == 0:
@@ -345,6 +344,11 @@ class Model:
             optimizer_params = (
                 list(self.net.parameters()) + self.external_trainable_variables
             )
+            if weight_decay > 0:
+                print(
+                    "Warning: L2 regularization will also be applied to external_trainable_variables. "
+                    "Ensure this is intended behavior."
+                )
         else:
             optimizer_params = [
                 {"params": self.net.parameters()},
