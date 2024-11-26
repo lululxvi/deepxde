@@ -367,11 +367,22 @@ class Model:
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
+        def train_step_nncg(inputs, targets, auxiliary_vars):
+            def closure():
+                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
+                total_loss = torch.sum(losses)
+                self.opt.zero_grad()
+                return total_loss
+
+            self.opt.step(closure)
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step()
+
         # Callables
         self.outputs = outputs
         self.outputs_losses_train = outputs_losses_train
         self.outputs_losses_test = outputs_losses_test
-        self.train_step = train_step
+        self.train_step = train_step if self.opt_name != "NNCG" else train_step_nncg
 
     def _compile_jax(self, lr, loss_fn, decay):
         """jax"""
@@ -652,7 +663,10 @@ class Model:
             elif backend_name == "tensorflow":
                 self._train_tensorflow_tfp(verbose=verbose)
             elif backend_name == "pytorch":
-                self._train_pytorch_lbfgs(verbose=verbose)
+                if self.opt_name == "L-BFGS":
+                    self._train_pytorch_lbfgs(verbose=verbose)
+                elif self.opt_name == "NNCG":
+                    self._train_sgd(iterations, display_every, verbose=verbose)
             elif backend_name == "paddle":
                 self._train_paddle_lbfgs(verbose=verbose)
         else:
