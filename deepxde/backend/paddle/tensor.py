@@ -229,3 +229,9 @@ def matmul(x, y):
 
 def sparse_dense_matmul(x, y):
     return paddle.sparse.matmul(x, y)
+
+def l1_decay(x):
+    return paddle.regularizer.L1Decay(coeff=x)
+
+def l2_decay(x):
+    return paddle.regularizer.L2Decay(coeff=x)

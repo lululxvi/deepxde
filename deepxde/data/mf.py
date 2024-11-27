@@ -1,7 +1,8 @@
 import numpy as np
 
 from .data import Data
-from ..backend import tf
+from .. import backend as bkd
+from .. import config
 from ..utils import run_if_any_none, standardize
 
 
@@ -116,7 +117,7 @@ class MfDataSet(Data):
         return [loss_lo, loss_hi]
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return [0, loss_fn(targets[1], outputs[1])]
+        return [bkd.as_tensor(0, dtype=config.real(bkd.lib)), loss_fn(targets[1], outputs[1])]
 
     @run_if_any_none("X_train", "y_train")
     def train_next_batch(self, batch_size=None):

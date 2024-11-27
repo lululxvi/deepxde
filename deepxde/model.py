@@ -506,8 +506,13 @@ class Model:
         trainable_variables = (
             list(self.net.parameters()) + self.external_trainable_variables
         )
+        regularizer = getattr(self.net, 'regularizer', None)
+        if regularizer is not None:
+            weight_decay = self.net.regularizer_value if self.opt_name == "adamw" else self.net.regularizer
+        else: 
+            weight_decay = None
         self.opt = optimizers.get(
-            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+            trainable_variables, self.opt_name, learning_rate=lr, decay=decay, weight_decay=weight_decay,
         )
 
         def train_step(inputs, targets, auxiliary_vars):

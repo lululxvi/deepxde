@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, paddle"""
 import deepxde as dde
 import numpy as np
 
