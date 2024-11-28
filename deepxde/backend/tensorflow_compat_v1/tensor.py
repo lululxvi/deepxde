@@ -246,11 +246,14 @@ def matmul(x, y):
 def sparse_dense_matmul(x, y):
     return tf.sparse.sparse_dense_matmul(x, y)
 
+
 def l1_decay(x):
     return tf.keras.regularizers.L1(l1=x)
 
+
 def l2_decay(x):
     return tf.keras.regularizers.L2(l2=x)
+
 
 def l1_l2_decay(x,y):
     return tf.keras.regularizers.L1L2(l1=x, l2=y)
