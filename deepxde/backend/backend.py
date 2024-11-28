@@ -508,13 +508,13 @@ def sparse_dense_matmul(x, y):
 # Regularization
 
 
-def l1_decay(x):
+def l1_regularization(x):
     """Implement the L1 weight decay regularization."""
 
 
-def l2_decay(x):
+def l2_regularization(x):
     """Implement the L2 weight decay regularization."""
 
 
-def l1_l2_decay(x,y):
+def l1_l2_regularization(x,y):
     """Implement the L1 and L2 weight decay regularization."""
