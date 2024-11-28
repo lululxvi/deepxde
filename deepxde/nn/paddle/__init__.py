@@ -12,5 +12,5 @@ __all__ = [
 
 from .deeponet import DeepONet, DeepONetCartesianProd
 from .fnn import FNN, PFNN
-from .msffn import MsFFN, STMsFFN
 from .mfnn import MfNN
+from .msffn import MsFFN, STMsFFN
