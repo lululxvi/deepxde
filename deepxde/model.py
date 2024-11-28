@@ -340,20 +340,22 @@ class Model:
                 )
             weight_decay = self.net.regularizer[1]
 
-        if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
-            optimizer_params = (
-                list(self.net.parameters()) + self.external_trainable_variables
-            )
-            if weight_decay > 0:
-                print(
-                    "Warning: L2 regularization will also be applied to external_trainable_variables. "
-                    "Ensure this is intended behavior."
+        optimizer_params = self.net.parameters()
+        if self.external_trainable_variables:
+            if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
+                optimizer_params = (
+                    list(optimizer_params) + self.external_trainable_variables
                 )
-        else:
-            optimizer_params = [
-                {"params": self.net.parameters()},
-                {"params": self.external_trainable_variables, "weight_decay": 0},
-            ]
+                if weight_decay > 0:
+                    print(
+                        "Warning: L2 regularization will also be applied to external_trainable_variables. "
+                        "Ensure this is intended behavior."
+                    )
+            else:
+                optimizer_params = [
+                    {"params": optimizer_params},
+                    {"params": self.external_trainable_variables, "weight_decay": 0},
+                ]
 
         self.opt, self.lr_scheduler = optimizers.get(
             optimizer_params,
