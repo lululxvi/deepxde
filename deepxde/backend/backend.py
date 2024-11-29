@@ -508,13 +508,35 @@ def sparse_dense_matmul(x, y):
 # Regularization
 
 
-def l1_regularization(x):
-    """Implement the L1 weight decay regularization."""
+def l1_regularization(l1):
+    """A regularizer that applies a L1 regularization penalty or L1 weight decay.
+
+    Warning:
+        The implementation may vary across different backends.
+
+    Args:
+        l1 (float): L1 regularization factor. 
+    """
 
 
-def l2_regularization(x):
-    """Implement the L2 weight decay regularization."""
+def l2_regularization(l2):
+    """A regularizer that applies a L2 regularization penalty or L2 weight decay.
+
+    Warning:
+        The implementation may vary across different backends.
+
+    Args:
+        l2 (float): L2 regularization factor.
+    """
 
 
-def l1_l2_regularization(x,y):
-    """Implement the L1 and L2 weight decay regularization."""
+def l1_l2_regularization(l1, l2):
+    """A regularizer that applies both L1 and L2 regularization penalties or L1 and L2 weight decay.
+
+    Warning:
+        The implementation may vary across different backends.
+
+    Args:
+        l1 (float): L1 regularization factor.
+        l2 (float): L2 regularization factor.
+"""
