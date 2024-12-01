@@ -242,6 +242,7 @@ class PDEOperatorCartesianProd(Data):
 
         if config.autodiff == "forward": # forward mode AD
             losses=[]
+
             def forward_call(trunk_input):
                 return aux[0]((inputs[0], trunk_input))
 
