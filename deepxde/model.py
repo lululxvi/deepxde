@@ -342,6 +342,7 @@ class Model:
 
         optimizer_params = self.net.parameters()
         if self.external_trainable_variables:
+            # L-BFGS doesn't support per-parameter options.
             if self.opt_name in ["L-BFGS", "L-BFGS-B"]:
                 optimizer_params = (
                     list(optimizer_params) + self.external_trainable_variables
