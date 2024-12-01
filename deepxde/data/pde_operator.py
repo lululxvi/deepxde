@@ -237,49 +237,83 @@ class PDEOperatorCartesianProd(Data):
         self.train_next_batch()
         self.test()
 
-    def _losses(self, outputs, loss_fn, inputs, model, num_func):
+    def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
 
-        losses = []
-        for i in range(num_func):
-            out = outputs[i]
-            # Single output
-            if bkd.ndim(out) == 1:
-                out = out[:, None]
-            f = []
+        if config.autodiff == "forward": # forward mode AD
+            losses=[]
+            def forward_call(trunk_input):
+                return aux[0]((inputs[0], trunk_input))
+
             if self.pde.pde is not None:
-                f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])
+                f = self.pde.pde(inputs[1], (outputs, forward_call), model.net.auxiliary_vars)
                 if not isinstance(f, (list, tuple)):
                     f = [f]
-            error_f = [fi[bcs_start[-1] :] for fi in f]
-            losses_i = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
+            bcs_start = np.cumsum([0] + self.pde.num_bcs)
+            error_f = [fi[:, bcs_start[-1]:] for fi in f]
+            losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]  # noqa
+            # BC
+            for k, bc in enumerate(self.pde.bcs):
+                beg, end = bcs_start[k], bcs_start[k + 1]
+                error_k = []
+                # NOTE: this loop over functions can also be avoided if we implement collective ic/bc
+                for i in range(num_func):
+                    output_i = outputs[i]
+                    if bkd.ndim(output_i) == 1:  # noqa
+                        output_i = output_i[:, None]
+                    error_ki = bc.error(
+                        self.train_x[1],
+                        inputs[1],
+                        output_i,
+                        beg,
+                        end,
+                        aux_var=model.net.auxiliary_vars[i][:, None],
+                    )
+                    error_k.append(error_ki)
+                error_k = bkd.stack(error_k, axis=0)  # noqa
+                loss_k = loss_fn(bkd.zeros_like(error_k), error_k)  # noqa
+                losses.append(loss_k)
+        else: # reverse mode AD
+            losses = []
+            for i in range(num_func):
+                out = outputs[i]
+                # Single output
+                if bkd.ndim(out) == 1:
+                    out = out[:, None]
+                f = []
+                if self.pde.pde is not None:
+                    f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])
+                    if not isinstance(f, (list, tuple)):
+                        f = [f]
+                error_f = [fi[bcs_start[-1] :] for fi in f]
+                losses_i = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
 
-            for j, bc in enumerate(self.pde.bcs):
-                beg, end = bcs_start[j], bcs_start[j + 1]
-                # The same BC points are used for training and testing.
-                error = bc.error(
-                    self.train_x[1],
-                    inputs[1],
-                    out,
-                    beg,
-                    end,
-                    aux_var=model.net.auxiliary_vars[i][:, None],
-                )
-                losses_i.append(loss_fn(bkd.zeros_like(error), error))
+                for j, bc in enumerate(self.pde.bcs):
+                    beg, end = bcs_start[j], bcs_start[j + 1]
+                    # The same BC points are used for training and testing.
+                    error = bc.error(
+                        self.train_x[1],
+                        inputs[1],
+                        out,
+                        beg,
+                        end,
+                        aux_var=model.net.auxiliary_vars[i][:, None],
+                    )
+                    losses_i.append(loss_fn(bkd.zeros_like(error), error))
 
-            losses.append(losses_i)
+                losses.append(losses_i)
 
-        losses = zip(*losses)
-        # Use stack instead of as_tensor to keep the gradients.
-        losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
+            losses = zip(*losses)
+            # Use stack instead of as_tensor to keep the gradients.
+            losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         num_func = self.num_func if self.batch_size is None else self.batch_size
-        return self._losses(outputs, loss_fn, inputs, model, num_func)
+        return self._losses(outputs, loss_fn, inputs, model, num_func, aux=aux)
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return self._losses(outputs, loss_fn, inputs, model, len(self.test_x[0]))
+        return self._losses(outputs, loss_fn, inputs, model, len(self.test_x[0]), aux=aux)
 
     def train_next_batch(self, batch_size=None):
         if self.train_x is None:
