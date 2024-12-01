@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -18,7 +18,7 @@ jobs:
         run: pipx run build
 
       - name: Upload SDist and wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: dist/*
           if-no-files-found: error
@@ -33,12 +33,12 @@ jobs:
 
     steps:
       - name: Download SDist and wheel
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: artifact
           path: dist
 
-      - name: Publish on PyPI
-        uses: pypa/gh-action-pypi-publish@v1.6.4
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}

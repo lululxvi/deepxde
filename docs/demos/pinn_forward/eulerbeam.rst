@@ -63,19 +63,19 @@ The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordina
 
 Next, we consider the left and right boundary condition respectively.
 
-Two boundary conditions on the left including one Dirichlet boundary condition and one Neumann boundary condition are employed. The location of the left boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=0` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the left endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+Two boundary conditions on the left including one Dirichlet boundary condition and one Neumann boundary condition are employed. The location of the left boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=0` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``dde.utils.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the left endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
     def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 0)
+        return on_boundary and dde.utils.isclose(x[0], 0)
 
 Two boundary conditions applied on the right boundary. The location of these two boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_l``, and the only difference is that in these case general operator boundary conditions are used when it reaches the right endpoint of the interval.
 
 .. code-block:: python
 
     def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
+        return on_boundary and dde.utils.isclose(x[0], 1)
 
 Next, for better comparsion, we define a function which is the exact solution to the problem.
 

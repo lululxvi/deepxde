@@ -2,9 +2,9 @@
 
 [![Build Status](https://github.com/lululxvi/deepxde/actions/workflows/build.yml/badge.svg)](https://github.com/lululxvi/deepxde/actions/workflows/build.yml)
 [![Documentation Status](https://readthedocs.org/projects/deepxde/badge/?version=latest)](https://deepxde.readthedocs.io/en/latest/?badge=latest)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/5c67adbfeabd4ccc9b84d2212c50a342)](https://www.codacy.com/gh/lululxvi/deepxde/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=lululxvi/deepxde&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/5c67adbfeabd4ccc9b84d2212c50a342)](https://app.codacy.com/gh/lululxvi/deepxde/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![PyPI Version](https://badge.fury.io/py/DeepXDE.svg)](https://badge.fury.io/py/DeepXDE)
-[![PyPI Downloads](https://pepy.tech/badge/deepxde)](https://pepy.tech/project/deepxde)
+[![PyPI Downloads](https://static.pepy.tech/badge/deepxde)](https://www.pepy.tech/projects/deepxde)
 [![Conda Version](https://anaconda.org/conda-forge/deepxde/badges/version.svg)](https://anaconda.org/conda-forge/deepxde)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/deepxde.svg)](https://anaconda.org/conda-forge/deepxde)
 [![License](https://img.shields.io/github/license/lululxvi/deepxde)](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
@@ -27,11 +27,11 @@ DeepXDE is a library for scientific machine learning and physics-informed learni
     - DeepONet: learning operators [[Nat. Mach. Intell.](https://doi.org/10.1038/s42256-021-00302-5)]
     - DeepONet extensions, e.g., POD-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2022.114778)]
     - MIONet: learning multiple-input operators [[SIAM J. Sci. Comput.](https://doi.org/10.1137/22M1477751)]
-    - Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
+    - Fourier-DeepONet [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2023.116300)], Fourier-MIONet [[arXiv](https://arxiv.org/abs/2303.04778)]
     - physics-informed DeepONet [[Sci. Adv.](https://doi.org/10.1126/sciadv.abi8605)]
     - multifidelity DeepONet [[Phys. Rev. Research](https://doi.org/10.1103/PhysRevResearch.4.023210)]
     - DeepM&Mnet: solving multiphysics and multiscale problems [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110296), [J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2021.110698)]
-    - Reliable extrapolation [[arXiv](https://arxiv.org/abs/2212.06347)]
+    - Reliable extrapolation [[Comput. Methods Appl. Mech. Eng.](https://doi.org/10.1016/j.cma.2023.116064)]
 - multifidelity neural network (MFNN)
     - learning from multifidelity data [[J. Comput. Phys.](https://doi.org/10.1016/j.jcp.2019.109020), [PNAS](https://doi.org/10.1073/pnas.1922210117)]
 
@@ -52,11 +52,13 @@ DeepXDE supports five tensor libraries as backends: TensorFlow 1.x (`tensorflow.
 DeepXDE has implemented many algorithms as shown above and supports many features:
 
 - enables the user code to be compact, resembling closely the mathematical formulation.
-- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, ellipse, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
-- 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set.
+- **complex domain geometries** without tyranny mesh generation. The primitive geometries are interval, triangle, rectangle, polygon, disk, ellipse, star-shaped, cuboid, sphere, hypercube, and hypersphere. Other geometries can be constructed as constructive solid geometry (CSG) using three boolean operations: union, difference, and intersection. DeepXDE also supports a geometry represented by a point cloud.
+- 5 types of **boundary conditions** (BCs): Dirichlet, Neumann, Robin, periodic, and a general BC, which can be defined on an arbitrary domain or on a point set; and approximate distance functions for **hard constraints**.
+- 3 **automatic differentiation** (AD) methods to compute derivatives: reverse mode (i.e., backpropagation), forward mode, and zero coordinate shift (ZCS).
 - different **neural networks**: fully connected neural network (FNN), stacked FNN, residual neural network, (spatio-temporal) multi-scale Fourier feature networks, etc.
 - many **sampling methods**: uniform, pseudorandom, Latin hypercube sampling, Halton sequence, Hammersley sequence, and Sobol sequence. The training points can keep the same during training or be resampled (adaptively) every certain iterations.
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
+- **data-parallel training** on multiple GPUs.
 - different **optimizers**: Adam, L-BFGS, etc.
 - conveniently **save** the model during training, and **load** a trained model.
 - **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
@@ -71,28 +73,28 @@ All the components of DeepXDE are loosely coupled, and thus DeepXDE is well-stru
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
 - TensorFlow 1.x: [TensorFlow](https://www.tensorflow.org)>=2.7.0
-- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.2.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.10.0
+- TensorFlow 2.x: [TensorFlow](https://www.tensorflow.org)>=2.3.0, [TensorFlow Probability](https://www.tensorflow.org/probability)>=0.11.0
 - PyTorch: [PyTorch](https://pytorch.org)>=1.9.0
 - JAX: [JAX](https://jax.readthedocs.io), [Flax](https://flax.readthedocs.io), [Optax](https://optax.readthedocs.io)
-- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn/en) ([develop version](https://www.paddlepaddle.org.cn/en/install/quick?docurl=/documentation/docs/en/develop/install/pip/linux-pip_en.html))
+- PaddlePaddle: [PaddlePaddle](https://www.paddlepaddle.org.cn/en)>=2.6.0
 
 Then, you can install DeepXDE itself.
 
 - Install the stable version with `pip`:
 
-```
+``` sh
 $ pip install deepxde
 ```
 
 - Install the stable version with `conda`:
 
-```
+``` sh
 $ conda install -c conda-forge deepxde
 ```
 
 - For developers, you should clone the folder to your local machine and put it along with your project scripts.
 
-```
+``` sh
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
@@ -138,9 +140,9 @@ First off, thanks for taking the time to contribute!
 
 ## The Team
 
-DeepXDE was developed by [Lu Lu](https://lu.seas.upenn.edu) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from the summer of 2018 to 2020, supported by [PhILMs](https://www.pnnl.gov/computing/philms). DeepXDE was originally self-hosted in Subversion at Brown University, under the name SciCoNet (Scientific Computing Neural Networks). On Feb 7, 2019, SciCoNet was moved from Subversion to GitHub, renamed to DeepXDE.
+DeepXDE was developed by [Lu Lu](https://github.com/lululxvi) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from the summer of 2018 to 2020. DeepXDE was originally self-hosted in Subversion at Brown University, under the name SciCoNet (Scientific Computing Neural Networks). On Feb 7, 2019, SciCoNet was moved from Subversion to GitHub, renamed to DeepXDE.
 
-DeepXDE is currently maintained by [Lu Lu](https://lu.seas.upenn.edu) at [University of Pennsylvania](https://www.upenn.edu) with major contributions coming from several talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Zongren Zou](https://github.com/ZongrenZou), [Zhongyi Jiang](https://github.com/Jerry-Jzy), [Shunyuan Mao](https://github.com/smao-astro), [Paul Escapil-Inchauspé](https://github.com/pescap).
+DeepXDE is currently maintained by [Lu Lu](https://github.com/lululxvi) at [Yale University](https://www.yale.edu) with major contributions coming from many talented individuals in various forms and means. A non-exhaustive but growing list needs to mention: [Paul Escapil-Inchauspé](https://github.com/pescap), [Zongren Zou](https://github.com/ZongrenZou), [Jialin Li](https://github.com/lijialin03), [Saransh Chopra](https://github.com/Saransh-cpp), [Sensen He](https://github.com/HydrogenSulfate), [Vladimir Dudenkov](https://github.com/vl-dud), [Anran Jiao](https://github.com/anranjiao), [Zhongyi Jiang](https://github.com/Jerry-Jzy), [Shunyuan Mao](https://github.com/smao-astro).
 
 ## License
 

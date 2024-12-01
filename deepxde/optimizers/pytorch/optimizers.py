@@ -2,11 +2,12 @@ __all__ = ["get", "is_external_optimizer"]
 
 import torch
 
-from ..config import LBFGS_options
+from .nncg import NNCG
+from ..config import LBFGS_options, NNCG_options
 
 
 def is_external_optimizer(optimizer):
-    return optimizer in ["L-BFGS", "L-BFGS-B"]
+    return optimizer in ["L-BFGS", "L-BFGS-B", "NNCG"]
 
 
 def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
@@ -27,7 +28,24 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=0):
             tolerance_grad=LBFGS_options["gtol"],
             tolerance_change=LBFGS_options["ftol"],
             history_size=LBFGS_options["maxcor"],
-            line_search_fn=None,
+            line_search_fn=("strong_wolfe" if LBFGS_options["maxls"] > 0 else None),
+        )
+    elif optimizer == "NNCG":
+        if weight_decay > 0:
+            raise ValueError("NNCG optimizer doesn't support weight_decay > 0")
+        if learning_rate is not None or decay is not None:
+            print("Warning: learning rate is ignored for {}".format(optimizer))
+        optim = NNCG(
+            params,
+            lr=NNCG_options["lr"],
+            rank=NNCG_options["rank"],
+            mu=NNCG_options["mu"],
+            update_freq=NNCG_options["updatefreq"],
+            chunk_size=NNCG_options["chunksz"],
+            cg_tol=NNCG_options["cgtol"],
+            cg_max_iters=NNCG_options["cgmaxiter"],
+            line_search_fn=NNCG_options["lsfun"],
+            verbose=NNCG_options["verbose"],
         )
     else:
         if learning_rate is None:
@@ -64,6 +82,18 @@ def _get_learningrate_scheduler(optim, decay):
         return torch.optim.lr_scheduler.StepLR(
             optim, step_size=decay[1], gamma=decay[2]
         )
+    elif decay[0] == "cosine":
+        return torch.optim.lr_scheduler.CosineAnnealingLR(
+            optim, decay[1], eta_min=decay[2]
+        )
+    elif decay[0] == "inverse time":
+        return torch.optim.lr_scheduler.LambdaLR(
+            optim, lambda step: 1 / (1 + decay[2] * (step / decay[1]))
+        )
+    elif decay[0] == "exponential":
+        return torch.optim.lr_scheduler.ExponentialLR(optim, decay[1])
+    elif decay[0] == "lambda":
+        return torch.optim.lr_scheduler.LambdaLR(optim, decay[1])
 
     # TODO: More learning rate scheduler
     raise NotImplementedError(

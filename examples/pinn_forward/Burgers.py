@@ -1,4 +1,5 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
+
 import deepxde as dde
 import numpy as np
 
@@ -38,6 +39,11 @@ model.compile("adam", lr=1e-3)
 model.train(iterations=15000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
+# """Backend supported: pytorch"""
+# # Run NNCG after Adam and L-BFGS
+# dde.optimizers.set_NNCG_options(rank=50, mu=1e-1)
+# model.compile("NNCG")
+# losshistory, train_state = model.train(iterations=1000, display_every=100)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 X, y_true = gen_testdata()

@@ -7,8 +7,18 @@ class NN(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.regularizer = None
+        self._auxiliary_vars = None
         self._input_transform = None
         self._output_transform = None
+
+    @property
+    def auxiliary_vars(self):
+        """Tensors: Any additional variables needed."""
+        return self._auxiliary_vars
+
+    @auxiliary_vars.setter
+    def auxiliary_vars(self, value):
+        self._auxiliary_vars = value
 
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,

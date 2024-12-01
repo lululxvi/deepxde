@@ -9,6 +9,11 @@ from skopt.plots import plot_convergence, plot_objective
 from skopt.space import Real, Categorical, Integer
 from skopt.utils import use_named_args
 
+# Function 'gp_minimize' of package 'skopt(scikit-optimize)' is used in this example.
+# However 'np.int' used in skopt 0.9.0(the latest version) was deprecated since NumPy 1.20.
+# Monkey patch here to fix the error.
+np.int = int
+
 if dde.backend.backend_name == "pytorch":
     sin = dde.backend.pytorch.sin
 elif dde.backend.backend_name == "paddle":
@@ -24,7 +29,7 @@ n = 2
 k0 = 2 * np.pi * n
 precision_train = 10
 precision_test = 30
-epochs = 10000
+iterations = 10000
 
 
 def pde(x, y):
@@ -84,7 +89,7 @@ def create_model(config):
 
 
 def train_model(model, config):
-    losshistory, train_state = model.train(epochs=epochs)
+    losshistory, train_state = model.train(iterations=iterations)
     train = np.array(losshistory.loss_train).sum(axis=1).ravel()
     test = np.array(losshistory.loss_test).sum(axis=1).ravel()
     metric = np.array(losshistory.metrics_test).sum(axis=1).ravel()

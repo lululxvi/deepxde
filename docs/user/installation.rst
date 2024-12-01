@@ -7,10 +7,16 @@ Installation
 DeepXDE requires one of the following backend-specific dependencies to be installed:
 
 - TensorFlow 1.x: `TensorFlow <https://www.tensorflow.org>`_>=2.7.0
-- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org>`_>=2.2.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.10.0
+
+    - If you use TensorFlow 2.16+ and have an error with Keras 3, to keep using Keras 2, you can first install `tf-keras <https://pypi.org/project/tf-keras>`_, and then set the environment variable ``TF_USE_LEGACY_KERAS=1`` directly or in your python program with ``import os;os.environ["TF_USE_LEGACY_KERAS"]="1"``. [`Reference <https://keras.io/keras_3>`_]
+
+- TensorFlow 2.x: `TensorFlow <https://www.tensorflow.org>`_>=2.3.0, `TensorFlow Probability <https://www.tensorflow.org/probability>`_>=0.11.0
+
+    - For TensorFlow 2.16+ with Keras 3, refer to `the instruction <https://github.com/tensorflow/probability/releases/tag/v0.24.0>`_ for installing TensorFlow Probability.
+
 - PyTorch: `PyTorch <https://pytorch.org>`_>=1.9.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
-- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn/en>`_ (`develop version <https://www.paddlepaddle.org.cn/en/install/quick?docurl=/documentation/docs/en/develop/install/pip/linux-pip_en.html>`_)
+- PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn/en>`_>=2.6.0
 
 Then, you can install DeepXDE itself.
 
@@ -58,7 +64,7 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
 
 * Use the ``DDE_BACKEND`` environment variable:
 
-    - You can use ``DDE_BACKEND=BACKEND python pde.py`` to specify the backend:
+    - You can use ``DDE_BACKEND=BACKEND python pde.py`` to specify the backend. Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "jax" (JAX), and "paddle" (PaddlePaddle).
 
     $ DDE_BACKEND=tensorflow.compat.v1 python pde.py
 
@@ -78,15 +84,15 @@ DeepXDE supports TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), Te
     - You can also use ``python -m deepxde.backend.set_default_backend BACKEND`` to set the default backend
     - In Windows, you can find ``config.json`` file under "C:/Users/Username/.deepxde" directory
 
-Currently ``BACKEND`` can be chosen from "tensorflow.compat.v1" (TensorFlow 1.x backend), "tensorflow" (TensorFlow 2.x backend), "pytorch" (PyTorch), "jax" (JAX), and "paddle" (PaddlePaddle). The default backend is TensorFlow 1.x.
+* If no backend is selected as above, DeepXDE will automatically find an available backend.
 
 Which backend should I choose?
 ``````````````````````````````
 
-Although TensorFlow 1.x is the default backend, it may not be your best choice. Here is a comparison between different backends:
+Here is a comparison between different backends:
 
 - Different backends support slightly different features, and switch to another backend if DeepXDE raised a backend-related error.
-    - Currently, the number of features supported is: TensorFlow 1.x > TensorFlow 2.x > PyTorch > JAX.
+    - Currently, the number of features supported is: PaddlePaddle ≈ TensorFlow 1.x > TensorFlow 2.x ≈ PyTorch > JAX.
     - Some features can be implemented easily (basically translating from one framework to another), and we welcome your contributions.
 - Different backends have different computational speed, and switch to another backend if the speed is an issue in your case.
     - We find that there is no backend that is always faster than the others.
@@ -96,7 +102,7 @@ Although TensorFlow 1.x is the default backend, it may not be your best choice. 
 TensorFlow 1.x backend
 ``````````````````````
 
-Export ``DDE_BACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. The required TensorFlow version is 2.2.0 or later. Essentially, TensorFlow 1.x backend uses the API `tensorflow.compat.v1 <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution:
+Export ``DDE_BACKEND`` as ``tensorflow.compat.v1`` to specify TensorFlow 1.x backend. Essentially, TensorFlow 1.x backend uses the API `tensorflow.compat.v1 <https://www.tensorflow.org/api_docs/python/tf/compat/v1>`_ in TensorFlow 2.x and disables the eager execution:
 
 .. code:: python
 
@@ -108,12 +114,12 @@ In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to preve
 TensorFlow 2.x backend
 ``````````````````````
 
-Export ``DDE_BACKEND`` as ``tensorflow`` to specify TensorFlow 2.x backend. The required TensorFlow version is 2.2.0 or later. In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to prevent TensorFlow take over the whole GPU memory.
+Export ``DDE_BACKEND`` as ``tensorflow`` to specify TensorFlow 2.x backend. In addition, DeepXDE will set ``TF_FORCE_GPU_ALLOW_GROWTH`` to ``true`` to prevent TensorFlow take over the whole GPU memory.
 
 PyTorch backend
 ```````````````
 
-Export ``DDE_BACKEND`` as ``pytorch`` to specify PyTorch backend. The required PyTorch version is 1.9.0 or later. In addition, if GPU is available, DeepXDE will set  the default tensor type to cuda, so that all the tensors will be created on GPU as default:
+Export ``DDE_BACKEND`` as ``pytorch`` to specify PyTorch backend. In addition, if GPU is available, DeepXDE will set the default tensor type to cuda, so that all the tensors will be created on GPU as default:
 
 .. code:: python
 

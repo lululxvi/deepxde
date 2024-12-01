@@ -16,7 +16,10 @@ if Version(torch.__version__) < Version("1.9.0"):
 # An alternative way is to use GPU by default if GPU is available, which is similar to
 # TensorFlow.
 if torch.cuda.is_available():
-    torch.set_default_tensor_type(torch.cuda.FloatTensor)
+    if Version(torch.__version__) >= Version("2.1.0"):
+        torch.set_default_device("cuda")
+    else:
+        torch.set_default_tensor_type(torch.cuda.FloatTensor)
 
 
 lib = torch
@@ -126,6 +129,10 @@ def relu(x):
     return torch.nn.functional.relu(x)
 
 
+def gelu(x):
+    return torch.nn.functional.gelu(x)
+
+
 def selu(x):
     return torch.nn.functional.selu(x)
 
@@ -154,6 +161,15 @@ def square(x):
     return torch.square(x)
 
 
+# pylint: disable=redefined-builtin
+def abs(x):
+    return torch.abs(x)
+
+
+def minimum(x, y):
+    return torch.minimum(x, y)
+
+
 def tanh(x):
     return torch.tanh(x)
 
@@ -176,6 +192,32 @@ def sum(input_tensor, dim, keepdims=False):
 
 def reduce_sum(input_tensor):
     return torch.sum(input_tensor)
+
+
+def prod(input_tensor, dim, keepdims=False):
+    return torch.prod(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return torch.prod(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def min(input_tensor, dim, keepdims=False):
+    return torch.amin(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_min(input_tensor):
+    return torch.min(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def max(input_tensor, dim, keepdims=False):
+    return torch.amax(input_tensor, dim, keepdim=keepdims)
+
+
+def reduce_max(input_tensor):
+    return torch.max(input_tensor)
 
 
 def norm(tensor, ord=None, axis=None, keepdims=False):

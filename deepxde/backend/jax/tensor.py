@@ -41,8 +41,17 @@ def reshape(tensor, shape):
     return jnp.reshape(tensor, shape)
 
 
-def Variable(initial_value, dtype=None):
-    return jnp.array(initial_value, dtype=dtype)
+class Variable:
+    def __init__(self, initial_value, dtype=None):
+        self._value = jnp.array(initial_value, dtype=dtype)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 
 def as_tensor(data, dtype=None):
@@ -59,6 +68,14 @@ def from_numpy(np_array):
 
 def to_numpy(input_tensor):
     return np.asarray(input_tensor)
+
+
+def concat(values, axis):
+    return jnp.concatenate(values, axis=axis)
+
+
+def stack(values, axis):
+    return jnp.stack(values, axis=axis)
 
 
 def elu(x):
@@ -85,8 +102,21 @@ def sin(x):
     return jnp.sin(x)
 
 
+def cos(x):
+    return jnp.cos(x)
+
+
 def square(x):
     return jnp.square(x)
+
+
+# pylint: disable=redefined-builtin
+def abs(x):
+    return jnp.abs(x)
+
+
+def minimum(x, y):
+    return jnp.minimum(x, y)
 
 
 def tanh(x):
@@ -107,6 +137,32 @@ def sum(input_tensor, dim, keepdims=False):
 
 def reduce_sum(input_tensor):
     return jnp.sum(input_tensor)
+
+
+def prod(input_tensor, dim, keepdims=False):
+    return jnp.prod(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_prod(input_tensor):
+    return jnp.prod(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def min(input_tensor, dim, keepdims=False):
+    return jnp.min(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_min(input_tensor):
+    return jnp.min(input_tensor)
+
+
+# pylint: disable=redefined-builtin
+def max(input_tensor, dim, keepdims=False):
+    return jnp.max(input_tensor, axis=dim, keepdims=keepdims)
+
+
+def reduce_max(input_tensor):
+    return jnp.max(input_tensor)
 
 
 def zeros(shape, dtype):

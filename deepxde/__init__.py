@@ -9,6 +9,7 @@ __all__ = [
     "utils",
     "Model",
     "Variable",
+    "zcs",
 ]
 
 try:
@@ -26,6 +27,7 @@ from . import gradients as grad
 from . import icbc
 from . import nn
 from . import utils
+from . import zcs
 
 from .backend import Variable
 from .model import Model
@@ -34,6 +36,7 @@ from .utils import saveplot
 # Backward compatibility
 from .icbc import (
     DirichletBC,
+    Interface2DBC,
     NeumannBC,
     OperatorBC,
     PeriodicBC,

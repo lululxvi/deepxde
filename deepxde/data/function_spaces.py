@@ -15,6 +15,7 @@ from scipy import linalg, interpolate
 from sklearn import gaussian_process as gp
 
 from .. import config
+from ..utils import isclose
 
 
 class FunctionSpace(abc.ABC):
@@ -84,15 +85,15 @@ class PowerSeries(FunctionSpace):
         self.M = M
 
     def random(self, size):
-        return 2 * self.M * np.random.rand(size, self.N) - self.M
+        return 2 * self.M * np.random.rand(size, self.N).astype(config.real(np)) - self.M
 
     def eval_one(self, feature, x):
         return np.dot(feature, x ** np.arange(self.N))
 
     def eval_batch(self, features, xs):
-        mat = np.ones((self.N, len(xs)))
+        mat = np.ones((self.N, len(xs)), dtype=config.real(np))
         for i in range(1, self.N):
-            mat[i] = np.ravel(xs ** i)
+            mat[i] = np.ravel(xs**i)
         return np.dot(features, mat)
 
 
@@ -119,7 +120,7 @@ class Chebyshev(FunctionSpace):
         return np.polynomial.chebyshev.chebval(2 * x - 1, feature)
 
     def eval_batch(self, features, xs):
-        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T)
+        return np.polynomial.chebyshev.chebval(2 * np.ravel(xs) - 1, features.T).astype(config.real(np))
 
 
 class GRF(FunctionSpace):
@@ -196,7 +197,7 @@ class GRF_KL(FunctionSpace):
     def __init__(
         self, T=1, kernel="RBF", length_scale=1, num_eig=10, N=100, interp="cubic"
     ):
-        if not np.isclose(T, 1):
+        if not isclose(T, 1):
             raise ValueError("GRF_KL only supports T = 1.")
 
         self.num_eig = num_eig
@@ -205,7 +206,7 @@ class GRF_KL(FunctionSpace):
         elif kernel == "AE":
             kernel = gp.kernels.Matern(length_scale=length_scale, nu=0.5)
         eigval, eigvec = eig(kernel, num_eig, N, eigenfunction=True)
-        eigvec *= eigval ** 0.5
+        eigvec *= eigval**0.5
         x = np.linspace(0, T, num=N)
         self.eigfun = [
             interpolate.interp1d(x, y, kind=interp, copy=False, assume_sorted=True)
@@ -217,14 +218,14 @@ class GRF_KL(FunctionSpace):
         return np.array([np.ravel(f(sensors)) for f in self.eigfun])
 
     def random(self, size):
-        return np.random.randn(size, self.num_eig)
+        return np.random.randn(size, self.num_eig).astype(config.real(np))
 
     def eval_one(self, feature, x):
         eigfun = [f(x) for f in self.eigfun]
         return np.sum(eigfun * feature)
 
     def eval_batch(self, features, xs):
-        eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun])
+        eigfun = np.array([np.ravel(f(xs)) for f in self.eigfun], dtype=config.real(np))
         return np.dot(features, eigfun)
 
 
@@ -272,10 +273,10 @@ class GRF2D(FunctionSpace):
         elif kernel == "AE":
             K = gp.kernels.Matern(length_scale=length_scale, nu=0.5)
         self.K = K(self.X)
-        self.L = np.linalg.cholesky(self.K + 1e-12 * np.eye(self.N ** 2))
+        self.L = np.linalg.cholesky(self.K + 1e-12 * np.eye(self.N**2))
 
     def random(self, size):
-        u = np.random.randn(self.N ** 2, size)
+        u = np.random.randn(self.N**2, size)
         return np.dot(self.L, u).T
 
     def eval_one(self, feature, x):
@@ -286,14 +287,14 @@ class GRF2D(FunctionSpace):
         points = (self.x, self.y)
         ys = np.reshape(features, (-1, self.N, self.N))
         res = map(lambda y: interpolate.interpn(points, y, xs, method=self.interp), ys)
-        return np.vstack(list(res))
+        return np.vstack(list(res)).astype(config.real(np))
 
 
 def wasserstein2(space1, space2):
     """Compute 2-Wasserstein (W2) metric to measure the distance between two ``GRF``."""
     return (
         np.trace(space1.K + space2.K - 2 * linalg.sqrtm(space1.K @ space2.K)) ** 0.5
-        / space1.N ** 0.5
+        / space1.N**0.5
     )
 
 

@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle"""
 import deepxde as dde
 import numpy as np
 
@@ -97,7 +97,7 @@ model = dde.Model(data, net)
 
 # Build and train the model:
 model.compile("adam", lr=1e-3)
-model.train(epochs=200000, callbacks=[pde_resampler])
+model.train(iterations=200000, callbacks=[pde_resampler])
 model.compile("L-BFGS")
 losshistory, train_state = model.train(callbacks=[pde_resampler])
 

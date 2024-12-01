@@ -21,7 +21,7 @@ def get_initial_loss(model):
 def pde(x, y):
     dy_tt = dde.grad.hessian(y, x, i=1, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-    return dy_tt - C ** 2 * dy_xx
+    return dy_tt - C**2 * dy_xx
 
 
 def func(x):
@@ -41,7 +41,7 @@ ic_1 = dde.icbc.IC(geomtime, func, lambda _, on_initial: on_initial)
 ic_2 = dde.icbc.OperatorBC(
     geomtime,
     lambda x, y, _: dde.grad.jacobian(y, x, i=0, j=1),
-    lambda x, _: np.isclose(x[1], 0),
+    lambda x, _: dde.utils.isclose(x[1], 0),
 )
 data = dde.data.TimePDE(
     geomtime,

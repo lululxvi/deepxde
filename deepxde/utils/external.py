@@ -34,11 +34,11 @@ class PointSet:
         """
         if x.ndim == 1:
             # A single point
-            return np.any(np.all(np.isclose(x, self.points), axis=1))
+            return np.any(np.all(isclose(x, self.points), axis=1))
         if x.ndim == 2:
             # A list of points
             return np.any(
-                np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1),
+                np.all(isclose(x[:, np.newaxis, :], self.points), axis=-1),
                 axis=-1,
             )
 
@@ -57,7 +57,7 @@ class PointSet:
         """
 
         def func(x):
-            pt_equal = np.all(np.isclose(x[:, np.newaxis, :], self.points), axis=-1)
+            pt_equal = np.all(isclose(x[:, np.newaxis, :], self.points), axis=-1)
             not_inside = np.logical_not(np.any(pt_equal, axis=-1, keepdims=True))
             return np.matmul(pt_equal, values) + default_value * not_inside
 
@@ -192,8 +192,10 @@ def plot_loss_history(loss_history, fname=None):
         fname (string): If `fname` is a string (e.g., 'loss_history.png'), then save the
             figure to the file of the file name `fname`.
     """
-    loss_train = np.sum(loss_history.loss_train, axis=1)
-    loss_test = np.sum(loss_history.loss_test, axis=1)
+    # np.sum(loss_history.loss_train, axis=1) is error-prone for arrays of varying lengths.
+    # Handle irregular array sizes.
+    loss_train = np.array([np.sum(loss) for loss in loss_history.loss_train])
+    loss_test = np.array([np.sum(loss) for loss in loss_history.loss_test])
 
     plt.figure()
     plt.semilogy(loss_history.steps, loss_train, label="Train loss")
@@ -274,9 +276,9 @@ def plot_best_state(train_state):
             plt.plot(X, best_y[idx, i], "--r", label="Prediction")
             if best_ystd is not None:
                 plt.plot(
-                    X, best_y[idx, i] + 2 * best_ystd[idx, i], "-b", label="95% CI"
+                    X, best_y[idx, i] + 1.96 * best_ystd[idx, i], "-b", label="95% CI"
                 )
-                plt.plot(X, best_y[idx, i] - 2 * best_ystd[idx, i], "-b")
+                plt.plot(X, best_y[idx, i] - 1.96 * best_ystd[idx, i], "-b")
         plt.xlabel("x")
         plt.ylabel("y")
         plt.legend()
@@ -374,3 +376,25 @@ def dat_to_csv(dat_file_path, csv_file_path, columns):
                 continue
             row = [field.strip() for field in line.split(" ")]
             csv_writer.writerow(row)
+
+
+def isclose(a, b):
+    """A modified version of `np.isclose` for DeepXDE.
+
+    This function changes the value of `atol` due to the dtype of `a` and `b`.
+    If the dtype is float16, `atol` is `1e-4`.
+    If it is float32, `atol` is `1e-6`.
+    Otherwise (for float64), the default is `1e-8`.
+    If you want to manually set `atol` for some reason, use `np.isclose` instead.
+
+    Args:
+        a, b (array like): Input arrays to compare.
+    """
+    a_dtype = np.asarray(a).dtype
+    b_dtype = np.asarray(b).dtype
+    atol = 1e-8
+    if np.float32 in [a_dtype, b_dtype]:
+        atol = 1e-6
+    if np.float16 in [a_dtype, b_dtype]:
+        atol = 1e-4
+    return np.isclose(a, b, atol=atol)

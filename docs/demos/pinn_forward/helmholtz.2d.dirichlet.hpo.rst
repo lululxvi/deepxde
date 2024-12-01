@@ -3,7 +3,7 @@ Helmholtz equation over a 2D square domain: Hyper-parameter optimization
 
 Finding proper hyper-parameters for PINNs infrastructures is a common issue for practicioners. To remedy this concern, we apply hyper-parameter optimization (HPO) via Gaussian processes (GP)-based Bayesian optimization.
 
-This example is issued from: *Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems*, [`ArXiv preprint <https://arxiv.org/pdf/2205.06704.pdf>`_].
+This example is issued from: *Hyper-parameter tuning of physics-informed neural networks: Application to Helmholtz problems*, [`Neurocomputing <https://doi.org/10.1016/j.neucom.2023.126826>`_].
 
 Notice that this script can be easilly adapted to other examples (either forward or inverse problems). 
 

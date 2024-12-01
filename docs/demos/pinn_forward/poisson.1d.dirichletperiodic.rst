@@ -49,12 +49,12 @@ The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordina
 
 Next, we consider the Periodic boundary condition and Dirichlet boundary condition respectively.
 
-The location of the Periodic boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The location of the Periodic boundary condition is defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=1` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``dde.utils.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Periodic boundary when it reaches the right endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
     def boundary_r(x, on_boundary):
-        return on_boundary and np.isclose(x[0], 1)
+        return on_boundary and dde.utils.isclose(x[0], 1)
 
 
 The location of the Dirichlet boundary condition is defined in a similar way that the function should return ``True`` for those points satisfying :math:`x=-1` and ``False`` otherwise. The arguments in this function are similar to ``boundary_r``, and the only difference is that in this case Dirichlet boundary condition is used when it reaches the left endpoint of the interval.
@@ -62,7 +62,7 @@ The location of the Dirichlet boundary condition is defined in a similar way tha
 .. code-block:: python
 
     def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], -1)
+        return on_boundary and dde.utils.isclose(x[0], -1)
 
 
 Next, we define a function to return the value of :math:`u(x)` for the points :math:`x` on the Dirichlet boundary. In this case, it is :math:`u(x)=0`. For example, :math:`\sin(\pi * x)` is 0 on the boundary, and thus we can also use

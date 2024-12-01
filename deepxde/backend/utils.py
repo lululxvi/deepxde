@@ -139,9 +139,9 @@ def get_cuda(platform):
         cuda_verion (str) or None
     """
     if platform == "linux":
-        cuda_list = [101, 102, 110, 111, 112, 116, 117, 118]
+        cuda_list = [112, 116, 117, 120]
     elif platform == "windows":
-        cuda_list = [101, 102, 110, 111, 112, 113, 114, 115, 116, 117, 118]
+        cuda_list = [112, 116, 117, 120]
     nvcc_text = os.popen("nvcc -V").read()
     if nvcc_text != "":
         cuda_version = nvcc_text.split("Cuda compilation tools, release ")[-1].split(
@@ -189,7 +189,7 @@ def check_avx(platform):
 
     if avx_text1 == "" and avx_text2 == "":
         sys.exit(
-            "Your machine doesn't support AVX, which is required by PaddlePaddle (develop version). "
+            "Your machine doesn't support AVX, which is required by PaddlePaddle. "
             "Paddle installation stopped.\n"
             "Please use another backend."
         )
@@ -215,15 +215,14 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
     """
     if platform == "darwin":
         print(
-            "Paddle can only be installed in macOS with CPU version now. ",
+            "Paddle can only be installed in macOS with CPU version now.",
             "Installing CPU version...",
             file=sys.stderr,
             flush=True,
         )
-        cmd = "{}{}{}".format(
+        cmd = "{}{}".format(
             py_exec,
-            " -m pip install paddlepaddle==0.0.0 -f ",
-            "https://www.paddlepaddle.org.cn/whl/mac/cpu/develop.html",
+            " -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple",
         )
         return cmd
 
@@ -231,16 +230,21 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
         print(f"Installing CUDA {cuda_version} version...", file=sys.stderr, flush=True)
         cmd = "{}{}{}{}{}{}".format(
             py_exec,
-            " -m pip install paddlepaddle-gpu==0.0.0.post",
+            " -m pip install paddlepaddle-gpu==2.6.0.post",
             int(float(cuda_version) * 10),
             " -f https://www.paddlepaddle.org.cn/whl/",
             platform,
-            "/gpu/develop.html",
+            "/mkl/avx/stable.html",
         )
         return cmd
 
     if platform == "linux" and has_rocm:
-        print("Installing ROCm4.0 version...", file=sys.stderr, flush=True)
+        print(
+            "Paddle can only be installed in ROCm4.0 with develop version now.",
+            "Installing ROCm4.0 version...",
+            file=sys.stderr,
+            flush=True,
+        )
         cmd = "{}{}{}".format(
             py_exec,
             " -m pip install --pre paddlepaddle-rocm -f ",
@@ -251,12 +255,8 @@ def generate_cmd(py_exec, platform, cuda_version=None, has_rocm=False):
     print("Installing CPU version...", file=sys.stderr, flush=True)
     cmd = "{}{}".format(
         py_exec,
-        " -m pip install paddlepaddle==0.0.0 -f https://www.paddlepaddle.org.cn/whl/",
+        " -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple",
     )
-    if platform == "windows":
-        cmd += "windows/cpu-mkl-avx/develop.html"
-    elif platform == "linux":
-        cmd += "linux/cpu-mkl/develop.html"
     return cmd
 
 

@@ -47,12 +47,12 @@ The first argument to ``pde`` is the network input, i.e., the :math:`x`-coordina
 
 Next, we consider the Dirichlet boundary condition (BC) and Neumann boundary condition (BC) respectively.
 
-The Dirichlet boundary conditionis defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=0` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``np.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Dirichlet boundary when it reaches the left endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
+The Dirichlet boundary conditionis defined by a simple Python function. The function should return ``True`` for those points satisfying :math:`x=0` and ``False`` otherwise (Note that because of rounding-off errors, it is often wise to use ``dde.utils.isclose`` to test whether two floating point values are equivalent). In this function, the argument ``x`` to ``boundary`` is the network input and is a :math:`d`-dim vector, where :math:`d` is the dimension and :math:`d=1` in this case. Then a boolean ``on_boundary`` is used as the second argument. If the point ``x`` (the first argument) is on the boundary of the geometry, in this case Dirichlet boundary when it reaches the left endpoint of the interval, then ``on_boundary`` is ``True``, otherwise, ``on_boundary`` is ``False``.
 
 .. code-block:: python
 
     def boundary_l(x, on_boundary):
-        return on_boundary and np.isclose(x[0], -1)
+        return on_boundary and dde.utils.isclose(x[0], -1)
 
 
 Next, we define a function to return the value of :math:`u(x)` for the points :math:`x` on the Dirichlet boundary. In this case, it is :math:`u(x)=0`. For example, :math:`(x+1)^2` is 0 on the boundary, and thus we can also use
@@ -89,7 +89,7 @@ Finally we define `PointSetOperatorBC()` on the points that lie on the right bou
 .. code-block:: python
 
     boundary_pts = geom.random_boundary_points(2)
-    r_boundary_pts = boundary_pts[np.isclose(boundary_pts, 1)].reshape(-1, 1)
+    r_boundary_pts = boundary_pts[dde.utils.isclose(boundary_pts, 1)].reshape(-1, 1)
     bc_r = dde.icbc.PointSetOperatorBC(r_boundary_pts, d_func(r_boundary_pts), dy_x)
 
 Now, we have specified the geometry, PDE residual, Dirichlet boundary condition and Neumann boundary condition. We then define the PDE problem as

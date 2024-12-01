@@ -3,6 +3,7 @@
 __all__ = [
     "BC",
     "DirichletBC",
+    "Interface2DBC",
     "NeumannBC",
     "RobinBC",
     "PeriodicBC",
@@ -15,6 +16,7 @@ __all__ = [
 from .boundary_conditions import (
     BC,
     DirichletBC,
+    Interface2DBC,
     NeumannBC,
     RobinBC,
     PeriodicBC,

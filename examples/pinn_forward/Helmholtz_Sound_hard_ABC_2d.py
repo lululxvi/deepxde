@@ -6,7 +6,7 @@ from scipy.special import jv, hankel1
 
 # General parameters
 weights = 1
-epochs = 10000
+iterations = 10000
 learning_rate = 1e-3
 num_dense_layers = 3
 num_dense_nodes = 350
@@ -35,7 +35,7 @@ def sound_hard_circle_deepxde(k0, a, points):
     r = np.sqrt(fem_xx * fem_xx + fem_xy * fem_xy)
     theta = np.arctan2(fem_xy, fem_xx)
     npts = np.size(fem_xx, 0)
-    n_terms = np.int(30 + (k0 * a) ** 1.01)
+    n_terms = int(30 + (k0 * a) ** 1.01)
 
     u_sc = np.zeros((npts), dtype=np.complex128)
     for n in range(-n_terms, n_terms):
@@ -133,6 +133,6 @@ model = dde.Model(data, net)
 model.compile(
     "adam", lr=learning_rate, loss_weights=loss_weights, metrics=["l2 relative error"]
 )
-losshistory, train_state = model.train(epochs=epochs)
+losshistory, train_state = model.train(iterations=iterations)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)

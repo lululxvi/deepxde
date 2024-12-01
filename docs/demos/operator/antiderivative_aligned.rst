@@ -19,7 +19,7 @@ We learn :math:`G` from a dataset. Each data point in the dataset is one pair of
 1. A random function :math:`v` is sampled from a Gaussian random field (GRF) with the resolution :math:`m = 100`.
 2. Solve :math:`u` for :math:`v` numerically. We assume that for each :math:`u`, we have the values of :math:`u(x)` in the same :math:`N_u = 100` locations. Because we have the values of :math:`u(x)` in the same locations, we call this dataset as "aligned data".
 
-The datasets can be found at `here <https://drive.google.com/drive/folders/1Sb0cLnMv8rCeQyBUk97VyKa5Le9BKQNb?usp=sharing>`_.
+The datasets can be found at `here <https://yaleedu-my.sharepoint.com/:f:/g/personal/lu_lu_yale_edu/EnTn0aLimaRJuNKDOc0lfHkB2MXK8n8vAO1oV5cWVdJo3w?e=OLp80r>`_.
 
 - The training dataset has size 150.
 - The testing dataset has size 1000.

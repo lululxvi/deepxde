@@ -167,6 +167,12 @@ class PDEOperator(Data):
         self.train_bc = (np.vstack(v), np.vstack(x), np.vstack(vx))
         return self.train_bc
 
+    def resample_train_points(self, pde_points=True, bc_points=True):
+        """Resample the training points for the operator."""
+        self.pde.resample_train_points(pde_points, bc_points)
+        self.train_x, self.train_y, self.train_aux_vars = None, None, None
+        self.train_next_batch()
+
 
 class PDEOperatorCartesianProd(Data):
     """PDE solution operator with data in the format of Cartesian product.
@@ -236,8 +242,10 @@ class PDEOperatorCartesianProd(Data):
 
         losses = []
         for i in range(num_func):
-            out = outputs[i][:, None]
-
+            out = outputs[i]
+            # Single output
+            if bkd.ndim(out) == 1:
+                out = out[:, None]
             f = []
             if self.pde.pde is not None:
                 f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])
@@ -262,7 +270,8 @@ class PDEOperatorCartesianProd(Data):
             losses.append(losses_i)
 
         losses = zip(*losses)
-        losses = [bkd.reduce_mean(bkd.as_tensor(l)) for l in losses]
+        # Use stack instead of as_tensor to keep the gradients.
+        losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):

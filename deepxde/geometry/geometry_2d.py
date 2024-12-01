@@ -1,28 +1,24 @@
-__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "Triangle"]
+__all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
+
+from typing import Union, Literal
 
 import numpy as np
 from scipy import spatial
 
 from .geometry import Geometry
-from .geometry_nd import Hypercube
+from .geometry_nd import Hypercube, Hypersphere
 from .sampler import sample
+from .. import backend as bkd
 from .. import config
-from ..utils import vectorize
+from ..utils import isclose, vectorize
 
 
-class Disk(Geometry):
-    def __init__(self, center, radius):
-        self.center = np.array(center, dtype=config.real(np))
-        self.radius = radius
-        super().__init__(2, (self.center - radius, self.center + radius), 2 * radius)
-
-        self._r2 = radius**2
-
+class Disk(Hypersphere):
     def inside(self, x):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return np.isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
+        return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
@@ -41,7 +37,7 @@ class Disk(Geometry):
     def boundary_normal(self, x):
         _n = x - self.center
         l = np.linalg.norm(_n, axis=-1, keepdims=True)
-        _n = _n / l * np.isclose(l, self.radius)
+        _n = _n / l * isclose(l, self.radius)
         return _n
 
     def random_points(self, n, random="pseudo"):
@@ -123,7 +119,7 @@ class Ellipse(Geometry):
     def on_boundary(self, x):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
         d2 = np.linalg.norm(x - self.focus2, axis=-1)
-        return np.isclose(d1 + d2, 2 * self.semimajor)
+        return isclose(d1 + d2, 2 * self.semimajor)
 
     def inside(self, x):
         d1 = np.linalg.norm(x - self.focus1, axis=-1)
@@ -152,9 +148,11 @@ class Ellipse(Geometry):
         cumulative arc length for given ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
+
         # Construct the inverse arc length function
         def f(s):
             return np.interp(s, cumulative_distance, theta)
+
         return f, total_arc
 
     def random_points(self, n, random="pseudo"):
@@ -177,6 +175,27 @@ class Ellipse(Geometry):
         theta = self.theta_from_arc_length(u * self.total_arc)
         X = np.hstack((self.semimajor * np.cos(theta), self.semiminor * np.sin(theta)))
         return np.matmul(self.rotation_mat, X.T).T + self.center
+
+    def boundary_constraint_factor(
+        self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
+    ):
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("`smoothness` must be one of C0, C0+, Cinf")
+
+        if not hasattr(self, "self.focus1_tensor"):
+            self.focus1_tensor = bkd.as_tensor(self.focus1)
+            self.focus2_tensor = bkd.as_tensor(self.focus2)
+
+        d1 = bkd.norm(x - self.focus1_tensor, axis=-1, keepdims=True)
+        d2 = bkd.norm(x - self.focus2_tensor, axis=-1, keepdims=True)
+        dist = d1 + d2 - 2 * self.semimajor
+
+        if smoothness == "Cinf":
+            dist = bkd.square(dist)
+        else:
+            dist = bkd.abs(dist)
+
+        return dist
 
 
 class Rectangle(Hypercube):
@@ -234,8 +253,8 @@ class Rectangle(Hypercube):
         l3 = l2 + l1
         u = np.ravel(sample(n + 2, 1, random))
         # Remove the possible points very close to the corners
-        u = u[np.logical_not(np.isclose(u, l1 / self.perimeter))]
-        u = u[np.logical_not(np.isclose(u, l3 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, l1 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, l3 / self.perimeter))]
         u = u[:n]
 
         u *= self.perimeter
@@ -251,16 +270,264 @@ class Rectangle(Hypercube):
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return np.vstack(x)
 
+    def _boundary_constraint_factor_inside(
+        self,
+        x,
+        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
+    ):
+        """(Internal use only) Compute the hard constraint factor at `x` for the boundary.
+        The points in `x` are assumed to live inside the geometry.
+
+        This function is a helper function used internally by the `boundary_constraint_factor` function.
+        It should not be called directly in most cases.
+        """
+
+        if not hasattr(self, "self.xmin_tensor"):
+            self.xmin_tensor = bkd.as_tensor(self.xmin)
+            self.xmax_tensor = bkd.as_tensor(self.xmax)
+        if where not in ["right", "top"]:
+            dist_l = bkd.abs(
+                (x - self.xmin_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+            )
+        if where not in ["left", "bottom"]:
+            dist_r = bkd.abs(
+                (x - self.xmax_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
+            )
+
+        if where == "left":
+            return dist_l[:, 0:1]
+        if where == "right":
+            return dist_r[:, 0:1]
+        if where == "bottom":
+            return dist_l[:, 1:]
+        if where == "top":
+            return dist_r[:, 1:]
+
+        if smoothness == "C0":
+            dist_l = bkd.min(dist_l, dim=-1, keepdims=True)
+            dist_r = bkd.min(dist_r, dim=-1, keepdims=True)
+            return bkd.minimum(dist_l, dist_r)
+        dist_l = bkd.prod(dist_l, dim=-1, keepdims=True)
+        dist_r = bkd.prod(dist_r, dim=-1, keepdims=True)
+        return dist_l * dist_r
+
+    def boundary_constraint_factor(
+        self,
+        x,
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
+        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
+        inside: bool = True,
+    ):
+        """Compute the hard constraint factor at x for the boundary.
+
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
+        The hard constraint factor satisfies the following properties:
+
+        - The function is zero on the boundary and positive elsewhere.
+        - The function is at least continuous.
+
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
+        turn makes the boundary condition a "hard constraint".
+
+        Args:
+            x: A 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            smoothness (string, optional): A string to specify the smoothness of the distance function,
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
+
+                - C0
+                The distance function is continuous but may not be non-differentiable.
+                But the set of non-differentiable points should have measure zero,
+                which makes the probability of the collocation point falling in this set be zero.
+
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+
+                - Cinf
+                The distance function is continuous and differentiable at any order on any
+                points. This option may result in a polynomial of HIGH order.
+
+            where (string, optional): A string to specify which part of the boundary to compute the distance.
+                "left": x[0] = xmin[0], "right": x[0] = xmax[0], "bottom": x[1] = xmin[1], "top": x[1] = xmax[1]. 
+                If `None`, compute the distance to the whole boundary. Default is `None`.
+            inside (bool, optional): The `x` is either inside or outside the geometry.
+                The cases where there are both points inside and points
+                outside the geometry are NOT allowed. Default is `True`.
+
+        Returns:
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
+            Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
+        """
+        if where not in [None, "left", "right", "bottom", "top"]:
+            raise ValueError("where must be one of None, left, right, bottom, top")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+        if self.dim != 2:
+            raise ValueError("self.dim must be 2")
+
+        if inside:
+            return self._boundary_constraint_factor_inside(x, where, smoothness)
+
+        if not hasattr(self, "self.x11_tensor"):
+            self.x11_tensor = bkd.as_tensor(self.xmin)
+            self.x22_tensor = bkd.as_tensor(self.xmax)
+            self.x12_tensor = bkd.as_tensor([self.xmin[0], self.xmax[1]])
+            self.x21_tensor = bkd.as_tensor([self.xmax[0], self.xmin[1]])
+
+        dist_left = dist_right = dist_bottom = dist_top = None
+        if where is None or where == "left":
+            dist_left = bkd.abs(
+                bkd.norm(x - self.x11_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x12_tensor, axis=-1, keepdims=True)
+                - (self.xmax[1] - self.xmin[1])
+            )
+        if where is None or where == "right":
+            dist_right = bkd.abs(
+                bkd.norm(x - self.x21_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x22_tensor, axis=-1, keepdims=True)
+                - (self.xmax[1] - self.xmin[1])
+            )
+        if where is None or where == "bottom":
+            dist_bottom = bkd.abs(
+                bkd.norm(x - self.x11_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x21_tensor, axis=-1, keepdims=True)
+                - (self.xmax[0] - self.xmin[0])
+            )
+        if where is None or where == "top":
+            dist_top = bkd.abs(
+                bkd.norm(x - self.x12_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x22_tensor, axis=-1, keepdims=True)
+                - (self.xmax[0] - self.xmin[0])
+            )
+
+        if where == "left":
+            return dist_left
+        if where == "right":
+            return dist_right
+        if where == "bottom":
+            return dist_bottom
+        if where == "top":
+            return dist_top
+        if smoothness == "C0":
+            return bkd.minimum(
+                bkd.minimum(dist_left, dist_right), bkd.minimum(dist_bottom, dist_top)
+            )
+        return dist_left * dist_right * dist_bottom * dist_top
+
     @staticmethod
     def is_valid(vertices):
         """Check if the geometry is a Rectangle."""
         return (
             len(vertices) == 4
-            and np.isclose(np.prod(vertices[1] - vertices[0]), 0)
-            and np.isclose(np.prod(vertices[2] - vertices[1]), 0)
-            and np.isclose(np.prod(vertices[3] - vertices[2]), 0)
-            and np.isclose(np.prod(vertices[0] - vertices[3]), 0)
+            and isclose(np.prod(vertices[1] - vertices[0]), 0)
+            and isclose(np.prod(vertices[2] - vertices[1]), 0)
+            and isclose(np.prod(vertices[3] - vertices[2]), 0)
+            and isclose(np.prod(vertices[0] - vertices[3]), 0)
         )
+
+
+class StarShaped(Geometry):
+    """Star-shaped 2d domain, i.e., a geometry whose boundary is parametrized in polar coordinates as:
+
+    $$
+    r(theta) := r_0 + sum_{i = 1}^N [a_i cos( i theta) + b_i sin(i theta) ],  theta in [0,2 pi].
+    $$
+
+    For more details, refer to:
+    `Hiptmair et al. Large deformation shape uncertainty quantification in acoustic
+    scattering. Adv Comp Math, 2018.
+    <https://link.springer.com/article/10.1007/s10444-018-9594-8>`_
+
+    Args:
+        center: Center of the domain.
+        radius: 0th-order term of the parametrization (r_0).
+        coeffs_cos: i-th order coefficients for the i-th cos term (a_i).
+        coeffs_sin: i-th order coefficients for the i-th sin term (b_i).
+    """
+
+    def __init__(self, center, radius, coeffs_cos, coeffs_sin):
+        self.center = np.array(center, dtype=config.real(np))
+        self.radius = radius
+        self.coeffs_cos = coeffs_cos
+        self.coeffs_sin = coeffs_sin
+        max_radius = radius + np.sum(coeffs_cos) + np.sum(coeffs_sin)
+        super().__init__(
+            2,
+            (self.center - max_radius, self.center + max_radius),
+            2 * max_radius,
+        )
+
+    def _r_theta(self, theta):
+        """Define the parametrization r(theta) at angles theta."""
+        result = self.radius * np.ones(theta.shape)
+        for i, (coeff_cos, coeff_sin) in enumerate(
+            zip(self.coeffs_cos, self.coeffs_sin), start=1
+        ):
+            result += coeff_cos * np.cos(i * theta) + coeff_sin * np.sin(i * theta)
+        return result
+
+    def _dr_theta(self, theta):
+        """Evalutate the polar derivative r'(theta) at angles theta"""
+        result = np.zeros(theta.shape)
+        for i, (coeff_cos, coeff_sin) in enumerate(
+            zip(self.coeffs_cos, self.coeffs_sin), start=1
+        ):
+            result += -coeff_cos * i * np.sin(i * theta) + coeff_sin * i * np.cos(
+                i * theta
+            )
+        return result
+
+    def inside(self, x):
+        r, theta = polar(x - self.center)
+        r_theta = self._r_theta(theta)
+        return r_theta >= r
+
+    def on_boundary(self, x):
+        r, theta = polar(x - self.center)
+        r_theta = self._r_theta(theta)
+        return isclose(np.linalg.norm(r_theta - r), 0)
+
+    def boundary_normal(self, x):
+        _, theta = polar(x - self.center)
+        dr_theta = self._dr_theta(theta)
+        r_theta = self._r_theta(theta)
+
+        dxt = np.vstack(
+            (
+                dr_theta * np.cos(theta) - r_theta * np.sin(theta),
+                dr_theta * np.sin(theta) + r_theta * np.cos(theta),
+            )
+        ).T
+        norm = np.linalg.norm(dxt, axis=-1, keepdims=True)
+        dxt /= norm
+        return np.array([dxt[:, 1], -dxt[:, 0]]).T
+
+    def random_points(self, n, random="pseudo"):
+        x = np.empty((0, 2), dtype=config.real(np))
+        vbbox = self.bbox[1] - self.bbox[0]
+        while len(x) < n:
+            x_new = sample(n, 2, sampler="pseudo") * vbbox + self.bbox[0]
+            x = np.vstack((x, x_new[self.inside(x_new)]))
+        return x[:n]
+
+    def uniform_boundary_points(self, n):
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        r_theta = self._r_theta(theta)
+        X = np.vstack((r_theta * np.cos(theta), r_theta * np.sin(theta))).T
+        return X + self.center
+
+    def random_boundary_points(self, n, random="pseudo"):
+        u = sample(n, 1, random)
+        theta = 2 * np.pi * u
+        r_theta = self._r_theta(theta)
+        X = np.hstack((r_theta * np.cos(theta), r_theta * np.sin(theta)))
+        return X + self.center
 
 
 class Triangle(Geometry):
@@ -326,10 +593,9 @@ class Triangle(Geometry):
         l2 = np.linalg.norm(x - self.x2, axis=-1)
         l3 = np.linalg.norm(x - self.x3, axis=-1)
         return np.any(
-            np.isclose(
+            isclose(
                 [l1 + l2 - self.l12, l2 + l3 - self.l23, l3 + l1 - self.l31],
                 0,
-                atol=1e-6,
             ),
             axis=0,
         )
@@ -338,9 +604,9 @@ class Triangle(Geometry):
         l1 = np.linalg.norm(x - self.x1, axis=-1, keepdims=True)
         l2 = np.linalg.norm(x - self.x2, axis=-1, keepdims=True)
         l3 = np.linalg.norm(x - self.x3, axis=-1, keepdims=True)
-        on12 = np.isclose(l1 + l2, self.l12)
-        on23 = np.isclose(l2 + l3, self.l23)
-        on31 = np.isclose(l3 + l1, self.l31)
+        on12 = isclose(l1 + l2, self.l12)
+        on23 = isclose(l2 + l3, self.l23)
+        on31 = isclose(l3 + l1, self.l31)
         # Check points on the vertexes
         if np.any(np.count_nonzero(np.hstack([on12, on23, on31]), axis=-1) > 1):
             raise ValueError(
@@ -399,8 +665,8 @@ class Triangle(Geometry):
     def random_boundary_points(self, n, random="pseudo"):
         u = np.ravel(sample(n + 2, 1, random))
         # Remove the possible points very close to the corners
-        u = u[np.logical_not(np.isclose(u, self.l12 / self.perimeter))]
-        u = u[np.logical_not(np.isclose(u, (self.l12 + self.l23) / self.perimeter))]
+        u = u[np.logical_not(isclose(u, self.l12 / self.perimeter))]
+        u = u[np.logical_not(isclose(u, (self.l12 + self.l23) / self.perimeter))]
         u = u[:n]
 
         u *= self.perimeter
@@ -413,6 +679,95 @@ class Triangle(Geometry):
             else:
                 x.append((l - self.l12 - self.l23) * self.n31 + self.x3)
         return np.vstack(x)
+
+    def boundary_constraint_factor(
+        self,
+        x,
+        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
+        where: Union[None, Literal["x1-x2", "x1-x3", "x2-x3"]] = None,
+    ):
+        """Compute the hard constraint factor at x for the boundary.
+
+        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
+        The hard constraint factor satisfies the following properties:
+
+        - The function is zero on the boundary and positive elsewhere.
+        - The function is at least continuous.
+
+        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
+        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
+        turn makes the boundary condition a "hard constraint".
+
+        Args:
+            x: A 2D array of shape (n, dim), where `n` is the number of points and
+                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
+                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
+            smoothness (string, optional): A string to specify the smoothness of the distance function,
+                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
+                Default is "C0+".
+
+                - C0
+                The distance function is continuous but may not be non-differentiable.
+                But the set of non-differentiable points should have measure zero,
+                which makes the probability of the collocation point falling in this set be zero.
+
+                - C0+
+                The distance function is continuous and differentiable almost everywhere. The
+                non-differentiable points can only appear on boundaries. If the points in `x` are
+                all inside or outside the geometry, the distance function is smooth.
+
+                - Cinf
+                The distance function is continuous and differentiable at any order on any
+                points. This option may result in a polynomial of HIGH order.
+
+            where (string, optional): A string to specify which part of the boundary to compute the distance.
+                If `None`, compute the distance to the whole boundary. 
+                "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). Default is `None`.
+
+        Returns:
+            A tensor of a type determined by the backend, which will have a shape of (n, 1).
+            Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
+        """
+
+        if where not in [None, "x1-x2", "x1-x3", "x2-x3"]:
+            raise ValueError("where must be one of None, x1-x2, x1-x3, x2-x3")
+        if smoothness not in ["C0", "C0+", "Cinf"]:
+            raise ValueError("smoothness must be one of C0, C0+, Cinf")
+
+        if not hasattr(self, "self.x1_tensor"):
+            self.x1_tensor = bkd.as_tensor(self.x1)
+            self.x2_tensor = bkd.as_tensor(self.x2)
+            self.x3_tensor = bkd.as_tensor(self.x3)
+
+        diff_x1_x2 = diff_x1_x3 = diff_x2_x3 = None
+        if where not in ["x1-x3", "x2-x3"]:
+            diff_x1_x2 = (
+                bkd.norm(x - self.x1_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x2_tensor, axis=-1, keepdims=True)
+                - self.l12
+            )
+        if where not in ["x1-x2", "x2-x3"]:
+            diff_x1_x3 = (
+                bkd.norm(x - self.x1_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x3_tensor, axis=-1, keepdims=True)
+                - self.l31
+            )
+        if where not in ["x1-x2", "x1-x3"]:
+            diff_x2_x3 = (
+                bkd.norm(x - self.x2_tensor, axis=-1, keepdims=True)
+                + bkd.norm(x - self.x3_tensor, axis=-1, keepdims=True)
+                - self.l23
+            )
+
+        if where is None:
+            if smoothness == "C0":
+                return bkd.minimum(bkd.minimum(diff_x1_x2, diff_x1_x3), diff_x2_x3)
+            return diff_x1_x2 * diff_x1_x3 * diff_x2_x3
+        if where == "x1-x2":
+            return diff_x1_x2
+        if where == "x1-x3":
+            return diff_x1_x3
+        return diff_x2_x3
 
 
 class Polygon(Geometry):
@@ -504,11 +859,11 @@ class Polygon(Geometry):
         return wn_PnPoly(x, self.vertices) != 0
 
     def on_boundary(self, x):
-        _on = np.zeros(shape=len(x), dtype=np.int)
+        _on = np.zeros(shape=len(x), dtype=int)
         for i in range(-1, self.nvertices - 1):
             l1 = np.linalg.norm(self.vertices[i] - x, axis=-1)
             l2 = np.linalg.norm(self.vertices[i + 1] - x, axis=-1)
-            _on[np.isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
+            _on[isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
         return _on > 0
 
     @vectorize(excluded=[0], signature="(n)->(n)")
@@ -553,7 +908,7 @@ class Polygon(Geometry):
         l = 0
         for i in range(0, self.nvertices - 1):
             l += self.diagonals[i, i + 1]
-            u = u[np.logical_not(np.isclose(u, l / self.perimeter))]
+            u = u[np.logical_not(isclose(u, l / self.perimeter))]
         u = u[:n]
         u *= self.perimeter
         u.sort()
@@ -640,11 +995,18 @@ def is_on_line_segment(P0, P1, P2):
     v12 = P2 - P1
     return (
         # check that P2 is almost on the line P0 P1
-        np.isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0, atol=1e-6)
+        isclose(np.cross(v01, v02) / np.linalg.norm(v01), 0)
         # check that projection of P2 to line is between P0 and P1
         and v01 @ v02 >= 0
         and v01 @ v12 <= 0
     )
     # Not between P0 and P1, but close to P0 or P1
-    # or np.isclose(np.linalg.norm(v02), 0, atol=1e-6)  # check whether P2 is close to P0
-    # or np.isclose(np.linalg.norm(v12), 0, atol=1e-6)  # check whether P2 is close to P1
+    # or isclose(np.linalg.norm(v02), 0)  # check whether P2 is close to P0
+    # or isclose(np.linalg.norm(v12), 0)  # check whether P2 is close to P1
+
+
+def polar(x):
+    """Get the polar coordinated for a 2d vector in cartesian coordinates."""
+    r = np.sqrt(x[:, 0] ** 2 + x[:, 1] ** 2)
+    theta = np.arctan2(x[:, 1], x[:, 0])
+    return r, theta
