@@ -1,5 +1,4 @@
 from .. import backend as bkd
-from ..backend import backend_name
 
 
 def get(identifier):
@@ -23,15 +22,12 @@ def get(identifier):
     if not factor:
         raise ValueError("Regularization factor must be provided.")
 
-    try:
-        if name == "l1":
-            return bkd.l1_regularization(factor[0])
-        if name == "l2":
-            return bkd.l2_regularization(factor[0])
-        if name in ("l1l2", "l1+l2"):
-            # TODO: only supported by 'tensorflow.compat.v1' now.
-            if len(factor) < 2:
-                return bkd.l1_l2_regularization(factor[0], factor[1])
-    except Exception:
-        print(f"{name} regularization to be implemented for backend {backend_name} now.")
+    if name == "l1":
+        return bkd.l1_regularization(factor[0])
+    if name == "l2":
+        return bkd.l2_regularization(factor[0])
+    if name in ("l1l2", "l1+l2"):
+        # TODO: only supported by 'tensorflow.compat.v1' now.
+        if len(factor) < 2:
+            return bkd.l1_l2_regularization(factor[0], factor[1])
     raise ValueError(f"Unknown regularizer name: {name}")

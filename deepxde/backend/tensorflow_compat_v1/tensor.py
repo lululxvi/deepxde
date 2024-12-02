@@ -255,5 +255,5 @@ def l2_regularization(x):
     return tf.keras.regularizers.L2(l2=x)
 
 
-def l1_l2_regularization(x,y):
+def l1_l2_regularization(x, y):
     return tf.keras.regularizers.L1L2(l1=x, l2=y)

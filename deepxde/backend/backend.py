@@ -531,7 +531,8 @@ def l2_regularization(l2):
 
 
 def l1_l2_regularization(l1, l2):
-    """A regularizer that applies both L1 and L2 regularization penalties or L1 and L2 weight decay.
+    """A regularizer that applies both L1 and L2 regularization penalties or 
+    L1 and L2 weight decay.
 
     Warning:
         The implementation may vary across different backends.
@@ -539,4 +540,4 @@ def l1_l2_regularization(l1, l2):
     Args:
         l1 (float): L1 regularization factor.
         l2 (float): L2 regularization factor.
-"""
+    """
