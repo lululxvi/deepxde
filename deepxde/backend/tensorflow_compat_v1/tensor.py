@@ -247,13 +247,13 @@ def sparse_dense_matmul(x, y):
     return tf.sparse.sparse_dense_matmul(x, y)
 
 
-def l1_regularization(x):
-    return tf.keras.regularizers.L1(l1=x)
+def l1_regularization(l1):
+    return tf.keras.regularizers.L1(l1=l1)
 
 
-def l2_regularization(x):
-    return tf.keras.regularizers.L2(l2=x)
+def l2_regularization(l2):
+    return tf.keras.regularizers.L2(l2=l2)
 
 
-def l1_l2_regularization(x, y):
-    return tf.keras.regularizers.L1L2(l1=x, l2=y)
+def l1_l2_regularization(l1, l2):
+    return tf.keras.regularizers.L1L2(l1=l1, l2=l2)
