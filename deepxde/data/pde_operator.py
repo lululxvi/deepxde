@@ -273,7 +273,7 @@ class PDEOperatorCartesianProd(Data):
             losses = zip(*losses)
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
-        else: # forward mode AD
+        elif config.autodiff == "forward": # forward mode AD
             losses=[]
 
             def forward_call(trunk_input):
@@ -290,7 +290,6 @@ class PDEOperatorCartesianProd(Data):
             for k, bc in enumerate(self.pde.bcs):
                 beg, end = bcs_start[k], bcs_start[k + 1]
                 error_k = []
-                # NOTE: this loop over functions can also be avoided if we implement collective ic/bc
                 for i in range(num_func):
                     output_i = outputs[i]
                     if bkd.ndim(output_i) == 1:  # noqa
