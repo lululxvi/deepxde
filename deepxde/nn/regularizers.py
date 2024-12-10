@@ -11,7 +11,6 @@ def get(identifier):
             For "l1l2", provide both "l1" and "l2" factors.
     """
 
-    # TODO: other backends
     if identifier is None or not identifier:
         return None
     if not isinstance(identifier, (list, tuple)):
