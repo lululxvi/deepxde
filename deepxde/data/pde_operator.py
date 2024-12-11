@@ -239,9 +239,9 @@ class PDEOperatorCartesianProd(Data):
 
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
+        losses = []
 
         if config.autodiff == "reverse": # reverse mode AD
-            losses = []
             for i in range(num_func):
                 out = outputs[i]
                 # Single output
@@ -274,7 +274,6 @@ class PDEOperatorCartesianProd(Data):
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward": # forward mode AD
-            losses=[]
 
             def forward_call(trunk_input):
                 return aux[0]((inputs[0], trunk_input))
