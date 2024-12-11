@@ -48,17 +48,25 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
         learning_rate = _get_lr_scheduler(learning_rate, decay)
 
     if optimizer == "adam":
-        return paddle.optimizer.Adam(learning_rate=learning_rate, parameters=params, weight_decay=weight_decay)
+        return paddle.optimizer.Adam(
+            learning_rate=learning_rate, parameters=params, weight_decay=weight_decay
+        )
     elif optimizer == "sgd":
-        return paddle.optimizer.SGD(learning_rate=learning_rate, parameters=params, weight_decay=weight_decay)
+        return paddle.optimizer.SGD(
+            learning_rate=learning_rate, parameters=params, weight_decay=weight_decay
+        )
     elif optimizer == "rmsprop":
         return paddle.optimizer.RMSProp(
-            learning_rate=learning_rate, parameters=params, weight_decay=weight_decay,
+            learning_rate=learning_rate,
+            parameters=params,
+            weight_decay=weight_decay,
         )
     elif optimizer == "adamw":
         if weight_decay[0] == 0:
             raise ValueError("AdamW optimizer requires non-zero weight decay")
         return paddle.optimizer.AdamW(
-            learning_rate=learning_rate, parameters=params, weight_decay=weight_decay[0],
+            learning_rate=learning_rate,
+            parameters=params,
+            weight_decay=weight_decay[0],
         )
     raise NotImplementedError(f"{optimizer} to be implemented for backend Paddle.")
