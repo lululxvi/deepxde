@@ -51,17 +51,17 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
         return paddle.optimizer.Adam(
             learning_rate=learning_rate, parameters=params, weight_decay=weight_decay
         )
-    elif optimizer == "sgd":
+    if optimizer == "sgd":
         return paddle.optimizer.SGD(
             learning_rate=learning_rate, parameters=params, weight_decay=weight_decay
         )
-    elif optimizer == "rmsprop":
+    if optimizer == "rmsprop":
         return paddle.optimizer.RMSProp(
             learning_rate=learning_rate,
             parameters=params,
             weight_decay=weight_decay,
         )
-    elif optimizer == "adamw":
+    if optimizer == "adamw":
         if weight_decay[0] == 0:
             raise ValueError("AdamW optimizer requires non-zero weight decay")
         return paddle.optimizer.AdamW(
