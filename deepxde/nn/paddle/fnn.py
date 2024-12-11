@@ -29,7 +29,9 @@ class FNN(NN):
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
         self.regularizer = regularizers.get(regularization)
-        self.regularizer_value = regularization[1:] if regularization is not None else None
+        self.regularizer_value = (
+            regularization[1:] if regularization is not None else None
+        )
         self.dropout_rate = dropout_rate
 
         self.linears = paddle.nn.LayerList()
@@ -87,7 +89,6 @@ class PFNN(NN):
 
         n_output = layer_sizes[-1]
 
-
         def make_linear(n_input, n_output):
             linear = paddle.nn.Linear(n_input, n_output)
             initializer(linear.weight)
@@ -106,18 +107,22 @@ class PFNN(NN):
                 if isinstance(prev_layer_size, (list, tuple)):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
                     self.layers.append(
-                        paddle.nn.LayerList([
-                            make_linear(prev_layer_size[j], curr_layer_size[j])
-                            for j in range(n_output)
-                        ])
+                        paddle.nn.LayerList(
+                            [
+                                make_linear(prev_layer_size[j], curr_layer_size[j])
+                                for j in range(n_output)
+                            ]
+                        )
                     )
                 else:
                     # e.g. 64 -> [8, 8, 8]
                     self.layers.append(
-                        paddle.nn.LayerList([
-                            make_linear(prev_layer_size, curr_layer_size[j])
-                            for j in range(n_output)
-                        ])
+                        paddle.nn.LayerList(
+                            [
+                                make_linear(prev_layer_size, curr_layer_size[j])
+                                for j in range(n_output)
+                            ]
+                        )
                     )
             else:  # e.g. 64 -> 64
                 if not isinstance(prev_layer_size, int):
@@ -129,10 +134,9 @@ class PFNN(NN):
         # output layers
         if isinstance(layer_sizes[-2], (list, tuple)):  # e.g. [3, 3, 3] -> 3
             self.layers.append(
-                paddle.nn.LayerList([
-                    make_linear(layer_sizes[-2][j], 1)
-                    for j in range(n_output)
-                ])
+                paddle.nn.LayerList(
+                    [make_linear(layer_sizes[-2][j], 1) for j in range(n_output)]
+                )
             )
         else:
             self.layers.append(make_linear(layer_sizes[-2], n_output))

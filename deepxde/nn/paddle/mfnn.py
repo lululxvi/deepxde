@@ -33,11 +33,13 @@ class MfNN(NN):
         self.trainable_hi = trainable_high_fidelity
         self.residue = residue
         self.regularizer = regularizers.get(regularization)
-        self.regularizer_value = regularization[1:] if regularization is not None else None
-        
+        self.regularizer_value = (
+            regularization[1:] if regularization is not None else None
+        )
+
         # low fidelity
         self.linears_lo = self.init_dense(self.layer_size_lo, self.trainable_lo)
-        
+
         # high fidelity
         # linear part
         self.linears_hi_l = paddle.nn.Linear(
@@ -50,18 +52,20 @@ class MfNN(NN):
             for param in self.linears_hi_l.parameters():
                 param.stop_gradient = False
         # nonlinear part
-        self.layer_size_hi = [self.layer_size_lo[0] + self.layer_size_lo[-1]] + self.layer_size_hi
+        self.layer_size_hi = [
+            self.layer_size_lo[0] + self.layer_size_lo[-1]
+        ] + self.layer_size_hi
         self.linears_hi = self.init_dense(self.layer_size_hi, self.trainable_hi)
         # linear + nonlinear
         if not self.residue:
             alpha = self.init_alpha(0.0, self.trainable_hi)
-            self.add_parameter("alpha",alpha)
+            self.add_parameter("alpha", alpha)
         else:
             alpha1 = self.init_alpha(0.0, self.trainable_hi)
             alpha2 = self.init_alpha(0.0, self.trainable_hi)
-            self.add_parameter("alpha1",alpha1)
-            self.add_parameter("alpha2",alpha2)
-    
+            self.add_parameter("alpha1", alpha1)
+            self.add_parameter("alpha2", alpha2)
+
     def init_dense(self, layer_size, trainable):
         linears = paddle.nn.LayerList()
         for i in range(len(layer_size) - 1):
@@ -79,11 +83,11 @@ class MfNN(NN):
 
     def init_alpha(self, value, trainable):
         alpha = paddle.create_parameter(
-            shape=[1], 
-            dtype=config.real(paddle), 
+            shape=[1],
+            dtype=config.real(paddle),
             default_initializer=paddle.nn.initializer.Constant(value),
         )
-        alpha.stop_gradient=not trainable
+        alpha.stop_gradient = not trainable
         return alpha
 
     def forward(self, inputs):
