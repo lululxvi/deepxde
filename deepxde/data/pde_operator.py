@@ -240,7 +240,6 @@ class PDEOperatorCartesianProd(Data):
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
         losses = []
-
         if config.autodiff == "reverse": # reverse mode AD
             for i in range(num_func):
                 out = outputs[i]
