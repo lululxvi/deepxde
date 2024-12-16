@@ -270,6 +270,7 @@ class PDEOperatorCartesianProd(Data):
                     f = [f]
             error_f = [fi[:, bcs_start[-1]:] for fi in f]
             losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]  # noqa
+
         # BC loss
         for k, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[k], bcs_start[k + 1]
