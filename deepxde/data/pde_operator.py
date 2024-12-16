@@ -5,6 +5,7 @@ from .sampler import BatchSampler
 from .. import backend as bkd
 from .. import config
 from ..utils import run_if_all_none
+import time
 
 
 class PDEOperator(Data):
@@ -237,6 +238,7 @@ class PDEOperatorCartesianProd(Data):
         self.train_next_batch()
         self.test()
 
+
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
         losses = []
@@ -269,7 +271,7 @@ class PDEOperatorCartesianProd(Data):
                 if not isinstance(f, (list, tuple)):
                     f = [f]
             error_f = [fi[:, bcs_start[-1]:] for fi in f]
-            losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]  # noqa
+            losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
 
         # BC loss
         for j, bc in enumerate(self.pde.bcs):
@@ -277,7 +279,7 @@ class PDEOperatorCartesianProd(Data):
             error = []
             for i in range(num_func):
                 out = outputs[i]
-                if bkd.ndim(out) == 1:  # noqa
+                if bkd.ndim(out) == 1:
                     out = out[:, None]
                 error_i = bc.error(
                     self.train_x[1],
@@ -288,8 +290,8 @@ class PDEOperatorCartesianProd(Data):
                     aux_var=model.net.auxiliary_vars[i][:, None],
                 )
                 error.append(error_i)
-            error = bkd.stack(error, axis=0)  # noqa
-            loss = loss_fn(bkd.zeros_like(error), error)  # noqa
+            error = bkd.stack(error, 0)
+            loss = loss_fn(bkd.zeros_like(error), error)
             losses.append(loss)
         return losses
 
