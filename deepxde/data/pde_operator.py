@@ -240,6 +240,7 @@ class PDEOperatorCartesianProd(Data):
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
         losses = []
+        # PDE loss
         if config.autodiff == "reverse": # reverse mode AD
             for i in range(num_func):
                 out = outputs[i]
@@ -253,20 +254,6 @@ class PDEOperatorCartesianProd(Data):
                         f = [f]
                 error_f = [fi[bcs_start[-1]:] for fi in f]
                 losses_i = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
-
-                for j, bc in enumerate(self.pde.bcs):
-                    beg, end = bcs_start[j], bcs_start[j + 1]
-                    # The same BC points are used for training and testing.
-                    error = bc.error(
-                        self.train_x[1],
-                        inputs[1],
-                        out,
-                        beg,
-                        end,
-                        aux_var=model.net.auxiliary_vars[i][:, None],
-                    )
-                    losses_i.append(loss_fn(bkd.zeros_like(error), error))
-
                 losses.append(losses_i)
 
             losses = zip(*losses)
@@ -283,26 +270,26 @@ class PDEOperatorCartesianProd(Data):
                     f = [f]
             error_f = [fi[:, bcs_start[-1]:] for fi in f]
             losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]  # noqa
-            # BC
-            for k, bc in enumerate(self.pde.bcs):
-                beg, end = bcs_start[k], bcs_start[k + 1]
-                error_k = []
-                for i in range(num_func):
-                    output_i = outputs[i]
-                    if bkd.ndim(output_i) == 1:  # noqa
-                        output_i = output_i[:, None]
-                    error_ki = bc.error(
-                        self.train_x[1],
-                        inputs[1],
-                        output_i,
-                        beg,
-                        end,
-                        aux_var=model.net.auxiliary_vars[i][:, None],
-                    )
-                    error_k.append(error_ki)
-                error_k = bkd.stack(error_k, axis=0)  # noqa
-                loss_k = loss_fn(bkd.zeros_like(error_k), error_k)  # noqa
-                losses.append(loss_k)
+        # BC loss
+        for k, bc in enumerate(self.pde.bcs):
+            beg, end = bcs_start[k], bcs_start[k + 1]
+            error_k = []
+            for i in range(num_func):
+                output_i = outputs[i]
+                if bkd.ndim(output_i) == 1:  # noqa
+                    output_i = output_i[:, None]
+                error_ki = bc.error(
+                    self.train_x[1],
+                    inputs[1],
+                    output_i,
+                    beg,
+                    end,
+                    aux_var=model.net.auxiliary_vars[i][:, None],
+                )
+                error_k.append(error_ki)
+            error_k = bkd.stack(error_k, axis=0)  # noqa
+            loss_k = loss_fn(bkd.zeros_like(error_k), error_k)  # noqa
+            losses.append(loss_k)
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
