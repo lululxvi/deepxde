@@ -241,7 +241,7 @@ class PDEOperatorCartesianProd(Data):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
         losses = []
         # PDE loss
-        if config.autodiff == "reverse": # reverse mode AD
+        if config.autodiff == "reverse":  # reverse mode AD
             for i in range(num_func):
                 out = outputs[i]
                 # Single output
@@ -249,26 +249,30 @@ class PDEOperatorCartesianProd(Data):
                     out = out[:, None]
                 f = []
                 if self.pde.pde is not None:
-                    f = self.pde.pde(inputs[1], out, model.net.auxiliary_vars[i][:, None])
+                    f = self.pde.pde(
+                        inputs[1], out, model.net.auxiliary_vars[i][:, None]
+                    )
                     if not isinstance(f, (list, tuple)):
                         f = [f]
-                error_f = [fi[bcs_start[-1]:] for fi in f]
+                error_f = [fi[bcs_start[-1] :] for fi in f]
                 losses_i = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
                 losses.append(losses_i)
 
             losses = zip(*losses)
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
-        elif config.autodiff == "forward": # forward mode AD
+        elif config.autodiff == "forward":  # forward mode AD
 
             def forward_call(trunk_input):
                 return aux[0]((inputs[0], trunk_input))
 
             if self.pde.pde is not None:
-                f = self.pde.pde(inputs[1], (outputs, forward_call), model.net.auxiliary_vars)
+                f = self.pde.pde(
+                    inputs[1], (outputs, forward_call), model.net.auxiliary_vars
+                )
                 if not isinstance(f, (list, tuple)):
                     f = [f]
-            error_f = [fi[:, bcs_start[-1]:] for fi in f]
+            error_f = [fi[:, bcs_start[-1] :] for fi in f]
             losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
 
         # BC loss
@@ -298,7 +302,9 @@ class PDEOperatorCartesianProd(Data):
         return self._losses(outputs, loss_fn, inputs, model, num_func, aux=aux)
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return self._losses(outputs, loss_fn, inputs, model, len(self.test_x[0]), aux=aux)
+        return self._losses(
+            outputs, loss_fn, inputs, model, len(self.test_x[0]), aux=aux
+        )
 
     def train_next_batch(self, batch_size=None):
         if self.train_x is None:
