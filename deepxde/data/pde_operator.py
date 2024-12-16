@@ -5,7 +5,6 @@ from .sampler import BatchSampler
 from .. import backend as bkd
 from .. import config
 from ..utils import run_if_all_none
-import time
 
 
 class PDEOperator(Data):
@@ -237,7 +236,6 @@ class PDEOperatorCartesianProd(Data):
         self.train_sampler = BatchSampler(self.num_func, shuffle=True)
         self.train_next_batch()
         self.test()
-
 
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
