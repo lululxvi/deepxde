@@ -33,9 +33,6 @@ class MfNN(NN):
         self.trainable_hi = trainable_high_fidelity
         self.residue = residue
         self.regularizer = regularizers.get(regularization)
-        self.regularizer_value = (
-            regularization[1:] if regularization is not None else None
-        )
 
         # low fidelity
         self.linears_lo = self.init_dense(self.layer_size_lo, self.trainable_lo)

@@ -29,9 +29,6 @@ class FNN(NN):
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
         self.regularizer = regularizers.get(regularization)
-        self.regularizer_value = (
-            regularization[1:] if regularization is not None else None
-        )
         self.dropout_rate = dropout_rate
 
         self.linears = paddle.nn.LayerList()
