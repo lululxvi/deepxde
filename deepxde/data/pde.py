@@ -160,9 +160,13 @@ class PDE(Data):
                     if len(aux) == 2:
                         # External trainable variables in aux[1] are used for unknowns
                         f = self.pde(inputs, outputs_pde, unknowns=aux[1])
-                    if len(aux) == 1 and has_default_values(self.pde)[-1]:
+                    elif len(aux) == 1 and has_default_values(self.pde)[-1]:
                         # No external trainable variables, default values are used for unknowns
                         f = self.pde(inputs, outputs_pde)
+                    else:
+                        raise ValueError(
+                            "Default unknowns are required if no trainable variables are provided."
+                        )
                 else:
                     raise ValueError("Auxiliary variable function not defined.")
             if not isinstance(f, (list, tuple)):
