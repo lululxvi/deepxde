@@ -25,10 +25,10 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
         return optimizer
 
     if optimizer in ["L-BFGS", "L-BFGS-B"]:
-        if weight_decay is not None:
-            raise ValueError("L-BFGS optimizer doesn't support weight_decay")
         if learning_rate is not None or decay is not None:
             print("Warning: learning rate is ignored for {}".format(optimizer))
+        if weight_decay is not None:
+            raise ValueError("L-BFGS optimizer doesn't support weight_decay")
         optim = paddle.optimizer.LBFGS(
             learning_rate=1,
             max_iter=LBFGS_options["iter_per_step"],
@@ -67,7 +67,7 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
             or weight_decay._coeff == 0
         ):
             raise ValueError(
-                "AdamW optimizer requires L2 regularizer and non-zero weight decay"
+                "AdamW optimizer requires non-zero L2 regularizer"
             )
         return paddle.optimizer.AdamW(
             learning_rate=learning_rate,
