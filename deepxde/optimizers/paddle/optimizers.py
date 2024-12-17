@@ -62,13 +62,11 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
             weight_decay=weight_decay,
         )
     if optimizer == "adamw":
-        if isinstance(weight_decay, paddle.regularizer.L2Decay):
-            if weight_decay._coeff == 0:
-                raise ValueError("AdamW optimizer requires non-zero weight decay")
-            return paddle.optimizer.AdamW(
-                learning_rate=learning_rate,
-                parameters=params,
-                weight_decay=weight_decay._coeff,
-            )
-        raise ValueError("AdamW optimizer requires l2 regularizer")
+        if not isinstance(weight_decay, paddle.regularizer.L2Decay) or weight_decay._coeff == 0:
+            raise ValueError("AdamW optimizer requires L2 regularizer and non-zero weight decay")
+        return paddle.optimizer.AdamW(
+            learning_rate=learning_rate,
+            parameters=params,
+            weight_decay=weight_decay._coeff,
+        )
     raise NotImplementedError(f"{optimizer} to be implemented for backend Paddle.")
