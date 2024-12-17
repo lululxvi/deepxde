@@ -267,6 +267,7 @@ class PDEOperatorCartesianProd(Data):
                 return aux[0]((inputs[0], trunk_input))
 
             if self.pde.pde is not None:
+                # f has the shape (`N1`, `N2`), inputs[1] has the shape (`N2`, `dim2`), outputs has the shape (`N1`, `N2`)
                 f = self.pde.pde(
                     inputs[1], (outputs, forward_call), model.net.auxiliary_vars
                 )
