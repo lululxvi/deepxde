@@ -66,9 +66,7 @@ def get(params, optimizer, learning_rate=None, decay=None, weight_decay=None):
             not isinstance(weight_decay, paddle.regularizer.L2Decay)
             or weight_decay._coeff == 0
         ):
-            raise ValueError(
-                "AdamW optimizer requires non-zero L2 regularizer"
-            )
+            raise ValueError("AdamW optimizer requires non-zero L2 regularizer")
         return paddle.optimizer.AdamW(
             learning_rate=learning_rate,
             parameters=params,
