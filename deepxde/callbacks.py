@@ -137,7 +137,7 @@ class ModelCheckpoint(Callback):
         self.monitor = monitor
         self.monitor_op = np.less
         self.epochs_since_last_save = 0
-        self.best = np.Inf
+        self.best = np.inf
 
     def on_epoch_end(self):
         self.epochs_since_last_save += 1
@@ -221,7 +221,7 @@ class EarlyStopping(Callback):
         if self.baseline is not None:
             self.best = self.baseline
         else:
-            self.best = np.Inf if self.monitor_op == np.less else -np.Inf
+            self.best = np.inf if self.monitor_op == np.less else -np.inf
 
     def on_epoch_end(self):
         if self.model.train_state.epoch < self.start_from_epoch:

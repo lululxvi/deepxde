@@ -1,9 +1,10 @@
-__all__ = ["set_LBFGS_options", "set_hvd_opt_options"]
+__all__ = ["set_LBFGS_options", "set_NNCG_options", "set_hvd_opt_options"]
 
 from ..backend import backend_name
 from ..config import hvd
 
 LBFGS_options = {}
+NNCG_options = {}
 if hvd is not None:
     hvd_opt_options = {}
 
@@ -60,6 +61,60 @@ def set_LBFGS_options(
     LBFGS_options["maxls"] = maxls
 
 
+def set_NNCG_options(
+    lr=1,
+    rank=50,
+    mu=1e-1,
+    updatefreq=20,
+    chunksz=1,
+    cgtol=1e-16,
+    cgmaxiter=1000,
+    lsfun="armijo",
+    verbose=False,
+):
+    """Sets the hyperparameters of NysNewtonCG (NNCG).
+
+    The NNCG optimizer only supports PyTorch.
+
+    Args:
+        lr (float):
+            Learning rate (before line search).
+        rank (int):
+            Rank of preconditioner matrix used in preconditioned conjugate gradient.
+        mu (float):
+            Hessian damping parameter.
+        updatefreq (int):
+            How often the preconditioner matrix in preconditioned
+            conjugate gradient is updated. This parameter is not directly used in NNCG,
+            instead it is used in _train_pytorch_nncg in deepxde/model.py.
+        chunksz (int):
+            Number of Hessian-vector products to compute in parallel when constructing
+            preconditioner. If `chunk_size` is 1, the Hessian-vector products are
+            computed serially.
+        cgtol (float):
+            Convergence tolerance for the conjugate gradient method. The iteration stops
+            when `||r||_2 <= cgtol`, where `r` is the residual. Note that this condition
+            is based on the absolute tolerance, not the relative tolerance.
+        cgmaxiter (int):
+            Maximum number of iterations for the conjugate gradient method.
+        lsfun (str):
+            The line search function used to find the step size. The default value is
+            "armijo". The other option is None.
+        verbose (bool):
+            If `True`, prints the eigenvalues of the Nyström approximation
+            of the Hessian.
+    """
+    NNCG_options["lr"] = lr
+    NNCG_options["rank"] = rank
+    NNCG_options["mu"] = mu
+    NNCG_options["updatefreq"] = updatefreq
+    NNCG_options["chunksz"] = chunksz
+    NNCG_options["cgtol"] = cgtol
+    NNCG_options["cgmaxiter"] = cgmaxiter
+    NNCG_options["lsfun"] = lsfun
+    NNCG_options["verbose"] = verbose
+
+
 def set_hvd_opt_options(
     compression=None,
     op=None,
@@ -91,6 +146,7 @@ def set_hvd_opt_options(
 
 
 set_LBFGS_options()
+set_NNCG_options()
 if hvd is not None:
     set_hvd_opt_options()
 

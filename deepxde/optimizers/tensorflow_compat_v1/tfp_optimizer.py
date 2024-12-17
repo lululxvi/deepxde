@@ -37,7 +37,7 @@ class LossAndFlatGradient:
         self.indices = []  # stitch indices
         self.partitions = []  # partition indices
         for i, shape in enumerate(self.shapes):
-            n = np.product(shape)
+            n = np.prod(shape)
             self.indices.append(
                 tf.reshape(tf.range(count, count + n, dtype=tf.int32), shape)
             )

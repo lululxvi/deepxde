@@ -110,3 +110,8 @@ jacobian._Jacobians = Jacobians(JacobianForward)
 def hessian(ys, xs, component=0, i=0, j=0):
     dys_xj = jacobian(ys, xs, i=None, j=j)
     return jacobian(dys_xj, xs, i=component, j=i)
+
+
+def clear():
+    """Clear cached Jacobians"""
+    jacobian._Jacobians.clear()
