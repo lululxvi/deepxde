@@ -239,6 +239,7 @@ class PDEOperatorCartesianProd(Data):
 
     def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
+
         losses = []
         # PDE loss
         if config.autodiff == "reverse":  # reverse mode AD
@@ -277,10 +278,11 @@ class PDEOperatorCartesianProd(Data):
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
             # Each error has the shape (N1, ~N2)
             losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
+
         # BC loss
         error_bc = []
         for i in range(num_func):
-            error_i = []
+            losses_i = []
             out = outputs[i]
             if bkd.ndim(out) == 1:
                 out = out[:, None]
@@ -294,9 +296,9 @@ class PDEOperatorCartesianProd(Data):
                     end,
                     aux_var=model.net.auxiliary_vars[i][:, None],
                 )
-                error_i.append(loss_fn(bkd.zeros_like(error), error))
+                losses_i.append(loss_fn(bkd.zeros_like(error), error))
 
-            error_bc.append(error_i)
+            error_bc.append(losses_i)
 
         error_bc = zip(*error_bc)
         error_bc = [bkd.reduce_mean(bkd.stack(error, 0)) for error in error_bc]
