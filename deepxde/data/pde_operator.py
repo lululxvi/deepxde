@@ -266,6 +266,7 @@ class PDEOperatorCartesianProd(Data):
             def forward_call(trunk_input):
                 return aux[0]((inputs[0], trunk_input))
 
+            f = []
             if self.pde.pde is not None:
                 # Each f has the shape (N1, N2)
                 f = self.pde.pde(
