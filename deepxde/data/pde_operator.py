@@ -294,10 +294,8 @@ class PDEOperatorCartesianProd(Data):
                     end,
                     aux_var=model.net.auxiliary_vars[i][:, None],
                 )
-                error.append(error_i)
-            error = bkd.stack(error, 0)
-            loss = loss_fn(bkd.zeros_like(error), error)
-            losses.append(loss)
+                error.append(loss_fn(bkd.zeros_like(error_i), error_i))
+            losses.append(bkd.reduce_mean(bkd.stack(error, 0)))
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
