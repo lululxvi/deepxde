@@ -275,6 +275,7 @@ class PDEOperatorCartesianProd(Data):
                 if not isinstance(f, (list, tuple)):
                     f = [f]
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
+            # Each error has the shape (N1, ~N2)
             losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
 
         # BC loss
