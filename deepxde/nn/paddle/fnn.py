@@ -30,13 +30,17 @@ class FNN(NN):
         initializer_zero = initializers.get("zeros")
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
+        self.dropouts = [
+            paddle.nn.Dropout(p=dropout_rate)
+            for _ in range(1, len(layer_sizes) - 1)
+            if dropout_rate > 0.0
+        ]
 
         self.linears = paddle.nn.LayerList()
         for i in range(1, len(layer_sizes)):
             self.linears.append(paddle.nn.Linear(layer_sizes[i - 1], layer_sizes[i]))
             initializer(self.linears[-1].weight)
             initializer_zero(self.linears[-1].bias)
-        self.dropout = paddle.nn.Dropout(p=dropout_rate) if dropout_rate > 0.0 else None
 
     def forward(self, inputs):
         x = inputs
@@ -48,8 +52,8 @@ class FNN(NN):
                 if isinstance(self.activation, list)
                 else self.activation(linear(x))
             )
-        if self.dropout is not None:
-            x = self.dropout(x)
+            if self.dropout_rate > 0.0:
+                x = self.dropouts[j](x)
         x = self.linears[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
@@ -71,11 +75,14 @@ class PFNN(NN):
         kernel_initializer: Initializer for the kernel weights matrix.
     """
 
-    def __init__(self, layer_sizes, activation, kernel_initializer):
+    def __init__(
+        self, layer_sizes, activation, kernel_initializer, regularization=None
+    ):
         super().__init__()
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
+        self.regularizer = regularizers.get(regularization)
 
         if len(layer_sizes) <= 1:
             raise ValueError("must specify input and output sizes")
