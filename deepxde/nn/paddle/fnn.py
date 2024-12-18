@@ -15,7 +15,7 @@ class FNN(NN):
         activation,
         kernel_initializer,
         regularization=None,
-        dropout_rate=0.0,
+        dropout_rate=0,
     ):
         super().__init__()
         if isinstance(activation, list):
@@ -30,11 +30,11 @@ class FNN(NN):
         initializer_zero = initializers.get("zeros")
         self.regularizer = regularizers.get(regularization)
         self.dropout_rate = dropout_rate
-        self.dropouts = [
-            paddle.nn.Dropout(p=dropout_rate)
-            for _ in range(1, len(layer_sizes) - 1)
-            if dropout_rate > 0.0
-        ]
+        if dropout_rate > 0:
+            self.dropouts = [
+                paddle.nn.Dropout(p=dropout_rate)
+                for _ in range(1, len(layer_sizes) - 1)
+            ]
 
         self.linears = paddle.nn.LayerList()
         for i in range(1, len(layer_sizes)):
@@ -52,7 +52,7 @@ class FNN(NN):
                 if isinstance(self.activation, list)
                 else self.activation(linear(x))
             )
-            if self.dropout_rate > 0.0:
+            if self.dropout_rate > 0:
                 x = self.dropouts[j](x)
         x = self.linears[-1](x)
         if self._output_transform is not None:
