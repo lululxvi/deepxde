@@ -337,9 +337,6 @@ class Model:
                 l1_factor = self.net.regularizer[1]
             elif self.net.regularizer[0] == "l2":
                 l2_factor = self.net.regularizer[1]
-            elif self.net.regularizer[0] in ("l1l2", "l1+l2"):
-                l1_factor = self.net.regularizer[1]
-                l2_factor = self.net.regularizer[2]
             else:
                 raise ValueError(f"Unknown regularizer name: {self.net.regularizer[0]}")
 
