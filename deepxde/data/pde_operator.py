@@ -279,7 +279,7 @@ class PDEOperatorCartesianProd(Data):
             # Each error has the shape (N1, ~N2)
             for error in error_f:
                 error_i = []
-                for i in range(error.shape[0]):
+                for i in range(num_func):
                     error_i.append(loss_fn(bkd.zeros_like(error[i]), error[i]))
                 losses.append(bkd.reduce_mean(bkd.stack(error_i, 0)))
 
@@ -292,6 +292,7 @@ class PDEOperatorCartesianProd(Data):
                 out = out[:, None]
             for j, bc in enumerate(self.pde.bcs):
                 beg, end = bcs_start[j], bcs_start[j + 1]
+                # The same BC points are used for training and testing.
                 error = bc.error(
                     self.train_x[1],
                     inputs[1],
