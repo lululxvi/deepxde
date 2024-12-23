@@ -275,8 +275,8 @@ class PDEOperatorCartesianProd(Data):
                 )
                 if not isinstance(f, (list, tuple)):
                     f = [f]
-            error_f = [fi[:, bcs_start[-1]:] for fi in f]
             # Each error has the shape (N1, ~N2)
+            error_f = [fi[:, bcs_start[-1]:] for fi in f]
             for error in error_f:
                 error_i = []
                 for i in range(num_func):
