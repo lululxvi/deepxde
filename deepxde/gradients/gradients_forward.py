@@ -92,7 +92,7 @@ class JacobianForward(Jacobian):
                 # In backend tensorflow/pytorch/jax, a tuple of a tensor/tensor/array
                 # and a callable is returned, so that it is consistent with the argument,
                 # which is also a tuple. This is useful for further computation, e.g.,
-                # Hessian. The code still works even the output dim is > 2
+                # Hessian. The code still works even the output dim is > 2.
                 self.J[i, j] = (
                     self.J[j][0][..., i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
