@@ -94,7 +94,7 @@ class JacobianForward(Jacobian):
                 # which is also a tuple. This is useful for further computation, e.g.,
                 # Hessian.
                 self.J[i, j] = (
-                    self.J[j][0][:, i : i + 1],
+                    self.J[j][0][..., i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
                 )
         return self.J[i, j]
