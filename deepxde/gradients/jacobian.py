@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from .. import config
 from ..backend import backend_name
-
+from .. import backend as bkd
 
 class Jacobian(ABC):
     """Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
@@ -28,7 +28,10 @@ class Jacobian(ABC):
             elif config.autodiff == "forward":
                 # For forward-mode AD, a tuple of a tensor and a callable is passed, 
                 # similar to backend jax.
-                self.dim_y = ys[0].shape[1]
+                if bkd.ndim(ys[0]) == 2:
+                    self.dim_y = 1
+                elif bkd.ndim(ys[0]) == 3:
+                    self.dim_y = ys[0].shape[2]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.

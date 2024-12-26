@@ -92,9 +92,10 @@ class JacobianForward(Jacobian):
                 # In backend tensorflow/pytorch/jax, a tuple of a tensor/tensor/array
                 # and a callable is returned, so that it is consistent with the argument,
                 # which is also a tuple. This is useful for further computation, e.g.,
-                # Hessian. The code is designed for the output shape of (batch size, dim),
-                # but we find that the code also works for the output shape of (batch size 1,
-                # batch size 2, dim) such as multiple-output DeepONet.
+                # Hessian. The original code self.J[j][0][:, i : i + 1] is designed for
+                # the output shape of (batch size, dim), but we find that the code
+                # also works for the output shape of (batch size 1, batch size 2, dim)
+                # such as multiple-output DeepONet.
                 self.J[i, j] = (
                     self.J[j][0][..., i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
