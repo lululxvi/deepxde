@@ -306,8 +306,8 @@ class PDEOperatorCartesianProd(Data):
             losses_bc.append(losses_i)
 
         losses_bc = zip(*losses_bc)
-        for loss in losses_bc:
-            losses.append(bkd.reduce_mean(bkd.stack(loss, 0)))
+        losses_bc = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses_bc]
+        losses.extend(losses_bc)
         return losses
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
