@@ -263,18 +263,46 @@ class PDEOperatorCartesianProd(Data):
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
+            if bkd.ndim(outputs) == 2:
+                is_multi_outputs = False
+                shape0, shape1 = outputs.shape[0], outputs.shape[1]
+            elif bkd.ndim(outputs) == 3:
+                is_multi_outputs = True
+                shape0, shape1, shape2 = (
+                    outputs.shape[0],
+                    outputs.shape[1],
+                    outputs.shape[2],
+                )
 
             def forward_call(trunk_input):
-                return aux[0]((inputs[0], trunk_input))
+                output = aux[0]((inputs[0], trunk_input))
+                if not is_multi_outputs:
+                    return output.reshape(shape0 * shape1, 1)
+                elif is_multi_outputs:
+                    return output.reshape(shape0 * shape1, shape2)
+
+            if not is_multi_outputs:
+                outputs = outputs.reshape(shape0 * shape1, 1)
+                auxiliary_vars = model.net.auxiliary_vars.reshape(shape0 * shape1, 1)
+            elif is_multi_outputs:
+                outputs = outputs.reshape(shape0 * shape1, shape2)
+                auxiliary_vars = model.net.auxiliary_vars.reshape(
+                    shape0 * shape1, shape2
+                )
 
             f = []
             if self.pde.pde is not None:
                 # Each f has the shape (N1, N2)
-                f = self.pde.pde(
-                    inputs[1], (outputs, forward_call), model.net.auxiliary_vars
-                )
+                f = self.pde.pde(inputs[1], (outputs, forward_call), auxiliary_vars)
                 if not isinstance(f, (list, tuple)):
                     f = [f]
+
+            if not is_multi_outputs:
+                outputs = outputs.reshape(shape0, shape1)
+                f = [fi.reshape(shape0, shape1) for fi in f]
+            elif is_multi_outputs:
+                outputs = outputs.reshape(shape0, shape1, shape2)
+                f = [fi.reshape(shape0, shape1, shape2) for fi in f]
             # Each error has the shape (N1, ~N2)
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
             for error in error_f:
