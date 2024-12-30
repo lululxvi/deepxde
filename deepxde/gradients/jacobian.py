@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 from .. import config
 from ..backend import backend_name
-from .. import backend as bkd
 
 class Jacobian(ABC):
     """Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
