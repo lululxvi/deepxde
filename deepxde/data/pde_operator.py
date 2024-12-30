@@ -278,8 +278,7 @@ class PDEOperatorCartesianProd(Data):
                 output = aux[0]((inputs[0], trunk_input))
                 if is_multi_outputs:
                     return output.reshape(shape0 * shape1, shape2)
-                else:
-                    return output.reshape(shape0 * shape1, 1)
+                return output.reshape(shape0 * shape1, 1)
 
             if not is_multi_outputs:
                 outputs = outputs.reshape(shape0 * shape1, 1)
