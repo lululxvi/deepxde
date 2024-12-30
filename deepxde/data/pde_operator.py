@@ -276,10 +276,10 @@ class PDEOperatorCartesianProd(Data):
 
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                if not is_multi_outputs:
-                    return output.reshape(shape0 * shape1, 1)
-                else:
+                if is_multi_outputs:
                     return output.reshape(shape0 * shape1, shape2)
+                else:
+                    return output.reshape(shape0 * shape1, 1)
 
             if not is_multi_outputs:
                 outputs = outputs.reshape(shape0 * shape1, 1)
