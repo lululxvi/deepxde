@@ -263,10 +263,10 @@ class PDEOperatorCartesianProd(Data):
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
-            if model.net.num_outputs == 2:
+            if model.net.num_outputs == 1:
                 is_multi_outputs = False
                 shape0, shape1 = outputs.shape[0], outputs.shape[1]
-            elif model.net.num_outputs == 3:
+            elif model.net.num_outputs > 1:
                 is_multi_outputs = True
                 shape0, shape1, shape2 = (
                     outputs.shape[0],
