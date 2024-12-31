@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from .. import config
 from ..backend import backend_name
 
+
 class Jacobian(ABC):
     """Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
     J as J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
