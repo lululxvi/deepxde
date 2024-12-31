@@ -266,7 +266,7 @@ class PDEOperatorCartesianProd(Data):
             if model.net.num_outputs == 1:
                 is_multi_outputs = False
                 shape0, shape1 = outputs.shape[0], outputs.shape[1]
-            elif model.net.num_outputs > 1:
+            else:
                 is_multi_outputs = True
                 shape0, shape1, shape2 = (
                     outputs.shape[0],
@@ -277,16 +277,18 @@ class PDEOperatorCartesianProd(Data):
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
                 if is_multi_outputs:
-                    return output.reshape(shape0 * shape1, shape2)
-                return output.reshape(shape0 * shape1, 1)
+                    return bkd.reshape(output, (shape0 * shape1, shape2))
+                return bkd.reshape(output, (shape0 * shape1, 1))
 
             if not is_multi_outputs:
-                outputs = outputs.reshape(shape0 * shape1, 1)
-                auxiliary_vars = model.net.auxiliary_vars.reshape(shape0 * shape1, 1)
-            elif is_multi_outputs:
-                outputs = outputs.reshape(shape0 * shape1, shape2)
-                auxiliary_vars = model.net.auxiliary_vars.reshape(
-                    shape0 * shape1, shape2
+                outputs = bkd.reshape(outputs, (shape0 * shape1, 1))
+                auxiliary_vars = bkd.reshape(
+                    model.net.auxiliary_vars, (shape0 * shape1, 1)
+                )
+            else:
+                outputs = bkd.reshape(outputs, (shape0 * shape1, shape2))
+                auxiliary_vars = bkd.reshape(
+                    model.net.auxiliary_vars, (shape0 * shape1, shape2)
                 )
 
             f = []
@@ -297,11 +299,11 @@ class PDEOperatorCartesianProd(Data):
                     f = [f]
 
             if not is_multi_outputs:
-                outputs = outputs.reshape(shape0, shape1)
-                f = [fi.reshape(shape0, shape1) for fi in f]
-            elif is_multi_outputs:
-                outputs = outputs.reshape(shape0, shape1, shape2)
-                f = [fi.reshape(shape0, shape1, shape2) for fi in f]
+                outputs = bkd.reshape(outputs, (shape0, shape1))
+                f = [bkd.reshape(fi, (shape0, shape1)) for fi in f]
+            else:
+                outputs = bkd.reshape(outputs, (shape0, shape1, shape2))
+                f = [bkd.reshape(fi, (shape0, shape1, shape2)) for fi in f]
             # Each error has the shape (N1, ~N2)
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
             for error in error_f:
