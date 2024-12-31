@@ -27,7 +27,7 @@ class Jacobian(ABC):
             elif config.autodiff == "forward":
                 # For forward-mode AD, a tuple of a tensor and a callable is passed, 
                 # similar to backend jax.
-                self.dim_y = ys[0].shape[-1]
+                self.dim_y = ys[0].shape[1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
