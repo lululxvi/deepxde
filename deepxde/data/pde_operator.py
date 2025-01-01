@@ -264,10 +264,8 @@ class PDEOperatorCartesianProd(Data):
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
             if model.net.num_outputs == 1:
-                is_multi_outputs = False
                 shape0, shape1 = outputs.shape[0], outputs.shape[1]
             else:
-                is_multi_outputs = True
                 shape0, shape1, shape2 = (
                     outputs.shape[0],
                     outputs.shape[1],
@@ -276,11 +274,11 @@ class PDEOperatorCartesianProd(Data):
 
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                if is_multi_outputs:
-                    return bkd.reshape(output, (shape0 * shape1, shape2))
-                return bkd.reshape(output, (shape0 * shape1, 1))
+                if model.net.num_outputs == 1:
+                    return bkd.reshape(output, (shape0 * shape1, 1))
+                return bkd.reshape(output, (shape0 * shape1, shape2))
 
-            if not is_multi_outputs:
+            if model.net.num_outputs == 1:
                 outputs = bkd.reshape(outputs, (shape0 * shape1, 1))
                 auxiliary_vars = bkd.reshape(
                     model.net.auxiliary_vars, (shape0 * shape1, 1)
@@ -298,7 +296,7 @@ class PDEOperatorCartesianProd(Data):
                 if not isinstance(f, (list, tuple)):
                     f = [f]
 
-            if not is_multi_outputs:
+            if model.net.num_outputs == 1:
                 outputs = bkd.reshape(outputs, (shape0, shape1))
                 f = [bkd.reshape(fi, (shape0, shape1)) for fi in f]
             else:
