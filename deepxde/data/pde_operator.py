@@ -286,14 +286,7 @@ class PDEOperatorCartesianProd(Data):
                 )
                 if not isinstance(f, (list, tuple)):
                     f = [f]
-            f = (
-                [bkd.reshape(fi, (batchsize1, batchsize2)) for fi in f]
-                if model.net.num_outputs == 1
-                else [
-                    bkd.reshape(fi, (batchsize1, batchsize2, model.net.num_outputs))
-                    for fi in f
-                ]
-            )
+            f = [bkd.reshape(fi, (batchsize1, batchsize2)) for fi in f]
 
             # Each error has the shape (N1, ~N2)
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
