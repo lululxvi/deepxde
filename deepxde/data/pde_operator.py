@@ -263,11 +263,13 @@ class PDEOperatorCartesianProd(Data):
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
-            shape0, shape1 = bkd.shape(outputs)[:2]
+            batchsize1, batchsize2 = bkd.shape(outputs)[:2]
 
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                return bkd.reshape(output, (shape0 * shape1, model.net.num_outputs))
+                return bkd.reshape(
+                    output, (batchsize1 * batchsize2, model.net.num_outputs)
+                )
 
             f = []
             if self.pde.pde is not None:
@@ -275,21 +277,24 @@ class PDEOperatorCartesianProd(Data):
                 f = self.pde.pde(
                     inputs[1],
                     (
-                        bkd.reshape(outputs, (shape0 * shape1, model.net.num_outputs)),
+                        bkd.reshape(
+                            outputs, (batchsize1 * batchsize2, model.net.num_outputs)
+                        ),
                         forward_call,
                     ),
                     bkd.reshape(
                         model.net.auxiliary_vars,
-                        (shape0 * shape1, model.net.num_outputs),
+                        (batchsize1 * batchsize2, model.net.num_outputs),
                     ),
                 )
                 if not isinstance(f, (list, tuple)):
                     f = [f]
             f = (
-                [bkd.reshape(fi, (shape0, shape1)) for fi in f]
+                [bkd.reshape(fi, (batchsize1, batchsize2)) for fi in f]
                 if model.net.num_outputs == 1
                 else [
-                    bkd.reshape(fi, (shape0, shape1, model.net.num_outputs)) for fi in f
+                    bkd.reshape(fi, (batchsize1, batchsize2, model.net.num_outputs))
+                    for fi in f
                 ]
             )
 
