@@ -268,9 +268,7 @@ class PDEOperatorCartesianProd(Data):
 
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                return bkd.reshape(
-                    output, (batchsize_total, model.net.num_outputs)
-                )
+                return bkd.reshape(output, (batchsize_total, model.net.num_outputs))
 
             f = []
             if self.pde.pde is not None:
@@ -278,9 +276,7 @@ class PDEOperatorCartesianProd(Data):
                 f = self.pde.pde(
                     inputs[1],
                     (
-                        bkd.reshape(
-                            outputs, (batchsize_total, model.net.num_outputs)
-                        ),
+                        bkd.reshape(outputs, (batchsize_total, model.net.num_outputs)),
                         forward_call,
                     ),
                     bkd.reshape(
