@@ -264,11 +264,12 @@ class PDEOperatorCartesianProd(Data):
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
             batchsize1, batchsize2 = bkd.shape(outputs)[:2]
+            batchsize_total = batchsize1 * batchsize2
 
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
                 return bkd.reshape(
-                    output, (batchsize1 * batchsize2, model.net.num_outputs)
+                    output, (batchsize_total, model.net.num_outputs)
                 )
 
             f = []
@@ -278,13 +279,13 @@ class PDEOperatorCartesianProd(Data):
                     inputs[1],
                     (
                         bkd.reshape(
-                            outputs, (batchsize1 * batchsize2, model.net.num_outputs)
+                            outputs, (batchsize_total, model.net.num_outputs)
                         ),
                         forward_call,
                     ),
                     bkd.reshape(
                         model.net.auxiliary_vars,
-                        (batchsize1 * batchsize2, model.net.num_outputs),
+                        (batchsize_total, model.net.num_outputs),
                     ),
                 )
                 if not isinstance(f, (list, tuple)):
