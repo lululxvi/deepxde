@@ -264,11 +264,13 @@ class PDEOperatorCartesianProd(Data):
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
             batchsize1, batchsize2 = bkd.shape(outputs)[:2]
-            batchsize_total = batchsize1 * batchsize2
+            shape_2d = (batchsize1 * batchsize2, model.net.num_outputs)
 
+            # Uniformly reshape the output into the shape (N1*N2, num_outputs),
+            # So that PI-DeepONet and PINN have the similar outputs structure
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                return bkd.reshape(output, (batchsize_total, model.net.num_outputs))
+                return bkd.reshape(output, shape_2d)
 
             f = []
             if self.pde.pde is not None:
@@ -276,12 +278,12 @@ class PDEOperatorCartesianProd(Data):
                 f = self.pde.pde(
                     inputs[1],
                     (
-                        bkd.reshape(outputs, (batchsize_total, model.net.num_outputs)),
+                        bkd.reshape(outputs, shape_2d),
                         forward_call,
                     ),
                     bkd.reshape(
                         model.net.auxiliary_vars,
-                        (batchsize_total, model.net.num_outputs),
+                        shape_2d,
                     ),
                 )
                 if not isinstance(f, (list, tuple)):
