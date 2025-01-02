@@ -26,7 +26,6 @@ class MfNN(NN):
         self.layer_size_hi = layer_sizes_high_fidelity
 
         self.activation = activations.get(activation)
-        self.activation_tanh = activations.get("tanh")
         self.initializer = initializers.get(kernel_initializer)
         self.initializer_zero = initializers.get("zeros")
         self.trainable_lo = trainable_low_fidelity
@@ -35,7 +34,7 @@ class MfNN(NN):
         self.regularizer = regularizers.get(regularization)
 
         # low fidelity
-        self.linears_lo = self.init_dense(self.layer_size_lo, self.trainable_lo)
+        self.linears_lo = self._init_dense(self.layer_size_lo, self.trainable_lo)
 
         # high fidelity
         # linear part
@@ -52,18 +51,18 @@ class MfNN(NN):
         self.layer_size_hi = [
             self.layer_size_lo[0] + self.layer_size_lo[-1]
         ] + self.layer_size_hi
-        self.linears_hi = self.init_dense(self.layer_size_hi, self.trainable_hi)
+        self.linears_hi = self._init_dense(self.layer_size_hi, self.trainable_hi)
         # linear + nonlinear
         if not self.residue:
-            alpha = self.init_alpha(0.0, self.trainable_hi)
+            alpha = self._init_alpha(0.0, self.trainable_hi)
             self.add_parameter("alpha", alpha)
         else:
-            alpha1 = self.init_alpha(0.0, self.trainable_hi)
-            alpha2 = self.init_alpha(0.0, self.trainable_hi)
+            alpha1 = self._init_alpha(0.0, self.trainable_hi)
+            alpha2 = self._init_alpha(0.0, self.trainable_hi)
             self.add_parameter("alpha1", alpha1)
             self.add_parameter("alpha2", alpha2)
 
-    def init_dense(self, layer_size, trainable):
+    def _init_dense(self, layer_size, trainable):
         linears = paddle.nn.LayerList()
         for i in range(len(layer_size) - 1):
             linear = paddle.nn.Linear(
@@ -78,7 +77,7 @@ class MfNN(NN):
             linears.append(linear)
         return linears
 
-    def init_alpha(self, value, trainable):
+    def _init_alpha(self, value, trainable):
         alpha = paddle.create_parameter(
             shape=[1],
             dtype=config.real(paddle),
@@ -88,7 +87,8 @@ class MfNN(NN):
         return alpha
 
     def forward(self, inputs):
-        x = inputs.astype(config.real(paddle))
+        x = inputs
+        
         # low fidelity
         y = x
         for i, linear in enumerate(self.linears_lo):
@@ -110,11 +110,11 @@ class MfNN(NN):
         y_hi_nl = y
         # linear + nonlinear
         if not self.residue:
-            alpha = self.activation_tanh(self.alpha)
+            alpha = paddle.tanh(self.alpha)
             y_hi = y_hi_l + alpha * y_hi_nl
         else:
-            alpha1 = self.activation_tanh(self.alpha1)
-            alpha2 = self.activation_tanh(self.alpha2)
+            alpha1 = paddle.tanh(self.alpha1)
+            alpha2 = paddle.tanh(self.alpha2)
             y_hi = y_lo + 0.1 * (alpha1 * y_hi_l + alpha2 * y_hi_nl)
 
         return y_lo, y_hi
