@@ -3,6 +3,7 @@ import numpy as np
 from .data import Data
 from .sampler import BatchSampler
 from .. import backend as bkd
+from ..backend import backend_name
 from .. import config
 from ..utils import run_if_all_none
 
@@ -274,13 +275,14 @@ class PDEOperatorCartesianProd(Data):
 
             f = []
             if self.pde.pde is not None:
+                if backend_name in ["tensorflow.compat.v1"]:
+                    outputs_pde = bkd.reshape(outputs, shape_2d)
+                elif backend_name in ["tensorflow", "pytorch"]:
+                    outputs_pde = (bkd.reshape(outputs, shape_2d), forward_call)
                 # Each f has the shape (N1, N2)
                 f = self.pde.pde(
                     inputs[1],
-                    (
-                        bkd.reshape(outputs, shape_2d),
-                        forward_call,
-                    ),
+                    outputs_pde,
                     bkd.reshape(
                         model.net.auxiliary_vars,
                         shape_2d,
