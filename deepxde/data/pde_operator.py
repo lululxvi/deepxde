@@ -265,27 +265,26 @@ class PDEOperatorCartesianProd(Data):
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
             batchsize1, batchsize2 = bkd.shape(outputs)[:2]
-            shape_2d = (batchsize1 * batchsize2, model.net.num_outputs)
+            shape_3d = (batchsize1, batchsize2, model.net.num_outputs)
 
-            # Uniformly reshape the output into the shape (N1*N2, num_outputs),
-            # So that PI-DeepONet and PINN have the similar outputs structure
+            # Uniformly reshape the output into the shape (N1, N2, num_outputs),
             def forward_call(trunk_input):
                 output = aux[0]((inputs[0], trunk_input))
-                return bkd.reshape(output, shape_2d)
+                return bkd.reshape(output, shape_3d)
 
             f = []
             if self.pde.pde is not None:
                 if backend_name in ["tensorflow.compat.v1"]:
-                    outputs_pde = bkd.reshape(outputs, shape_2d)
+                    outputs_pde = bkd.reshape(outputs, shape_3d)
                 elif backend_name in ["tensorflow", "pytorch"]:
-                    outputs_pde = (bkd.reshape(outputs, shape_2d), forward_call)
+                    outputs_pde = (bkd.reshape(outputs, shape_3d), forward_call)
                 # Each f has the shape (N1, N2)
                 f = self.pde.pde(
                     inputs[1],
                     outputs_pde,
                     bkd.reshape(
                         model.net.auxiliary_vars,
-                        shape_2d,
+                        shape_3d,
                     ),
                 )
                 if not isinstance(f, (list, tuple)):
