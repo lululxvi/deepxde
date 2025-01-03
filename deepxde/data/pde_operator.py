@@ -3,7 +3,6 @@ import numpy as np
 from .data import Data
 from .sampler import BatchSampler
 from .. import backend as bkd
-from ..backend import backend_name
 from .. import config
 from ..utils import run_if_all_none
 
@@ -264,33 +263,18 @@ class PDEOperatorCartesianProd(Data):
             # Use stack instead of as_tensor to keep the gradients.
             losses = [bkd.reduce_mean(bkd.stack(loss, 0)) for loss in losses]
         elif config.autodiff == "forward":  # forward mode AD
-            batchsize1, batchsize2 = bkd.shape(outputs)[:2]
-            shape_3d = (batchsize1, batchsize2, model.net.num_outputs)
 
-            # Uniformly reshape the output into the shape (N1, N2, num_outputs),
             def forward_call(trunk_input):
-                output = aux[0]((inputs[0], trunk_input))
-                return bkd.reshape(output, shape_3d)
+                return aux[0]((inputs[0], trunk_input))
 
             f = []
             if self.pde.pde is not None:
-                if backend_name in ["tensorflow.compat.v1"]:
-                    outputs_pde = bkd.reshape(outputs, shape_3d)
-                elif backend_name in ["tensorflow", "pytorch"]:
-                    outputs_pde = (bkd.reshape(outputs, shape_3d), forward_call)
                 # Each f has the shape (N1, N2)
                 f = self.pde.pde(
-                    inputs[1],
-                    outputs_pde,
-                    bkd.reshape(
-                        model.net.auxiliary_vars,
-                        shape_3d,
-                    ),
+                    inputs[1], (outputs, forward_call), model.net.auxiliary_vars
                 )
                 if not isinstance(f, (list, tuple)):
                     f = [f]
-            f = [bkd.reshape(fi, (batchsize1, batchsize2)) for fi in f]
-
             # Each error has the shape (N1, ~N2)
             error_f = [fi[:, bcs_start[-1] :] for fi in f]
             for error in error_f:
