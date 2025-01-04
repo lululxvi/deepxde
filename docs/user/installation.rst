@@ -14,7 +14,7 @@ DeepXDE requires one of the following backend-specific dependencies to be instal
 
     - For TensorFlow 2.16+ with Keras 3, refer to `the instruction <https://github.com/tensorflow/probability/releases/tag/v0.24.0>`_ for installing TensorFlow Probability.
 
-- PyTorch: `PyTorch <https://pytorch.org>`_>=1.9.0
+- PyTorch: `PyTorch <https://pytorch.org>`_>=2.0.0
 - JAX: `JAX <https://jax.readthedocs.io>`_, `Flax <https://flax.readthedocs.io>`_, `Optax <https://optax.readthedocs.io>`_
 - PaddlePaddle: `PaddlePaddle <https://www.paddlepaddle.org.cn/en>`_>=2.6.0
 
@@ -124,7 +124,7 @@ Export ``DDE_BACKEND`` as ``pytorch`` to specify PyTorch backend. In addition, i
 .. code:: python
 
     if torch.cuda.is_available():
-        torch.set_default_tensor_type(torch.cuda.FloatTensor)
+        torch.set_default_device("cuda")
 
 JAX backend
 ```````````
