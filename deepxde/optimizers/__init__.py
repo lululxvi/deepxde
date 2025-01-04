@@ -1,4 +1,5 @@
 import importlib
+import os
 import sys
 
 from .config import LBFGS_options, set_LBFGS_options, NNCG_options, set_NNCG_options
