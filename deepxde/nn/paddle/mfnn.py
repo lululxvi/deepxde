@@ -27,7 +27,6 @@ class MfNN(NN):
 
         self.activation = activations.get(activation)
         self.initializer = initializers.get(kernel_initializer)
-        self.initializer_zero = initializers.get("zeros")
         self.trainable_lo = trainable_low_fidelity
         self.trainable_hi = trainable_high_fidelity
         self.residue = residue
@@ -42,7 +41,6 @@ class MfNN(NN):
             in_features=self.layer_size_lo[0] + self.layer_size_lo[-1],
             out_features=self.layer_size_hi[-1],
             weight_attr=paddle.ParamAttr(initializer=self.initializer),
-            bias_attr=paddle.ParamAttr(initializer=self.initializer_zero),
         )
         if not self.trainable_hi:
             for param in self.linears_hi_l.parameters():
@@ -69,7 +67,6 @@ class MfNN(NN):
                 in_features=layer_size[i],
                 out_features=layer_size[i + 1],
                 weight_attr=paddle.ParamAttr(initializer=self.initializer),
-                bias_attr=paddle.ParamAttr(initializer=self.initializer_zero),
             )
             if not trainable:
                 for param in linear.parameters():
@@ -87,10 +84,8 @@ class MfNN(NN):
         return alpha
 
     def forward(self, inputs):
-        x = inputs
-        
         # low fidelity
-        y = x
+        y = inputs
         for i, linear in enumerate(self.linears_lo):
             y = linear(y)
             if i != len(self.linears_lo) - 1:
@@ -98,7 +93,7 @@ class MfNN(NN):
         y_lo = y
 
         # high fidelity
-        x_hi = paddle.concat([x, y_lo], axis=1)
+        x_hi = paddle.concat([inputs, y_lo], axis=1)
         # linear
         y_hi_l = self.linears_hi_l(x_hi)
         # nonlinear
