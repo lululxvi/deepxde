@@ -38,14 +38,14 @@ class MfFunc(Data):
                     self.geom.uniform_points(self.num_lo, True),
                     self.geom.uniform_points(self.num_hi, True),
                 )
-            ).astype(config.real(np))
+            )
         else:
             self.X_train = np.vstack(
                 (
                     self.geom.random_points(self.num_lo, random=self.dist_train),
                     self.geom.random_points(self.num_hi, random=self.dist_train),
                 )
-            ).astype(config.real(np))
+            )
         y_lo_train = self.func_lo(self.X_train)
         y_hi_train = self.func_hi(self.X_train)
         self.y_train = [y_lo_train, y_hi_train]
@@ -53,9 +53,7 @@ class MfFunc(Data):
 
     @run_if_any_none("X_test", "y_test")
     def test(self):
-        self.X_test = self.geom.uniform_points(self.num_test, True).astype(
-            config.real(np)
-        )
+        self.X_test = self.geom.uniform_points(self.num_test, True)
         y_lo_test = self.func_lo(self.X_test)
         y_hi_test = self.func_hi(self.X_test)
         self.y_test = [y_lo_test, y_hi_test]
