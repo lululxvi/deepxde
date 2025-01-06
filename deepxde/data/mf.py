@@ -1,7 +1,8 @@
 import numpy as np
 
 from .data import Data
-from ..backend import tf
+from .. import backend as bkd
+from .. import config
 from ..utils import run_if_any_none, standardize
 
 
@@ -83,20 +84,20 @@ class MfDataSet(Data):
         standardize=False,
     ):
         if X_lo_train is not None:
-            self.X_lo_train = X_lo_train
-            self.X_hi_train = X_hi_train
-            self.y_lo_train = y_lo_train
-            self.y_hi_train = y_hi_train
-            self.X_hi_test = X_hi_test
-            self.y_hi_test = y_hi_test
+            self.X_lo_train = X_lo_train.astype(config.real(np))
+            self.X_hi_train = X_hi_train.astype(config.real(np))
+            self.y_lo_train = y_lo_train.astype(config.real(np))
+            self.y_hi_train = y_hi_train.astype(config.real(np))
+            self.X_hi_test = X_hi_test.astype(config.real(np))
+            self.y_hi_test = y_hi_test.astype(config.real(np))
         elif fname_lo_train is not None:
-            data = np.loadtxt(fname_lo_train)
+            data = np.loadtxt(fname_lo_train).astype(config.real(np))
             self.X_lo_train = data[:, col_x]
             self.y_lo_train = data[:, col_y]
-            data = np.loadtxt(fname_hi_train)
+            data = np.loadtxt(fname_hi_train).astype(config.real(np))
             self.X_hi_train = data[:, col_x]
             self.y_hi_train = data[:, col_y]
-            data = np.loadtxt(fname_hi_test)
+            data = np.loadtxt(fname_hi_test).astype(config.real(np))
             self.X_hi_test = data[:, col_x]
             self.y_hi_test = data[:, col_y]
         else:
@@ -116,7 +117,10 @@ class MfDataSet(Data):
         return [loss_lo, loss_hi]
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        return [0, loss_fn(targets[1], outputs[1])]
+        return [
+            bkd.as_tensor(0, dtype=config.real(bkd.lib)),
+            loss_fn(targets[1], outputs[1]),
+        ]
 
     @run_if_any_none("X_train", "y_train")
     def train_next_batch(self, batch_size=None):
