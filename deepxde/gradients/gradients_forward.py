@@ -87,14 +87,14 @@ class JacobianForward(Jacobian):
         # Compute J[i, j]
         if (i, j) not in self.J:
             if backend_name == "tensorflow.compat.v1":
-                self.J[i, j] = self.J[j][:, i : i + 1]
+                self.J[i, j] = self.J[j][..., i : i + 1]
             elif backend_name in ["tensorflow", "pytorch", "jax"]:
                 # In backend tensorflow/pytorch/jax, a tuple of a tensor/tensor/array
                 # and a callable is returned, so that it is consistent with the argument,
                 # which is also a tuple. This is useful for further computation, e.g.,
                 # Hessian.
                 self.J[i, j] = (
-                    self.J[j][0][:, i : i + 1],
+                    self.J[j][0][..., i : i + 1],
                     lambda x: self.J[j][1](x)[i : i + 1],
                 )
         return self.J[i, j]
