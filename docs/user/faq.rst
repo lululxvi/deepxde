@@ -10,6 +10,8 @@ General usage
   | **A**: `#5`_
 - | **Q**: By default, DeepXDE uses ``float32``. How can I use ``float64``?
   | **A**: `#28`_
+- | **Q**: How can I use mixed precision training?
+  | **A**: Use ``dde.config.set_default_float("mixed")`` with the ``tensorflow`` or ``pytorch`` backends. See `this paper <https://doi.org/10.1016/j.cma.2024.117093>`_ for more information.
 - | **Q**: I want to set the global random seeds.
   | **A**: `#353`_
 - | **Q**: GPU.
