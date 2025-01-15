@@ -20,3 +20,10 @@ optax
 
 sphinx-copybutton
 sphinx-rtd-theme
+sphinx_thebe
+sphinx-book-theme
+sphinx-copybutton
+sphinx-design
+sphinx-autodoc-typehints
+sphinx_math_dollar
+myst-nb
