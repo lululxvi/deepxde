@@ -114,7 +114,9 @@ class Jacobians:
         #     x = torch.from_numpy(x)
         #     x.requires_grad_()
         #     f(x)
-        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        if backend_name == "tensorflow.compat.v1":
+            key = (ys.ref(), xs.ref())
+        elif backend_name == "tensorflow":
             if config.autodiff == "reverse":
                 key = (ys.ref(), xs.ref())
             elif config.autodiff == "forward":
