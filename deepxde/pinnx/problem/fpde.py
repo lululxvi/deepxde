@@ -13,8 +13,8 @@ import brainunit as u
 import jax
 import numpy as np
 
-from pinnx.geometry import GeometryXTime, DictPointGeometry
-from pinnx.utils import array_ops, run_if_all_none
+from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
+from deepxde.pinnx.utils import array_ops, run_if_all_none
 from .pde import PDE
 from ..icbc.base import ICBC
 

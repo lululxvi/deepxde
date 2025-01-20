@@ -11,8 +11,8 @@ import brainunit as u
 import jax.tree
 import numpy as np
 
-from pinnx import utils
-from pinnx.geometry import GeometryXTime, DictPointGeometry
+from deepxde.pinnx import utils
+from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
 from .base import Problem
 from ..icbc.base import ICBC
 

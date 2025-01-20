@@ -11,11 +11,11 @@ import brainunit as u
 import jax
 import numpy as np
 
-from pinnx.fnspace import FunctionSpace
-from pinnx.geometry import DictPointGeometry
-from pinnx.icbc.base import ICBC
-from pinnx.utils import run_if_all_none
-from pinnx.utils.sampler import BatchSampler
+from deepxde.pinnx.fnspace import FunctionSpace
+from deepxde.pinnx.geometry import DictPointGeometry
+from deepxde.pinnx.icbc.base import ICBC
+from deepxde.pinnx.utils import run_if_all_none
+from deepxde.pinnx.utils.sampler import BatchSampler
 from .pde import TimePDE
 
 __all__ = [

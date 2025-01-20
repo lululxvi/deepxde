@@ -19,7 +19,7 @@ from typing import Union, Callable, Sequence, Optional
 import brainstate as bst
 import brainunit as u
 
-from pinnx.utils import get_activation
+from deepxde.pinnx.utils import get_activation
 from .base import NN
 
 

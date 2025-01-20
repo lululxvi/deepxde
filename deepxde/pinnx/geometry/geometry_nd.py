@@ -11,9 +11,9 @@ import jax.numpy as jnp
 from scipy import stats
 from sklearn import preprocessing
 
-from pinnx import utils
-from pinnx.utils.sampling import sample
-from .base import Geometry
+from deepxde.pinnx import utils
+from deepxde.pinnx.utils.sampling import sample
+from .base import AbstractGeometry as Geometry
 from ..utils import isclose
 
 

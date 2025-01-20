@@ -6,9 +6,9 @@ from typing import Literal, Union
 import brainstate as bst
 import jax.numpy as jnp
 
-from pinnx import utils
-from pinnx.utils.sampling import sample
-from .base import Geometry
+from deepxde.pinnx import utils
+from deepxde.pinnx.utils.sampling import sample
+from .base import AbstractGeometry as Geometry
 
 
 class Interval(Geometry):

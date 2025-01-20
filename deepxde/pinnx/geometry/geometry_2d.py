@@ -9,9 +9,9 @@ import brainstate as bst
 import jax.numpy as jnp
 from scipy import spatial
 
-from pinnx import utils
-from pinnx.utils.sampling import sample
-from .base import Geometry
+from deepxde.pinnx import utils
+from deepxde.pinnx.utils.sampling import sample
+from .base import AbstractGeometry as Geometry
 from .geometry_nd import Hypercube, Hypersphere
 from ..utils import isclose, vectorize
 

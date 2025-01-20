@@ -4,8 +4,8 @@
 import brainstate as bst
 import numpy as np
 
-from pinnx.utils.sampler import BatchSampler
-from .base import Geometry
+from deepxde.pinnx.utils.sampler import BatchSampler
+from .base import AbstractGeometry as Geometry
 from ..utils import isclose
 
 

@@ -7,7 +7,7 @@ from typing import Optional, Dict
 
 import brainstate as bst
 
-from pinnx.geometry import AbstractGeometry
+from deepxde.pinnx.geometry import AbstractGeometry
 
 
 class ICBC(abc.ABC):
@@ -24,7 +24,7 @@ class ICBC(abc.ABC):
         self.geometry = geom
 
     def apply_problem(self, problem: 'Problem'):
-        from pinnx.problem.base import Problem
+        from deepxde.pinnx.problem.base import Problem
         assert isinstance(problem, Problem), 'problem must be an instance of Problem.'
         self.problem = problem
 

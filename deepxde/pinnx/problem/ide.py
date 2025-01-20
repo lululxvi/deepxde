@@ -11,9 +11,9 @@ import brainunit as u
 import jax
 import numpy as np
 
-from pinnx import utils
-from pinnx.geometry import DictPointGeometry
-from pinnx.icbc.base import ICBC
+from deepxde.pinnx import utils
+from deepxde.pinnx.geometry import DictPointGeometry
+from deepxde.pinnx.icbc.base import ICBC
 from .pde import PDE
 
 __all__ = [

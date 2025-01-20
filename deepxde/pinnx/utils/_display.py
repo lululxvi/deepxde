@@ -7,7 +7,7 @@ from pprint import pformat
 import brainunit as u
 import jax.tree
 
-from pinnx.utils import tree_repr
+from deepxde.pinnx.utils import tree_repr
 
 
 class TrainingDisplay:

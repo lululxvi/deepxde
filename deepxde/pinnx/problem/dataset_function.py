@@ -6,8 +6,8 @@ from typing import Callable, Sequence
 
 import brainstate as bst
 
-from pinnx.geometry.base import AbstractGeometry
-from pinnx.utils import run_if_any_none
+from deepxde.pinnx.geometry.base import AbstractGeometry
+from deepxde.pinnx.utils import run_if_any_none
 from .base import Problem
 
 __all__ = [

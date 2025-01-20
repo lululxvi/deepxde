@@ -7,7 +7,7 @@ from typing import Optional, Callable
 import brainstate as bst
 import brainunit as u
 
-from pinnx.utils import get_activation
+from deepxde.pinnx.utils import get_activation
 from .base import NN
 from .fnn import FNN
 
