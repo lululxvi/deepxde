@@ -19,9 +19,9 @@ def jacobian(ys, xs, i=None, j=None):
       computation.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size, dim_y).
-            Here, the `batch_size` is the same one for `xs`, and `batch_size_out` is the
-            batch size for an additional dimension.
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
         i (int or None): `i`th row. If `i` is ``None``, returns the `j`th column
             J[:, `j`].
