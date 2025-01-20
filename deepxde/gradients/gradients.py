@@ -50,7 +50,9 @@ def hessian(ys, xs, component=0, i=0, j=0):
       computation.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
         component: `ys[:, component]` is used as y to compute the Hessian.
         i (int): `i`th row.
