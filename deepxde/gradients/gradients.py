@@ -30,9 +30,10 @@ def jacobian(ys, xs, i=None, j=None):
             unless J has only one element, which is returned.
 
     Returns:
-        (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`],
-        with 2 dimension when ys of shape (batch_size, dim_y) or 3 dimension when
-        ys of shape (batch_size_out, batch_size, dim_y).
+        (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
+        When `ys` has shape (batch_size, dim_y), the output shape is (batch_size, 1).
+        When `ys` has shape (batch_size_out, batch_size, dim_y), the output shape is
+        (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
@@ -61,8 +62,9 @@ def hessian(ys, xs, component=0, i=0, j=0):
         j (int): `j`th column.
 
     Returns:
-        H[`i`, `j`], with 2 dimension when ys of shape (batch_size, dim_y)
-        or 3 dimension when ys of shape (batch_size_out, batch_size, dim_y).
+        H[`i`, `j`]. When `ys` has shape (batch_size, dim_y), the output shape is
+        (batch_size, 1). When `ys` has shape (batch_size_out, batch_size, dim_y),
+        the output shape is (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
