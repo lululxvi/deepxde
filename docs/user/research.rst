@@ -195,7 +195,7 @@ DeepXDE has been used in
   `Xinjiang University <https://english.xju.edu.cn>`_,
   `LUT University <https://www.lut.fi>`_,
   `University of Las Palmas de Gran Canaria <https://www.ulpgc.es>`_,
-  `Nanjing University of Aeronautics and Astronautics <https://www.nuaa.edu.cn>`
+  `Nanjing University of Aeronautics and Astronautics <https://www.nuaa.edu.cn>`_,
   `Lahore University of Management Sciences <https://www.lums.edu.pk>`_,
   `Hangzhou Dianzi University <http://hdu.admissions.cn>`_,
   `London South Bank University <https://www.lsbu.ac.uk>`_,
@@ -269,7 +269,7 @@ DeepXDE has been used in
   `Mitsubishi Electric Research Laboratories <https://www.merl.com>`_,
   `Forschungszentrum Jülich <https://fz-juelich.de/de>`_,
   `China Ship Scientific Research Center <http://www.cssrc.com>`_,
-  `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn>`_
+  `Yanqi Lake Beijing Institute of Mathematical Sciences and Applications <https://www.bimsa.cn>`_,
   `Korea Institute of Fusion Energy <https://www.kfe.re.kr/eng>`_, 
   `Fraunhofer Heinrich Hertz Institute <https://www.hhi.fraunhofer.de>`_,   
   `Northwest Institute of Nuclear Technology <https://unitracker.aspi.org.au/universities/northwest-institute-of-nuclear-technology/>`_, 
