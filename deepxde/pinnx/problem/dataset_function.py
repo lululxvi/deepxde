@@ -6,7 +6,7 @@ from typing import Callable, Sequence
 
 import brainstate as bst
 
-from deepxde.pinnx.geometry.base import AbstractGeometry
+from deepxde.pinnx.geometry.base import GeometryPINNx
 from deepxde.pinnx.utils import run_if_any_none
 from .base import Problem
 
@@ -34,7 +34,7 @@ class Function(Problem):
 
     def __init__(
         self,
-        geometry: AbstractGeometry,
+        geometry: GeometryPINNx,
         function: Callable,
         num_train: int,
         num_test: int,

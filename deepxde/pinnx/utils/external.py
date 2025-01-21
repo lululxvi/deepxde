@@ -13,6 +13,7 @@ import brainunit as u
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from sklearn import preprocessing
 
@@ -360,5 +361,7 @@ def smart_numpy(x):
         return jax.numpy
     elif isinstance(x, u.Quantity):
         return u.math
+    elif isinstance(x, np.ndarray):
+        return np
     else:
         raise TypeError(f"Unknown type {type(x)}.")

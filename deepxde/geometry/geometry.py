@@ -6,7 +6,6 @@ import numpy as np
 
 class Geometry(abc.ABC):
     def __init__(self, dim, bbox, diam):
-        super().__init__(dim)
         self.dim = dim
         self.bbox = bbox
         self.diam = min(diam, np.linalg.norm(bbox[1] - bbox[0]))

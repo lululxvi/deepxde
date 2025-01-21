@@ -7,7 +7,7 @@ from typing import Optional, Dict
 
 import brainstate as bst
 
-from deepxde.pinnx.geometry import AbstractGeometry
+from deepxde.pinnx.geometry.base import GeometryPINNx
 
 
 class ICBC(abc.ABC):
@@ -16,11 +16,11 @@ class ICBC(abc.ABC):
     """
 
     # A ``pinnx.geometry.Geometry`` instance.
-    geometry: Optional[AbstractGeometry]
+    geometry: Optional[GeometryPINNx]
     problem: Optional['Problem']
 
-    def apply_geometry(self, geom: AbstractGeometry):
-        assert isinstance(geom, AbstractGeometry), 'geometry must be an instance of AbstractGeometry.'
+    def apply_geometry(self, geom: GeometryPINNx):
+        assert isinstance(geom, GeometryPINNx), 'geometry must be an instance of AbstractGeometry.'
         self.geometry = geom
 
     def apply_problem(self, problem: 'Problem'):

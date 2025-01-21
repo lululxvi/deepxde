@@ -19,7 +19,7 @@ import numpy as np
 from scipy import linalg, interpolate
 from sklearn import gaussian_process as gp
 
-from pinnx.utils import isclose
+from deepxde.pinnx.utils import isclose
 
 
 class FunctionSpace(abc.ABC):

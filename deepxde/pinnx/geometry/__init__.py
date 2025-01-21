@@ -15,14 +15,9 @@
 
 __all__ = [
     "DictPointGeometry",
-    "AbstractGeometry",
-    "CSGDifference",
-    "CSGIntersection",
-    "CSGUnion",
     "Cuboid",
     "Disk",
     "Ellipse",
-    "Geometry",
     "GeometryXTime",
     "Hypercube",
     "Hypersphere",
@@ -36,7 +31,7 @@ __all__ = [
     "Triangle",
 ]
 
-from .base import Geometry, AbstractGeometry, CSGDifference, CSGIntersection, CSGUnion, DictPointGeometry
+from .base import DictPointGeometry
 from .geometry_1d import Interval
 from .geometry_2d import Disk, Ellipse, Polygon, Rectangle, StarShaped, Triangle
 from .geometry_3d import Cuboid, Sphere

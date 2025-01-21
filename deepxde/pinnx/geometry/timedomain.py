@@ -7,7 +7,7 @@ import itertools
 import brainstate as bst
 import jax.numpy as jnp
 
-from .base import AbstractGeometry
+from .base import GeometryPINNx
 from .geometry_1d import Interval
 from .geometry_2d import Rectangle
 from .geometry_3d import Cuboid
@@ -25,12 +25,16 @@ class TimeDomain(Interval):
         return isclose(t, self.t0).flatten()
 
 
-class GeometryXTime(AbstractGeometry):
+class GeometryXTime(GeometryPINNx):
 
     def __init__(self, geometry, timedomain):
         self.geometry = geometry
         self.timedomain = timedomain
-        super().__init__(geometry.dim + timedomain.dim)
+        super().__init__(
+            geometry.dim + timedomain.dim,
+            geometry.bbox + timedomain.bbox,
+            min(geometry.diam, timedomain.diam),
+        )
 
     def inside(self, x):
         return jnp.logical_and(self.geometry.inside(x[:, :-1]),

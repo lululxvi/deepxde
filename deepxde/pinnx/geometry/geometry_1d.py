@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 from deepxde.pinnx import utils
 from deepxde.pinnx.utils.sampling import sample
-from .base import AbstractGeometry as Geometry
+from .base import GeometryPINNx as Geometry
 
 
 class Interval(Geometry):
