@@ -294,7 +294,7 @@ DeepXDE has been used in
   `Shell <https://www.shell.com>`_,
   `SoftServe <https://www.softserveinc.com/en-us>`_,
   `Quantiph <https://quantiphi.com>`_,
-  `Moldex3D <https://www.moldex3d.com>`_
+  `Moldex3D <https://www.moldex3d.com>`_,
 
 Here is a list of research papers that used DeepXDE. If you would like your paper to appear here, open an issue in the GitHub "Issues" section.
 
