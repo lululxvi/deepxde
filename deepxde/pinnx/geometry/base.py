@@ -2,23 +2,22 @@
 # ==============================================================================
 
 
-import abc
-from typing import Dict, Union, Literal, Sequence
+from typing import Dict, Union
 
 import brainstate as bst
 import brainunit as u
 import jax.numpy as jnp
 import numpy as np
 
+from deepxde.geometry.geometry import Geometry
 from deepxde.pinnx import utils
-from deepxde.geometry.geometry import AbstractGeometry
 
 __all__ = [
-    'AbstractGeometry',
+    'GeometryPINNx',
 ]
 
 
-class GeometryPINNx(AbstractGeometry):
+class GeometryPINNx(Geometry):
 
     def to_dict_point(self, *names, **kw_names):
         """
@@ -29,9 +28,6 @@ class GeometryPINNx(AbstractGeometry):
             kw_names: The names of the coordinates and their physical units.
         """
         return DictPointGeometry(self, *names, **kw_names)
-
-
-
 
 
 def quantity_to_array(quantity: Union[np.ndarray, jnp.ndarray, u.Quantity], unit: u.Unit):
@@ -51,8 +47,8 @@ class DictPointGeometry(GeometryPINNx):
     Convert a geometry to a dictionary geometry.
     """
 
-    def __init__(self, geom: AbstractGeometry, *names, **kw_names):
-        super().__init__(geom.dim)
+    def __init__(self, geom: Geometry, *names, **kw_names):
+        super().__init__(geom.dim, geom.bbox, geom.diam)
 
         self.geom = geom
         for name in names:
