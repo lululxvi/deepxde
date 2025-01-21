@@ -33,7 +33,8 @@ def jacobian(ys, xs, i=None, j=None):
         (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
         When `ys` has shape (batch_size, dim_y), the output shape is (batch_size, 1).
         When `ys` has shape (batch_size_out, batch_size, dim_y), the output shape is
-        (batch_size_out, batch_size, 1).
+        (batch_size_out, batch_size, 1) if forward-mode autodiff is used or
+        (batch_size, 1) if reverse-mode autodiff is used.
     """
     if config.autodiff == "reverse":
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
@@ -64,7 +65,8 @@ def hessian(ys, xs, component=0, i=0, j=0):
     Returns:
         H[`i`, `j`]. When `ys` has shape (batch_size, dim_y), the output shape is
         (batch_size, 1). When `ys` has shape (batch_size_out, batch_size, dim_y),
-        the output shape is (batch_size_out, batch_size, 1).
+        the output shape is (batch_size_out, batch_size, 1) if forward-mode
+        autodiff is used or (batch_size, 1) if reverse-mode autodiff is used.
     """
     if config.autodiff == "reverse":
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
