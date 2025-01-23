@@ -140,3 +140,22 @@ Export ``DDE_BACKEND`` as ``paddle`` to specify PaddlePaddle backend. In additio
 
     if paddle.device.is_compiled_with_cuda():
         paddle.device.set_device("gpu")
+
+PINNx Module
+------------
+
+``PINNx`` is a library for scientific machine learning and physics-informed learning in JAX. 
+It is a rewrite of [DeepXDE](https://github.com/lululxvi/deepxde) but is enhanced by  
+[Brain Dynamics Programming (BDP) ecosystem](https://ecosystem-for-brain-dynamics.readthedocs.io/). 
+Now it is a module of DeepXDE.
+It leverages 
+
+- [brainstate](https://brainstate.readthedocs.io/) for just-in-time compilation,
+- [brainunit](https://brainunit.readthedocs.io/) for dimensional analysis, 
+- [braintools](https://braintools.readthedocs.io/) for checkpointing, loss functions, and other utilities.
+
+So if you want to use the PINNx module, you need to install the BDP ecosystem first.
+
+- Install the BDP ecosystem with ``pip``::
+
+    $ pip install brainstate brainunit braintools
