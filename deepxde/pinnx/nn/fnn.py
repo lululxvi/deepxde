@@ -1,4 +1,4 @@
-# Copyright 2024 BDP Ecosystem Limited. All Rights Reserved.
+# Copyright DeepXDE Limited. All Rights Reserved.
 #
 # Licensed under the GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1 (the "License");
 # you may not use this file except in compliance with the License.
