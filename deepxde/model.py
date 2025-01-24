@@ -518,7 +518,11 @@ class Model:
             list(self.net.parameters()) + self.external_trainable_variables
         )
         self.opt = optimizers.get(
-            trainable_variables, self.opt_name, learning_rate=lr, decay=decay
+            trainable_variables,
+            self.opt_name,
+            learning_rate=lr,
+            decay=decay,
+            weight_decay=self.net.regularizer,
         )
 
         def train_step(inputs, targets, auxiliary_vars):

@@ -4,8 +4,8 @@ from packaging.version import Version
 import torch
 
 
-if Version(torch.__version__) < Version("1.9.0"):
-    raise RuntimeError("DeepXDE requires PyTorch>=1.9.0.")
+if Version(torch.__version__) < Version("2.0.0"):
+    raise RuntimeError("DeepXDE requires PyTorch>=2.0.0.")
 
 # To write device-agnostic (CPU or GPU) code, a common pattern is to first determine
 # torch.device and then use it for all the tensors.
