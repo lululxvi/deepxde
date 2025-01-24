@@ -203,8 +203,7 @@ def get_num_args(func):
     return len(params) - ("self" in params)
 
 def has_default_values(func):
-    """
-    Check if the given function has default values for its parameters.
+    """Check if the given function has default values for its parameters.
 
     Args:
         func (function): The function to inspect.
