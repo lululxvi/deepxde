@@ -9,7 +9,7 @@ from ..data import PDEOperatorCartesianProd as BasePDEOperatorCartesianProd
 class PDEOperatorCartesianProd(BasePDEOperatorCartesianProd):
     """Derived `PDEOperatorCartesianProd` class for ZCS support."""
 
-    def _losses(self, outputs, loss_fn, inputs, model, num_func):
+    def _losses(self, outputs, loss_fn, inputs, model, num_func, aux):
         # PDE
         f = []
         if self.pde.pde is not None:
