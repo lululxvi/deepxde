@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import math
 import warnings
 from typing import Callable, Sequence, Optional, Dict, Any
 
@@ -13,11 +12,12 @@ import brainunit as u
 import jax
 import numpy as np
 
+from deepxde.data.fpde import Scheme, Fractional as FractionalBase, FractionalTime as FractionalTimeBase
 from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
+from deepxde.pinnx.icbc.base import ICBC
 from deepxde.pinnx.utils import array_ops
 from deepxde.utils.internal import run_if_all_none
 from .pde import PDE
-from ..icbc.base import ICBC
 
 __all__ = [
     "FPDE",
@@ -33,6 +33,8 @@ class FPDE(PDE):
     r"""
     Fractional PDE solver.
 
+    This class implements a solver for Fractional Partial Differential Equations (FPDEs) using the Physics-Informed Neural Network (PINN) approach.
+
     D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
     (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
     where C(alpha, D) = gamma((1-alpha)/2) * gamma((D+alpha)/2) / (2 pi^((D+1)/2)),
@@ -45,10 +47,44 @@ class FPDE(PDE):
     and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
     D_theta^alpha is approximated by Grunwald-Letnikov formula.
 
+    Parameters:
+    -----------
+    geometry : DictPointGeometry
+        The geometry of the problem domain.
+    pde : Callable[[X, Y, InitMat], Any]
+        The PDE to be solved.
+    alpha : float | bst.State[float]
+        The order of the fractional derivative.
+    constraints : ICBC | Sequence[ICBC]
+        The initial and boundary conditions.
+    resolution : Sequence[int]
+        The resolution for discretization.
+    approximator : Optional[bst.nn.Module], default=None
+        The neural network approximator.
+    meshtype : str, default="dynamic"
+        The type of mesh to use ("static" or "dynamic").
+    num_domain : int, default=0
+        The number of domain points.
+    num_boundary : int, default=0
+        The number of boundary points.
+    train_distribution : str, default="Hammersley"
+        The distribution method for training points.
+    anchors : Any, default=None
+        Anchor points for the domain.
+    solution : Callable[[Dict], Dict], default=None
+        The analytical solution of the PDE, if available.
+    num_test : int, default=None
+        The number of test points.
+    loss_fn : str | Callable, default='MSE'
+        The loss function to use.
+    loss_weights : Sequence[float], default=None
+        The weights for different components of the loss.
+
     References:
-        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
-        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
-        <https://doi.org/10.1137/18M1229845>`_.
+    -----------
+    G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
+    networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
+    <https://doi.org/10.1137/18M1229845>.
     """
 
     def __init__(
@@ -391,59 +427,13 @@ class TimeFPDE(FPDE):
         return int_mat
 
 
-class Scheme:
-    """
-    Fractional Laplacian discretization.
-
-    Discretize fractional Laplacian uisng quadrature rule for the integral with respect to the directions
-    and Grunwald-Letnikov (GL) formula for the Riemann-Liouville directional fractional derivative.
-
-    Args:
-        meshtype (string): "static" or "dynamic".
-        resolution: A list of integer. The first number is the number of quadrature points in the first direction, ...,
-            and the last number is the GL parameter.
-
-    References:
-        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
-        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
-        <https://doi.org/10.1137/18M1229845>`_.
-    """
-
-    def __init__(self, meshtype, resolution):
-        self.meshtype = meshtype
-        self.resolution = resolution
-
-        self.dim = len(resolution)
-        self._check()
-
-    def _check(self):
-        if self.meshtype not in ["static", "dynamic"]:
-            raise ValueError("Wrong meshtype %s" % self.meshtype)
-        if self.dim >= 2 and self.meshtype == "static":
-            raise ValueError("Do not support meshtype static for dimension %d" % self.dim)
-
-
-class Fractional:
+class Fractional(FractionalBase):
     """Fractional derivative.
 
     Args:
         x0: If ``disc.meshtype = static``, then x0 should be None;
             if ``disc.meshtype = 'dynamic'``, then x0 are non-boundary points.
     """
-
-    def __init__(self, alpha, geom, disc, x0):
-        if (disc.meshtype == "static" and x0 is not None) or (
-            disc.meshtype == "dynamic" and x0 is None
-        ):
-            raise ValueError("disc.meshtype and x0 do not match.")
-
-        self.alpha, self.geom = alpha, geom
-        self.disc, self.x0 = disc, x0
-        if disc.meshtype == "dynamic":
-            self._check_dynamic_stepsize()
-
-        self.x, self.xindex_start, self.w = None, None, None
-        self._w_init = self._init_weights()
 
     def _check_dynamic_stepsize(self):
         h = 1 / self.disc.resolution[-1]
@@ -468,27 +458,6 @@ class Fractional:
         for j in range(1, n):
             w.append(w[-1] * (j - 1 - self.alpha) / j)
         return np.asarray(w)
-
-    def get_x(self):
-        self.x = (
-            self.get_x_static()
-            if self.disc.meshtype == "static"
-            else self.get_x_dynamic()
-        )
-        return self.x
-
-    def get_matrix(self, sparse=False):
-        return (
-            self.get_matrix_static()
-            if self.disc.meshtype == "static"
-            else self.get_matrix_dynamic(sparse)
-        )
-
-    def get_x_static(self):
-        return self.geom.uniform_points(self.disc.resolution[0], True)
-
-    def dynamic_dist2npts(self, dx):
-        return int(math.ceil(self.disc.resolution[-1] * dx))
 
     def get_x_dynamic(self):
         if np.any(self.geom.on_boundary(self.x0)):
@@ -583,9 +552,6 @@ class Fractional:
             return x[1:], w[1:]
         return x, w
 
-    def get_weight(self, n):
-        return self._w_init[: n + 1]
-
     def get_matrix_static(self):
         if not isinstance(self.alpha, (np.ndarray, jax.Array)):
             int_mat = np.zeros(
@@ -658,7 +624,7 @@ class Fractional:
         return int_mat
 
 
-class FractionalTime:
+class FractionalTime(FractionalTimeBase):
     """Fractional derivative with time.
 
     Args:
@@ -671,28 +637,6 @@ class FractionalTime:
         nx: If ``disc.meshtype = static``, then nx is the number of x points;
             if ``disc.meshtype = dynamic``, then nx is the resolution lambda.
     """
-
-    def __init__(self, alpha, geom, tmin, tmax, disc, nt, x0):
-        self.alpha = alpha
-        self.geom, self.tmin, self.tmax = geom, tmin, tmax
-        self.disc, self.nt, self.x0 = disc, nt, x0
-
-        self.x, self.fracx = None, None
-
-    def get_x(self):
-        self.x = (
-            self.get_x_static()
-            if self.disc.meshtype == "static"
-            else self.get_x_dynamic()
-        )
-        return self.x
-
-    def get_matrix(self, sparse=False):
-        return (
-            self.get_matrix_static()
-            if self.disc.meshtype == "static"
-            else self.get_matrix_dynamic(sparse)
-        )
 
     def get_x_static(self):
         # Points are ordered as initial --> boundary --> inside
@@ -741,6 +685,3 @@ class FractionalTime:
             ] = int_mat_one[1:-1, 1:-1]
             beg += self.disc.resolution[0] - 2
         return int_mat
-
-    def get_matrix_dynamic(self, sparse):
-        return self.fracx.get_matrix(sparse)

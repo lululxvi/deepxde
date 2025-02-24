@@ -353,50 +353,6 @@ class PDEOperatorCartesianProd(TimePDE):
             losses.append({f'ibc{i}': bc_loss})
         return losses
 
-    # def _losses(self, inputs, outputs, num_fn):
-    #     bcs_start = np.cumsum([0] + self.num_bcs)
-    #
-    #     losses = []
-    #     for i in range(num_fn):
-    #         out = outputs[i]
-    #         # Single output
-    #         if u.math.ndim(out) == 1:
-    #             out = out[:, None]
-    #         f = []
-    #         if self.pde.pde is not None:
-    #             f = self.pde.pde(partial(model.fn_outputs, True), inputs[1])
-    #             if not isinstance(f, (list, tuple)):
-    #                 f = [f]
-    #         error_f = [fi[bcs_start[-1]:] for fi in f]
-    #         losses_i = [loss_fn(u.math.zeros_like(error), error) for error in error_f]
-    #
-    #         for j, bc in enumerate(self.constraints):
-    #             beg, end = bcs_start[j], bcs_start[j + 1]
-    #             # The same BC points are used for training and testing.
-    #             error = bc.error(
-    #                 self.fn_train_x[1],
-    #                 inputs[1],
-    #                 out,
-    #                 beg,
-    #                 end,
-    #                 aux_var=model.net.auxiliary_vars[i][:, None],
-    #             )
-    #             losses_i.append(loss_fn(u.math.zeros_like(error), error))
-    #
-    #         losses.append(losses_i)
-    #
-    #     losses = zip(*losses)
-    #     # Use stack instead of as_tensor to keep the gradients.
-    #     losses = [u.math.mean(u.math.stack(loss, 0)) for loss in losses]
-    #     return losses
-    #
-    # def losses_train(self, inputs, outputs, targets, **kwargs):
-    #     num_fn = self.num_fn if self.batch_size is None else self.batch_size
-    #     return self._losses(outputs, inputs, num_fn)
-    #
-    # def losses_test(self, inputs, outputs, targets, **kwargs):
-    #     return self._losses(outputs, inputs, len(self.test_x[0]))
-
     def train_next_batch(self, batch_size=None):
         super().train_next_batch(batch_size)
 

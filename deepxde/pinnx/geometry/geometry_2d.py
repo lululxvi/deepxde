@@ -18,30 +18,89 @@ from ..utils import isclose
 
 
 class Disk(Hypersphere):
+    """
+    A class representing a disk in 2D space, inheriting from Hypersphere.
+    """
+
     def inside(self, x):
+        """
+        Check if points are inside the disk.
+
+        Args:
+            x (array-like): The coordinates of points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is inside the disk.
+        """
         mod = utils.smart_numpy(x)
         return mod.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the disk.
+
+        Args:
+            x (array-like): The coordinates of points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is on the disk's boundary.
+        """
         mod = utils.smart_numpy(x)
         return mod.isclose(mod.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
-        # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+        """
+        Calculate the distance from points to the disk boundary in a given unit direction.
+
+        Args:
+            x (array-like): The coordinates of points.
+            dirn (array-like): The unit direction vector.
+
+        Returns:
+            array-like: Distances from points to the disk boundary in the given direction.
+        """
         mod = utils.smart_numpy(x)
         xc = x - self.center
         ad = jnp.dot(xc, dirn)
         return (-ad + (ad ** 2 - mod.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(bst.environ.dftype())
 
     def distance2boundary(self, x, dirn):
+        """
+        Calculate the distance from points to the disk boundary in a given direction.
+
+        Args:
+            x (array-like): The coordinates of points.
+            dirn (array-like): The direction vector (not necessarily unit).
+
+        Returns:
+            array-like: Distances from points to the disk boundary in the given direction.
+        """
         mod = utils.smart_numpy(x)
         return self.distance2boundary_unitdirn(x, dirn / mod.linalg.norm(dirn))
 
     def mindist2boundary(self, x):
+        """
+        Calculate the minimum distance from points to the disk boundary.
+
+        Args:
+            x (array-like): The coordinates of points.
+
+        Returns:
+            array-like: Minimum distances from points to the disk boundary.
+        """
         mod = utils.smart_numpy(x)
         return mod.amin(self.radius - mod.linalg.norm(x - self.center, axis=1))
 
     def boundary_normal(self, x):
+        """
+        Calculate the unit normal vector to the disk boundary at given points.
+
+        Args:
+            x (array-like): The coordinates of points on the disk boundary.
+
+        Returns:
+            array-like: Unit normal vectors to the disk boundary at the given points.
+        """
         mod = utils.smart_numpy(x)
         _n = x - self.center
         l = mod.linalg.norm(_n, axis=-1, keepdims=True)
@@ -49,24 +108,64 @@ class Disk(Hypersphere):
         return _n
 
     def random_points(self, n, random="pseudo"):
-        # http://mathworld.wolfram.com/DiskPointPicking.html
+        """
+        Generate random points inside the disk.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str, optional): Method for generating random numbers. Defaults to "pseudo".
+
+        Returns:
+            array-like: Coordinates of randomly generated points inside the disk.
+        """
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * jnp.pi * rng[:, 1]
         x, y = jnp.cos(theta), jnp.sin(theta)
         return self.radius * (jnp.sqrt(r) * jnp.vstack((x, y))).T + self.center
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the disk boundary.
+
+        Args:
+            n (int): Number of points to generate.
+
+        Returns:
+            array-like: Coordinates of uniformly distributed points on the disk boundary.
+        """
         theta = jnp.linspace(0, 2 * jnp.pi, num=n, endpoint=False)
         X = jnp.vstack((jnp.cos(theta), jnp.sin(theta))).T
         return self.radius * X + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the disk boundary.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str, optional): Method for generating random numbers. Defaults to "pseudo".
+
+        Returns:
+            array-like: Coordinates of randomly generated points on the disk boundary.
+        """
         u = sample(n, 1, random)
         theta = 2 * jnp.pi * u
         X = jnp.hstack((jnp.cos(theta), jnp.sin(theta)))
         return self.radius * X + self.center
 
     def background_points(self, x, dirn, dist2npt, shift):
+        """
+        Generate background points along a line passing through given points.
+
+        Args:
+            x (array-like): The coordinates of points.
+            dirn (array-like): The direction vector.
+            dist2npt (callable): Function to determine number of points based on distance.
+            shift (float): Shift factor for point generation.
+
+        Returns:
+            array-like: Coordinates of generated background points.
+        """
         dirn = dirn / jnp.linalg.norm(dirn)
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)
@@ -81,15 +180,19 @@ class Disk(Hypersphere):
 
 
 class Ellipse(Geometry):
-    """Ellipse.
+    """
+    A class representing an ellipse in 2D space.
+
+    This class inherits from the Geometry class and provides methods for working with ellipses,
+    including generating points on the boundary and inside the ellipse, and computing distances.
 
     Args:
-        center: Center of the ellipse.
-        semimajor: Semimajor of the ellipse.
-        semiminor: Semiminor of the ellipse.
-        angle: Rotation angle of the ellipse. A positive angle rotates the ellipse
-            clockwise about the center and a negative angle rotates the ellipse
-            counterclockwise about the center.
+        center (array-like): The coordinates of the center of the ellipse.
+        semimajor (float): The length of the semimajor axis of the ellipse.
+        semiminor (float): The length of the semiminor axis of the ellipse.
+        angle (float, optional): The rotation angle of the ellipse in radians. Defaults to 0.
+            A positive angle rotates the ellipse clockwise about the center,
+            while a negative angle rotates it counterclockwise.
     """
 
     def __init__(self, center, semimajor, semiminor, angle=0):
@@ -125,18 +228,42 @@ class Ellipse(Geometry):
         )
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the ellipse.
+
+        Args:
+            x (array-like): The coordinates of points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is on the ellipse's boundary.
+        """
         d1 = jnp.linalg.norm(x - self.focus1, axis=-1)
         d2 = jnp.linalg.norm(x - self.focus2, axis=-1)
         return isclose(d1 + d2, 2 * self.semimajor)
 
     def inside(self, x):
+        """
+        Check if points are inside the ellipse.
+
+        Args:
+            x (array-like): The coordinates of points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is inside the ellipse.
+        """
         d1 = jnp.linalg.norm(x - self.focus1, axis=-1)
         d2 = jnp.linalg.norm(x - self.focus2, axis=-1)
         return d1 + d2 <= 2 * self.semimajor
 
     def _ellipse_arc(self):
-        """Cumulative arc length of ellipse with given dimensions. Returns theta values,
-        distance cumulated at each theta, and total arc length.
+        """
+        Calculate the cumulative arc length of the ellipse.
+
+        Returns:
+            tuple: A tuple containing:
+                - theta (array-like): Angle values.
+                - cumulative_distance (array-like): Cumulative distance at each theta.
+                - c (float): Total arc length of the ellipse.
         """
         # Divide the interval [0 , theta] into n steps at regular angles
         theta = jnp.linspace(0, 2 * jnp.pi, 10000)
@@ -152,8 +279,13 @@ class Ellipse(Geometry):
         return theta, cumulative_distance, c
 
     def _theta_from_arc_length_constructor(self):
-        """Constructs a function that returns the angle associated with a given
-        cumulative arc length for given ellipse.
+        """
+        Construct a function that returns the angle associated with a given cumulative arc length.
+
+        Returns:
+            tuple: A tuple containing:
+                - f (callable): A function that takes an arc length and returns the corresponding angle.
+                - total_arc (float): The total arc length of the ellipse.
         """
         theta, cumulative_distance, total_arc = self._ellipse_arc()
 
@@ -164,6 +296,16 @@ class Ellipse(Geometry):
         return f, total_arc
 
     def random_points(self, n, random="pseudo"):
+        """
+        Generate random points inside the ellipse.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str, optional): Method for generating random numbers. Defaults to "pseudo".
+
+        Returns:
+            array-like: Coordinates of randomly generated points inside the ellipse.
+        """
         # http://mathworld.wolfram.com/DiskPointPicking.html
         rng = sample(n, 2, random)
         r, theta = rng[:, 0], 2 * jnp.pi * rng[:, 1]
@@ -172,6 +314,15 @@ class Ellipse(Geometry):
         return jnp.matmul(self.rotation_mat, X).T + self.center
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the ellipse boundary.
+
+        Args:
+            n (int): Number of points to generate.
+
+        Returns:
+            array-like: Coordinates of uniformly distributed points on the ellipse boundary.
+        """
         # https://codereview.stackexchange.com/questions/243590/generate-random-points-on-perimeter-of-ellipse
         u = jnp.linspace(0, 1, num=n, endpoint=False).reshape((-1, 1))
         theta = self.theta_from_arc_length(u * self.total_arc)
@@ -179,6 +330,16 @@ class Ellipse(Geometry):
         return jnp.matmul(self.rotation_mat, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the ellipse boundary.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str, optional): Method for generating random numbers. Defaults to "pseudo".
+
+        Returns:
+            array-like: Coordinates of randomly generated points on the ellipse boundary.
+        """
         u = sample(n, 1, random)
         theta = self.theta_from_arc_length(u * self.total_arc)
         X = jnp.hstack((self.semimajor * jnp.cos(theta), self.semiminor * jnp.sin(theta)))
@@ -187,6 +348,23 @@ class Ellipse(Geometry):
     def boundary_constraint_factor(
         self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
     ):
+        """
+        Compute the boundary constraint factor for given points.
+
+        This function calculates a factor that represents how close points are to the ellipse boundary.
+        The factor is zero on the boundary and positive elsewhere.
+
+        Args:
+            x (array-like): The coordinates of points to evaluate.
+            smoothness (str, optional): The smoothness of the constraint factor. 
+                Must be one of "C0", "C0+", or "Cinf". Defaults to "C0+".
+
+        Returns:
+            array-like: The computed boundary constraint factors for the input points.
+
+        Raises:
+            ValueError: If smoothness is not one of the allowed values.
+        """
         if smoothness not in ["C0", "C0+", "Cinf"]:
             raise ValueError("`smoothness` must be one of C0, C0+, Cinf")
 
@@ -208,17 +386,38 @@ class Ellipse(Geometry):
 
 class Rectangle(Hypercube):
     """
+    A class representing a rectangle in 2D space.
+
+    This class inherits from the Hypercube class and provides methods for working with rectangles,
+    including generating points on the boundary and inside the rectangle, and computing distances.
+
     Args:
         xmin: Coordinate of bottom left corner.
         xmax: Coordinate of top right corner.
     """
 
     def __init__(self, xmin, xmax):
+        """
+        Initialize a Rectangle object.
+
+        Args:
+            xmin (array-like): Coordinate of the bottom left corner.
+            xmax (array-like): Coordinate of the top right corner.
+        """
         super().__init__(xmin, xmax)
         self.perimeter = 2 * jnp.sum(self.xmax - self.xmin)
         self.area = jnp.prod(self.xmax - self.xmin)
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the rectangle boundary.
+
+        Args:
+            n (int): Number of points to generate.
+
+        Returns:
+            array-like: Coordinates of uniformly distributed points on the rectangle boundary.
+        """
         nx, ny = jnp.ceil(n / self.perimeter * (self.xmax - self.xmin)).astype(int)
         xbot = jnp.hstack(
             (
@@ -256,6 +455,16 @@ class Rectangle(Hypercube):
         return x
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the rectangle boundary.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str, optional): Method for generating random numbers. Defaults to "pseudo".
+
+        Returns:
+            array-like: Coordinates of randomly generated points on the rectangle boundary.
+        """
         l1 = self.xmax[0] - self.xmin[0]
         l2 = l1 + self.xmax[1] - self.xmin[1]
         l3 = l2 + l1
@@ -278,158 +487,17 @@ class Rectangle(Hypercube):
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
         return jnp.vstack(x)
 
-    def _boundary_constraint_factor_inside(
-        self,
-        x,
-        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
-        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-    ):
-        """(Internal use only) Compute the hard constraint factor at `x` for the boundary.
-        The points in `x` are assumed to live inside the geometry.
-
-        This function is a helper function used internally by the `boundary_constraint_factor` function.
-        It should not be called directly in most cases.
-        """
-
-        if not hasattr(self, "self.xmin_tensor"):
-            self.xmin_tensor = jnp.asarray(self.xmin)
-            self.xmax_tensor = jnp.asarray(self.xmax)
-        if where not in ["right", "top"]:
-            dist_l = jnp.abs(
-                (x - self.xmin_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
-            )
-        if where not in ["left", "bottom"]:
-            dist_r = jnp.abs(
-                (x - self.xmax_tensor) / (self.xmax_tensor - self.xmin_tensor) * 2
-            )
-
-        if where == "left":
-            return dist_l[:, 0:1]
-        if where == "right":
-            return dist_r[:, 0:1]
-        if where == "bottom":
-            return dist_l[:, 1:]
-        if where == "top":
-            return dist_r[:, 1:]
-
-        if smoothness == "C0":
-            dist_l = jnp.min(dist_l, axis=-1, keepdims=True)
-            dist_r = jnp.min(dist_r, axis=-1, keepdims=True)
-            return jnp.minimum(dist_l, dist_r)
-        dist_l = jnp.prod(dist_l, axis=-1, keepdims=True)
-        dist_r = jnp.prod(dist_r, axis=-1, keepdims=True)
-        return dist_l * dist_r
-
-    def boundary_constraint_factor(
-        self,
-        x,
-        smoothness: Literal["C0", "C0+", "Cinf"] = "C0+",
-        where: Union[None, Literal["left", "right", "bottom", "top"]] = None,
-        inside: bool = True,
-    ):
-        """Compute the hard constraint factor at x for the boundary.
-
-        This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
-        The hard constraint factor satisfies the following properties:
-
-        - The function is zero on the boundary and positive elsewhere.
-        - The function is at least continuous.
-
-        In the ansatz `boundary_constraint_factor(x) * NN(x) + boundary_condition(x)`, when `x` is on the boundary,
-        `boundary_constraint_factor(x)` will be zero, making the ansatz be the boundary condition, which in
-        turn makes the boundary condition a "hard constraint".
-
-        Args:
-            x: A 2D array of shape (n, dim), where `n` is the number of points and
-                `dim` is the dimension of the geometry. Note that `x` should be a tensor type
-                of backend (e.g., `tf.Tensor` or `torch.Tensor`), not a numpy array.
-            smoothness (string, optional): A string to specify the smoothness of the distance function,
-                e.g., "C0", "C0+", "Cinf". "C0" is the least smooth, "Cinf" is the most smooth.
-                Default is "C0+".
-
-                - C0
-                The distance function is continuous but may not be non-differentiable.
-                But the set of non-differentiable points should have measure zero,
-                which makes the probability of the collocation point falling in this set be zero.
-
-                - C0+
-                The distance function is continuous and differentiable almost everywhere. The
-                non-differentiable points can only appear on boundaries. If the points in `x` are
-                all inside or outside the geometry, the distance function is smooth.
-
-                - Cinf
-                The distance function is continuous and differentiable at any order on any
-                points. This option may result in a polynomial of HIGH order.
-
-            where (string, optional): A string to specify which part of the boundary to compute the distance.
-                "left": x[0] = xmin[0], "right": x[0] = xmax[0], "bottom": x[1] = xmin[1], "top": x[1] = xmax[1]. 
-                If `None`, compute the distance to the whole boundary. Default is `None`.
-            inside (bool, optional): The `x` is either inside or outside the geometry.
-                The cases where there are both points inside and points
-                outside the geometry are NOT allowed. Default is `True`.
-
-        Returns:
-            A tensor of a type determined by the backend, which will have a shape of (n, 1).
-            Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
-        """
-        if where not in [None, "left", "right", "bottom", "top"]:
-            raise ValueError("where must be one of None, left, right, bottom, top")
-        if smoothness not in ["C0", "C0+", "Cinf"]:
-            raise ValueError("smoothness must be one of C0, C0+, Cinf")
-        if self.dim != 2:
-            raise ValueError("self.dim must be 2")
-
-        if inside:
-            return self._boundary_constraint_factor_inside(x, where, smoothness)
-
-        if not hasattr(self, "self.x11_tensor"):
-            self.x11_tensor = jnp.asarray(self.xmin)
-            self.x22_tensor = jnp.asarray(self.xmax)
-            self.x12_tensor = jnp.asarray([self.xmin[0], self.xmax[1]])
-            self.x21_tensor = jnp.asarray([self.xmax[0], self.xmin[1]])
-
-        dist_left = dist_right = dist_bottom = dist_top = None
-        if where is None or where == "left":
-            dist_left = jnp.abs(
-                jnp.linalg.norm(x - self.x11_tensor, axis=-1, keepdims=True)
-                + jnp.linalg.norm(x - self.x12_tensor, axis=-1, keepdims=True)
-                - (self.xmax[1] - self.xmin[1])
-            )
-        if where is None or where == "right":
-            dist_right = jnp.abs(
-                jnp.linalg.norm(x - self.x21_tensor, axis=-1, keepdims=True)
-                + jnp.linalg.norm(x - self.x22_tensor, axis=-1, keepdims=True)
-                - (self.xmax[1] - self.xmin[1])
-            )
-        if where is None or where == "bottom":
-            dist_bottom = jnp.abs(
-                jnp.linalg.norm(x - self.x11_tensor, axis=-1, keepdims=True)
-                + jnp.linalg.norm(x - self.x21_tensor, axis=-1, keepdims=True)
-                - (self.xmax[0] - self.xmin[0])
-            )
-        if where is None or where == "top":
-            dist_top = jnp.abs(
-                jnp.linalg.norm(x - self.x12_tensor, axis=-1, keepdims=True)
-                + jnp.linalg.norm(x - self.x22_tensor, axis=-1, keepdims=True)
-                - (self.xmax[0] - self.xmin[0])
-            )
-
-        if where == "left":
-            return dist_left
-        if where == "right":
-            return dist_right
-        if where == "bottom":
-            return dist_bottom
-        if where == "top":
-            return dist_top
-        if smoothness == "C0":
-            return jnp.minimum(jnp.minimum(dist_left, dist_right),
-                               jnp.minimum(dist_bottom, dist_top))
-        return dist_left * dist_right * dist_bottom * dist_top
-
     @staticmethod
     def is_valid(vertices):
-        """Check if the geometry is a Rectangle."""
+        """
+        Check if the geometry is a valid Rectangle.
+
+        Args:
+            vertices (array-like): An array of 4 vertices defining the rectangle.
+
+        Returns:
+            bool: True if the geometry is a valid rectangle, False otherwise.
+        """
         return (
             len(vertices) == 4
             and isclose(jnp.prod(vertices[1] - vertices[0]), 0)
@@ -778,12 +846,36 @@ class Triangle(Geometry):
 
 
 class Polygon(Geometry):
-    """Simple polygon.
+    """
+    Represents a simple polygon geometry.
+
+    This class creates a polygon object from a set of vertices. The vertices can be provided
+    in either clockwise or counterclockwise order, and will be reordered to counterclockwise
+    (right-hand rule) if necessary.
 
     Args:
-        vertices: The order of vertices can be in a clockwise or counterclockwise
-            direction. The vertices will be re-ordered in counterclockwise (right hand
-            rule).
+        vertices (list or array-like): A sequence of (x, y) coordinates defining the vertices
+            of the polygon. The order can be clockwise or counterclockwise.
+
+    Raises:
+        ValueError: If the polygon is a triangle (use Triangle class instead) or
+            if the polygon is a rectangle (use Rectangle class instead).
+
+    Attributes:
+        vertices (jnp.ndarray): Array of vertex coordinates.
+        area (float): Signed area of the polygon.
+        diagonals (jnp.ndarray): Square matrix of distances between vertices.
+        nvertices (int): Number of vertices in the polygon.
+        perimeter (float): Perimeter of the polygon.
+        bbox (jnp.ndarray): Bounding box of the polygon.
+        segments (jnp.ndarray): Vectors representing the edges of the polygon.
+        normal (jnp.ndarray): Normal vectors for each edge of the polygon.
+
+    Note:
+        This class inherits from the Geometry base class and implements several
+        methods for working with polygons, including checking if points are inside
+        or on the boundary, and generating random points within or on the boundary
+        of the polygon.
     """
 
     def __init__(self, vertices):

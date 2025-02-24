@@ -12,7 +12,21 @@ from .base import GeometryPINNx as Geometry
 
 
 class Interval(Geometry):
+    """
+    Represents a 1D interval geometry.
+
+    This class defines an interval [l, r] and provides various methods for
+    working with points within and on the boundary of this interval.
+    """
+
     def __init__(self, l, r):
+        """
+        Initialize the Interval object.
+
+        Args:
+            l (float): The left endpoint of the interval.
+            r (float): The right endpoint of the interval.
+        """
         super().__init__(
             1,
             (jnp.array([l], dtype=bst.environ.dftype()),
@@ -22,17 +36,54 @@ class Interval(Geometry):
         self.l, self.r = l, r
 
     def inside(self, x):
+        """
+        Check if points are inside the interval.
+
+        Args:
+            x (array-like): The points to check.
+
+        Returns:
+            array: Boolean array indicating whether each point is inside the interval.
+        """
         mod = utils.smart_numpy(x)
         return mod.logical_and(self.l <= x, x <= self.r).flatten()
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the interval.
+
+        Args:
+            x (array-like): The points to check.
+
+        Returns:
+            array: Boolean array indicating whether each point is on the boundary.
+        """
         mod = utils.smart_numpy(x)
         return mod.any(mod.isclose(x, jnp.array([self.l, self.r], dtype=bst.environ.dftype())), axis=-1)
 
     def distance2boundary(self, x, dirn):
+        """
+        Compute the distance from points to the boundary in a specified direction.
+
+        Args:
+            x (array-like): The points to compute distance for.
+            dirn (int): Direction indicator (-1 for left, 1 for right).
+
+        Returns:
+            array: Distances to the boundary.
+        """
         return x - self.l if dirn < 0 else self.r - x
 
     def mindist2boundary(self, x):
+        """
+        Compute the minimum distance from points to the boundary.
+
+        Args:
+            x (array-like): The points to compute distance for.
+
+        Returns:
+            float: Minimum distance to the boundary.
+        """
         mod = utils.smart_numpy(x)
         return min(mod.amin(x - self.l), mod.amin(self.r - x))
 
@@ -116,10 +167,29 @@ class Interval(Geometry):
         return dist_r
 
     def boundary_normal(self, x):
+        """
+        Compute the normal vector at boundary points.
+
+        Args:
+            x (array-like): The points to compute normal vectors for.
+
+        Returns:
+            array: Normal vectors at the given points.
+        """
         mod = utils.smart_numpy(x)
         return -mod.isclose(x, self.l).astype(bst.environ.dftype()) + mod.isclose(x, self.r)
 
     def uniform_points(self, n, boundary=True):
+        """
+        Generate uniformly distributed points in the interval.
+
+        Args:
+            n (int): Number of points to generate.
+            boundary (bool): Whether to include boundary points.
+
+        Returns:
+            array: Uniformly distributed points.
+        """
         if boundary:
             return jnp.linspace(self.l, self.r, num=n, dtype=bst.environ.dftype())[:, None]
         return jnp.linspace(
@@ -127,6 +197,16 @@ class Interval(Geometry):
         )[1:, None]
 
     def log_uniform_points(self, n, boundary=True):
+        """
+        Generate logarithmically uniformly distributed points in the interval.
+
+        Args:
+            n (int): Number of points to generate.
+            boundary (bool): Whether to include boundary points.
+
+        Returns:
+            array: Logarithmically uniformly distributed points.
+        """
         eps = 0 if self.l > 0 else jnp.finfo(bst.environ.dftype()).eps
         l = jnp.log(self.l + eps)
         r = jnp.log(self.r + eps)
@@ -139,10 +219,29 @@ class Interval(Geometry):
         return jnp.exp(x) - eps
 
     def random_points(self, n, random="pseudo"):
+        """
+        Generate random points in the interval.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array: Randomly distributed points.
+        """
         x = sample(n, 1, random)
         return (self.diam * x + self.l).astype(bst.environ.dftype())
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the boundary.
+
+        Args:
+            n (int): Number of points to generate.
+
+        Returns:
+            array: Uniformly distributed boundary points.
+        """
         if n == 1:
             return jnp.array([[self.l]]).astype(bst.environ.dftype())
         xl = jnp.full((n // 2, 1), self.l).astype(bst.environ.dftype())
@@ -150,11 +249,31 @@ class Interval(Geometry):
         return jnp.vstack((xl, xr))
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the boundary.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array: Randomly distributed boundary points.
+        """
         if n == 2:
             return jnp.array([[self.l], [self.r]]).astype(bst.environ.dftype())
         return bst.random.choice([self.l, self.r], n)[:, None].astype(bst.environ.dftype())
 
     def periodic_point(self, x, component=0):
+        """
+        Map points to their periodic equivalents within the interval.
+
+        Args:
+            x (array-like): Points to map.
+            component (int): Component to apply periodicity to (unused in 1D).
+
+        Returns:
+            array: Mapped periodic points.
+        """
         tmp = jnp.copy(x)
         tmp[utils.isclose(x, self.l)] = self.r
         tmp[utils.isclose(x, self.r)] = self.l
@@ -162,11 +281,16 @@ class Interval(Geometry):
 
     def background_points(self, x, dirn, dist2npt, shift):
         """
+        Generate background points based on a given point and direction.
+
         Args:
-            dirn: -1 (left), or 1 (right), or 0 (both direction).
-            dist2npt: A function which converts distance to the number of extra
-                points (not including x).
-            shift: The number of shift.
+            x (array-like): Reference point.
+            dirn (int): Direction (-1 for left, 1 for right, 0 for both).
+            dist2npt (callable): Function to convert distance to number of points.
+            shift (int): Number of points to shift.
+
+        Returns:
+            array: Generated background points.
         """
 
         def background_points_left():

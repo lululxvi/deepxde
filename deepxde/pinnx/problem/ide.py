@@ -26,12 +26,31 @@ InitMat = Any
 
 
 class IDE(PDE):
-    """IDE solver.
+    """
+    Integro-Differential Equation (IDE) solver class.
 
-    The current version only supports 1D problems with the integral int_0^x K(x, t) y(t) dt.
+    This class extends the PDE solver to handle Integro-Differential Equations.
+    It specifically focuses on solving 1D problems with integral terms of the form:
+    int_0^x K(x, t) y(t) dt, where K is the kernel function.
 
-    Args:
-        kernel: (x, t) --> R.
+    The IDE solver uses a Physics-Informed Neural Network (PINN) approach,
+    combining neural networks with numerical integration techniques to
+    approximate solutions to IDEs.
+
+    Attributes:
+        kernel (Callable): The kernel function K(x, t) used in the integral term.
+        quad_deg (int): The degree of quadrature used for numerical integration.
+        quad_x (np.ndarray): Quadrature points for Gauss-Legendre quadrature.
+        quad_w (np.ndarray): Quadrature weights for Gauss-Legendre quadrature.
+
+    Inherits from:
+        PDE: Base class for partial differential equation solvers.
+
+    Note:
+        - This implementation currently supports only 1D problems.
+        - The solver uses Gauss-Legendre quadrature for numerical integration.
+        - The neural network approximator and other PDE-related functionalities
+          are inherited from the parent PDE class.
     """
 
     def __init__(
@@ -51,6 +70,28 @@ class IDE(PDE):
         loss_fn: str | Callable = 'MSE',
         loss_weights: Sequence[float] = None,
     ):
+        """
+        Initialize the IDE (Integro-Differential Equation) solver.
+
+        Args:
+            geometry (DictPointGeometry): The geometry of the problem domain.
+            ide (Callable[[X, Y, InitMat], Any]): The IDE function to be solved.
+            constraints (Union[ICBC, Sequence[ICBC]]): Initial and boundary conditions.
+            quad_deg (int): The degree of quadrature for numerical integration.
+            approximator (Optional[bst.nn.Module], optional): The neural network approximator. Defaults to None.
+            kernel (Callable, optional): The kernel function for the integral term. Defaults to None.
+            num_domain (int, optional): Number of domain points. Defaults to 0.
+            num_boundary (int, optional): Number of boundary points. Defaults to 0.
+            train_distribution (str, optional): Distribution method for training points. Defaults to "Hammersley".
+            anchors (optional): Anchor points for the geometry. Defaults to None.
+            solution (optional): The analytical solution if available. Defaults to None.
+            num_test (int, optional): Number of test points. Defaults to None.
+            loss_fn (str | Callable, optional): Loss function to be used. Defaults to 'MSE'.
+            loss_weights (Sequence[float], optional): Weights for different components of the loss. Defaults to None.
+
+        Returns:
+            None
+        """
         self.kernel = kernel or (lambda x, *args: np.ones((len(x), 1)))
         self.quad_deg = quad_deg
         self.quad_x, self.quad_w = np.polynomial.legendre.leggauss(quad_deg)

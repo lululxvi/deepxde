@@ -16,8 +16,8 @@ class PointCloud(Geometry):
         points: A 2-D NumPy array. If `boundary_points` is not provided, `points` can
             include points both inside the geometry or on the boundary; if `boundary_points`
             is provided, `points` includes only points inside the geometry.
-        boundary_points: A 2-D NumPy array.
-        boundary_normals: A 2-D NumPy array.
+        boundary_points: A 2-D NumPy array representing points on the boundary.
+        boundary_normals: A 2-D NumPy array representing normal vectors at boundary points.
     """
 
     def __init__(self, points, boundary_points=None, boundary_normals=None):
@@ -47,6 +47,15 @@ class PointCloud(Geometry):
         self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
+        """
+        Check if points are inside the geometry.
+
+        Args:
+            x (numpy.ndarray): A 2-D array of points to check.
+
+        Returns:
+            numpy.ndarray: A boolean array indicating whether each point is inside the geometry.
+        """
         return (
             isclose((x[:, None, :] - self.points[None, :, :]), 0)
             .all(axis=2)
@@ -54,6 +63,18 @@ class PointCloud(Geometry):
         )
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the geometry.
+
+        Args:
+            x (numpy.ndarray): A 2-D array of points to check.
+
+        Returns:
+            numpy.ndarray: A boolean array indicating whether each point is on the boundary.
+
+        Raises:
+            ValueError: If boundary_points is not defined.
+        """
         if self.boundary_points is None:
             raise ValueError("boundary_points must be defined to test on_boundary")
         return (
@@ -66,6 +87,18 @@ class PointCloud(Geometry):
         )
 
     def boundary_normal(self, x):
+        """
+        Get the normal vectors for points on the boundary.
+
+        Args:
+            x (numpy.ndarray): A 2-D array of points on the boundary.
+
+        Returns:
+            numpy.ndarray: A 2-D array of normal vectors corresponding to the input points.
+
+        Raises:
+            ValueError: If boundary_normals is not defined.
+        """
         if self.boundary_normals is None:
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
@@ -77,6 +110,16 @@ class PointCloud(Geometry):
         return self.boundary_normals[normals_idx, :]
 
     def random_points(self, n, random="pseudo"):
+        """
+        Generate random points within the geometry.
+
+        Args:
+            n (int): Number of random points to generate.
+            random (str, optional): Type of random number generation. Defaults to "pseudo".
+
+        Returns:
+            numpy.ndarray: A 2-D array of randomly generated points.
+        """
         if n <= self.num_points:
             indices = self.sampler.get_next(n)
             return self.points[indices]
@@ -86,6 +129,19 @@ class PointCloud(Geometry):
         return np.vstack((x, self.points[indices]))
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the boundary of the geometry.
+
+        Args:
+            n (int): Number of random boundary points to generate.
+            random (str, optional): Type of random number generation. Defaults to "pseudo".
+
+        Returns:
+            numpy.ndarray: A 2-D array of randomly generated boundary points.
+
+        Raises:
+            ValueError: If boundary_points is not defined.
+        """
         if self.boundary_points is None:
             raise ValueError("boundary_points must be defined to test on_boundary")
         if n <= self.num_boundary_points:

@@ -14,6 +14,19 @@ __all__ = [
 
 
 class GradientTransform(bst.util.PrettyRepr):
+    """
+    A class for transforming gradient computations.
+
+    This class wraps a target function and applies a gradient transformation to it.
+    It handles auxiliary data and state management during the transformation process.
+
+    Attributes:
+        target (Callable): The target function to be transformed.
+        _transform (Callable): The transformed function.
+        _return_value (bool): Flag to determine if the original function value should be returned.
+        _has_aux (bool): Flag to indicate if the target function returns auxiliary data.
+        _states_to_be_written (Tuple[bst.State, ...]): States that need to be updated after computation.
+    """
 
     def __init__(
         self,
@@ -23,6 +36,16 @@ class GradientTransform(bst.util.PrettyRepr):
         has_aux: bool = False,
         transform_params: Optional[Dict[str, Any]] = None,
     ):
+        """
+        Initialize the GradientTransform.
+
+        Args:
+            target (Callable): The target function to be transformed.
+            transform (TransformFn): The transformation function to be applied.
+            return_value (bool, optional): If True, return the original function value along with the gradient. Defaults to False.
+            has_aux (bool, optional): If True, the target function returns auxiliary data. Defaults to False.
+            transform_params (Optional[Dict[str, Any]], optional): Additional parameters for the transformation. Defaults to None.
+        """
         self._return_value = return_value
         self._has_aux = has_aux
 
@@ -38,6 +61,12 @@ class GradientTransform(bst.util.PrettyRepr):
             self._transform = transform(self._fun_without_aux, has_aux=True, **_grad_setting)
 
     def __pretty_repr__(self) -> Iterator[Union[bst.util.PrettyType, bst.util.PrettyAttr]]:
+        """
+        Generate a pretty representation of the GradientTransform instance.
+
+        Returns:
+            Iterator[Union[bst.util.PrettyType, bst.util.PrettyAttr]]: An iterator of pretty-formatted attributes.
+        """
         yield bst.util.PrettyType(self.__class__.__name__)
         yield bst.util.PrettyAttr("target", self.target)
         yield bst.util.PrettyAttr("return_value", self._return_value)
@@ -45,6 +74,16 @@ class GradientTransform(bst.util.PrettyRepr):
         yield bst.util.PrettyAttr("transform", self._transform)
 
     def _call_target(self, *args, **kwargs):
+        """
+        Call the target function and collect states to be written.
+
+        Args:
+            *args: Positional arguments for the target function.
+            **kwargs: Keyword arguments for the target function.
+
+        Returns:
+            Any: The output of the target function.
+        """
         if self._states_to_be_written is None:
             with bst.StateTraceStack() as stack:
                 output = self.target(*args, **kwargs)
@@ -54,44 +93,71 @@ class GradientTransform(bst.util.PrettyRepr):
         return output
 
     def _fun_with_aux(self, *args, **kwargs):
-        # Users should return the auxiliary data like::
-        # >>> # 1. example of return one data
-        # >>> return scalar_loss, data
-        # >>> # 2. example of return multiple data
-        # >>> return scalar_loss, (data1, data2, ...)
+        """
+        Wrapper for target function when it returns auxiliary data.
+
+        Args:
+            *args: Positional arguments for the target function.
+            **kwargs: Keyword arguments for the target function.
+
+        Returns:
+            Tuple: A tuple containing the main output and auxiliary data.
+        """
         outs = self._call_target(*args, **kwargs)
-        # outputs: [0] is the value for gradient,
-        #          [1] is other values for return
         assert self._states_to_be_written is not None, "The states to be written should be collected."
         return outs[0], (outs, [v.value for v in self._states_to_be_written])
 
     def _fun_without_aux(self, *args, **kwargs):
-        # Users should return the scalar value like this::
-        # >>> return scalar_loss
+        """
+        Wrapper for target function when it doesn't return auxiliary data.
+
+        Args:
+            *args: Positional arguments for the target function.
+            **kwargs: Keyword arguments for the target function.
+
+        Returns:
+            Tuple: A tuple containing the output and related data.
+        """
         out = self._call_target(*args, **kwargs)
         assert self._states_to_be_written is not None, "The states to be written should be collected."
         return out, (out, [v.value for v in self._states_to_be_written])
 
     def _return(self, rets):
+        """
+        Process and return the results of the transformation.
+
+        Args:
+            rets: The results from the transformation.
+
+        Returns:
+            Tuple: Processed results based on the configuration of return_value and has_aux.
+        """
         grads, (outputs, new_dyn_vals) = rets
         for i, val in enumerate(new_dyn_vals):
             self._states_to_be_written[i].value = val
 
-        # check returned value
         if self._return_value:
-            # check aux
             if self._has_aux:
                 return grads, outputs[0], outputs[1]
             else:
                 return grads, outputs
         else:
-            # check aux
             if self._has_aux:
                 return grads, outputs[1]
             else:
                 return grads
 
     def __call__(self, *args, **kwargs):
+        """
+        Call the transformed function and process its results.
+
+        Args:
+            *args: Positional arguments for the transformed function.
+            **kwargs: Keyword arguments for the transformed function.
+
+        Returns:
+            Any: The processed results of the transformation.
+        """
         rets = self._transform(*args, **kwargs)
         return self._return(rets)
 
@@ -230,21 +296,36 @@ def jacobian(
     vmap: bool = True,
 ):
     """
-    Compute `Jacobian matrix <https://en.wikipedia.org/wiki/Jacobian_matrix_and_determinant>`_
-    J as J[i, j] = dy_i / dx_j, where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
+    Compute the Jacobian matrix of a function.
+
+    This function calculates the Jacobian matrix J as J[i, j] = dy_i / dx_j, 
+    where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
 
     Args:
-        fn: Function to compute the gradient.
-        xs: Inputs of the function.
-        mode: The mode of the gradient computation. Choose between 'backward' and 'forward'.
-        x (str or None): `i`th row. If `i` is ``None``, returns the `j`th column
-            J[:, `j`].
-        y (str or None): `j`th column. If `j` is ``None``, returns the `i`th row
-            J[`i`, :], i.e., the gradient of y_i. `i` and `j` cannot be both ``None``,
-            unless J has only one element, which is returned.
+        fn (Callable): The function to compute the Jacobian for.
+        xs (Dict): A dictionary containing the input values for the function.
+        y (str | Sequence[str] | None, optional): Specifies the output variable(s) for which 
+            to compute the Jacobian. If None, computes for all outputs. Defaults to None.
+        x (str | Sequence[str] | None, optional): Specifies the input variable(s) with respect 
+            to which the Jacobian is computed. If None, computes for all inputs. Defaults to None.
+        mode (str, optional): The mode of gradient computation. Either 'backward' or 'forward'. 
+            Defaults to 'backward'.
+        vmap (bool, optional): Whether to use vectorized mapping. Defaults to True.
 
     Returns:
-        (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
+        The Jacobian matrix. Depending on the inputs, it can be:
+        - The full Jacobian matrix if both x and y are None or specify all variables.
+        - A row vector J[i, :] if y specifies a single output and x is None.
+        - A column vector J[:, j] if x specifies a single input and y is None.
+        - A scalar J[i, j] if both x and y specify single variables.
+
+    Raises:
+        ValueError: If an invalid mode is specified.
+
+    Note:
+        The function uses automatic differentiation techniques to compute the Jacobian.
+        The 'backward' mode is generally more efficient for functions with more outputs than inputs,
+        while 'forward' mode is more efficient for functions with more inputs than outputs.
     """
     # assert isinstance(xs, dict), 'xs must be a dictionary.'
     assert isinstance(mode, str), 'mode must be a string.'
@@ -280,20 +361,33 @@ def hessian(
     vmap: bool = True,
 ):
     """
-    Compute `Hessian matrix <https://en.wikipedia.org/wiki/Hessian_matrix>`_ H as
-    H[i, j] = d^2y / dx_i dx_j, where i,j = 0, ..., dim_x - 1.
+    Compute the Hessian matrix of a function.
+
+    This function calculates the Hessian matrix H as H[i, j] = d^2y / dx_i dx_j,
+    where i, j = 0, ..., dim_x - 1.
 
     Args:
-        fn: Function to compute the gradient.
-        xs: Inputs of the function.
-        y (str or None): The output variable.
-        xi (str or None): `i`th row. If `i` is ``None``, returns the `j`th column H[:, `j`].
-        xj (str or None): `j`th column. If `j` is ``None``, returns the `i`th row
-            H[`i`, :], i.e., the gradient of y_i. `i` and `j` cannot be both ``None``,
-            unless H has only one element, which is returned.
+        fn (Callable): The function for which to compute the Hessian.
+        xs (Dict): A dictionary containing the input values for the function.
+        y (str | Sequence[str] | None, optional): Specifies the output variable(s) for which
+            to compute the Hessian. If None, computes for all outputs. Defaults to None.
+        xi (str | Sequence[str] | None, optional): Specifies the input variable(s) for the i-th
+            dimension of the Hessian. If None, computes for all inputs in this dimension.
+            Defaults to None.
+        xj (str | Sequence[str] | None, optional): Specifies the input variable(s) for the j-th
+            dimension of the Hessian. If None, computes for all inputs in this dimension.
+            Defaults to None.
+        vmap (bool, optional): Whether to use vectorized mapping. Defaults to True.
 
     Returns:
-        H[`i`, `j`].
+        The Hessian matrix or a part of it, depending on the specified xi and xj:
+        - If both xi and xj are None, returns the full Hessian matrix.
+        - If xi is specified and xj is None, returns the i-th row of the Hessian, H[i, :].
+        - If xj is specified and xi is None, returns the j-th column of the Hessian, H[:, j].
+        - If both xi and xj are specified, returns the specific element H[i, j].
+
+    Note:
+        xi and xj cannot both be None unless the Hessian has only one element.
     """
     # assert isinstance(xs, dict), 'xs must be a dictionary.'
     transform = GradientTransform(fn, _raw_hessian, transform_params={'y': y, 'xi': xi, 'xj': xj})
@@ -311,20 +405,32 @@ def gradient(
     order: int = 1,
 ):
     """
-    Compute the gradient dy/dx of a function y = f(x) with respect to x.
+    Compute the gradient of a function with respect to specified variables.
 
-    If order is 1, it computes the first derivative dy/dx.
-
+    This function calculates the gradient dy/dx of a function y = f(x) with respect to x.
+    It supports computing higher-order gradients by specifying the 'order' parameter.
 
     Args:
-        fn: Function to compute the gradient.
-        xs: Inputs of the function.
-        y (str or None): The variable to differentiate.
-        xi (str or None): The variable to differentiate with respect to.
-        order: The order of the gradient. Default is 1.
+        fn (Callable): The function for which to compute the gradient.
+        xs (Dict): A dictionary containing the input values for the function.
+        y (str | Sequence[str] | None, optional): Specifies the output variable(s) to differentiate.
+            If None, computes for all outputs. Defaults to None.
+        *xi (str | Sequence[str] | None): Variable-length argument specifying the input variable(s)
+            to differentiate with respect to. The number of xi arguments should match the 'order' parameter.
+        order (int, optional): The order of the gradient to compute. Default is 1 (first derivative).
 
     Returns:
-        dy/dx.
+        The computed gradient. The structure and dimensions of the output depend on the inputs:
+        - For first-order gradients (order=1), returns dy/dx.
+        - For higher-order gradients, returns the corresponding higher-order derivative.
+
+    Raises:
+        AssertionError: If 'order' is not a positive integer or if the number of 'xi' arguments
+                        doesn't match the specified 'order'.
+
+    Note:
+        The function uses a combination of reverse-mode (for the first derivative) and
+        forward-mode (for higher-order derivatives) automatic differentiation.
     """
     assert isinstance(order, int), 'order must be an integer.'
     assert order > 0, 'order must be positive.'

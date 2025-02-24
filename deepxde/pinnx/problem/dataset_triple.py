@@ -24,8 +24,13 @@ class TripleDataset(Problem):
     learning.
 
     Args:
-        X_train: A tuple of two NumPy arrays.
-        y_train: A NumPy array.
+        X_train (tuple): A tuple of two NumPy arrays representing the input training data.
+        y_train (numpy.ndarray): A NumPy array representing the output training data.
+        X_test (tuple): A tuple of two NumPy arrays representing the input testing data.
+        y_test (numpy.ndarray): A NumPy array representing the output testing data.
+        approximator (bst.nn.Module, optional): The neural network module used for approximation. Defaults to None.
+        loss_fn (str, optional): The loss function to be used. Defaults to 'MSE'.
+        loss_weights (Sequence[float], optional): Weights for the loss function. Defaults to None.
 
     References:
         `L. Lu, P. Jin, G. Pang, Z. Zhang, & G. E. Karniadakis. Learning nonlinear
@@ -57,9 +62,32 @@ class TripleDataset(Problem):
         self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
 
     def losses(self, inputs, outputs, targets, **kwargs):
+        """
+        Compute the loss between the model outputs and the targets.
+
+        Args:
+            inputs: The input data (not used in this method).
+            outputs: The model outputs.
+            targets: The target values.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The computed loss value.
+        """
         return self.loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
+        """
+        Get the next batch of training data.
+
+        Args:
+            batch_size (int, optional): The size of the batch to return. If None, returns all training data.
+
+        Returns:
+            tuple: A tuple containing two elements:
+                - A tuple of two arrays representing the input training data for the batch.
+                - An array representing the output training data for the batch.
+        """
         if batch_size is None:
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
@@ -70,6 +98,14 @@ class TripleDataset(Problem):
         )
 
     def test(self):
+        """
+        Get the testing data.
+
+        Returns:
+            tuple: A tuple containing two elements:
+                - The input testing data.
+                - The output testing data.
+        """
         return self.test_x, self.test_y
 
 
@@ -98,6 +134,21 @@ class TripleCartesianProd(Problem):
         loss_fn: str = 'MSE',
         loss_weights: Sequence[float] = None,
     ):
+        """
+        Initialize the TripleCartesianProd dataset.
+
+        Args:
+            X_train (tuple): A tuple of two NumPy arrays for training input data.
+            y_train (numpy.ndarray): A NumPy array for training output data.
+            X_test (tuple): A tuple of two NumPy arrays for testing input data.
+            y_test (numpy.ndarray): A NumPy array for testing output data.
+            approximator (bst.nn.Module, optional): The neural network module used for approximation. Defaults to None.
+            loss_fn (str, optional): The loss function to be used. Defaults to 'MSE'.
+            loss_weights (Sequence[float], optional): Weights for the loss function. Defaults to None.
+
+        Raises:
+            ValueError: If the training or testing dataset does not have the format of Cartesian product.
+        """
         super().__init__(
             approximator=approximator,
             loss_fn=loss_fn,
@@ -119,9 +170,35 @@ class TripleCartesianProd(Problem):
         self.trunk_sampler = BatchSampler(len(X_train[1]), shuffle=True)
 
     def losses(self, inputs, outputs, targets, **kwargs):
+        """
+        Compute the loss between the model outputs and the targets.
+
+        Args:
+            inputs: The input data (not used in this method).
+            outputs: The model outputs.
+            targets: The target values.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The computed loss value.
+        """
         return self.loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
+        """
+        Get the next batch of training data.
+
+        Args:
+            batch_size (int, tuple, or list, optional): The size of the batch to return. 
+                If None, returns all training data. 
+                If int, returns a batch with the specified size for branch data and all trunk data.
+                If tuple or list, returns a batch with specified sizes for both branch and trunk data.
+
+        Returns:
+            tuple: A tuple containing two elements:
+                - A tuple of two arrays representing the input training data for the batch.
+                - An array representing the output training data for the batch.
+        """
         if batch_size is None:
             return self.train_x, self.train_y
         if not isinstance(batch_size, (tuple, list)):
@@ -136,4 +213,12 @@ class TripleCartesianProd(Problem):
         )
 
     def test(self):
+        """
+        Get the testing data.
+
+        Returns:
+            tuple: A tuple containing two elements:
+                - The input testing data.
+                - The output testing data.
+        """
         return self.test_x, self.test_y

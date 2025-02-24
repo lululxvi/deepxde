@@ -38,8 +38,17 @@ class BC(ICBC):
     """
     Boundary condition base class.
 
+    This class serves as the foundation for implementing various boundary conditions in the DeepXDE framework.
+    It provides methods for filtering collocation points, computing normal derivatives, and handling boundary-related operations.
+
     Args:
-        on_boundary: A function: (x, Geometry.on_boundary(x)) -> True/False.
+        on_boundary (Callable[[X, np.array], np.array]): A function that takes two arguments:
+            - x: The input points.
+            - on: A boolean array indicating whether each point is on the boundary.
+            The function should return a boolean array indicating which points satisfy the boundary condition.
+
+    Attributes:
+        on_boundary (Callable): A vectorized version of the input `on_boundary` function.
     """
 
     def __init__(
@@ -53,11 +62,13 @@ class BC(ICBC):
         """
         Filter the collocation points for boundary conditions.
 
+        This method applies the boundary condition filter to the given collocation points.
+
         Args:
-            X: Collocation points.
+            X (Dict[str, bst.typing.ArrayLike]): A dictionary of collocation points.
 
         Returns:
-            Filtered collocation points.
+            Dict[str, bst.typing.ArrayLike]: A dictionary of filtered collocation points that satisfy the boundary condition.
         """
         positions = self.on_boundary(X, self.geometry.on_boundary(X))
         return jax.tree.map(lambda x: x[positions], X)
@@ -66,17 +77,32 @@ class BC(ICBC):
         """
         Return the collocation points for boundary conditions.
 
+        This method filters the input collocation points to return only those that satisfy the boundary condition.
+
         Args:
-            X: Collocation points.
+            X (Dict[str, bst.typing.ArrayLike]): A dictionary of collocation points.
 
         Returns:
-            Collocation points for boundary conditions.
+            Dict[str, bst.typing.ArrayLike]: A dictionary of collocation points that satisfy the boundary condition.
         """
         return self.filter(X)
 
     def normal_derivative(self, inputs) -> Dict[str, bst.typing.ArrayLike]:
         """
         Compute the normal derivative of the output.
+
+        This method calculates the normal derivative of the output with respect to the input at the boundary.
+
+        Args:
+            inputs (Dict[str, bst.typing.ArrayLike]): A dictionary of input points.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the normal derivatives of the output
+            with respect to each input variable.
+
+        Raises:
+            AssertionError: If the problem approximator is not an instance of the Model class,
+            or if the boundary normal or jacobian are not dictionaries.
         """
         # first order derivative
         assert isinstance(self.problem.approximator, Model), ("Normal derivative is only supported "
@@ -104,9 +130,16 @@ class DirichletBC(BC):
     """
     Dirichlet boundary conditions: ``y(x) = func(x)``.
 
+    This class implements Dirichlet boundary conditions, where the solution is specified
+    on the boundary of the domain.
+
     Args:
-        func: A function that takes an array of points and returns an array of values.
-        on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
+        func (Callable[[X, ...], F] | Callable[[X], F] | F): A function that takes an array of points
+            and returns an array of values, or a constant value to be applied at all boundary points.
+        on_boundary (Callable[[X, np.array], np.array], optional): A function that takes two arguments:
+            x (the input points) and on (a boolean array indicating whether each point is on the boundary).
+            It should return a boolean array indicating which points satisfy the boundary condition.
+            Defaults to a function that returns the input 'on' array.
 
     """
 
@@ -119,6 +152,19 @@ class DirichletBC(BC):
         self.func = func if callable(func) else lambda x: func
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error between the predicted and true values at the boundary.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): Input points on the boundary.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): Predicted output values at the boundary points.
+            **kwargs: Additional keyword arguments to be passed to self.func.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the errors for each output component.
+                The keys are the component names, and the values are the differences between
+                the predicted and true values at the boundary points.
+        """
         values = self.func(bc_inputs, **kwargs)
         errors = dict()
         for component in values.keys():
@@ -144,6 +190,22 @@ class NeumannBC(BC):
         self.func = func
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error for Neumann boundary conditions.
+
+        This method computes the difference between the normal derivative of the solution
+        and the specified function values at the boundary points.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): Input points on the boundary.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): Predicted output values at the boundary points.
+            **kwargs: Additional keyword arguments to be passed to self.func.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the errors for each output component.
+                The keys are the component names, and the values are the differences between
+                the normal derivatives and the specified function values at the boundary points.
+        """
         values = self.func(bc_inputs, **kwargs)
         normals = self.normal_derivative(bc_inputs)
         return {
@@ -155,6 +217,12 @@ class NeumannBC(BC):
 class RobinBC(BC):
     """
     Robin boundary conditions: dy/dn(x) = func(x, y).
+
+    This class implements Robin boundary conditions, which are a combination of
+    Dirichlet and Neumann boundary conditions.
+
+    Attributes:
+        func (Callable): The function defining the Robin boundary condition.
     """
 
     def __init__(
@@ -162,10 +230,37 @@ class RobinBC(BC):
         func: Callable[[X, Y, ...], F] | Callable[[X, Y], F],
         on_boundary: Callable[[Dict, np.array], np.array] = lambda x, on: on,
     ):
+        """
+        Initialize the RobinBC class.
+
+        Args:
+            func (Callable[[X, Y, ...], F] | Callable[[X, Y], F]): A function that takes
+                input points (X) and output values (Y) and returns the right-hand side
+                of the Robin boundary condition equation.
+            on_boundary (Callable[[Dict, np.array], np.array], optional): A function that
+                determines which points are on the boundary. Defaults to a function that
+                returns the input 'on' array.
+        """
         super().__init__(on_boundary)
         self.func = func
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error for the Robin boundary condition.
+
+        This method computes the difference between the normal derivative of the solution
+        and the specified function values at the boundary points.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): Input points on the boundary.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): Predicted output values at the boundary points.
+            **kwargs: Additional keyword arguments to be passed to self.func.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the errors for each output component.
+                The keys are the component names, and the values are the differences between
+                the normal derivatives and the specified function values at the boundary points.
+        """
         values = self.func(bc_inputs, bc_outputs, **kwargs)
         normals = self.normal_derivative(bc_inputs)
         return {
@@ -176,13 +271,23 @@ class RobinBC(BC):
 
 class PeriodicBC(BC):
     """
-    Periodic boundary conditions.
+    Implements periodic boundary conditions for a specified component of the solution.
+
+    This class enforces periodicity by ensuring that the values (or derivatives) of the solution
+    at corresponding points on opposite boundaries are equal.
 
     Args:
-        component_y: The component of the output.
-        component_x: The component of the input.
-        on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
-        derivative_order: The order of the derivative. Can be 0 or 1.
+        component_y (str): The name of the output component to which the periodic condition is applied.
+        component_x (str): The name of the input component along which the periodicity is enforced.
+        on_boundary (Callable[[X, np.array], np.array], optional): A function that takes two arguments:
+            x (the input points) and on (a boolean array indicating whether each point is on the boundary).
+            It should return a boolean array indicating which points satisfy the boundary condition.
+            Defaults to a function that returns the input 'on' array.
+        derivative_order (int, optional): The order of the derivative for which periodicity is enforced.
+            Can be 0 (for function values) or 1 (for first derivatives). Defaults to 0.
+
+    Raises:
+        NotImplementedError: If derivative_order is greater than 1.
     """
 
     def __init__(
@@ -201,6 +306,19 @@ class PeriodicBC(BC):
 
     @utils.check_not_none('geometry')
     def collocation_points(self, X):
+        """
+        Generates collocation points for enforcing periodic boundary conditions.
+
+        This method filters the input points, identifies the periodic points, and concatenates
+        them to create pairs of points for enforcing periodicity.
+
+        Args:
+            X (Dict[str, bst.typing.ArrayLike]): A dictionary of input points.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary of collocation points, where each entry
+            is the concatenation of points on one boundary and their periodic counterparts.
+        """
         X1 = self.filter(X)
         X2 = self.geometry.periodic_point(X1, self.component_x)
         return jax.tree.map(
@@ -211,6 +329,22 @@ class PeriodicBC(BC):
         )
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculates the error for periodic boundary conditions.
+
+        This method computes the difference between the values (or derivatives) of the solution
+        at corresponding points on opposite boundaries.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): Input points on the boundary.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): Predicted output values at the boundary points.
+            **kwargs: Additional keyword arguments (unused in this method).
+
+        Returns:
+            Dict[str, Dict[str, bst.typing.ArrayLike]]: A nested dictionary containing the errors.
+            The outer key is the output component name, and the inner key is the input component name.
+            The value is the difference between the left and right boundary values or derivatives.
+        """
         n_batch = bc_inputs[self.component_x].shape[0]
         mid = n_batch // 2
         if self.derivative_order == 0:
@@ -252,25 +386,45 @@ class OperatorBC(BC):
         self.func = func
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error for the operator boundary condition.
+
+        This method applies the operator function to the boundary inputs and outputs
+        to compute the error of the boundary condition.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): A dictionary of input values at the boundary points.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): A dictionary of output values at the boundary points.
+            **kwargs: Additional keyword arguments to be passed to the operator function.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the computed error values
+            for each component of the boundary condition.
+        """
         return self.func(bc_inputs, bc_outputs, **kwargs)
 
 
 class PointSetBC(BC):
-    """Dirichlet boundary condition for a set of points.
+    """
+    Dirichlet boundary condition for a set of points.
 
     Compare the output (that associates with `points`) with `values` (target data).
     If more than one component is provided via a list, the resulting loss will
     be the addative loss of the provided componets.
 
     Args:
-        points: An array of points where the corresponding target values are known and
-            used for training.
-        values: A scalar or a 2D-array of values that gives the exact solution of the problem.
-        batch_size: The number of points per minibatch, or `None` to return all points.
-            This is only supported for the backend PyTorch and PaddlePaddle.
-            Note, If you want to use batch size here, you should also set callback
-            'pinnx.callbacks.PDEPointResampler(bc_points=True)' in training.
-        shuffle: Randomize the order on each pass through the data when batching.
+        points (Dict[str, bst.typing.ArrayLike]): A dictionary of arrays representing points
+            where the corresponding target values are known and used for training.
+        values (Dict[str, bst.typing.ArrayLike]): A dictionary of scalars or 2D-arrays
+            representing the exact solution of the problem at the given points.
+        batch_size (int, optional): The number of points per minibatch, or None to return all points.
+            This is only supported for the backend PyTorch and PaddlePaddle. Defaults to None.
+        shuffle (bool, optional): Whether to randomize the order on each pass through the data
+            when batching. Defaults to True.
+
+    Note:
+        If you want to use batch size here, you should also set callback
+        'pinnx.callbacks.PDEPointResampler(bc_points=True)' in training.
     """
 
     def __init__(
@@ -291,16 +445,48 @@ class PointSetBC(BC):
             self.batch_indices = None
 
     def __len__(self):
+        """
+        Get the number of points in the PointSetBC.
+
+        Returns:
+            int: The number of points in the first value of the points dictionary.
+        """
         v = tuple(self.points.values())[0]
         return v.shape[0]
 
     def collocation_points(self, X):
+        """
+        Get the collocation points for the boundary condition.
+
+        If batch_size is set, returns a batch of points. Otherwise, returns all points.
+
+        Args:
+            X: Unused in this method, kept for compatibility with parent class.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary of collocation points,
+            either a batch or all points depending on the batch_size setting.
+        """
         if self.batch_size is not None:
             self.batch_indices = self.batch_sampler.get_next(self.batch_size)
             return jax.tree.map(lambda x: x[self.batch_indices], self.points)
         return self.points
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error between the predicted and true values at the boundary points.
+
+        Args:
+            bc_inputs: Unused in this method, kept for compatibility with parent class.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): A dictionary of predicted output values
+                at the boundary points.
+            **kwargs: Additional keyword arguments (unused in this method).
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the errors for each output component.
+                The keys are the component names, and the values are the differences between
+                the predicted and true values at the boundary points.
+        """
         if self.batch_size is not None:
             return {
                 k: bc_outputs[k] - self.values[k][self.batch_indices]
@@ -342,9 +528,33 @@ class PointSetOperatorBC(BC):
         self.func = func
 
     def collocation_points(self, X):
+        """
+        Return the collocation points for the boundary condition.
+
+        Args:
+            X: Unused input parameter, kept for compatibility with parent class.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: The points where the boundary condition is applied.
+        """
         return self.points
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
+        """
+        Calculate the error for the operator boundary condition.
+
+        This method applies the operator function to the boundary inputs and outputs,
+        then computes the difference between the function output and the target values.
+
+        Args:
+            bc_inputs (Dict[str, bst.typing.ArrayLike]): Input values at the boundary points.
+            bc_outputs (Dict[str, bst.typing.ArrayLike]): Output values at the boundary points.
+            **kwargs: Additional keyword arguments to be passed to the operator function.
+
+        Returns:
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the computed error values
+            for each component of the boundary condition.
+        """
         outs = self.func(bc_inputs, bc_outputs)
         return {
             component: outs[component] - self.values[component]

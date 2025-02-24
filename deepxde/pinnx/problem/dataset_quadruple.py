@@ -11,7 +11,6 @@ from .base import Problem
 
 __all__ = [
     'QuadrupleDataset',
-    'QuadrupleCartesianProd',
 ]
 
 
@@ -24,8 +23,13 @@ class QuadrupleDataset(Problem):
     learning.
 
     Args:
-        X_train: A tuple of three NumPy arrays.
-        y_train: A NumPy array.
+        X_train (tuple): A tuple of three NumPy arrays representing the input training data.
+        y_train (numpy.ndarray): A NumPy array representing the output training data.
+        X_test (tuple): A tuple of three NumPy arrays representing the input testing data.
+        y_test (numpy.ndarray): A NumPy array representing the output testing data.
+        approximator (bst.nn.Module, optional): The neural network module used for approximation. Defaults to None.
+        loss_fn (str, optional): The loss function to be used. Defaults to 'MSE'.
+        loss_weights (Sequence[float], optional): Weights for the loss function. Defaults to None.
     """
 
     def __init__(
@@ -51,9 +55,30 @@ class QuadrupleDataset(Problem):
         self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
 
     def losses(self, inputs, outputs, targets, **kwargs):
+        """
+        Calculate the loss between the predicted outputs and the target values.
+
+        Args:
+            inputs: The input data (not used in this method).
+            outputs: The predicted output values.
+            targets: The target output values.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The calculated loss value.
+        """
         return self.loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
+        """
+        Get the next batch of training data.
+
+        Args:
+            batch_size (int, optional): The size of the batch to return. If None, returns all training data.
+
+        Returns:
+            tuple: A tuple containing the input data (as a tuple of arrays) and the corresponding output data.
+        """
         if batch_size is None:
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
@@ -65,65 +90,10 @@ class QuadrupleDataset(Problem):
         )
 
     def test(self):
-        return self.test_x, self.test_y
+        """
+        Get the testing data.
 
-
-class QuadrupleCartesianProd(Problem):
-    """Cartesian Product input data format for MIONet architecture.
-
-    This dataset can be used with the network ``MIONetCartesianProd`` for operator
-    learning.
-
-    Args:
-        X_train: A tuple of three NumPy arrays. The first element has the shape (`N1`,
-            `dim1`), the second element has the shape (`N1`, `dim2`), and the third
-            element has the shape (`N2`, `dim3`).
-        y_train: A NumPy array of shape (`N1`, `N2`).
-    """
-
-    def __init__(self, X_train, y_train, X_test, y_test):
-        if (
-            len(X_train[0]) * len(X_train[2]) != y_train.size
-            or len(X_train[1]) * len(X_train[2]) != y_train.size
-            or len(X_train[0]) != len(X_train[1])
-        ):
-            raise ValueError(
-                "The training dataset does not have the format of Cartesian product."
-            )
-        if (
-            len(X_test[0]) * len(X_test[2]) != y_test.size
-            or len(X_test[1]) * len(X_test[2]) != y_test.size
-            or len(X_test[0]) != len(X_test[1])
-        ):
-            raise ValueError(
-                "The testing dataset does not have the format of Cartesian product."
-            )
-        self.train_x, self.train_y = X_train, y_train
-        self.test_x, self.test_y = X_test, y_test
-
-        self.branch_sampler = BatchSampler(len(X_train[0]), shuffle=True)
-        self.trunk_sampler = BatchSampler(len(X_train[2]), shuffle=True)
-
-    def losses(self, inputs, outputs, targets, **kwargs):
-        return loss_fn(targets, outputs)
-
-    def train_next_batch(self, batch_size=None):
-        if batch_size is None:
-            return self.train_x, self.train_y
-        if not isinstance(batch_size, (tuple, list)):
-            indices = self.branch_sampler.get_next(batch_size)
-            return (
-                self.train_x[0][indices],
-                self.train_x[1][indices],
-                self.train_x[2],
-            ), self.train_y[indices]
-        indices_branch = self.branch_sampler.get_next(batch_size[0])
-        indices_trunk = self.trunk_sampler.get_next(batch_size[1])
-        return (
-            self.train_x[0][indices_branch],
-            self.train_x[1][indices_branch],
-            self.train_x[2][indices_trunk],
-        ), self.train_y[indices_branch][:, indices_trunk]
-
-    def test(self):
+        Returns:
+            tuple: A tuple containing the input testing data and the corresponding output testing data.
+        """
         return self.test_x, self.test_y

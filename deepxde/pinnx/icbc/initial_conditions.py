@@ -16,21 +16,22 @@ __all__ = ["IC"]
 
 class IC(ICBC):
     """
-    Initial conditions: ``y([x, t0]) = func([x, t0])``.
+    Represents the Initial Conditions (IC) for a differential equation.
+
+    This class defines and handles the initial conditions of the form:
+    y([x, t0]) = func([x, t0]), where func is a user-defined function.
 
     Args:
-        func: Function that returns the initial conditions.
+        func (Callable[[Dict, ...], Dict] | Callable[[Dict], Dict]): A function that returns the initial conditions.
             This function should take a dictionary of collocation points and
-            return a dictionary of initial conditions. For example::
-
+            return a dictionary of initial conditions. For example:
                 import brainunit as u
                 def func(x):
                     return {'y': -u.math.sin(np.pi * x['x'] / u.meter) * u.meter / u.second}
-        on_initial: Filter function for initial conditions.
+        on_initial (Callable[[Dict, np.array], np.array], optional): A filter function for initial conditions.
             This function should take a dictionary of collocation points and
             return a boolean array indicating whether the points are initial conditions.
-            For example::
-
+            Defaults to lambda x, on: on. For example:
                 def on_initial(x, on):
                     return on
     """
@@ -45,13 +46,13 @@ class IC(ICBC):
 
     def filter(self, X):
         """
-        Filter the collocation points for initial conditions.
+        Filters the collocation points for initial conditions.
 
         Args:
-            X: Collocation points.
+            X (Dict): A dictionary of collocation points.
 
         Returns:
-            Filtered collocation points.
+            Dict: Filtered collocation points that satisfy the initial conditions.
         """
         # the "geometry" should be "TimeDomain" or "GeometryXTime"
         positions = self.on_initial(X, self.geometry.on_initial(X))
@@ -59,28 +60,30 @@ class IC(ICBC):
 
     def collocation_points(self, X):
         """
-        Return the collocation points for initial conditions.
+        Returns the collocation points for initial conditions.
 
         Args:
-            X: Collocation points.
+            X (Dict): A dictionary of collocation points.
 
         Returns:
-            Collocation points for initial conditions.
+            Dict: Collocation points that satisfy the initial conditions.
         """
         return self.filter(X)
 
     def error(self, inputs, outputs, **kwargs) -> Dict[str, bst.typing.ArrayLike]:
         """
-        Error for initial conditions.
+        Calculates the error for initial conditions.
 
-        Compare the initial conditions with the outputs.
+        This method compares the initial conditions with the outputs to compute the error.
 
         Args:
-            inputs: Collocation points.
-            outputs: Collocation values.
+            inputs (Dict): A dictionary of collocation points.
+            outputs (Dict): A dictionary of collocation values.
+            **kwargs: Additional keyword arguments to be passed to the func method.
 
         Returns:
-            Error for initial conditions.
+            Dict[str, bst.typing.ArrayLike]: A dictionary containing the errors for each variable.
+                The keys correspond to the variable names, and the values are the computed errors.
         """
         values = self.func(inputs, **kwargs)
         errors = dict()

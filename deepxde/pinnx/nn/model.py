@@ -34,6 +34,19 @@ class Model(bst.nn.Module):
         output: ArrayToDict,
         *args,
     ):
+        """
+        Initialize the Model.
+
+        Args:
+            input (DictToArray): The input converter that transforms dictionary inputs to arrays.
+            approx (bst.nn.Module): The neural network model used for approximation.
+            output (ArrayToDict): The output converter that transforms array outputs to dictionaries.
+            *args: Additional arguments (not used).
+
+        Raises:
+            AssertionError: If input is not an instance of DictToArray, approx is not an instance of bst.nn.Module,
+                            or output is not an instance of ArrayToDict.
+        """
         super().__init__()
 
         assert isinstance(input, DictToArray), "input must be an instance of DictToArray."
@@ -47,6 +60,16 @@ class Model(bst.nn.Module):
 
     @bst.compile.jit(static_argnums=(0,))
     def update(self, x):
+        """
+        Update the model by passing input through the neural network.
+
+        Args:
+            x: The input data to be processed.
+
+        Returns:
+            The output of the neural network after passing through input conversion,
+            approximation, and output conversion stages.
+        """
         return self.output(self.approx(self.input(x)))
 
     def jacobian(

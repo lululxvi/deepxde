@@ -9,14 +9,14 @@ import brainstate as bst
 import brainunit as u
 import jax.numpy as jnp
 import jax.tree
-import numpy as np
 
-from deepxde.model import LossHistory
+from deepxde.model import LossHistory, TrainState as TrainStateBase
 from deepxde.utils.internal import timing
 from . import metrics as metrics_module
 from .callbacks import CallbackList, Callback
 from .problem.base import Problem
-from .utils._display import training_display
+from .utils.display import training_display
+from .utils.external import saveplot
 
 __all__ = [
     "Trainer",
@@ -46,6 +46,25 @@ class Trainer:
         external_trainable_variables: Union[bst.ParamState, Sequence[bst.ParamState]] = None,
         batch_size: Optional[int] = None,
     ):
+        """
+        Initialize the Trainer.
+
+        Args:
+            problem (Problem): The problem instance to be solved.
+            external_trainable_variables (Union[bst.ParamState, Sequence[bst.ParamState]], optional): 
+                External trainable variables to be included in the optimization process. 
+                Can be a single ParamState or a sequence of ParamStates. Defaults to None.
+            batch_size (Optional[int], optional): The batch size to be used during training. 
+                If None, the entire dataset will be used. Defaults to None.
+
+        Raises:
+            ValueError: If the problem does not define an approximator.
+            AssertionError: If the problem is not a Problem instance or if external_trainable_variables
+                are not ParamState instances.
+
+        Returns:
+            None
+        """
         # the problem
         self.problem = problem
         assert isinstance(self.problem, Problem), "problem must be a Problem instance."
@@ -416,7 +435,7 @@ class Trainer:
             test_fname: Filename to save the test metrics.
             output_dir: Directory to save the files.
         """
-        utils.saveplot(
+        saveplot(
             self.loss_history,
             self.train_state,
             issave=issave,
@@ -428,40 +447,30 @@ class Trainer:
         )
 
 
-class TrainState:
+class TrainState(TrainStateBase):
+    """
+    Represents the state of training for a neural network.
+
+    This class extends TrainStateBase and provides methods to set training and test data,
+    as well as update the best performance metrics during training.
+    """
+
     __module__ = 'deepxde.pinnx'
 
-    def __init__(self):
-        self.epoch = 0
-        self.step = 0
-
-        # Current data
-        self.X_train = None
-        self.y_train = None
-        self.Aux_train = dict()
-        self.X_test = None
-        self.y_test = None
-        self.Aux_test = dict()
-
-        # Results of current step
-        # Train results
-        self.loss_train = None
-        self.y_pred_train = None
-        # Test results
-        self.loss_test = None
-        self.y_pred_test = None
-        self.y_std_test = None
-        self.metrics_test = None
-
-        # The best results correspond to the min train loss
-        self.best_step = 0
-        self.best_loss_train = np.inf
-        self.best_loss_test = np.inf
-        self.best_y = None
-        self.best_ystd = None
-        self.best_metrics = None
-
     def set_data_train(self, X_train, y_train, *args):
+        """
+        Sets the training data for the model.
+
+        Args:
+            X_train: The input features for training.
+            y_train: The target values for training.
+            *args: Variable length argument list. If provided, it should be a single dictionary
+                   containing auxiliary training data.
+
+        Raises:
+            AssertionError: If more than one argument is provided in *args or if the provided
+                            argument is not a dictionary.
+        """
         self.X_train = X_train
         self.y_train = y_train
         if len(args) > 0:
@@ -470,6 +479,19 @@ class TrainState:
             self.Aux_train = args[0]
 
     def set_data_test(self, X_test, y_test, *args):
+        """
+        Sets the test data for the model.
+
+        Args:
+            X_test: The input features for testing.
+            y_test: The target values for testing.
+            *args: Variable length argument list. If provided, it should be a single dictionary
+                   containing auxiliary test data.
+
+        Raises:
+            AssertionError: If more than one argument is provided in *args or if the provided
+                            argument is not a dictionary.
+        """
         self.X_test = X_test
         self.y_test = y_test
         if len(args) > 0:
@@ -478,6 +500,15 @@ class TrainState:
             self.Aux_test = args[0]
 
     def update_best(self):
+        """
+        Updates the best performance metrics if the current training loss is lower than the previous best.
+
+        This method compares the current training loss with the best loss recorded so far.
+        If the current loss is lower, it updates various 'best' attributes including the step,
+        training loss, test loss, predictions, standard deviations, and metrics.
+
+        Note: This method assumes that lower loss values indicate better performance.
+        """
         current_loss_train = jnp.sum(jnp.asarray(jax.tree.leaves(self.loss_train)))
         if self.best_loss_train > current_loss_train:
             self.best_step = self.step
@@ -486,6 +517,3 @@ class TrainState:
             self.best_y = self.y_pred_test
             self.best_ystd = self.y_std_test
             self.best_metrics = self.metrics_test
-
-    def disregard_best(self):
-        self.best_loss_train = np.inf

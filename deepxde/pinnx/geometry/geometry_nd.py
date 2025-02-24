@@ -18,7 +18,24 @@ from ..utils import isclose
 
 
 class Hypercube(Geometry):
+    """
+    Represents a hypercube geometry in N-dimensional space.
+
+    This class defines a hypercube with specified minimum and maximum coordinates
+    for each dimension.
+    """
+
     def __init__(self, xmin, xmax):
+        """
+        Initialize a Hypercube object.
+
+        Args:
+            xmin (array-like): Minimum coordinates for each dimension.
+            xmax (array-like): Maximum coordinates for each dimension.
+
+        Raises:
+            ValueError: If dimensions of xmin and xmax do not match or if xmin >= xmax.
+        """
         if len(xmin) != len(xmax):
             raise ValueError("Dimensions of xmin and xmax do not match.")
 
@@ -36,11 +53,29 @@ class Hypercube(Geometry):
         self.volume = jnp.prod(self.side_length)
 
     def inside(self, x):
+        """
+        Check if points are inside the hypercube.
+
+        Args:
+            x (array-like): Points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is inside the hypercube.
+        """
         mod = utils.smart_numpy(x)
         return mod.logical_and(mod.all(x >= self.xmin, axis=-1),
                                mod.all(x <= self.xmax, axis=-1))
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the hypercube.
+
+        Args:
+            x (array-like): Points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is on the boundary.
+        """
         mod = utils.smart_numpy(x)
         if x.ndim == 0:
             _on_boundary = mod.logical_or(mod.isclose(x, self.xmin),
@@ -53,6 +88,15 @@ class Hypercube(Geometry):
         return mod.logical_and(self.inside(x), _on_boundary)
 
     def boundary_normal(self, x):
+        """
+        Compute the normal vectors at boundary points.
+
+        Args:
+            x (array-like): Points on the boundary.
+
+        Returns:
+            array-like: Normal vectors at the given points.
+        """
         mod = utils.smart_numpy(x)
         _n = -mod.isclose(x, self.xmin).astype(bst.environ.dftype()) + mod.isclose(x, self.xmax)
         # For vertices, the normal is averaged for all directions
@@ -61,6 +105,16 @@ class Hypercube(Geometry):
         return mod.asarray(_n)
 
     def uniform_points(self, n, boundary=True):
+        """
+        Generate uniformly distributed points in the hypercube.
+
+        Args:
+            n (int): Number of points to generate.
+            boundary (bool): Whether to include boundary points.
+
+        Returns:
+            array-like: Uniformly distributed points.
+        """
         dx = (self.volume / n) ** (1 / self.dim)
         xi = []
         for i in range(self.dim):
@@ -89,6 +143,15 @@ class Hypercube(Geometry):
         return x
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the boundary of the hypercube.
+
+        Args:
+            n (int): Number of points to generate.
+
+        Returns:
+            array-like: Uniformly distributed boundary points.
+        """
         points_per_face = max(1, n // (2 * self.dim))
         points = []
         for d in range(self.dim):
@@ -120,10 +183,30 @@ class Hypercube(Geometry):
         return points
 
     def random_points(self, n, random="pseudo"):
+        """
+        Generate random points inside the hypercube.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array-like: Randomly generated points.
+        """
         x = sample(n, self.dim, random)
         return (self.xmax - self.xmin) * x + self.xmin
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the boundary of the hypercube.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array-like: Randomly generated boundary points.
+        """
         x = sample(n, self.dim, random)
         # Randomly pick a dimension
         rand_dim = bst.random.randint(self.dim, size=n)
@@ -132,6 +215,16 @@ class Hypercube(Geometry):
         return (self.xmax - self.xmin) * x + self.xmin
 
     def periodic_point(self, x, component):
+        """
+        Map points to their periodic counterparts on the opposite face of the hypercube.
+
+        Args:
+            x (array-like): Points to map.
+            component (int): The dimension along which to apply periodicity.
+
+        Returns:
+            array-like: Mapped periodic points.
+        """
         y = jnp.copy(x)
         _on_xmin = isclose(y[:, component], self.xmin[component])
         _on_xmax = isclose(y[:, component], self.xmax[component])
@@ -146,7 +239,8 @@ class Hypercube(Geometry):
         where: None = None,
         inside: bool = True,
     ):
-        """Compute the hard constraint factor at x for the boundary.
+        """
+        Compute the hard constraint factor at x for the boundary.
 
         This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
         The hard constraint factor satisfies the following properties:
@@ -222,7 +316,20 @@ class Hypercube(Geometry):
 
 
 class Hypersphere(Geometry):
+    """
+    Represents a hypersphere geometry in N-dimensional space.
+
+    This class defines a hypersphere with a specified center and radius.
+    """
+
     def __init__(self, center, radius):
+        """
+        Initialize a Hypersphere object.
+
+        Args:
+            center (array-like): Coordinates of the center of the hypersphere.
+            radius (float): Radius of the hypersphere.
+        """
         self.center = jnp.array(center, dtype=bst.environ.dftype())
         self.radius = radius
         super().__init__(
@@ -232,13 +339,40 @@ class Hypersphere(Geometry):
         self._r2 = radius ** 2
 
     def inside(self, x):
+        """
+        Check if points are inside the hypersphere.
+
+        Args:
+            x (array-like): Points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is inside the hypersphere.
+        """
         return jnp.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
+        """
+        Check if points are on the boundary of the hypersphere.
+
+        Args:
+            x (array-like): Points to check.
+
+        Returns:
+            array-like: Boolean array indicating whether each point is on the boundary.
+        """
         return isclose(jnp.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
-        # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+        """
+        Compute the distance from points to the boundary along a unit direction.
+
+        Args:
+            x (array-like): Points to compute distance from.
+            dirn (array-like): Unit direction vector.
+
+        Returns:
+            array-like: Distances from points to the boundary along the given direction.
+        """
         xc = x - self.center
         ad = jnp.dot(xc, dirn)
         return (-ad + (ad ** 2 - jnp.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
@@ -246,14 +380,43 @@ class Hypersphere(Geometry):
         )
 
     def distance2boundary(self, x, dirn):
+        """
+        Compute the distance from points to the boundary along a given direction.
+
+        Args:
+            x (array-like): Points to compute distance from.
+            dirn (array-like): Direction vector (will be normalized).
+
+        Returns:
+            array-like: Distances from points to the boundary along the given direction.
+        """
         return self.distance2boundary_unitdirn(x, dirn / jnp.linalg.norm(dirn))
 
     def mindist2boundary(self, x):
+        """
+        Compute the minimum distance from points to the boundary.
+
+        Args:
+            x (array-like): Points to compute distance from.
+
+        Returns:
+            array-like: Minimum distances from points to the boundary.
+        """
         return jnp.amin(self.radius - jnp.linalg.norm(x - self.center, axis=-1))
 
     def boundary_constraint_factor(
         self, x, smoothness: Literal["C0", "C0+", "Cinf"] = "C0+"
     ):
+        """
+        Compute the boundary constraint factor for given points.
+
+        Args:
+            x (array-like): Points to compute the factor for.
+            smoothness (str): Smoothness of the constraint factor. Options are "C0", "C0+", or "Cinf".
+
+        Returns:
+            array-like: Boundary constraint factors for the given points.
+        """
         if smoothness not in ["C0", "C0+", "Cinf"]:
             raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
@@ -269,35 +432,74 @@ class Hypersphere(Geometry):
         return dist
 
     def boundary_normal(self, x):
+        """
+        Compute the normal vectors at boundary points.
+
+        Args:
+            x (array-like): Points on the boundary.
+
+        Returns:
+            array-like: Normal vectors at the given points.
+        """
         _n = x - self.center
         l = jnp.linalg.norm(_n, axis=-1, keepdims=True)
         _n = _n / l * isclose(l, self.radius)
         return _n
 
     def random_points(self, n, random="pseudo"):
-        # https://math.stackexchange.com/questions/87230/picking-random-points-in-the-volume-of-sphere-with-uniform-probability
+        """
+        Generate random points inside the hypersphere.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array-like: Randomly generated points.
+        """
         if random == "pseudo":
             U = bst.random.rand(n, 1).astype(bst.environ.dftype())
             X = bst.random.normal(size=(n, self.dim)).astype(bst.environ.dftype())
         else:
             rng = sample(n, self.dim + 1, random)
-            U, X = rng[:, 0:1], rng[:, 1:]  # Error if X = [0, 0, ...]
+            U, X = rng[:, 0:1], rng[:, 1:]
             X = stats.norm.ppf(X).astype(bst.environ.dftype())
         X = preprocessing.normalize(X)
         X = U ** (1 / self.dim) * X
         return self.radius * X + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
-        # http://mathworld.wolfram.com/HyperspherePointPicking.html
+        """
+        Generate random points on the boundary of the hypersphere.
+
+        Args:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or other).
+
+        Returns:
+            array-like: Randomly generated boundary points.
+        """
         if random == "pseudo":
             X = bst.random.normal(size=(n, self.dim)).astype(bst.environ.dftype())
         else:
-            U = sample(n, self.dim, random)  # Error for [0, 0, ...] or [0.5, 0.5, ...]
+            U = sample(n, self.dim, random)
             X = stats.norm.ppf(U).astype(bst.environ.dftype())
         X = preprocessing.normalize(X)
         return self.radius * X + self.center
 
     def background_points(self, x, dirn, dist2npt, shift):
+        """
+        Generate background points along a direction from given points.
+
+        Args:
+            x (array-like): Starting points.
+            dirn (array-like): Direction vector.
+            dist2npt (callable): Function to determine number of points based on distance.
+            shift (float): Shift factor for point generation.
+
+        Returns:
+            array-like: Generated background points.
+        """
         dirn = dirn / jnp.linalg.norm(dirn)
         dx = self.distance2boundary_unitdirn(x, -dirn)
         n = max(dist2npt(dx), 1)

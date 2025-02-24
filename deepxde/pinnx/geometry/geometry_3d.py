@@ -13,17 +13,36 @@ from .geometry_nd import Hypercube, Hypersphere
 
 class Cuboid(Hypercube):
     """
+    A class representing a 3D cuboid, inheriting from Hypercube.
+
     Args:
         xmin: Coordinate of bottom left corner.
         xmax: Coordinate of top right corner.
     """
 
     def __init__(self, xmin, xmax):
+        """
+        Initialize the Cuboid object.
+
+        Args:
+            xmin: Coordinate of bottom left corner.
+            xmax: Coordinate of top right corner.
+        """
         super().__init__(xmin, xmax)
         dx = self.xmax - self.xmin
         self.area = 2 * jnp.sum(dx * jnp.roll(dx, 2))
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the boundary of the cuboid.
+
+        Args:
+            n (int): The number of points to generate.
+            random (str, optional): The type of random number generation. Defaults to "pseudo".
+
+        Returns:
+            jnp.ndarray: An array of shape (n, 3) containing the generated boundary points.
+        """
         pts = []
         density = n / self.area
         rect = Rectangle(self.xmin[:-1], self.xmax[:-1])
@@ -44,6 +63,16 @@ class Cuboid(Hypercube):
         return pts
 
     def uniform_boundary_points(self, n):
+        """
+        Generate uniformly distributed points on the boundary of the cuboid.
+
+        Args:
+            n (int): The target number of points to generate.
+
+        Returns:
+            jnp.ndarray: An array of shape (m, 3) containing the generated boundary points,
+                         where m may not exactly equal n.
+        """
         h = (self.area / n) ** 0.5
         nx, ny, nz = jnp.ceil((self.xmax - self.xmin) / h).astype(int) + 1
         x = jnp.linspace(self.xmin[0], self.xmax[0], num=nx)
@@ -80,7 +109,8 @@ class Cuboid(Hypercube):
         ] = None,
         inside: bool = True,
     ):
-        """Compute the hard constraint factor at x for the boundary.
+        """
+        Compute the hard constraint factor at x for the boundary.
 
         This function is used for the hard-constraint methods in Physics-Informed Neural Networks (PINNs).
         The hard constraint factor satisfies the following properties:
@@ -175,7 +205,21 @@ class Cuboid(Hypercube):
 
 class Sphere(Hypersphere):
     """
+    A class representing a 3D sphere, inheriting from Hypersphere.
+
+    This class provides functionality for creating and manipulating a 3D sphere
+    in geometric computations and simulations.
+
     Args:
-        center: Center of the sphere.
-        radius: Radius of the sphere.
+        center (array-like): The coordinates of the center of the sphere.
+            Should be a sequence of 3 numbers representing x, y, and z coordinates.
+        radius (float): The radius of the sphere.
+            Must be a positive number.
+
+    Attributes:
+        center (array-like): The center coordinates of the sphere.
+        radius (float): The radius of the sphere.
+
+    Note:
+        This class inherits additional methods and attributes from the Hypersphere class.
     """

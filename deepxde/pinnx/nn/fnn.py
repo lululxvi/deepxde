@@ -8,7 +8,29 @@ from .base import NN
 
 
 class FNN(NN):
-    """Fully-connected neural network."""
+    """
+    Fully-connected neural network.
+
+    This class implements a fully-connected neural network with customizable layer sizes,
+    activation functions, and optional input/output transformations.
+
+    Args:
+        layer_sizes (Sequence[int]): A sequence of integers defining the number of neurons
+            in each layer, including input and output layers.
+        activation (Union[str, Callable, Sequence[str], Sequence[Callable]]): Activation
+            function(s) to use. Can be a single string/callable for all layers, or a
+            sequence of strings/callables for each layer.
+        kernel_initializer (bst.init.Initializer, optional): Initializer for the layer weights.
+            Defaults to bst.init.KaimingUniform().
+        input_transform (Optional[Callable], optional): A function to transform the input
+            before passing it through the network. Defaults to None.
+        output_transform (Optional[Callable], optional): A function to transform the output
+            of the network. Defaults to None.
+
+    Raises:
+        ValueError: If the number of activation functions doesn't match the number of layers
+            when a sequence of activations is provided.
+    """
 
     def __init__(
         self,
@@ -40,6 +62,19 @@ class FNN(NN):
             self.apply_output_transform(output_transform)
 
     def update(self, inputs):
+        """
+        Perform a forward pass through the neural network.
+
+        This method applies the input transformation (if any), passes the input through
+        all layers of the network applying activations, and then applies the output
+        transformation (if any).
+
+        Args:
+            inputs: The input data to be passed through the network.
+
+        Returns:
+            The output of the neural network after processing the inputs.
+        """
         x = inputs
         if self._input_transform is not None:
             x = self._input_transform(x)
@@ -60,13 +95,31 @@ class PFNN(NN):
     Parallel fully-connected network that uses independent sub-networks for each
     network output.
 
+    This class implements a parallel fully-connected neural network where each output
+    can have its own independent sub-network. This allows for more flexibility in
+    network architecture, especially when different outputs require different levels
+    of complexity.
+
     Args:
-        layer_sizes: A nested list that defines the architecture of the neural network
+        layer_sizes (Sequence[int]): A nested list that defines the architecture of the neural network
             (how the layers are connected). If `layer_sizes[i]` is an int, it represents
             one layer shared by all the outputs; if `layer_sizes[i]` is a list, it
             represents `len(layer_sizes[i])` sub-layers, each of which is exclusively
             used by one output. Note that `len(layer_sizes[i])` should equal the number
             of outputs. Every number specifies the number of neurons in that layer.
+        activation (Union[str, Callable, Sequence[str], Sequence[Callable]]): Activation
+            function(s) to use. Can be a single string/callable for all layers, or a
+            sequence of strings/callables for each layer.
+        kernel_initializer (bst.init.Initializer, optional): Initializer for the layer weights.
+            Defaults to bst.init.KaimingUniform().
+        input_transform (Optional[Callable], optional): A function to transform the input
+            before passing it through the network. Defaults to None.
+        output_transform (Optional[Callable], optional): A function to transform the output
+            of the network. Defaults to None.
+
+    Raises:
+        ValueError: If the layer sizes are not properly specified or if the number of
+            sub-layers doesn't match the number of outputs.
     """
 
     def __init__(
@@ -132,25 +185,41 @@ class PFNN(NN):
             self.layers.append(bst.nn.Linear(layer_sizes[-2], n_output, w_init=kernel_initializer))
 
     def update(self, inputs):
-        x = inputs
-        if self._input_transform is not None:
-            x = self._input_transform(x)
+        """
+        Perform a forward pass through the parallel fully-connected neural network.
 
-        for layer in self.layers[:-1]:
-            if isinstance(layer, list):
-                if isinstance(x, list):
-                    x = [self.activation(f(x_)) for f, x_ in zip(layer, x)]
+        This method applies the input transformation (if any), passes the input through
+        all layers of the network applying activations, and then applies the output
+        transformation (if any). It handles both shared layers and parallel sub-networks.
+
+        Args:
+            inputs: The input data to be passed through the network.
+
+        Returns:
+            The output of the neural network after processing the inputs. The shape of the
+            output depends on the network architecture defined in the constructor.
+        """
+
+        def update(self, inputs):
+            x = inputs
+            if self._input_transform is not None:
+                x = self._input_transform(x)
+
+            for layer in self.layers[:-1]:
+                if isinstance(layer, list):
+                    if isinstance(x, list):
+                        x = [self.activation(f(x_)) for f, x_ in zip(layer, x)]
+                    else:
+                        x = [self.activation(f(x)) for f in layer]
                 else:
-                    x = [self.activation(f(x)) for f in layer]
+                    x = self.activation(layer(x))
+
+            # output layers
+            if isinstance(x, list):
+                x = u.math.concatenate([f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1)
             else:
-                x = self.activation(layer(x))
+                x = self.layers[-1](x)
 
-        # output layers
-        if isinstance(x, list):
-            x = u.math.concatenate([f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1)
-        else:
-            x = self.layers[-1](x)
-
-        if self._output_transform is not None:
-            x = self._output_transform(inputs, x)
-        return x
+            if self._output_transform is not None:
+                x = self._output_transform(inputs, x)
+            return x

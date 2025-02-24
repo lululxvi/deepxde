@@ -16,18 +16,57 @@ from ..utils import isclose
 
 
 class TimeDomain(Interval):
+    """
+    Represents a time domain interval.
+
+    This class extends the Interval class to specifically handle time domains.
+    It provides functionality to check if a given time point is at the initial time.
+
+    Attributes:
+        t0 (jnp.ndarray): The start time of the domain.
+        t1 (jnp.ndarray): The end time of the domain.
+    """
+
     def __init__(self, t0, t1):
+        """
+        Initialize the TimeDomain.
+
+        Parameters:
+            t0 (float or jnp.ndarray): The start time of the domain.
+            t1 (float or jnp.ndarray): The end time of the domain.
+        """
         super().__init__(t0, t1)
         self.t0 = jnp.asarray(t0, dtype=bst.environ.dftype())
         self.t1 = jnp.asarray(t1, dtype=bst.environ.dftype())
 
     def on_initial(self, t):
+        """
+        Check if the given time point is at the initial time (t0).
+
+        Parameters:
+            t (jnp.ndarray): The time point(s) to check.
+
+        Returns:
+            jnp.ndarray: A boolean array indicating whether each time point is at the initial time.
+        """
         return isclose(t, self.t0).flatten()
 
 
 class GeometryXTime(GeometryPINNx):
+    """
+    Represents a geometry combined with a time domain for spatio-temporal problems.
+
+    This class extends GeometryPINNx to handle both spatial and temporal dimensions.
+    """
 
     def __init__(self, geometry, timedomain):
+        """
+        Initialize the GeometryXTime object.
+
+        Parameters:
+            geometry (GeometryPINNx): The spatial geometry.
+            timedomain (TimeDomain): The time domain.
+        """
         self.geometry = geometry
         self.timedomain = timedomain
         super().__init__(
@@ -37,24 +76,65 @@ class GeometryXTime(GeometryPINNx):
         )
 
     def inside(self, x):
+        """
+        Check if points are inside the spatio-temporal domain.
+
+        Parameters:
+            x (jnp.ndarray): Array of points to check.
+
+        Returns:
+            jnp.ndarray: Boolean array indicating whether each point is inside the domain.
+        """
         return jnp.logical_and(self.geometry.inside(x[:, :-1]),
                                self.timedomain.inside(x[:, -1:]))
 
     def on_boundary(self, x):
+        """
+        Check if points are on the spatial boundary of the domain.
+
+        Parameters:
+            x (jnp.ndarray): Array of points to check.
+
+        Returns:
+            jnp.ndarray: Boolean array indicating whether each point is on the boundary.
+        """
         return self.geometry.on_boundary(x[:, :-1])
 
     def on_initial(self, x):
+        """
+        Check if points are at the initial time of the domain.
+
+        Parameters:
+            x (jnp.ndarray): Array of points to check.
+
+        Returns:
+            jnp.ndarray: Boolean array indicating whether each point is at the initial time.
+        """
         return self.timedomain.on_initial(x[:, -1:])
 
     def boundary_normal(self, x):
+        """
+        Compute the boundary normal vectors for given points.
+
+        Parameters:
+            x (jnp.ndarray): Array of points on the boundary.
+
+        Returns:
+            jnp.ndarray: Array of boundary normal vectors.
+        """
         _n = self.geometry.boundary_normal(x[:, :-1])
         return jnp.hstack([_n, jnp.zeros((len(_n), 1))])
 
     def uniform_points(self, n, boundary=True):
-        """Uniform points on the spatio-temporal domain.
+        """
+        Generate uniform points in the spatio-temporal domain.
 
-        Geometry volume ~ bbox.
-        Time volume ~ diam.
+        Parameters:
+            n (int): Number of points to generate.
+            boundary (bool): Whether to include boundary points.
+
+        Returns:
+            jnp.ndarray: Array of uniformly distributed points.
         """
         nx = int(
             jnp.ceil(
@@ -90,20 +170,13 @@ class GeometryXTime(GeometryPINNx):
         return xt
 
     def random_points(self, n, random="pseudo"):
-        if isinstance(self.geometry, Interval):
-            geom = Rectangle(
-                [self.geometry.l, self.timedomain.t0],
-                [self.geometry.r, self.timedomain.t1],
-            )
-            return geom.random_points(n, random=random)
+        """
+        Generate random points in the spatio-temporal domain.
 
-        if isinstance(self.geometry, Rectangle):
-            geom = Cuboid(
-                [self.geometry.xmin[0], self.geometry.xmin[1], self.timedomain.t0],
-                [self.geometry.xmax[0], self.geometry.xmax[1], self.timedomain.t1],
-            )
-            return geom.random_points(n, random=random)
-
+        Parameters:
+            n (int): Number of points to generate.
+            random (str): Type of random number generation ("pseudo" or "sobol").
+        """
         if isinstance(self.geometry, (Cuboid, Hypercube)):
             geom = Hypercube(
                 jnp.append(self.geometry.xmin, self.timedomain.t0),
@@ -117,10 +190,14 @@ class GeometryXTime(GeometryPINNx):
         return jnp.hstack((x, t))
 
     def uniform_boundary_points(self, n):
-        """Uniform boundary points on the spatio-temporal domain.
+        """
+        Generate uniform points on the boundary of the spatio-temporal domain.
 
-        Geometry surface area ~ bbox.
-        Time surface area ~ diam.
+        Parameters:
+            n (int): Number of boundary points to generate.
+
+        Returns:
+            jnp.ndarray: Array of uniformly distributed boundary points.
         """
         if self.geometry.dim == 1:
             nx = 2
@@ -155,12 +232,31 @@ class GeometryXTime(GeometryPINNx):
         return xt
 
     def random_boundary_points(self, n, random="pseudo"):
+        """
+        Generate random points on the boundary of the spatio-temporal domain.
+
+        Parameters:
+            n (int): Number of boundary points to generate.
+            random (str): Type of random number generation ("pseudo" or "sobol").
+
+        Returns:
+            jnp.ndarray: Array of randomly distributed boundary points.
+        """
         x = self.geometry.random_boundary_points(n, random=random)
         t = self.timedomain.random_points(n, random=random)
         t = bst.random.permutation(t)
         return jnp.hstack((x, t))
 
     def uniform_initial_points(self, n):
+        """
+        Generate uniform points at the initial time of the spatio-temporal domain.
+
+        Parameters:
+            n (int): Number of initial points to generate.
+
+        Returns:
+            jnp.ndarray: Array of uniformly distributed initial points.
+        """
         x = self.geometry.uniform_points(n, True)
         t = self.timedomain.t0
         if n != len(x):
@@ -170,10 +266,30 @@ class GeometryXTime(GeometryPINNx):
         return jnp.hstack((x, jnp.full([len(x), 1], t, dtype=bst.environ.dftype())))
 
     def random_initial_points(self, n, random="pseudo"):
+        """
+        Generate random points at the initial time of the spatio-temporal domain.
+
+        Parameters:
+            n (int): Number of initial points to generate.
+            random (str): Type of random number generation ("pseudo" or "sobol").
+
+        Returns:
+            jnp.ndarray: Array of randomly distributed initial points.
+        """
         x = self.geometry.random_points(n, random=random)
         t = self.timedomain.t0
         return jnp.hstack((x, jnp.full([n, 1], t, dtype=bst.environ.dftype())))
 
     def periodic_point(self, x, component):
+        """
+        Map points to their periodic counterparts in the spatial domain.
+
+        Parameters:
+            x (jnp.ndarray): Array of points to map.
+            component (int): The spatial component for which to apply periodicity.
+
+        Returns:
+            jnp.ndarray: Array of mapped periodic points.
+        """
         xp = self.geometry.periodic_point(x[:, :-1], component)
         return jnp.hstack([xp, x[:, -1:]])

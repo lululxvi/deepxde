@@ -412,9 +412,36 @@ class PDE(Problem):
 class TimePDE(PDE):
     """Time-dependent PDE solver.
 
+    This class extends the PDE solver to handle time-dependent partial differential equations.
+    It provides functionality to generate training points for both spatial and temporal domains,
+    including initial condition points.
+
     Args:
-        num_initial (int): The number of training points sampled on the initial
-            location.
+        geometry (DictPointGeometry): The geometry of the problem domain, including both spatial and temporal dimensions.
+        pde (Callable): The partial differential equation to be solved.
+        constraints (Union[ICBC, Sequence[ICBC]]): Initial and boundary conditions for the PDE.
+        approximator (Optional[bst.nn.Module]): The neural network used to approximate the solution. Defaults to None.
+        num_domain (int): Number of training points in the domain. Defaults to 0.
+        num_boundary (int): Number of training points on the boundary. Defaults to 0.
+        num_initial (int): Number of training points for the initial condition. Defaults to 0.
+        train_distribution (str): Method for distributing training points. Options include "uniform" and "Hammersley". Defaults to "Hammersley".
+        anchors (Optional): Specific points to include in the training set. Defaults to None.
+        exclusions (Optional): Points to exclude from the training set. Defaults to None.
+        solution (Optional): The analytical solution to the PDE, if known. Defaults to None.
+        num_test (Optional[int]): Number of test points. If None, training points are used for testing. Defaults to None.
+        loss_fn (Union[str, Callable]): Loss function for training. Can be a string identifier or a callable. Defaults to 'MSE'.
+        loss_weights (Optional[Sequence[float]]): Weights for different components of the loss function. Defaults to None.
+
+    Attributes:
+        num_initial (int): Number of initial condition points.
+        geometry (GeometryXTime): The geometry of the problem, including time.
+
+    Methods:
+        train_points(): Generates training points for the time-dependent PDE, including initial condition points.
+
+    Note:
+        This class is specifically designed for time-dependent PDEs and extends the functionality
+        of the base PDE class to handle the temporal aspect of the problem.
     """
 
     def __init__(
@@ -453,6 +480,24 @@ class TimePDE(PDE):
 
     @run_if_all_none("train_x_all")
     def train_points(self):
+        """
+        Generate training points for the time-dependent PDE solver.
+
+        This method extends the base PDE class's train_points method by adding
+        initial condition points for time-dependent problems.
+
+        Returns:
+            X (Dict[str, bst.typing.ArrayLike]): A dictionary containing the generated training points.
+                The keys are the names of the spatial dimensions and time, and the values are
+                the corresponding coordinates.
+
+        Note:
+            - The method uses the geometry attribute (of type GeometryXTime) to generate points.
+            - If num_initial > 0, it adds initial condition points to the training set.
+            - The distribution of initial points can be either uniform or based on the specified
+              train_distribution.
+            - If exclusions are specified, the method filters out excluded points.
+        """
         self.geometry: GeometryXTime
 
         X = super().train_points()
