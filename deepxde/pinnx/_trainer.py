@@ -11,6 +11,7 @@ import jax.numpy as jnp
 import jax.tree
 import numpy as np
 
+from deepxde.model import LossHistory
 from . import metrics as metrics_module
 from . import utils
 from .callbacks import CallbackList, Callback
@@ -34,7 +35,7 @@ class Trainer:
                 of trainable ``brainstate.ParamState`` objects. The unknown parameters in the
                 physics systems that need to be recovered.
     """
-    __module__ = 'pinnx'
+    __module__ = 'deepxde.pinnx'
     optimizer: bst.optim.Optimizer  # optimizer
     problem: Problem  # problem
     params: bst.util.FlattedDict  # trainable variables
@@ -428,7 +429,7 @@ class Trainer:
 
 
 class TrainState:
-    __module__ = 'pinnx'
+    __module__ = 'deepxde.pinnx'
 
     def __init__(self):
         self.epoch = 0
@@ -488,23 +489,3 @@ class TrainState:
 
     def disregard_best(self):
         self.best_loss_train = np.inf
-
-
-class LossHistory:
-    __module__ = 'pinnx'
-
-    def __init__(self):
-        self.steps = []
-        self.loss_train = []
-        self.loss_test = []
-        self.metrics_test = []
-
-    def append(self, step, loss_train, loss_test, metrics_test):
-        self.steps.append(step)
-        self.loss_train.append(loss_train)
-        if loss_test is None:
-            loss_test = self.loss_test[-1]
-        if metrics_test is None:
-            metrics_test = self.metrics_test[-1]
-        self.loss_test.append(loss_test)
-        self.metrics_test.append(metrics_test)
