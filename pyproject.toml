@@ -60,6 +60,7 @@ write_to = "deepxde/_version.py"
 pinnx = [
     "brainstate",
     "brainunit",
+    "braintools",
     "jax",
     "optax",
     "flax",  # for compatibility
