@@ -13,7 +13,7 @@ import numpy as np
 
 from deepxde.pinnx import utils
 from deepxde.pinnx.nn.model import Model
-from deepxde.pinnx.utils.sampler import BatchSampler
+from deepxde.data.sampler import BatchSampler
 from .base import ICBC
 
 __all__ = [

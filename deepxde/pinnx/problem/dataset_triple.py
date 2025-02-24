@@ -6,7 +6,7 @@ from typing import Sequence
 
 import brainstate as bst
 
-from deepxde.pinnx.utils.sampler import BatchSampler
+from deepxde.data.sampler import BatchSampler
 from .base import Problem
 
 __all__ = [

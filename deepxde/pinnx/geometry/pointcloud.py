@@ -4,7 +4,7 @@
 import brainstate as bst
 import numpy as np
 
-from deepxde.pinnx.utils.sampler import BatchSampler
+from deepxde.data.sampler import BatchSampler
 from .base import GeometryPINNx as Geometry
 from ..utils import isclose
 

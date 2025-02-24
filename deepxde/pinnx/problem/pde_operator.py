@@ -15,7 +15,7 @@ from deepxde.data.function_spaces import FunctionSpace
 from deepxde.pinnx.geometry import DictPointGeometry
 from deepxde.pinnx.icbc.base import ICBC
 from deepxde.pinnx.utils import run_if_all_none
-from deepxde.pinnx.utils.sampler import BatchSampler
+from deepxde.data.sampler import BatchSampler
 from .pde import TimePDE
 
 __all__ = [

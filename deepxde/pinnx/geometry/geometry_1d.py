@@ -7,7 +7,7 @@ import brainstate as bst
 import jax.numpy as jnp
 
 from deepxde.pinnx import utils
-from deepxde.pinnx.utils.sampling import sample
+from deepxde.geometry.sampler import sample
 from .base import GeometryPINNx as Geometry
 
 
