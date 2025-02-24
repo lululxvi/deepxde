@@ -4,6 +4,7 @@ import jax
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 
 
@@ -105,7 +106,7 @@ bc_slip_top = pinnx.icbc.DirichletBC(
 )
 
 # Function space
-func_space = pinnx.fnspace.GRF(length_scale=0.2)
+func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=n_pts_edge)[:, None]

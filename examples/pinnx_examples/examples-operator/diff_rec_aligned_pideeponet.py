@@ -3,6 +3,7 @@ import jax
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 from ADR_solver import solve_ADR
 
@@ -56,7 +57,7 @@ bc = pinnx.icbc.DirichletBC(lambda *args, **kwargs: {'y': 0})
 ic = pinnx.icbc.IC(lambda *args, **kwargs: {'y': 0})
 
 # Function space
-func_space = pinnx.fnspace.GRF(length_scale=0.2)
+func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]

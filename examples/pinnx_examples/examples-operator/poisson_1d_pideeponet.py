@@ -2,6 +2,7 @@ import brainstate as bst
 import matplotlib.pyplot as plt
 import numpy as np
 import jax
+import deepxde
 from deepxde import pinnx
 import brainunit as u
 
@@ -25,7 +26,7 @@ bc = pinnx.icbc.DirichletBC(lambda x, aux: {'u': 0.})
 
 # Function space for f(x) are polynomials
 degree = 3
-space = pinnx.fnspace.PowerSeries(N=degree + 1)
+space = deepxde.data.PowerSeries(N=degree + 1)
 
 # Choose evaluation points
 num_eval_points = 10

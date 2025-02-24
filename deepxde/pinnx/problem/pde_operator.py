@@ -11,7 +11,7 @@ import brainunit as u
 import jax
 import numpy as np
 
-from deepxde.pinnx.fnspace import FunctionSpace
+from deepxde.data.function_spaces import FunctionSpace
 from deepxde.pinnx.geometry import DictPointGeometry
 from deepxde.pinnx.icbc.base import ICBC
 from deepxde.pinnx.utils import run_if_all_none

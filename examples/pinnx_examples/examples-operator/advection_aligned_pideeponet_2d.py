@@ -4,6 +4,7 @@ import jax
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 
 dim_x = 5
@@ -60,7 +61,7 @@ def boundary(x, on_boundary):
 ic = pinnx.icbc.DirichletBC(lambda x, aux: {'u': aux}, boundary)
 
 # Function space
-func_space = pinnx.fnspace.GRF(kernel="ExpSineSquared", length_scale=1)
+func_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]

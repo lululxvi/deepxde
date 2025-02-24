@@ -3,6 +3,7 @@ import brainunit as u
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 
 # The same problem as advection_unaligned_pideeponet.py
@@ -36,7 +37,7 @@ def boundary(x, on_boundary):
 ic = pinnx.icbc.DirichletBC(func_ic, boundary)
 
 # Function space
-func_space = pinnx.fnspace.GRF(kernel="ExpSineSquared", length_scale=1)
+func_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
 
 
 # Net

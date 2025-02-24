@@ -3,6 +3,7 @@ import brainunit as u
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 
 geom = pinnx.geometry.Interval(0, 1)
@@ -46,7 +47,7 @@ net = bst.nn.Sequential(
 ic = pinnx.icbc.IC(lambda x, aux: {'y': aux})
 
 # Function space
-fn_space = pinnx.fnspace.GRF(kernel="ExpSineSquared", length_scale=1)
+fn_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]

@@ -2,6 +2,7 @@ import brainstate as bst
 import matplotlib.pyplot as plt
 import numpy as np
 
+import deepxde
 from deepxde import pinnx
 
 # PDE
@@ -36,7 +37,7 @@ net = bst.nn.Sequential(
 ic = pinnx.icbc.IC(lambda _, aux: {'u': 0})
 
 # Function space
-func_space = pinnx.fnspace.GRF(length_scale=0.2)
+func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]

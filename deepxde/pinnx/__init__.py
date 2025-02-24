@@ -1,6 +1,5 @@
 __all__ = [
     "callbacks",
-    "fnspace",
     "geometry",
     "grad",
     "icbc",
@@ -12,7 +11,6 @@ __all__ = [
 ]
 
 from . import callbacks
-from . import fnspace
 from . import geometry
 from . import grad
 from . import icbc
