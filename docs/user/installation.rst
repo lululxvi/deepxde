@@ -141,21 +141,76 @@ Export ``DDE_BACKEND`` as ``paddle`` to specify PaddlePaddle backend. In additio
     if paddle.device.is_compiled_with_cuda():
         paddle.device.set_device("gpu")
 
-PINNx Module
+``pinnx`` Module
 ------------
 
-``PINNx`` is a library for scientific machine learning and physics-informed learning in JAX. 
-It is a rewrite of [DeepXDE](https://github.com/lululxvi/deepxde) but is enhanced by  
-[Brain Dynamics Programming (BDP) ecosystem](https://ecosystem-for-brain-dynamics.readthedocs.io/). 
-Now it is a module of DeepXDE.
-It leverages 
+``pinnx`` is a new module for PINN modeling with explicit variables and physical units.
 
-- [brainstate](https://brainstate.readthedocs.io/) for just-in-time compilation,
-- [brainunit](https://brainunit.readthedocs.io/) for dimensional analysis, 
-- [braintools](https://braintools.readthedocs.io/) for checkpointing, loss functions, and other utilities.
+So if you want to use the ``pinnx`` module, you can use the following command to install the package:
 
-So if you want to use the PINNx module, you need to install the BDP ecosystem first.
+.. code::
 
-- Install the BDP ecosystem with ``pip``::
+    $ pip install deepxde[pinnx]
 
-    $ pip install brainstate brainunit braintools
+
+Then you can try with the following code:
+
+
+.. code-block::
+
+
+    import brainstate as bst
+    import brainunit as u
+    from deepxde import pinnx
+
+    # geometry
+    geometry = pinnx.geometry.GeometryXTime(
+        geometry=pinnx.geometry.Interval(-1, 1.),
+        timedomain=pinnx.geometry.TimeDomain(0, 0.99)
+    ).to_dict_point(x=u.meter, t=u.second)
+
+    uy = u.meter / u.second
+    v = 0.01 / u.math.pi * u.meter ** 2 / u.second
+
+    # boundary conditions
+    bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0. * uy})
+    ic = pinnx.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * uy})
+
+    # PDE equation
+    def pde(x, y):
+        jacobian = approximator.jacobian(x)
+        hessian = approximator.hessian(x)
+        dy_x = jacobian['y']['x']
+        dy_t = jacobian['y']['t']
+        dy_xx = hessian['y']['x']['x']
+        residual = dy_t + y['y'] * dy_x - v * dy_xx
+        return residual
+
+    # neural network
+    approximator = pinnx.nn.Model(
+        pinnx.nn.DictToArray(x=u.meter, t=u.second),
+        pinnx.nn.FNN(
+            [geometry.dim] + [20] * 3 + [1],
+            "tanh",
+            bst.init.KaimingUniform()
+        ),
+        pinnx.nn.ArrayToDict(y=uy)
+    )
+
+    # problem
+    problem = pinnx.problem.TimePDE(
+        geometry,
+        pde,
+        [bc, ic],
+        approximator,
+        num_domain=2540,
+        num_boundary=80,
+        num_initial=160,
+    )
+
+    # training
+    trainer = pinnx.Trainer(problem)
+    trainer.compile(bst.optim.Adam(1e-3)).train(iterations=15000)
+    trainer.compile(bst.optim.LBFGS(1e-3)).train(2000, display_every=500)
+    trainer.saveplot(issave=True, isplot=True)
+

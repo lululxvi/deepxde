@@ -98,6 +98,13 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
+
+- If you want to use the new [pinnx](https://github.com/lululxvi/deepxde/tree/main/deepxde/pinnx) module, you can use:
+``` sh
+$ pip install deepxde[pinnx]
+```
+
+
 ## Explore more
 
 - [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
