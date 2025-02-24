@@ -12,8 +12,8 @@ import jax.tree
 import numpy as np
 
 from deepxde.model import LossHistory
+from deepxde.utils.internal import timing
 from . import metrics as metrics_module
-from . import utils
 from .callbacks import CallbackList, Callback
 from .problem.base import Problem
 from .utils._display import training_display
@@ -76,7 +76,7 @@ class Trainer:
         self.loss_history = LossHistory()
         self.stop_training = False
 
-    @utils.timing
+    @timing
     def compile(
         self,
         optimizer: bst.optim.Optimizer,
@@ -154,7 +154,7 @@ class Trainer:
 
         return self
 
-    @utils.timing
+    @timing
     def train(
         self,
         iterations: int,

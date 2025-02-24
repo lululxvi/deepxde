@@ -11,9 +11,9 @@ import brainunit as u
 import jax
 import numpy as np
 
-from deepxde.pinnx import utils
 from deepxde.pinnx.geometry import DictPointGeometry
 from deepxde.pinnx.icbc.base import ICBC
+from deepxde.utils.internal import run_if_all_none
 from .pde import PDE
 
 __all__ = [
@@ -79,7 +79,7 @@ class IDE(PDE):
         pde_errors = self.pde(inputs, outputs, int_mat, **kwargs)
         return jax.tree.map(lambda x: x[bcs_start[-1]:], pde_errors)
 
-    @utils.run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
         self.train_x_all = self.train_points()
         x_bc = self.bc_points()
@@ -94,7 +94,7 @@ class IDE(PDE):
         self.train_y = self.solution(self.train_x) if self.solution else None
         return self.train_x, self.train_y
 
-    @utils.run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
             self.test_x = self.train_x_all

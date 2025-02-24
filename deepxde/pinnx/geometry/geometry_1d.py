@@ -6,8 +6,8 @@ from typing import Literal, Union
 import brainstate as bst
 import jax.numpy as jnp
 
-from deepxde.pinnx import utils
 from deepxde.geometry.sampler import sample
+from deepxde.pinnx import utils
 from .base import GeometryPINNx as Geometry
 
 

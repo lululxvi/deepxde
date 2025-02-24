@@ -14,7 +14,8 @@ import jax
 import numpy as np
 
 from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
-from deepxde.pinnx.utils import array_ops, run_if_all_none
+from deepxde.pinnx.utils import array_ops
+from deepxde.utils.internal import run_if_all_none
 from .pde import PDE
 from ..icbc.base import ICBC
 

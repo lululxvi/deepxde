@@ -13,6 +13,7 @@ import numpy as np
 
 from deepxde.pinnx import utils
 from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
+from deepxde.utils.internal import run_if_all_none
 from .base import Problem
 from ..icbc.base import ICBC
 
@@ -237,7 +238,7 @@ class PDE(Problem):
         losses.extend(bc_errors)
         return losses
 
-    @utils.run_if_all_none("train_x", "train_y")
+    @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
         # Generate `self.train_x_all`
         self.train_points()
@@ -261,7 +262,7 @@ class PDE(Problem):
         self.train_y = self.solution(self.train_x) if self.solution is not None else None
         return self.train_x, self.train_y
 
-    @utils.run_if_all_none("test_x", "test_y")
+    @run_if_all_none("test_x", "test_y")
     def test(self):
         if self.num_test is None:
             # assign the training points to the testing points
@@ -335,7 +336,7 @@ class PDE(Problem):
         # solution on the training points
         self.train_y = self.solution(self.train_x) if self.solution is not None else None
 
-    @utils.run_if_all_none("train_x_all")
+    @run_if_all_none("train_x_all")
     def train_points(self):
         X = None
 
@@ -376,7 +377,7 @@ class PDE(Problem):
         self.train_x_all = X
         return X
 
-    @utils.run_if_all_none("train_x_bc")
+    @run_if_all_none("train_x_bc")
     def bc_points(self):
         """
         Generate boundary condition points.
@@ -450,7 +451,7 @@ class TimePDE(PDE):
             loss_weights=loss_weights,
         )
 
-    @utils.run_if_all_none("train_x_all")
+    @run_if_all_none("train_x_all")
     def train_points(self):
         self.geometry: GeometryXTime
 

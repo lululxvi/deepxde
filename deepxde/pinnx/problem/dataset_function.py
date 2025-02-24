@@ -7,7 +7,7 @@ from typing import Callable, Sequence
 import brainstate as bst
 
 from deepxde.pinnx.geometry.base import GeometryPINNx
-from deepxde.pinnx.utils import run_if_any_none
+from deepxde.utils.internal import run_if_any_none
 from .base import Problem
 
 __all__ = [

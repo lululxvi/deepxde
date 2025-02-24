@@ -12,10 +12,10 @@ import jax
 import numpy as np
 
 from deepxde.data.function_spaces import FunctionSpace
+from deepxde.data.sampler import BatchSampler
 from deepxde.pinnx.geometry import DictPointGeometry
 from deepxde.pinnx.icbc.base import ICBC
-from deepxde.pinnx.utils import run_if_all_none
-from deepxde.data.sampler import BatchSampler
+from deepxde.utils.internal import run_if_all_none
 from .pde import TimePDE
 
 __all__ = [

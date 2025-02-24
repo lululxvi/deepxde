@@ -9,11 +9,12 @@ import brainstate as bst
 import jax.numpy as jnp
 from scipy import spatial
 
-from deepxde.pinnx import utils
 from deepxde.geometry.sampler import sample
+from deepxde.pinnx import utils
+from deepxde.utils.internal import vectorize
 from .base import GeometryPINNx as Geometry
 from .geometry_nd import Hypercube, Hypersphere
-from ..utils import isclose, vectorize
+from ..utils import isclose
 
 
 class Disk(Hypersphere):

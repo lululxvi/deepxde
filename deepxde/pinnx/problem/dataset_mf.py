@@ -4,7 +4,8 @@
 
 import numpy as np
 
-from deepxde.pinnx.utils import run_if_any_none, standardize
+from deepxde.pinnx.utils import standardize
+from deepxde.utils.internal import run_if_any_none
 from .base import Problem
 
 __all__ = [
