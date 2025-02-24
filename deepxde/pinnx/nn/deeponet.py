@@ -6,14 +6,16 @@ from typing import Union, Callable, Sequence, Dict, Optional
 import brainstate as bst
 import brainunit as u
 
+from deepxde.nn.deeponet_strategy import (
+    DeepONetStrategy,
+    SingleOutputStrategy,
+    IndependentStrategy,
+    SplitBothStrategy,
+    SplitBranchStrategy,
+    SplitTrunkStrategy
+)
 from deepxde.pinnx.utils import get_activation
 from .base import NN
-from .deeponet_strategy import (DeepONetStrategy,
-                                SingleOutputStrategy,
-                                IndependentStrategy,
-                                SplitBothStrategy,
-                                SplitBranchStrategy,
-                                SplitTrunkStrategy)
 from .fnn import FNN
 
 strategies = {
