@@ -221,7 +221,7 @@ def plot_best_state(train_state):
                        f"{ykey} Prediction [{y_unit}]")
             )
             if best_ystd is not None:
-                ystd_val = u.get_magnitude(best_ystd[ykey].to(y_unit))
+                ystd_val = u.get_magnitude(u.Quantity(best_ystd[ykey], unit=y_unit))
                 plt.plot(X, y_val + 1.96 * ystd_val, "-b", label="95% CI")
                 plt.plot(X, y_val - 1.96 * ystd_val, "-b")
         plt.xlabel("x")

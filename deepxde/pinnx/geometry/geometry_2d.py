@@ -901,7 +901,7 @@ class Polygon(Geometry):
         )
         self.nvertices = len(self.vertices)
         self.perimeter = jnp.sum(
-            [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
+            jnp.asarray([self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)])
         )
         self.bbox = jnp.array(
             [jnp.min(self.vertices, axis=0), jnp.max(self.vertices, axis=0)]
@@ -941,7 +941,7 @@ class Polygon(Geometry):
                     ),
                     axis=-1,
                 )
-                wn[tmp] += 1  # Have a valid up intersect
+                wn = wn.at[tmp].add(1) # Have a valid up intersect
                 tmp = jnp.all(
                     jnp.hstack(
                         [
@@ -952,7 +952,7 @@ class Polygon(Geometry):
                     ),
                     axis=-1,
                 )
-                wn[tmp] -= 1  # Have a valid down intersect
+                wn = wn.at[tmp].add(-1)  # Have a valid down intersect
             return wn
 
         return wn_PnPoly(x, self.vertices) != 0
@@ -962,7 +962,7 @@ class Polygon(Geometry):
         for i in range(-1, self.nvertices - 1):
             l1 = jnp.linalg.norm(self.vertices[i] - x, axis=-1)
             l2 = jnp.linalg.norm(self.vertices[i + 1] - x, axis=-1)
-            _on[isclose(l1 + l2, self.diagonals[i, i + 1])] += 1
+            _on = _on.at[isclose(l1 + l2, self.diagonals[i, i + 1])].add(1)
         return _on > 0
 
     @vectorize(excluded=[0], signature="(n)->(n)")

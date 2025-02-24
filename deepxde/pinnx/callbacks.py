@@ -17,9 +17,9 @@ from deepxde.callbacks import (
     PDEPointResampler,
     EarlyStopping as EarlyStoppingCallback,
     DropoutUncertainty as DropoutUncertaintyCallback,
-    VariableValue as VariableValueCallback,
     OperatorPredictor as OperatorPredictorCallback,
 )
+from deepxde.utils.internal import list_to_str
 
 __all__ = [
     'Callback',
@@ -91,8 +91,7 @@ class DropoutUncertainty(DropoutUncertaintyCallback):
             self.model.train_state.y_std_test = jax.tree.map(lambda x: u.math.std(x, axis=0), y_preds,
                                                              is_leaf=u.math.is_quantity)
 
-
-class VariableValue(VariableValueCallback):
+class VariableValue(Callback):
     """Get the variable values.
 
     Args:
@@ -118,6 +117,30 @@ class VariableValue(VariableValueCallback):
         self.file = sys.stdout if filename is None else open(filename, "w", buffering=1)
         self.value = None
         self.epochs_since_last = 0
+
+    def on_train_begin(self):
+        self.value = [var.value for var in self.var_list]
+
+        print(
+            self.model.train_state.epoch,
+            list_to_str(self.value, precision=self.precision),
+            file=self.file,
+        )
+        self.file.flush()
+
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.period:
+            self.epochs_since_last = 0
+            self.on_train_begin()
+
+    def on_train_end(self):
+        if not self.epochs_since_last == 0:
+            self.on_train_begin()
+
+    def get_value(self):
+        """Return the variable values."""
+        return self.value
 
 
 class OperatorPredictor(OperatorPredictorCallback):

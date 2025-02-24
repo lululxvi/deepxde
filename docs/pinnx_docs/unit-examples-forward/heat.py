@@ -15,9 +15,9 @@ def heat_eq_exact_solution(x, t):
     x : np.ndarray
     t : np.ndarray
     """
-    a_value = a.to_decimal(u.meter2 / u.second).item()
-    n_value = n.to_decimal(u.Hz).item()
-    L_value = L.to_decimal(u.meter).item()
+    a_value = a.to_decimal(u.meter2 / u.second)
+    n_value = n.to_decimal(u.Hz)
+    L_value = L.to_decimal(u.meter)
     return np.exp(-(n_value ** 2 * np.pi ** 2 * a_value * t) / (L_value ** 2)) * np.sin(n_value * np.pi * x / L_value)
 
 

@@ -5,7 +5,7 @@ from deepxde import pinnx
 
 
 def gen_traindata():
-    data = np.load("../dataset/Lorenz.npz")
+    data = np.load("../../dataset/Lorenz.npz")
     return data["t"], data["y"]
 
 
@@ -63,7 +63,7 @@ data = pinnx.problem.PDE(
     anchors=observe_t,
 )
 
-variable = pinnx.callbacks.VariableValue([C1, C2, C3], period=600, filename="../../examples/pinn_inverse/variables.dat")
+variable = pinnx.callbacks.VariableValue([C1, C2, C3], period=600, filename="./variables.dat")
 
 trainer = pinnx.Trainer(data, external_trainable_variables=[C1, C2, C3])
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=50000, callbacks=[variable])

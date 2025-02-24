@@ -56,15 +56,15 @@ def neumann(x):
 outer = pinnx.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
 inner = pinnx.geometry.Disk([0, 0], R)
 geom = outer - inner
-geom = geom.to_dict_point('x', 'y')
+geom = pinnx.geometry.DictPointGeometry(geom, 'x', 'y')
 
 
 def boundary_outer(x, on_boundary):
-    return on_boundary and outer.on_boundary(pinnx.utils.dict_to_array(x))
+    return u.math.logical_and(on_boundary, outer.on_boundary(pinnx.utils.dict_to_array(x)))
 
 
 def boundary_inner(x, on_boundary):
-    return on_boundary and inner.on_boundary(pinnx.utils.dict_to_array(x))
+    return u.math.logical_and(on_boundary, inner.on_boundary(pinnx.utils.dict_to_array(x)))
 
 
 hx_train = wave_len / precision_train

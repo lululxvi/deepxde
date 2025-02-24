@@ -556,6 +556,7 @@ class MovieDumper(Callback):
                 )
 
 
+
 class PDEPointResampler(Callback):
     """Resample the training points for PDE and/or BC losses every given period.
 
@@ -577,18 +578,18 @@ class PDEPointResampler(Callback):
         self.epochs_since_last_resample = 0
 
     def on_train_begin(self):
-        self.num_bcs_initial = self.model.data.num_bcs
+        self.num_bcs_initial = self.model.problem.num_bcs
 
     def on_epoch_end(self):
         self.epochs_since_last_resample += 1
         if self.epochs_since_last_resample < self.period:
             return
         self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points(self.pde_points, self.bc_points)
+        self.model.problem.resample_train_points(self.pde_points, self.bc_points)
 
-        if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
+        if not np.array_equal(self.num_bcs_initial, self.model.problem.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
-            print("self.model.data.num_bcs:", self.model.data.num_bcs)
+            print("self.trainer.problem.num_bcs:", self.model.problem.num_bcs)
             raise ValueError(
-                "`num_bcs` changed! Please update the loss function by `model.compile`."
+                "`num_bcs` changed! Please update the loss function by `trainer.compile`."
             )

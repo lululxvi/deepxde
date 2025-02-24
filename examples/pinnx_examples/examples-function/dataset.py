@@ -6,8 +6,8 @@ import numpy as np
 from deepxde import pinnx
 
 PATH = os.path.dirname(os.path.abspath(__file__))
-train_data = np.loadtxt(os.path.join(PATH, '..', 'dataset', 'dataset.train'))
-test_data = np.loadtxt(os.path.join(PATH, '..', 'dataset', 'dataset.test'))
+train_data = np.loadtxt(os.path.join(PATH, '../..', 'dataset', 'dataset.train'))
+test_data = np.loadtxt(os.path.join(PATH, '../..', 'dataset', 'dataset.test'))
 
 net = pinnx.nn.Model(
     pinnx.nn.DictToArray(x=None),

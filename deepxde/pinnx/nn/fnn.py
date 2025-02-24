@@ -200,26 +200,25 @@ class PFNN(NN):
             output depends on the network architecture defined in the constructor.
         """
 
-        def update(self, inputs):
-            x = inputs
-            if self._input_transform is not None:
-                x = self._input_transform(x)
+        x = inputs
+        if self._input_transform is not None:
+            x = self._input_transform(x)
 
-            for layer in self.layers[:-1]:
-                if isinstance(layer, list):
-                    if isinstance(x, list):
-                        x = [self.activation(f(x_)) for f, x_ in zip(layer, x)]
-                    else:
-                        x = [self.activation(f(x)) for f in layer]
+        for layer in self.layers[:-1]:
+            if isinstance(layer, list):
+                if isinstance(x, list):
+                    x = [self.activation(f(x_)) for f, x_ in zip(layer, x)]
                 else:
-                    x = self.activation(layer(x))
-
-            # output layers
-            if isinstance(x, list):
-                x = u.math.concatenate([f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1)
+                    x = [self.activation(f(x)) for f in layer]
             else:
-                x = self.layers[-1](x)
+                x = self.activation(layer(x))
 
-            if self._output_transform is not None:
-                x = self._output_transform(inputs, x)
-            return x
+        # output layers
+        if isinstance(x, list):
+            x = u.math.concatenate([f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1)
+        else:
+            x = self.layers[-1](x)
+
+        if self._output_transform is not None:
+            x = self._output_transform(inputs, x)
+        return x

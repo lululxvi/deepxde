@@ -60,7 +60,19 @@ class Problem(abc.ABC):
                 the trainer will then be the weighted sum of all individual losses,
                 weighted by the `loss_weights` coefficients. Defaults to None.
         """
-        # Implementation details...
+        # approximator
+        if approximator is not None:
+            self.define_approximator(approximator)
+        else:
+            self.approximator = None
+
+        # loss function
+        self.loss_fn = get_loss(loss_fn)
+
+        # loss weights
+        if loss_weights is not None:
+            assert isinstance(loss_weights, (list, tuple)), "loss_weights must be a list or tuple."
+        self.loss_weights = loss_weights
 
     def define_approximator(
         self,
@@ -78,7 +90,9 @@ class Problem(abc.ABC):
         Raises:
             AssertionError: If the approximator is not an instance of bst.nn.Module.
         """
-        # Implementation details...
+        assert isinstance(approximator, bst.nn.Module), "approximator must be an instance of bst.nn.Module."
+        self.approximator = approximator
+        return self
 
     def losses(self, inputs, outputs, targets, **kwargs):
         """
