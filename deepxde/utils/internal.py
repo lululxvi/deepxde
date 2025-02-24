@@ -202,6 +202,7 @@ def get_num_args(func):
     params = inspect.signature(func).parameters
     return len(params) - ("self" in params)
 
+
 def has_default_values(func):
     """Check if the given function has default values for its parameters.
 
@@ -213,6 +214,7 @@ def has_default_values(func):
     """
     params = inspect.signature(func).parameters.values()
     return [param.default is not inspect.Parameter.empty for param in params]
+
 
 def mpi_scatter_from_rank0(array, drop_last=True):
     """Scatter the given array into continuous subarrays of equal size from rank 0 to all ranks.

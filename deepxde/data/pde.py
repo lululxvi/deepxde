@@ -7,8 +7,8 @@ from ..backend import backend_name
 from ..utils import (
     get_num_args,
     has_default_values,
-    run_if_all_none,
     mpi_scatter_from_rank0,
+    run_if_all_none,
 )
 
 
