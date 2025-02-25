@@ -21,11 +21,11 @@ class JacobianReverse(Jacobian):
         # Compute J[i, :]
         if i not in self.J:
             if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
+                y = self.ys[..., i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = tf.gradients(y, self.xs)[0]
             elif backend_name == "pytorch":
                 # TODO: retain_graph=True has memory leak?
-                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
+                y = self.ys[..., i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = torch.autograd.grad(
                     y, self.xs, grad_outputs=torch.ones_like(y), create_graph=True
                 )[0]
@@ -43,7 +43,7 @@ class JacobianReverse(Jacobian):
                 grad_fn = jax.grad(lambda x: self.ys[1](x)[i])
                 self.J[i] = (jax.vmap(grad_fn)(self.xs), grad_fn)
             elif backend_name == "paddle":
-                y = self.ys[:, i : i + 1] if self.dim_y > 1 else self.ys
+                y = self.ys[..., i : i + 1] if self.dim_y > 1 else self.ys
                 self.J[i] = paddle.grad(y, self.xs, create_graph=True)[0]
 
         if j is None or self.dim_x == 1:
@@ -57,13 +57,13 @@ class JacobianReverse(Jacobian):
                 "pytorch",
                 "paddle",
             ]:
-                self.J[i, j] = self.J[i][:, j : j + 1]
+                self.J[i, j] = self.J[i][..., j : j + 1]
             elif backend_name == "jax":
                 # In backend jax, a tuple of a jax array and a callable is returned, so
                 # that it is consistent with the argument, which is also a tuple. This
                 # is useful for further computation, e.g., Hessian.
                 self.J[i, j] = (
-                    self.J[i][0][:, j : j + 1],
+                    self.J[i][0][..., j : j + 1],
                     lambda x: self.J[i][1](x)[j : j + 1],
                 )
         return self.J[i, j]

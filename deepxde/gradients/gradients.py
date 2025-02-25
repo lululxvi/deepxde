@@ -4,6 +4,7 @@ __all__ = ["hessian", "jacobian"]
 
 from . import gradients_forward
 from . import gradients_reverse
+from .. import backend as bkd
 from .. import config
 
 
@@ -19,7 +20,9 @@ def jacobian(ys, xs, i=None, j=None):
       computation.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional/outer dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
         i (int or None): `i`th row. If `i` is ``None``, returns the `j`th column
             J[:, `j`].
@@ -29,8 +32,15 @@ def jacobian(ys, xs, i=None, j=None):
 
     Returns:
         (`i`, `j`)th entry J[`i`, `j`], `i`th row J[`i`, :], or `j`th column J[:, `j`].
+        When `ys` has shape (batch_size, dim_y), the output shape is (batch_size, 1).
+        When `ys` has shape (batch_size_out, batch_size, dim_y), the output shape is
+        (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
+        if bkd.ndim(ys) == 3:
+            raise NotImplementedError(
+                "Reverse-mode autodiff doesn't support 3D output"
+            )
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
     if config.autodiff == "forward":
         return gradients_forward.jacobian(ys, xs, i=i, j=j)
@@ -48,16 +58,24 @@ def hessian(ys, xs, component=0, i=0, j=0):
       computation.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional/outer dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
         component: `ys[:, component]` is used as y to compute the Hessian.
         i (int): `i`th row.
         j (int): `j`th column.
 
     Returns:
-        H[`i`, `j`].
+        H[`i`, `j`]. When `ys` has shape (batch_size, dim_y), the output shape is
+        (batch_size, 1). When `ys` has shape (batch_size_out, batch_size, dim_y),
+        the output shape is (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
+        if bkd.ndim(ys) == 3:
+            raise NotImplementedError(
+                "Reverse-mode autodiff doesn't support 3D output"
+            )
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
     if config.autodiff == "forward":
         return gradients_forward.hessian(ys, xs, component=component, i=i, j=j)
