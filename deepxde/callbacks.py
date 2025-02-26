@@ -556,7 +556,6 @@ class MovieDumper(Callback):
                 )
 
 
-
 class PDEPointResampler(Callback):
     """Resample the training points for PDE and/or BC losses every given period.
 
