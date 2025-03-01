@@ -285,7 +285,9 @@ class Model:
             elif self.net.regularizer[0] == "l2":
                 l2_factor = self.net.regularizer[1]
             else:
-                raise ValueError(f"Unknown regularizer name: {self.net.regularizer[0]}")
+                raise NotImplementedError(
+                    f"{self.net.regularizer[0]} regularizer hasn't been implemented for backend pytorch."
+                )
 
         def outputs(training, inputs):
             self.net.train(mode=training)
@@ -322,7 +324,7 @@ class Model:
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
-            if l1_factor:
+            if l1_factor > 0:
                 l1_loss = torch.sum(
                     torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
                 )
