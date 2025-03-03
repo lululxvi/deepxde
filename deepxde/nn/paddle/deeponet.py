@@ -4,7 +4,7 @@ from .fnn import FNN
 from .nn import NN
 from .. import activations
 from .. import initializers
-from ...utils.deeponet_strategy import (
+from ..deeponet_strategy import (
     SingleOutputStrategy,
     IndependentStrategy,
     SplitBothStrategy,

@@ -3,7 +3,7 @@ __all__ = ["DeepONet", "DeepONetCartesianProd", "PODDeepONet"]
 from .fnn import FNN
 from .nn import NN
 from .. import activations
-from ...utils.deeponet_strategy import (
+from ..deeponet_strategy import (
     SingleOutputStrategy,
     IndependentStrategy,
     SplitBothStrategy,

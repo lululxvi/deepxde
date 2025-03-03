@@ -37,4 +37,5 @@ def _load_backend(mod_name):
         setattr(thismod, api, obj)
 
 
+from . import deeponet_strategy
 _load_backend(backend_name.replace(".", "_"))

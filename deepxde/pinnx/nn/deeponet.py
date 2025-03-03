@@ -6,7 +6,7 @@ from typing import Union, Callable, Sequence, Dict, Optional
 import brainstate as bst
 import brainunit as u
 
-from deepxde.utils.deeponet_strategy import (
+from deepxde.nn.deeponet_strategy import (
     DeepONetStrategy,
     SingleOutputStrategy,
     IndependentStrategy,
