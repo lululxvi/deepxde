@@ -374,7 +374,11 @@ class Model:
                 total_loss.backward()
                 return total_loss
 
-            self.opt.step(closure)
+            def closure_mixed():
+                with torch.autocast(device_type=torch.get_default_device().type, dtype=torch.float16):
+                    return closure()
+
+            self.opt.step(closure if not config.mixed else closure_mixed)
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
