@@ -11,7 +11,9 @@ class Jacobian(ABC):
     It is lazy evaluation, i.e., it only computes J[i, j] when needed.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional/outer dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
     """
 
