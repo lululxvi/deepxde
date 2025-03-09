@@ -4,7 +4,6 @@ __all__ = ["hessian", "jacobian"]
 
 from . import gradients_forward
 from . import gradients_reverse
-from .. import backend as bkd
 from .. import config
 
 
@@ -37,10 +36,6 @@ def jacobian(ys, xs, i=None, j=None):
         (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
-        if bkd.ndim(ys) == 3:
-            raise NotImplementedError(
-                "Reverse-mode autodiff doesn't support 3D output"
-            )
         return gradients_reverse.jacobian(ys, xs, i=i, j=j)
     if config.autodiff == "forward":
         return gradients_forward.jacobian(ys, xs, i=i, j=j)
@@ -72,10 +67,6 @@ def hessian(ys, xs, component=0, i=0, j=0):
         the output shape is (batch_size_out, batch_size, 1).
     """
     if config.autodiff == "reverse":
-        if bkd.ndim(ys) == 3:
-            raise NotImplementedError(
-                "Reverse-mode autodiff doesn't support 3D output"
-            )
         return gradients_reverse.hessian(ys, xs, component=component, i=i, j=j)
     if config.autodiff == "forward":
         return gradients_forward.hessian(ys, xs, component=component, i=i, j=j)
