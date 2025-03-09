@@ -18,6 +18,14 @@ class JacobianReverse(Jacobian):
                     "Reverse-mode autodiff doesn't support computing a column."
                 )
             i = 0
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
+            ndim_y = bkd.ndim(ys)
+        elif backend_name == "jax":
+            ndim_y = bkd.ndim(ys[0])
+        if ndim_y == 3:
+            raise NotImplementedError(
+                "Reverse-mode autodiff doesn't support 3D output"
+            )
 
         # Compute J[i, :]
         if i not in self.J:
@@ -71,10 +79,6 @@ class JacobianReverse(Jacobian):
 
 
 def jacobian(ys, xs, i=None, j=None):
-    if bkd.ndim(ys) == 3:
-        raise NotImplementedError(
-            "Reverse-mode autodiff doesn't support 3D output"
-        )
     return jacobian._Jacobians(ys, xs, i=i, j=j)
 
 
@@ -96,15 +100,20 @@ class Hessian:
     def __init__(self, ys, xs, component=0):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             dim_y = ys.shape[1]
+            ndim_y = bkd.ndim(ys)
         elif backend_name == "jax":
             dim_y = ys[0].shape[1]
+            ndim_y = bkd.ndim(ys[0])
         if component >= dim_y:
             raise ValueError(
                 "The component of ys={} cannot be larger than the dimension={}.".format(
                     component, dim_y
                 )
             )
-
+        if ndim_y == 3:
+            raise NotImplementedError(
+                "Reverse-mode autodiff doesn't support 3D output"
+            )
         # There is no duplicate computation of grad_y.
         grad_y = jacobian(ys, xs, i=component, j=None)
         self.H = JacobianReverse(grad_y, xs)
@@ -142,10 +151,6 @@ class Hessians:
 
 
 def hessian(ys, xs, component=0, i=0, j=0):
-    if bkd.ndim(ys) == 3:
-        raise NotImplementedError(
-            "Reverse-mode autodiff doesn't support 3D output"
-        )
     return hessian._Hessians(ys, xs, component=component, i=i, j=j)
 
 
