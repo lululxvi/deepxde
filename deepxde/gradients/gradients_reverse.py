@@ -19,9 +19,9 @@ class JacobianReverse(Jacobian):
                 )
             i = 0
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
-            ndim_y = bkd.ndim(ys)
+            ndim_y = bkd.ndim(self.ys)
         elif backend_name == "jax":
-            ndim_y = bkd.ndim(ys[0])
+            ndim_y = bkd.ndim(self.ys[0])
         if ndim_y == 3:
             raise NotImplementedError(
                 "Reverse-mode autodiff doesn't support 3D output"
