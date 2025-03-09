@@ -100,20 +100,15 @@ class Hessian:
     def __init__(self, ys, xs, component=0):
         if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
             dim_y = ys.shape[1]
-            ndim_y = bkd.ndim(ys)
         elif backend_name == "jax":
             dim_y = ys[0].shape[1]
-            ndim_y = bkd.ndim(ys[0])
         if component >= dim_y:
             raise ValueError(
                 "The component of ys={} cannot be larger than the dimension={}.".format(
                     component, dim_y
                 )
             )
-        if ndim_y == 3:
-            raise NotImplementedError(
-                "Reverse-mode autodiff doesn't support 3D output"
-            )
+
         # There is no duplicate computation of grad_y.
         grad_y = jacobian(ys, xs, i=component, j=None)
         self.H = JacobianReverse(grad_y, xs)
