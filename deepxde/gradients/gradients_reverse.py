@@ -3,6 +3,7 @@
 __all__ = ["hessian", "jacobian"]
 
 from .jacobian import Jacobian, Jacobians
+from .. import backend as bkd
 from ..backend import backend_name, tf, torch, jax, paddle
 
 
@@ -17,6 +18,14 @@ class JacobianReverse(Jacobian):
                     "Reverse-mode autodiff doesn't support computing a column."
                 )
             i = 0
+        if backend_name in ["tensorflow.compat.v1", "tensorflow", "pytorch", "paddle"]:
+            ndim_y = bkd.ndim(self.ys)
+        elif backend_name == "jax":
+            ndim_y = bkd.ndim(self.ys[0])
+        if ndim_y == 3:
+            raise NotImplementedError(
+                "Reverse-mode autodiff doesn't support 3D output"
+            )
 
         # Compute J[i, :]
         if i not in self.J:

@@ -11,7 +11,9 @@ class Jacobian(ABC):
     It is lazy evaluation, i.e., it only computes J[i, j] when needed.
 
     Args:
-        ys: Output Tensor of shape (batch_size, dim_y).
+        ys: Output Tensor of shape (batch_size, dim_y) or (batch_size_out, batch_size,
+            dim_y). Here, the `batch_size` is the same one for `xs`, and
+            `batch_size_out` is the batch size for an additional/outer dimension.
         xs: Input Tensor of shape (batch_size, dim_x).
     """
 
@@ -20,22 +22,22 @@ class Jacobian(ABC):
         self.xs = xs
 
         if backend_name in ["tensorflow.compat.v1", "paddle"]:
-            self.dim_y = ys.shape[1]
+            self.dim_y = ys.shape[-1]
         elif backend_name in ["tensorflow", "pytorch"]:
             if config.autodiff == "reverse":
                 # For reverse-mode AD, only a tensor is passed.
-                self.dim_y = ys.shape[1]
+                self.dim_y = ys.shape[-1]
             elif config.autodiff == "forward":
                 # For forward-mode AD, a tuple of a tensor and a callable is passed, 
                 # similar to backend jax.
-                self.dim_y = ys[0].shape[1]
+                self.dim_y = ys[0].shape[-1]
         elif backend_name == "jax":
             # For backend jax, a tuple of a jax array and a callable is passed as one of
             # the arguments, since jax does not support computational graph explicitly.
             # The array is used to control the dimensions and the callable is used to
             # obtain the derivative function, which can be used to compute the
             # derivatives.
-            self.dim_y = ys[0].shape[1]
+            self.dim_y = ys[0].shape[-1]
         self.dim_x = xs.shape[1]
 
         self.J = {}
@@ -114,7 +116,9 @@ class Jacobians:
         #     x = torch.from_numpy(x)
         #     x.requires_grad_()
         #     f(x)
-        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        if backend_name == "tensorflow.compat.v1":
+            key = (ys.ref(), xs.ref())
+        elif backend_name == "tensorflow":
             if config.autodiff == "reverse":
                 key = (ys.ref(), xs.ref())
             elif config.autodiff == "forward":
