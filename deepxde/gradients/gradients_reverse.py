@@ -3,8 +3,8 @@
 __all__ = ["hessian", "jacobian"]
 
 from .jacobian import Jacobian, Jacobians
-from ..backend import backend_name, tf, torch, jax, paddle
 from .. import backend as bkd
+from ..backend import backend_name, tf, torch, jax, paddle
 
 
 class JacobianReverse(Jacobian):
