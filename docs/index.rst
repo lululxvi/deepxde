@@ -80,6 +80,12 @@ User guide
   user/faq
 
 .. toctree::
+  :maxdepth: 1
+
+  pinnx_docs/index.rst
+
+
+.. toctree::
   :maxdepth: 2
 
   user/research

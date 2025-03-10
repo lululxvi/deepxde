@@ -140,3 +140,77 @@ Export ``DDE_BACKEND`` as ``paddle`` to specify PaddlePaddle backend. In additio
 
     if paddle.device.is_compiled_with_cuda():
         paddle.device.set_device("gpu")
+
+``pinnx`` Module
+------------
+
+``pinnx`` is a new module for PINN modeling with explicit variables and physical units.
+
+So if you want to use the ``pinnx`` module, you can use the following command to install the package:
+
+.. code::
+
+    $ pip install deepxde[pinnx]
+
+
+Then you can try with the following code:
+
+
+.. code-block::
+
+
+    import brainstate as bst
+    import brainunit as u
+    from deepxde import pinnx
+
+    # geometry
+    geometry = pinnx.geometry.GeometryXTime(
+        geometry=pinnx.geometry.Interval(-1, 1.),
+        timedomain=pinnx.geometry.TimeDomain(0, 0.99)
+    ).to_dict_point(x=u.meter, t=u.second)
+
+    uy = u.meter / u.second
+    v = 0.01 / u.math.pi * u.meter ** 2 / u.second
+
+    # boundary conditions
+    bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0. * uy})
+    ic = pinnx.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * uy})
+
+    # PDE equation
+    def pde(x, y):
+        jacobian = approximator.jacobian(x)
+        hessian = approximator.hessian(x)
+        dy_x = jacobian['y']['x']
+        dy_t = jacobian['y']['t']
+        dy_xx = hessian['y']['x']['x']
+        residual = dy_t + y['y'] * dy_x - v * dy_xx
+        return residual
+
+    # neural network
+    approximator = pinnx.nn.Model(
+        pinnx.nn.DictToArray(x=u.meter, t=u.second),
+        pinnx.nn.FNN(
+            [geometry.dim] + [20] * 3 + [1],
+            "tanh",
+            bst.init.KaimingUniform()
+        ),
+        pinnx.nn.ArrayToDict(y=uy)
+    )
+
+    # problem
+    problem = pinnx.problem.TimePDE(
+        geometry,
+        pde,
+        [bc, ic],
+        approximator,
+        num_domain=2540,
+        num_boundary=80,
+        num_initial=160,
+    )
+
+    # training
+    trainer = pinnx.Trainer(problem)
+    trainer.compile(bst.optim.Adam(1e-3)).train(iterations=15000)
+    trainer.compile(bst.optim.LBFGS(1e-3)).train(2000, display_every=500)
+    trainer.saveplot(issave=True, isplot=True)
+
