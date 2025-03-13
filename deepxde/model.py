@@ -1,6 +1,7 @@
 __all__ = ["LossHistory", "Model", "TrainState"]
 
 import pickle
+import warnings
 from collections import OrderedDict
 
 import numpy as np
@@ -1159,7 +1160,7 @@ class Model:
 
 class TrainState:
     def __init__(self):
-        self.epoch = 0
+        self.iteration = 0
         self.step = 0
 
         # Current data
@@ -1187,6 +1188,24 @@ class TrainState:
         self.best_y = None
         self.best_ystd = None
         self.best_metrics = None
+
+    @property
+    def epoch(self):
+        warnings.warn(
+            "TrainState.epoch is deprecated and will be removed in a future version. Use TrainState.iteration instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.iteration
+    
+    @epoch.setter
+    def epoch(self, value):
+        warnings.warn(
+            "TrainState.epoch is deprecated and will be removed in a future version. Use TrainState.iteration instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.iteration = value 
 
     def set_data_train(self, X_train, y_train, train_aux_vars=None):
         self.X_train = X_train
