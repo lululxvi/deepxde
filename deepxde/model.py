@@ -716,7 +716,7 @@ class Model:
                 self.train_state.train_aux_vars,
             )
 
-            self.train_state.epoch += 1
+            self.train_state.iteration += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0 or i + 1 == iterations:
                 self._test(verbose=verbose)
@@ -729,7 +729,7 @@ class Model:
 
     def _train_tensorflow_compat_v1_scipy(self, display_every, verbose=1):
         def loss_callback(loss_train, loss_test, *args):
-            self.train_state.epoch += 1
+            self.train_state.iteration += 1
             self.train_state.step += 1
             if self.train_state.step % display_every == 0:
                 self.train_state.loss_train = loss_train
@@ -750,7 +750,7 @@ class Model:
                         cb.epochs_since_last = 0
 
                         print(
-                            cb.model.train_state.epoch,
+                            cb.model.train_state.iteration,
                             list_to_str(
                                 [float(arg) for arg in args],
                                 precision=cb.precision,
@@ -793,7 +793,7 @@ class Model:
                 self.train_state.train_aux_vars,
             )
             n_iter += results.num_iterations.numpy()
-            self.train_state.epoch += results.num_iterations.numpy()
+            self.train_state.iteration += results.num_iterations.numpy()
             self.train_state.step += results.num_iterations.numpy()
             self._test(verbose=verbose)
 
@@ -820,7 +820,7 @@ class Model:
                 # Converged
                 break
 
-            self.train_state.epoch += n_iter - prev_n_iter
+            self.train_state.iteration += n_iter - prev_n_iter
             self.train_state.step += n_iter - prev_n_iter
             prev_n_iter = n_iter
             self._test(verbose=verbose)
@@ -852,7 +852,7 @@ class Model:
                 # Converged
                 break
 
-            self.train_state.epoch += n_iter - prev_n_iter
+            self.train_state.iteration += n_iter - prev_n_iter
             self.train_state.step += n_iter - prev_n_iter
             prev_n_iter = n_iter
             self._test(verbose=verbose)
@@ -1072,7 +1072,7 @@ class Model:
         Returns:
             string: Path where model is saved.
         """
-        save_path = f"{save_path}-{self.train_state.epoch}"
+        save_path = f"{save_path}-{self.train_state.iteration}"
         if protocol == "pickle":
             save_path += ".pkl"
             with open(save_path, "wb") as f:
@@ -1105,7 +1105,7 @@ class Model:
         if verbose > 0:
             print(
                 "Epoch {}: saving model to {} ...\n".format(
-                    self.train_state.epoch, save_path
+                    self.train_state.iteration, save_path
                 )
             )
         return save_path

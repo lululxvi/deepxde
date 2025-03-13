@@ -151,7 +151,7 @@ class ModelCheckpoint(Callback):
                 if self.verbose > 0:
                     print(
                         "Epoch {}: {} improved from {:.2e} to {:.2e}, saving model to {} ...\n".format(
-                            self.model.train_state.epoch,
+                            self.model.train_state.iteration,
                             self.monitor,
                             self.best,
                             current,
@@ -224,7 +224,7 @@ class EarlyStopping(Callback):
             self.best = np.inf if self.monitor_op == np.less else -np.inf
 
     def on_epoch_end(self):
-        if self.model.train_state.epoch < self.start_from_epoch:
+        if self.model.train_state.iteration < self.start_from_epoch:
             return
         current = self.get_monitor_value()
         if self.monitor_op(current - self.min_delta, self.best):
@@ -233,7 +233,7 @@ class EarlyStopping(Callback):
         else:
             self.wait += 1
             if self.wait >= self.patience:
-                self.stopped_epoch = self.model.train_state.epoch
+                self.stopped_epoch = self.model.train_state.iteration
                 self.model.stop_training = True
 
     def on_train_end(self):
@@ -274,7 +274,7 @@ class Timer(Callback):
             self.model.stop_training = True
             print(
                 "\nStop training as time used up. time used: {:.1f} mins, epoch trained: {}".format(
-                    (time.time() - self.t_start) / 60, self.model.train_state.epoch
+                    (time.time() - self.t_start) / 60, self.model.train_state.iteration
                 )
             )
 
@@ -347,7 +347,7 @@ class VariableValue(Callback):
             self.value = [var.value for var in self.var_list]
 
         print(
-            self.model.train_state.epoch,
+            self.model.train_state.iteration,
             utils.list_to_str(self.value, precision=self.precision),
             file=self.file,
         )
@@ -420,7 +420,7 @@ class OperatorPredictor(Callback):
     def on_train_begin(self):
         self.on_predict_end()
         print(
-            self.model.train_state.epoch,
+            self.model.train_state.iteration,
             utils.list_to_str(self.value.flatten().tolist(), precision=self.precision),
             file=self.file,
         )
