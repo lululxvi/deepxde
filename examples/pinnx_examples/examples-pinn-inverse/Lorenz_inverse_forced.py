@@ -12,7 +12,7 @@ import scipy as sp
 from scipy.integrate import odeint
 
 import jax
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 # Generate data
 # true values, see p. 15 in https://arxiv.org/abs/1907.04502
@@ -89,26 +89,26 @@ def Lorenz_system(x, y):
 
 
 # define FNN architecture and compile
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(t=None),
-    pinnx.nn.FNN([1] + [40] * 3 + [3], "tanh"),
-    pinnx.nn.ArrayToDict(y1=None, y2=None, y3=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(t=None),
+    deepxde.nn.FNN([1] + [40] * 3 + [3], "tanh"),
+    deepxde.nn.ArrayToDict(y1=None, y2=None, y3=None),
 )
 
 # define time domain
-geom = pinnx.geometry.TimeDomain(0, maxtime).to_dict_point('t')
+geom = deepxde.geometry.TimeDomain(0, maxtime).to_dict_point('t')
 
 # Initial conditions
-ic = pinnx.icbc.IC(lambda x: {"y1": x0[0], 'y2': x0[1], 'y3': x0[2]})
+ic = deepxde.icbc.IC(lambda x: {"y1": x0[0], 'y2': x0[1], 'y3': x0[2]})
 
 # Get the training data
 ob_y = x
 observe_t = {'t': time}
 observe_y = {'y1': ob_y[:, 0], 'y2': ob_y[:, 1], 'y3': ob_y[:, 2]}
-bc = pinnx.icbc.PointSetBC(observe_t, observe_y)
+bc = deepxde.icbc.PointSetBC(observe_t, observe_y)
 
 # define data object
-data = pinnx.problem.PDE(
+data = deepxde.problem.PDE(
     geom,
     Lorenz_system,
     [ic, bc],
@@ -126,10 +126,10 @@ plt.show()
 
 # callbacks for storing results
 fnamevar = "variables.dat"
-variable = pinnx.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
+variable = deepxde.callbacks.VariableValue([C1, C2, C3], period=100, filename=fnamevar)
 
 # train the model
-trainer = pinnx.Trainer(data, external_trainable_variables=[C1, C2, C3])
+trainer = deepxde.Trainer(data, external_trainable_variables=[C1, C2, C3])
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=60000, callbacks=[variable])
 
 # Plots
@@ -157,7 +157,7 @@ plt.legend(["C1hat", "C2hat", "C3hat", "True C1", "True C2", "True C3"], loc="ri
 plt.xlabel("Epoch")
 
 yhat = trainer.predict(observe_t)
-yhat = pinnx.utils.dict_to_array(yhat)
+yhat = deepxde.utils.dict_to_array(yhat)
 plt.figure()
 plt.plot(observe_t['t'], ob_y, "-", observe_t['t'], yhat, "--")
 plt.xlabel("Time")

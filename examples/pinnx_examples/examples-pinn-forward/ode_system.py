@@ -1,7 +1,7 @@
 import brainstate as bst
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def ode_system(x, y):
@@ -17,10 +17,10 @@ def ode_system(x, y):
     return [dy1_x - y2, dy2_x + y1]
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(t=None),
-    pinnx.nn.FNN([1] + [50] * 3 + [2], "tanh"),
-    pinnx.nn.ArrayToDict(y1=None, y2=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(t=None),
+    deepxde.nn.FNN([1] + [50] * 3 + [2], "tanh"),
+    deepxde.nn.ArrayToDict(y1=None, y2=None),
 )
 
 
@@ -32,9 +32,9 @@ def func(x):
     return {'y1': np.sin(x['t']), 'y2': np.cos(x['t'])}
 
 
-geom = pinnx.geometry.TimeDomain(0, 10).to_dict_point('t')
-ic = pinnx.icbc.IC(lambda x: {'y1': 0, 'y2': 0})
-data = pinnx.problem.PDE(
+geom = deepxde.geometry.TimeDomain(0, 10).to_dict_point('t')
+ic = deepxde.icbc.IC(lambda x: {'y1': 0, 'y2': 0})
+data = deepxde.problem.PDE(
     geom,
     ode_system,
     [ic],
@@ -45,6 +45,6 @@ data = pinnx.problem.PDE(
     num_test=100
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=20000)
 trainer.saveplot(issave=True, isplot=True)

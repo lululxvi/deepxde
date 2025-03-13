@@ -6,7 +6,7 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 g = 1 * u.meter / u.second ** 2
 v = 1e-3 * u.meter ** 2 / u.second
@@ -29,7 +29,7 @@ def sol(x):
     )
     return {'y': y * u.meter / u.second}
 
-geom = pinnx.geometry.Interval(0, 1).to_dict_point(x=u.meter)
+geom = deepxde.geometry.Interval(0, 1).to_dict_point(x=u.meter)
 
 
 def pde(x, y):
@@ -43,18 +43,18 @@ def gen_traindata(num):
     return x, sol(x)
 
 ob_x, ob_u = gen_traindata(5)
-observe_u = pinnx.icbc.PointSetBC(ob_x, ob_u)
+observe_u = deepxde.icbc.PointSetBC(ob_x, ob_u)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=u.meter),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter),
+    deepxde.nn.FNN(
         [1] + [20] * 3 + [1], "tanh",
         output_transform=lambda x, y: x * (1 - x) * y
     ),
-    pinnx.nn.ArrayToDict(y=u.meter / u.second),
+    deepxde.nn.ArrayToDict(y=u.meter / u.second),
 )
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     approximator=net,
@@ -66,7 +66,7 @@ problem = pinnx.problem.PDE(
     num_test=500,
 )
 
-variable = pinnx.callbacks.VariableValue([v_e, K], period=200, filename="./variables1.dat")
-trainer = pinnx.Trainer(problem, external_trainable_variables=[v_e, K])
+variable = deepxde.callbacks.VariableValue([v_e, K], period=200, filename="./variables1.dat")
+trainer = deepxde.Trainer(problem, external_trainable_variables=[v_e, K])
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=30000, callbacks=[variable])
 trainer.saveplot(issave=True, isplot=True)

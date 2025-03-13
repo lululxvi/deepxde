@@ -6,7 +6,7 @@ from skopt.plots import plot_convergence, plot_objective
 from skopt.space import Real, Categorical, Integer
 from skopt.utils import use_named_args
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 # General parameters
 d = 2
@@ -22,7 +22,7 @@ def func(x):
 
 
 def transform(x, y):
-    x = pinnx.utils.array_to_dict(x, ["x", "y"], keep_dim=True)
+    x = deepxde.utils.array_to_dict(x, ["x", "y"], keep_dim=True)
     res = x['x'] * (1 - x['x']) * x['y'] * (1 - x['y'])
     return res * y
 
@@ -37,7 +37,7 @@ def create_model(config):
 
     learning_rate, num_dense_layers, num_dense_nodes, activation = config
 
-    geom = pinnx.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+    geom = deepxde.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
     k0 = 2 * np.pi * n
     wave_len = 1 / n
 
@@ -47,18 +47,18 @@ def create_model(config):
     hx_test = wave_len / precision_test
     nx_test = int(1 / hx_test)
 
-    net = pinnx.nn.Model(
-        pinnx.nn.DictToArray(x=None, y=None),
-        pinnx.nn.FNN(
+    net = deepxde.nn.Model(
+        deepxde.nn.DictToArray(x=None, y=None),
+        deepxde.nn.FNN(
             [d] + [num_dense_nodes] * num_dense_layers + [1],
             activation,
             bst.init.KaimingUniform(),
             output_transform=transform,
         ),
-        pinnx.nn.ArrayToDict(y=None),
+        deepxde.nn.ArrayToDict(y=None),
     )
 
-    problem = pinnx.problem.PDE(
+    problem = deepxde.problem.PDE(
         geom,
         pde,
         [],
@@ -69,7 +69,7 @@ def create_model(config):
         num_test=nx_test ** d,
     )
 
-    trainer = pinnx.Trainer(problem)
+    trainer = deepxde.Trainer(problem)
     trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"])
     return trainer
 

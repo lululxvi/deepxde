@@ -2,7 +2,7 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_x = u.meter
 unit_of_t = u.second
@@ -25,15 +25,15 @@ def pde(x, y):
     return [eq_a, eq_b]
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x, t=unit_of_t),
-    pinnx.nn.FNN([2] + [20] * 3 + [2], "tanh"),
-    pinnx.nn.ArrayToDict(ca=unit_of_c, cb=unit_of_c),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x, t=unit_of_t),
+    deepxde.nn.FNN([2] + [20] * 3 + [2], "tanh"),
+    deepxde.nn.ArrayToDict(ca=unit_of_c, cb=unit_of_c),
 )
 
-geom = pinnx.geometry.Interval(0, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 10)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(0, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 10)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point(x=unit_of_x, t=unit_of_t)
 
 
@@ -42,7 +42,7 @@ def fun_bc(x):
     return {'ca': c, 'cb': c}
 
 
-bc = pinnx.icbc.DirichletBC(fun_bc)
+bc = deepxde.icbc.DirichletBC(fun_bc)
 
 
 def fun_init(x):
@@ -52,7 +52,7 @@ def fun_init(x):
     }
 
 
-ic = pinnx.icbc.IC(fun_init)
+ic = deepxde.icbc.IC(fun_init)
 
 
 def gen_traindata():
@@ -65,9 +65,9 @@ def gen_traindata():
 
 
 observe_x, observe_y = gen_traindata()
-observe_bc = pinnx.icbc.PointSetBC(observe_x, observe_y)
+observe_bc = deepxde.icbc.PointSetBC(observe_x, observe_y)
 
-data = pinnx.problem.TimePDE(
+data = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic, observe_bc],
@@ -79,7 +79,7 @@ data = pinnx.problem.TimePDE(
     num_test=50000,
 )
 
-variable = pinnx.callbacks.VariableValue([kf, D], period=1000, filename="./variables.dat")
-model = pinnx.Trainer(data, external_trainable_variables=[kf, D])
+variable = deepxde.callbacks.VariableValue([kf, D], period=1000, filename="./variables.dat")
+model = deepxde.Trainer(data, external_trainable_variables=[kf, D])
 model.compile(bst.optim.Adam(0.001)).train(iterations=80000, callbacks=[variable])
 model.saveplot(issave=True, isplot=True)

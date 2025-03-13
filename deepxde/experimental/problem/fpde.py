@@ -13,9 +13,9 @@ import jax
 import numpy as np
 
 from deepxde.data.fpde import Scheme, Fractional as FractionalBase, FractionalTime as FractionalTimeBase
-from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
-from deepxde.pinnx.icbc.base import ICBC
-from deepxde.pinnx.utils import array_ops
+from deepxde.experimental.geometry import GeometryXTime, DictPointGeometry
+from deepxde.experimental.icbc.base import ICBC
+from deepxde.experimental.utils import array_ops
 from deepxde.utils.internal import run_if_all_none
 from .pde import PDE
 

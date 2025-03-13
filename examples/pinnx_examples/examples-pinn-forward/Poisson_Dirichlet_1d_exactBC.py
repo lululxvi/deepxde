@@ -2,9 +2,9 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(0, np.pi).to_dict_point('x')
+geom = deepxde.geometry.Interval(0, np.pi).to_dict_point('x')
 
 
 def pde(x, y):
@@ -15,13 +15,13 @@ def pde(x, y):
     return -dy_xx - summation - 8 * u.math.sin(8 * x)
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None),
+    deepxde.nn.FNN(
         [1] + [50] * 3 + [1], "tanh",
         output_transform=lambda x, y: x * (np.pi - x) * y + x
     ),
-    pinnx.nn.ArrayToDict(y=None),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
 
@@ -32,7 +32,7 @@ def func(x):
     return {'y': y}
 
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     [],
@@ -42,7 +42,7 @@ problem = pinnx.problem.PDE(
     num_test=400
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(
     bst.optim.Adam(bst.optim.InverseTimeDecayLR(0.001, 1000, 0.3)),
     metrics=["l2 relative error"]

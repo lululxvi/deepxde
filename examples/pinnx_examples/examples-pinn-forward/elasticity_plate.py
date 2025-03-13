@@ -8,31 +8,31 @@ References:
 import brainstate as bst
 import brainunit as u
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 lmbd = 1.0
 mu = 0.5
 Q = 4.0
 
-geom = pinnx.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+geom = deepxde.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
 
 BC_type = 'hard',  # hard  or  soft
 
 
 def boundary_left(x, on_boundary):
-    return u.math.logical_and(on_boundary, pinnx.utils.isclose(x['x'], 0.0))
+    return u.math.logical_and(on_boundary, deepxde.utils.isclose(x['x'], 0.0))
 
 
 def boundary_right(x, on_boundary):
-    return u.math.logical_and(on_boundary, pinnx.utils.isclose(x['x'], 1.0))
+    return u.math.logical_and(on_boundary, deepxde.utils.isclose(x['x'], 1.0))
 
 
 def boundary_top(x, on_boundary):
-    return u.math.logical_and(on_boundary, pinnx.utils.isclose(x['y'], 1.0))
+    return u.math.logical_and(on_boundary, deepxde.utils.isclose(x['y'], 1.0))
 
 
 def boundary_bottom(x, on_boundary):
-    return u.math.logical_and(on_boundary, pinnx.utils.isclose(x['y'], 0.0))
+    return u.math.logical_and(on_boundary, deepxde.utils.isclose(x['y'], 0.0))
 
 
 # Exact solutions
@@ -55,14 +55,14 @@ def func(x):
 
 
 # Soft Boundary Conditions
-ux_top_bc = pinnx.icbc.DirichletBC(lambda x: {'u': 0}, boundary_top)
-ux_bottom_bc = pinnx.icbc.DirichletBC(lambda x: {'u': 0}, boundary_bottom)
-uy_left_bc = pinnx.icbc.DirichletBC(lambda x: {'v': 0}, boundary_left)
-uy_bottom_bc = pinnx.icbc.DirichletBC(lambda x: {'v': 0}, boundary_bottom)
-uy_right_bc = pinnx.icbc.DirichletBC(lambda x: {'v': 0}, boundary_right)
-sxx_left_bc = pinnx.icbc.DirichletBC(lambda x: {'s': 0}, boundary_left)
-sxx_right_bc = pinnx.icbc.DirichletBC(lambda x: {'s': 0}, boundary_right)
-syy_top_bc = pinnx.icbc.DirichletBC(
+ux_top_bc = deepxde.icbc.DirichletBC(lambda x: {'u': 0}, boundary_top)
+ux_bottom_bc = deepxde.icbc.DirichletBC(lambda x: {'u': 0}, boundary_bottom)
+uy_left_bc = deepxde.icbc.DirichletBC(lambda x: {'v': 0}, boundary_left)
+uy_bottom_bc = deepxde.icbc.DirichletBC(lambda x: {'v': 0}, boundary_bottom)
+uy_right_bc = deepxde.icbc.DirichletBC(lambda x: {'v': 0}, boundary_right)
+sxx_left_bc = deepxde.icbc.DirichletBC(lambda x: {'s': 0}, boundary_left)
+sxx_right_bc = deepxde.icbc.DirichletBC(lambda x: {'s': 0}, boundary_right)
+syy_top_bc = deepxde.icbc.DirichletBC(
     lambda x: {'c': (2 * mu + lmbd) * Q * u.math.sin(u.math.pi * x['x'])},
     boundary_top,
 )
@@ -70,8 +70,8 @@ syy_top_bc = pinnx.icbc.DirichletBC(
 
 # Hard Boundary Conditions
 def hard_BC(x, f):
-    x = pinnx.utils.array_to_dict(x, ['x', 'y'])
-    f = pinnx.utils.array_to_dict(f, ['u', 'v', 's', 'c', 'e'])
+    x = deepxde.utils.array_to_dict(x, ['x', 'y'])
+    f = deepxde.utils.array_to_dict(f, ['u', 'v', 's', 'c', 'e'])
     Ux = f['u'] * x['y'] * (1 - x['y'])
     Uy = f['v'] * x['x'] * (1 - x['x']) * x['y']
 
@@ -137,15 +137,15 @@ def pde(x, y):
     return [momentum_x, momentum_y, stress_x, stress_y, stress_xy]
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, y=None),
-    pinnx.nn.PFNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, y=None),
+    deepxde.nn.PFNN(
         [2, [40] * 5, [40] * 5, [40] * 5, [40] * 5, 5],
         "tanh",
         bst.init.KaimingUniform(),
         output_transform=hard_BC if BC_type == "hard" else None,
     ),
-    pinnx.nn.ArrayToDict(u=None, v=None, s=None, c=None, e=None),
+    deepxde.nn.ArrayToDict(u=None, v=None, s=None, c=None, e=None),
 )
 
 if BC_type == "hard":
@@ -162,7 +162,7 @@ else:
         syy_top_bc,
     ]
 
-data = pinnx.problem.PDE(
+data = deepxde.problem.PDE(
     geom,
     pde,
     bcs,
@@ -173,6 +173,6 @@ data = pinnx.problem.PDE(
     num_test=100,
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=1000)
 trainer.saveplot(issave=True, isplot=True)

@@ -4,18 +4,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 
-geom = pinnx.geometry.Interval(0, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde_new.geometry.Interval(0, 1)
+timedomain = deepxde_new.geometry.TimeDomain(0, 1)
+geomtime = deepxde_new.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point('x', 't')
 
 
 # PDE operator
 def pde(x, y, aux):
-    jacobian = pinnx.grad.jacobian(
-        lambda inp: net((inp['v'], pinnx.utils.dict_to_array(inp['u']))),
+    jacobian = deepxde_new.grad.jacobian(
+        lambda inp: net((inp['v'], deepxde_new.utils.dict_to_array(inp['u']))),
         {'v': x[0], 'u': {'x': x[1][..., 0], 't': x[1][..., 1]}},
         x='u'
     )
@@ -33,25 +33,25 @@ def periodic(x):
 
 dim_x = 5
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONet(
+    deepxde_new.nn.DeepONet(
         [50, 128, 128, 128],
         [dim_x, 128, 128, 128],
         "tanh",
         num_outputs=1,
         input_transform=periodic,
     ),
-    pinnx.nn.ArrayToDict(y=None),
+    deepxde_new.nn.ArrayToDict(y=None),
 )
 
 # initial condition
-ic = pinnx.icbc.IC(lambda x, aux: {'y': aux})
+ic = deepxde_new.icbc.IC(lambda x, aux: {'y': aux})
 
 # Function space
 fn_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]
-problem = pinnx.problem.PDEOperator(
+problem = deepxde_new.problem.PDEOperator(
     geomtime,
     pde,
     ic,
@@ -66,7 +66,7 @@ problem = pinnx.problem.PDEOperator(
     num_test=500
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde_new.Trainer(problem)
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=50000)
 trainer.saveplot()
 
@@ -86,4 +86,4 @@ plt.figure()
 plt.imshow(u_pred)
 plt.colorbar()
 plt.show()
-print(pinnx.metrics.l2_relative_error(u_true, u_pred))
+print(deepxde_new.metrics.l2_relative_error(u_true, u_pred))

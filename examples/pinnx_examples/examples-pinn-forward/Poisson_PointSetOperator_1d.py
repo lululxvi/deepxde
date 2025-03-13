@@ -2,7 +2,7 @@ import brainstate as bst
 import brainunit as u
 import jax.tree
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def pde(x, y):
@@ -11,16 +11,16 @@ def pde(x, y):
 
 
 def boundary_l(x, on_boundary):
-    return u.math.logical_and(on_boundary, pinnx.utils.isclose(x['x'], -1))
+    return u.math.logical_and(on_boundary, deepxde.utils.isclose(x['x'], -1))
 
 
 def func(x):
     return {'y': (x['x'] + 1) ** 2}
 
 
-geom = pinnx.geometry.Interval(-1, 1).to_dict_point("x")
+geom = deepxde.geometry.Interval(-1, 1).to_dict_point("x")
 
-bc_l = pinnx.icbc.DirichletBC(func, boundary_l)
+bc_l = deepxde.icbc.DirichletBC(func, boundary_l)
 
 
 def dy_x(x, y):
@@ -34,18 +34,18 @@ def d_func(x):
 
 boundary_pts = geom.random_boundary_points(2)
 r_boundary_pts = jax.tree.map(
-    lambda x: x[pinnx.utils.isclose(x, 1)],
+    lambda x: x[deepxde.utils.isclose(x, 1)],
     boundary_pts
 )
-bc_r = pinnx.icbc.PointSetOperatorBC(r_boundary_pts, d_func(r_boundary_pts), dy_x)
+bc_r = deepxde.icbc.PointSetOperatorBC(r_boundary_pts, d_func(r_boundary_pts), dy_x)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None),
-    pinnx.nn.FNN([1] + [50] * 2 + [1], "tanh"),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None),
+    deepxde.nn.FNN([1] + [50] * 2 + [1], "tanh"),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     [bc_l, bc_r],
@@ -57,20 +57,20 @@ problem = pinnx.problem.PDE(
 )
 
 # Print out first and second derivatives into a file during training on the boundary points
-first_derivative = pinnx.callbacks.OperatorPredictor(
+first_derivative = deepxde.callbacks.OperatorPredictor(
     geom.random_boundary_points(2),
     op=lambda x, y: net.jacobian(x)['y']['x'],
     period=200,
     filename="first_derivative.txt"
 )
-second_derivative = pinnx.callbacks.OperatorPredictor(
+second_derivative = deepxde.callbacks.OperatorPredictor(
     geom.random_boundary_points(2),
     op=lambda x, y: net.hessian(x)['y']['x']['x'],
     period=200,
     filename="second_derivative.txt",
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(
     iterations=10000, callbacks=[first_derivative, second_derivative]
 )

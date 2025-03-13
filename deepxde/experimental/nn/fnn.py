@@ -3,7 +3,7 @@ from typing import Union, Callable, Sequence, Optional
 import brainstate as bst
 import brainunit as u
 
-from deepxde.pinnx.utils import get_activation
+from deepxde.experimental.utils import get_activation
 from .base import NN
 
 

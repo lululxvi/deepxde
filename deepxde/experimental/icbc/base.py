@@ -7,7 +7,7 @@ from typing import Optional, Dict
 
 import brainstate as bst
 
-from deepxde.pinnx.geometry.base import GeometryPINNx
+from deepxde.experimental.geometry.base import GeometryExperimental
 
 
 class ICBC(abc.ABC):
@@ -15,17 +15,17 @@ class ICBC(abc.ABC):
     Base class for initial and boundary conditions.
     """
 
-    # A ``pinnx.geometry.Geometry`` instance.
-    geometry: Optional[GeometryPINNx]
+    # A ``experimental.geometry.Geometry`` instance.
+    geometry: Optional[GeometryExperimental]
     problem: Optional['Problem']
 
-    def apply_geometry(self, geom: GeometryPINNx):
+    def apply_geometry(self, geom: GeometryExperimental):
         """
         Applies a geometry to the ICBC instance.
 
         Parameters:
         -----------
-        geom : GeometryPINNx
+        geom : GeometryExperimental
             The geometry to be applied to the ICBC instance.
 
         Raises:
@@ -33,7 +33,7 @@ class ICBC(abc.ABC):
         AssertionError
             If the provided geometry is not an instance of AbstractGeometry.
         """
-        assert isinstance(geom, GeometryPINNx), 'geometry must be an instance of AbstractGeometry.'
+        assert isinstance(geom, GeometryExperimental), 'geometry must be an instance of AbstractGeometry.'
         self.geometry = geom
 
     def apply_problem(self, problem: 'Problem'):
@@ -50,7 +50,7 @@ class ICBC(abc.ABC):
         AssertionError
             If the provided problem is not an instance of Problem.
         """
-        from deepxde.pinnx.problem.base import Problem
+        from deepxde.experimental.problem.base import Problem
         assert isinstance(problem, Problem), 'problem must be an instance of Problem.'
         self.problem = problem
 

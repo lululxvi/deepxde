@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 
 # PDE
-geom = pinnx.geometry.TimeDomain(0, 1).to_dict_point('t')
+geom = deepxde_new.geometry.TimeDomain(0, 1).to_dict_point('t')
 
 
 def pde(x, u_, aux):
     def solve_jac(inp1):
-        f1 = lambda i: pinnx.grad.jacobian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_new.grad.jacobian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     jacobian = jax.vmap(solve_jac, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
@@ -22,24 +22,24 @@ def pde(x, u_, aux):
 
 # Net
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONetCartesianProd(
+    deepxde_new.nn.DeepONetCartesianProd(
         [50, 128, 128, 128],
         [1, 128, 128, 128],
         "tanh",
         # Hard constraint zero IC
         output_transform=lambda inputs, outputs: outputs * inputs[1].T
     ),
-    pinnx.nn.ArrayToDict(u=None)
+    deepxde_new.nn.ArrayToDict(u=None)
 )
 
-ic = pinnx.icbc.IC(lambda _, aux: {'u': 0})
+ic = deepxde_new.icbc.IC(lambda _, aux: {'u': 0})
 
 # Function space
 func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]
-data = pinnx.problem.PDEOperatorCartesianProd(
+data = deepxde_new.problem.PDEOperatorCartesianProd(
     geom,
     pde,
     ic,
@@ -54,7 +54,7 @@ data = pinnx.problem.PDEOperatorCartesianProd(
     num_test=40
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde_new.Trainer(data)
 trainer.compile(bst.optim.Adam(0.0005)).train(iterations=40000)
 trainer.saveplot()
 
@@ -62,7 +62,7 @@ v = np.sin(np.pi * eval_pts).T
 x = np.linspace(0, 1, num=50)
 u = np.ravel(trainer.predict((v, x[:, None]))['u'])
 u_true = 1 / np.pi - np.cos(np.pi * x) / np.pi
-print(pinnx.metrics.l2_relative_error(u_true, u))
+print(deepxde_new.metrics.l2_relative_error(u_true, u))
 plt.figure()
 plt.plot(x, u_true, "k")
 plt.plot(x, u, "r")

@@ -1,7 +1,7 @@
 import brainstate as bst
 import brainunit as u
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_x = u.meter
 unit_of_t = u.second
@@ -9,9 +9,9 @@ unit_of_f = 1 / u.second
 
 c = 1. * u.meter ** 2 / u.second
 
-geom = pinnx.geometry.Interval(-1, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(-1, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 1)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point(x=unit_of_x, t=unit_of_t)
 
 
@@ -20,13 +20,13 @@ def func(x):
     return {'y': y}
 
 
-bc = pinnx.icbc.DirichletBC(func)
-ic = pinnx.icbc.IC(func)
+bc = deepxde.icbc.DirichletBC(func)
+ic = deepxde.icbc.IC(func)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x, t=unit_of_t),
-    pinnx.nn.FNN([2] + [32] * 3 + [1], "tanh"),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x, t=unit_of_t),
+    deepxde.nn.FNN([2] + [32] * 3 + [1], "tanh"),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
 
@@ -44,7 +44,7 @@ def pde(x, y):
     return dy_t - c * dy_xx + source * unit_of_f
 
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic],
@@ -56,6 +56,6 @@ problem = pinnx.problem.TimePDE(
     num_test=10000,
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=10000)
 trainer.saveplot(issave=True, isplot=True)

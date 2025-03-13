@@ -3,16 +3,16 @@ import brainunit as u
 import jax.tree
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_space = u.meter
 unit_of_speed = u.meter / u.second
 unit_of_t = u.second
 unit_of_pressure = u.pascal
 
-spatial_domain = pinnx.geometry.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
-temporal_domain = pinnx.geometry.TimeDomain(0, 1)
-spatio_temporal_domain = pinnx.geometry.GeometryXTime(spatial_domain, temporal_domain)
+spatial_domain = deepxde.geometry.Cuboid(xmin=[-1, -1, -1], xmax=[1, 1, 1])
+temporal_domain = deepxde.geometry.TimeDomain(0, 1)
+spatio_temporal_domain = deepxde.geometry.GeometryXTime(spatial_domain, temporal_domain)
 spatio_temporal_domain = spatio_temporal_domain.to_dict_point(
     x=unit_of_space,
     y=unit_of_space,
@@ -20,16 +20,16 @@ spatio_temporal_domain = spatio_temporal_domain.to_dict_point(
     t=unit_of_t,
 )
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_space,
-                         y=unit_of_space,
-                         z=unit_of_space,
-                         t=unit_of_t),
-    pinnx.nn.FNN([4] + 4 * [50] + [4], "tanh", bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(u_vel=unit_of_speed,
-                         v_vel=unit_of_speed,
-                         w_vel=unit_of_speed,
-                         p=unit_of_pressure),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_space,
+                           y=unit_of_space,
+                           z=unit_of_space,
+                           t=unit_of_t),
+    deepxde.nn.FNN([4] + 4 * [50] + [4], "tanh", bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(u_vel=unit_of_speed,
+                           v_vel=unit_of_speed,
+                           w_vel=unit_of_speed,
+                           p=unit_of_pressure),
 )
 
 a = 1
@@ -148,10 +148,10 @@ def icbc_cond_func(x, include_p: bool = False):
     return r
 
 
-bc = pinnx.icbc.DirichletBC(icbc_cond_func)
-ic = pinnx.icbc.IC(icbc_cond_func)
+bc = deepxde.icbc.DirichletBC(icbc_cond_func)
+ic = deepxde.icbc.IC(icbc_cond_func)
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     spatio_temporal_domain,
     pde,
     [bc, ic],
@@ -162,7 +162,7 @@ problem = pinnx.problem.TimePDE(
     num_test=10000,
 )
 
-model = pinnx.Trainer(problem)
+model = deepxde.Trainer(problem)
 
 model.compile(bst.optim.Adam(1e-3)).train(iterations=30000)
 model.compile(bst.optim.LBFGS(1e-3)).train(5000, display_every=200)
@@ -195,8 +195,8 @@ residual_1 = jax.tree.map(lambda x: np.mean(np.absolute(x)), f_1)
 
 print("Accuracy at t = 0:")
 print("Mean residual:", residual_0)
-print("L2 relative error:", pinnx.metrics.l2_relative_error(output_0, out_exact_0))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(output_0, out_exact_0))
 print("\n")
 print("Accuracy at t = 1:")
 print("Mean residual:", residual_1)
-print("L2 relative error:", pinnx.metrics.l2_relative_error(output_1, out_exact_1))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(output_1, out_exact_1))

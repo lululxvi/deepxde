@@ -5,7 +5,8 @@ import numpy as np
 import optax
 import brainunit as u
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
+
 
 def heat_eq_exact_solution(x, t):
     """Returns the exact solution for a given x and t (for sinusoidal initial conditions).
@@ -66,17 +67,17 @@ n = 1 * u.Hz # Frequency of the sinusoidal initial conditions
 gen_exact_solution()
 
 # Computational geometry:
-geomtime = pinnx.geometry.GeometryXTime(
-    geometry=pinnx.geometry.Interval(0., 1.),
-    timedomain=pinnx.geometry.TimeDomain(0., 1.)
+geomtime = deepxde.geometry.GeometryXTime(
+    geometry=deepxde.geometry.Interval(0., 1.),
+    timedomain=deepxde.geometry.TimeDomain(0., 1.)
 ).to_dict_point(x=u.meter, t=u.second)
 
 uy = u.kelvin / u.second
 # Initial and boundary conditions:
-bc = pinnx.icbc.DirichletBC(
+bc = deepxde.icbc.DirichletBC(
     lambda x : {'y': 0. * uy}
 )
-ic = pinnx.icbc.IC(
+ic = deepxde.icbc.IC(
     lambda x: {'y': u.math.sin(n * u.math.pi * x['x'][:] / L, unit_to_scale=u.becquerel) * uy},
 )
 
@@ -92,18 +93,18 @@ def pde(x, y):
     dy_xx = hessian['y']['x']['x']
     return dy_t - a * dy_xx
 
-approximator = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=u.meter, t=u.second),
-    pinnx.nn.FNN(
+approximator = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter, t=u.second),
+    deepxde.nn.FNN(
         [2] + [20] * 3 + [1],
         "tanh",
         bst.init.KaimingUniform()
     ),
-    pinnx.nn.ArrayToDict(y=uy)
+    deepxde.nn.ArrayToDict(y=uy)
 )
 
 # Define the PDE problem and configurations of the network:
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic],
@@ -114,7 +115,7 @@ problem = pinnx.problem.TimePDE(
     num_test=2540,
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 
 # Build and train the trainer:
 trainer.compile(bst.optim.Adam(1e-3))
@@ -128,5 +129,5 @@ X, y_true = gen_testdata()
 y_pred = trainer.predict(X)
 f = pde(X, y_pred)
 print("Mean residual:", u.math.mean(u.math.absolute(f)))
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred['y']))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred['y']))
 # np.savetxt("test.dat", u.math.hstack((X, y_true, y_pred)))

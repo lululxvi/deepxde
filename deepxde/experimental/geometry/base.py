@@ -10,15 +10,15 @@ import jax.numpy as jnp
 import numpy as np
 
 from deepxde.geometry.geometry import Geometry
-from deepxde.pinnx import utils
+from deepxde.experimental import utils
 
 __all__ = [
-    'GeometryPINNx',
+    'GeometryExperimental',
     'DictPointGeometry',
 ]
 
 
-class GeometryPINNx(Geometry):
+class GeometryExperimental(Geometry):
     """
     A base class for geometries in the PINNx (Physics-Informed Neural Networks Extended) framework.
 
@@ -40,7 +40,7 @@ class GeometryPINNx(Geometry):
         representations and the more flexible, unit-aware representations used in PINNx.
 
     Example:
-        class CustomGeometry(GeometryPINNx):
+        class CustomGeometry(GeometryExperimental):
             def __init__(self, dim, bbox, diam):
                 super().__init__(dim, bbox, diam)
                 # Additional initialization specific to CustomGeometry
@@ -135,11 +135,11 @@ def array_to_quantity(array: Union[np.ndarray, jnp.ndarray], unit: u.Unit):
     return u.math.maybe_decimal(u.Quantity(array, unit=unit))
 
 
-class DictPointGeometry(GeometryPINNx):
+class DictPointGeometry(GeometryExperimental):
     """
     A class that converts a standard Geometry object to a dictionary-based geometry representation.
 
-    This class extends GeometryPINNx to provide a more flexible, named coordinate system
+    This class extends GeometryExperimental to provide a more flexible, named coordinate system
     with unit awareness. It wraps an existing Geometry object and allows access to its
     methods while providing additional functionality for working with named coordinates.
 

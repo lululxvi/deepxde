@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
 import brainunit as u
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_x = u.meter
 unit_of_y = u.meter
@@ -103,10 +103,10 @@ def Navier_Stokes_Equation(x, y):
     return [continuity, x_momentum, y_momentum]
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x, y=unit_of_y, t=unit_of_t),
-    pinnx.nn.FNN([3] + [50] * 6 + [3], "tanh"),
-    pinnx.nn.ArrayToDict(u=unit_of_u, v=unit_of_v, p=unit_of_p),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x, y=unit_of_y, t=unit_of_t),
+    deepxde.nn.FNN([3] + [50] * 6 + [3], "tanh"),
+    deepxde.nn.ArrayToDict(u=unit_of_u, v=unit_of_v, p=unit_of_p),
 )
 
 # Define Spatio-temporal domain
@@ -114,21 +114,21 @@ net = pinnx.nn.Model(
 Lx_min, Lx_max = 1.0, 8.0
 Ly_min, Ly_max = -2.0, 2.0
 # Spatial domain: X × Y = [1, 8] × [−2, 2]
-space_domain = pinnx.geometry.Rectangle([Lx_min, Ly_min], [Lx_max, Ly_max])
+space_domain = deepxde.geometry.Rectangle([Lx_min, Ly_min], [Lx_max, Ly_max])
 # Time domain: T = [0, 7]
-time_domain = pinnx.geometry.TimeDomain(0, 7)
+time_domain = deepxde.geometry.TimeDomain(0, 7)
 # Spatio-temporal domain
-geomtime = pinnx.geometry.GeometryXTime(space_domain, time_domain)
+geomtime = deepxde.geometry.GeometryXTime(space_domain, time_domain)
 geomtime = geomtime.to_dict_point(x=unit_of_x, y=unit_of_y, t=unit_of_t)
 
 # Get the training data: num = 7000
 [ob_x, ob_y, ob_t, ob_u, ob_v, ob_p] = load_training_data(num=7000)
 ob_xyt = {"x": ob_x, "y": ob_y, "t": ob_t}
 ob_yv = {"u": ob_u, "v": ob_v, }
-observe_bc = pinnx.icbc.PointSetBC(ob_xyt, ob_yv)
+observe_bc = deepxde.icbc.PointSetBC(ob_xyt, ob_yv)
 
 # Training datasets and Loss
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     Navier_Stokes_Equation,
     [observe_bc],
@@ -140,11 +140,11 @@ problem = pinnx.problem.TimePDE(
 )
 
 # Neural Network setup
-model = pinnx.Trainer(problem, external_trainable_variables=[C1, C2])
+model = deepxde.Trainer(problem, external_trainable_variables=[C1, C2])
 
 # callbacks for storing results
 fnamevar = "variables.dat"
-variable = pinnx.callbacks.VariableValue([C1, C2], period=100, filename=fnamevar)
+variable = deepxde.callbacks.VariableValue([C1, C2], period=100, filename=fnamevar)
 
 # Compile, train and save trainer
 model.compile(bst.optim.Adam(1e-3)).train(iterations=10000, callbacks=[variable],

@@ -1,5 +1,5 @@
-``PINNx`` Examples
-==================
+Examples of ``deepxde.experimental``
+====================================
 
 
 PINN Forward Examples

@@ -7,7 +7,7 @@ import itertools
 import brainstate as bst
 import jax.numpy as jnp
 
-from .base import GeometryPINNx
+from .base import GeometryExperimental
 from .geometry_1d import Interval
 from .geometry_2d import Rectangle
 from .geometry_3d import Cuboid
@@ -52,11 +52,11 @@ class TimeDomain(Interval):
         return isclose(t, self.t0).flatten()
 
 
-class GeometryXTime(GeometryPINNx):
+class GeometryXTime(GeometryExperimental):
     """
     Represents a geometry combined with a time domain for spatio-temporal problems.
 
-    This class extends GeometryPINNx to handle both spatial and temporal dimensions.
+    This class extends GeometryExperimental to handle both spatial and temporal dimensions.
     """
 
     def __init__(self, geometry, timedomain):
@@ -64,7 +64,7 @@ class GeometryXTime(GeometryPINNx):
         Initialize the GeometryXTime object.
 
         Parameters:
-            geometry (GeometryPINNx): The spatial geometry.
+            geometry (GeometryExperimental): The spatial geometry.
             timedomain (TimeDomain): The time domain.
         """
         self.geometry = geometry

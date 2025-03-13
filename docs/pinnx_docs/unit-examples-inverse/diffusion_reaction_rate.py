@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_bvp
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_x = u.meter
 unit_of_u = u.mole / u.meter ** 3
@@ -34,7 +34,7 @@ xvals = np.linspace(0, 1, num)
 y = np.zeros((2, xvals.size))
 res = solve_bvp(fun, bc, xvals, y)
 
-geom = pinnx.geometry.Interval(0, 1).to_dict_point(x=unit_of_x)
+geom = deepxde.geometry.Interval(0, 1).to_dict_point(x=unit_of_x)
 
 
 def pde(x, y):
@@ -44,10 +44,10 @@ def pde(x, y):
     return l * du_xx - y['u'] * y['k'] - f
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x),
-    pinnx.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(u=unit_of_u, k=1 / u.second),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x),
+    deepxde.nn.PFNN([1, [20, 20], [20, 20], 2], "tanh", bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(u=unit_of_u, k=1 / u.second),
 )
 
 
@@ -58,11 +58,11 @@ def gen_traindata():
 
 
 ob_x, ob_u = gen_traindata()
-observe_u = pinnx.icbc.PointSetBC(ob_x, ob_u)
+observe_u = deepxde.icbc.PointSetBC(ob_x, ob_u)
 
-bc = pinnx.icbc.DirichletBC(lambda x: {'u': 0 * unit_of_u})
+bc = deepxde.icbc.DirichletBC(lambda x: {'u': 0 * unit_of_u})
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     constraints=[bc, observe_u],
@@ -73,7 +73,7 @@ problem = pinnx.problem.PDE(
     num_test=1000,
 )
 
-model = pinnx.Trainer(problem)
+model = deepxde.Trainer(problem)
 model.compile(bst.optim.Adam(1e-3)).train(iterations=20000)
 
 x = geom.uniform_points(500)
@@ -82,7 +82,7 @@ uhat, khat = yhat['u'].mantissa, yhat['k'].mantissa
 x = x['x'].mantissa
 
 ktrue = k(x)
-print("l2 relative error for k: " + str(pinnx.metrics.l2_relative_error(khat, ktrue)))
+print("l2 relative error for k: " + str(deepxde.metrics.l2_relative_error(khat, ktrue)))
 
 plt.figure()
 plt.plot(x, ktrue, "-", label="k_true")
@@ -91,7 +91,7 @@ plt.legend()
 plt.show()
 
 utrue = res.sol(x)[0]
-print("l2 relative error for u: " + str(pinnx.metrics.l2_relative_error(uhat, utrue)))
+print("l2 relative error for u: " + str(deepxde.metrics.l2_relative_error(uhat, utrue)))
 
 plt.figure()
 plt.plot(x, utrue, "-", label="u_true")

@@ -4,9 +4,9 @@ import numpy as np
 from jax.experimental.sparse import COO
 from scipy.special import gamma
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(0, 1).to_dict_point('x')
+geom = deepxde.geometry.Interval(0, 1).to_dict_point('x')
 
 alpha0 = 1.8
 alpha = bst.ParamState(1.5)
@@ -30,11 +30,11 @@ def fpde(x, y, int_mat):
     return lhs - rhs[: len(lhs)]
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None),
-    pinnx.nn.FNN([1] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
-                 output_transform=lambda x, y: x * (1 - x) * y),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None),
+    deepxde.nn.FNN([1] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
+                   output_transform=lambda x, y: x * (1 - x) * y),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
 
@@ -43,13 +43,13 @@ def func(x):
 
 
 observe_x = {'x': np.linspace(-1, 1, num=20)}
-observe_y = pinnx.icbc.PointSetBC(observe_x, func(observe_x))
+observe_y = deepxde.icbc.PointSetBC(observe_x, func(observe_x))
 
 data_type = 'static'  # 'static' or 'dynamic'
 
 if data_type == 'static':
     # Static auxiliary points
-    data = pinnx.problem.FPDE(
+    data = deepxde.problem.FPDE(
         geom,
         fpde,
         alpha,
@@ -63,7 +63,7 @@ if data_type == 'static':
     )
 else:
     # Dynamic auxiliary points
-    data = pinnx.problem.FPDE(
+    data = deepxde.problem.FPDE(
         geom,
         fpde,
         alpha,
@@ -78,7 +78,7 @@ else:
         loss_weights=[1, 100],
     )
 
-variable = pinnx.callbacks.VariableValue(alpha, period=1000)
-trainer = pinnx.Trainer(data, external_trainable_variables=[alpha])
+variable = deepxde.callbacks.VariableValue(alpha, period=1000)
+trainer = deepxde.Trainer(data, external_trainable_variables=[alpha])
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=10000, callbacks=[variable])
 trainer.saveplot(issave=True, isplot=True)

@@ -11,8 +11,8 @@ import brainunit as u
 import jax
 import numpy as np
 
-from deepxde.pinnx.geometry import DictPointGeometry
-from deepxde.pinnx.icbc.base import ICBC
+from deepxde.experimental.geometry import DictPointGeometry
+from deepxde.experimental.icbc.base import ICBC
 from deepxde.utils.internal import run_if_all_none
 from .pde import PDE
 

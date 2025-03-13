@@ -1,7 +1,7 @@
 import brainstate as bst
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def gen_traindata():
@@ -34,26 +34,26 @@ def Lorenz_system(x, y):
     ]
 
 
-geom = pinnx.geometry.TimeDomain(0, 3).to_dict_point('t')
+geom = deepxde.geometry.TimeDomain(0, 3).to_dict_point('t')
 
 # Initial conditions
-ic = pinnx.icbc.IC(lambda x: {'y1': -8, 'y2': 7, 'y3': 27})
+ic = deepxde.icbc.IC(lambda x: {'y1': -8, 'y2': 7, 'y3': 27})
 
 # Get the train data
 observe_t, ob_y = gen_traindata()
 observe_t = {'t': observe_t.flatten()}
-observe_bc = pinnx.icbc.PointSetBC(
+observe_bc = deepxde.icbc.PointSetBC(
     observe_t,
     {'y1': ob_y[:, 0], 'y2': ob_y[:, 1], 'y3': ob_y[:, 2]}
 )
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(t=None),
-    pinnx.nn.FNN([1] + [40] * 3 + [3], "tanh"),
-    pinnx.nn.ArrayToDict(y1=None, y2=None, y3=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(t=None),
+    deepxde.nn.FNN([1] + [40] * 3 + [3], "tanh"),
+    deepxde.nn.ArrayToDict(y1=None, y2=None, y3=None),
 )
 
-data = pinnx.problem.PDE(
+data = deepxde.problem.PDE(
     geom,
     Lorenz_system,
     [ic, observe_bc],
@@ -63,9 +63,9 @@ data = pinnx.problem.PDE(
     anchors=observe_t,
 )
 
-variable = pinnx.callbacks.VariableValue([C1, C2, C3], period=600, filename="./variables.dat")
+variable = deepxde.callbacks.VariableValue([C1, C2, C3], period=600, filename="./variables.dat")
 
-trainer = pinnx.Trainer(data, external_trainable_variables=[C1, C2, C3])
+trainer = deepxde.Trainer(data, external_trainable_variables=[C1, C2, C3])
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=50000, callbacks=[variable])
 # trainer.compile(bst.optim.LBFGS(1e-3)).train(10000, callbacks=[variable])
 trainer.saveplot(issave=True, isplot=True)

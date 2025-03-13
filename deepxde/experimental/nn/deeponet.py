@@ -14,7 +14,7 @@ from deepxde.nn.deeponet_strategy import (
     SplitBranchStrategy,
     SplitTrunkStrategy
 )
-from deepxde.pinnx.utils import get_activation
+from deepxde.experimental.utils import get_activation
 from .base import NN
 from .fnn import FNN
 

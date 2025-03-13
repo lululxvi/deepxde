@@ -10,9 +10,9 @@ import jax.numpy as jnp
 from scipy import spatial
 
 from deepxde.geometry.sampler import sample
-from deepxde.pinnx import utils
+from deepxde.experimental import utils
 from deepxde.utils.internal import vectorize
-from .base import GeometryPINNx as Geometry
+from .base import GeometryExperimental as Geometry
 from .geometry_nd import Hypercube, Hypersphere
 from ..utils import isclose
 

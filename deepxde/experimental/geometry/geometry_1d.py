@@ -7,8 +7,8 @@ import brainstate as bst
 import jax.numpy as jnp
 
 from deepxde.geometry.sampler import sample
-from deepxde.pinnx import utils
-from .base import GeometryPINNx as Geometry
+from deepxde.experimental import utils
+from .base import GeometryExperimental as Geometry
 
 
 class Interval(Geometry):

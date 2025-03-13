@@ -11,8 +11,8 @@ import brainunit as u
 import jax.tree
 import numpy as np
 
-from deepxde.pinnx import utils
-from deepxde.pinnx.geometry import GeometryXTime, DictPointGeometry
+from deepxde.experimental import utils
+from deepxde.experimental.geometry import GeometryXTime, DictPointGeometry
 from deepxde.utils.internal import run_if_all_none
 from .base import Problem
 from ..icbc.base import ICBC
@@ -64,7 +64,7 @@ class PDE(Problem):
             x = geometry.uniform_points(num, boundary=True)
             y_true = ...
             y_pred = trainer.predict(x)
-            error= pinnx.metrics.l2_relative_error(y_true, y_pred)
+            error= experimental.metrics.l2_relative_error(y_true, y_pred)
 
     Attributes:
         train_x_all: A Numpy array of points for PDE training. `train_x_all` is

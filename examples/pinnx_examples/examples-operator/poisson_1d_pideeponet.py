@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import jax
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 import brainunit as u
 
 
@@ -11,7 +11,7 @@ import brainunit as u
 def equation(x, y, aux):
 
     def solve_hes(inp1):
-        f1 = lambda i: pinnx.grad.hessian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_new.grad.hessian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     dy_xx = jax.vmap(solve_hes, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
@@ -20,9 +20,9 @@ def equation(x, y, aux):
 
 
 # Domain is interval [0, 1]
-geom = pinnx.geometry.Interval(0, 1).to_dict_point('x')
+geom = deepxde_new.geometry.Interval(0, 1).to_dict_point('x')
 
-bc = pinnx.icbc.DirichletBC(lambda x, aux: {'u': 0.})
+bc = deepxde_new.icbc.DirichletBC(lambda x, aux: {'u': 0.})
 
 # Function space for f(x) are polynomials
 degree = 3
@@ -31,22 +31,22 @@ space = deepxde.data.PowerSeries(N=degree + 1)
 # Choose evaluation points
 num_eval_points = 10
 evaluation_points = geom.uniform_points(num_eval_points, boundary=True)
-evaluation_points = pinnx.utils.dict_to_array(evaluation_points)
+evaluation_points = deepxde_new.utils.dict_to_array(evaluation_points)
 
 # Setup DeepONet
 dim_x = 1
 p = 32
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONetCartesianProd(
+    deepxde_new.nn.DeepONetCartesianProd(
         [num_eval_points, 32, p],
         [dim_x, 32, p],
         activation="tanh",
     ),
-    pinnx.nn.ArrayToDict(u=None)
+    deepxde_new.nn.ArrayToDict(u=None)
 )
 
 # Define PDE operator
-pde_op = pinnx.problem.PDEOperatorCartesianProd(
+pde_op = deepxde_new.problem.PDEOperatorCartesianProd(
     geom,
     equation,
     bc,
@@ -59,7 +59,7 @@ pde_op = pinnx.problem.PDEOperatorCartesianProd(
 )
 
 # Define and train trainer
-model = pinnx.Trainer(pde_op)
+model = deepxde_new.Trainer(pde_op)
 model.compile(bst.optim.Adam(0.0005)).train(iterations=20000)
 model.saveplot(isplot=True)
 

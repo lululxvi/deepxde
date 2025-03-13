@@ -8,7 +8,7 @@ from typing import Dict, Sequence
 
 import brainstate as bst
 
-from deepxde.pinnx.grad import jacobian, hessian, gradient
+from deepxde.experimental.grad import jacobian, hessian, gradient
 from .convert import DictToArray, ArrayToDict
 
 __all__ = [

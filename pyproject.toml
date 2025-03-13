@@ -56,7 +56,7 @@ exclude = ["docker", "docs*", "examples*"]
 write_to = "deepxde/_version.py"
 
 [project.optional-dependencies]
-pinnx = [
+experimental = [
     "brainstate",
     "brainunit",
     "braintools",

@@ -2,7 +2,7 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def ode(x, y):
@@ -17,27 +17,27 @@ def func(x):
     return {'y': y}
 
 
-geom = pinnx.geometry.TimeDomain(0, 0.25).to_dict_point("t")
+geom = deepxde.geometry.TimeDomain(0, 0.25).to_dict_point("t")
 
 
 def boundary_l(x, on_initial):
-    return u.math.logical_and(on_initial, pinnx.utils.isclose(x['t'], 0))
+    return u.math.logical_and(on_initial, deepxde.utils.isclose(x['t'], 0))
 
 
 def bc_func(inputs, outputs):
     return {'y': net.jacobian(inputs)['y']['t'] - 2}
 
 
-ic1 = pinnx.icbc.IC(lambda x: {'y': -1})
-ic2 = pinnx.icbc.OperatorBC(bc_func, boundary_l)
+ic1 = deepxde.icbc.IC(lambda x: {'y': -1})
+ic2 = deepxde.icbc.OperatorBC(bc_func, boundary_l)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(t=None),
-    pinnx.nn.FNN([1] + [50] * 3 + [1], "tanh"),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(t=None),
+    deepxde.nn.FNN([1] + [50] * 3 + [1], "tanh"),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-data = pinnx.problem.TimePDE(
+data = deepxde.problem.TimePDE(
     geom,
     ode,
     [ic1, ic2],
@@ -49,6 +49,6 @@ data = pinnx.problem.TimePDE(
     loss_weights=[0.01, 1, 1]
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=10000)
 trainer.saveplot(issave=True, isplot=True)

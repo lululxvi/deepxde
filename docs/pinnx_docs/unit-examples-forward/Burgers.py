@@ -2,16 +2,16 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geometry = pinnx.geometry.GeometryXTime(
-    geometry=pinnx.geometry.Interval(-1, 1.),
-    timedomain=pinnx.geometry.TimeDomain(0, 0.99)
+geometry = deepxde.geometry.GeometryXTime(
+    geometry=deepxde.geometry.Interval(-1, 1.),
+    timedomain=deepxde.geometry.TimeDomain(0, 0.99)
 ).to_dict_point(x=u.meter, t=u.second)
 
 uy = u.meter / u.second
-bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0. * uy})
-ic = pinnx.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * uy})
+bc = deepxde.icbc.DirichletBC(lambda x: {'y': 0. * uy})
+ic = deepxde.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * uy})
 
 v = 0.01 / u.math.pi * u.meter ** 2 / u.second
 
@@ -26,17 +26,17 @@ def pde(x, y):
     return residual
 
 
-approximator = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=u.meter, t=u.second),
-    pinnx.nn.FNN(
+approximator = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter, t=u.second),
+    deepxde.nn.FNN(
         [geometry.dim] + [20] * 3 + [1],
         "tanh",
         bst.init.KaimingUniform()
     ),
-    pinnx.nn.ArrayToDict(y=uy)
+    deepxde.nn.ArrayToDict(y=uy)
 )
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geometry,
     pde,
     [bc, ic],
@@ -46,7 +46,7 @@ problem = pinnx.problem.TimePDE(
     num_initial=160,
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=15000)
 trainer.compile(bst.optim.LBFGS(1e-3)).train(2000, display_every=500)
 trainer.saveplot(issave=True, isplot=True)
@@ -65,4 +65,4 @@ X, y_true = gen_testdata()
 y_pred = trainer.predict(X)
 f = pde(X, y_pred)
 print("Mean residual:", u.math.mean(u.math.absolute(f)))
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred['y']))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred['y']))

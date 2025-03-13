@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 
 
 # PDE equation
@@ -16,10 +16,10 @@ def pde(xy, uvp, aux):
     batch_ids = np.arange(fix.shape[0])
 
     def solve_jac(xy_):
-        f = lambda i: pinnx.grad.jacobian(
+        f = lambda i: deepxde_new.grad.jacobian(
             lambda inp: jax.tree.map(
                 lambda x: x[i],
-                net((fix, pinnx.utils.dict_to_array(inp)))
+                net((fix, deepxde_new.utils.dict_to_array(inp)))
             ),
             {'x': xy_[..., 0], 'y': xy_[..., 1]},
             vmap=False
@@ -29,10 +29,10 @@ def pde(xy, uvp, aux):
     jacobian = jax.vmap(solve_jac)(xy)
 
     def solve_hes(xy_):
-        f = lambda i: pinnx.grad.hessian(
+        f = lambda i: deepxde_new.grad.hessian(
             lambda inp: jax.tree.map(
                 lambda x: x[i],
-                net((fix, pinnx.utils.dict_to_array(inp)))
+                net((fix, deepxde_new.utils.dict_to_array(inp)))
             ),
             {'x': xy_[..., 0], 'y': xy_[..., 1]},
             y=['u', 'v'],
@@ -76,7 +76,7 @@ def out_transform(inputs, outputs):
 n_pts_edge = 101  # using the size of true solution, but this is unnecessary
 
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONetCartesianProd(
+    deepxde_new.nn.DeepONetCartesianProd(
         [n_pts_edge, 128, 128, 128],
         [2, 128, 128, 128],
         "tanh",
@@ -84,11 +84,11 @@ net = bst.nn.Sequential(
         multi_output_strategy="independent",
         output_transform=out_transform
     ),
-    pinnx.nn.ArrayToDict(u=None, v=None, p=None)
+    deepxde_new.nn.ArrayToDict(u=None, v=None, p=None)
 )
 
 # Geometry
-geom = pinnx.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+geom = deepxde_new.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
 
 
 # Boundary condition
@@ -100,7 +100,7 @@ def bc_slip_top_func(x, aux):
     return {'u': u_}
 
 
-bc_slip_top = pinnx.icbc.DirichletBC(
+bc_slip_top = deepxde_new.icbc.DirichletBC(
     func=bc_slip_top_func,
     on_boundary=lambda x, on_boundary: u.math.isclose(x['y'], 1.),
 )
@@ -110,7 +110,7 @@ func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=n_pts_edge)[:, None]
-data = pinnx.problem.PDEOperatorCartesianProd(
+data = deepxde_new.problem.PDEOperatorCartesianProd(
     geom,
     pde,
     bc_slip_top,
@@ -127,7 +127,7 @@ data = pinnx.problem.PDEOperatorCartesianProd(
 )
 
 # Trainer
-trainer = pinnx.Trainer(data)
+trainer = deepxde_new.Trainer(data)
 trainer.compile(bst.optim.SGD(1e-6)).train(iterations=50)
 # trainer.compile(bst.optim.Adam(bst.optim.InverseTimeDecayLR(1e-5, 10000, 0.5))).train(iterations=50000)
 trainer.saveplot()
@@ -141,9 +141,9 @@ xy = np.vstack((np.ravel(xv), np.ravel(yv))).T
 sol_pred = trainer.predict((v, xy))
 sol_pred = jax.tree.map(lambda x: x[0], sol_pred)
 sol_true = np.load('../dataset/stokes.npz')['arr_0']
-print('Error on horizontal velocity:', pinnx.metrics.l2_relative_error(sol_true[:, 0], sol_pred['u']))
-print('Error on vertical velocity:', pinnx.metrics.l2_relative_error(sol_true[:, 1], sol_pred['v']))
-print('Error on pressure:', pinnx.metrics.l2_relative_error(sol_true[:, 2], sol_pred['p']))
+print('Error on horizontal velocity:', deepxde_new.metrics.l2_relative_error(sol_true[:, 0], sol_pred['u']))
+print('Error on vertical velocity:', deepxde_new.metrics.l2_relative_error(sol_true[:, 1], sol_pred['v']))
+print('Error on pressure:', deepxde_new.metrics.l2_relative_error(sol_true[:, 2], sol_pred['p']))
 
 
 # Plot
@@ -164,7 +164,7 @@ def plot_sol(sol, ax, pressure_lim=0.03, vec_space=4, vec_scale=.5, label=""):
 
 fig, ax = plt.subplots(1, 2, dpi=200)
 plot_sol(sol_true.reshape(101, 101, 3), ax[0], label="True")
-plot_sol(pinnx.utils.dict_to_array(sol_pred).reshape(101, 101, 3), ax[1], label="Predicted")
+plot_sol(deepxde_new.utils.dict_to_array(sol_pred).reshape(101, 101, 3), ax[1], label="Predicted")
 # save plot if needed
 # plt.savefig('stokes_plot.png')
 plt.show()

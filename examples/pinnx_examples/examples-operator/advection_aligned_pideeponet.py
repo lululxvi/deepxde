@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_exp
 
-geom = pinnx.geometry.Interval(0, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde_exp.geometry.Interval(0, 1)
+timedomain = deepxde_exp.geometry.TimeDomain(0, 1)
+geomtime = deepxde_exp.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point('x', 't')
 
 
 # PDE
 def pde_eqs(x, y, aux):
     def solve_jac(inp1):
-        f1 = lambda i: pinnx.grad.jacobian(lambda inp: net((x[0], inp))['y'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_exp.grad.jacobian(lambda inp: net((x[0], inp))['y'][i], inp1, vmap=False)
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     jacobian = jax.vmap(solve_jac, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
@@ -41,23 +41,23 @@ def periodic(x):
 
 dim_x = 5
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONetCartesianProd(
+    deepxde_exp.nn.DeepONetCartesianProd(
         [50, 128, 128, 128],
         [dim_x, 128, 128, 128],
         "tanh",
         input_transform=periodic,
     ),
-    pinnx.nn.ArrayToDict(y=None)
+    deepxde_exp.nn.ArrayToDict(y=None)
 )
 
-ic = pinnx.icbc.IC(lambda x, aux: {'y': aux})
+ic = deepxde_exp.icbc.IC(lambda x, aux: {'y': aux})
 
 # Function space
 func_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]
-problem = pinnx.problem.PDEOperatorCartesianProd(
+problem = deepxde_exp.problem.PDEOperatorCartesianProd(
     geomtime,
     pde_eqs,
     ic,
@@ -73,7 +73,7 @@ problem = pinnx.problem.PDEOperatorCartesianProd(
     num_test=500
 )
 
-model = pinnx.Trainer(problem)
+model = deepxde_exp.Trainer(problem)
 model.compile(bst.optim.Adam(0.0005)).train(iterations=50000)
 model.saveplot(issave=True, isplot=True)
 
@@ -93,4 +93,4 @@ plt.figure()
 plt.imshow(u_pred)
 plt.colorbar()
 plt.show()
-print(pinnx.metrics.l2_relative_error(u_true, u_pred))
+print(deepxde_exp.metrics.l2_relative_error(u_true, u_pred))

@@ -2,11 +2,11 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(-np.pi, np.pi)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(-np.pi, np.pi)
+timedomain = deepxde.geometry.TimeDomain(0, 1)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point('x', 't')
 
 
@@ -30,7 +30,7 @@ def pde(x, y):
 
 
 def output_transform(x, y):
-    x = pinnx.utils.array_to_dict(x, ['x', 't'], keep_dim=True)
+    x = deepxde.utils.array_to_dict(x, ['x', 't'], keep_dim=True)
     return (
         x['t'] * (np.pi ** 2 - x['x'] ** 2) * y
         + u.math.sin(x['x'])
@@ -41,15 +41,15 @@ def output_transform(x, y):
     )
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, t=None),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, t=None),
+    deepxde.nn.FNN(
         [2] + [30] * 6 + [1],
         "tanh",
         bst.init.KaimingUniform(),
         output_transform=output_transform
     ),
-    pinnx.nn.ArrayToDict(y=None)
+    deepxde.nn.ArrayToDict(y=None)
 )
 
 
@@ -65,11 +65,11 @@ def func(x):
     }
 
 
-data = pinnx.problem.TimePDE(
+data = deepxde.problem.TimePDE(
     geomtime, pde, [], net,
     num_domain=320, solution=func, num_test=80000
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(1e-3), metrics=["l2 relative error"]).train(iterations=20000)
 trainer.saveplot(issave=True, isplot=True)

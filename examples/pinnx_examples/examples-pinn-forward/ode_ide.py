@@ -2,7 +2,7 @@ import brainstate as bst
 import brainunit as u
 import matplotlib.pyplot as plt
 import numpy as np
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def ide(x, y, int_mat):
@@ -20,16 +20,16 @@ def func(x):
     return {'y': u.math.sin(2 * u.math.pi * x['x'])}
 
 
-geom = pinnx.geometry.TimeDomain(0, 1).to_dict_point('x')
-ic = pinnx.icbc.IC(func)
+geom = deepxde.geometry.TimeDomain(0, 1).to_dict_point('x')
+ic = deepxde.icbc.IC(func)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None),
-    pinnx.nn.FNN([1] + [20] * 3 + [1], "tanh"),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None),
+    deepxde.nn.FNN([1] + [20] * 3 + [1], "tanh"),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-data = pinnx.problem.IDE(
+data = deepxde.problem.IDE(
     geom,
     ide,
     ic,
@@ -40,13 +40,13 @@ data = pinnx.problem.IDE(
 )
 
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=10000)
 
 X = geom.uniform_points(100, True)
 y_true = func(X)
 y_pred = trainer.predict(X)
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred))
 
 plt.figure()
 plt.plot(X['x'], y_true['y'], "-")

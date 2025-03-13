@@ -13,8 +13,8 @@ import numpy as np
 
 from deepxde.data.function_spaces import FunctionSpace
 from deepxde.data.sampler import BatchSampler
-from deepxde.pinnx.geometry import DictPointGeometry
-from deepxde.pinnx.icbc.base import ICBC
+from deepxde.experimental.geometry import DictPointGeometry
+from deepxde.experimental.icbc.base import ICBC
 from deepxde.utils.internal import run_if_all_none
 from .pde import TimePDE
 
@@ -34,7 +34,7 @@ class PDEOperator(TimePDE):
     PDE solution operator.
 
     Args:
-        function_space: Instance of ``pinnx.fnspace.FunctionSpace``.
+        function_space: Instance of ``experimental.fnspace.FunctionSpace``.
         evaluation_points: A NumPy array of shape (n_points, dim). Discretize the input
             function sampled from `function_space` using point-wise evaluations at a set
             of points as the input of the branch net.
@@ -226,8 +226,8 @@ class PDEOperatorCartesianProd(TimePDE):
     PDE solution operator with problem in the format of Cartesian product.
 
     Args:
-        pde: Instance of ``pinnx.problem.PDE`` or ``pinnx.problem.TimePDE``.
-        function_space: Instance of ``pinnx.problem.FunctionSpace``.
+        pde: Instance of ``experimental.problem.PDE`` or ``experimental.problem.TimePDE``.
+        function_space: Instance of ``experimental.problem.FunctionSpace``.
         evaluation_points: A NumPy array of shape (n_points, dim). Discretize the input
             function sampled from `function_space` using pointwise evaluations at a set
             of points as the input of the branch net.

@@ -36,17 +36,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import griddata
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(-1, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 10)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(-1, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 10)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point('x', 't')
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, t=None),
-    pinnx.nn.FNN([2] + [40] * 2 + [1], "tanh"),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, t=None),
+    deepxde.nn.FNN([2] + [40] * 2 + [1], "tanh"),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
 alpha, beta, gamma = -1, 0, 1
@@ -72,10 +72,10 @@ def func(x):
     return {'y': x['x'] * u.math.cos(x['t'])}
 
 
-bc = pinnx.icbc.DirichletBC(func)
-ic_1 = pinnx.icbc.IC(func)
-ic_2 = pinnx.icbc.OperatorBC(lambda x, y: {'y': net.jacobian(x)['y']['t']})
-data = pinnx.problem.TimePDE(
+bc = deepxde.icbc.DirichletBC(func)
+ic_1 = deepxde.icbc.IC(func)
+ic_2 = deepxde.icbc.OperatorBC(lambda x, y: {'y': net.jacobian(x)['y']['t']})
+data = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic_1, ic_2],
@@ -87,7 +87,7 @@ data = pinnx.problem.TimePDE(
     num_test=6000,
 )
 
-model = pinnx.Trainer(data)
+model = deepxde.Trainer(data)
 model.compile(
     bst.optim.Adam(bst.optim.InverseTimeDecayLR(1e-3, 3000, 0.9)),
     metrics=["l2 relative error"],

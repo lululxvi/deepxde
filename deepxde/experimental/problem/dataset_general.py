@@ -8,7 +8,7 @@ import brainstate as bst
 import jax
 import numpy as np
 
-from deepxde.pinnx import utils
+from deepxde.experimental import utils
 from .base import Problem
 
 __all__ = [

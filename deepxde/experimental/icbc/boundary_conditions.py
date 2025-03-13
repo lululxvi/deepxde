@@ -12,8 +12,8 @@ import jax
 import numpy as np
 
 from deepxde.data.sampler import BatchSampler
-from deepxde.pinnx import utils
-from deepxde.pinnx.nn.model import Model
+from deepxde.experimental import utils
+from deepxde.experimental.nn.model import Model
 from .base import ICBC
 
 __all__ = [
@@ -371,7 +371,7 @@ class OperatorBC(BC):
 
     Warning:
         If you use `X` in `func`, then do not set ``num_test`` when you define
-        ``pinnx.problem.PDE`` or ``pinnx.problem.TimePDE``, otherwise DeepXDE would throw an
+        ``experimental.problem.PDE`` or ``experimental.problem.TimePDE``, otherwise DeepXDE would throw an
         error. In this case, the training points will be used for testing, and this will
         not affect the network training and training loss. This is a bug of DeepXDE,
         which cannot be fixed in an easy way for all backends.
@@ -424,7 +424,7 @@ class PointSetBC(BC):
 
     Note:
         If you want to use batch size here, you should also set callback
-        'pinnx.callbacks.PDEPointResampler(bc_points=True)' in training.
+        'experimental.callbacks.PDEPointResampler(bc_points=True)' in training.
     """
 
     def __init__(
@@ -567,8 +567,8 @@ class Interface2DBC(BC):
 
     This BC applies to the case with the following conditions:
     (1) the network output has two elements, i.e., output = [y1, y2],
-    (2) the 2D geometry is ``pinnx.geometry.Rectangle`` or ``pinnx.geometry.Polygon``, which has two edges of the same length,
-    (3) uniform boundary points are used, i.e., in ``pinnx.problem.PDE`` or ``pinnx.problem.TimePDE``, ``train_distribution="uniform"``.
+    (2) the 2D geometry is ``experimental.geometry.Rectangle`` or ``experimental.geometry.Polygon``, which has two edges of the same length,
+    (3) uniform boundary points are used, i.e., in ``experimental.problem.PDE`` or ``experimental.problem.TimePDE``, ``train_distribution="uniform"``.
     For a pair of points on the two edges, compute <output_1, d1> for the point on the first edge
     and <output_2, d2> for the point on the second edge in the n/t direction ('n' for normal or 't' for tangent).
     Here, <v1, v2> is the dot product between vectors v1 and v2;
@@ -607,7 +607,7 @@ class Interface2DBC(BC):
         on_boundary = self.geometry.on_boundary(X)
         X1 = X[self.on_boundary1(X, on_boundary)]
         X2 = X[self.on_boundary2(X, on_boundary)]
-        # Flip order of X2 when pinnx.geometry.Polygon is used
+        # Flip order of X2 when experimental.geometry.Polygon is used
         if self.geometry.__class__.__name__ == "Polygon":
             X2 = np.flip(X2, axis=0)
         return np.vstack((X1, X2))

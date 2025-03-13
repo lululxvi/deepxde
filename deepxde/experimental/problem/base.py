@@ -9,7 +9,7 @@ from typing import Callable, Sequence, Any, Tuple
 import brainstate as bst
 import jax
 
-from deepxde.pinnx.utils.losses import get_loss
+from deepxde.experimental.utils.losses import get_loss
 
 Inputs = Any
 Targets = Any

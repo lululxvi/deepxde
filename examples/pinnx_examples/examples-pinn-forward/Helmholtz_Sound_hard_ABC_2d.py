@@ -3,7 +3,7 @@ import brainunit as u
 import numpy as np
 from scipy.special import jv, hankel1
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 # General parameters
 weights = 1
@@ -23,8 +23,8 @@ h_elem = wave_len / n_wave
 nx = int(length / h_elem)
 
 # Computational domain
-outer = pinnx.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
-inner = pinnx.geometry.Disk([0, 0], R)
+outer = deepxde.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
+inner = deepxde.geometry.Disk([0, 0], R)
 inner_geom = inner.to_dict_point('x', 'y')
 outer_geom = outer.to_dict_point('x', 'y')
 geom = (outer - inner).to_dict_point('x', 'y')
@@ -69,15 +69,15 @@ def outer_bc(x, y):
 
 
 # ABCs
-bc_inner = pinnx.icbc.NeumannBC(inner_bc, boundary_inner)
-bc_outer = pinnx.icbc.RobinBC(outer_bc, boundary_outer)
+bc_inner = deepxde.icbc.NeumannBC(inner_bc, boundary_inner)
+bc_outer = deepxde.icbc.RobinBC(outer_bc, boundary_outer)
 
 loss_weights = [1, 1, weights, weights]
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, y=None),
-    pinnx.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [2], activation),
-    pinnx.nn.ArrayToDict(y0=None, y1=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, y=None),
+    deepxde.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [2], activation),
+    deepxde.nn.ArrayToDict(y0=None, y1=None),
 )
 
 
@@ -110,7 +110,7 @@ def sol(x):
     return {'y0': real, 'y1': imag}
 
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     [bc_inner, bc_outer],
@@ -122,6 +122,6 @@ problem = pinnx.problem.PDE(
     loss_weights=loss_weights,
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"]).train(iterations=iterations)
 trainer.saveplot(issave=True, isplot=True)

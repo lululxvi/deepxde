@@ -4,7 +4,7 @@ import optax
 import brainunit as u
 import os
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def heat_eq_exact_solution(x, t):
@@ -75,14 +75,14 @@ gen_exact_solution()
 uy = u.kelvin / u.second
 
 # Computational geometry:
-geomtime = pinnx.geometry.GeometryXTime(
-    geometry=pinnx.geometry.Interval(0., 1.),
-    timedomain=pinnx.geometry.TimeDomain(0., 1.)
+geomtime = deepxde.geometry.GeometryXTime(
+    geometry=deepxde.geometry.Interval(0., 1.),
+    timedomain=deepxde.geometry.TimeDomain(0., 1.)
 ).to_dict_point(x=u.meter, t=u.second)
 
 # Initial and boundary conditions:
-bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0. * uy})
-ic = pinnx.icbc.IC(
+bc = deepxde.icbc.DirichletBC(lambda x: {'y': 0. * uy})
+ic = deepxde.icbc.IC(
     lambda x: {'y': u.math.sin(n * u.math.pi * x['x'][:] / L, unit_to_scale=u.becquerel) * uy},
 )
 
@@ -101,17 +101,17 @@ def pde(x, y):
 
 # Define the PDE problem and configurations of the network:
 
-approximator = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=u.meter, t=u.second),
-    pinnx.nn.FNN(
+approximator = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter, t=u.second),
+    deepxde.nn.FNN(
         [2] + [20] * 3 + [1],
         "tanh",
         bst.init.KaimingUniform()
     ),
-    pinnx.nn.ArrayToDict(y=uy)
+    deepxde.nn.ArrayToDict(y=uy)
 )
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic],
@@ -122,12 +122,12 @@ problem = pinnx.problem.TimePDE(
     num_test=2540,
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 
 # Build and train the trainer:
 trainer.compile(bst.optim.Adam(1e-3))
 
-pde_resampler = pinnx.callbacks.PDEPointResampler(period=10)
+pde_resampler = deepxde.callbacks.PDEPointResampler(period=10)
 trainer.train(iterations=10000, callbacks=[pde_resampler])
 trainer.compile(bst.optim.OptaxOptimizer(optax.lbfgs(1e-3, linesearch=None)))
 # TODO: train method must has iteration param
@@ -143,5 +143,5 @@ X, y_true = gen_testdata()
 y_pred = trainer.predict(X)
 f = trainer.predict(X, operator=pde)
 print("Mean residual:", u.math.mean(u.math.absolute(f)))
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred['y']))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred['y']))
 # np.savetxt("test.dat", np.hstack((X, y_true, y_pred)))

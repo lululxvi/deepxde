@@ -11,7 +11,7 @@
 import brainstate as bst
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 # Load dataset
 d = np.load("./antiderivative_unaligned_train.npz", allow_pickle=True)
@@ -24,14 +24,14 @@ y_test = d["y_test"].astype(np.float32)
 # Choose a network
 m = 100
 dim_x = 1
-net = pinnx.nn.DeepONet(
+net = deepxde.nn.DeepONet(
     [m, 40, 40],
     [dim_x, 40, 40],
     "relu",
 )
 
 # problem
-problem = pinnx.problem.TripleDataset(
+problem = deepxde.problem.TripleDataset(
     X_train=X_train,
     y_train=y_train,
     X_test=X_test,
@@ -40,7 +40,7 @@ problem = pinnx.problem.TripleDataset(
 )
 
 # Define a Trainer
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 # Compile and Train
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=10000)
 # Plot the loss trajectory

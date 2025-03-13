@@ -2,7 +2,7 @@ import brainstate as bst
 import brainunit as u
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_u = u.UNITLESS
 unit_of_x = u.meter
@@ -21,7 +21,7 @@ parameters = [1e-3, 3, 150]
 
 learning_rate, num_dense_layers, num_dense_nodes = parameters
 
-geom = pinnx.geometry.Rectangle([0, 0], [1, 1]).to_dict_point(x=unit_of_x, y=unit_of_y)
+geom = deepxde.geometry.Rectangle([0, 0], [1, 1]).to_dict_point(x=unit_of_x, y=unit_of_y)
 k0 = 2 * np.pi * n
 wave_len = 1 / n
 
@@ -45,26 +45,26 @@ def pde(x, y):
 if hard_constraint:
     bc = []
 else:
-    bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0 * unit_of_u})
+    bc = deepxde.icbc.DirichletBC(lambda x: {'y': 0 * unit_of_u})
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x, y=unit_of_y),
-    pinnx.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [1],
-                 u.math.sin,
-                 bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(y=unit_of_u),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x, y=unit_of_y),
+    deepxde.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [1],
+                   u.math.sin,
+                   bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(y=unit_of_u),
 )
 
 if hard_constraint:
     def transform(x, y):
-        x = pinnx.utils.array_to_dict(x, ["x", "y"], keep_dim=True)
+        x = deepxde.utils.array_to_dict(x, ["x", "y"], keep_dim=True)
         res = x['x'] * (1 - x['x']) * x['y'] * (1 - x['y'])
         return res * y
 
 
     net.approx.apply_output_transform(transform)
 
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     bc,
@@ -76,6 +76,6 @@ problem = pinnx.problem.PDE(
     loss_weights=None if hard_constraint else [1, weights],
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"]).train(iterations=iterations)
 trainer.saveplot(issave=True, isplot=True)

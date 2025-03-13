@@ -1,7 +1,7 @@
 import brainstate as bst
 import brainunit as u
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 def func(x):
@@ -9,21 +9,21 @@ def func(x):
 
 
 layer_size = [1] + [50] * 3 + [1]
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None),
-    pinnx.nn.FNN(layer_size, "tanh", bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None),
+    deepxde.nn.FNN(layer_size, "tanh", bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-geom = pinnx.geometry.Interval(-1, 1).to_dict_point('x')
+geom = deepxde.geometry.Interval(-1, 1).to_dict_point('x')
 num_train = 100
 num_test = 1000
-data = pinnx.problem.Function(
+data = deepxde.problem.Function(
     geom, func, num_train, num_test,
     approximator=net
 )
 
-trainer = pinnx.Trainer(data)
-uncertainty = pinnx.callbacks.DropoutUncertainty(period=1000)
+trainer = deepxde.Trainer(data)
+uncertainty = deepxde.callbacks.DropoutUncertainty(period=1000)
 trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=30000, callbacks=uncertainty)
 trainer.saveplot(issave=True, isplot=True)

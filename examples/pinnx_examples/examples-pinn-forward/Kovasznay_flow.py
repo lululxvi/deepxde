@@ -3,7 +3,7 @@ import brainunit as u
 import jax.tree
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 
 Re = 20
@@ -44,21 +44,21 @@ def bc_func(x):
 
 
 def boundary_outflow(x, on_boundary):
-    return on_boundary and pinnx.utils.isclose(x[0], 1)
+    return on_boundary and deepxde.utils.isclose(x[0], 1)
 
 
-spatial_domain = pinnx.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
+spatial_domain = deepxde.geometry.Rectangle(xmin=[-0.5, -0.5], xmax=[1, 1.5])
 spatial_domain = spatial_domain.to_dict_point('x', 'y')
 
-bc = pinnx.icbc.DirichletBC(bc_func)
+bc = deepxde.icbc.DirichletBC(bc_func)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, y=None),
-    pinnx.nn.FNN([2] + 4 * [50] + [3], "tanh"),
-    pinnx.nn.ArrayToDict(u_vel=None, v_vel=None, p=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, y=None),
+    deepxde.nn.FNN([2] + 4 * [50] + [3], "tanh"),
+    deepxde.nn.ArrayToDict(u_vel=None, v_vel=None, p=None),
 )
 
-data = pinnx.problem.PDE(
+data = deepxde.problem.PDE(
     spatial_domain,
     pde,
     [bc],
@@ -68,7 +68,7 @@ data = pinnx.problem.PDE(
     num_test=100000,
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=30000)
 trainer.compile(bst.optim.LBFGS(1e-3)).train(iterations=2000)
 
@@ -76,7 +76,7 @@ X = spatial_domain.random_points(100000)
 output = trainer.predict(X)
 
 u_exact = bc_func(X)
-l2_difference = pinnx.metrics.l2_relative_error(u_exact, output)
+l2_difference = deepxde.metrics.l2_relative_error(u_exact, output)
 
 f = pde(X, output)
 residual = jax.tree.map(lambda x: np.mean(np.absolute(x)), f)

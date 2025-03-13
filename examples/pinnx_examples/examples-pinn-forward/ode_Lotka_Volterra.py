@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import integrate
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 ub = 200
 rb = 20
@@ -48,18 +48,18 @@ def output_transform(t, y):
     )
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(t=None),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(t=None),
+    deepxde.nn.FNN(
         [7] + [64] * 6 + [2], "tanh",
         input_transform=input_transform,
         output_transform=output_transform
     ),
-    pinnx.nn.ArrayToDict(r=None, p=None),
+    deepxde.nn.ArrayToDict(r=None, p=None),
 )
 
-geom = pinnx.geometry.TimeDomain(0, 1.0).to_dict_point('t')
-problem = pinnx.problem.PDE(
+geom = deepxde.geometry.TimeDomain(0, 1.0).to_dict_point('t')
+problem = deepxde.problem.PDE(
     geom,
     ode_system,
     [],
@@ -69,7 +69,7 @@ problem = pinnx.problem.PDE(
     num_test=3000
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(0.001)).train(iterations=50000)
 trainer.compile(bst.optim.LBFGS(1e-3)).train(1000)
 trainer.saveplot(issave=True, isplot=True)

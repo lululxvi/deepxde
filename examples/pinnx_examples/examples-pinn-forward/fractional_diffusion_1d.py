@@ -4,11 +4,11 @@ import numpy as np
 from jax.experimental.sparse import COO
 from scipy.special import gamma
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(0, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(0, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 1)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point("x", "t")
 
 alpha = 1.8
@@ -46,27 +46,27 @@ def func(x):
 
 
 def out_transform(x, y):
-    x = pinnx.utils.array_to_dict(x, ['x', 't'], keep_dim=True)
+    x = deepxde.utils.array_to_dict(x, ['x', 't'], keep_dim=True)
     return x['x'] * (1 - x['x']) * x['t'] * y + x['x'] ** 3 * (1 - x['x']) ** 3
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, t=None),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, t=None),
+    deepxde.nn.FNN(
         [2] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
         output_transform=out_transform
     ),
-    pinnx.nn.ArrayToDict(y=None),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-bc = pinnx.icbc.DirichletBC(func)
-ic = pinnx.icbc.IC(func)
+bc = deepxde.icbc.DirichletBC(func)
+ic = deepxde.icbc.IC(func)
 
 data_type = 'static'  # 'static',  or  'dynamic'
 
 if data_type == 'static':
     # Static auxiliary points
-    data = pinnx.problem.TimeFPDE(
+    data = deepxde.problem.TimeFPDE(
         geomtime,
         fpde,
         alpha,
@@ -79,7 +79,7 @@ if data_type == 'static':
     )
 else:
     # Dynamic auxiliary points
-    data = pinnx.problem.TimeFPDE(
+    data = deepxde.problem.TimeFPDE(
         geomtime,
         fpde,
         alpha,
@@ -94,11 +94,11 @@ else:
         num_test=50,
     )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=10000)
 trainer.saveplot(issave=False, isplot=True)
 
 X = geomtime.random_points(1000)
 y_true = func(X)
 y_pred = trainer.predict(X)
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred))

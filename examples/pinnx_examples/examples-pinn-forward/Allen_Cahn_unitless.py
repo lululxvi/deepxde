@@ -8,11 +8,11 @@ import brainunit as u
 import numpy as np
 from scipy.io import loadmat
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(-1, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain).to_dict_point('x', 't')
+geom = deepxde.geometry.Interval(-1, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 1)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain).to_dict_point('x', 't')
 
 d = 0.001
 
@@ -26,9 +26,9 @@ def pde(x, out):
     return dy_t - d * dy_xx - 5 * (out['u'] - out['u'] ** 3)
 
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, t=None),
-    pinnx.nn.FNN(
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, t=None),
+    deepxde.nn.FNN(
         [2] + [20] * 3 + [1],
         activation="tanh",
         output_transform=lambda x, y: u.math.expand_dims(
@@ -37,10 +37,10 @@ net = pinnx.nn.Model(
             axis=-1
         )
     ),
-    pinnx.nn.ArrayToDict(u=None)
+    deepxde.nn.ArrayToDict(u=None)
 )
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [],
@@ -50,7 +50,7 @@ problem = pinnx.problem.TimePDE(
     num_initial=800
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 trainer.compile(bst.optim.Adam(lr=1e-3)).train(iterations=15000)
 trainer.compile(bst.optim.LBFGS(lr=1e-3)).train(2000, display_every=200)
 trainer.saveplot(issave=True, isplot=True)

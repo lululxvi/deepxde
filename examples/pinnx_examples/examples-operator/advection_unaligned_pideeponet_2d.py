@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 
 # The same problem as advection_unaligned_pideeponet.py
 # But consider time as the 2nd space coordinate
 # to demonstrate the implementation of 2D problems
-geom = pinnx.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+geom = deepxde_new.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
 
 dim_x = 5
 
 
 # PDE
 def pde(x, y, aux):
-    jacobian = pinnx.grad.jacobian(
-        lambda inp: net((inp['v'], pinnx.utils.dict_to_array(inp['u']))),
+    jacobian = deepxde_new.grad.jacobian(
+        lambda inp: net((inp['v'], deepxde_new.utils.dict_to_array(inp['u']))),
         {'v': x[0], 'u': {'x': x[1][..., 0], 'y': x[1][..., 1]}},
         x='u'
     )
@@ -34,7 +34,7 @@ def boundary(x, on_boundary):
     return u.math.logical_and(on_boundary, u.math.isclose(x['y'], 0))
 
 
-ic = pinnx.icbc.DirichletBC(func_ic, boundary)
+ic = deepxde_new.icbc.DirichletBC(func_ic, boundary)
 
 # Function space
 func_space = deepxde.data.GRF(kernel="ExpSineSquared", length_scale=1)
@@ -54,18 +54,18 @@ def periodic(x):
 
 
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONet(
+    deepxde_new.nn.DeepONet(
         [50, 128, 128, 128],
         [dim_x, 128, 128, 128],
         "tanh",
         input_transform=periodic,
     ),
-    pinnx.nn.ArrayToDict(y=None),
+    deepxde_new.nn.ArrayToDict(y=None),
 )
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]
-data = pinnx.problem.PDEOperator(
+data = deepxde_new.problem.PDEOperator(
     geom,
     pde,
     ic,
@@ -78,7 +78,7 @@ data = pinnx.problem.PDEOperator(
     function_variables=[0]
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde_new.Trainer(data)
 trainer.compile(bst.optim.Adam(0.0005)).train(iterations=10000)
 trainer.saveplot()
 
@@ -98,4 +98,4 @@ plt.figure()
 plt.imshow(u_pred)
 plt.colorbar()
 plt.show()
-print(pinnx.metrics.l2_relative_error(u_true, u_pred))
+print(deepxde_new.metrics.l2_relative_error(u_true, u_pred))

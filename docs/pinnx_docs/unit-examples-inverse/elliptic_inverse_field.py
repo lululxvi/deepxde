@@ -3,7 +3,7 @@ import brainunit as u
 import matplotlib.pyplot as plt
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 unit_of_x = u.meter
 unit_of_u = u.newton
@@ -15,7 +15,7 @@ def pde(x, y):
     return -du_xx + y['q']
 
 
-geom = pinnx.geometry.Interval(-1, 1).to_dict_point(x=unit_of_x)
+geom = deepxde.geometry.Interval(-1, 1).to_dict_point(x=unit_of_x)
 
 
 def sol(x):
@@ -27,7 +27,7 @@ def sol(x):
     }
 
 
-bc = pinnx.icbc.DirichletBC(sol)
+bc = deepxde.icbc.DirichletBC(sol)
 
 
 def gen_traindata(num):
@@ -38,14 +38,14 @@ def gen_traindata(num):
 
 
 ob_x, ob_u = gen_traindata(100)
-observe_u = pinnx.icbc.PointSetBC(ob_x, ob_u)
+observe_u = deepxde.icbc.PointSetBC(ob_x, ob_u)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=unit_of_x),
-    pinnx.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(u=unit_of_u, q=unit_of_q),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=unit_of_x),
+    deepxde.nn.PFNN([1, [20, 20], [20, 20], [20, 20], 2], "tanh", bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(u=unit_of_u, q=unit_of_q),
 )
-problem = pinnx.problem.PDE(
+problem = deepxde.problem.PDE(
     geom,
     pde,
     [bc, observe_u],
@@ -57,7 +57,7 @@ problem = pinnx.problem.PDE(
     loss_weights=[1, 100, 1000],
 )
 
-model = pinnx.Trainer(problem)
+model = deepxde.Trainer(problem)
 model.compile(bst.optim.Adam(0.0001)).train(iterations=20000)
 model.saveplot(issave=True, isplot=True)
 
@@ -69,14 +69,14 @@ qhat = yhat['q'] / unit_of_q
 x = x['x'] / unit_of_x
 
 utrue = np.sin(np.pi * x)
-print("l2 relative error for u: " + str(pinnx.metrics.l2_relative_error(utrue, uhat)))
+print("l2 relative error for u: " + str(deepxde.metrics.l2_relative_error(utrue, uhat)))
 plt.figure()
 plt.plot(x, utrue, "-", label="u_true")
 plt.plot(x, uhat, "--", label="u_NN")
 plt.legend()
 
 qtrue = -np.pi ** 2 * np.sin(np.pi * x)
-print("l2 relative error for q: " + str(pinnx.metrics.l2_relative_error(qtrue, qhat)))
+print("l2 relative error for q: " + str(deepxde.metrics.l2_relative_error(qtrue, qhat)))
 plt.figure()
 plt.plot(x, qtrue, "-", label="q_true")
 plt.plot(x, qhat, "--", label="q_NN")

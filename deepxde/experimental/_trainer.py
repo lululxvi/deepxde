@@ -31,12 +31,12 @@ class Trainer:
     A ``Trainer`` trains a neural network on a ``Problem``.
 
     Args:
-        problem: ``pinnx.problem.Problem`` instance.
+        problem: ``experimental.problem.Problem`` instance.
         external_trainable_variables: A trainable ``brainstate.ParamState`` object or a list
                 of trainable ``brainstate.ParamState`` objects. The unknown parameters in the
                 physics systems that need to be recovered.
     """
-    __module__ = 'deepxde.pinnx'
+    __module__ = 'deepxde.experimental'
     optimizer: bst.optim.Optimizer  # optimizer
     problem: Problem  # problem
     params: bst.util.FlattedDict  # trainable variables
@@ -194,8 +194,8 @@ class Trainer:
                 of times the network weights are updated.
             batch_size: Integer, tuple, or ``None``.
 
-                - If you solve PDEs via ``pinnx.problem.PDE`` or ``pinnx.problem.TimePDE``, do not use `batch_size`,
-                  and instead use `pinnx.callbacks.PDEPointResampler
+                - If you solve PDEs via ``experimental.problem.PDE`` or ``experimental.problem.TimePDE``, do not use `batch_size`,
+                  and instead use `experimental.callbacks.PDEPointResampler
                   <https://deepxde.readthedocs.io/en/latest/modules/deepxde.html#deepxde.callbacks.PDEPointResampler>`_,
                   see an `example <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/diffusion_1d_resample.py>`_.
                 - For DeepONet in the format of Cartesian product, if `batch_size` is an Integer,
@@ -206,7 +206,7 @@ class Trainer:
             display_every (Integer): Print the loss and metrics every this steps.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 trainer.
-            callbacks: List of ``pinnx.callbacks.Callback`` instances. List of callbacks
+            callbacks: List of ``experimental.callbacks.Callback`` instances. List of callbacks
                 to apply during training.
             model_restore_path (String): Path where parameters were previously saved.
             model_save_path (String): Prefix of filenames created for the checkpoint.
@@ -353,8 +353,8 @@ class Trainer:
             xs: The network inputs. A Numpy array or a tuple of Numpy arrays.
             operator: A function takes arguments (`neural_net`, `inputs`) and outputs a tensor. `inputs` and
                 `outputs` are the network input and output tensors, respectively. `operator` is typically
-                chosen as the PDE (used to define `pinnx.problem.PDE`) to predict the PDE residual.
-            callbacks: List of ``pinnx.callbacks.Callback`` instances. List of callbacks
+                chosen as the PDE (used to define `experimental.problem.PDE`) to predict the PDE residual.
+            callbacks: List of ``experimental.callbacks.Callback`` instances. List of callbacks
                 to apply during prediction.
         """
         xs = jax.tree.map(
@@ -449,7 +449,7 @@ class Trainer:
 
 
 class TrainState(TrainStateBase):
-    __module__ = 'deepxde.pinnx'
+    __module__ = 'deepxde.experimental'
 
     def __init__(self):
         self.epoch = 0

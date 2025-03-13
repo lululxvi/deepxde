@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import deepxde
-from deepxde import pinnx
+import deepxde.experimental as deepxde_new
 from ADR_solver import solve_ADR
 
 
@@ -15,8 +15,8 @@ def pde(x, y, aux):
     k = 0.01
 
     def solve_jac(x_):
-        return pinnx.grad.jacobian(
-            lambda inp: net((x_[0], pinnx.utils.dict_to_array(inp))),
+        return deepxde_new.grad.jacobian(
+            lambda inp: net((x_[0], deepxde_new.utils.dict_to_array(inp))),
             {'x': x_[1][0], 't': x_[1][1]},
             x='t',
             vmap=False
@@ -25,8 +25,8 @@ def pde(x, y, aux):
     dy_t = jax.vmap(solve_jac)(x)
 
     def solve_hes(x_):
-        return pinnx.grad.hessian(
-            lambda inp: net((x_[0], pinnx.utils.dict_to_array(inp))),
+        return deepxde_new.grad.hessian(
+            lambda inp: net((x_[0], deepxde_new.utils.dict_to_array(inp))),
             {'x': x_[1][0], 't': x_[1][1]},
             xi='x',
             xj='x',
@@ -42,31 +42,31 @@ def pde(x, y, aux):
     return dy_t - D * dy_xx + k * y ** 2 - aux
 
 
-geom = pinnx.geometry.Interval(0, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 1)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde_new.geometry.Interval(0, 1)
+timedomain = deepxde_new.geometry.TimeDomain(0, 1)
+geomtime = deepxde_new.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point('x', 't')
 
 # Net
 net = bst.nn.Sequential(
-    pinnx.nn.DeepONet(
+    deepxde_new.nn.DeepONet(
         [50, 128, 128, 128],
         [2, 128, 128, 128],
         "tanh",
     ),
-    pinnx.nn.ArrayToDict(y=None)
+    deepxde_new.nn.ArrayToDict(y=None)
 )
 
 # Boundary condition
-bc = pinnx.icbc.DirichletBC(lambda *args, **kwargs: {'y': 0})
-ic = pinnx.icbc.IC(lambda *args, **kwargs: {'y': 0})
+bc = deepxde_new.icbc.DirichletBC(lambda *args, **kwargs: {'y': 0})
+ic = deepxde_new.icbc.IC(lambda *args, **kwargs: {'y': 0})
 
 # Function space
 func_space = deepxde.data.GRF(length_scale=0.2)
 
 # Problem
 eval_pts = np.linspace(0, 1, num=50)[:, None]
-data = pinnx.problem.PDEOperator(
+data = deepxde_new.problem.PDEOperator(
     geomtime,
     pde,
     [bc, ic],
@@ -82,7 +82,7 @@ data = pinnx.problem.PDEOperator(
     num_test=500,
 )
 
-model = pinnx.Trainer(data)
+model = deepxde_new.Trainer(data)
 model.compile(bst.optim.Adam(0.0005)).train(iterations=20000)
 model.saveplot(isplot=True)
 
@@ -113,7 +113,7 @@ xv, tv = np.meshgrid(x, t)
 x_trunk = np.vstack((np.ravel(xv), np.ravel(tv))).T
 u_pred = model.predict((np.tile(v_branch, (100 * 100, 1)), x_trunk))['y']
 u_pred = u_pred.reshape((100, 100))
-print(pinnx.metrics.l2_relative_error(u_true, u_pred))
+print(deepxde_new.metrics.l2_relative_error(u_true, u_pred))
 plt.figure()
 plt.imshow(u_pred)
 plt.colorbar()

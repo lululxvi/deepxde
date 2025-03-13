@@ -5,7 +5,7 @@ import numpy as np
 import optax
 from scipy import integrate
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 ub = 200 * u.second
 rb = 20
@@ -29,9 +29,9 @@ def gen_truedata():
 
 
 def ode_system(net, x):
-    x = pinnx.array_to_dict(x, ['t'])
-    approx = lambda x: pinnx.array_to_dict(net(pinnx.dict_to_array(x)), ['r', 'p'])
-    jacobian, y = pinnx.grad.jacobian(approx, x, return_value=True)
+    x = deepxde.array_to_dict(x, ['t'])
+    approx = lambda x: deepxde.array_to_dict(net(deepxde.dict_to_array(x)), ['r', 'p'])
+    jacobian, y = deepxde.grad.jacobian(approx, x, return_value=True)
     r = y['r']
     p = y['p']
     dr_t = jacobian['r']['t']
@@ -42,9 +42,9 @@ def ode_system(net, x):
     ]
 
 
-geom = pinnx.geometry.TimeDomain(0, 1.0)
-data = pinnx.data.PDE(geom, ode_system, [], 3000, 2, num_test=3000)
-net = pinnx.nn.FNN([7] + [64] * 6 + [2], "tanh")
+geom = deepxde.geometry.TimeDomain(0, 1.0)
+data = deepxde.data.PDE(geom, ode_system, [], 3000, 2, num_test=3000)
+net = deepxde.nn.FNN([7] + [64] * 6 + [2], "tanh")
 
 
 def input_transform(t):
@@ -75,7 +75,7 @@ def output_transform(t, y):
 
 net.apply_feature_transform(input_transform)
 net.apply_output_transform(output_transform)
-model = pinnx.Trainer(data, net)
+model = deepxde.Trainer(data, net)
 
 model.compile(bst.optim.Adam(0.001))
 losshistory, train_state = model.train(iterations=50000)
@@ -83,7 +83,7 @@ losshistory, train_state = model.train(iterations=50000)
 # Most backends except jax can have a second fine-tuning of the solution
 model.compile(bst.optim.OptaxOptimizer(optax.lbfgs(1e-3, linesearch=None)))
 losshistory, train_state = model.train(1000)
-pinnx.saveplot(losshistory, train_state, issave=True, isplot=True)
+deepxde.saveplot(losshistory, train_state, issave=True, isplot=True)
 
 plt.xlabel("t")
 plt.ylabel("population")

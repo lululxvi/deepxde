@@ -3,7 +3,7 @@ import brainunit as u
 import matplotlib.pyplot as plt
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
 # General parameters
 n = 1
@@ -34,12 +34,12 @@ def pde(x, y):
 
 
 def func(x):
-    x = pinnx.array_to_dict(x, ['x', 'y'])
+    x = deepxde.array_to_dict(x, ['x', 'y'])
     return np.sin(k0 * x['x']) * np.sin(k0 * x['y'])
 
 
 def neumann(x):
-    x_ = pinnx.array_to_dict(x, ['x', 'y'])
+    x_ = deepxde.array_to_dict(x, ['x', 'y'])
     grad = np.array(
         [
             k0 * np.cos(k0 * x_['x']) * np.sin(k0 * x_['y']),
@@ -53,18 +53,18 @@ def neumann(x):
     return result
 
 
-outer = pinnx.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
-inner = pinnx.geometry.Disk([0, 0], R)
+outer = deepxde.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
+inner = deepxde.geometry.Disk([0, 0], R)
 geom = outer - inner
-geom = pinnx.geometry.DictPointGeometry(geom, 'x', 'y')
+geom = deepxde.geometry.DictPointGeometry(geom, 'x', 'y')
 
 
 def boundary_outer(x, on_boundary):
-    return u.math.logical_and(on_boundary, outer.on_boundary(pinnx.utils.dict_to_array(x)))
+    return u.math.logical_and(on_boundary, outer.on_boundary(deepxde.utils.dict_to_array(x)))
 
 
 def boundary_inner(x, on_boundary):
-    return u.math.logical_and(on_boundary, inner.on_boundary(pinnx.utils.dict_to_array(x)))
+    return u.math.logical_and(on_boundary, inner.on_boundary(deepxde.utils.dict_to_array(x)))
 
 
 hx_train = wave_len / precision_train
@@ -73,16 +73,16 @@ nx_train = int(1 / hx_train)
 hx_test = wave_len / precision_test
 nx_test = int(1 / hx_test)
 
-bc_inner = pinnx.icbc.NeumannBC(neumann, boundary_inner)
-bc_outer = pinnx.icbc.DirichletBC(func, boundary_outer)
+bc_inner = deepxde.icbc.NeumannBC(neumann, boundary_inner)
+bc_outer = deepxde.icbc.DirichletBC(func, boundary_outer)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=None, y=None),
-    pinnx.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [1], activation),
-    pinnx.nn.ArrayToDict(y=None),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=None, y=None),
+    deepxde.nn.FNN([2] + [num_dense_nodes] * num_dense_layers + [1], activation),
+    deepxde.nn.ArrayToDict(y=None),
 )
 
-data = pinnx.problem.PDE(
+data = deepxde.problem.PDE(
     geom,
     pde,
     [bc_inner, bc_outer],
@@ -94,7 +94,7 @@ data = pinnx.problem.PDE(
     loss_weights=[1, weight_inner, weight_outer]
 )
 
-trainer = pinnx.Trainer(data)
+trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"]).train(iterations=iterations)
 trainer.saveplot(issave=True, isplot=True)
 

@@ -6,7 +6,7 @@ from typing import Callable, Sequence
 
 import brainstate as bst
 
-from deepxde.pinnx.geometry.base import GeometryPINNx
+from deepxde.experimental.geometry.base import GeometryExperimental
 from deepxde.utils.internal import run_if_any_none
 from .base import Problem
 
@@ -20,7 +20,7 @@ class Function(Problem):
     Approximate a function via a network.
 
     Args:
-        geometry (GeometryPINNx): The domain of the function. Instance of ``Geometry``.
+        geometry (GeometryExperimental): The domain of the function. Instance of ``Geometry``.
         function (Callable): The function to be approximated. A callable function takes a NumPy array as the input and returns the
             a NumPy array of corresponding function values.
         num_train (int): The number of training points sampled inside the domain.
@@ -37,7 +37,7 @@ class Function(Problem):
 
     def __init__(
         self,
-        geometry: GeometryPINNx,
+        geometry: GeometryExperimental,
         function: Callable,
         num_train: int,
         num_test: int,

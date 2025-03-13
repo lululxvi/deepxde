@@ -3,17 +3,17 @@ import brainunit as u
 import jax.tree
 import numpy as np
 
-from deepxde import pinnx
+import deepxde.experimental as deepxde
 
-geom = pinnx.geometry.Interval(-1, 1)
-timedomain = pinnx.geometry.TimeDomain(0, 0.99)
-geomtime = pinnx.geometry.GeometryXTime(geom, timedomain)
+geom = deepxde.geometry.Interval(-1, 1)
+timedomain = deepxde.geometry.TimeDomain(0, 0.99)
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
 geomtime = geomtime.to_dict_point(x=u.meter, t=u.second)
 
-net = pinnx.nn.Model(
-    pinnx.nn.DictToArray(x=u.meter, t=u.second),
-    pinnx.nn.FNN([2] + [20] * 3 + [1], "tanh", bst.init.KaimingUniform()),
-    pinnx.nn.ArrayToDict(y=u.meter / u.second),
+net = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter, t=u.second),
+    deepxde.nn.FNN([2] + [20] * 3 + [1], "tanh", bst.init.KaimingUniform()),
+    deepxde.nn.ArrayToDict(y=u.meter / u.second),
 )
 v = 0.01 / u.math.pi * u.meter ** 2 / u.second
 
@@ -28,10 +28,10 @@ def pde(x, y):
     return dy_t + y['y'] * dy_x - v * dy_xx
 
 
-bc = pinnx.icbc.DirichletBC(lambda x: {'y': 0 * u.meter / u.second})
-ic = pinnx.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * u.meter / u.second})
+bc = deepxde.icbc.DirichletBC(lambda x: {'y': 0 * u.meter / u.second})
+ic = deepxde.icbc.IC(lambda x: {'y': -u.math.sin(u.math.pi * x['x'] / u.meter) * u.meter / u.second})
 
-problem = pinnx.problem.TimePDE(
+problem = deepxde.problem.TimePDE(
     geomtime,
     pde,
     [bc, ic],
@@ -41,7 +41,7 @@ problem = pinnx.problem.TimePDE(
     num_initial=160
 )
 
-trainer = pinnx.Trainer(problem)
+trainer = deepxde.Trainer(problem)
 
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=10000)
 trainer.compile(bst.optim.LBFGS(1e-3)).train(1000)
@@ -58,7 +58,7 @@ while u.get_magnitude(err) > 0.012:
     new_xs = jax.tree.map(lambda x: x[[x_id]], X)
     print("Adding new point:", new_xs, "\n")
     problem.add_anchors(new_xs)
-    early_stopping = pinnx.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
+    early_stopping = deepxde.callbacks.EarlyStopping(min_delta=1e-4, patience=2000)
     trainer.compile(bst.optim.Adam(1e-3)).train(iterations=10000,
                                                 disregard_previous_best=True,
                                                 callbacks=[early_stopping])
@@ -78,4 +78,4 @@ def gen_testdata():
 
 X, y_true = gen_testdata()
 y_pred = trainer.predict(X)
-print("L2 relative error:", pinnx.metrics.l2_relative_error(y_true, y_pred))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred))
