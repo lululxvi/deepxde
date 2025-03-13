@@ -82,7 +82,7 @@ User guide
 .. toctree::
   :maxdepth: 1
 
-  pinnx_docs/index.rst
+  experimental_docs/index.rst
 
 
 .. toctree::
