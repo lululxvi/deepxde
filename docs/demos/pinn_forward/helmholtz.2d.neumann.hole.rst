@@ -54,7 +54,7 @@ First, the DeepXDE, Numpy and Matplotlib modules are imported:
   import matplotlib.pyplot as plt
   import numpy as np
 
-We begin by defining the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 epochs. We define the learning rate, the number of dense layers and nodes, and the activation function.
+We begin by defining the general parameters for the problem. We use a collocation points density of 15 (resp. 30) points per wavelength for the training (resp. testing) data along each direction. The PINN will be trained over 5000 iterations. We define the learning rate, the number of dense layers and nodes, and the activation function.
 
 .. code-block:: python
 

@@ -257,7 +257,7 @@ We then train the model for 5000 iterations:
 
 .. code-block:: python
 
-    losshistory, train_state = model.train(epochs=5000)
+    losshistory, train_state = model.train(iterations=5000)
 
 Complete code
 --------------
