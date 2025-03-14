@@ -1197,15 +1197,6 @@ class TrainState:
             stacklevel=2,
         )
         return self.iteration
-    
-    @epoch.setter
-    def epoch(self, value):
-        warnings.warn(
-            "TrainState.epoch is deprecated and will be removed in a future version. Use TrainState.iteration instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.iteration = value 
 
     def set_data_train(self, X_train, y_train, train_aux_vars=None):
         self.X_train = X_train
