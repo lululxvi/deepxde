@@ -279,6 +279,17 @@ class Model:
     def _compile_pytorch(self, lr, loss_fn, decay):
         """pytorch"""
 
+        l1_factor, l2_factor = 0, 0
+        if self.net.regularizer is not None:
+            if self.net.regularizer[0] == "l1":
+                l1_factor = self.net.regularizer[1]
+            elif self.net.regularizer[0] == "l2":
+                l2_factor = self.net.regularizer[1]
+            else:
+                raise NotImplementedError(
+                    f"{self.net.regularizer[0]} regularizer hasn't been implemented for backend pytorch."
+                )
+
         def outputs(training, inputs):
             self.net.train(mode=training)
             with torch.no_grad():
@@ -314,6 +325,11 @@ class Model:
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
+            if l1_factor > 0:
+                l1_loss = torch.sum(
+                    torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
+                )
+                losses.append(l1_factor * l1_loss)
             losses = torch.stack(losses)
             # Weighted losses
             if self.loss_weights is not None:
@@ -332,15 +348,6 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        weight_decay = 0
-        if self.net.regularizer is not None:
-            if self.net.regularizer[0] != "l2":
-                raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularization to be implemented for "
-                    "backend pytorch"
-                )
-            weight_decay = self.net.regularizer[1]
-
         optimizer_params = self.net.parameters()
         if self.external_trainable_variables:
             # L-BFGS doesn't support per-parameter options.
@@ -348,7 +355,7 @@ class Model:
                 optimizer_params = (
                     list(optimizer_params) + self.external_trainable_variables
                 )
-                if weight_decay > 0:
+                if l2_factor > 0:
                     print(
                         "Warning: L2 regularization will also be applied to external_trainable_variables. "
                         "Ensure this is intended behavior."
@@ -364,7 +371,7 @@ class Model:
             self.opt_name,
             learning_rate=lr,
             decay=decay,
-            weight_decay=weight_decay,
+            weight_decay=l2_factor,
         )
 
         def train_step(inputs, targets, auxiliary_vars):
