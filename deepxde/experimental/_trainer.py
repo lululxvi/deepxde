@@ -1,7 +1,3 @@
-# Rewrite of the original file in DeepXDE: https://github.com/lululxvi/deepxde
-# ==============================================================================
-
-
 import time
 from typing import Union, Sequence, Callable, Optional
 

@@ -1,6 +1,3 @@
-# Rewrite of the original file in DeepXDE: https://github.com/lululxvi/deepxde
-# ==============================================================================
-
 __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
 
 from typing import Union, Literal

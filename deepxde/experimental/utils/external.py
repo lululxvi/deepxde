@@ -1,7 +1,3 @@
-# Rewrite of the original file in DeepXDE: https://github.com/lululxvi/deepxde
-# ==============================================================================
-
-
 """External utilities."""
 
 import csv

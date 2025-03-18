@@ -1,6 +1,3 @@
-# Rewrite of the original file in DeepXDE: https://github.com/lululxvi/deepxde
-# ==============================================================================
-
 import itertools
 from typing import Union, Literal
 

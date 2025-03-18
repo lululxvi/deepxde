@@ -1,7 +1,3 @@
-# Rewrite of the original file in DeepXDE: https://github.com/lululxvi/deepxde
-# ==============================================================================
-
-
 from typing import Callable, Sequence
 
 import brainstate as bst
