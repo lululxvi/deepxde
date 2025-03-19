@@ -70,7 +70,9 @@ class PFNN(NN):
         kernel_initializer: Initializer for the kernel weights.
     """
 
-    def __init__(self, layer_sizes, activation, kernel_initializer, regularization=None):
+    def __init__(
+        self, layer_sizes, activation, kernel_initializer, regularization=None
+    ):
         super().__init__()
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
@@ -83,13 +85,19 @@ class PFNN(NN):
             raise ValueError("input size must be integer")
 
         # Determine the number of subnetworks from the first list layer
-        list_layers = [layer for layer in layer_sizes if isinstance(layer, (list, tuple))]
+        list_layers = [
+            layer for layer in layer_sizes if isinstance(layer, (list, tuple))
+        ]
         if not list_layers:
-            raise ValueError("No list layers found; use FNN instead of PFNN for single subnetwork.")
+            raise ValueError(
+                "No list layers found; use FNN instead of PFNN for single subnetwork."
+            )
         n_subnetworks = len(list_layers[0])
         for layer in list_layers:
             if len(layer) != n_subnetworks:
-                raise ValueError("All list layers must have the same length as the first list layer.")
+                raise ValueError(
+                    "All list layers must have the same length as the first list layer."
+                )
 
         # Validate output layer if preceded by a list layer
         if (
@@ -118,10 +126,16 @@ class PFNN(NN):
                 # Parallel layer
                 if isinstance(prev_layer, (list, tuple)):
                     # Previous is parallel: each subnetwork input is previous subnetwork output
-                    sub_layers = [make_linear(prev_layer[j], curr_layer[j]) for j in range(n_subnetworks)]
+                    sub_layers = [
+                        make_linear(prev_layer[j], curr_layer[j])
+                        for j in range(n_subnetworks)
+                    ]
                 else:
                     # Previous is shared: all subnetworks take the same input
-                    sub_layers = [make_linear(prev_layer, curr_layer[j]) for j in range(n_subnetworks)]
+                    sub_layers = [
+                        make_linear(prev_layer, curr_layer[j])
+                        for j in range(n_subnetworks)
+                    ]
                 self.layers.append(torch.nn.ModuleList(sub_layers))
             else:
                 # Shared layer
@@ -139,15 +153,23 @@ class PFNN(NN):
         if isinstance(output_layer, (list, tuple)):
             if isinstance(prev_output_layer, (list, tuple)):
                 # Each subnetwork input is corresponding previous output
-                output_layers = [make_linear(prev_output_layer[j], output_layer[j]) for j in range(n_subnetworks)]
+                output_layers = [
+                    make_linear(prev_output_layer[j], output_layer[j])
+                    for j in range(n_subnetworks)
+                ]
             else:
                 # All subnetworks take the same shared input
-                output_layers = [make_linear(prev_output_layer, output_layer[j]) for j in range(n_subnetworks)]
+                output_layers = [
+                    make_linear(prev_output_layer, output_layer[j])
+                    for j in range(n_subnetworks)
+                ]
             self.layers.append(torch.nn.ModuleList(output_layers))
         else:
             if isinstance(prev_output_layer, (list, tuple)):
                 # Each subnetwork outputs 1 and concatenates to output_layer size
-                output_layers = [make_linear(prev_output_layer[j], 1) for j in range(n_subnetworks)]
+                output_layers = [
+                    make_linear(prev_output_layer[j], 1) for j in range(n_subnetworks)
+                ]
                 self.layers.append(torch.nn.ModuleList(output_layers))
             else:
                 # Shared output layer
