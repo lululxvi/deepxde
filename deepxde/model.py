@@ -329,10 +329,9 @@ class Model:
             if self.loss_weights is not None:
                 losses *= torch.as_tensor(self.loss_weights)
             if l1_factor > 0:
-                l1_loss = torch.sum(
+                l1_loss = l1_factor * torch.sum(
                     torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
                 )
-                l1_loss *= l1_factor
                 losses = torch.cat([losses, l1_loss.unsqueeze(0)])
             # Clear cached Jacobians and Hessians.
             grad.clear()
