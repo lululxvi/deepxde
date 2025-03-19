@@ -413,10 +413,10 @@ class Model:
         if self.params is None:
             key = jax.random.PRNGKey(config.jax_random_seed)
             self.net.params = self.net.init(key, self.data.test()[0])
-            external_trainable_variables_arr = [
-                var.value for var in self.external_trainable_variables
-            ]
-            self.params = [self.net.params, external_trainable_variables_arr]
+        external_trainable_variables_val = [
+            var.value for var in self.external_trainable_variables
+        ]
+        self.params = [self.net.params, external_trainable_variables_val]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
         self.opt_state = self.opt.init(self.params)
