@@ -15,8 +15,10 @@ class FNN(NN):
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
+    regularization: Any = None
 
     params: Any = None
+    regularizer: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
 
@@ -32,6 +34,8 @@ class FNN(NN):
             self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
+        self.regularizer = self.regularization
+
 
         self.denses = [
             nn.Dense(
