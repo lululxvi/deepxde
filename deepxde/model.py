@@ -403,7 +403,7 @@ class Model:
             self.net.params = self.net.init(key, self.data.test()[0])
         external_trainable_variables_val = [
             var.value for var in self.external_trainable_variables
-        ] if self.external_trainable_variables else []
+        ]
         self.params = [self.net.params, external_trainable_variables_val]
         # TODO: learning rate decay
         self.opt = optimizers.get(self.opt_name, learning_rate=lr)
