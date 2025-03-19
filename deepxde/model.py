@@ -324,15 +324,16 @@ class Model:
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
             if not isinstance(losses, list):
                 losses = [losses]
-            if l1_factor > 0:
-                l1_loss = torch.sum(
-                    torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
-                )
-                losses.append(l1_factor * l1_loss)
             losses = torch.stack(losses)
             # Weighted losses
             if self.loss_weights is not None:
                 losses *= torch.as_tensor(self.loss_weights)
+            if l1_factor > 0:
+                l1_loss = torch.sum(
+                    torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
+                )
+                l1_loss *= l1_factor
+                losses = torch.cat([losses, l1_loss.unsqueeze(0)])
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
