@@ -70,14 +70,11 @@ class PFNN(NN):
         kernel_initializer: Initializer for the kernel weights.
     """
 
-    def __init__(
-        self, layer_sizes, activation, kernel_initializer, regularization=None
-    ):
+    def __init__(self, layer_sizes, activation, kernel_initializer):
         super().__init__()
         self.activation = activations.get(activation)
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
-        self.regularizer = regularization
 
         if len(layer_sizes) <= 1:
             raise ValueError("must specify input and output sizes")
