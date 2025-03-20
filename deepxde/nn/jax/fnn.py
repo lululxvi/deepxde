@@ -7,6 +7,7 @@ from flax import linen as nn
 from .nn import NN
 from .. import activations
 from .. import initializers
+from .. import regularizers
 
 
 class FNN(NN):
@@ -34,8 +35,7 @@ class FNN(NN):
             self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
-        self.regularizer = self.regularization
-
+        self.regularizer = regularizers.get(self.regularization)
 
         self.denses = [
             nn.Dense(
@@ -82,8 +82,10 @@ class PFNN(NN):
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
+    regularization: Any = None
 
     params: Any = None
+    regularizer: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
 
@@ -119,6 +121,7 @@ class PFNN(NN):
         self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
+        self.regularizer = regularizers.get(self.regularization)
 
         def make_dense(unit):
             return nn.Dense(
