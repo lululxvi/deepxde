@@ -444,8 +444,8 @@ class Model:
             if self.loss_weights is not None:
                 losses *= jax.numpy.asarray(self.loss_weights)
             if self.net.regularizer is not None:
-                regul_loss = self.net.regularizer(nn_params)
-                losses = jax.numpy.concatenate([losses, regul_loss])
+                regul_loss = self.net.regularizer(jax.tree.leaves(nn_params["params"]))
+                losses = jax.numpy.concatenate([losses, regul_loss.reshape(1)])
             return outputs_, losses
 
         @jax.jit
