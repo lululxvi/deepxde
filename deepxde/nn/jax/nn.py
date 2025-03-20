@@ -6,7 +6,6 @@ class NN(nn.Module):
 
     # All sub-modules should have the following variables:
     # params: Any = None
-    # regularizer: Optional[Any] = None
     # _input_transform: Optional[Callable] = None
     # _output_transform: Optional[Callable] = None
 

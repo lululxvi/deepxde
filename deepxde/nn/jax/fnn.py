@@ -19,10 +19,14 @@ class FNN(NN):
     regularization: Any = None
 
     params: Any = None
-    regularizer: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
 
+    @property
+    def regularizer(self):
+        """Dynamically compute and return the regularizer function based on regularization."""
+        return regularizers.get(self.regularization)
+    
     def setup(self):
         # TODO: implement get regularizer
         if isinstance(self.activation, list):
@@ -35,7 +39,6 @@ class FNN(NN):
             self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
-        self.regularizer = regularizers.get(self.regularization)
 
         self.denses = [
             nn.Dense(
@@ -85,9 +88,13 @@ class PFNN(NN):
     regularization: Any = None
 
     params: Any = None
-    regularizer: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
+
+    @property
+    def regularizer(self):
+        """Dynamically compute and return the regularizer function based on regularization."""
+        return regularizers.get(self.regularization)
 
     def setup(self):
         if len(self.layer_sizes) <= 1:
@@ -121,7 +128,6 @@ class PFNN(NN):
         self._activation = activations.get(self.activation)
         kernel_initializer = initializers.get(self.kernel_initializer)
         initializer = jax.nn.initializers.zeros
-        self.regularizer = regularizers.get(self.regularization)
 
         def make_dense(unit):
             return nn.Dense(
