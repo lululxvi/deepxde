@@ -175,3 +175,15 @@ def zeros(shape, dtype):
 
 def zeros_like(input_tensor):
     return jnp.zeros_like(input_tensor)
+
+
+def l1_regularization(l1):
+    return lambda params: l1 * jnp.sum(jnp.abs(params))
+
+
+def l2_regularization(l2):
+    return lambda params: l2 * jnp.sum(jnp.square(params))
+
+
+def l1_l2_regularization(l1, l2):
+    return lambda params: l1 * jnp.sum(jnp.abs(params)) + l2 * jnp.sum(jnp.square(params))
