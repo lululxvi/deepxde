@@ -7,8 +7,6 @@ from flax import linen as nn
 from .nn import NN
 from .. import activations
 from .. import initializers
-from .. import regularizers
-
 
 class FNN(NN):
     """Fully-connected neural network."""
@@ -22,11 +20,6 @@ class FNN(NN):
     _input_transform: Callable = None
     _output_transform: Callable = None
 
-    @property
-    def regularizer(self):
-        """Dynamically compute and return the regularizer function based on regularization."""
-        return regularizers.get(self.regularization)
-    
     def setup(self):
         # TODO: implement get regularizer
         if isinstance(self.activation, list):
@@ -90,11 +83,6 @@ class PFNN(NN):
     params: Any = None
     _input_transform: Callable = None
     _output_transform: Callable = None
-
-    @property
-    def regularizer(self):
-        """Dynamically compute and return the regularizer function based on regularization."""
-        return regularizers.get(self.regularization)
 
     def setup(self):
         if len(self.layer_sizes) <= 1:
