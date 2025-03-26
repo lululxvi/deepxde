@@ -1,4 +1,3 @@
-
 from typing import Dict, Union
 
 import brainstate as bst
@@ -10,8 +9,8 @@ from deepxde.geometry.geometry import Geometry
 from deepxde.experimental import utils
 
 __all__ = [
-    'GeometryExperimental',
-    'DictPointGeometry',
+    "GeometryExperimental",
+    "DictPointGeometry",
 ]
 
 
@@ -48,6 +47,7 @@ class GeometryExperimental(Geometry):
         custom_geom = CustomGeometry(dim=2, bbox=[0, 1, 0, 1], diam=1.414)
         dict_geom = custom_geom.to_dict_point('x', 'y', z=u.meter)
     """
+
     def to_dict_point(self, *names, **kw_names):
         """
         Convert the geometry to a dictionary geometry.
@@ -75,7 +75,9 @@ class GeometryExperimental(Geometry):
         return DictPointGeometry(self, *names, **kw_names)
 
 
-def quantity_to_array(quantity: Union[np.ndarray, jnp.ndarray, u.Quantity], unit: u.Unit):
+def quantity_to_array(
+    quantity: Union[np.ndarray, jnp.ndarray, u.Quantity], unit: u.Unit
+):
     """
     Convert a quantity to an array with specified units.
 
@@ -192,15 +194,21 @@ class DictPointGeometry(GeometryExperimental):
         self.geom = geom
         for name in names:
             assert isinstance(name, str), "The name should be a string."
-        kw_names = {key: u.UNITLESS if unit is None else unit for key, unit in kw_names.items()}
+        kw_names = {
+            key: u.UNITLESS if unit is None else unit for key, unit in kw_names.items()
+        }
         for key, unit in kw_names.items():
             assert isinstance(key, str), "The name should be a string."
             assert isinstance(unit, u.Unit), "The unit should be a brainunit.Unit."
         self.name2unit = {name: u.UNITLESS for name in names}
         self.name2unit.update(kw_names)
         if len(self.name2unit) != geom.dim:
-            raise ValueError("The number of names should match the dimension of the geometry. "
-                             "But got {} names and {} dimensions.".format(len(self.name2unit), geom.dim))
+            raise ValueError(
+                "The number of names should match the dimension of the geometry. "
+                "But got {} names and {} dimensions.".format(
+                    len(self.name2unit), geom.dim
+                )
+            )
 
     def arr_to_dict(self, x: bst.typing.ArrayLike) -> Dict[str, bst.typing.ArrayLike]:
         """
@@ -212,8 +220,10 @@ class DictPointGeometry(GeometryExperimental):
         Returns:
             Dict[str, ArrayLike]: A dictionary where keys are coordinate names and values are quantities.
         """
-        return {name: array_to_quantity(x[..., i], unit)
-                for i, (name, unit) in enumerate(self.name2unit.items())}
+        return {
+            name: array_to_quantity(x[..., i], unit)
+            for i, (name, unit) in enumerate(self.name2unit.items())
+        }
 
     def dict_to_arr(self, x: Dict[str, bst.typing.ArrayLike]) -> bst.typing.ArrayLike:
         """
@@ -225,11 +235,15 @@ class DictPointGeometry(GeometryExperimental):
         Returns:
             ArrayLike: The resulting array.
         """
-        arrs = [quantity_to_array(x[name], unit) for name, unit in self.name2unit.items()]
+        arrs = [
+            quantity_to_array(x[name], unit) for name, unit in self.name2unit.items()
+        ]
         mod = utils.smart_numpy(arrs[0])
         return mod.stack(arrs, axis=-1)
 
-    def inside(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]) -> np.ndarray[bool]:
+    def inside(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]
+    ) -> np.ndarray[bool]:
         """
         Check if points are inside the geometry.
 
@@ -243,7 +257,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.inside(x)
 
-    def on_initial(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]) -> np.ndarray:
+    def on_initial(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]
+    ) -> np.ndarray:
         """
         Check if points are on the initial boundary.
 
@@ -257,7 +273,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.on_initial(x)
 
-    def on_boundary(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]) -> np.ndarray[bool]:
+    def on_boundary(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]
+    ) -> np.ndarray[bool]:
         """
         Check if points are on the boundary of the geometry.
 
@@ -271,7 +289,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.on_boundary(x)
 
-    def distance2boundary(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict], dirn: int) -> np.ndarray:
+    def distance2boundary(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict], dirn: int
+    ) -> np.ndarray:
         """
         Calculate the distance to the boundary in a specific direction.
 
@@ -286,7 +306,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.distance2boundary(x, dirn)
 
-    def mindist2boundary(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]) -> np.ndarray:
+    def mindist2boundary(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]
+    ) -> np.ndarray:
         """
         Calculate the minimum distance to the boundary.
 
@@ -300,7 +322,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.mindist2boundary(x)
 
-    def boundary_constraint_factor(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict], **kw) -> np.ndarray:
+    def boundary_constraint_factor(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict], **kw
+    ) -> np.ndarray:
         """
         Calculate the boundary constraint factor.
 
@@ -315,7 +339,9 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         return self.geom.boundary_constraint_factor(x, **kw)
 
-    def boundary_normal(self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]) -> Dict[str, bst.typing.ArrayLike]:
+    def boundary_normal(
+        self, x: Union[np.ndarray, jnp.ndarray, u.Quantity, Dict]
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Calculate the boundary normal vectors.
 
@@ -330,7 +356,9 @@ class DictPointGeometry(GeometryExperimental):
         normal = self.geom.boundary_normal(x)
         return self.arr_to_dict(normal)
 
-    def uniform_points(self, n, boundary: bool = True) -> Dict[str, bst.typing.ArrayLike]:
+    def uniform_points(
+        self, n, boundary: bool = True
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Generate uniformly distributed points in the geometry.
 
@@ -371,7 +399,9 @@ class DictPointGeometry(GeometryExperimental):
         points = self.geom.uniform_boundary_points(n)
         return self.arr_to_dict(points)
 
-    def random_boundary_points(self, n, random: str = "pseudo") -> Dict[str, bst.typing.ArrayLike]:
+    def random_boundary_points(
+        self, n, random: str = "pseudo"
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Generate random points on the boundary.
 
@@ -385,7 +415,9 @@ class DictPointGeometry(GeometryExperimental):
         points = self.geom.random_boundary_points(n, random=random)
         return self.arr_to_dict(points)
 
-    def periodic_point(self, x, component: Union[str, int]) -> Dict[str, bst.typing.ArrayLike]:
+    def periodic_point(
+        self, x, component: Union[str, int]
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Find the periodic point for a given point and component.
 
@@ -403,11 +435,15 @@ class DictPointGeometry(GeometryExperimental):
             x = self.dict_to_arr(x)
         if isinstance(component, str):
             component = list(self.name2unit.keys()).index(component)
-        assert isinstance(component, int), f"The component should be an integer or a string. But got {component}."
+        assert isinstance(
+            component, int
+        ), f"The component should be an integer or a string. But got {component}."
         x = self.geom.periodic_point(x, component)
         return self.arr_to_dict(x)
 
-    def background_points(self, x, dirn, dist2npt, shift) -> Dict[str, bst.typing.ArrayLike]:
+    def background_points(
+        self, x, dirn, dist2npt, shift
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Generate background points.
 
@@ -425,7 +461,9 @@ class DictPointGeometry(GeometryExperimental):
         points = self.geom.background_points(x, dirn, dist2npt, shift)
         return self.arr_to_dict(points)
 
-    def random_initial_points(self, n: int, random: str = "pseudo") -> Dict[str, bst.typing.ArrayLike]:
+    def random_initial_points(
+        self, n: int, random: str = "pseudo"
+    ) -> Dict[str, bst.typing.ArrayLike]:
         """
         Generate random initial points.
 

@@ -11,7 +11,7 @@ def ode_system(x, y):
     """
     jacobian = net.jacobian(x)
 
-    y1, y2 = y['y1'], y['y2']
+    y1, y2 = y["y1"], y["y2"]
     dy1_x = jacobian["y1"]["t"]
     dy2_x = jacobian["y2"]["t"]
     return [dy1_x - y2, dy2_x + y1]
@@ -29,11 +29,11 @@ def func(x):
     y1 = sin(x)
     y2 = cos(x)
     """
-    return {'y1': np.sin(x['t']), 'y2': np.cos(x['t'])}
+    return {"y1": np.sin(x["t"]), "y2": np.cos(x["t"])}
 
 
-geom = deepxde.geometry.TimeDomain(0, 10).to_dict_point('t')
-ic = deepxde.icbc.IC(lambda x: {'y1': 0, 'y2': 0})
+geom = deepxde.geometry.TimeDomain(0, 10).to_dict_point("t")
+ic = deepxde.icbc.IC(lambda x: {"y1": 0, "y2": 0})
 data = deepxde.problem.PDE(
     geom,
     ode_system,
@@ -42,9 +42,11 @@ data = deepxde.problem.PDE(
     num_domain=35,
     num_boundary=2,
     solution=func,
-    num_test=100
+    num_test=100,
 )
 
 trainer = deepxde.Trainer(data)
-trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(iterations=20000)
+trainer.compile(bst.optim.Adam(0.001), metrics=["l2 relative error"]).train(
+    iterations=20000
+)
 trainer.saveplot(issave=True, isplot=True)

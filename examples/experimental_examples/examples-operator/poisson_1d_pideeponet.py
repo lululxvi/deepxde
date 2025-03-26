@@ -11,7 +11,9 @@ import brainunit as u
 def equation(x, y, aux):
 
     def solve_hes(inp1):
-        f1 = lambda i: deepxde_new.grad.hessian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_new.grad.hessian(
+            lambda inp: net((x[0], inp))["u"][i], inp1, vmap=False
+        )
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     dy_xx = jax.vmap(solve_hes, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
@@ -20,9 +22,9 @@ def equation(x, y, aux):
 
 
 # Domain is interval [0, 1]
-geom = deepxde_new.geometry.Interval(0, 1).to_dict_point('x')
+geom = deepxde_new.geometry.Interval(0, 1).to_dict_point("x")
 
-bc = deepxde_new.icbc.DirichletBC(lambda x, aux: {'u': 0.})
+bc = deepxde_new.icbc.DirichletBC(lambda x, aux: {"u": 0.0})
 
 # Function space for f(x) are polynomials
 degree = 3
@@ -42,7 +44,7 @@ net = bst.nn.Sequential(
         [dim_x, 32, p],
         activation="tanh",
     ),
-    deepxde_new.nn.ArrayToDict(u=None)
+    deepxde_new.nn.ArrayToDict(u=None),
 )
 
 # Define PDE operator
@@ -55,7 +57,7 @@ pde_op = deepxde_new.problem.PDEOperatorCartesianProd(
     approximator=net,
     num_function=100,
     num_domain=100,
-    num_boundary=2
+    num_boundary=2,
 )
 
 # Define and train trainer
@@ -69,7 +71,7 @@ features = space.random(n)
 fx = space.eval_batch(features, evaluation_points)
 
 x = geom.uniform_points(100, boundary=True)
-y = model.predict((fx, x))['u']
+y = model.predict((fx, x))["u"]
 
 # Setup figure
 fig = plt.figure(figsize=(7, 8))

@@ -53,7 +53,7 @@ class BC(ICBC):
     ):
         self.on_boundary = lambda x, on: jax.vmap(on_boundary)(x, on)
 
-    @utils.check_not_none('geometry')
+    @utils.check_not_none("geometry")
     def filter(self, X):
         """
         Filter the collocation points for boundary conditions.
@@ -101,8 +101,9 @@ class BC(ICBC):
             or if the boundary normal or jacobian are not dictionaries.
         """
         # first order derivative
-        assert isinstance(self.problem.approximator, Model), ("Normal derivative is only supported "
-                                                              "for Sequential approximator.")
+        assert isinstance(self.problem.approximator, Model), (
+            "Normal derivative is only supported " "for Sequential approximator."
+        )
         dydx = self.problem.approximator.jacobian(inputs)
 
         # boundary normal
@@ -298,9 +299,11 @@ class PeriodicBC(BC):
         self.component_x = component_x
         self.derivative_order = derivative_order
         if derivative_order > 1:
-            raise NotImplementedError("PeriodicBC only supports derivative_order 0 or 1.")
+            raise NotImplementedError(
+                "PeriodicBC only supports derivative_order 0 or 1."
+            )
 
-    @utils.check_not_none('geometry')
+    @utils.check_not_none("geometry")
     def collocation_points(self, X):
         """
         Generates collocation points for enforcing periodic boundary conditions.
@@ -321,7 +324,7 @@ class PeriodicBC(BC):
             lambda x1, x2: utils.smart_numpy(x1).concatenate((x1, x2), axis=-1),
             X1,
             X2,
-            is_leaf=u.math.is_quantity
+            is_leaf=u.math.is_quantity,
         )
 
     def error(self, bc_inputs, bc_outputs, **kwargs):
@@ -347,7 +350,9 @@ class PeriodicBC(BC):
             yleft = bc_outputs[self.component_y][:mid]
             yright = bc_outputs[self.component_y][mid:]
         else:
-            dydx = self.problem.approximator.jacobian(bc_outputs, y=self.component_y, x=self.component_x)
+            dydx = self.problem.approximator.jacobian(
+                bc_outputs, y=self.component_y, x=self.component_x
+            )
             dydx = dydx[self.component_y][self.component_x]
             yleft = dydx[:mid]
             yright = dydx[mid:]
@@ -428,7 +433,7 @@ class PointSetBC(BC):
         points: Dict[str, bst.typing.ArrayLike],
         values: Dict[str, bst.typing.ArrayLike],
         batch_size: int = None,
-        shuffle: bool = True
+        shuffle: bool = True,
     ):
         super().__init__(lambda x, on: on)
 
@@ -489,10 +494,7 @@ class PointSetBC(BC):
                 for k in self.values.keys()
             }
         else:
-            return {
-                k: bc_outputs[k] - self.values[k]
-                for k in self.values.keys()
-            }
+            return {k: bc_outputs[k] - self.values[k] for k in self.values.keys()}
 
 
 class PointSetOperatorBC(BC):
@@ -516,7 +518,7 @@ class PointSetOperatorBC(BC):
         self,
         points: Dict[str, bst.typing.ArrayLike],
         values: Dict[str, bst.typing.ArrayLike],
-        func: Callable[[X, Y], F]
+        func: Callable[[X, Y], F],
     ):
         super().__init__(lambda x, on: on)
         self.points = points
@@ -589,16 +591,20 @@ class Interface2DBC(BC):
         func: Callable[[X, ...], F] | Callable[[X], F],
         on_boundary1: Callable[[X, np.array], np.array] = lambda x, on: on,
         on_boundary2: Callable[[X, np.array], np.array] = lambda x, on: on,
-        direction: str = "normal"
+        direction: str = "normal",
     ):
         super().__init__(lambda x, on: on)
 
         self.func = utils.return_tensor(func)
-        self.on_boundary1 = lambda x, on: np.array([on_boundary1(x[i], on[i]) for i in range(len(x))])
-        self.on_boundary2 = lambda x, on: np.array([on_boundary2(x[i], on[i]) for i in range(len(x))])
+        self.on_boundary1 = lambda x, on: np.array(
+            [on_boundary1(x[i], on[i]) for i in range(len(x))]
+        )
+        self.on_boundary2 = lambda x, on: np.array(
+            [on_boundary2(x[i], on[i]) for i in range(len(x))]
+        )
         self.direction = direction
 
-    @utils.check_not_none('geometry')
+    @utils.check_not_none("geometry")
     def collocation_points(self, X):
         on_boundary = self.geometry.on_boundary(X)
         X1 = X[self.on_boundary1(X, on_boundary)]
@@ -608,18 +614,20 @@ class Interface2DBC(BC):
             X2 = np.flip(X2, axis=0)
         return np.vstack((X1, X2))
 
-    @utils.check_not_none('geometry')
+    @utils.check_not_none("geometry")
     def error(self, bc_inputs, bc_outputs, **kwargs):
         mid = bc_inputs.shape[0] // 2
         if bc_inputs.shape[0] % 2 != 0:
-            raise RuntimeError("There is a different number of points on each edge,\n "
-                               "this is likely because the chosen edges do not have the same length.")
+            raise RuntimeError(
+                "There is a different number of points on each edge,\n "
+                "this is likely because the chosen edges do not have the same length."
+            )
         aux_var = None
-        values = self.func(bc_inputs[: mid], **kwargs)
+        values = self.func(bc_inputs[:mid], **kwargs)
         if np.ndim(values) == 2 and np.shape(values)[1] != 1:
             raise RuntimeError("BC function should return an array of shape N by 1")
-        left_n = self.geometry.boundary_normal(bc_inputs[: mid])
-        right_n = self.geometry.boundary_normal(bc_inputs[: mid])
+        left_n = self.geometry.boundary_normal(bc_inputs[:mid])
+        right_n = self.geometry.boundary_normal(bc_inputs[:mid])
         if self.direction == "normal":
             left_side = bc_outputs[:mid, :]
             right_side = bc_outputs[mid:, :]
@@ -636,7 +644,9 @@ class Interface2DBC(BC):
             left_values_2 = u.math.sum(-left_side2 * left_n[:, 0:1], 1, keepdims=True)
             left_values = left_values_1 + left_values_2
             right_values_1 = u.math.sum(right_side1 * right_n[:, 1:2], 1, keepdims=True)
-            right_values_2 = u.math.sum(-right_side2 * right_n[:, 0:1], 1, keepdims=True)
+            right_values_2 = u.math.sum(
+                -right_side2 * right_n[:, 0:1], 1, keepdims=True
+            )
             right_values = right_values_1 + right_values_2
 
         else:

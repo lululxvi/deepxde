@@ -18,26 +18,26 @@ iterations = 10000
 
 
 def func(x):
-    return {'y': u.math.sin(k0 * x['x']) * u.math.sin(k0 * x['y'])}
+    return {"y": u.math.sin(k0 * x["x"]) * u.math.sin(k0 * x["y"])}
 
 
 def transform(x, y):
     x = deepxde.utils.array_to_dict(x, ["x", "y"], keep_dim=True)
-    res = x['x'] * (1 - x['x']) * x['y'] * (1 - x['y'])
+    res = x["x"] * (1 - x["x"]) * x["y"] * (1 - x["y"])
     return res * y
 
 
 def create_model(config):
     def pde(x, y):
         hessian = net.hessian(x)
-        dy_xx = hessian['y']['x']['x']
-        dy_yy = hessian['y']['y']['y']
-        f = (d - 1) * k0 ** 2 * u.math.sin(k0 * x['x']) * u.math.sin(k0 * x['y'])
-        return -dy_xx - dy_yy - k0 ** 2 * y['y'] - f
+        dy_xx = hessian["y"]["x"]["x"]
+        dy_yy = hessian["y"]["y"]["y"]
+        f = (d - 1) * k0**2 * u.math.sin(k0 * x["x"]) * u.math.sin(k0 * x["y"])
+        return -dy_xx - dy_yy - k0**2 * y["y"] - f
 
     learning_rate, num_dense_layers, num_dense_nodes, activation = config
 
-    geom = deepxde.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+    geom = deepxde.geometry.Rectangle([0, 0], [1, 1]).to_dict_point("x", "y")
     k0 = 2 * np.pi * n
     wave_len = 1 / n
 
@@ -63,10 +63,10 @@ def create_model(config):
         pde,
         [],
         net,
-        num_domain=nx_train ** d,
+        num_domain=nx_train**d,
         num_boundary=2 * d * nx_train,
         solution=func,
-        num_test=nx_test ** d,
+        num_test=nx_test**d,
     )
 
     trainer = deepxde.Trainer(problem)
@@ -119,7 +119,7 @@ def fitness(learning_rate, num_dense_layers, num_dense_nodes, activation):
     # print(accuracy, 'accuracy is')
 
     if np.isnan(error):
-        error = 10 ** 5
+        error = 10**5
 
     ITERATION += 1
     return error

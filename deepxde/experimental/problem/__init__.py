@@ -5,17 +5,13 @@ __all__ = [
     "QuadrupleDataset",
     "TripleDataset",
     "TripleCartesianProd",
-
     "IDE",
     "PDE",
     "TimePDE",
-
     "FPDE",
     "TimeFPDE",
-
     "PDEOperator",
     "PDEOperatorCartesianProd",
-
 ]
 
 from .base import Problem

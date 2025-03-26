@@ -24,7 +24,9 @@ class PointCloud(Geometry):
         self.boundary_normals = None
         all_points = self.points
         if boundary_points is not None:
-            self.boundary_points = np.asarray(boundary_points, dtype=bst.environ.dftype())
+            self.boundary_points = np.asarray(
+                boundary_points, dtype=bst.environ.dftype()
+            )
             self.num_boundary_points = len(boundary_points)
             all_points = np.vstack((self.points, self.boundary_points))
             self.boundary_sampler = BatchSampler(self.num_boundary_points, shuffle=True)
@@ -97,9 +99,7 @@ class PointCloud(Geometry):
             ValueError: If boundary_normals is not defined.
         """
         if self.boundary_normals is None:
-            raise ValueError(
-                "boundary_normals must be defined for boundary_normal"
-            )
+            raise ValueError("boundary_normals must be defined for boundary_normal")
         boundary_point_matches = isclose(
             (self.boundary_points[:, None, :] - x[None, :, :]), 0
         ).all(axis=2)

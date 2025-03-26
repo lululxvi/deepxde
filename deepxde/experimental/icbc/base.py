@@ -13,7 +13,7 @@ class ICBC(abc.ABC):
 
     # A ``experimental.geometry.Geometry`` instance.
     geometry: Optional[GeometryExperimental]
-    problem: Optional['Problem']
+    problem: Optional["Problem"]
 
     def apply_geometry(self, geom: GeometryExperimental):
         """
@@ -29,10 +29,12 @@ class ICBC(abc.ABC):
         AssertionError
             If the provided geometry is not an instance of AbstractGeometry.
         """
-        assert isinstance(geom, GeometryExperimental), 'geometry must be an instance of AbstractGeometry.'
+        assert isinstance(
+            geom, GeometryExperimental
+        ), "geometry must be an instance of AbstractGeometry."
         self.geometry = geom
 
-    def apply_problem(self, problem: 'Problem'):
+    def apply_problem(self, problem: "Problem"):
         """
         Applies a problem to the ICBC instance.
 
@@ -47,7 +49,8 @@ class ICBC(abc.ABC):
             If the provided problem is not an instance of Problem.
         """
         from deepxde.experimental.problem.base import Problem
-        assert isinstance(problem, Problem), 'problem must be an instance of Problem.'
+
+        assert isinstance(problem, Problem), "problem must be an instance of Problem."
         self.problem = problem
 
     @abc.abstractmethod

@@ -81,8 +81,9 @@ class GeometryXTime(GeometryExperimental):
         Returns:
             jnp.ndarray: Boolean array indicating whether each point is inside the domain.
         """
-        return jnp.logical_and(self.geometry.inside(x[:, :-1]),
-                               self.timedomain.inside(x[:, -1:]))
+        return jnp.logical_and(
+            self.geometry.inside(x[:, :-1]), self.timedomain.inside(x[:, -1:])
+        )
 
     def on_boundary(self, x):
         """

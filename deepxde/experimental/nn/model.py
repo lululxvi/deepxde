@@ -8,7 +8,7 @@ from deepxde.experimental.grad import jacobian, hessian, gradient
 from .convert import DictToArray, ArrayToDict
 
 __all__ = [
-    'Model',
+    "Model",
 ]
 
 
@@ -45,10 +45,14 @@ class Model(bst.nn.Module):
         """
         super().__init__()
 
-        assert isinstance(input, DictToArray), "input must be an instance of DictToArray."
+        assert isinstance(
+            input, DictToArray
+        ), "input must be an instance of DictToArray."
         self.input = input
 
-        assert isinstance(approx, bst.nn.Module), "approx must be an instance of nn.Module."
+        assert isinstance(
+            approx, bst.nn.Module
+        ), "approx must be an instance of nn.Module."
         self.approx = approx
 
         assert isinstance(output, ArrayToDict), "output must be an instance of Output."
@@ -129,5 +133,7 @@ class Model(bst.nn.Module):
         Returns:
             The gradient of the approximator.
         """
-        assert isinstance(order, int) and order >= 1, "order must be an integer greater than or equal to 1."
+        assert (
+            isinstance(order, int) and order >= 1
+        ), "order must be an integer greater than or equal to 1."
         return gradient(self, inputs, y, *xi, order=order)

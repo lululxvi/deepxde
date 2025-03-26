@@ -28,7 +28,9 @@ ex_input = 10 * np.sin(2 * np.pi * time)  # exogenous input
 
 # interpolate time / lift vectors (for using exogenous variable without fixed time stamps)
 def ex_func(t):
-    spline = sp.interpolate.Rbf(time, ex_input, function="thin_plate", smooth=0, episilon=0)
+    spline = sp.interpolate.Rbf(
+        time, ex_input, function="thin_plate", smooth=0, episilon=0
+    )
     return spline(t)
 
 
@@ -74,13 +76,15 @@ def Lorenz_system(x, y):
     dy2/dx = y1 * (28 - y3) - y2
     dy3/dx = y1 * y2 - 8/3 * y3 + u
     """
-    y1, y2, y3 = y['y1'], y['y2'], y['y3']
+    y1, y2, y3 = y["y1"], y["y2"], y["y3"]
     jacobian = net.jacobian(x)
-    dy1_x = jacobian['y1']['t']
-    dy2_x = jacobian['y2']['t']
-    dy3_x = jacobian['y3']['t']
+    dy1_x = jacobian["y1"]["t"]
+    dy2_x = jacobian["y2"]["t"]
+    dy3_x = jacobian["y3"]["t"]
 
-    ex = jax.pure_callback(spline, jax.ShapeDtypeStruct(x['t'].shape, x['t'].dtype), x['t'])
+    ex = jax.pure_callback(
+        spline, jax.ShapeDtypeStruct(x["t"].shape, x["t"].dtype), x["t"]
+    )
     return [
         dy1_x - C1.value * (y2 - y1),
         dy2_x - y1 * (C2.value - y3) + y2,
@@ -96,15 +100,15 @@ net = deepxde.nn.Model(
 )
 
 # define time domain
-geom = deepxde.geometry.TimeDomain(0, maxtime).to_dict_point('t')
+geom = deepxde.geometry.TimeDomain(0, maxtime).to_dict_point("t")
 
 # Initial conditions
-ic = deepxde.icbc.IC(lambda x: {"y1": x0[0], 'y2': x0[1], 'y3': x0[2]})
+ic = deepxde.icbc.IC(lambda x: {"y1": x0[0], "y2": x0[1], "y3": x0[2]})
 
 # Get the training data
 ob_y = x
-observe_t = {'t': time}
-observe_y = {'y1': ob_y[:, 0], 'y2': ob_y[:, 1], 'y3': ob_y[:, 2]}
+observe_t = {"t": time}
+observe_y = {"y1": ob_y[:, 0], "y2": ob_y[:, 1], "y3": ob_y[:, 2]}
 bc = deepxde.icbc.PointSetBC(observe_t, observe_y)
 
 # define data object
@@ -159,7 +163,7 @@ plt.xlabel("Epoch")
 yhat = trainer.predict(observe_t)
 yhat = deepxde.utils.dict_to_array(yhat)
 plt.figure()
-plt.plot(observe_t['t'], ob_y, "-", observe_t['t'], yhat, "--")
+plt.plot(observe_t["t"], ob_y, "-", observe_t["t"], yhat, "--")
 plt.xlabel("Time")
 plt.legend(["x", "y", "z", "xh", "yh", "zh"])
 plt.title("Training data")

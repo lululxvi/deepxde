@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def solve_ADR(
-    xmin, xmax, tmin, tmax, k, v, g, dg, f, u0, Nx, Nt
-):
+def solve_ADR(xmin, xmax, tmin, tmax, k, v, g, dg, f, u0, Nx, Nt):
     """Solve 1D
     u_t = (k(x) u_x)_x - v(x) u_x + g(u) + f(x, t)
     with zero boundary condition.
@@ -13,7 +11,7 @@ def solve_ADR(
     t = np.linspace(tmin, tmax, Nt)
     h = x[1] - x[0]
     dt = t[1] - t[0]
-    h2 = h ** 2
+    h2 = h**2
 
     D1 = np.eye(Nx, k=1) - np.eye(Nx, k=-1)
     D2 = -2 * np.eye(Nx) + np.eye(Nx, k=-1) + np.eye(Nx, k=1)
@@ -45,16 +43,13 @@ def solve_ADR(
 def main():
     xmin, xmax = -1, 1
     tmin, tmax = 0, 1
-    k = lambda x: x ** 2 - x ** 2 + 1
+    k = lambda x: x**2 - x**2 + 1
     v = lambda x: np.ones_like(x)
-    g = lambda u: u ** 3
-    dg = lambda u: 3 * u ** 2
-    f = (
-        lambda x, t: np.exp(-t) * (1 + x ** 2 - 2 * x)
-                     - (np.exp(-t) * (1 - x ** 2)) ** 3
-    )
+    g = lambda u: u**3
+    dg = lambda u: 3 * u**2
+    f = lambda x, t: np.exp(-t) * (1 + x**2 - 2 * x) - (np.exp(-t) * (1 - x**2)) ** 3
     u0 = lambda x: (x + 1) * (1 - x)
-    u_true = lambda x, t: np.exp(-t) * (1 - x ** 2)
+    u_true = lambda x, t: np.exp(-t) * (1 - x**2)
 
     # xmin, xmax = 0, 1
     # tmin, tmax = 0, 1

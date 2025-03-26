@@ -132,13 +132,22 @@ def plot_loss_history(loss_history, fname=None):
     """
     # np.sum(loss_history.loss_train, axis=1) is error-prone for arrays of varying lengths.
     # Handle irregular array sizes.
-    loss_train = jnp.array([jnp.sum(jnp.asarray(jax.tree.leaves(loss))) for loss in loss_history.loss_train])
-    loss_test = jnp.array([jnp.sum(jnp.asarray(jax.tree.leaves(loss))) for loss in loss_history.loss_test])
+    loss_train = jnp.array(
+        [
+            jnp.sum(jnp.asarray(jax.tree.leaves(loss)))
+            for loss in loss_history.loss_train
+        ]
+    )
+    loss_test = jnp.array(
+        [jnp.sum(jnp.asarray(jax.tree.leaves(loss))) for loss in loss_history.loss_test]
+    )
 
     plt.figure()
     plt.semilogy(loss_history.steps, loss_train, label="Train loss")
     plt.semilogy(loss_history.steps, loss_test, label="Test loss")
-    metric_tests = jax.tree.map(lambda *a: u.math.asarray(a), *loss_history.metrics_test)
+    metric_tests = jax.tree.map(
+        lambda *a: u.math.asarray(a), *loss_history.metrics_test
+    )
 
     for i in range(len(loss_history.metrics_test[0])):
         if isinstance(metric_tests[i], dict):
@@ -192,7 +201,9 @@ def plot_best_state(train_state):
             ``Trainer.train()``.
     """
     if isinstance(train_state.X_train, (list, tuple)):
-        print("Error: The network has multiple inputs, and plotting such result hasn't been implemented.")
+        print(
+            "Error: The network has multiple inputs, and plotting such result hasn't been implemented."
+        )
         return
 
     y_train, y_test, best_y, best_ystd = _pack_data(train_state)
@@ -206,15 +217,21 @@ def plot_best_state(train_state):
         plt.figure()
         for ykey in best_y:
             if y_train is not None:
-                plt.plot(train_state.X_train[xkeys[0]], y_train[ykey], "ok", label="Train")
+                plt.plot(
+                    train_state.X_train[xkeys[0]], y_train[ykey], "ok", label="Train"
+                )
             if y_test is not None:
                 plt.plot(X, y_test[ykey], "-k", label="True")
             y_val, y_unit = u.split_mantissa_unit(best_y[ykey])
             plt.plot(
-                X, y_val, "--r",
-                label=(f"{ykey} Prediction"
-                       if y_unit.is_unitless else
-                       f"{ykey} Prediction [{y_unit}]")
+                X,
+                y_val,
+                "--r",
+                label=(
+                    f"{ykey} Prediction"
+                    if y_unit.is_unitless
+                    else f"{ykey} Prediction [{y_unit}]"
+                ),
             )
             if best_ystd is not None:
                 ystd_val = u.get_magnitude(u.Quantity(best_ystd[ykey], unit=y_unit))
@@ -237,19 +254,19 @@ def plot_best_state(train_state):
             )
             unit = u.get_unit(train_state.X_test[xkeys[0]])
             if unit.is_unitless:
-                ax.set_xlabel(f'{xkeys[0]}')
+                ax.set_xlabel(f"{xkeys[0]}")
             else:
-                ax.set_xlabel(f'{xkeys[0]} [{unit}]')
+                ax.set_xlabel(f"{xkeys[0]} [{unit}]")
             unit = u.get_unit(train_state.X_test[xkeys[1]])
             if unit.is_unitless:
-                ax.set_ylabel(f'{xkeys[1]}')
+                ax.set_ylabel(f"{xkeys[1]}")
             else:
-                ax.set_ylabel(f'{xkeys[1]} [{unit}]')
+                ax.set_ylabel(f"{xkeys[1]} [{unit}]")
             unit = u.get_unit(best_y[ykey])
             if unit.is_unitless:
-                ax.set_zlabel(f'{ykey}')
+                ax.set_zlabel(f"{ykey}")
             else:
-                ax.set_zlabel(f'{ykey} [{unit}]')
+                ax.set_zlabel(f"{ykey} [{unit}]")
 
     # Residual plot
     # Not necessary to plot
@@ -282,27 +299,29 @@ def plot_best_state(train_state):
 def save_best_state(train_state, fname_train, fname_test):
     """Save the best result of the smallest training loss to a file."""
     if isinstance(train_state.X_train, (list, tuple)):
-        print("Error: The network has multiple inputs, and saving such result han't been implemented.")
+        print(
+            "Error: The network has multiple inputs, and saving such result han't been implemented."
+        )
         return
 
     print("Saving training data to {} ...".format(fname_train))
     y_train, y_test, best_y, best_ystd = _pack_data(train_state)
     if y_train is None:
-        data = {'X_train': train_state.X_train}
+        data = {"X_train": train_state.X_train}
     else:
-        data = {'X_train': train_state.X_train, 'y_train': y_train}
+        data = {"X_train": train_state.X_train, "y_train": y_train}
     braintools.file.msgpack_save(fname_train, data)
 
     print("Saving test data to {} ...".format(fname_test))
     if y_test is None:
-        data = {'X_test': train_state.X_test, 'best_y': best_y}
+        data = {"X_test": train_state.X_test, "best_y": best_y}
         if best_ystd is not None:
-            data['best_ystd'] = best_ystd
+            data["best_ystd"] = best_ystd
         braintools.file.msgpack_save(fname_test, data)
     else:
-        data = {'X_test': train_state.X_test, 'best_y': best_y, 'y_test': y_test}
+        data = {"X_test": train_state.X_test, "best_y": best_y, "y_test": y_test}
         if best_ystd is not None:
-            data['best_ystd'] = best_ystd
+            data["best_ystd"] = best_ystd
         braintools.file.msgpack_save(fname_test, data)
 
 

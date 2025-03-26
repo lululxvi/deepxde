@@ -29,13 +29,13 @@ def gen_truedata():
 
 
 def ode_system(net, x):
-    x = deepxde.array_to_dict(x, ['t'])
-    approx = lambda x: deepxde.array_to_dict(net(deepxde.dict_to_array(x)), ['r', 'p'])
+    x = deepxde.array_to_dict(x, ["t"])
+    approx = lambda x: deepxde.array_to_dict(net(deepxde.dict_to_array(x)), ["r", "p"])
     jacobian, y = deepxde.grad.jacobian(approx, x, return_value=True)
-    r = y['r']
-    p = y['p']
-    dr_t = jacobian['r']['t']
-    dp_t = jacobian['p']['t']
+    r = y["r"]
+    p = y["p"]
+    dr_t = jacobian["r"]["t"]
+    dp_t = jacobian["p"]["t"]
     return [
         dr_t - 1 / ub * rb * (2.0 * ub * r - 0.04 * ub * r * ub * p),
         dp_t - 1 / ub * rb * (0.02 * r * ub * p * ub - 1.06 * p * ub),
@@ -67,9 +67,7 @@ def output_transform(t, y):
     y1 = y[..., 0:1]
     y2 = y[..., 1:2]
     return u.math.concatenate(
-        [y1 * u.math.tanh(t) + 100 / ub,
-         y2 * u.math.tanh(t) + 15 / ub],
-        axis=-1
+        [y1 * u.math.tanh(t) + 100 / ub, y2 * u.math.tanh(t) + 15 / ub], axis=-1
     )
 
 

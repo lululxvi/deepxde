@@ -14,33 +14,37 @@ def pde(x, y, aux):
     k = 0.01
 
     def solve_jac(inp1):
-        f1 = lambda i: deepxde_new.grad.jacobian(lambda inp: net((x[0], inp))['y'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_new.grad.jacobian(
+            lambda inp: net((x[0], inp))["y"][i], inp1, vmap=False
+        )
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     dy_t = jax.vmap(solve_jac, out_axes=1)(jax.numpy.expand_dims(x[1], 1))[..., 1]
 
     def solve_hes(inp1):
-        inp1 = deepxde_new.utils.array_to_dict(inp1, ['x', 't'])
-        f1 = lambda i: deepxde_new.grad.hessian(lambda inp: net((x[0], deepxde_new.utils.dict_to_array(inp)))['y'][i],
-                                                inp1,
-                                                xi='x',
-                                                xj='x',
-                                                vmap=False)
+        inp1 = deepxde_new.utils.array_to_dict(inp1, ["x", "t"])
+        f1 = lambda i: deepxde_new.grad.hessian(
+            lambda inp: net((x[0], deepxde_new.utils.dict_to_array(inp)))["y"][i],
+            inp1,
+            xi="x",
+            xj="x",
+            vmap=False,
+        )
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     dy_xx = jax.vmap(solve_hes, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
 
     dy_t = jax.numpy.squeeze(dy_t)
-    dy_xx = jax.numpy.squeeze(dy_xx['x']['x'])
-    y = jax.numpy.squeeze(y['y'])
+    dy_xx = jax.numpy.squeeze(dy_xx["x"]["x"])
+    y = jax.numpy.squeeze(y["y"])
 
-    return dy_t - D * dy_xx + k * y ** 2 - aux
+    return dy_t - D * dy_xx + k * y**2 - aux
 
 
 geom = deepxde_new.geometry.Interval(0, 1)
 timedomain = deepxde_new.geometry.TimeDomain(0, 1)
 geomtime = deepxde_new.geometry.GeometryXTime(geom, timedomain)
-geomtime = geomtime.to_dict_point('x', 't')
+geomtime = geomtime.to_dict_point("x", "t")
 
 # Net
 net = bst.nn.Sequential(
@@ -49,12 +53,12 @@ net = bst.nn.Sequential(
         [2, 128, 128, 128],
         "tanh",
     ),
-    deepxde_new.nn.ArrayToDict(y=None)
+    deepxde_new.nn.ArrayToDict(y=None),
 )
 
 # Boundary condition
-bc = deepxde_new.icbc.DirichletBC(lambda *args, **kwargs: {'y': 0})
-ic = deepxde_new.icbc.IC(lambda *args, **kwargs: {'y': 0})
+bc = deepxde_new.icbc.DirichletBC(lambda *args, **kwargs: {"y": 0})
+ic = deepxde_new.icbc.IC(lambda *args, **kwargs: {"y": 0})
 
 # Function space
 func_space = deepxde.data.GRF(length_scale=0.2)
@@ -91,7 +95,7 @@ x, t, u_true = solve_ADR(
     1,
     lambda x: 0.01 * np.ones_like(x),
     lambda x: np.zeros_like(x),
-    lambda u: 0.01 * u ** 2,
+    lambda u: 0.01 * u**2,
     lambda u: 0.02 * u,
     lambda x, t: np.tile(v[:, None], (1, len(t))),
     lambda x: np.zeros_like(x),
@@ -106,7 +110,7 @@ plt.colorbar()
 v_branch = func_space.eval_batch(func_feats, np.linspace(0, 1, num=50)[:, None])
 xv, tv = np.meshgrid(x, t)
 x_trunk = np.vstack((np.ravel(xv), np.ravel(tv))).T
-u_pred = model.predict((v_branch, x_trunk))['y']
+u_pred = model.predict((v_branch, x_trunk))["y"]
 u_pred = u_pred.reshape((100, 100))
 print(deepxde_new.metrics.l2_relative_error(u_true, u_pred))
 plt.figure()

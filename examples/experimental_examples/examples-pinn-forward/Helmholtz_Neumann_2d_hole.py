@@ -29,21 +29,21 @@ def pde(x, y):
     hessian = net.hessian(x)
     dy_xx = hessian["y"]["x"]["x"]
     dy_yy = hessian["y"]["y"]["y"]
-    f = k0 ** 2 * u.math.sin(k0 * x['x']) * u.math.sin(k0 * x['y'])
-    return -dy_xx - dy_yy - k0 ** 2 * y['y'] - f
+    f = k0**2 * u.math.sin(k0 * x["x"]) * u.math.sin(k0 * x["y"])
+    return -dy_xx - dy_yy - k0**2 * y["y"] - f
 
 
 def func(x):
-    x = deepxde.array_to_dict(x, ['x', 'y'])
-    return np.sin(k0 * x['x']) * np.sin(k0 * x['y'])
+    x = deepxde.array_to_dict(x, ["x", "y"])
+    return np.sin(k0 * x["x"]) * np.sin(k0 * x["y"])
 
 
 def neumann(x):
-    x_ = deepxde.array_to_dict(x, ['x', 'y'])
+    x_ = deepxde.array_to_dict(x, ["x", "y"])
     grad = np.array(
         [
-            k0 * np.cos(k0 * x_['x']) * np.sin(k0 * x_['y']),
-            k0 * np.sin(k0 * x_['x']) * np.cos(k0 * x_['y']),
+            k0 * np.cos(k0 * x_["x"]) * np.sin(k0 * x_["y"]),
+            k0 * np.sin(k0 * x_["x"]) * np.cos(k0 * x_["y"]),
         ]
     )
 
@@ -56,15 +56,19 @@ def neumann(x):
 outer = deepxde.geometry.Rectangle([-length / 2, -length / 2], [length / 2, length / 2])
 inner = deepxde.geometry.Disk([0, 0], R)
 geom = outer - inner
-geom = deepxde.geometry.DictPointGeometry(geom, 'x', 'y')
+geom = deepxde.geometry.DictPointGeometry(geom, "x", "y")
 
 
 def boundary_outer(x, on_boundary):
-    return u.math.logical_and(on_boundary, outer.on_boundary(deepxde.utils.dict_to_array(x)))
+    return u.math.logical_and(
+        on_boundary, outer.on_boundary(deepxde.utils.dict_to_array(x))
+    )
 
 
 def boundary_inner(x, on_boundary):
-    return u.math.logical_and(on_boundary, inner.on_boundary(deepxde.utils.dict_to_array(x)))
+    return u.math.logical_and(
+        on_boundary, inner.on_boundary(deepxde.utils.dict_to_array(x))
+    )
 
 
 hx_train = wave_len / precision_train
@@ -87,15 +91,17 @@ data = deepxde.problem.PDE(
     pde,
     [bc_inner, bc_outer],
     net,
-    num_domain=nx_train ** 2,
+    num_domain=nx_train**2,
     num_boundary=16 * nx_train,
     solution=func,
-    num_test=nx_test ** 2,
-    loss_weights=[1, weight_inner, weight_outer]
+    num_test=nx_test**2,
+    loss_weights=[1, weight_inner, weight_outer],
 )
 
 trainer = deepxde.Trainer(data)
-trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"]).train(iterations=iterations)
+trainer.compile(bst.optim.Adam(learning_rate), metrics=["l2 relative error"]).train(
+    iterations=iterations
+)
 trainer.saveplot(issave=True, isplot=True)
 
 # Plot the solution over a square grid with 100 points per wavelength in each direction
@@ -104,7 +110,7 @@ Ny = Nx
 
 # Grid points
 xmin, xmax, ymin, ymax = [-length / 2, length / 2, -length / 2, length / 2]
-plot_grid = np.mgrid[xmin: xmax: Nx * 1j, ymin: ymax: Ny * 1j]
+plot_grid = np.mgrid[xmin : xmax : Nx * 1j, ymin : ymax : Ny * 1j]
 points = np.vstack(
     (plot_grid[0].ravel(), plot_grid[1].ravel(), np.zeros(plot_grid[0].size))
 )

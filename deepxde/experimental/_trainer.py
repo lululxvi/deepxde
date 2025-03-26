@@ -32,7 +32,8 @@ class Trainer:
                 of trainable ``brainstate.ParamState`` objects. The unknown parameters in the
                 physics systems that need to be recovered.
     """
-    __module__ = 'deepxde.experimental'
+
+    __module__ = "deepxde.experimental"
     optimizer: bst.optim.Optimizer  # optimizer
     problem: Problem  # problem
     params: bst.util.FlattedDict  # trainable variables
@@ -40,7 +41,9 @@ class Trainer:
     def __init__(
         self,
         problem: Problem,
-        external_trainable_variables: Union[bst.ParamState, Sequence[bst.ParamState]] = None,
+        external_trainable_variables: Union[
+            bst.ParamState, Sequence[bst.ParamState]
+        ] = None,
         batch_size: Optional[int] = None,
     ):
         """
@@ -48,10 +51,10 @@ class Trainer:
 
         Args:
             problem (Problem): The problem instance to be solved.
-            external_trainable_variables (Union[bst.ParamState, Sequence[bst.ParamState]], optional): 
-                External trainable variables to be included in the optimization process. 
+            external_trainable_variables (Union[bst.ParamState, Sequence[bst.ParamState]], optional):
+                External trainable variables to be included in the optimization process.
                 Can be a single ParamState or a sequence of ParamStates. Defaults to None.
-            batch_size (Optional[int], optional): The batch size to be used during training. 
+            batch_size (Optional[int], optional): The batch size to be used during training.
                 If None, the entire dataset will be used. Defaults to None.
 
         Raises:
@@ -78,9 +81,10 @@ class Trainer:
             if not isinstance(external_trainable_variables, list):
                 external_trainable_variables = [external_trainable_variables]
         for i, var in enumerate(external_trainable_variables):
-            assert isinstance(var, bst.ParamState), ("external_trainable_variables must be a "
-                                                     "list of ParamState instance.")
-            params[('external_trainable_variable', i)] = var
+            assert isinstance(var, bst.ParamState), (
+                "external_trainable_variables must be a " "list of ParamState instance."
+            )
+            params[("external_trainable_variable", i)] = var
         self.params = params
 
         # other useful parameters
@@ -109,7 +113,9 @@ class Trainer:
         print("Compiling trainer...")
 
         # optimizer
-        assert isinstance(optimizer, bst.optim.Optimizer), "optimizer must be an Optimizer instance."
+        assert isinstance(
+            optimizer, bst.optim.Optimizer
+        ), "optimizer must be an Optimizer instance."
         self.optimizer = optimizer
         self.optimizer.register_trainable_weights(self.params)
 
@@ -120,26 +126,36 @@ class Trainer:
 
         def fn_outputs(training: bool, inputs):
             with bst.environ.context(fit=training):
-                inputs = jax.tree.map(lambda x: u.math.asarray(x), inputs, is_leaf=u.math.is_quantity)
+                inputs = jax.tree.map(
+                    lambda x: u.math.asarray(x), inputs, is_leaf=u.math.is_quantity
+                )
                 return self.problem.approximator(inputs)
 
         def fn_outputs_losses(training, inputs, targets, **kwargs):
             with bst.environ.context(fit=training):
                 # inputs
-                inputs = jax.tree.map(lambda x: u.math.asarray(x), inputs, is_leaf=u.math.is_quantity)
+                inputs = jax.tree.map(
+                    lambda x: u.math.asarray(x), inputs, is_leaf=u.math.is_quantity
+                )
 
                 # outputs
                 outputs = self.problem.approximator(inputs)
 
                 # targets
                 if targets is not None:
-                    targets = jax.tree.map(lambda x: u.math.asarray(x), targets, is_leaf=u.math.is_quantity)
+                    targets = jax.tree.map(
+                        lambda x: u.math.asarray(x), targets, is_leaf=u.math.is_quantity
+                    )
 
                 # compute losses
                 if training:
-                    losses = self.problem.losses_train(inputs, outputs, targets, **kwargs)
+                    losses = self.problem.losses_train(
+                        inputs, outputs, targets, **kwargs
+                    )
                 else:
-                    losses = self.problem.losses_test(inputs, outputs, targets, **kwargs)
+                    losses = self.problem.losses_test(
+                        inputs, outputs, targets, **kwargs
+                    )
                 return outputs, losses
 
         def fn_outputs_losses_train(inputs, targets, **aux):
@@ -151,7 +167,9 @@ class Trainer:
         def fn_train_step(inputs, targets, **aux):
             def _loss_fun():
                 losses = fn_outputs_losses_train(inputs, targets, **aux)[1]
-                return u.math.sum(u.math.asarray([loss.sum() for loss in jax.tree.leaves(losses)]))
+                return u.math.sum(
+                    u.math.asarray([loss.sum() for loss in jax.tree.leaves(losses)])
+                )
 
             grads = bst.augment.grad(_loss_fun, grad_states=self.params)()
             self.optimizer.update(grads)
@@ -215,7 +233,9 @@ class Trainer:
             raise ValueError("Compile the trainer before training.")
 
         # callbacks
-        callbacks = CallbackList(callbacks=[callbacks] if isinstance(callbacks, Callback) else callbacks)
+        callbacks = CallbackList(
+            callbacks=[callbacks] if isinstance(callbacks, Callback) else callbacks
+        )
         callbacks.set_model(self)
 
         # disregard previous best
@@ -255,9 +275,11 @@ class Trainer:
         self.train_state.set_data_train(*self.problem.train_next_batch(batch_size))
 
         # train one batch
-        self.fn_train_step.compile(self.train_state.X_train,
-                                   self.train_state.y_train,
-                                   **self.train_state.Aux_train)
+        self.fn_train_step.compile(
+            self.train_state.X_train,
+            self.train_state.y_train,
+            **self.train_state.Aux_train,
+        )
 
     def _train(self, iterations, display_every, batch_size, callbacks):
         for i in range(iterations):
@@ -268,7 +290,11 @@ class Trainer:
             self.train_state.set_data_train(*self.problem.train_next_batch(batch_size))
 
             # train one batch
-            self.fn_train_step(self.train_state.X_train, self.train_state.y_train, **self.train_state.Aux_train)
+            self.fn_train_step(
+                self.train_state.X_train,
+                self.train_state.y_train,
+                **self.train_state.Aux_train,
+            )
 
             self.train_state.epoch += 1
             self.train_state.step += 1
@@ -293,27 +319,24 @@ class Trainer:
         )
 
         # evaluate the test data
-        (
-            self.train_state.y_pred_test,
-            self.train_state.loss_test
-        ) = self.fn_outputs_losses_test(
-            self.train_state.X_test,
-            self.train_state.y_test,
-            **self.train_state.Aux_test,
+        (self.train_state.y_pred_test, self.train_state.loss_test) = (
+            self.fn_outputs_losses_test(
+                self.train_state.X_test,
+                self.train_state.y_test,
+                **self.train_state.Aux_test,
+            )
         )
 
         # metrics
         if isinstance(self.train_state.y_test, (list, tuple)):
             self.train_state.metrics_test = [
-                m(self.train_state.y_test[i],
-                  self.train_state.y_pred_test[i])
+                m(self.train_state.y_test[i], self.train_state.y_pred_test[i])
                 for m in self.metrics
                 for i in range(len(self.train_state.y_test))
             ]
         else:
             self.train_state.metrics_test = [
-                m(self.train_state.y_test,
-                  self.train_state.y_pred_test)
+                m(self.train_state.y_test, self.train_state.y_pred_test)
                 for m in self.metrics
             ]
 
@@ -356,9 +379,11 @@ class Trainer:
         xs = jax.tree.map(
             lambda x: u.math.asarray(x, dtype=bst.environ.dftype()),
             xs,
-            is_leaf=u.math.is_quantity
+            is_leaf=u.math.is_quantity,
         )
-        callbacks = CallbackList(callbacks=[callbacks] if isinstance(callbacks, Callback) else callbacks)
+        callbacks = CallbackList(
+            callbacks=[callbacks] if isinstance(callbacks, Callback) else callbacks
+        )
         callbacks.set_model(self)
         callbacks.on_predict_begin()
         ys = self.fn_outputs(False, xs)
@@ -404,6 +429,7 @@ class Trainer:
             verbose (int): Verbosity mode, 0 or 1.
         """
         import braintools
+
         if verbose > 0:
             print("Restoring trainer from {} ...\n".format(save_path))
 
@@ -445,7 +471,7 @@ class Trainer:
 
 
 class TrainState(TrainStateBase):
-    __module__ = 'deepxde.experimental'
+    __module__ = "deepxde.experimental"
 
     def __init__(self):
         self.epoch = 0
@@ -482,7 +508,9 @@ class TrainState(TrainStateBase):
         self.y_train = y_train
         if len(args) > 0:
             assert len(args) == 1, "Auxiliary training data must be a single argument."
-            assert isinstance(args[0], dict), "Auxiliary training data must be a dictionary."
+            assert isinstance(
+                args[0], dict
+            ), "Auxiliary training data must be a dictionary."
             self.Aux_train = args[0]
 
     def set_data_test(self, X_test, y_test, *args):
@@ -490,7 +518,9 @@ class TrainState(TrainStateBase):
         self.y_test = y_test
         if len(args) > 0:
             assert len(args) == 1, "Auxiliary test data must be a single argument."
-            assert isinstance(args[0], dict), "Auxiliary test data must be a dictionary."
+            assert isinstance(
+                args[0], dict
+            ), "Auxiliary test data must be a dictionary."
             self.Aux_test = args[0]
 
     def update_best(self):

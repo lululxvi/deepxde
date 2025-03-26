@@ -59,7 +59,9 @@ class Disk(Hypersphere):
         mod = utils.smart_numpy(x)
         xc = x - self.center
         ad = jnp.dot(xc, dirn)
-        return (-ad + (ad ** 2 - mod.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(bst.environ.dftype())
+        return (-ad + (ad**2 - mod.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+            bst.environ.dftype()
+        )
 
     def distance2boundary(self, x, dirn):
         """
@@ -197,7 +199,7 @@ class Ellipse(Geometry):
         self.semimajor = semimajor
         self.semiminor = semiminor
         self.angle = angle
-        self.c = (semimajor ** 2 - semiminor ** 2) ** 0.5
+        self.c = (semimajor**2 - semiminor**2) ** 0.5
 
         self.focus1 = jnp.array(
             [
@@ -323,7 +325,9 @@ class Ellipse(Geometry):
         # https://codereview.stackexchange.com/questions/243590/generate-random-points-on-perimeter-of-ellipse
         u = jnp.linspace(0, 1, num=n, endpoint=False).reshape((-1, 1))
         theta = self.theta_from_arc_length(u * self.total_arc)
-        X = jnp.hstack((self.semimajor * jnp.cos(theta), self.semiminor * jnp.sin(theta)))
+        X = jnp.hstack(
+            (self.semimajor * jnp.cos(theta), self.semiminor * jnp.sin(theta))
+        )
         return jnp.matmul(self.rotation_mat, X.T).T + self.center
 
     def random_boundary_points(self, n, random="pseudo"):
@@ -339,7 +343,9 @@ class Ellipse(Geometry):
         """
         u = sample(n, 1, random)
         theta = self.theta_from_arc_length(u * self.total_arc)
-        X = jnp.hstack((self.semimajor * jnp.cos(theta), self.semiminor * jnp.sin(theta)))
+        X = jnp.hstack(
+            (self.semimajor * jnp.cos(theta), self.semiminor * jnp.sin(theta))
+        )
         return jnp.matmul(self.rotation_mat, X.T).T + self.center
 
     def boundary_constraint_factor(
@@ -353,7 +359,7 @@ class Ellipse(Geometry):
 
         Args:
             x (array-like): The coordinates of points to evaluate.
-            smoothness (str, optional): The smoothness of the constraint factor. 
+            smoothness (str, optional): The smoothness of the constraint factor.
                 Must be one of "C0", "C0+", or "Cinf". Defaults to "C0+".
 
         Returns:
@@ -419,7 +425,7 @@ class Rectangle(Hypercube):
         xbot = jnp.hstack(
             (
                 jnp.linspace(self.xmin[0], self.xmax[0], num=nx, endpoint=False)[
-                :, None
+                    :, None
                 ],
                 jnp.full([nx, 1], self.xmin[1]),
             )
@@ -428,7 +434,7 @@ class Rectangle(Hypercube):
             (
                 jnp.full([ny, 1], self.xmax[0]),
                 jnp.linspace(self.xmin[1], self.xmax[1], num=ny, endpoint=False)[
-                :, None
+                    :, None
                 ],
             )
         )
@@ -636,7 +642,10 @@ class Triangle(Geometry):
 
         super().__init__(
             2,
-            (jnp.minimum(x1, jnp.minimum(x2, x3)), jnp.maximum(x1, jnp.maximum(x2, x3))),
+            (
+                jnp.minimum(x1, jnp.minimum(x2, x3)),
+                jnp.maximum(x1, jnp.maximum(x2, x3)),
+            ),
             self.l12
             * self.l23
             * self.l31
@@ -658,7 +667,9 @@ class Triangle(Geometry):
                 jnp.cross(self.v31, x - self.x3)[:, jnp.newaxis],
             ]
         )
-        return ~jnp.logical_and(jnp.any(_sign > 0, axis=-1), jnp.any(_sign < 0, axis=-1))
+        return ~jnp.logical_and(
+            jnp.any(_sign > 0, axis=-1), jnp.any(_sign < 0, axis=-1)
+        )
 
     def on_boundary(self, x):
         l1 = jnp.linalg.norm(x - self.x1, axis=-1)
@@ -708,21 +719,21 @@ class Triangle(Geometry):
         density = n / self.perimeter
         x12 = (
             jnp.linspace(0, 1, num=int(jnp.ceil(density * self.l12)), endpoint=False)[
-            :, None
+                :, None
             ]
             * self.v12
             + self.x1
         )
         x23 = (
             jnp.linspace(0, 1, num=int(jnp.ceil(density * self.l23)), endpoint=False)[
-            :, None
+                :, None
             ]
             * self.v23
             + self.x2
         )
         x31 = (
             jnp.linspace(0, 1, num=int(jnp.ceil(density * self.l31)), endpoint=False)[
-            :, None
+                :, None
             ]
             * self.v31
             + self.x3
@@ -793,7 +804,7 @@ class Triangle(Geometry):
                 points. This option may result in a polynomial of HIGH order.
 
             where (string, optional): A string to specify which part of the boundary to compute the distance.
-                If `None`, compute the distance to the whole boundary. 
+                If `None`, compute the distance to the whole boundary.
                 "x1-x2" indicates the line segment with vertices x1 and x2 (after reordered). Default is `None`.
 
         Returns:
@@ -898,14 +909,18 @@ class Polygon(Geometry):
         )
         self.nvertices = len(self.vertices)
         self.perimeter = jnp.sum(
-            jnp.asarray([self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)])
+            jnp.asarray(
+                [self.diagonals[i, i + 1] for i in range(-1, self.nvertices - 1)]
+            )
         )
         self.bbox = jnp.array(
             [jnp.min(self.vertices, axis=0), jnp.max(self.vertices, axis=0)]
         )
 
         self.segments = self.vertices[1:] - self.vertices[:-1]
-        self.segments = jnp.vstack((self.vertices[0] - self.vertices[-1], self.segments))
+        self.segments = jnp.vstack(
+            (self.vertices[0] - self.vertices[-1], self.segments)
+        )
         self.normal = clockwise_rotation_90(self.segments.T).T
         self.normal = self.normal / jnp.linalg.norm(self.normal, axis=1).reshape(-1, 1)
 
@@ -938,7 +953,7 @@ class Polygon(Geometry):
                     ),
                     axis=-1,
                 )
-                wn = wn.at[tmp].add(1) # Have a valid up intersect
+                wn = wn.at[tmp].add(1)  # Have a valid up intersect
                 tmp = jnp.all(
                     jnp.hstack(
                         [

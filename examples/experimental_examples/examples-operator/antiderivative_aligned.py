@@ -34,7 +34,9 @@ problem = deepxde_new.problem.TripleCartesianProd(
 model = deepxde_new.Trainer(problem)
 
 # Compile and Train
-model.compile(bst.optim.Adam(0.001), metrics=["mean l2 relative error"]).train(iterations=10000)
+model.compile(bst.optim.Adam(0.001), metrics=["mean l2 relative error"]).train(
+    iterations=10000
+)
 
 # Plot the loss trajectory
 deepxde_new.utils.plot_loss_history(model.loss_history)

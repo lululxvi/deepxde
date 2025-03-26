@@ -19,16 +19,16 @@ from deepxde.callbacks import (
 from deepxde.utils.internal import list_to_str
 
 __all__ = [
-    'Callback',
-    'CallbackList',
-    'ModelCheckpoint',
-    'EarlyStopping',
-    'Timer',
-    'DropoutUncertainty',
-    'VariableValue',
-    'OperatorPredictor',
-    'MovieDumper',
-    'PDEPointResampler',
+    "Callback",
+    "CallbackList",
+    "ModelCheckpoint",
+    "EarlyStopping",
+    "Timer",
+    "DropoutUncertainty",
+    "VariableValue",
+    "OperatorPredictor",
+    "MovieDumper",
+    "PDEPointResampler",
 ]
 
 
@@ -82,11 +82,17 @@ class DropoutUncertainty(DropoutUncertaintyCallback):
             self.epochs_since_last = 0
             y_preds = []
             for _ in range(1000):
-                y_pred_test_one = self.model.fn_outputs(True, self.model.train_state.X_test)
+                y_pred_test_one = self.model.fn_outputs(
+                    True, self.model.train_state.X_test
+                )
                 y_preds.append(y_pred_test_one)
-            y_preds = jax.tree.map(lambda *x: u.math.stack(x, axis=0), *y_preds, is_leaf=u.math.is_quantity)
-            self.model.train_state.y_std_test = jax.tree.map(lambda x: u.math.std(x, axis=0), y_preds,
-                                                             is_leaf=u.math.is_quantity)
+            y_preds = jax.tree.map(
+                lambda *x: u.math.stack(x, axis=0), *y_preds, is_leaf=u.math.is_quantity
+            )
+            self.model.train_state.y_std_test = jax.tree.map(
+                lambda x: u.math.std(x, axis=0), y_preds, is_leaf=u.math.is_quantity
+            )
+
 
 class VariableValue(Callback):
     """Get the variable values.

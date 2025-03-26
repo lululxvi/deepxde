@@ -9,7 +9,9 @@ import brainunit as u
 TransformFn = Callable
 
 __all__ = [
-    'jacobian', 'hessian', 'gradient',
+    "jacobian",
+    "hessian",
+    "gradient",
 ]
 
 
@@ -56,11 +58,17 @@ class GradientTransform(bst.util.PrettyRepr):
         self._states_to_be_written: Tuple[bst.State, ...] = None
         _grad_setting = dict() if transform_params is None else transform_params
         if self._has_aux:
-            self._transform = transform(self._fun_with_aux, has_aux=True, **_grad_setting)
+            self._transform = transform(
+                self._fun_with_aux, has_aux=True, **_grad_setting
+            )
         else:
-            self._transform = transform(self._fun_without_aux, has_aux=True, **_grad_setting)
+            self._transform = transform(
+                self._fun_without_aux, has_aux=True, **_grad_setting
+            )
 
-    def __pretty_repr__(self) -> Iterator[Union[bst.util.PrettyType, bst.util.PrettyAttr]]:
+    def __pretty_repr__(
+        self,
+    ) -> Iterator[Union[bst.util.PrettyType, bst.util.PrettyAttr]]:
         """
         Generate a pretty representation of the GradientTransform instance.
 
@@ -104,7 +112,9 @@ class GradientTransform(bst.util.PrettyRepr):
             Tuple: A tuple containing the main output and auxiliary data.
         """
         outs = self._call_target(*args, **kwargs)
-        assert self._states_to_be_written is not None, "The states to be written should be collected."
+        assert (
+            self._states_to_be_written is not None
+        ), "The states to be written should be collected."
         return outs[0], (outs, [v.value for v in self._states_to_be_written])
 
     def _fun_without_aux(self, *args, **kwargs):
@@ -119,7 +129,9 @@ class GradientTransform(bst.util.PrettyRepr):
             Tuple: A tuple containing the output and related data.
         """
         out = self._call_target(*args, **kwargs)
-        assert self._states_to_be_written is not None, "The states to be written should be collected."
+        assert (
+            self._states_to_be_written is not None
+        ), "The states to be written should be collected."
         return out, (out, [v.value for v in self._states_to_be_written])
 
     def _return(self, rets):
@@ -258,9 +270,11 @@ def _raw_hessian(
 
 
 def _format_x(fn, x_keys, xs):
-    assert isinstance(xs, dict), 'xs must be a dictionary.'
-    assert isinstance(x_keys, (tuple, list)), 'x must be a tuple or list.'
-    assert all(isinstance(key, str) for key in x_keys), 'x_keys must be a tuple or list of strings.'
+    assert isinstance(xs, dict), "xs must be a dictionary."
+    assert isinstance(x_keys, (tuple, list)), "x must be a tuple or list."
+    assert all(
+        isinstance(key, str) for key in x_keys
+    ), "x_keys must be a tuple or list of strings."
     others = {key: xs[key] for key in xs if key not in x_keys}
     xs = {key: xs[key] for key in x_keys}
 
@@ -272,8 +286,10 @@ def _format_x(fn, x_keys, xs):
 
 
 def _format_y(fn, y, has_aux: bool):
-    assert isinstance(y, (tuple, list)), 'y must be a tuple or list.'
-    assert all(isinstance(key, str) for key in y), 'y must be a tuple or list of strings.'
+    assert isinstance(y, (tuple, list)), "y must be a tuple or list."
+    assert all(
+        isinstance(key, str) for key in y
+    ), "y must be a tuple or list of strings."
 
     @wraps(fn)
     def fn_new(inputs):
@@ -292,23 +308,23 @@ def jacobian(
     xs: Dict,
     y: str | Sequence[str] | None = None,
     x: str | Sequence[str] | None = None,
-    mode: str = 'backward',
+    mode: str = "backward",
     vmap: bool = True,
 ):
     """
     Compute the Jacobian matrix of a function.
 
-    This function calculates the Jacobian matrix J as J[i, j] = dy_i / dx_j, 
+    This function calculates the Jacobian matrix J as J[i, j] = dy_i / dx_j,
     where i = 0, ..., dim_y - 1 and j = 0, ..., dim_x - 1.
 
     Args:
         fn (Callable): The function to compute the Jacobian for.
         xs (Dict): A dictionary containing the input values for the function.
-        y (str | Sequence[str] | None, optional): Specifies the output variable(s) for which 
+        y (str | Sequence[str] | None, optional): Specifies the output variable(s) for which
             to compute the Jacobian. If None, computes for all outputs. Defaults to None.
-        x (str | Sequence[str] | None, optional): Specifies the input variable(s) with respect 
+        x (str | Sequence[str] | None, optional): Specifies the input variable(s) with respect
             to which the Jacobian is computed. If None, computes for all inputs. Defaults to None.
-        mode (str, optional): The mode of gradient computation. Either 'backward' or 'forward'. 
+        mode (str, optional): The mode of gradient computation. Either 'backward' or 'forward'.
             Defaults to 'backward'.
         vmap (bool, optional): Whether to use vectorized mapping. Defaults to True.
 
@@ -328,8 +344,8 @@ def jacobian(
         while 'forward' mode is more efficient for functions with more inputs than outputs.
     """
     # assert isinstance(xs, dict), 'xs must be a dictionary.'
-    assert isinstance(mode, str), 'mode must be a string.'
-    assert mode in ['backward', 'forward'], 'mode must be either backward or forward.'
+    assert isinstance(mode, str), "mode must be a string."
+    assert mode in ["backward", "forward"], "mode must be either backward or forward."
 
     # process only for x
     if isinstance(x, str):
@@ -340,12 +356,16 @@ def jacobian(
         y = [y]
 
     # compute the Jacobian
-    if mode == 'backward':
-        transform = GradientTransform(fn, _raw_jacrev, transform_params={'y': y, 'x': x})
-    elif mode == 'forward':
-        transform = GradientTransform(fn, _raw_jacfwd, transform_params={'y': y, 'x': x})
+    if mode == "backward":
+        transform = GradientTransform(
+            fn, _raw_jacrev, transform_params={"y": y, "x": x}
+        )
+    elif mode == "forward":
+        transform = GradientTransform(
+            fn, _raw_jacfwd, transform_params={"y": y, "x": x}
+        )
     else:
-        raise ValueError('Invalid mode. Choose between backward and forward.')
+        raise ValueError("Invalid mode. Choose between backward and forward.")
     if vmap:
         return bst.augment.vmap(transform)(xs)
     else:
@@ -390,7 +410,9 @@ def hessian(
         xi and xj cannot both be None unless the Hessian has only one element.
     """
     # assert isinstance(xs, dict), 'xs must be a dictionary.'
-    transform = GradientTransform(fn, _raw_hessian, transform_params={'y': y, 'xi': xi, 'xj': xj})
+    transform = GradientTransform(
+        fn, _raw_hessian, transform_params={"y": y, "xi": xi, "xj": xj}
+    )
     if vmap:
         return bst.augment.vmap(transform)(xs)
     else:
@@ -432,8 +454,8 @@ def gradient(
         The function uses a combination of reverse-mode (for the first derivative) and
         forward-mode (for higher-order derivatives) automatic differentiation.
     """
-    assert isinstance(order, int), 'order must be an integer.'
-    assert order > 0, 'order must be positive.'
+    assert isinstance(order, int), "order must be an integer."
+    assert order > 0, "order must be positive."
 
     # process only for y
     if isinstance(y, str):
@@ -443,7 +465,7 @@ def gradient(
 
     # process xi
     if len(xi) > 0:
-        assert len(xi) == order, 'The number of xi must be equal to order.'
+        assert len(xi) == order, "The number of xi must be equal to order."
         xi = list(xi)
         for i in range(order):
             if isinstance(xi[i], str):

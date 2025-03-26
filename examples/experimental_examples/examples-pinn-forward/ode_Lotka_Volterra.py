@@ -12,10 +12,10 @@ rb = 20
 
 def ode_system(x, y):
     jacobian = net.jacobian(x)
-    r = y['r']
-    p = y['p']
-    dr_t = jacobian['r']['t']
-    dp_t = jacobian['p']['t']
+    r = y["r"]
+    p = y["p"]
+    dr_t = jacobian["r"]["t"]
+    dp_t = jacobian["p"]["t"]
     return [
         dr_t - 1 / ub * rb * (2.0 * ub * r - 0.04 * ub * r * ub * p),
         dp_t - 1 / ub * rb * (0.02 * r * ub * p * ub - 1.06 * p * ub),
@@ -42,31 +42,24 @@ def output_transform(t, y):
     y1 = y[..., 0:1]
     y2 = y[..., 1:2]
     return u.math.concatenate(
-        [y1 * u.math.tanh(t) + 100 / ub,
-         y2 * u.math.tanh(t) + 15 / ub],
-        axis=-1
+        [y1 * u.math.tanh(t) + 100 / ub, y2 * u.math.tanh(t) + 15 / ub], axis=-1
     )
 
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(t=None),
     deepxde.nn.FNN(
-        [7] + [64] * 6 + [2], "tanh",
+        [7] + [64] * 6 + [2],
+        "tanh",
         input_transform=input_transform,
-        output_transform=output_transform
+        output_transform=output_transform,
     ),
     deepxde.nn.ArrayToDict(r=None, p=None),
 )
 
-geom = deepxde.geometry.TimeDomain(0, 1.0).to_dict_point('t')
+geom = deepxde.geometry.TimeDomain(0, 1.0).to_dict_point("t")
 problem = deepxde.problem.PDE(
-    geom,
-    ode_system,
-    [],
-    net,
-    num_domain=3000,
-    num_boundary=2,
-    num_test=3000
+    geom, ode_system, [], net, num_domain=3000, num_boundary=2, num_test=3000
 )
 
 trainer = deepxde.Trainer(problem)
@@ -98,9 +91,9 @@ x_true, y_true = gen_truedata()
 plt.plot(t, x_true, color="black", label="x_true")
 plt.plot(t, y_true, color="blue", label="y_true")
 
-sol_pred = trainer.predict({'t': t})
-x_pred = sol_pred['r']
-y_pred = sol_pred['p']
+sol_pred = trainer.predict({"t": t})
+x_pred = sol_pred["r"]
+y_pred = sol_pred["p"]
 
 plt.plot(t, x_pred, color="red", linestyle="dashed", label="x_pred")
 plt.plot(t, y_pred, color="orange", linestyle="dashed", label="y_pred")

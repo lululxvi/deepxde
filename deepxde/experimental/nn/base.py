@@ -1,4 +1,3 @@
-
 from typing import Optional, Callable
 
 import brainstate as bst

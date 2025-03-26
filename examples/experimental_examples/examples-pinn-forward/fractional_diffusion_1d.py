@@ -19,9 +19,9 @@ def fpde(x, y, int_mat):
     du/dt + (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)
     """
     jacobian = net.jacobian(x)
-    dy_t = jacobian['y']['t']
-    y = y['y']
-    x, t = x['x'], x['t']
+    dy_t = jacobian["y"]["t"]
+    y = y["y"]
+    x, t = x["x"], x["t"]
 
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         rowcols = np.asarray(int_mat[0], dtype=np.int32).T
@@ -32,7 +32,7 @@ def fpde(x, y, int_mat):
         lhs = -u.math.matmul(int_mat, y)
 
     rhs = -dy_t - u.math.exp(-t) * (
-        x ** 3 * (1 - x) ** 3
+        x**3 * (1 - x) ** 3
         + gamma(4) / gamma(4 - alpha) * (x ** (3 - alpha) + (1 - x) ** (3 - alpha))
         - 3 * gamma(5) / gamma(5 - alpha) * (x ** (4 - alpha) + (1 - x) ** (4 - alpha))
         + 3 * gamma(6) / gamma(6 - alpha) * (x ** (5 - alpha) + (1 - x) ** (5 - alpha))
@@ -42,19 +42,21 @@ def fpde(x, y, int_mat):
 
 
 def func(x):
-    return {'y': u.math.exp(-x['t']) * x['x'] ** 3 * (1 - x['x']) ** 3}
+    return {"y": u.math.exp(-x["t"]) * x["x"] ** 3 * (1 - x["x"]) ** 3}
 
 
 def out_transform(x, y):
-    x = deepxde.utils.array_to_dict(x, ['x', 't'], keep_dim=True)
-    return x['x'] * (1 - x['x']) * x['t'] * y + x['x'] ** 3 * (1 - x['x']) ** 3
+    x = deepxde.utils.array_to_dict(x, ["x", "t"], keep_dim=True)
+    return x["x"] * (1 - x["x"]) * x["t"] * y + x["x"] ** 3 * (1 - x["x"]) ** 3
 
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(x=None, t=None),
     deepxde.nn.FNN(
-        [2] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
-        output_transform=out_transform
+        [2] + [20] * 4 + [1],
+        "tanh",
+        bst.init.KaimingUniform(),
+        output_transform=out_transform,
     ),
     deepxde.nn.ArrayToDict(y=None),
 )
@@ -62,9 +64,9 @@ net = deepxde.nn.Model(
 bc = deepxde.icbc.DirichletBC(func)
 ic = deepxde.icbc.IC(func)
 
-data_type = 'static'  # 'static',  or  'dynamic'
+data_type = "static"  # 'static',  or  'dynamic'
 
-if data_type == 'static':
+if data_type == "static":
     # Static auxiliary points
     data = deepxde.problem.TimeFPDE(
         geomtime,

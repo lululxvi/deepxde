@@ -7,9 +7,7 @@ import numpy as np
 from deepxde.experimental import utils
 from .base import Problem
 
-__all__ = [
-    'DataSet'
-]
+__all__ = ["DataSet"]
 
 
 class DataSet(Problem):
@@ -45,10 +43,12 @@ class DataSet(Problem):
         y_test: Dict[str, bst.typing.ArrayLike],
         standardize: bool = False,
         approximator: bst.nn.Module = None,
-        loss_fn: str = 'MSE',
+        loss_fn: str = "MSE",
         loss_weights: Sequence[float] = None,
     ):
-        super().__init__(approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights)
+        super().__init__(
+            approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights
+        )
 
         self.train_x = X_train
         self.train_y = y_train
@@ -58,7 +58,8 @@ class DataSet(Problem):
         if standardize:
             r = jax.tree.map(
                 lambda train, test: utils.standardize(train, test),
-                self.train_x, self.test_x
+                self.train_x,
+                self.test_x,
             )
             self.train_x = dict()
             self.test_x = dict()

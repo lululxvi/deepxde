@@ -18,11 +18,10 @@ def pde(xy, uvp, aux):
     def solve_jac(xy_):
         f = lambda i: deepxde_new.grad.jacobian(
             lambda inp: jax.tree.map(
-                lambda x: x[i],
-                net((fix, deepxde_new.utils.dict_to_array(inp)))
+                lambda x: x[i], net((fix, deepxde_new.utils.dict_to_array(inp)))
             ),
-            {'x': xy_[..., 0], 'y': xy_[..., 1]},
-            vmap=False
+            {"x": xy_[..., 0], "y": xy_[..., 1]},
+            vmap=False,
         )
         return jax.vmap(f)(batch_ids)
 
@@ -31,27 +30,26 @@ def pde(xy, uvp, aux):
     def solve_hes(xy_):
         f = lambda i: deepxde_new.grad.hessian(
             lambda inp: jax.tree.map(
-                lambda x: x[i],
-                net((fix, deepxde_new.utils.dict_to_array(inp)))
+                lambda x: x[i], net((fix, deepxde_new.utils.dict_to_array(inp)))
             ),
-            {'x': xy_[..., 0], 'y': xy_[..., 1]},
-            y=['u', 'v'],
-            vmap=False
+            {"x": xy_[..., 0], "y": xy_[..., 1]},
+            y=["u", "v"],
+            vmap=False,
         )
         return jax.vmap(f)(batch_ids)
 
     hessian = jax.vmap(solve_hes)(xy)
 
     # first order
-    du_x = u.math.squeeze(jacobian['u']['x'])
-    dv_y = u.math.squeeze(jacobian['v']['y'])
-    dp_x = u.math.squeeze(jacobian['p']['x'])
-    dp_y = u.math.squeeze(jacobian['p']['y'])
+    du_x = u.math.squeeze(jacobian["u"]["x"])
+    dv_y = u.math.squeeze(jacobian["v"]["y"])
+    dp_x = u.math.squeeze(jacobian["p"]["x"])
+    dp_y = u.math.squeeze(jacobian["p"]["y"])
     # second order
-    du_xx = u.math.squeeze(hessian['u']['x']['x'])
-    du_yy = u.math.squeeze(hessian['u']['y']['y'])
-    dv_xx = u.math.squeeze(hessian['v']['x']['x'])
-    dv_yy = u.math.squeeze(hessian['v']['y']['y'])
+    du_xx = u.math.squeeze(hessian["u"]["x"]["x"])
+    du_yy = u.math.squeeze(hessian["u"]["y"]["y"])
+    dv_xx = u.math.squeeze(hessian["v"]["x"]["x"])
+    dv_yy = u.math.squeeze(hessian["v"]["y"]["y"])
     motion_x = mu * (du_xx + du_yy) - dp_x
     motion_y = mu * (dv_xx + dv_yy) - dp_y
     mass = du_x + dv_y
@@ -82,13 +80,13 @@ net = bst.nn.Sequential(
         "tanh",
         num_outputs=3,
         multi_output_strategy="independent",
-        output_transform=out_transform
+        output_transform=out_transform,
     ),
-    deepxde_new.nn.ArrayToDict(u=None, v=None, p=None)
+    deepxde_new.nn.ArrayToDict(u=None, v=None, p=None),
 )
 
 # Geometry
-geom = deepxde_new.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
+geom = deepxde_new.geometry.Rectangle([0, 0], [1, 1]).to_dict_point("x", "y")
 
 
 # Boundary condition
@@ -96,13 +94,13 @@ geom = deepxde_new.geometry.Rectangle([0, 0], [1, 1]).to_dict_point('x', 'y')
 def bc_slip_top_func(x, aux):
     # using (perturbation / 10 + 1) * x * (1 - x)
     x = x[1][..., 0]
-    u_ = (aux / 10 + 1.) * u.math.asarray(x * (1 - x))
-    return {'u': u_}
+    u_ = (aux / 10 + 1.0) * u.math.asarray(x * (1 - x))
+    return {"u": u_}
 
 
 bc_slip_top = deepxde_new.icbc.DirichletBC(
     func=bc_slip_top_func,
-    on_boundary=lambda x, on_boundary: u.math.isclose(x['y'], 1.),
+    on_boundary=lambda x, on_boundary: u.math.isclose(x["y"], 1.0),
 )
 
 # Function space
@@ -135,36 +133,55 @@ trainer.saveplot()
 # Evaluation
 func_feats = func_space.random(1)
 v = func_space.eval_batch(func_feats, eval_pts)
-v[:] = 0.  # true solution uses zero perturbation
-xv, yv = np.meshgrid(eval_pts[:, 0], eval_pts[:, 0], indexing='ij')
+v[:] = 0.0  # true solution uses zero perturbation
+xv, yv = np.meshgrid(eval_pts[:, 0], eval_pts[:, 0], indexing="ij")
 xy = np.vstack((np.ravel(xv), np.ravel(yv))).T
 sol_pred = trainer.predict((v, xy))
 sol_pred = jax.tree.map(lambda x: x[0], sol_pred)
-sol_true = np.load('../dataset/stokes.npz')['arr_0']
-print('Error on horizontal velocity:', deepxde_new.metrics.l2_relative_error(sol_true[:, 0], sol_pred['u']))
-print('Error on vertical velocity:', deepxde_new.metrics.l2_relative_error(sol_true[:, 1], sol_pred['v']))
-print('Error on pressure:', deepxde_new.metrics.l2_relative_error(sol_true[:, 2], sol_pred['p']))
+sol_true = np.load("../dataset/stokes.npz")["arr_0"]
+print(
+    "Error on horizontal velocity:",
+    deepxde_new.metrics.l2_relative_error(sol_true[:, 0], sol_pred["u"]),
+)
+print(
+    "Error on vertical velocity:",
+    deepxde_new.metrics.l2_relative_error(sol_true[:, 1], sol_pred["v"]),
+)
+print(
+    "Error on pressure:",
+    deepxde_new.metrics.l2_relative_error(sol_true[:, 2], sol_pred["p"]),
+)
 
 
 # Plot
-def plot_sol(sol, ax, pressure_lim=0.03, vec_space=4, vec_scale=.5, label=""):
-    ax.imshow(sol[:, :, 2].T,
-              origin="lower",
-              vmin=-pressure_lim,
-              vmax=pressure_lim,
-              cmap="turbo",
-              alpha=.6)
-    ax.quiver(xv[::vec_space, ::vec_space] * 100,
-              yv[::vec_space, ::vec_space] * 100,
-              sol[::vec_space, ::vec_space, 0],
-              sol[::vec_space, ::vec_space, 1], color="k", scale=vec_scale)
-    ax.axis('off')
+def plot_sol(sol, ax, pressure_lim=0.03, vec_space=4, vec_scale=0.5, label=""):
+    ax.imshow(
+        sol[:, :, 2].T,
+        origin="lower",
+        vmin=-pressure_lim,
+        vmax=pressure_lim,
+        cmap="turbo",
+        alpha=0.6,
+    )
+    ax.quiver(
+        xv[::vec_space, ::vec_space] * 100,
+        yv[::vec_space, ::vec_space] * 100,
+        sol[::vec_space, ::vec_space, 0],
+        sol[::vec_space, ::vec_space, 1],
+        color="k",
+        scale=vec_scale,
+    )
+    ax.axis("off")
     ax.set_title(label)
 
 
 fig, ax = plt.subplots(1, 2, dpi=200)
 plot_sol(sol_true.reshape(101, 101, 3), ax[0], label="True")
-plot_sol(deepxde_new.utils.dict_to_array(sol_pred).reshape(101, 101, 3), ax[1], label="Predicted")
+plot_sol(
+    deepxde_new.utils.dict_to_array(sol_pred).reshape(101, 101, 3),
+    ax[1],
+    label="Predicted",
+)
 # save plot if needed
 # plt.savefig('stokes_plot.png')
 plt.show()

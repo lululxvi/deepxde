@@ -41,7 +41,7 @@ import deepxde.experimental as deepxde
 geom = deepxde.geometry.Interval(-1, 1)
 timedomain = deepxde.geometry.TimeDomain(0, 10)
 geomtime = deepxde.geometry.GeometryXTime(geom, timedomain)
-geomtime = geomtime.to_dict_point('x', 't')
+geomtime = geomtime.to_dict_point("x", "t")
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(x=None, t=None),
@@ -56,25 +56,25 @@ def pde(x, y):
     hessian = net.hessian(x)
     dy_tt = hessian["y"]["t"]["t"]
     dy_xx = hessian["y"]["x"]["x"]
-    x, t = x['x'], x['t']
-    y = y['y']
+    x, t = x["x"], x["t"]
+    y = y["y"]
     return (
         dy_tt
         + alpha * dy_xx
         + beta * y
-        + gamma * (y ** 2)
+        + gamma * (y**2)
         + x * u.math.cos(t)
-        - (x ** 2) * (u.math.cos(t) ** 2)
+        - (x**2) * (u.math.cos(t) ** 2)
     )
 
 
 def func(x):
-    return {'y': x['x'] * u.math.cos(x['t'])}
+    return {"y": x["x"] * u.math.cos(x["t"])}
 
 
 bc = deepxde.icbc.DirichletBC(func)
 ic_1 = deepxde.icbc.IC(func)
-ic_2 = deepxde.icbc.OperatorBC(lambda x, y: {'y': net.jacobian(x)['y']['t']})
+ic_2 = deepxde.icbc.OperatorBC(lambda x, y: {"y": net.jacobian(x)["y"]["t"]})
 data = deepxde.problem.TimePDE(
     geomtime,
     pde,
@@ -92,9 +92,9 @@ model.compile(
     bst.optim.Adam(bst.optim.InverseTimeDecayLR(1e-3, 3000, 0.9)),
     metrics=["l2 relative error"],
 ).train(iterations=20000)
-model.compile(
-    bst.optim.LBFGS(1e-3), metrics=["l2 relative error"]
-).train(2000, display_every=200)
+model.compile(bst.optim.LBFGS(1e-3), metrics=["l2 relative error"]).train(
+    2000, display_every=200
+)
 
 model.saveplot(issave=True, isplot=True)
 
@@ -106,10 +106,10 @@ X_star = dict(x=np.ravel(X), t=np.ravel(T))
 prediction = model.predict(X_star)
 
 v = griddata(
-    np.stack((X_star['x'], X_star['t']), axis=-1),
-    prediction['y'],
+    np.stack((X_star["x"], X_star["t"]), axis=-1),
+    prediction["y"],
     (X, T),
-    method="cubic"
+    method="cubic",
 )
 
 fig, ax = plt.subplots()

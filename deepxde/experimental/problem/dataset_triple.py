@@ -5,10 +5,7 @@ import brainstate as bst
 from deepxde.data.sampler import BatchSampler
 from .base import Problem
 
-__all__ = [
-    'TripleDataset',
-    'TripleCartesianProd'
-]
+__all__ = ["TripleDataset", "TripleCartesianProd"]
 
 
 class TripleDataset(Problem):
@@ -42,13 +39,11 @@ class TripleDataset(Problem):
         X_test,
         y_test,
         approximator: bst.nn.Module = None,
-        loss_fn: str = 'MSE',
+        loss_fn: str = "MSE",
         loss_weights: Sequence[float] = None,
     ):
         super().__init__(
-            approximator=approximator,
-            loss_fn=loss_fn,
-            loss_weights=loss_weights
+            approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights
         )
         self.train_x = X_train
         self.train_y = y_train
@@ -88,8 +83,7 @@ class TripleDataset(Problem):
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
         return (
-            (self.train_x[0][indices],
-             self.train_x[1][indices]),
+            (self.train_x[0][indices], self.train_x[1][indices]),
             self.train_y[indices],
         )
 
@@ -127,7 +121,7 @@ class TripleCartesianProd(Problem):
         X_test,
         y_test,
         approximator: bst.nn.Module = None,
-        loss_fn: str = 'MSE',
+        loss_fn: str = "MSE",
         loss_weights: Sequence[float] = None,
     ):
         """
@@ -146,9 +140,7 @@ class TripleCartesianProd(Problem):
             ValueError: If the training or testing dataset does not have the format of Cartesian product.
         """
         super().__init__(
-            approximator=approximator,
-            loss_fn=loss_fn,
-            loss_weights=loss_weights
+            approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights
         )
 
         if len(X_train[0]) != y_train.shape[0] or len(X_train[1]) != y_train.shape[1]:
@@ -185,8 +177,8 @@ class TripleCartesianProd(Problem):
         Get the next batch of training data.
 
         Args:
-            batch_size (int, tuple, or list, optional): The size of the batch to return. 
-                If None, returns all training data. 
+            batch_size (int, tuple, or list, optional): The size of the batch to return.
+                If None, returns all training data.
                 If int, returns a batch with the specified size for branch data and all trunk data.
                 If tuple or list, returns a batch with specified sizes for both branch and trunk data.
 
@@ -203,9 +195,11 @@ class TripleCartesianProd(Problem):
         indices_branch = self.branch_sampler.get_next(batch_size[0])
         indices_trunk = self.trunk_sampler.get_next(batch_size[1])
         return (
-            (self.train_x[0][indices_branch],
-             self.train_x[1][indices_trunk],),
-            self.train_y[indices_branch, indices_trunk]
+            (
+                self.train_x[0][indices_branch],
+                self.train_x[1][indices_trunk],
+            ),
+            self.train_y[indices_branch, indices_trunk],
         )
 
     def test(self):

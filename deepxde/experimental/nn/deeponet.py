@@ -9,7 +9,7 @@ from deepxde.nn.deeponet_strategy import (
     IndependentStrategy,
     SplitBothStrategy,
     SplitBranchStrategy,
-    SplitTrunkStrategy
+    SplitTrunkStrategy,
 )
 from deepxde.experimental.utils import get_activation
 from .base import NN
@@ -84,8 +84,9 @@ class DeepONet(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
 
         # activation function
         if isinstance(activation, dict):
@@ -100,15 +101,22 @@ class DeepONet(NN):
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
             if multi_output_strategy is not None:
-                raise ValueError("num_outputs is set to 1, but multi_output_strategy is not None.")
+                raise ValueError(
+                    "num_outputs is set to 1, but multi_output_strategy is not None."
+                )
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
-            print(f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
-                  'Use "independent" as the multi_output_strategy.')
-        self.multi_output_strategy: DeepONetStrategy = strategies[multi_output_strategy](self)
+            print(
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                'Use "independent" as the multi_output_strategy.'
+            )
+        self.multi_output_strategy: DeepONetStrategy = strategies[
+            multi_output_strategy
+        ](self)
 
-        self.branch, self.trunk = self.multi_output_strategy.build(layer_sizes_branch,
-                                                                   layer_sizes_trunk)
+        self.branch, self.trunk = self.multi_output_strategy.build(
+            layer_sizes_branch, layer_sizes_trunk
+        )
         self.b = bst.ParamState([0.0 for _ in range(self.num_outputs)])
 
     def build_branch_net(self, layer_sizes_branch) -> FNN:
@@ -116,14 +124,10 @@ class DeepONet(NN):
         if callable(layer_sizes_branch[1]):
             return layer_sizes_branch[1]
         # Fully connected network
-        return FNN(layer_sizes_branch,
-                   self.activation_branch,
-                   self.kernel_initializer)
+        return FNN(layer_sizes_branch, self.activation_branch, self.kernel_initializer)
 
     def build_trunk_net(self, layer_sizes_trunk) -> FNN:
-        return FNN(layer_sizes_trunk,
-                   self.activation_trunk,
-                   self.kernel_initializer)
+        return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
 
     def merge_branch_trunk(self, x_func, x_loc, index):
         y = u.math.sum(x_func * x_loc, axis=-1, keepdims=True)
@@ -200,8 +204,9 @@ class DeepONetCartesianProd(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
         if isinstance(activation, dict):
             self.activation_branch = activation["branch"]
             self.activation_trunk = get_activation(activation["trunk"])
@@ -212,15 +217,20 @@ class DeepONetCartesianProd(NN):
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
             if multi_output_strategy is not None:
-                raise ValueError("num_outputs is set to 1, but multi_output_strategy is not None.")
+                raise ValueError(
+                    "num_outputs is set to 1, but multi_output_strategy is not None."
+                )
         elif multi_output_strategy is None:
             multi_output_strategy = "independent"
-            print(f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
-                  'Use "independent" as the multi_output_strategy.')
+            print(
+                f"Warning: There are {num_outputs} outputs, but no multi_output_strategy selected. "
+                'Use "independent" as the multi_output_strategy.'
+            )
         self.multi_output_strategy = strategies[multi_output_strategy](self)
 
-        self.branch, self.trunk = self.multi_output_strategy.build(layer_sizes_branch,
-                                                                   layer_sizes_trunk)
+        self.branch, self.trunk = self.multi_output_strategy.build(
+            layer_sizes_branch, layer_sizes_trunk
+        )
         self.b = bst.ParamState([0.0 for _ in range(self.num_outputs)])
 
     def build_branch_net(self, layer_sizes_branch):
@@ -290,8 +300,9 @@ class PODDeepONet(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
         self.regularization = regularization  # TODO: currently unused
         self.pod_basis = pod_basis
         if isinstance(activation, dict):
@@ -309,7 +320,9 @@ class PODDeepONet(NN):
 
         self.trunk = None
         if layer_sizes_trunk is not None:
-            self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
+            self.trunk = FNN(
+                layer_sizes_trunk, self.activation_trunk, kernel_initializer
+            )
             self.b = bst.ParamState(0.0)
 
     def forward(self, inputs):
@@ -324,7 +337,9 @@ class PODDeepONet(NN):
             x = u.math.einsum("bi,ni->bn", x_func, self.pod_basis)
         else:
             x_loc = self.activation_trunk(self.trunk(x_loc))
-            x = u.math.einsum("bi,ni->bn", x_func, u.math.concatenate((self.pod_basis, x_loc), axis=1))
+            x = u.math.einsum(
+                "bi,ni->bn", x_func, u.math.concatenate((self.pod_basis, x_loc), axis=1)
+            )
             x += self.b.value
 
         if self._output_transform is not None:

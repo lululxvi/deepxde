@@ -29,27 +29,34 @@ class MIONetCartesianProd(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
 
         if isinstance(activation, dict):
             self.activation_branch1 = get_activation(activation["branch1"])
             self.activation_branch2 = get_activation(activation["branch2"])
             self.activation_trunk = get_activation(activation["trunk"])
         else:
-            self.activation_branch1 = self.activation_branch2 = self.activation_trunk = get_activation(activation)
+            self.activation_branch1 = self.activation_branch2 = (
+                self.activation_trunk
+            ) = get_activation(activation)
         if callable(layer_sizes_branch1[1]):
             # User-defined network
             self.branch1 = layer_sizes_branch1[1]
         else:
             # Fully connected network
-            self.branch1 = FNN(layer_sizes_branch1, self.activation_branch1, kernel_initializer)
+            self.branch1 = FNN(
+                layer_sizes_branch1, self.activation_branch1, kernel_initializer
+            )
         if callable(layer_sizes_branch2[1]):
             # User-defined network
             self.branch2 = layer_sizes_branch2[1]
         else:
             # Fully connected network
-            self.branch2 = FNN(layer_sizes_branch2, self.activation_branch2, kernel_initializer)
+            self.branch2 = FNN(
+                layer_sizes_branch2, self.activation_branch2, kernel_initializer
+            )
         if layer_sizes_merger is not None:
             self.activation_merger = get_activation(activation["merger"])
             if callable(layer_sizes_merger[1]):
@@ -57,7 +64,9 @@ class MIONetCartesianProd(NN):
                 self.merger = layer_sizes_merger[1]
             else:
                 # Fully connected network
-                self.merger = FNN(layer_sizes_merger, self.activation_merger, kernel_initializer)
+                self.merger = FNN(
+                    layer_sizes_merger, self.activation_merger, kernel_initializer
+                )
         else:
             self.merger = None
         if layer_sizes_output_merger is not None:
@@ -92,13 +101,17 @@ class MIONetCartesianProd(NN):
             x_merger = u.math.concatenate((y_func1, y_func2), axis=-1)
         else:
             if y_func1.shape[-1] != y_func2.shape[-1]:
-                raise AssertionError("Output sizes of branch1 net and branch2 net do not match.")
+                raise AssertionError(
+                    "Output sizes of branch1 net and branch2 net do not match."
+                )
             if self.merge_operation == "add":
                 x_merger = y_func1 + y_func2
             elif self.merge_operation == "mul":
                 x_merger = u.math.multiply(y_func1, y_func2)
             else:
-                raise NotImplementedError(f"{self.merge_operation} operation to be implemented")
+                raise NotImplementedError(
+                    f"{self.merge_operation} operation to be implemented"
+                )
         # Optional merger net
         if self.merger is not None:
             y_func = self.merger(x_merger)
@@ -112,7 +125,9 @@ class MIONetCartesianProd(NN):
             y_loc = self.activation_trunk(y_loc)
         # Dot product
         if y_func.shape[-1] != y_loc.shape[-1]:
-            raise AssertionError("Output sizes of merger net and trunk net do not match.")
+            raise AssertionError(
+                "Output sizes of merger net and trunk net do not match."
+            )
         # output merger net
         if self.output_merger is None:
             y = u.math.einsum("ip,jp->ij", y_func, y_loc)
@@ -158,8 +173,9 @@ class PODMIONet(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
 
         if isinstance(activation, dict):
             self.activation_branch1 = get_activation(activation["branch1"])
@@ -167,34 +183,42 @@ class PODMIONet(NN):
             self.activation_trunk = get_activation(activation["trunk"])
             self.activation_merger = get_activation(activation["merger"])
         else:
-            self.activation_branch1 = (
-                self.activation_branch2
-            ) = self.activation_trunk = get_activation(activation)
+            self.activation_branch1 = self.activation_branch2 = (
+                self.activation_trunk
+            ) = get_activation(activation)
         self.pod_basis = pod_basis
         if callable(layer_sizes_branch1[1]):
             # User-defined network
             self.branch1 = layer_sizes_branch1[1]
         else:
             # Fully connected network
-            self.branch1 = FNN(layer_sizes_branch1, self.activation_branch1, kernel_initializer)
+            self.branch1 = FNN(
+                layer_sizes_branch1, self.activation_branch1, kernel_initializer
+            )
         if callable(layer_sizes_branch2[1]):
             # User-defined network
             self.branch2 = layer_sizes_branch2[1]
         else:
             # Fully connected network
-            self.branch2 = FNN(layer_sizes_branch2, self.activation_branch2, kernel_initializer)
+            self.branch2 = FNN(
+                layer_sizes_branch2, self.activation_branch2, kernel_initializer
+            )
         if layer_sizes_merger is not None:
             if callable(layer_sizes_merger[1]):
                 # User-defined network
                 self.merger = layer_sizes_merger[1]
             else:
                 # Fully connected network
-                self.merger = FNN(layer_sizes_merger, self.activation_merger, kernel_initializer)
+                self.merger = FNN(
+                    layer_sizes_merger, self.activation_merger, kernel_initializer
+                )
         else:
             self.merger = None
         self.trunk = None
         if layer_sizes_trunk is not None:
-            self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
+            self.trunk = FNN(
+                layer_sizes_trunk, self.activation_trunk, kernel_initializer
+            )
             self.b = bst.ParamState(0.0)
         self.regularizer = regularization
         self.trunk_last_activation = trunk_last_activation
@@ -212,13 +236,17 @@ class PODMIONet(NN):
             x_merger = u.math.concatenate((y_func1, y_func2), 1)
         else:
             if y_func1.shape[-1] != y_func2.shape[-1]:
-                raise AssertionError("Output sizes of branch1 net and branch2 net do not match.")
+                raise AssertionError(
+                    "Output sizes of branch1 net and branch2 net do not match."
+                )
             if self.merge_operation == "add":
                 x_merger = y_func1 + y_func2
             elif self.merge_operation == "mul":
                 x_merger = u.math.multiply(y_func1, y_func2)
             else:
-                raise NotImplementedError(f"{self.merge_operation} operation to be implemented")
+                raise NotImplementedError(
+                    f"{self.merge_operation} operation to be implemented"
+                )
         # Optional merger net
         if self.merger is not None:
             y_func = self.merger(x_merger)
@@ -232,7 +260,9 @@ class PODMIONet(NN):
             y_loc = self.trunk(x_loc)
             if self.trunk_last_activation:
                 y_loc = self.activation_trunk(y_loc)
-            y = u.math.einsum("bi,ni->bn", y_func, u.math.concatenate((self.pod_basis, y_loc), axis=1))
+            y = u.math.einsum(
+                "bi,ni->bn", y_func, u.math.concatenate((self.pod_basis, y_loc), axis=1)
+            )
             y += self.b
         if self._output_transform is not None:
             y = self._output_transform(inputs, y)

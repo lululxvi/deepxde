@@ -8,12 +8,14 @@ import deepxde
 import deepxde.experimental as deepxde_new
 
 # PDE
-geom = deepxde_new.geometry.TimeDomain(0, 1).to_dict_point('t')
+geom = deepxde_new.geometry.TimeDomain(0, 1).to_dict_point("t")
 
 
 def pde(x, u_, aux):
     def solve_jac(inp1):
-        f1 = lambda i: deepxde_new.grad.jacobian(lambda inp: net((x[0], inp))['u'][i], inp1, vmap=False)
+        f1 = lambda i: deepxde_new.grad.jacobian(
+            lambda inp: net((x[0], inp))["u"][i], inp1, vmap=False
+        )
         return jax.vmap(f1)(np.arange(x[0].shape[0]))
 
     jacobian = jax.vmap(solve_jac, out_axes=1)(jax.numpy.expand_dims(x[1], 1))
@@ -27,12 +29,12 @@ net = bst.nn.Sequential(
         [1, 128, 128, 128],
         "tanh",
         # Hard constraint zero IC
-        output_transform=lambda inputs, outputs: outputs * inputs[1].T
+        output_transform=lambda inputs, outputs: outputs * inputs[1].T,
     ),
-    deepxde_new.nn.ArrayToDict(u=None)
+    deepxde_new.nn.ArrayToDict(u=None),
 )
 
-ic = deepxde_new.icbc.IC(lambda _, aux: {'u': 0})
+ic = deepxde_new.icbc.IC(lambda _, aux: {"u": 0})
 
 # Function space
 func_space = deepxde.data.GRF(length_scale=0.2)
@@ -51,7 +53,7 @@ data = deepxde_new.problem.PDEOperatorCartesianProd(
     batch_size=100,
     num_domain=20,
     num_boundary=2,
-    num_test=40
+    num_test=40,
 )
 
 trainer = deepxde_new.Trainer(data)
@@ -60,7 +62,7 @@ trainer.saveplot()
 
 v = np.sin(np.pi * eval_pts).T
 x = np.linspace(0, 1, num=50)
-u = np.ravel(trainer.predict((v, x[:, None]))['u'])
+u = np.ravel(trainer.predict((v, x[:, None]))["u"])
 u_true = 1 / np.pi - np.cos(np.pi * x) / np.pi
 print(deepxde_new.metrics.l2_relative_error(u_true, u))
 plt.figure()

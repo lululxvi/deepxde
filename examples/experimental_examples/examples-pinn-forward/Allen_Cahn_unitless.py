@@ -12,7 +12,7 @@ import deepxde.experimental as deepxde
 
 geom = deepxde.geometry.Interval(-1, 1)
 timedomain = deepxde.geometry.TimeDomain(0, 1)
-geomtime = deepxde.geometry.GeometryXTime(geom, timedomain).to_dict_point('x', 't')
+geomtime = deepxde.geometry.GeometryXTime(geom, timedomain).to_dict_point("x", "t")
 
 d = 0.001
 
@@ -20,10 +20,10 @@ d = 0.001
 @bst.compile.jit
 def pde(x, out):
     jacobian = net.jacobian(x)
-    hessian = net.hessian(x, xi='x', xj='x')
-    dy_t = jacobian['u']['t']
-    dy_xx = hessian['u']['x']['x']
-    return dy_t - d * dy_xx - 5 * (out['u'] - out['u'] ** 3)
+    hessian = net.hessian(x, xi="x", xj="x")
+    dy_t = jacobian["u"]["t"]
+    dy_xx = hessian["u"]["x"]["x"]
+    return dy_t - d * dy_xx - 5 * (out["u"] - out["u"] ** 3)
 
 
 net = deepxde.nn.Model(
@@ -32,22 +32,16 @@ net = deepxde.nn.Model(
         [2] + [20] * 3 + [1],
         activation="tanh",
         output_transform=lambda x, y: u.math.expand_dims(
-            x[..., 0] ** 2 * u.math.cos(np.pi * x[..., 0]) +
-            x[..., 1] * (1 - x[..., 0] ** 2) * y,
-            axis=-1
-        )
+            x[..., 0] ** 2 * u.math.cos(np.pi * x[..., 0])
+            + x[..., 1] * (1 - x[..., 0] ** 2) * y,
+            axis=-1,
+        ),
     ),
-    deepxde.nn.ArrayToDict(u=None)
+    deepxde.nn.ArrayToDict(u=None),
 )
 
 problem = deepxde.problem.TimePDE(
-    geomtime,
-    pde,
-    [],
-    net,
-    num_domain=8000,
-    num_boundary=400,
-    num_initial=800
+    geomtime, pde, [], net, num_domain=8000, num_boundary=400, num_initial=800
 )
 
 trainer = deepxde.Trainer(problem)
@@ -72,4 +66,4 @@ X, y_true = gen_testdata()
 y_pred = trainer.predict(X)
 f = pde(X, y_pred)
 print("Mean residual:", u.math.mean(u.math.absolute(f)))
-print("L2 relative error:", braintools.metric.l2_norm(y_true, y_pred['u']))
+print("L2 relative error:", braintools.metric.l2_norm(y_true, y_pred["u"]))

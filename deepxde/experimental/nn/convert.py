@@ -4,15 +4,12 @@ import brainstate as bst
 import brainunit as u
 
 __all__ = [
-    'DictToArray',
-    'ArrayToDict',
+    "DictToArray",
+    "ArrayToDict",
 ]
 
 
-def dict_to_array(
-    d: Dict[str, bst.typing.ArrayLike],
-    axis: int = 1
-):
+def dict_to_array(d: Dict[str, bst.typing.ArrayLike], axis: int = 1):
     """
     Convert a dictionary of array-like values to a single concatenated array.
 
@@ -65,14 +62,18 @@ class DictToArray(bst.nn.Module):
         super().__init__()
 
         # axis
-        assert isinstance(axis, int), f"DictToArray axis must be an integer. Please check the input values."
+        assert isinstance(
+            axis, int
+        ), f"DictToArray axis must be an integer. Please check the input values."
         self.axis = axis
 
         # unit scale
         self.units = units
         for val in units.values():
-            assert isinstance(val, u.Unit) or val is None, (f"DictToArray values must be a unit or None. "
-                                                            "Please check the input values.")
+            assert isinstance(val, u.Unit) or val is None, (
+                f"DictToArray values must be a unit or None. "
+                "Please check the input values."
+            )
 
         self.in_size = len(units)
         self.out_size = len(units)
@@ -92,18 +93,28 @@ class DictToArray(bst.nn.Module):
             AssertionError: If the input dictionary keys don't match the units dictionary keys,
                             or if the input values are not of the expected type (Quantity or dimensionless).
         """
-        assert set(x.keys()) == set(self.units.keys()), (f"DictToArray keys mismatch. "
-                                                         f"{set(x.keys())} != {set(self.units.keys())}.")
+        assert set(x.keys()) == set(self.units.keys()), (
+            f"DictToArray keys mismatch. "
+            f"{set(x.keys())} != {set(self.units.keys())}."
+        )
 
         # scale the input
         x_dict = dict()
         for key in self.units.keys():
             val = x[key]
             if isinstance(self.units[key], u.Unit):
-                assert (isinstance(val, u.Quantity) or self.units[key].dim == u.DIMENSIONLESS), (
+                assert (
+                    isinstance(val, u.Quantity)
+                    or self.units[key].dim == u.DIMENSIONLESS
+                ), (
                     f"DictToArray values must be a quantity. "
-                    "Please check the input values.")
-                x_dict[key] = val.to_decimal(self.units[key]) if isinstance(val, u.Quantity) else val
+                    "Please check the input values."
+                )
+                x_dict[key] = (
+                    val.to_decimal(self.units[key])
+                    if isinstance(val, u.Quantity)
+                    else val
+                )
             else:
                 x_dict[key] = u.maybe_decimal(val)
 
@@ -138,8 +149,10 @@ class ArrayToDict(bst.nn.Module):
         self.axis = axis
         self.units = units
         for val in units.values():
-            assert isinstance(val, u.Unit) or val is None, (f"Input values must be a unit or None. "
-                                                            "Please check the input values.")
+            assert isinstance(val, u.Unit) or val is None, (
+                f"Input values must be a unit or None. "
+                "Please check the input values."
+            )
         self.in_size = len(units)
         self.out_size = len(units)
 
@@ -162,10 +175,12 @@ class ArrayToDict(bst.nn.Module):
             AssertionError: If the shape of the input array along the specified axis doesn't
                             match the number of units provided during initialization.
         """
-        assert arr.shape[self.axis] == len(self.units), (f"The number of columns of x must be "
-                                                         f"equal to the number of units. "
-                                                         f"Got {arr.shape[self.axis]} != {len(self.units)}. "
-                                                         "Please check the input values.")
+        assert arr.shape[self.axis] == len(self.units), (
+            f"The number of columns of x must be "
+            f"equal to the number of units. "
+            f"Got {arr.shape[self.axis]} != {len(self.units)}. "
+            "Please check the input values."
+        )
         shape = list(arr.shape)
         shape.pop(self.axis)
         xs = u.math.split(arr, len(self.units), axis=self.axis)

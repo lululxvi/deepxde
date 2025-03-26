@@ -8,11 +8,11 @@ import deepxde.experimental as deepxde
 def pde(x, y):
     hessian = net.hessian(x)
     dy_xx = hessian["y"]["x"]["x"]
-    return -dy_xx - u.math.pi ** 2 * u.math.sin(u.math.pi * x['x'])
+    return -dy_xx - u.math.pi**2 * u.math.sin(u.math.pi * x["x"])
 
 
 def func(x):
-    return {'y': u.math.sin(u.math.pi * x['x'])}
+    return {"y": u.math.sin(u.math.pi * x["x"])}
 
 
 net = deepxde.nn.Model(
@@ -21,7 +21,7 @@ net = deepxde.nn.Model(
     deepxde.nn.ArrayToDict(y=None),
 )
 
-geom = deepxde.geometry.Interval(-1, 1).to_dict_point('x')
+geom = deepxde.geometry.Interval(-1, 1).to_dict_point("x")
 bc = deepxde.icbc.DirichletBC(func)
 data = deepxde.problem.PDE(
     geom, pde, bc, net, num_domain=16, num_boundary=2, solution=func, num_test=100
@@ -50,7 +50,7 @@ trainer.saveplot(issave=True, isplot=True)
 x = geom.uniform_points(1000, True)
 y = pde(x, trainer.predict(x))
 plt.figure()
-plt.plot(x['x'], y)
+plt.plot(x["x"], y)
 plt.xlabel("x")
 plt.ylabel("PDE residual")
 plt.show()

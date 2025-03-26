@@ -63,7 +63,7 @@ class IDE(PDE):
         anchors=None,
         solution=None,
         num_test: int = None,
-        loss_fn: str | Callable = 'MSE',
+        loss_fn: str | Callable = "MSE",
         loss_weights: Sequence[float] = None,
     ):
         """
@@ -106,15 +106,15 @@ class IDE(PDE):
             solution=solution,
             num_test=num_test,
             loss_fn=loss_fn,
-            loss_weights=loss_weights
+            loss_weights=loss_weights,
         )
 
     def call_pde_errors(self, inputs, outputs, **kwargs):
         bcs_start = np.cumsum([0] + self.num_bcs)
-        fit = bst.environ.get('fit')
+        fit = bst.environ.get("fit")
         int_mat = self.get_int_matrix(fit)
         pde_errors = self.pde(inputs, outputs, int_mat, **kwargs)
-        return jax.tree.map(lambda x: x[bcs_start[-1]:], pde_errors)
+        return jax.tree.map(lambda x: x[bcs_start[-1] :], pde_errors)
 
     @run_if_all_none("train_x", "train_y")
     def train_next_batch(self, batch_size=None):
@@ -126,7 +126,7 @@ class IDE(PDE):
             x_bc,
             self.train_x_all,
             x_quad,
-            is_leaf=u.math.is_quantity
+            is_leaf=u.math.is_quantity,
         )
         self.train_y = self.solution(self.train_x) if self.solution else None
         return self.train_x, self.train_y
@@ -142,7 +142,7 @@ class IDE(PDE):
             lambda x, y: u.math.concatenate((x, y), axis=0),
             self.test_x,
             x_quad,
-            is_leaf=u.math.is_quantity
+            is_leaf=u.math.is_quantity,
         )
         self.test_y = self.solution(self.test_x) if self.solution else None
         return self.test_x, self.test_y
@@ -152,11 +152,7 @@ class IDE(PDE):
 
     def quad_points(self, X):
         fn = lambda xs: (jax.vmap(lambda x: (self.quad_x + 1) * x / 2)(xs)).flatten()
-        return jax.tree.map(
-            fn,
-            X,
-            is_leaf=u.math.is_quantity
-        )
+        return jax.tree.map(fn, X, is_leaf=u.math.is_quantity)
 
     def get_int_matrix(self, training):
         def get_quad_weights(x):

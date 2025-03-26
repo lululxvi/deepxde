@@ -6,7 +6,7 @@ from scipy.special import gamma
 
 import deepxde.experimental as deepxde
 
-geom = deepxde.geometry.Interval(0, 1).to_dict_point('x')
+geom = deepxde.geometry.Interval(0, 1).to_dict_point("x")
 
 alpha = 1.5
 
@@ -15,8 +15,8 @@ def fpde(x, y, int_mat):
     """
     (D_{0+}^alpha + D_{1-}^alpha) u(x) = f(x)
     """
-    x = x['x']
-    y = y['y']
+    x = x["x"]
+    y = y["y"]
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         rowcols = np.asarray(int_mat[0], dtype=np.int32).T
         data = int_mat[1]
@@ -36,31 +36,28 @@ def fpde(x, y, int_mat):
 
 
 def func(x):
-    return {'y': x['x'] ** 3 * (1 - x['x']) ** 3}
+    return {"y": x["x"] ** 3 * (1 - x["x"]) ** 3}
 
 
 bc = deepxde.icbc.DirichletBC(func)
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(x=None),
-    deepxde.nn.FNN([1] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
-                   output_transform=lambda x, y: x * (1 - x) * y),
+    deepxde.nn.FNN(
+        [1] + [20] * 4 + [1],
+        "tanh",
+        bst.init.KaimingUniform(),
+        output_transform=lambda x, y: x * (1 - x) * y,
+    ),
     deepxde.nn.ArrayToDict(y=None),
 )
 
-data_type = 'static'  # 'static' or 'dynamic'
+data_type = "static"  # 'static' or 'dynamic'
 
-if data_type == 'static':
+if data_type == "static":
     # Static auxiliary points
     data = deepxde.problem.FPDE(
-        geom,
-        fpde,
-        alpha,
-        bc,
-        [101],
-        approximator=net,
-        meshtype="static",
-        solution=func
+        geom, fpde, alpha, bc, [101], approximator=net, meshtype="static", solution=func
     )
 
 else:
@@ -77,7 +74,7 @@ else:
         num_domain=20,
         num_boundary=2,
         solution=func,
-        num_test=100
+        num_test=100,
     )
 
 trainer = deepxde.Trainer(data)

@@ -15,7 +15,7 @@ Outputs = Any
 LOSS = jax.typing.ArrayLike
 
 __all__ = [
-    'Problem',
+    "Problem",
 ]
 
 
@@ -40,7 +40,7 @@ class Problem(abc.ABC):
     def __init__(
         self,
         approximator: bst.nn.Module = None,
-        loss_fn: str | Callable[[Inputs, Outputs], LOSS] = 'MSE',
+        loss_fn: str | Callable[[Inputs, Outputs], LOSS] = "MSE",
         loss_weights: Sequence[float] = None,
     ):
         """
@@ -48,8 +48,8 @@ class Problem(abc.ABC):
 
         Args:
             approximator (bst.nn.Module, optional): The approximator. Defaults to None.
-            loss_fn (str | Callable[[Inputs, Outputs], LOSS], optional): The loss function. 
-                If the same loss is used for all errors, then `loss` is a String name of a loss function 
+            loss_fn (str | Callable[[Inputs, Outputs], LOSS], optional): The loss function.
+                If the same loss is used for all errors, then `loss` is a String name of a loss function
                 or a loss function. If different errors use different losses, then `loss` is a list
                 whose size is equal to the number of errors. Defaults to 'MSE'.
             loss_weights (Sequence[float], optional): A list specifying scalar coefficients (Python floats) to
@@ -68,7 +68,9 @@ class Problem(abc.ABC):
 
         # loss weights
         if loss_weights is not None:
-            assert isinstance(loss_weights, (list, tuple)), "loss_weights must be a list or tuple."
+            assert isinstance(
+                loss_weights, (list, tuple)
+            ), "loss_weights must be a list or tuple."
         self.loss_weights = loss_weights
 
     def define_approximator(
@@ -87,7 +89,9 @@ class Problem(abc.ABC):
         Raises:
             AssertionError: If the approximator is not an instance of bst.nn.Module.
         """
-        assert isinstance(approximator, bst.nn.Module), "approximator must be an instance of bst.nn.Module."
+        assert isinstance(
+            approximator, bst.nn.Module
+        ), "approximator must be an instance of bst.nn.Module."
         self.approximator = approximator
         return self
 
@@ -146,7 +150,9 @@ class Problem(abc.ABC):
             return self.losses(inputs, outputs, targets, **kwargs)
 
     @abc.abstractmethod
-    def train_next_batch(self, batch_size=None) -> Tuple[Inputs, Targets] | Tuple[Inputs, Targets, Auxiliary]:
+    def train_next_batch(
+        self, batch_size=None
+    ) -> Tuple[Inputs, Targets] | Tuple[Inputs, Targets, Auxiliary]:
         """
         Generate and return the next batch of training data.
 

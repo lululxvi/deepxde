@@ -7,7 +7,7 @@ from deepxde.utils.internal import run_if_any_none
 from .base import Problem
 
 __all__ = [
-    'Function',
+    "Function",
 ]
 
 
@@ -40,10 +40,12 @@ class Function(Problem):
         train_distribution: str = "uniform",
         online: bool = False,
         approximator: bst.nn.Module = None,
-        loss_fn: str = 'MSE',
+        loss_fn: str = "MSE",
         loss_weights: Sequence[float] = None,
     ):
-        super().__init__(approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights)
+        super().__init__(
+            approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights
+        )
 
         self.geom = geometry
         self.func = function
@@ -88,7 +90,9 @@ class Function(Problem):
             if self.dist_train == "uniform":
                 self.train_x = self.geom.uniform_points(self.num_train, boundary=True)
             else:
-                self.train_x = self.geom.random_points(self.num_train, random=self.dist_train)
+                self.train_x = self.geom.random_points(
+                    self.num_train, random=self.dist_train
+                )
             self.train_y = self.func(self.train_x)
         return self.train_x, self.train_y
 

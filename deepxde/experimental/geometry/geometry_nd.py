@@ -42,9 +42,7 @@ class Hypercube(Geometry):
 
         self.side_length = self.xmax - self.xmin
         super().__init__(
-            len(xmin),
-            (self.xmin, self.xmax),
-            jnp.linalg.norm(self.side_length)
+            len(xmin), (self.xmin, self.xmax), jnp.linalg.norm(self.side_length)
         )
         self.volume = jnp.prod(self.side_length)
 
@@ -59,8 +57,9 @@ class Hypercube(Geometry):
             array-like: Boolean array indicating whether each point is inside the hypercube.
         """
         mod = utils.smart_numpy(x)
-        return mod.logical_and(mod.all(x >= self.xmin, axis=-1),
-                               mod.all(x <= self.xmax, axis=-1))
+        return mod.logical_and(
+            mod.all(x >= self.xmin, axis=-1), mod.all(x <= self.xmax, axis=-1)
+        )
 
     def on_boundary(self, x):
         """
@@ -74,8 +73,9 @@ class Hypercube(Geometry):
         """
         mod = utils.smart_numpy(x)
         if x.ndim == 0:
-            _on_boundary = mod.logical_or(mod.isclose(x, self.xmin),
-                                          mod.isclose(x, self.xmax))
+            _on_boundary = mod.logical_or(
+                mod.isclose(x, self.xmin), mod.isclose(x, self.xmax)
+            )
         else:
             _on_boundary = mod.logical_or(
                 mod.any(mod.isclose(x, self.xmin), axis=-1),
@@ -94,10 +94,16 @@ class Hypercube(Geometry):
             array-like: Normal vectors at the given points.
         """
         mod = utils.smart_numpy(x)
-        _n = -mod.isclose(x, self.xmin).astype(bst.environ.dftype()) + mod.isclose(x, self.xmax)
+        _n = -mod.isclose(x, self.xmin).astype(bst.environ.dftype()) + mod.isclose(
+            x, self.xmax
+        )
         # For vertices, the normal is averaged for all directions
         idx = mod.count_nonzero(_n, axis=-1) > 1
-        _n = jax.vmap(lambda idx_, n_: jax.numpy.where(idx_, n_ / mod.linalg.norm(n_, keepdims=True), n_))(idx, _n)
+        _n = jax.vmap(
+            lambda idx_, n_: jax.numpy.where(
+                idx_, n_ / mod.linalg.norm(n_, keepdims=True), n_
+            )
+        )(idx, _n)
         return mod.asarray(_n)
 
     def uniform_points(self, n, boundary=True):
@@ -332,7 +338,7 @@ class Hypersphere(Geometry):
             len(center), (self.center - radius, self.center + radius), 2 * radius
         )
 
-        self._r2 = radius ** 2
+        self._r2 = radius**2
 
     def inside(self, x):
         """
@@ -371,7 +377,7 @@ class Hypersphere(Geometry):
         """
         xc = x - self.center
         ad = jnp.dot(xc, dirn)
-        return (-ad + (ad ** 2 - jnp.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
+        return (-ad + (ad**2 - jnp.sum(xc * xc, axis=-1) + self._r2) ** 0.5).astype(
             bst.environ.dftype()
         )
 
@@ -420,7 +426,10 @@ class Hypersphere(Geometry):
             self.center_tensor = jnp.asarray(self.center)
             self.radius_tensor = jnp.asarray(self.radius)
 
-        dist = jnp.linalg.norm(x - self.center_tensor, axis=-1, keepdims=True) - self.radius
+        dist = (
+            jnp.linalg.norm(x - self.center_tensor, axis=-1, keepdims=True)
+            - self.radius
+        )
         if smoothness == "Cinf":
             dist = jnp.square(dist)
         else:

@@ -17,9 +17,9 @@ def pde(x, y, aux):
     def solve_jac(x_):
         return deepxde_new.grad.jacobian(
             lambda inp: net((x_[0], deepxde_new.utils.dict_to_array(inp))),
-            {'x': x_[1][0], 't': x_[1][1]},
-            x='t',
-            vmap=False
+            {"x": x_[1][0], "t": x_[1][1]},
+            x="t",
+            vmap=False,
         )
 
     dy_t = jax.vmap(solve_jac)(x)
@@ -27,25 +27,25 @@ def pde(x, y, aux):
     def solve_hes(x_):
         return deepxde_new.grad.hessian(
             lambda inp: net((x_[0], deepxde_new.utils.dict_to_array(inp))),
-            {'x': x_[1][0], 't': x_[1][1]},
-            xi='x',
-            xj='x',
-            vmap=False
+            {"x": x_[1][0], "t": x_[1][1]},
+            xi="x",
+            xj="x",
+            vmap=False,
         )
 
     dy_xx = jax.vmap(solve_hes)(x)
 
-    dy_t = dy_t['y']['t']
-    dy_xx = dy_xx['y']['x']['x']
-    y = y['y']
+    dy_t = dy_t["y"]["t"]
+    dy_xx = dy_xx["y"]["x"]["x"]
+    y = y["y"]
     aux = u.math.squeeze(aux)
-    return dy_t - D * dy_xx + k * y ** 2 - aux
+    return dy_t - D * dy_xx + k * y**2 - aux
 
 
 geom = deepxde_new.geometry.Interval(0, 1)
 timedomain = deepxde_new.geometry.TimeDomain(0, 1)
 geomtime = deepxde_new.geometry.GeometryXTime(geom, timedomain)
-geomtime = geomtime.to_dict_point('x', 't')
+geomtime = geomtime.to_dict_point("x", "t")
 
 # Net
 net = bst.nn.Sequential(
@@ -54,12 +54,12 @@ net = bst.nn.Sequential(
         [2, 128, 128, 128],
         "tanh",
     ),
-    deepxde_new.nn.ArrayToDict(y=None)
+    deepxde_new.nn.ArrayToDict(y=None),
 )
 
 # Boundary condition
-bc = deepxde_new.icbc.DirichletBC(lambda *args, **kwargs: {'y': 0})
-ic = deepxde_new.icbc.IC(lambda *args, **kwargs: {'y': 0})
+bc = deepxde_new.icbc.DirichletBC(lambda *args, **kwargs: {"y": 0})
+ic = deepxde_new.icbc.IC(lambda *args, **kwargs: {"y": 0})
 
 # Function space
 func_space = deepxde.data.GRF(length_scale=0.2)
@@ -96,7 +96,7 @@ x, t, u_true = solve_ADR(
     1,
     lambda x: 0.01 * np.ones_like(x),
     lambda x: np.zeros_like(x),
-    lambda u: 0.01 * u ** 2,
+    lambda u: 0.01 * u**2,
     lambda u: 0.02 * u,
     lambda x, t: np.tile(v[:, None], (1, len(t))),
     lambda x: np.zeros_like(x),
@@ -111,7 +111,7 @@ plt.colorbar()
 v_branch = func_space.eval_batch(func_feats, np.linspace(0, 1, num=50)[:, None])[0]
 xv, tv = np.meshgrid(x, t)
 x_trunk = np.vstack((np.ravel(xv), np.ravel(tv))).T
-u_pred = model.predict((np.tile(v_branch, (100 * 100, 1)), x_trunk))['y']
+u_pred = model.predict((np.tile(v_branch, (100 * 100, 1)), x_trunk))["y"]
 u_pred = u_pred.reshape((100, 100))
 print(deepxde_new.metrics.l2_relative_error(u_true, u_pred))
 plt.figure()

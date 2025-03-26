@@ -40,14 +40,17 @@ class FNN(NN):
         input_transform: Optional[Callable] = None,
         output_transform: Optional[Callable] = None,
     ):
-        super().__init__(input_transform=input_transform,
-                         output_transform=output_transform)
+        super().__init__(
+            input_transform=input_transform, output_transform=output_transform
+        )
 
         # activations
         if isinstance(activation, (list, tuple)):
             if not (len(layer_sizes) - 1) == len(activation):
-                raise ValueError("Total number of activation functions do not match with "
-                                 "sum of hidden layers and output layer!")
+                raise ValueError(
+                    "Total number of activation functions do not match with "
+                    "sum of hidden layers and output layer!"
+                )
             self.activation = list(map(get_activation, activation))
         else:
             self.activation = get_activation(activation)
@@ -55,7 +58,11 @@ class FNN(NN):
         # layers
         self.layers = []
         for i in range(1, len(layer_sizes)):
-            self.layers.append(bst.nn.Linear(layer_sizes[i - 1], layer_sizes[i], w_init=kernel_initializer))
+            self.layers.append(
+                bst.nn.Linear(
+                    layer_sizes[i - 1], layer_sizes[i], w_init=kernel_initializer
+                )
+            )
 
         # output transform
         if output_transform is not None:
@@ -131,8 +138,7 @@ class PFNN(NN):
         output_transform: Optional[Callable] = None,
     ):
         super().__init__(
-            input_transform=input_transform,
-            output_transform=output_transform
+            input_transform=input_transform, output_transform=output_transform
         )
         self.activation = get_activation(activation)
 
@@ -158,14 +164,22 @@ class PFNN(NN):
                     # e.g. [8, 8, 8] -> [16, 16, 16]
                     self.layers.append(
                         [
-                            bst.nn.Linear(prev_layer_size[j], curr_layer_size[j], w_init=kernel_initializer)
+                            bst.nn.Linear(
+                                prev_layer_size[j],
+                                curr_layer_size[j],
+                                w_init=kernel_initializer,
+                            )
                             for j in range(n_output)
                         ]
                     )
                 else:  # e.g. 64 -> [8, 8, 8]
                     self.layers.append(
                         [
-                            bst.nn.Linear(prev_layer_size, curr_layer_size[j], w_init=kernel_initializer)
+                            bst.nn.Linear(
+                                prev_layer_size,
+                                curr_layer_size[j],
+                                w_init=kernel_initializer,
+                            )
                             for j in range(n_output)
                         ]
                     )
@@ -174,15 +188,24 @@ class PFNN(NN):
                     raise ValueError(
                         "cannot rejoin parallel subnetworks after splitting"
                     )
-                self.layers.append(bst.nn.Linear(prev_layer_size, curr_layer_size, w_init=kernel_initializer))
+                self.layers.append(
+                    bst.nn.Linear(
+                        prev_layer_size, curr_layer_size, w_init=kernel_initializer
+                    )
+                )
 
         # output layers
         if isinstance(layer_sizes[-2], (list, tuple)):  # e.g. [3, 3, 3] -> 3
             self.layers.append(
-                [bst.nn.Linear(layer_sizes[-2][j], 1, w_init=kernel_initializer) for j in range(n_output)]
+                [
+                    bst.nn.Linear(layer_sizes[-2][j], 1, w_init=kernel_initializer)
+                    for j in range(n_output)
+                ]
             )
         else:
-            self.layers.append(bst.nn.Linear(layer_sizes[-2], n_output, w_init=kernel_initializer))
+            self.layers.append(
+                bst.nn.Linear(layer_sizes[-2], n_output, w_init=kernel_initializer)
+            )
 
     def update(self, inputs):
         """
@@ -215,7 +238,9 @@ class PFNN(NN):
 
         # output layers
         if isinstance(x, list):
-            x = u.math.concatenate([f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1)
+            x = u.math.concatenate(
+                [f(x_) for f, x_ in zip(self.layers[-1], x)], axis=-1
+            )
         else:
             x = self.layers[-1](x)
 

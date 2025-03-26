@@ -12,7 +12,7 @@ def pde(x, y):
 
 geom = deepxde.geometry.Polygon([[0, 0], [1, 0], [1, -1], [-1, -1], [-1, 1], [0, 1]])
 geom = geom.to_dict_point("x", "y")
-bc = deepxde.icbc.DirichletBC(lambda x: {'u': 0})
+bc = deepxde.icbc.DirichletBC(lambda x: {"u": 0})
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(x=None, y=None),
@@ -20,7 +20,9 @@ net = deepxde.nn.Model(
     deepxde.nn.ArrayToDict(u=None),
 )
 
-data = deepxde.problem.PDE(geom, pde, bc, net, num_domain=1200, num_boundary=120, num_test=1500)
+data = deepxde.problem.PDE(
+    geom, pde, bc, net, num_domain=1200, num_boundary=120, num_test=1500
+)
 
 trainer = deepxde.Trainer(data)
 trainer.compile(bst.optim.Adam(1e-3)).train(iterations=50000)

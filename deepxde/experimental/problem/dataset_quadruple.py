@@ -6,7 +6,7 @@ from deepxde.data.sampler import BatchSampler
 from .base import Problem
 
 __all__ = [
-    'QuadrupleDataset',
+    "QuadrupleDataset",
 ]
 
 
@@ -35,13 +35,11 @@ class QuadrupleDataset(Problem):
         X_test,
         y_test,
         approximator: bst.nn.Module = None,
-        loss_fn: str = 'MSE',
+        loss_fn: str = "MSE",
         loss_weights: Sequence[float] = None,
     ):
         super().__init__(
-            approximator=approximator,
-            loss_fn=loss_fn,
-            loss_weights=loss_weights
+            approximator=approximator, loss_fn=loss_fn, loss_weights=loss_weights
         )
         self.train_x = X_train
         self.train_y = y_train
@@ -79,8 +77,7 @@ class QuadrupleDataset(Problem):
             return self.train_x, self.train_y
         indices = self.train_sampler.get_next(batch_size)
         return (
-            (self.train_x[0][indices],
-             self.train_x[1][indices]),
+            (self.train_x[0][indices], self.train_x[1][indices]),
             self.train_x[2][indices],
             self.train_y[indices],
         )

@@ -15,37 +15,43 @@ def fpde(x, y, int_mat):
     \int_theta D_theta^alpha u(x)
     """
     x = deepxde.utils.dict_to_array(x)
-    y = y['y']
+    y = y["y"]
     if isinstance(int_mat, (list, tuple)) and len(int_mat) == 3:
         rowcols = np.asarray(int_mat[0], dtype=np.int32).T
         data = int_mat[1]
         int_mat = COO((data, rowcols[0], rowcols[1]), shape=int_mat[2])
     lhs = int_mat @ y
-    lhs *= gamma((1 - alpha) / 2) * gamma((3 + alpha) / 2) / (2 * np.pi ** 2)
+    lhs *= gamma((1 - alpha) / 2) * gamma((3 + alpha) / 2) / (2 * np.pi**2)
     x = x[: len(lhs)]
     rhs = (
-        2 ** alpha
+        2**alpha
         * gamma(2 + alpha / 2)
         * gamma((3 + alpha) / 2)
         / gamma(3 / 2)
-        * (1 - (1 + alpha / 3) * u.math.sum(x ** 2, axis=1))
+        * (1 - (1 + alpha / 3) * u.math.sum(x**2, axis=1))
     )
     return lhs - rhs
 
 
 def func(x):
     x = deepxde.utils.dict_to_array(x)
-    y = (u.math.abs(1 - u.linalg.norm(x, axis=1, keepdims=True) ** 2)) ** (1 + alpha / 2)
-    return {'y': y}
+    y = (u.math.abs(1 - u.linalg.norm(x, axis=1, keepdims=True) ** 2)) ** (
+        1 + alpha / 2
+    )
+    return {"y": y}
 
 
-geom = deepxde.geometry.Sphere([0, 0, 0], 1).to_dict_point('x1', 'x2', 'x3')
+geom = deepxde.geometry.Sphere([0, 0, 0], 1).to_dict_point("x1", "x2", "x3")
 bc = deepxde.icbc.DirichletBC(func)
 
 net = deepxde.nn.Model(
     deepxde.nn.DictToArray(x1=None, x2=None, x3=None),
-    deepxde.nn.FNN([3] + [20] * 4 + [1], "tanh", bst.init.KaimingUniform(),
-                   output_transform=lambda x, y: (1 - u.math.sum(x ** 2, axis=1, keepdims=True)) * y),
+    deepxde.nn.FNN(
+        [3] + [20] * 4 + [1],
+        "tanh",
+        bst.init.KaimingUniform(),
+        output_transform=lambda x, y: (1 - u.math.sum(x**2, axis=1, keepdims=True)) * y,
+    ),
     deepxde.nn.ArrayToDict(y=None),
 )
 

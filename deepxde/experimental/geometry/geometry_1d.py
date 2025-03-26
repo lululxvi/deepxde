@@ -26,9 +26,11 @@ class Interval(Geometry):
         """
         super().__init__(
             1,
-            (jnp.array([l], dtype=bst.environ.dftype()),
-             jnp.array([r], dtype=bst.environ.dftype())),
-            r - l
+            (
+                jnp.array([l], dtype=bst.environ.dftype()),
+                jnp.array([r], dtype=bst.environ.dftype()),
+            ),
+            r - l,
         )
         self.l, self.r = l, r
 
@@ -56,7 +58,10 @@ class Interval(Geometry):
             array: Boolean array indicating whether each point is on the boundary.
         """
         mod = utils.smart_numpy(x)
-        return mod.any(mod.isclose(x, jnp.array([self.l, self.r], dtype=bst.environ.dftype())), axis=-1)
+        return mod.any(
+            mod.isclose(x, jnp.array([self.l, self.r], dtype=bst.environ.dftype())),
+            axis=-1,
+        )
 
     def distance2boundary(self, x, dirn):
         """
@@ -174,7 +179,9 @@ class Interval(Geometry):
             array: Normal vectors at the given points.
         """
         mod = utils.smart_numpy(x)
-        return -mod.isclose(x, self.l).astype(bst.environ.dftype()) + mod.isclose(x, self.r)
+        return -mod.isclose(x, self.l).astype(bst.environ.dftype()) + mod.isclose(
+            x, self.r
+        )
 
     def uniform_points(self, n, boundary=True):
         """
@@ -188,7 +195,9 @@ class Interval(Geometry):
             array: Uniformly distributed points.
         """
         if boundary:
-            return jnp.linspace(self.l, self.r, num=n, dtype=bst.environ.dftype())[:, None]
+            return jnp.linspace(self.l, self.r, num=n, dtype=bst.environ.dftype())[
+                :, None
+            ]
         return jnp.linspace(
             self.l, self.r, num=n + 1, endpoint=False, dtype=bst.environ.dftype()
         )[1:, None]
@@ -210,9 +219,9 @@ class Interval(Geometry):
         if boundary:
             x = jnp.linspace(l, r, num=n, dtype=bst.environ.dftype())[:, None]
         else:
-            x = jnp.linspace(l, r, num=n + 1, endpoint=False, dtype=bst.environ.dftype())[
-                1:, None
-                ]
+            x = jnp.linspace(
+                l, r, num=n + 1, endpoint=False, dtype=bst.environ.dftype()
+            )[1:, None]
         return jnp.exp(x) - eps
 
     def random_points(self, n, random="pseudo"):
@@ -258,7 +267,9 @@ class Interval(Geometry):
         """
         if n == 2:
             return jnp.array([[self.l], [self.r]]).astype(bst.environ.dftype())
-        return bst.random.choice([self.l, self.r], n)[:, None].astype(bst.environ.dftype())
+        return bst.random.choice([self.l, self.r], n)[:, None].astype(
+            bst.environ.dftype()
+        )
 
     def periodic_point(self, x, component=0):
         """
@@ -294,20 +305,26 @@ class Interval(Geometry):
             dx = x[0] - self.l
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] - jnp.arange(-shift, n - shift + 1, dtype=bst.environ.dftype()) * h
+            pts = (
+                x[0] - jnp.arange(-shift, n - shift + 1, dtype=bst.environ.dftype()) * h
+            )
             return pts[:, None]
 
         def background_points_right():
             dx = self.r - x[0]
             n = max(dist2npt(dx), 1)
             h = dx / n
-            pts = x[0] + jnp.arange(-shift, n - shift + 1, dtype=bst.environ.dftype()) * h
+            pts = (
+                x[0] + jnp.arange(-shift, n - shift + 1, dtype=bst.environ.dftype()) * h
+            )
             return pts[:, None]
 
         return (
             background_points_left()
             if dirn < 0
-            else background_points_right()
-            if dirn > 0
-            else jnp.vstack((background_points_left(), background_points_right()))
+            else (
+                background_points_right()
+                if dirn > 0
+                else jnp.vstack((background_points_left(), background_points_right()))
+            )
         )

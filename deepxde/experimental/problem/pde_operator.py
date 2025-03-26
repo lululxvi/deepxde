@@ -15,8 +15,8 @@ from deepxde.utils.internal import run_if_all_none
 from .pde import TimePDE
 
 __all__ = [
-    'PDEOperator',
-    'PDEOperatorCartesianProd',
+    "PDEOperator",
+    "PDEOperatorCartesianProd",
 ]
 
 Inputs = Any
@@ -66,7 +66,7 @@ class PDEOperator(TimePDE):
         train_distribution: str = "Hammersley",
         anchors: Optional[bst.typing.ArrayLike] = None,
         exclusions=None,
-        loss_fn: str | Callable = 'MSE',
+        loss_fn: str | Callable = "MSE",
         loss_weights: Sequence[float] = None,
     ):
 
@@ -120,7 +120,9 @@ class PDEOperator(TimePDE):
     def call_bc_errors(self, loss_fns, loss_weights, inputs, outputs, **kwargs):
         num_bcs = self.num_bcs
         self.num_bcs = self.num_fn_bcs
-        losses = super().call_bc_errors(loss_fns, loss_weights, inputs, outputs, **kwargs)
+        losses = super().call_bc_errors(
+            loss_fns, loss_weights, inputs, outputs, **kwargs
+        )
         self.num_bcs = num_bcs
         return losses
 
@@ -135,15 +137,13 @@ class PDEOperator(TimePDE):
 
         if self._pde is not None:
             v_pde, x_pde, vx_pde = self.gen_inputs(
-                func_feats,
-                func_vals,
-                self.geometry.dict_to_arr(self.train_x_all)
+                func_feats, func_vals, self.geometry.dict_to_arr(self.train_x_all)
             )
             v = np.vstack((v, v_pde))
             x = np.vstack((x, x_pde))
             vx = np.vstack((vx, vx_pde))
         self.fn_train_x = (v, x)
-        self.fn_train_aux_vars = {'aux': vx}
+        self.fn_train_aux_vars = {"aux": vx}
         return self.fn_train_x, self.fn_train_x, self.fn_train_aux_vars
 
     @run_if_all_none("fn_test_x", "fn_test_y", "fn_test_aux_vars")
@@ -162,15 +162,13 @@ class PDEOperator(TimePDE):
             if self._pde is not None:
                 test_x = self.geometry.dict_to_arr(self.test_x)
                 v_pde, x_pde, vx_pde = self.gen_inputs(
-                    func_feats,
-                    func_vals,
-                    test_x[sum(self.num_bcs):]
+                    func_feats, func_vals, test_x[sum(self.num_bcs) :]
                 )
                 v = np.vstack((v, v_pde))
                 x = np.vstack((x, x_pde))
                 vx = np.vstack((vx, vx_pde))
             self.fn_test_x = (v, x)
-            self.fn_test_aux_vars = {'aux': vx}
+            self.fn_test_aux_vars = {"aux": vx}
         return self.fn_test_x, self.fn_test_y, self.fn_test_aux_vars
 
     def gen_inputs(self, func_feats, func_vals, points):
@@ -183,7 +181,9 @@ class PDEOperator(TimePDE):
         # v2, x_N1
         v = np.repeat(func_vals, len(points), axis=0)
         x = np.tile(points, (len(func_feats), 1))
-        vx = self.fn_space.eval_batch(func_feats, points[:, self.func_vars]).reshape(-1, 1)
+        vx = self.fn_space.eval_batch(func_feats, points[:, self.func_vars]).reshape(
+            -1, 1
+        )
         return v, x, vx
 
     def bc_inputs(self, func_feats, func_vals):
@@ -265,7 +265,7 @@ class PDEOperatorCartesianProd(TimePDE):
         train_distribution: str = "Hammersley",
         anchors: Optional[bst.typing.ArrayLike] = None,
         exclusions=None,
-        loss_fn: str | Callable = 'MSE',
+        loss_fn: str | Callable = "MSE",
         loss_weights: Sequence[float] = None,
         batch_size: int = None,
     ):
@@ -316,9 +316,9 @@ class PDEOperatorCartesianProd(TimePDE):
         bcs_start = np.cumsum([0] + self.num_bcs)
 
         # PDE inputs and outputs, computing PDE losses
-        pde_inputs = (inputs[0], jax.tree.map(lambda x: x[bcs_start[-1]:], inputs[1]))
-        pde_outputs = jax.tree.map(lambda x: x[:, bcs_start[-1]:], outputs)
-        pde_kwargs = jax.tree.map(lambda x: x[:, bcs_start[-1]:], kwargs)
+        pde_inputs = (inputs[0], jax.tree.map(lambda x: x[bcs_start[-1] :], inputs[1]))
+        pde_outputs = jax.tree.map(lambda x: x[:, bcs_start[-1] :], outputs)
+        pde_kwargs = jax.tree.map(lambda x: x[:, bcs_start[-1] :], kwargs)
 
         # error
         pde_errors = self.pde(pde_inputs, pde_outputs, **pde_kwargs)
@@ -341,12 +341,16 @@ class PDEOperatorCartesianProd(TimePDE):
             f_loss = loss_fns[i]
             if loss_weights is not None:
                 w = loss_weights[i]
-                bc_loss = jax.tree.map(lambda err: f_loss(u.math.zeros_like(err), err) * w, error)
+                bc_loss = jax.tree.map(
+                    lambda err: f_loss(u.math.zeros_like(err), err) * w, error
+                )
             else:
-                bc_loss = jax.tree.map(lambda err: f_loss(u.math.zeros_like(err), err), error)
+                bc_loss = jax.tree.map(
+                    lambda err: f_loss(u.math.zeros_like(err), err), error
+                )
 
             # append to losses
-            losses.append({f'ibc{i}': bc_loss})
+            losses.append({f"ibc{i}": bc_loss})
         return losses
 
     def train_next_batch(self, batch_size=None):
@@ -358,14 +362,14 @@ class PDEOperatorCartesianProd(TimePDE):
             func_vals = self.fn_space.eval_batch(func_feats, self.eval_pts)
             vx = self.fn_space.eval_batch(func_feats, train_x[:, self.func_vars])
             self.fn_train_x = (func_vals, train_x)
-            self.fn_train_aux_vars = {'aux': vx}
+            self.fn_train_aux_vars = {"aux": vx}
 
         if self.batch_size is None:
             return self.fn_train_x, self.train_y, self.fn_train_aux_vars
 
         indices = self.train_sampler.get_next(self.batch_size)
         train_x = (self.fn_train_x[0][indices], self.fn_train_x[1])
-        return train_x, self.train_y, {'aux': self.fn_train_aux_vars['aux'][indices]}
+        return train_x, self.train_y, {"aux": self.fn_train_aux_vars["aux"][indices]}
 
     @run_if_all_none("fn_test_x", "test_y", "fn_test_aux_vars")
     def test(self):
@@ -380,5 +384,5 @@ class PDEOperatorCartesianProd(TimePDE):
             func_vals = self.fn_space.eval_batch(func_feats, self.eval_pts)
             vx = self.fn_space.eval_batch(func_feats, test_x[:, self.func_vars])
             self.fn_test_x = (func_vals, test_x)
-            self.fn_test_aux_vars = {'aux': vx}
-        return self.fn_test_x, self.test_y, {'aux': self.fn_test_aux_vars}
+            self.fn_test_aux_vars = {"aux": vx}
+        return self.fn_test_x, self.test_y, {"aux": self.fn_test_aux_vars}

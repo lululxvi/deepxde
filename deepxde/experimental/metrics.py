@@ -2,20 +2,21 @@ import brainunit as u
 import jax
 
 __all__ = [
-    'accuracy',
-    'l2_relative_error',
-    'nanl2_relative_error',
-    'mean_l2_relative_error',
-    'mean_squared_error',
-    'mean_absolute_percentage_error',
-    'max_absolute_percentage_error',
-    'absolute_percentage_error_std',
+    "accuracy",
+    "l2_relative_error",
+    "nanl2_relative_error",
+    "mean_l2_relative_error",
+    "mean_squared_error",
+    "mean_absolute_percentage_error",
+    "max_absolute_percentage_error",
+    "absolute_percentage_error_std",
 ]
 
 
 def _accuracy(y_true, y_pred):
-    return u.math.mean(u.math.equal(u.math.argmax(y_pred, axis=-1),
-                                    u.math.argmax(y_true, axis=-1)))
+    return u.math.mean(
+        u.math.equal(u.math.argmax(y_pred, axis=-1), u.math.argmax(y_true, axis=-1))
+    )
 
 
 def accuracy(y_true, y_pred):
@@ -66,7 +67,9 @@ def l2_relative_error(y_true, y_pred):
         The computed L2 relative error. If the input is a nested structure, the output
         will have the same structure with L2 relative error values for each leaf node.
     """
-    return jax.tree_util.tree_map(_l2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity)
+    return jax.tree_util.tree_map(
+        _l2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity
+    )
 
 
 def _nanl2_relative_error(y_true, y_pred):
@@ -100,13 +103,14 @@ def nanl2_relative_error(y_true, y_pred):
         The computed L2 relative error with NaN handling. If the input is a nested structure,
         the output will have the same structure with L2 relative error values for each leaf node.
     """
-    return jax.tree_util.tree_map(_nanl2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity)
+    return jax.tree_util.tree_map(
+        _nanl2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity
+    )
 
 
 def _mean_l2_relative_error(y_true, y_pred):
     return u.math.mean(
-        u.linalg.norm(y_true - y_pred, axis=1) /
-        u.linalg.norm(y_true, axis=1)
+        u.linalg.norm(y_true - y_pred, axis=1) / u.linalg.norm(y_true, axis=1)
     )
 
 
@@ -130,7 +134,9 @@ def mean_l2_relative_error(y_true, y_pred):
         The computed mean L2 relative error. If the input is a nested structure, the output
         will have the same structure with mean L2 relative error values for each leaf node.
     """
-    return jax.tree_util.tree_map(_mean_l2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity)
+    return jax.tree_util.tree_map(
+        _mean_l2_relative_error, y_true, y_pred, is_leaf=u.math.is_quantity
+    )
 
 
 def _absolute_percentage_error(y_true, y_pred):
@@ -161,7 +167,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
         lambda x, y: _absolute_percentage_error(x, y).mean(),
         y_true,
         y_pred,
-        is_leaf=u.math.is_quantity
+        is_leaf=u.math.is_quantity,
     )
 
 
@@ -189,7 +195,7 @@ def max_absolute_percentage_error(y_true, y_pred):
         lambda x, y: _absolute_percentage_error(x, y).max(),
         y_true,
         y_pred,
-        is_leaf=u.math.is_quantity
+        is_leaf=u.math.is_quantity,
     )
 
 
@@ -217,7 +223,7 @@ def absolute_percentage_error_std(y_true, y_pred):
         lambda x, y: _absolute_percentage_error(x, y).std(),
         y_true,
         y_pred,
-        is_leaf=u.math.is_quantity
+        is_leaf=u.math.is_quantity,
     )
 
 
@@ -245,7 +251,9 @@ def mean_squared_error(y_true, y_pred):
         The computed mean squared error. If the input is a nested structure, the output
         will have the same structure with mean squared error values for each leaf node.
     """
-    return jax.tree_util.tree_map(_mean_squared_error, y_true, y_pred, is_leaf=u.math.is_quantity)
+    return jax.tree_util.tree_map(
+        _mean_squared_error, y_true, y_pred, is_leaf=u.math.is_quantity
+    )
 
 
 def get(identifier):
