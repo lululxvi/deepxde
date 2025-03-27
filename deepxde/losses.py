@@ -4,7 +4,6 @@ from .backend import tf
 
 
 def mean_absolute_error(y_true, y_pred):
-    # TODO: pytorch
     return bkd.reduce_mean(bkd.abs(y_true - y_pred))
 
 
