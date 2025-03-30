@@ -20,6 +20,9 @@ if torch.cuda.is_available():
         torch.set_default_device("cuda")
     else:
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
+elif torch.backends.mps.is_available():
+    torch.set_default_device("mps")
+    torch._dynamo.disable()  # A temporary trick to evade the Pytorch MPS bug (https://github.com/pytorch/pytorch/issues/149184)
 
 
 lib = torch
