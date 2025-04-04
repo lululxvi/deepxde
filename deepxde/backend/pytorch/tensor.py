@@ -45,7 +45,7 @@ elif torch.backends.mps.is_available():
     except Exception as e:
         import warnings
         warnings.warn(
-            f'An MPS GPU has been detected, but cannot be used.'
+            f'An MPS GPU has been detected, but cannot be used. '
             f'Falling back to CPU.\nThe exception message is:\n    {e}'
         )
         torch.set_default_device(fallback_device)
