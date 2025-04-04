@@ -20,6 +20,35 @@ if torch.cuda.is_available():
         torch.set_default_device("cuda")
     else:
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
+elif torch.backends.mps.is_available():
+    fallback_device = torch.get_default_device()
+    torch.set_default_device("mps")
+    
+    # As of March 2025, the MacOS X-based GitHub Actions building enviroment sees 
+    # the MPS GPU, but can't access it. Thus as try-except workaround is applied.
+    try:
+        # A temporary trick to evade the Pytorch optimizer bug on MPS
+        # See https://github.com/pytorch/pytorch/issues/149184
+        torch._dynamo.disable()
+        
+        # If the Pytorch optimizer bug is fixed and the line above is removed,
+        # the following code will perform a simple check of the MPS GPU
+        test_nn = torch.nn.Sequential(
+            torch.nn.Linear(1, 2),
+            torch.nn.Tanh(),
+        )
+        test_input = torch.randn(3, 1)
+        test_run = test_nn(test_input)
+        del test_nn, test_input, test_run
+        torch.mps.empty_cache()
+        
+    except Exception as e:
+        import warnings
+        warnings.warn(
+            f'An MPS GPU has been detected, but cannot be used. '
+            f'Falling back to CPU.\nThe exception message is:\n    {e}'
+        )
+        torch.set_default_device(fallback_device)
 
 
 lib = torch
