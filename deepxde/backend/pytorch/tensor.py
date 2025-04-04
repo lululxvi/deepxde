@@ -30,7 +30,18 @@ elif torch.backends.mps.is_available():
         # A temporary trick to evade the Pytorch optimizer bug on MPS
         # See https://github.com/pytorch/pytorch/issues/149184
         torch._dynamo.disable()
-
+        
+        # If the Pytorch optimizer bug is fixed and the line above is removed,
+        # the following code will perform a simple check of the MPS GPU
+        test_nn = torch.nn.Sequential(
+            torch.nn.Linear(1, 2),
+            torch.nn.Tanh(),
+        )
+        test_input = torch.randn(3, 1)
+        test_run = test_nn(test_input)
+        del test_nn, test_input, test_run
+        torch.mps.empty_cache()
+        
     except Exception as e:
         import warnings
         warnings.warn(
