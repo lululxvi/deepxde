@@ -24,10 +24,10 @@ elif torch.backends.mps.is_available():
     fallback_device = torch.get_default_device()
     torch.set_default_device("mps")
     
-    # As of March 2025, the MacOS X-based GitHub Actions building enviroment sees 
-    # the MPS GPU, but can't access it. Thus as try-except workaround is applied.
+    # As of March 2025, the macOS X-based GitHub Actions building environment sees
+    # the MPS GPU, but cannot access it. So, a try-except workaround is applied.
     try:
-        # A temporary trick to evade the Pytorch optimizer bug on MPS
+        # A temporary trick to evade the Pytorch optimizer bug on MPS GPUs
         # See https://github.com/pytorch/pytorch/issues/149184
         torch._dynamo.disable()
         
@@ -46,7 +46,7 @@ elif torch.backends.mps.is_available():
         import warnings
         warnings.warn(
             f'An MPS GPU has been detected, but cannot be used. '
-            f'Falling back to CPU.\nThe exception message is:\n    {e}'
+            f'Falling back to the CPU.\nThe exception message is:\n    {e}'
         )
         torch.set_default_device(fallback_device)
 
