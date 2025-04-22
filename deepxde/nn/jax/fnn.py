@@ -8,6 +8,7 @@ from .nn import NN
 from .. import activations
 from .. import initializers
 
+
 class FNN(NN):
     """Fully-connected neural network."""
 

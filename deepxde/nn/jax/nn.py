@@ -2,6 +2,7 @@ from flax import linen as nn
 
 from .. import regularizers
 
+
 class NN(nn.Module):
     """Base class for all neural network modules."""
 
