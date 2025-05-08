@@ -15,6 +15,7 @@ class FNN(NN):
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
+    regularization: Any = None
 
     params: Any = None
     _input_transform: Callable = None
@@ -78,6 +79,7 @@ class PFNN(NN):
     layer_sizes: Any
     activation: Any
     kernel_initializer: Any
+    regularization: Any = None
 
     params: Any = None
     _input_transform: Callable = None

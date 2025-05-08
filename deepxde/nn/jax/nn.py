@@ -1,14 +1,22 @@
 from flax import linen as nn
 
+from .. import regularizers
+
 
 class NN(nn.Module):
     """Base class for all neural network modules."""
 
     # All sub-modules should have the following variables:
+    # regularization: Any = None
     # params: Any = None
     # _input_transform: Optional[Callable] = None
     # _output_transform: Optional[Callable] = None
-
+    
+    @property
+    def regularizer(self):
+        """Dynamically compute and return the regularizer function based on regularization."""
+        return regularizers.get(self.regularization)
+    
     def apply_feature_transform(self, transform):
         """Compute the features by appling a transform to the network inputs, i.e.,
         features = transform(inputs). Then, outputs = network(features).

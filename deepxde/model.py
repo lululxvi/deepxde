@@ -437,12 +437,14 @@ class Model:
             # We use aux so that self.data.losses is a pure function.
             aux = [outputs_fn, ext_params] if ext_params else [outputs_fn]
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
-            # TODO: Add regularization loss
             if not isinstance(losses, list):
                 losses = [losses]
             losses = jax.numpy.asarray(losses)
             if self.loss_weights is not None:
                 losses *= jax.numpy.asarray(self.loss_weights)
+            if self.net.regularizer is not None:
+                regul_loss = self.net.regularizer(jax.tree.leaves(nn_params["params"]))
+                losses = jax.numpy.concatenate([losses, regul_loss.reshape(1)])
             return outputs_, losses
 
         @jax.jit
