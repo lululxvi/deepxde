@@ -22,14 +22,16 @@ if torch.cuda.is_available():
         torch.set_default_tensor_type(torch.cuda.FloatTensor)
 elif torch.backends.mps.is_available():
     fallback_device = torch.get_default_device()
-    torch.set_default_device("mps")
     
     # As of March 2025, the macOS X-based GitHub Actions building environment sees
     # the MPS GPU, but cannot access it. So, a try-except workaround is applied.
     try:
         # A temporary trick to evade the Pytorch optimizer bug on MPS GPUs
         # See https://github.com/pytorch/pytorch/issues/149184
+        # As for May 2025, it must go before the default device change
         torch._dynamo.disable()
+        
+        torch.set_default_device("mps")
         
         # If the Pytorch optimizer bug is fixed and the line above is removed,
         # the following code will perform a simple check of the MPS GPU
