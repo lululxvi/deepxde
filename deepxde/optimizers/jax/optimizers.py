@@ -38,9 +38,9 @@ def _get_learningrate(lr, decay):
         return lr
     if decay[0] == "linear":
         return optax.linear_schedule(lr, decay[1], decay[2])
-    elif decay[0] == "cosine":
+    if decay[0] == "cosine":
         return optax.cosine_decay_schedule(lr, decay[1], decay[2])
-    elif decay[0] == "exponential":
+    if decay[0] == "exponential":
         return optax.exponential_decay(lr, decay[1], decay[2])
 
     raise NotImplementedError(
