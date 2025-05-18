@@ -107,6 +107,12 @@ class Model:
                       <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
                       ("inverse time", gamma)
 
+                - For backend JAX:
+
+                    - `linear_schedule <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.linear_schedule>`_: ("linear", end_value, transition_steps)
+                    - `cosine_decay_schedule <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.cosine_decay_schedule>`_: ("cosine", decay_steps, alpha)
+                    - `exponential_decay <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.exponential_decay>`_: ("exponential", transition_steps, decay_rate)
+
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
@@ -417,8 +423,7 @@ class Model:
             var.value for var in self.external_trainable_variables
         ]
         self.params = [self.net.params, external_trainable_variables_val]
-        # TODO: learning rate decay
-        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
         self.opt_state = self.opt.init(self.params)
 
         @jax.jit
