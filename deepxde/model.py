@@ -109,11 +109,14 @@ class Model:
 
                 - For backend JAX:
 
-                    - `linear_schedule <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.linear_schedule>`_:
+                    - `linear_schedule
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.linear_schedule>`_:
                       ("linear", end_value, transition_steps)
-                    - `cosine_decay_schedule <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.cosine_decay_schedule>`_:
+                    - `cosine_decay_schedule
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.cosine_decay_schedule>`_:
                       ("cosine", decay_steps, alpha)
-                    - `exponential_decay <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.exponential_decay>`_:
+                    - `exponential_decay
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.exponential_decay>`_:
                       ("exponential", transition_steps, decay_rate)
 
             loss_weights: A list specifying scalar coefficients (Python floats) to
