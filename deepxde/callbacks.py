@@ -583,7 +583,6 @@ class PDEPointResampler(Callback):
         self.period = period
         self.pde_points = pde_points
         self.bc_points = bc_points
-
         self.num_bcs_initial = None
         self.epochs_since_last_resample = 0
 
@@ -602,4 +601,51 @@ class PDEPointResampler(Callback):
             print("self.model.data.num_bcs:", self.model.data.num_bcs)
             raise ValueError(
                 "`num_bcs` changed! Please update the loss function by `model.compile`."
+            )
+
+
+class PrintLossWeight(Callback):
+    """Print the loss weights every period epochs.
+
+    Args:
+        period: Interval (number of epochs) between printing loss weights.
+    """
+
+    def __init__(self, period):
+        super().__init__()
+        self.period = period
+        self.initial_loss_weights = None
+        self.current_loss_weights = None
+
+    def on_epoch_begin(self):
+        if self.model.train_state.epoch == 0:
+            self.initial_loss_weights = self.model.loss_weights.numpy().tolist()
+        else:
+            self.current_loss_weights = self.model.loss_weights.numpy().tolist()
+        if self.model.train_state.epoch % self.period == 0:
+            print("Initial loss weights:", self.initial_loss_weights)
+            print("Current loss weights:", self.current_loss_weights)
+
+
+class ManualDynamicLossWeight(Callback):
+    """Change the loss weights at a specific epoch.
+
+    Args:
+        epoch2change: The epoch at which to change the loss weight
+        value: The value to change the loss weight to
+        idx: The index of the loss weight to change
+    """
+    
+    def __init__(self, epoch2change, value, loss_idx):
+        super().__init__()
+        self.epoch2change = epoch2change
+        self.value = value
+        self.loss_idx = loss_idx
+
+    def on_epoch_begin(self):
+        if self.model.train_state.epoch == self.epoch2change:
+            current_loss_weights = self.model.loss_weights.numpy()
+            current_loss_weights[self.loss_idx] = self.value
+            self.model.loss_weights = tf.convert_to_tensor(
+                current_loss_weights, dtype=config.default_float()
             )
