@@ -565,9 +565,14 @@ class PDEPointResampler(Callback):
             True).
         bc_points: If True, resample the training points for BC losses (default is
             False; only supported by PyTorch and PaddlePaddle backend currently).
+        sampler: If not None, use the specified sampler to resample the training points (default is None). 
+            
+            Choose one of the following options: 
+            
+            ('RAR-D', 'RAR-G', 'RAD'; only supported by PyTorch) based on https://www.sciencedirect.com/science/article/pii/S0045782522006260
     """
 
-    def __init__(self, period=100, pde_points=True, bc_points=False):
+    def __init__(self, period=100, pde_points=True, bc_points=False, sampler_config=None):
         super().__init__()
         self.period = period
         self.pde_points = pde_points
@@ -575,20 +580,94 @@ class PDEPointResampler(Callback):
 
         self.num_bcs_initial = None
         self.epochs_since_last_resample = 0
+        self.sampler_config = sampler_config
 
     def on_train_begin(self):
         self.num_bcs_initial = self.model.data.num_bcs
+        
+        
+    def generate_dense_training_set(self, num_domain=None):
+        """Generating a training set"""
+        X = np.empty((0, self.model.data.geom.dim), dtype=config.real(np))
+
+        if self.model.data.train_distribution == "uniform":
+            X = self.model.data.geom.uniform_points(num_domain, boundary=False)
+        else:
+            X = self.model.data.geom.random_points(num_domain, random=self.model.data.train_distribution)
+
+        return X
+    
+    
+    def generate_pdf(self, pde_residual=None, k=1, c=0):
+        """Generating the probability density function (PDF) based on the PDE residuals.
+        
+        Args:
+            pde_residual: The residuals of the PDE (defaults to None).
+            k: The exponent for the residuals (default is 1.0).
+            c: A constant determining the 'strength' of the PDF compared to randomness (default is 0.0).
+        """
+        
+        _pde_residual = np.nan_to_num(pde_residual, nan=0.0)
+        eps_k = np.abs(np.pow(_pde_residual, k))
+        pdf = (eps_k / np.sum(eps_k) ) + c
+        
+        return pdf
+        
+    def get_residual(self, X):
+        if backend_name == 'pytorch':
+            inputs = torch.as_tensor(X)
+            inputs.requires_grad_()
+            outputs = self.model.net(inputs)
+            residual = self.model.data.pde(inputs, outputs)
+            return residual.detach().cpu().numpy().flatten()
+        else:
+            raise ValueError("Unsupported backend.")
 
     def on_epoch_end(self):
         self.epochs_since_last_resample += 1
         if self.epochs_since_last_resample < self.period:
             return
+    
         self.epochs_since_last_resample = 0
-        self.model.data.resample_train_points(self.pde_points, self.bc_points)
+        
+        if self.sampler_config['name'] == 'static':
+            self.model.data.resample_train_points(self.pde_points, self.bc_points)
 
-        if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
-            print("Initial value of self.num_bcs:", self.num_bcs_initial)
-            print("self.model.data.num_bcs:", self.model.data.num_bcs)
-            raise ValueError(
-                "`num_bcs` changed! Please update the loss function by `model.compile`."
-            )
+            if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
+                print("Initial value of self.num_bcs:", self.num_bcs_initial)
+                print("self.model.data.num_bcs:", self.model.data.num_bcs)
+                raise ValueError(
+                    "`num_bcs` changed! Please update the loss function by `model.compile`."
+                )
+        elif self.sampler_config['name'] == 'RAR-G':
+
+                inputs = self.generate_dense_training_set(self.model.data.num_domain)
+                residual = self.get_residual(inputs)
+                
+                indices = np.argpartition(residual,-self.sampler_config['number_of_points'])[-self.sampler_config['number_of_points']:]
+                self.model.data.add_anchors(inputs[indices, :])
+
+        elif self.sampler_config['name'] == 'RAD':
+
+                inputs = self.generate_dense_training_set(self.sampler_config['number_of_points'])
+                residual = self.get_residual(inputs)
+
+                pdf = self.generate_pdf(residual, self.sampler_config['k'] , self.sampler_config['c'])
+                
+                indices = np.random.choice(pdf.size, size=self.model.data.num_domain, p=pdf)
+                self.model.data.replace_with_anchors(inputs[indices, :])
+                
+        elif self.sampler_config['name'] == 'RAR-D':
+
+            inputs = self.generate_dense_training_set(self.model.data.num_domain)
+            residual = self.get_residual(inputs)
+
+            pdf = self.generate_pdf(residual, self.sampler_config['k'] , self.sampler_config['c'] )
+                
+            indices = np.random.choice(pdf.size, size=self.sampler_config['number_of_points'], p=pdf)
+            self.model.data.add_anchors(inputs[indices, :])
+
+        else:
+            raise ValueError("Unsupported sampling strategy.")
+        
+    
