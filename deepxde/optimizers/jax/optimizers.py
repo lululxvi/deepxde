@@ -36,7 +36,13 @@ def get(optimizer, learning_rate=None, decay=None):
 def _get_learningrate(lr, decay):
     if decay is None:
         return lr
-    # TODO: add optax's optimizer schedule
+    if decay[0] == "linear":
+        return optax.linear_schedule(lr, decay[1], decay[2])
+    if decay[0] == "cosine":
+        return optax.cosine_decay_schedule(lr, decay[1], decay[2])
+    if decay[0] == "exponential":
+        return optax.exponential_decay(lr, decay[1], decay[2])
+
     raise NotImplementedError(
         f"{decay[0]} learning rate decay to be implemented for backend jax."
     )

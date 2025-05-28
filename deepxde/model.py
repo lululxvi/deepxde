@@ -107,6 +107,18 @@ class Model:
                       <https://www.paddlepaddle.org.cn/documentation/docs/en/develop/api/paddle/optimizer/lr/InverseTimeDecay_en.html>`_:
                       ("inverse time", gamma)
 
+                - For backend JAX:
+
+                    - `linear_schedule
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.linear_schedule>`_:
+                      ("linear", end_value, transition_steps)
+                    - `cosine_decay_schedule
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.cosine_decay_schedule>`_:
+                      ("cosine", decay_steps, alpha)
+                    - `exponential_decay
+                      <https://optax.readthedocs.io/en/latest/api/optimizer_schedules.html#optax.schedules.exponential_decay>`_:
+                      ("exponential", transition_steps, decay_rate)
+
             loss_weights: A list specifying scalar coefficients (Python floats) to
                 weight the loss contributions. The loss value that will be minimized by
                 the model will then be the weighted sum of all individual losses,
@@ -279,6 +291,17 @@ class Model:
     def _compile_pytorch(self, lr, loss_fn, decay):
         """pytorch"""
 
+        l1_factor, l2_factor = 0, 0
+        if self.net.regularizer is not None:
+            if self.net.regularizer[0] == "l1":
+                l1_factor = self.net.regularizer[1]
+            elif self.net.regularizer[0] == "l2":
+                l2_factor = self.net.regularizer[1]
+            else:
+                raise NotImplementedError(
+                    f"{self.net.regularizer[0]} regularizer hasn't been implemented for backend pytorch."
+                )
+
         def outputs(training, inputs):
             self.net.train(mode=training)
             with torch.no_grad():
@@ -318,6 +341,11 @@ class Model:
             # Weighted losses
             if self.loss_weights is not None:
                 losses *= torch.as_tensor(self.loss_weights)
+            if l1_factor > 0:
+                l1_loss = l1_factor * torch.sum(
+                    torch.stack([torch.sum(p.abs()) for p in self.net.parameters()])
+                )
+                losses = torch.cat([losses, l1_loss.unsqueeze(0)])
             # Clear cached Jacobians and Hessians.
             grad.clear()
             return outputs_, losses
@@ -332,15 +360,6 @@ class Model:
                 False, inputs, targets, auxiliary_vars, self.data.losses_test
             )
 
-        weight_decay = 0
-        if self.net.regularizer is not None:
-            if self.net.regularizer[0] != "l2":
-                raise NotImplementedError(
-                    f"{self.net.regularizer[0]} regularization to be implemented for "
-                    "backend pytorch"
-                )
-            weight_decay = self.net.regularizer[1]
-
         optimizer_params = self.net.parameters()
         if self.external_trainable_variables:
             # L-BFGS doesn't support per-parameter options.
@@ -348,7 +367,7 @@ class Model:
                 optimizer_params = (
                     list(optimizer_params) + self.external_trainable_variables
                 )
-                if weight_decay > 0:
+                if l2_factor > 0:
                     print(
                         "Warning: L2 regularization will also be applied to external_trainable_variables. "
                         "Ensure this is intended behavior."
@@ -364,7 +383,7 @@ class Model:
             self.opt_name,
             learning_rate=lr,
             decay=decay,
-            weight_decay=weight_decay,
+            weight_decay=l2_factor,
         )
 
         def train_step(inputs, targets, auxiliary_vars):
@@ -406,12 +425,11 @@ class Model:
         if self.params is None:
             key = jax.random.PRNGKey(config.jax_random_seed)
             self.net.params = self.net.init(key, self.data.test()[0])
-            external_trainable_variables_arr = [
-                var.value for var in self.external_trainable_variables
-            ]
-            self.params = [self.net.params, external_trainable_variables_arr]
-        # TODO: learning rate decay
-        self.opt = optimizers.get(self.opt_name, learning_rate=lr)
+        external_trainable_variables_val = [
+            var.value for var in self.external_trainable_variables
+        ]
+        self.params = [self.net.params, external_trainable_variables_val]
+        self.opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
         self.opt_state = self.opt.init(self.params)
 
         @jax.jit
@@ -430,12 +448,14 @@ class Model:
             # We use aux so that self.data.losses is a pure function.
             aux = [outputs_fn, ext_params] if ext_params else [outputs_fn]
             losses = losses_fn(targets, outputs_, loss_fn, inputs, self, aux=aux)
-            # TODO: Add regularization loss
             if not isinstance(losses, list):
                 losses = [losses]
             losses = jax.numpy.asarray(losses)
             if self.loss_weights is not None:
                 losses *= jax.numpy.asarray(self.loss_weights)
+            if self.net.regularizer is not None:
+                regul_loss = self.net.regularizer(jax.tree.leaves(nn_params["params"]))
+                losses = jax.numpy.concatenate([losses, regul_loss.reshape(1)])
             return outputs_, losses
 
         @jax.jit
@@ -1130,9 +1150,9 @@ class Model:
             self.net.load_weights(save_path)
         elif backend_name == "pytorch":
             if device is not None:
-                checkpoint = torch.load(save_path, map_location=torch.device(device))
+                checkpoint = torch.load(save_path, map_location=torch.device(device), weights_only=True)
             else:
-                checkpoint = torch.load(save_path)
+                checkpoint = torch.load(save_path, weights_only=True)
             self.net.load_state_dict(checkpoint["model_state_dict"])
             self.opt.load_state_dict(checkpoint["optimizer_state_dict"])
         elif backend_name == "paddle":

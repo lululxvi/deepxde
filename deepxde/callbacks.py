@@ -463,13 +463,24 @@ class FirstDerivative(OperatorPredictor):
 
     Args:
         x: The input data.
+        component_x (int): Input component for the derivative (default: 0).
+        component_y (int): Output component for the derivative (default: 0).
+        period (int): Interval (number of epochs) between checking values.
+        filename (string): Output the values to the file `filename`.
+            The file is kept open to allow instances to be re-used.
+            If ``None``, output to the screen.
+        precision (int): The precision of variables to display.
     """
 
-    def __init__(self, x, component_x=0, component_y=0):
+    def __init__(
+        self, x, component_x=0, component_y=0, period=1, filename=None, precision=2
+    ):
         def first_derivative(x, y):
             return grad.jacobian(y, x, i=component_y, j=component_x)
 
-        super().__init__(x, first_derivative)
+        super().__init__(
+            x, first_derivative, period=period, filename=filename, precision=precision
+        )
 
 
 class MovieDumper(Callback):

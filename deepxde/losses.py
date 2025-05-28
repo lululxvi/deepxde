@@ -4,8 +4,7 @@ from .backend import tf
 
 
 def mean_absolute_error(y_true, y_pred):
-    # TODO: pytorch
-    return tf.keras.losses.MeanAbsoluteError()(y_true, y_pred)
+    return bkd.reduce_mean(bkd.abs(y_true - y_pred))
 
 
 def mean_absolute_percentage_error(y_true, y_pred):
