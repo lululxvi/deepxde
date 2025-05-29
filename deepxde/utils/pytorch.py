@@ -1,6 +1,6 @@
 """Utilities of pytorch."""
 
-from ..backend import torch
+import torch
 
 
 class LLAAF(torch.nn.Module):
