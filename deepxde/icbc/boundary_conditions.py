@@ -255,7 +255,7 @@ class PointSetOperatorBC:
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, func, batch_size=None, shuffle=None):
+    def __init__(self, points, values, func, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
