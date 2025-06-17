@@ -7,6 +7,10 @@ class LLAAF(torch.nn.Module):
     """Pytorch implementation of layer-wise locally adaptive
     activation functions (L-LAAF).
 
+    Args:
+        activation: The activation function to use.
+        n: The scaling factor.
+
     Examples:
 
     To define a L-LAAF ReLU with the scaling factor ``n = 10``:
@@ -24,13 +28,6 @@ class LLAAF(torch.nn.Module):
     """
 
     def __init__(self, activation, n):
-        """
-        Initialize the L-LAAF module.
-
-        Args:
-            activation: The activation function to use.
-            n: The scaling factor.
-        """
         super().__init__()
         self.activation = activation
         self.n = n
