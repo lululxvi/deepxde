@@ -261,6 +261,7 @@ class PointSetOperatorBC:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.func = func
+        self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
             if backend_name not in ["pytorch", "paddle"]:
@@ -269,6 +270,9 @@ class PointSetOperatorBC:
                 )
             self.batch_sampler = data.sampler.BatchSampler(len(self), shuffle=shuffle)
             self.batch_indices = None
+
+    def __len__(self):
+        return self.points.shape[0]
 
     def collocation_points(self, X):
         if self.batch_size is not None:
