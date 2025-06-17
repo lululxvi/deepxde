@@ -82,7 +82,7 @@ We have 3000 training residual points inside the domain and 2 points on the boun
     initializer = "Glorot normal"
     net = dde.nn.FNN(layer_size, activation, initializer)
 
-This is a neural network of depth 7 with 6 hidden layers of width 50. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
+This is a neural network of depth 7 with 6 hidden layers of width 64. We use :math:`\tanh` as the activation function. Since we expect to have periodic behavior in the Lotka-Volterra equation, we add a feature layer with :math:`\sin(kt)`. This forces the prediction to be periodic and therefore more accurate.
 
 .. code-block:: python
 
