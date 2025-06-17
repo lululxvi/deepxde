@@ -4,7 +4,33 @@ import torch
 
 
 class LLAAF(torch.nn.Module):
+    """Pytorch implementation of layer-wise locally adaptive
+    activation functions (L-LAAF).
+
+    Examples:
+
+    To define a L-LAAF ReLU with the scaling factor ``n = 10``:
+
+    .. code-block:: python
+
+        n = 10
+        llaaf = LLAAF(torch.relu, n)
+
+    References:
+        `A. D. Jagtap, K. Kawaguchi, & G. E. Karniadakis. Locally adaptive activation
+        functions with slope recovery for deep and physics-informed neural networks.
+        Proceedings of the Royal Society A, 476(2239), 20200334, 2020
+        <https://doi.org/10.1098/rspa.2020.0334>`_.
+    """
+
     def __init__(self, activation, n):
+        """
+        Initialize the L-LAAF module.
+
+        Args:
+            activation: The activation function to use.
+            n: The scaling factor.
+        """
         super().__init__()
         self.activation = activation
         self.n = n
