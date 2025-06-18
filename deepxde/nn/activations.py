@@ -1,5 +1,6 @@
 from .. import backend as bkd
 from .. import config
+from .. import utils
 from ..backend import backend_name, tf
 
 
@@ -26,10 +27,12 @@ def layer_wise_locally_adaptive(activation, n=1):
         <https://doi.org/10.1098/rspa.2020.0334>`_.
     """
     # TODO: other backends
-    if backend_name != "tensorflow.compat.v1":
-        raise NotImplementedError("Only tensorflow.compat.v1 backend supports L-LAAF.")
-    a = tf.Variable(1 / n, dtype=config.real(tf))
-    return lambda x: activation(n * a * x)
+    if backend_name == "tensorflow.compat.v1":
+        a = tf.Variable(1 / n, dtype=config.real(tf))
+        return lambda x: activation(n * a * x)
+    if backend_name == "pytorch":
+        return utils.LLAAF(activation, n)
+    raise NotImplementedError(f"L-LAAF is not implemented for {backend_name} backend.")
 
 
 def get(identifier):
