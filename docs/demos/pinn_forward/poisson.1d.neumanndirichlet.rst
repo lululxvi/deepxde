@@ -8,7 +8,7 @@ We will solve a Poisson equation:
 
 .. math:: \Delta u = 2, \qquad x \in [-1, 1],
 
-with the Neumman boundary conditions on the right boundary
+with the Neumann boundary conditions on the right boundary
 
 .. math:: \left.\dfrac{du}{dx}\right|_{x=1} =4
 
