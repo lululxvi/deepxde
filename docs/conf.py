@@ -14,7 +14,6 @@
 #
 from importlib.metadata import version
 
-
 # -- Project information -----------------------------------------------------
 
 project = "DeepXDE"
@@ -25,7 +24,6 @@ author = "Lu Lu"
 version = version("deepxde")
 # The full version, including alpha/beta/rc tags
 release = version
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -42,8 +40,13 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    'sphinx_autodoc_typehints',
+    'myst_nb',
+    'sphinx_thebe',
+    'sphinx_design',
+    'sphinx_math_dollar',
 ]
-
+jupyter_execute_notebooks = "off"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -51,7 +54,7 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ".rst"
+source_suffix = ['.rst', '.ipynb', '.md']
 
 # The master toctree document.
 master_doc = "index"
@@ -70,7 +73,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
-
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -108,7 +110,6 @@ html_static_path = ["_static"]
 # Output file base name for HTML help builder.
 htmlhelp_basename = "DeepXDEdoc"
 
-
 # -- Options for LaTeX output ------------------------------------------------
 
 latex_elements = {
@@ -129,13 +130,11 @@ latex_documents = [
     (master_doc, "DeepXDE.tex", "DeepXDE Documentation", "Lu Lu", "manual")
 ]
 
-
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [(master_doc, "deepxde", "DeepXDE Documentation", [author], 1)]
-
 
 # -- Options for Texinfo output ----------------------------------------------
 
@@ -153,6 +152,5 @@ texinfo_documents = [
         "Miscellaneous",
     )
 ]
-
 
 # -- Extension configuration -------------------------------------------------
