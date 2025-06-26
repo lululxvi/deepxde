@@ -54,3 +54,14 @@ exclude = ["docker", "docs*", "examples*"]
 
 [tool.setuptools_scm]
 write_to = "deepxde/_version.py"
+
+[project.optional-dependencies]
+experimental = [
+    "brainstate",
+    "brainunit",
+    "braintools",
+    "jax",
+    "optax",
+    "flax",  # for compatibility
+]
+
