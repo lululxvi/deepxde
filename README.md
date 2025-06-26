@@ -98,6 +98,11 @@ $ conda install -c conda-forge deepxde
 $ git clone https://github.com/lululxvi/deepxde.git
 ```
 
+- If you want to use the new [deepxde.experimental](https://github.com/lululxvi/deepxde/tree/main/deepxde/experimental) module, you can use:
+``` sh
+$ pip install deepxde[experimental]
+```
+
 ## Explore more
 
 - [Install and Setup](https://deepxde.readthedocs.io/en/latest/user/installation.html)
