@@ -29,7 +29,7 @@ DeepXDE
 
 DeepXDE supports five tensor libraries as backends: TensorFlow 1.x (``tensorflow.compat.v1`` in TensorFlow 2.x), TensorFlow 2.x, PyTorch, JAX, and PaddlePaddle. For how to select one, see `Working with different backends <https://deepxde.readthedocs.io/en/latest/user/installation.html#working-with-different-backends>`_.
 
-**Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io/>`_
+**Documentation**: `ReadTheDocs <https://deepxde.readthedocs.io>`_
 
 .. image:: images/pinn.png
 
