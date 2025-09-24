@@ -650,3 +650,8 @@ Multi-fidelity NN
 
 #. L\. Lu, M. Dao, P. Kumar, U. Ramamurty, G. Karniadakis, & S. Suresh. `Extraction of mechanical properties of materials through deep learning from instrumented indentation <https://doi.org/10.1073/pnas.1922210117>`_. *Proceedings of the National Academy of Sciences*, 117(13), 7052--7062, 2020.
 #. X\. Meng, & G. Karniadakis. `A composite neural network that learns from multi-fidelity data: Application to function approximation and inverse PDE problems <https://doi.org/10.1016/j.jcp.2019.109020>`_. *Journal of Computational Physics*, 401, 109020, 2020.
+
+Tutorial
+--------
+
+#. `An introductory course to PINNs and DeepONet <https://github.com/fperiago/pinn_deeponet_for_beginners>`_
