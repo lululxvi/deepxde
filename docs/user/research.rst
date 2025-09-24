@@ -654,4 +654,4 @@ Multi-fidelity NN
 Tutorial
 --------
 
-#. `An introductory course to PINNs and DeepONet <https://github.com/fperiago/pinn_deeponet_for_beginners>`
+#. `An introductory course to PINNs and DeepONet <https://github.com/fperiago/pinn_deeponet_for_beginners>`_
