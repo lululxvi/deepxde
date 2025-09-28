@@ -18,6 +18,10 @@ elif dde.backend.backend_name == "paddle":
     import paddle
 
     sin = paddle.sin
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    sin = torch.sin
 
 
 def pde(x, y):
