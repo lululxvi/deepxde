@@ -230,9 +230,9 @@ class PODMIONet(NN):
             self.activation_trunk = activations.get(activation["trunk"])
             self.activation_merger = activations.get(activation["merger"])
         else:
-            self.activation_branch1 = (
-                self.activation_branch2
-            ) = self.activation_trunk = activations.get(activation)
+            self.activation_branch1 = self.activation_branch2 = (
+                self.activation_trunk
+            ) = activations.get(activation)
         self.pod_basis = torch.as_tensor(pod_basis, dtype=torch.float32)
         if callable(layer_sizes_branch1[1]):
             # User-defined network
