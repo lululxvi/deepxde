@@ -14,7 +14,7 @@ from ..utils import array_ops_compat, run_if_all_none
 class Scheme:
     """Fractional Laplacian discretization.
 
-    Discretize fractional Laplacian uisng quadrature rule for the integral with respect to the directions
+    Discretize fractional Laplacian using quadrature rule for the integral with respect to the directions
     and Grunwald-Letnikov (GL) formula for the Riemann-Liouville directional fractional derivative.
 
     Args:
