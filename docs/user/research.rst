@@ -592,6 +592,7 @@ PINN
 Deep neural operators
 --------
 
+#. A\. Velikorodny, L. Lu, V. Dudenkov, V. Glanz, B. Chernyavsky, A. Neylon, & P. C. Smits. `Deep operator learning for blood flow modelling in stenosed vessels <https://doi.org/10.1038/s44387-025-00035-5>`_. *npj Artificial Intelligence*, 1, 35, 2025.
 #. A\. Jiao, Q. Yan, J. Harlim, & L. Lu. `Solving forward and inverse PDE problems on unknown manifolds via physics-informed neural operators <https://arxiv.org/abs/2407.05477>`_. *arXiv preprint arXiv:2407.05477*, 2024.
 #. J\. Park, & N. Kang. `Point-DeepONet: A Deep Operator Network Integrating PointNet for Nonlinear Analysis of Non-Parametric 3D Geometries and Load Conditions <https://arxiv.org/abs/2412.18362>`_. *arXiv preprint arXiv:2412.18362*, 2024.
 #. K\. Lv, J. Wang, Y. Zhang, & H. Yu. `Neural Operators for Adaptive Control of Freeway Traffic <https://arxiv.org/abs/2410.20708>`_. *arXiv preprint arXiv:2410.20708*, 2024.
