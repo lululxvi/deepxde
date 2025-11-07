@@ -58,6 +58,11 @@ class DeepONet(NN):
             Split the trunk net and share the branch net. The width of the last layer
             in the trunk net should be equal to the one in the branch net multiplied
             by the number of outputs.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
     """
 
     def __init__(
@@ -69,6 +74,7 @@ class DeepONet(NN):
         num_outputs=1,
         multi_output_strategy=None,
         regularization=None,
+        dropout_rate=0,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -78,6 +84,12 @@ class DeepONet(NN):
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.regularizer = regularization
+
+        if isinstance(dropout_rate, dict):
+            self.dropout_rate_branch = dropout_rate["branch"]
+            self.dropout_rate_trunk = dropout_rate["trunk"]
+        else:
+            self.dropout_rate_branch = self.dropout_rate_trunk = dropout_rate
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
@@ -115,10 +127,20 @@ class DeepONet(NN):
         if callable(layer_sizes_branch[1]):
             return layer_sizes_branch[1]
         # Fully connected network
-        return FNN(layer_sizes_branch, self.activation_branch, self.kernel_initializer)
+        return FNN(
+            layer_sizes_branch,
+            self.activation_branch,
+            self.kernel_initializer,
+            dropout_rate=self.dropout_rate_branch,
+        )
 
     def build_trunk_net(self, layer_sizes_trunk):
-        return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
+        return FNN(
+            layer_sizes_trunk,
+            self.activation_trunk,
+            self.kernel_initializer,
+            dropout_rate=self.dropout_rate_trunk,
+        )
 
     def merge_branch_trunk(self, x_func, x_loc, index):
         y = torch.einsum("bi,bi->b", x_func, x_loc)
@@ -182,6 +204,11 @@ class DeepONetCartesianProd(NN):
             Split the trunk net and share the branch net. The width of the last layer
             in the trunk net should be equal to the one in the branch net multiplied
             by the number of outputs.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
     """
 
     def __init__(
@@ -193,6 +220,7 @@ class DeepONetCartesianProd(NN):
         num_outputs=1,
         multi_output_strategy=None,
         regularization=None,
+        dropout_rate=0,
     ):
         super().__init__()
         if isinstance(activation, dict):
@@ -202,6 +230,12 @@ class DeepONetCartesianProd(NN):
             self.activation_branch = self.activation_trunk = activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.regularizer = regularization
+
+        if isinstance(dropout_rate, dict):
+            self.dropout_rate_branch = dropout_rate["branch"]
+            self.dropout_rate_trunk = dropout_rate["trunk"]
+        else:
+            self.dropout_rate_branch = self.dropout_rate_trunk = dropout_rate
 
         self.num_outputs = num_outputs
         if self.num_outputs == 1:
@@ -239,10 +273,20 @@ class DeepONetCartesianProd(NN):
         if callable(layer_sizes_branch[1]):
             return layer_sizes_branch[1]
         # Fully connected network
-        return FNN(layer_sizes_branch, self.activation_branch, self.kernel_initializer)
+        return FNN(
+            layer_sizes_branch,
+            self.activation_branch,
+            self.kernel_initializer,
+            dropout_rate=self.dropout_rate_branch,
+        )
 
     def build_trunk_net(self, layer_sizes_trunk):
-        return FNN(layer_sizes_trunk, self.activation_trunk, self.kernel_initializer)
+        return FNN(
+            layer_sizes_trunk,
+            self.activation_trunk,
+            self.kernel_initializer,
+            dropout_rate=self.dropout_rate_trunk,
+        )
 
     def merge_branch_trunk(self, x_func, x_loc, index):
         y = torch.einsum("bi,ni->bn", x_func, x_loc)
@@ -281,6 +325,11 @@ class PODDeepONet(NN):
             `activation["branch"]`.
         layer_sizes_trunk (list): A list of integers as the width of a fully connected
             network. If ``None``, then only use POD basis as the trunk net.
+        dropout_rate: If `dropout_rate` is a ``float`` between 0 and 1, then the
+            same rate is used in both trunk and branch nets. If `dropout_rate`
+            is a ``dict``, then the trunk net uses the rate `dropout_rate["trunk"]`,
+            and the branch net uses `dropout_rate["branch"]`. Both `dropout_rate["trunk"]`
+            and `dropout_rate["branch"]` should be ``float`` or lists of ``float``.
 
     References:
         `L. Lu, X. Meng, S. Cai, Z. Mao, S. Goswami, Z. Zhang, & G. E. Karniadakis. A
@@ -297,6 +346,7 @@ class PODDeepONet(NN):
         kernel_initializer,
         layer_sizes_trunk=None,
         regularization=None,
+        dropout_rate=0,
     ):
         super().__init__()
         self.regularizer = regularization
@@ -307,17 +357,31 @@ class PODDeepONet(NN):
         else:
             activation_branch = self.activation_trunk = activations.get(activation)
 
+        if isinstance(dropout_rate, dict):
+            dropout_rate_branch = dropout_rate["branch"]
+            dropout_rate_trunk = dropout_rate["trunk"]
+        else:
+            dropout_rate_branch = dropout_rate_trunk = dropout_rate
+
         if callable(layer_sizes_branch[1]):
             # User-defined network
             self.branch = layer_sizes_branch[1]
         else:
             # Fully connected network
-            self.branch = FNN(layer_sizes_branch, activation_branch, kernel_initializer)
+            self.branch = FNN(
+                layer_sizes_branch,
+                activation_branch,
+                kernel_initializer,
+                dropout_rate=dropout_rate_branch,
+            )
 
         self.trunk = None
         if layer_sizes_trunk is not None:
             self.trunk = FNN(
-                layer_sizes_trunk, self.activation_trunk, kernel_initializer
+                layer_sizes_trunk,
+                self.activation_trunk,
+                kernel_initializer,
+                dropout_rate=dropout_rate_trunk,
             )
             self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
 
