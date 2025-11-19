@@ -36,7 +36,13 @@ net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")
 model = dde.Model(data, net)
 
 model.compile("adam", lr=1e-3)
+
 model.train(iterations=15000)
+# Uncomment the following lines to use different resampling strategies
+#model.train(iterations=15000, callbacks=[dde.callbacks.PDEPointResampler(period=500, name='RAR-D', sampler_config={'k':2, 'c':0.5})])
+#model.train(iterations=15000, callbacks=[dde.callbacks.PDEPointResampler(period=500, name='RAD',   sampler_config={'number_of_points': 1000, 'k':2})])
+#model.train(iterations=15000, callbacks=[dde.callbacks.PDEPointResampler(period=500, name='RAR-G', sampler_config={})])
+
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 # """Backend supported: pytorch"""
