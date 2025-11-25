@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import KDTree
 
 from .geometry import Geometry
 from .. import config
@@ -20,6 +21,7 @@ class PointCloud(Geometry):
     def __init__(self, points, boundary_points=None, boundary_normals=None):
         self.points = np.asarray(points, dtype=config.real(np))
         self.num_points = len(points)
+        self._points_kdtree = KDTree(self.points)
         self.boundary_points = None
         self.boundary_normals = None
         all_points = self.points
@@ -36,6 +38,7 @@ class PointCloud(Geometry):
                 self.boundary_normals = np.asarray(
                     boundary_normals, dtype=config.real(np)
                 )
+            self._boundary_points_kdtree = KDTree(self.boundary_points)
         super().__init__(
             len(points[0]),
             (np.amin(all_points, axis=0), np.amax(all_points, axis=0)),
@@ -44,33 +47,21 @@ class PointCloud(Geometry):
         self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
-        return (
-            isclose((x[:, None, :] - self.points[None, :, :]), 0)
-            .all(axis=2)
-            .any(axis=1)
-        )
+        distances, _ = self._points_kdtree.query(x)
+        return isclose(distances, 0)
 
     def on_boundary(self, x):
         if self.boundary_points is None:
             raise ValueError("boundary_points must be defined to test on_boundary")
-        return (
-            isclose(
-                (x[:, None, :] - self.boundary_points[None, :, :]),
-                0,
-            )
-            .all(axis=2)
-            .any(axis=1)
-        )
+        distances, _ = self._boundary_points_kdtree.query(x)
+        return isclose(distances, 0)
 
     def boundary_normal(self, x):
         if self.boundary_normals is None:
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
             )
-        boundary_point_matches = isclose(
-            (self.boundary_points[:, None, :] - x[None, :, :]), 0
-        ).all(axis=2)
-        normals_idx = np.where(boundary_point_matches)[0]
+        _, normals_idx = self._boundary_points_kdtree.query(x)
         return self.boundary_normals[normals_idx, :]
     
     def random_points(self, n, random="pseudo"):
