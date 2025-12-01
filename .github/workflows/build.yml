@@ -68,5 +68,5 @@ jobs:
         env:
           DDE_BACKEND: paddle
         run: |
-          python -m pip install paddlepaddle -i https://pypi.tuna.tsinghua.edu.cn/simple
+          python -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
           python -c "import deepxde"
