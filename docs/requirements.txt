@@ -11,8 +11,7 @@ tensorflow-probability[tf]>=0.11.0
 # PyTorch
 torch
 # PaddlePaddle
-# https://paddle-wheel.bj.bcebos.com/develop/linux/linux-cpu-mkl-avx/paddlepaddle-0.0.0-cp38-cp38-linux_x86_64.whl
-paddlepaddle==2.6.0
+paddlepaddle
 # JAX
 jax
 flax
