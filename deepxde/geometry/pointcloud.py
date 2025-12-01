@@ -47,13 +47,13 @@ class PointCloud(Geometry):
         self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
-        distances, _ = self._points_kdtree.query(x)
+        distances, _ = self._points_kdtree.query(x, p=np.inf)
         return isclose(distances, 0)
 
     def on_boundary(self, x):
         if self.boundary_points is None:
             raise ValueError("boundary_points must be defined to test on_boundary")
-        distances, _ = self._boundary_points_kdtree.query(x)
+        distances, _ = self._boundary_points_kdtree.query(x, p=np.inf)
         return isclose(distances, 0)
 
     def boundary_normal(self, x):
@@ -61,7 +61,7 @@ class PointCloud(Geometry):
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
             )
-        _, normals_idx = self._boundary_points_kdtree.query(x)
+        _, normals_idx = self._boundary_points_kdtree.query(x, p=np.inf)
         return self.boundary_normals[normals_idx, :]
     
     def random_points(self, n, random="pseudo"):
