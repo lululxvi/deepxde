@@ -105,10 +105,7 @@ html_static_path = ["_static"]
 autodoc_mock_imports = [
     "tensorflow",
     "paddle",
-    "paddlepaddle",
-    "jax",
-    "flax",
-    "optax",
+    "jax"
 ]
 
 # -- Options for HTMLHelp output ---------------------------------------------
