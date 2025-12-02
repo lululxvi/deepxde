@@ -13,8 +13,10 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-# Use PyTorch backend to avoid TensorFlow CUDA issues on Read the Docs
-os.environ["DDE_BACKEND"] = "pytorch"
+# disable CUDA/GPU for Read the Docs build
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["XLA_FLAGS"] = "--xla_gpu_cuda_data_dir="
+os.environ["DDE_BACKEND"] = "tensorflow"
 
 from importlib.metadata import version
 
