@@ -101,12 +101,8 @@ html_static_path = ["_static"]
 # html_sidebars = {}
 
 # Exclude imports
-# autodoc_mock_imports = ["tensorflow"]
-autodoc_mock_imports = [
-    "tensorflow",
-    "paddle",
-    "jax"
-]
+autodoc_mock_imports = ["tensorflow"]
+
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
