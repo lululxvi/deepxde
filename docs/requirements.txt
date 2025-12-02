@@ -4,10 +4,10 @@ scikit-learn
 scikit-optimize>=0.9.0
 scipy
 
-# TensorFlow 1.x
-tensorflow>=2.7.0
-# TensorFlow 2.x
-tensorflow-probability[tf]>=0.11.0
+# TensorFlow
+tensorflow>=2.15.0
+tensorflow-probability[tf]
+tf-keras
 
 # PyTorch
 torch
