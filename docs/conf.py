@@ -12,6 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import os
+os.environ["DDE_BACKEND"] = "tensorflow"
+
 from importlib.metadata import version
 
 
