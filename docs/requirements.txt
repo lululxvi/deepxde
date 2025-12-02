@@ -1,23 +1,20 @@
+# Sphinx + extensions
+sphinx>=7.0,<9.0
+sphinx-rtd-theme
+sphinx-copybutton
+
+# Light scientific deps (used by examples / plots)
 matplotlib
 numpy
+scipy
 scikit-learn
 scikit-optimize>=0.9.0
-scipy
 
-# TensorFlow 1.x
-tensorflow>=2.7.0
-# TensorFlow 2.x
-tensorflow-probability[tf]>=0.11.0
-# PyTorch
-torch
-# PaddlePaddle
-# https://paddle-wheel.bj.bcebos.com/develop/linux/linux-cpu-mkl-avx/paddlepaddle-0.0.0-cp38-cp38-linux_x86_64.whl
-paddlepaddle>=2.6.2
-# JAX
-jax
-flax
-optax
-
-sphinx-copybutton
-sphinx-rtd-theme
-
+# Heavy backends are mocked in docs/conf.py and are NOT required to build docs:
+# tensorflow>=2.7.0
+# tensorflow-probability[tf]>=0.11.0
+# torch
+# paddlepaddle>=2.6.2
+# jax
+# flax
+# optax
