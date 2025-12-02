@@ -8,7 +8,7 @@ scipy
 tensorflow-cpu>=2.7.0
 # TensorFlow 2.x
 tensorflow-probability>=0.11.0
-tf-keras
+tf-keras>=2.15.0
 
 # PyTorch
 torch
