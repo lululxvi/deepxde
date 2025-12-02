@@ -5,10 +5,9 @@ scikit-optimize>=0.9.0
 scipy
 
 # TensorFlow 1.x
-tensorflow-cpu>=2.7.0
+tensorflow>=2.7.0
 # TensorFlow 2.x
-tensorflow-probability>=0.11.0
-tf-keras>=2.15.0
+tensorflow-probability[tf]>=0.11.0
 
 # PyTorch
 torch
