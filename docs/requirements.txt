@@ -10,6 +10,7 @@ tensorflow-cpu>=2.7.0
 # TensorFlow 2.x
 # tensorflow-probability[tf]>=0.11.0
 tensorflow-probability>=0.11.0
+tf-keras
 
 # PyTorch
 torch
