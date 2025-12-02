@@ -13,6 +13,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+# disable CUDA/GPU for Read the Docs build 
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["DDE_BACKEND"] = "tensorflow"
 
 from importlib.metadata import version
