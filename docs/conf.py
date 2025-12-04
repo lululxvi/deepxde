@@ -12,18 +12,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-# disable CUDA/GPU for Read the Docs build
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-# Debug: Check if config file exists
-config_path = os.path.join(os.path.expanduser("~"), ".deepxde", "config.json")
-print(f"DEBUG: config.json exists? {os.path.exists(config_path)}")
-if os.path.exists(config_path):
-    import json
-    with open(config_path, "r") as f:
-        print(f"DEBUG: config.json content: {json.load(f)}")
-# use TensorFlow 2.x backend 
-os.environ["DDE_BACKEND"] = "tensorflow"
+# import os
+# # disable CUDA/GPU for Read the Docs build
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["DDE_BACKEND"] = "tensorflow"
 
 from importlib.metadata import version
 
