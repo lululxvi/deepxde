@@ -15,7 +15,7 @@
 import os
 # disable CUDA/GPU for Read the Docs build
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ["DDE_BACKEND"] = "tensorflow"
+# os.environ["DDE_BACKEND"] = "tensorflow"
 
 from importlib.metadata import version
 

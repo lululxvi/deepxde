@@ -110,18 +110,18 @@ def get_preferred_backend():
         verify_backend(backend_name)
         return backend_name
     # No backend selected
-    print("No backend selected.")
+    print("No backend selected.", file=sys.stderr, flush=True)
 
     # Find available backend
-    print("Finding available backend...")
+    print("Finding available backend...", file=sys.stderr, flush=True)
     backend_name = get_available_backend()
     if backend_name is not None:
-        print(f"Found {backend_name}")
+        print(f"Found {backend_name}", file=sys.stderr, flush=True)
         set_default_backend(backend_name)
         return backend_name
 
     # No backend available
-    print("Cannot find available backend.")
+    print("Cannot find available backend.", file=sys.stderr, flush=True)
     interactive_install_paddle()
     set_default_backend("paddle")
     return "paddle"
