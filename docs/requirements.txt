@@ -5,9 +5,9 @@ scikit-optimize>=0.9.0
 scipy
 
 # TensorFlow
-tf-keras>=2.16.0
-tensorflow-cpu>=2.16.0
-tensorflow-probability
+tf-keras==2.18.0
+tensorflow-cpu==2.18.0
+tensorflow-probability==0.25.0
 # PyTorch
 torch
 # PaddlePaddle
