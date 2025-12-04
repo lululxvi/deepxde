@@ -8,7 +8,6 @@ scipy
 tf-keras==2.18.0
 tensorflow-cpu==2.18.0
 tensorflow-probability==0.25.0
-
 # PyTorch
 torch
 # PaddlePaddle

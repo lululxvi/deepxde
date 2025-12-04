@@ -15,7 +15,6 @@
 import os
 # disable CUDA/GPU for Read the Docs build
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ["XLA_FLAGS"] = "--xla_gpu_cuda_data_dir="
 os.environ["DDE_BACKEND"] = "tensorflow"
 
 from importlib.metadata import version
@@ -108,7 +107,6 @@ html_static_path = ["_static"]
 
 # Exclude imports
 # autodoc_mock_imports = ["tensorflow"]
-
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
