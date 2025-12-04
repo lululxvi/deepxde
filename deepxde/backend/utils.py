@@ -81,7 +81,7 @@ def verify_backend(backend_name):
 
 
 def get_available_backend():
-    backends = ["tensorflow.compat.v1", "tensorflow", "pytorch", "jax", "paddle"]
+    backends = ["tensorflow", "tensorflow.compat.v1", "pytorch", "jax", "paddle"]
     import_funcs = {
         "tensorflow.compat.v1": import_tensorflow_compat_v1,
         "tensorflow": import_tensorflow,
