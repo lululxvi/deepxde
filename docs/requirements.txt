@@ -4,9 +4,10 @@ scikit-learn
 scikit-optimize>=0.9.0
 scipy
 
-# TensorFlow
-tf-keras==2.18.0
+# TensorFlow 1.x
 tensorflow-cpu==2.18.0
+# TensorFlow 2.x
+tf-keras==2.18.0
 tensorflow-probability==0.25.0
 # PyTorch
 torch
