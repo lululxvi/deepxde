@@ -38,7 +38,7 @@ dependencies = [
     "matplotlib",
     "numpy",
     "scikit-learn",
-    "scikit-optimize>=0.9.0",
+    "scikit-optimize>=0.10.2",
     "scipy",
 ]
 
