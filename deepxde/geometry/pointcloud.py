@@ -1,10 +1,9 @@
 import numpy as np
-from scipy.spatial import KDTree
 
 from .geometry import Geometry
 from .. import config
 from ..data import BatchSampler
-from ..utils import isclose
+from ..utils import PointSet
 
 
 class PointCloud(Geometry):
@@ -20,49 +19,43 @@ class PointCloud(Geometry):
 
     def __init__(self, points, boundary_points=None, boundary_normals=None):
         self.points = np.asarray(points, dtype=config.real(np))
-        self.num_points = len(points)
-        self._points_kdtree = KDTree(self.points)
+        self.num_points = len(self.points)
+        self._point_set = PointSet(self.points)
         self.boundary_points = None
         self.boundary_normals = None
         all_points = self.points
         if boundary_points is not None:
             self.boundary_points = np.asarray(boundary_points, dtype=config.real(np))
-            self.num_boundary_points = len(boundary_points)
+            self.num_boundary_points = len(self.boundary_points)
             all_points = np.vstack((self.points, self.boundary_points))
             self.boundary_sampler = BatchSampler(self.num_boundary_points, shuffle=True)
+            self._boundary_point_set = PointSet(self.boundary_points)
             if boundary_normals is not None:
-                if len(boundary_normals) != len(boundary_points):
-                    raise ValueError(
-                        "the shape of boundary_normals should be the same as boundary_points"
-                    )
                 self.boundary_normals = np.asarray(
                     boundary_normals, dtype=config.real(np)
                 )
-            self._boundary_points_kdtree = KDTree(self.boundary_points)
+                self._boundary_normal_query = self._boundary_point_set.values_to_func(self.boundary_normals, default_value=None)
         super().__init__(
-            len(points[0]),
+            len(self.points[0]),
             (np.amin(all_points, axis=0), np.amax(all_points, axis=0)),
             np.inf,
         )
         self.sampler = BatchSampler(self.num_points, shuffle=True)
 
     def inside(self, x):
-        distances, _ = self._points_kdtree.query(x)
-        return isclose(distances, 0)
+        return self._point_set.inside(x)
 
     def on_boundary(self, x):
         if self.boundary_points is None:
             raise ValueError("boundary_points must be defined to test on_boundary")
-        distances, _ = self._boundary_points_kdtree.query(x)
-        return isclose(distances, 0)
+        return self._boundary_point_set.inside(x)
 
     def boundary_normal(self, x):
         if self.boundary_normals is None:
             raise ValueError(
                 "boundary_normals must be defined for boundary_normal"
             )
-        _, normals_idx = self._boundary_points_kdtree.query(x)
-        return self.boundary_normals[normals_idx, :]
+        return self._boundary_normal_query(x)
     
     def random_points(self, n, random="pseudo"):
         if n <= self.num_points:
