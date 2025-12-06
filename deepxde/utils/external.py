@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial.distance
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial import KDTree
 from sklearn import preprocessing
 
 
@@ -19,7 +20,8 @@ class PointSet:
     """
 
     def __init__(self, points):
-        self.points = np.array(points)
+        self.points = np.asarray(points)
+        self._kdtree = KDTree(self.points)
 
     def inside(self, x):
         """Returns ``True`` if `x` is in this set of points, otherwise, returns
@@ -32,15 +34,9 @@ class PointSet:
             If `x` is a single point, returns ``True`` or ``False``. If `x` is a list of
                 points, returns a list of ``True`` or ``False``.
         """
-        if x.ndim == 1:
-            # A single point
-            return np.any(np.all(isclose(x, self.points), axis=1))
-        if x.ndim == 2:
-            # A list of points
-            return np.any(
-                np.all(isclose(x[:, np.newaxis, :], self.points), axis=-1),
-                axis=-1,
-            )
+        distance, _ = self._kdtree.query(x, workers=-1)
+        distance = np.asarray(distance, self.points.dtype)
+        return isclose(distance, 0)
 
     def values_to_func(self, values, default_value=0):
         """Convert the pairs of points and values to a callable function.
@@ -48,18 +44,25 @@ class PointSet:
         Args:
             values: A NumPy array of shape (`N`, `dy`). `values[i]` is the `dy`-dim
                 function value of the `i`-th point in this point set.
-            default_value (float): The function value of the points not in this point
-                set.
+            default_value: A scalar or vector with the same shape as `values[i]`, or `None`.
+                If not `None`, the function returns it for the points not in this point set.
+                If `None`, the function always returns the nearest neighbor value.
 
         Returns:
             A callable function. The input of this function should be a NumPy array of
                 shape (?, `dx`).
         """
+        values = np.asarray(values)
+        if len(values) != len(self.points):
+            raise ValueError("the length of values should be the same as points")
 
         def func(x):
-            pt_equal = np.all(isclose(x[:, np.newaxis, :], self.points), axis=-1)
-            not_inside = np.logical_not(np.any(pt_equal, axis=-1, keepdims=True))
-            return np.matmul(pt_equal, values) + default_value * not_inside
+            distance, idx = self._kdtree.query(x, workers=-1)
+            nearest_value = values[idx]
+            if default_value is None:
+                return nearest_value
+            distance = np.asarray(distance, self.points.dtype)
+            return np.where(isclose(distance, 0), nearest_value, default_value)
 
         return func
 
