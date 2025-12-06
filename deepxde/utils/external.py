@@ -35,7 +35,7 @@ class PointSet:
                 points, returns a list of ``True`` or ``False``.
         """
         distance, _ = self._kdtree.query(x, workers=-1)
-        distance = distance.astype(self.points.dtype, copy=False)
+        distance = np.asarray(distance, self.points.dtype)
         return isclose(distance, 0)
 
     def values_to_func(self, values, default_value=0):
@@ -61,7 +61,7 @@ class PointSet:
             nearest_value = values[idx]
             if default_value is None:
                 return nearest_value
-            distance = distance.astype(self.points.dtype, copy=False)
+            distance = np.asarray(distance, self.points.dtype)
             return np.where(isclose(distance, 0), nearest_value, default_value)
 
         return func
