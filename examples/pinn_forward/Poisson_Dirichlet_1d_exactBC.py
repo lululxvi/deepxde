@@ -1,4 +1,4 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, jax, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
 import deepxde as dde
 import numpy as np
 
@@ -18,6 +18,10 @@ elif dde.backend.backend_name == "paddle":
     import paddle
 
     sin = paddle.sin
+elif dde.backend.backend_name == "pytorch":
+    import torch
+
+    sin = torch.sin
 
 
 def pde(x, y):
