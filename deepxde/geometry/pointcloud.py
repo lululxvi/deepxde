@@ -34,7 +34,7 @@ class PointCloud(Geometry):
                 self.boundary_normals = np.asarray(
                     boundary_normals, dtype=config.real(np)
                 )
-                self._boundary_normal_query = self._boundary_point_set.values_to_func(self.boundary_normals, default_value=None)
+                self._boundary_normal_query = self._boundary_point_set.values_to_func(self.boundary_normals)
         super().__init__(
             len(self.points[0]),
             (np.amin(all_points, axis=0), np.amax(all_points, axis=0)),

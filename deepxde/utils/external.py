@@ -38,7 +38,7 @@ class PointSet:
         distance = np.asarray(distance, self.points.dtype)
         return isclose(distance, 0)
 
-    def values_to_func(self, values, default_value=0):
+    def values_to_func(self, values, default_value=None):
         """Convert the pairs of points and values to a callable function.
 
         Args:
