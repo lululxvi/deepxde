@@ -34,6 +34,10 @@ class PointCloud(Geometry):
                 self.boundary_normals = np.asarray(
                     boundary_normals, dtype=config.real(np)
                 )
+                if self.boundary_normals.shape != self.boundary_points.shape:
+                    raise ValueError(
+                        "the shape of boundary_normals should be the same as boundary_points"
+                    )
                 self._boundary_normal_query = self._boundary_point_set.values_to_func(self.boundary_normals)
         super().__init__(
             len(self.points[0]),
