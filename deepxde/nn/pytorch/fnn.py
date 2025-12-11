@@ -10,7 +10,12 @@ class FNN(NN):
     """Fully-connected neural network."""
 
     def __init__(
-        self, layer_sizes, activation, kernel_initializer, regularization=None
+        self,
+        layer_sizes,
+        activation,
+        kernel_initializer,
+        regularization=None,
+        dropout_rate=0,
     ):
         super().__init__()
         if isinstance(activation, list):
@@ -21,6 +26,16 @@ class FNN(NN):
             self.activation = list(map(activations.get, activation))
         else:
             self.activation = activations.get(activation)
+
+        if isinstance(dropout_rate, list):
+            if len(layer_sizes) - 1 != len(dropout_rate):
+                raise ValueError(
+                    f"Number of dropout rates must be equal to {len(layer_sizes) - 1}"
+                )
+            self.dropout_rate = dropout_rate
+        else:
+            self.dropout_rate = [dropout_rate] * (len(layer_sizes) - 1)
+
         initializer = initializers.get(kernel_initializer)
         initializer_zero = initializers.get("zeros")
         self.regularizer = regularization
@@ -45,6 +60,10 @@ class FNN(NN):
                 if isinstance(self.activation, list)
                 else self.activation(linear(x))
             )
+            if self.dropout_rate[j] > 0:
+                x = torch.nn.functional.dropout(
+                    x, p=self.dropout_rate[j], training=self.training
+                )
         x = self.linears[-1](x)
         if self._output_transform is not None:
             x = self._output_transform(inputs, x)
