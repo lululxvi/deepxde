@@ -28,7 +28,7 @@ class FNN(NN):
             self.activation = activations.get(activation)
 
         if isinstance(dropout_rate, list):
-            if not (len(layer_sizes) - 1) == len(dropout_rate):
+            if len(layer_sizes) - 1 != len(dropout_rate):
                 raise ValueError(
                     f"Number of dropout rates must be equal to {len(layer_sizes) - 1}"
                 )
