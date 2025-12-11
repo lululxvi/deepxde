@@ -6,22 +6,7 @@ geom = dde.geometry.Interval(0, np.pi)
 
 
 # Define sine function
-if dde.backend.backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    from deepxde.backend import tf
-
-    sin = tf.sin
-elif dde.backend.backend_name == "jax":
-    import jax
-
-    sin = jax.numpy.sin
-elif dde.backend.backend_name == "paddle":
-    import paddle
-
-    sin = paddle.sin
-elif dde.backend.backend_name == "pytorch":
-    import torch
-
-    sin = torch.sin
+sin = dde.backend.sin
 
 
 def pde(x, y):

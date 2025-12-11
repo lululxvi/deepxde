@@ -10,6 +10,8 @@ from deepxde.backend import tf
 # Import paddle if using backend paddle
 # import paddle
 
+#Define sine function
+sin = dde.backend.sin
 
 def pde(x, y):
     # Most backends
@@ -17,7 +19,7 @@ def pde(x, y):
     # Backend jax
     # dy_xx, _ = dde.grad.hessian(y, x)
     # Use tf.sin for backend tensorflow.compat.v1 or tensorflow
-    return -dy_xx - np.pi**2 * tf.sin(np.pi * x)
+    return -dy_xx - np.pi**2 * sin(np.pi * x)
     # Use torch.sin for backend pytorch
     # return -dy_xx - np.pi ** 2 * torch.sin(np.pi * x)
     # Use jax.numpy.sin for backend jax
