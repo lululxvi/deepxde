@@ -1073,11 +1073,13 @@ class Model:
             )
         return destination
 
-    def save(self, save_path, protocol="backend", verbose=0):
+    def save(self, save_path, use_iteration_suffix=True, protocol="backend", verbose=0):
         """Saves all variables to a disk file.
 
         Args:
             save_path (string): Prefix of filenames to save the model file.
+            use_iteration_suffix (bool): If True, append the training iteration
+                as a `-<iteration>` suffix to `save_path` before adding the file extension.
             protocol (string): If `protocol` is "backend", save using the
                 backend-specific method.
 
@@ -1092,7 +1094,8 @@ class Model:
         Returns:
             string: Path where model is saved.
         """
-        save_path = f"{save_path}-{self.train_state.iteration}"
+        if use_iteration_suffix:
+            save_path = f"{save_path}-{self.train_state.iteration}"
         if protocol == "pickle":
             save_path += ".pkl"
             with open(save_path, "wb") as f:
