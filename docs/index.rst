@@ -80,6 +80,12 @@ User guide
   user/faq
 
 .. toctree::
+  :maxdepth: 1
+
+  experimental_docs/index.rst
+
+
+.. toctree::
   :maxdepth: 2
 
   user/research

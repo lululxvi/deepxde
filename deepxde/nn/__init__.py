@@ -16,6 +16,7 @@ import importlib
 import os
 import sys
 
+from . import deeponet_strategy
 from ..backend import backend_name
 
 
