@@ -5,6 +5,7 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
+import orbax.checkpoint as ocp
 
 from . import config
 from . import display
@@ -1107,6 +1108,21 @@ class Model:
             elif backend_name == "tensorflow":
                 save_path += ".weights.h5"
                 self.net.save_weights(save_path)
+            elif backend_name == "jax":
+                # TODO: identify a better solution that complies with PEP8 
+                from flax.training import orbax_utils 
+                save_path += ".ckpt"
+                checkpoint = {
+                    "params": self.params,
+                    "state": self.opt_state
+                }
+                self.checkpointer = ocp.PyTreeCheckpointer()
+                save_args = orbax_utils.save_args_from_target(checkpoint)
+                # `Force=True` option causes existing checkpoints to be 
+                # overwritten, matching the PyTorch checkpointer behaviour.
+                self.checkpointer.save(
+                    save_path, checkpoint, force=True, save_args=save_args
+                )
             elif backend_name == "pytorch":
                 save_path += ".pt"
                 checkpoint = {
@@ -1151,6 +1167,10 @@ class Model:
             self.saver.restore(self.sess, save_path)
         elif backend_name == "tensorflow":
             self.net.load_weights(save_path)
+        elif backend_name == "jax":
+            checkpoint = self.checkpointer.restore(save_path)
+            self.params, self.opt_state = checkpoint["params"], checkpoint["state"]
+            self.net.params, self.external_trainable_variables = self.params
         elif backend_name == "pytorch":
             if device is not None:
                 checkpoint = torch.load(save_path, map_location=torch.device(device), weights_only=True)

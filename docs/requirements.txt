@@ -1,5 +1,6 @@
 matplotlib
 numpy
+orbax-checkpoint
 scikit-learn
 scikit-optimize>=0.10.2
 scipy
