@@ -42,7 +42,17 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "sphinx_math_dollar",  # Enabled dollar sign math support
 ]
+
+# Configure MathJax to recognize single dollar signs for inline math
+mathjax3_config = {
+    "tex": {
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$ for inline math
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]], # Enable $$...$$ for display math
+        "processEscapes": True,
+    },
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
