@@ -45,7 +45,6 @@ extensions = [
     "sphinx_math_dollar",  # Enabled dollar sign math support
 ]
 
-# Configure MathJax to recognize single dollar signs for inline math
 mathjax3_config = {
     "tex": {
         "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
