@@ -48,9 +48,9 @@ extensions = [
 # Configure MathJax to recognize single dollar signs for inline math
 mathjax3_config = {
     "tex": {
-        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$ for inline math
-        "displayMath": [["$$", "$$"], ["\\[", "\\]"]], # Enable $$...$$ for display math
-        "processEscapes": True,
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]], # Enable $$...$$ and \[...\] for display math
+        "processEscapes": True, # Allow the use of escape characters in math mode, for example $\$500 dollars$
     },
 }
 
