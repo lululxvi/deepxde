@@ -35,6 +35,7 @@ Time-independent PDEs
    pinn_forward/helmholtz.2d.neumann.hole
    pinn_forward/helmholtz.2d.sound.hard.abc
    pinn_forward/Kovasznay.flow
+   pinn_forward/american.put
 
 Time-dependent PDEs
 -------------------
