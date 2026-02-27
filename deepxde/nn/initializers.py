@@ -1,4 +1,4 @@
-__all__ = ["get", "VarianceScalingStacked"]
+__all__ = ["get", "VarianceScalingStacked", "avail_initializers"]
 
 import math
 
@@ -312,6 +312,8 @@ elif backend_name == "paddle":
 def get(identifier):
     """Retrieve an initializer by the identifier.
 
+    Run avail_initializers() to get a list of available identifiers.
+    
     Args:
         identifier: String that contains the initializer name or an initializer
             function.
@@ -324,3 +326,7 @@ def get(identifier):
     if callable(identifier):
         return identifier
     raise ValueError("Could not interpret initializer identifier: " + str(identifier))
+
+def avail_initializers():
+    """Returns a list of available initializers."""
+    return list(INITIALIZER_DICT.keys())
