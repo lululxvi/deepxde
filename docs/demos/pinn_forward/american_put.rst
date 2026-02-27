@@ -64,7 +64,8 @@ We define the computational geometry. We use ``GeometryXTime`` to combine the as
     timedomain = dde.geometry.TimeDomain(0, T)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-For the American put, the PDE residual must account for the early exercise constraint. We formulate this using soft penalties and the Fischer-Burmeister equation :math:`\phi(a, b) = \sqrt{a^2 + b^2} - (a + b) = 0` to satisfy the complementarity condition:
+For the American put, the PDE residual must account for the early exercise constraint. **This is very important to make sure the model does not learn European Options.**
+We formulate this using soft penalties and the Fischer-Burmeister equation :math:`\phi(a, b) = \sqrt{a^2 + b^2} - (a + b) = 0` to satisfy the complementarity condition:
 
 .. code-block:: python
 
