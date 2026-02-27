@@ -49,8 +49,8 @@ mathjax3_config = {
     "tex": {
         "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
         "displayMath": [["$$", "$$"], ["\\[", "\\]"]], # Enable $$...$$ and \[...\] for display math
-        "processEscapes": True, # Allow the use of escape characters in math mode, for example $\$500 dollars$
-    }
+        "processEscapes": True # Allow the use of escape characters in math mode, for example $\$500 dollars$
+    },
 }
 
 # Add any paths that contain templates here, relative to this directory.
