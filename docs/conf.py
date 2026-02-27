@@ -48,8 +48,7 @@ extensions = [
 mathjax3_config = {
     "tex": {
         "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
-        "displayMath": [["$$", "$$"], ["\\[", "\\]"]], # Enable $$...$$ and \[...\] for display math
-        "processEscapes": True # Allow the use of escape characters in math mode, for example $\$500 dollars$
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]] # Enable $$...$$ and \[...\] for display math
     },
 }
 
