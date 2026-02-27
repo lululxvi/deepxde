@@ -6,7 +6,7 @@ from .. import config
 from ..backend import backend_name, tf, torch, jax, paddle
 
 
-class VarianceScalingStacked:
+class TFVarianceScalingStacked:
     """Initializer capable of adapting its scale to the shape of weights tensors.
 
     With `distribution="truncated_normal" or "untruncated_normal"`,
@@ -85,6 +85,130 @@ class VarianceScalingStacked:
             return tf.random_uniform(shape, -limit, limit, dtype, seed=self.seed)
 
 
+class VarianceScalingStacked:
+    """Supported Backends: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle.
+    Initializer capable of adapting its scale to the shape of weights tensors.
+
+    With `distribution="truncated_normal" or "untruncated_normal"`,
+    samples are drawn from a truncated/untruncated normal
+    distribution with a mean of zero and a standard deviation (after truncation,
+    if used) `stddev = sqrt(scale / n)`
+    where n is:
+
+        - number of input units in the weight tensor, if mode = "fan_in"
+        - number of output units, if mode = "fan_out"
+        - average of the numbers of input and output units, if mode = "fan_avg"
+
+    With `distribution="uniform"`, samples are drawn from a uniform distribution
+    within [-limit, limit], with `limit = sqrt(3 * scale / n)`.
+
+    Args:
+        scale: Scaling factor (positive float).
+        mode: One of "fan_in", "fan_out", "fan_avg".
+        distribution: Random distribution to use. One of "normal", "uniform".
+        seed: A Python integer. Used to create random seeds. See
+            `tf.set_random_seed`
+            for behavior.
+        dtype: Default data type, used if no `dtype` argument is provided when
+            calling the initializer. Only floating point types are supported.
+
+    Raises:
+        ValueError: In case of an invalid value for the "scale", mode" or
+            "distribution" arguments.
+    """
+
+    def __init__(
+        self,
+        scale=1.0,
+        mode="fan_in",
+        distribution="truncated_normal",
+        seed=None,
+    ):
+        if scale <= 0.0:
+            raise ValueError("`scale` must be positive float.")
+        if mode not in {"fan_in", "fan_out", "fan_avg"}:
+            raise ValueError("Invalid `mode` argument:", mode)
+        distribution = distribution.lower()
+        if distribution not in {
+            "normal",
+            "uniform",
+            "truncated_normal",
+            "untruncated_normal",
+        }:
+            raise ValueError("Invalid `distribution` argument:", distribution)
+        self.scale = scale
+        self.mode = mode
+        self.distribution = distribution
+        self.seed = seed
+        self.dtype = config.real(tf)
+
+    def __call__(self, shape, dtype=None):
+        if dtype is None:
+            dtype = self.dtype
+        scale = self.scale
+        fan_in, fan_out = _compute_fans_stacked(shape)
+        if self.mode == "fan_in":
+            scale /= max(1.0, fan_in)
+        elif self.mode == "fan_out":
+            scale /= max(1.0, fan_out)
+        else:
+            scale /= max(1.0, (fan_in + fan_out) / 2.0)
+        if self.distribution == "normal" or self.distribution == "truncated_normal":
+            # constant taken from scipy.stats.truncnorm.std(a=-2, b=2, loc=0., scale=1.)
+            stddev = math.sqrt(scale) / 0.87962566103423978
+            return self._generate_truncated_normal(shape, stddev, dtype)
+        elif self.distribution == "untruncated_normal":
+            stddev = math.sqrt(scale)
+            return self._generate_normal(shape, stddev, dtype)
+        else:
+            limit = math.sqrt(3.0 * scale)
+            return self._generate_uniform(shape, limit, dtype)
+
+    def _generate_normal(self, shape, stddev, dtype):
+        """Samples from a standard (untruncated) normal distribution."""
+        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+            return tf.random_normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed)
+        
+        elif backend_name == "pytorch":
+            t = torch.empty(shape, dtype=getattr(torch, config.real_proto))
+            return torch.nn.init.normal_(t, mean=0.0, std=stddev)
+
+        elif backend_name == "jax":
+            key = jax.random.PRNGKey(self.seed if self.seed is not None else 0)
+            return jax.random.normal(key, shape, dtype=dtype) * stddev
+
+        elif backend_name == "paddle":
+            return paddle.nn.initializer.Normal(std=stddev)(paddle.empty(shape))
+
+    def _generate_truncated_normal(self, shape, stddev, dtype):
+        """Samples from a truncated normal distribution."""
+        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+            return tf.truncated_normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed) # By default, truncates to 2std
+        
+        elif backend_name == "pytorch":
+            t = torch.empty(shape, dtype=getattr(torch, config.real_proto))
+            # Set [a, b] to [-2*stddev, 2*stddev] to match TensorFlow's truncation
+            return torch.nn.init.trunc_normal_(t, mean=0.0, std=stddev, a=-2*stddev, b=2*stddev)
+
+        elif backend_name == "jax":
+            key = jax.random.PRNGKey(self.seed if self.seed is not None else 0)
+            # 2stddev truncation is consistent with TensorFlow's default behavior, then scale by stddev
+            return jax.random.truncated_normal(key, -2.0, 2.0, shape, dtype=dtype) * stddev
+
+        elif backend_name == "paddle":
+            return paddle.nn.initializer.TruncatedNormal(std=stddev)(paddle.empty(shape))
+        
+    def _generate_uniform(self, shape, limit, dtype):
+        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+            return tf.random_uniform(shape, -limit, limit, dtype=dtype, seed=self.seed)
+        elif backend_name == "pytorch":
+            return torch.nn.init.uniform_(torch.empty(shape), -limit, limit)
+        elif backend_name == "jax":
+            key = jax.random.PRNGKey(self.seed if self.seed else 0)
+            return jax.random.uniform(key, shape, minval=-limit, maxval=limit, dtype=dtype)
+        elif backend_name == "paddle":
+            return paddle.nn.initializer.Uniform(-limit, limit)(paddle.empty(shape))
+
 def _compute_fans_stacked(shape):
     """Computes the number of input and output units for a weight shape.
 
@@ -109,7 +233,6 @@ def _compute_fans_stacked(shape):
         fan_in = shape[-2]
         fan_out = shape[-1]
     return fan_in, fan_out
-
 
 def initializer_dict_tf():
     return {
@@ -136,6 +259,11 @@ def initializer_dict_torch():
         "He normal": torch.nn.init.kaiming_normal_,
         "He uniform": torch.nn.init.kaiming_uniform_,
         "zeros": torch.nn.init.zeros_,
+        # Added parity for Stacked DeepONet
+        "stacked He normal": VarianceScalingStacked(scale=2.0),
+        "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
+        "stacked LeCun normal": VarianceScalingStacked(),
+        "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
 
 
@@ -148,6 +276,11 @@ def initializer_dict_jax():
         "Lecun normal": jax.nn.initializers.lecun_normal(),
         "Lecun uniform": jax.nn.initializers.lecun_uniform(),
         "zeros": jax.nn.initializers.zeros,
+        # Added parity for Stacked DeepONet
+        "stacked He normal": VarianceScalingStacked(scale=2.0),
+        "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
+        "stacked LeCun normal": VarianceScalingStacked(),
+        "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
 
 
@@ -158,6 +291,11 @@ def initializer_dict_paddle():
         "He normal": paddle.nn.initializer.KaimingNormal(),
         "He uniform": paddle.nn.initializer.KaimingUniform(),
         "zeros": paddle.nn.initializer.Constant(0.0),
+        # Added parity for Stacked DeepONet
+        "stacked He normal": VarianceScalingStacked(scale=2.0),
+        "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
+        "stacked LeCun normal": VarianceScalingStacked(),
+        "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
 
 
