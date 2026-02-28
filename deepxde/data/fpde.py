@@ -49,7 +49,7 @@ class FPDE(PDE):
 
     The $D$-dimensional fractional Laplacian of order $\alpha/2$ ($1 < \alpha < 2$) 
     is defined as
-    $$(-\Delta)^{\alpha/2} u(x) = C(\alpha, D) \int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$$
+    $$(-\Delta)^{\alpha/2} u(x) = C(\alpha, D) \int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta,$$
     where
 
     * $C(\alpha, D) = \frac{\Gamma((1-\alpha)/2) \Gamma((D+\alpha)/2)}{2 \pi^{(D+1)/2}}$
@@ -58,7 +58,7 @@ class FPDE(PDE):
 
     The solution $u(x)$ is assumed to be identically zero in the boundary and 
     exterior of the domain. When $D = 1$, the constant simplifies to
-    $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}$$
+    $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}.$$
 
     .. note::
         This solver does not consider $C(\alpha, D)$ in the fractional Laplacian, 
@@ -66,6 +66,7 @@ class FPDE(PDE):
         The derivative $D_{\theta}^\alpha$ is approximated by the 
         Grünwald–Letnikov formula.
     """
+    
     def __init__(
         self,
         geometry,
