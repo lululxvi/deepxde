@@ -67,7 +67,7 @@ class FPDE(PDE):
         This solver does not consider $C(\alpha, D)$ in the fractional Laplacian, 
         and only discretizes $\int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$. 
         The derivative $D_{\theta}^\alpha$ is approximated by the 
-        **Grünwald–Letnikov** formula.
+        Grünwald–Letnikov formula.
     """
     def __init__(
         self,
@@ -229,13 +229,9 @@ class TimeFPDE(FPDE):
     $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}$$
 
     .. note::
-
-        **Implementation Details:**
-        
-        * This solver **does not consider** $C(\alpha, D)$ in the fractional 
-        Laplacian calculation.
-        * It only discretizes the integral $\int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$.
-        * The term $D_{\theta}^\alpha$ is approximated by the **Grünwald-Letnikov** formula.
+        This solver **does not consider** $C(\alpha, D)$ in the fractional 
+        Laplacian calculation. It only discretizes the integral $\int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$, 
+        where $D_{\theta}^\alpha$ is approximated by the **Grünwald-Letnikov** formula.
     """
 
     def __init__(

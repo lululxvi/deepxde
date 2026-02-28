@@ -45,13 +45,6 @@ extensions = [
     "sphinx_math_dollar",  # Enabled dollar sign math support
 ]
 
-mathjax3_config = {
-    "tex": {
-        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
-        "displayMath": [["$$", "$$"], ["\\[", "\\]"]] # Enable $$...$$ and \[...\] for display math
-    },
-}
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -164,3 +157,10 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+mathjax3_config = {
+    "tex": {
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]] # Enable $$...$$ and \[...\] for display math
+    },
+}
