@@ -47,21 +47,73 @@ class BC(ABC):
         )
 
     def filter(self, X):
+        """Extracts points from a set that satisfy the boundary condition.
+
+        Args:
+            X (np.ndarray): An array of points (coordinates).
+
+        Returns:
+            np.ndarray: A subset of ``X`` containing only points that lie 
+            on the specific boundary defined by ``self.on_boundary``.
+        """
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
 
     def collocation_points(self, X):
+        """Returns the points where the boundary condition error will be evaluated.
+
+        For standard BCs, this is identical to the filtered boundary points. 
+        Subclasses like ``PeriodicBC`` may override this to include 
+        paired points.
+
+        Args:
+            X (np.ndarray): The full set of available boundary points.
+
+        Returns:
+            np.ndarray: The subset of points designated for BC loss calculation.
+        """
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
+        r"""Computes the directional derivative along the outward normal vector.
+
+        This is used for Neumann and Robin boundary conditions to calculate 
+        :math:`\frac{\partial \hat{y}}{\partial n} = \nabla \hat{y} \cdot \mathbf{n}`.
+
+        Args:
+            X (np.ndarray): The coordinates of the boundary points.
+            inputs (Tensor): The input tensor to the neural network.
+            outputs (Tensor): The output tensor from the neural network.
+            beg (int): The starting index of the points in the current batch.
+            end (int): The ending index of the points in the current batch.
+
+        Returns:
+            Tensor: A column vector representing the normal derivative at 
+            each point in the range [beg, end].
+        """
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
     @abstractmethod
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        """Returns the loss."""
-        # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
-        # at x.
+        """Calculates the residual (loss) for the boundary condition.
+
+        This method must be implemented by subclasses to define the 
+        specific physics of the boundary (e.g., :math:`\hat{y} - y_{true}`).
+
+        Args:
+            X (np.ndarray): Boundary point coordinates.
+            inputs (Tensor): Neural network input tensor.
+            outputs (Tensor): Neural network output tensor.
+            beg (int): Start index for the point batch.
+            end (int): End index for the point batch.
+            aux_var (Tensor, optional): The input function evaluated at x. Only used in PI-DeepONet architectures.
+
+        Returns:
+            Tensor: The computed residual which the optimizer will 
+            attempt to minimize toward zero.
+        """
+        pass
 
 
 class DirichletBC(BC):
