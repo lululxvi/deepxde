@@ -57,7 +57,7 @@ class FPDE(PDE):
     * $\theta$ is the differentiation direction vector.
 
     The solution $u(x)$ is assumed to be identically zero in the boundary and 
-    exterior of the domain. When $D = 1$, the constant simplifies to: 
+    exterior of the domain. When $D = 1$, the constant simplifies to
     $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}$$
 
     .. note::
