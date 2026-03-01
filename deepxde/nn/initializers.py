@@ -166,8 +166,11 @@ class VarianceScalingStacked:
 
     def _generate_normal(self, shape, stddev, dtype):
         """Samples from a standard (untruncated) normal distribution."""
-        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        if backend_name =="tensorflow.compat.v1":
             return tf.random_normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed)
+        
+        elif backend_name == "tensorflow":
+            return tf.random.normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed)
         
         elif backend_name == "pytorch":
             t = torch.empty(shape, dtype=getattr(torch, config.real_proto))
@@ -182,8 +185,11 @@ class VarianceScalingStacked:
 
     def _generate_truncated_normal(self, shape, stddev, dtype):
         """Samples from a truncated normal distribution."""
-        if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        if backend_name =="tensorflow.compat.v1":
             return tf.truncated_normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed) # By default, truncates to 2std
+        
+        elif backend_name == "tensorflow":
+            return tf.random.truncated_normal(shape, 0.0, stddev, dtype=dtype, seed=self.seed) # By default, truncates to 2std
         
         elif backend_name == "pytorch":
             t = torch.empty(shape, dtype=getattr(torch, config.real_proto))
