@@ -53,7 +53,7 @@ class BC(ABC):
             X (np.ndarray): An array of points (coordinates).
 
         Returns:
-            np.ndarray: A subset of ``X`` containing only points that lie 
+            np.ndarray: A subset of ``X`` containing only points that lie
             on the specific boundary defined by ``self.on_boundary``.
         """
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
@@ -61,8 +61,8 @@ class BC(ABC):
     def collocation_points(self, X):
         """Returns the points where the boundary condition error will be evaluated.
 
-        For standard BCs, this is identical to the filtered boundary points. 
-        Subclasses like ``PeriodicBC`` may override this to include 
+        For standard BCs, this is identical to the filtered boundary points.
+        Subclasses like ``PeriodicBC`` may override this to include
         paired points.
 
         Args:
@@ -76,7 +76,7 @@ class BC(ABC):
     def normal_derivative(self, X, inputs, outputs, beg, end):
         r"""Computes the directional derivative along the outward normal vector.
 
-        This is used for Neumann and Robin boundary conditions to calculate 
+        This is used for Neumann and Robin boundary conditions to calculate
         :math:`\frac{\partial \hat{y}}{\partial n} = \nabla \hat{y} \cdot \mathbf{n}`.
 
         Args:
@@ -87,7 +87,7 @@ class BC(ABC):
             end (int): The ending index of the points in the current batch.
 
         Returns:
-            Tensor: A column vector representing the normal derivative at 
+            Tensor: A column vector representing the normal derivative at
             each point in the range [beg, end].
         """
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
@@ -98,7 +98,7 @@ class BC(ABC):
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         """Calculates the residual (loss) for the boundary condition.
 
-        This method must be implemented by subclasses to define the 
+        This method must be implemented by subclasses to define the
         specific physics of the boundary (e.g., :math:`\hat{y} - y_{true}`).
 
         Args:
@@ -110,20 +110,31 @@ class BC(ABC):
             aux_var (Tensor, optional): The input function evaluated at x. Only used in PI-DeepONet architectures.
 
         Returns:
-            Tensor: The computed residual which the optimizer will 
+            Tensor: The computed residual which the optimizer will
             attempt to minimize toward zero.
         """
         pass
 
 
 class DirichletBC(BC):
-    """Dirichlet boundary conditions: y(x) = func(x)."""
+    """Dirichlet boundary conditions: $y(x) = f(x)$.
+
+    Enforces the value of the solution at the boundary.
+
+    Args:
+        geom: A ``dde.geometry.Geometry`` instance.
+        func: A function returning the boundary values.
+            Signature: ``(x) -> array_like (N, 1)``.
+        on_boundary: Function identifying the target boundary.
+        component (int): Output component to which this BC applies.
+    """
 
     def __init__(self, geom, func, on_boundary, component=0):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Returns the Dirichlet BC residual: $\hat{y}(x) - f(x)$."""
         values = self.func(X, beg, end, aux_var)
         if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
             raise RuntimeError(
@@ -134,32 +145,51 @@ class DirichletBC(BC):
 
 
 class NeumannBC(BC):
-    """Neumann boundary conditions: dy/dn(x) = func(x)."""
+    """Neumann boundary conditions: dy/dn(x) = func(x).
+
+    Enforces the value of the derivative of the solution in the direction
+    of the outward normal.
+
+    Args:
+        geom: A ``dde.geometry.Geometry`` instance.
+        func: A function returning the boundary values.
+            Signature: ``(x) -> array_like (N, 1)``.
+        on_boundary: Function identifying the target boundary.
+        component (int): Output component to which this BC applies.
+    """
 
     def __init__(self, geom, func, on_boundary, component=0):
         super().__init__(geom, on_boundary, component)
         self.func = npfunc_range_autocache(utils.return_tensor(func))
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        r"""Computes the Neumann residual: $\frac{\partial \hat{y}}{\partial n} - f(x)$."""
         values = self.func(X, beg, end, aux_var)
         return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 
 class RobinBC(BC):
-    """Robin boundary conditions: dy/dn(x) = func(x, y)."""
+    """Robin boundary condition: $\frac{\partial y}{\partial n}(x) = f(x, y)$.
+
+    A weighted combination of Dirichlet and Neumann conditions.
+    """
 
     def __init__(self, geom, func, on_boundary, component=0):
         super().__init__(geom, on_boundary, component)
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes the Robin residual: $\frac{\partial \hat{y}}{\partial n} - f(x, \hat{y})$."""
         return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
             X[beg:end], outputs[beg:end]
         )
 
 
 class PeriodicBC(BC):
-    """Periodic boundary conditions on component_x."""
+    """Periodic boundary condition: $y(x_{left}) = y(x_{right})$.
+
+    Setting derivative_order=1 enforces periodicity of the first derivative, setting derivative_order=0 enforces periodicity of the function values.
+    """
 
     def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
         super().__init__(geom, on_boundary, component)
@@ -171,11 +201,24 @@ class PeriodicBC(BC):
             )
 
     def collocation_points(self, X):
+        """Generates pairs of points on opposing periodic boundaries.
+
+        Note that for Periodic Boundary Conditions, the collocation points are pairs rather than individual points on a single boundary.
+        This method identifies points on the first boundary and maps them to their corresponding points on the second boundary
+        using the geometry's periodic mapping function.
+
+        Returns:
+            np.ndarray: A vertical stack of points from boundary 1 and their
+                corresponding mapped points on boundary 2.
+        """
         X1 = self.filter(X)
         X2 = self.geom.periodic_point(X1, self.component_x)
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes the difference in first derivative (if self.derivative_order == 1)
+        or function value (if self.derivative_order == 0) between the two periodic edges.
+        """
         mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
             yleft = outputs[beg:mid, self.component : self.component + 1]
@@ -211,6 +254,7 @@ class OperatorBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes the residual of the operator BC: func(inputs, outputs, X)."""
         return self.func(inputs, outputs, X)[beg:end]
 
 
@@ -254,15 +298,18 @@ class PointSetBC:
             self.batch_indices = None
 
     def __len__(self):
+        """Returns the total number of points in the BC."""
         return self.points.shape[0]
 
     def collocation_points(self, X):
+        """Retrieves points for the current training iteration."""
         if self.batch_size is not None:
             self.batch_indices = self.batch_sampler.get_next(self.batch_size)
             return self.points[self.batch_indices]
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes the residual between network output and ground truth data."""
         if self.batch_size is not None:
             if isinstance(self.component, numbers.Number):
                 return (
@@ -324,15 +371,21 @@ class PointSetOperatorBC:
             self.batch_indices = None
 
     def __len__(self):
+        """Returns the total number of points in the BC."""
+
         return self.points.shape[0]
 
     def collocation_points(self, X):
+        """Retrieves points for the current training iteration."""
+
         if self.batch_size is not None:
             self.batch_indices = self.batch_sampler.get_next(self.batch_size)
             return self.points[self.batch_indices]
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes user-defined operator residual minus target values."""
+
         if self.batch_size is not None:
             return self.func(inputs, outputs, X)[beg:end] - self.values[self.batch_indices]
         return self.func(inputs, outputs, X)[beg:end] - self.values
@@ -341,20 +394,20 @@ class PointSetOperatorBC:
 class Interface2DBC:
     """2D interface boundary condition for vector-valued outputs.
 
-    This boundary condition (BC) is designed for scenarios where specific jump conditions 
+    This boundary condition (BC) is designed for scenarios where specific jump conditions
     or continuities are required across two matching edges of a geometry.
 
     * **Network Output:** The model must have exactly two output elements, i.e., :math:`\\mathbf{y} = [y_1, y_2]`.
     * **Geometry:** Must be a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` with two edges of identical length.
     * **Sampling:** Use uniform boundary points (``train_distribution="uniform"``) in ``dde.data.PDE`` or ``dde.data.TimePDE``.
 
-    For a pair of points :math:`x_1` and :math:`x_2` located on the two specified edges, the BC computes the 
+    For a pair of points :math:`x_1` and :math:`x_2` located on the two specified edges, the BC computes the
     dot product of the output and the direction vector :math:`\mathbf{d}`:
-    
+
     .. math:: \langle \mathbf{y}_1, \mathbf{d}_1 \\rangle + \langle \mathbf{y}_2, \mathbf{d}_2 \\rangle = \\text{values}
 
     Where:
-    
+
     * :math:`\mathbf{d}_1, \mathbf{d}_2`: The unit vectors based on the ``direction`` argument.
     * **Normal Case:** :math:`\mathbf{d}` represents the outward normal vectors.
     * **Tangent Case:** :math:`\mathbf{d}` represents the outward normal vectors rotated 90° clockwise.
@@ -362,15 +415,16 @@ class Interface2DBC:
 
     Args:
         geom: A ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
-        func (callable): The target discontinuity (jump) between edges, evaluated on the 
+        func (callable): The target discontinuity (jump) between edges, evaluated on the
             first edge. For example, ``lambda x: 0`` enforces continuity.
-        on_boundary1 (callable): Function identifying the first edge. 
+        on_boundary1 (callable): Function identifying the first edge.
             Signature: ``(x, on_boundary) -> bool``.
-        on_boundary2 (callable): Function identifying the second edge. 
+        on_boundary2 (callable): Function identifying the second edge.
             Signature: ``(x, on_boundary) -> bool``.
-        direction (str): The vector component to constrain. Options are ``"normal"`` 
+        direction (str): The vector component to constrain. Options are ``"normal"``
             or ``"tangent"``.
     """
+
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
         self.geom = geom
         self.func = npfunc_range_autocache(utils.return_tensor(func))
@@ -387,6 +441,11 @@ class Interface2DBC:
         )
 
     def collocation_points(self, X):
+        """Pairs points on two matching edges, ensuring spatial alignment.
+
+        Reverses the order of points on the second edge for polygons to 
+        correctly match point-to-point across the interface if dde.geometry.Polygon is used.
+        """
         on_boundary = self.geom.on_boundary(X)
         X1 = X[self.on_boundary1(X, on_boundary)]
         X2 = X[self.on_boundary2(X, on_boundary)]
@@ -396,6 +455,7 @@ class Interface2DBC:
         return np.vstack((X1, X2))
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        """Computes the jump residual based on projected vector components."""
         mid = beg + (end - beg) // 2
         if not mid - beg == end - mid:
             raise RuntimeError(
