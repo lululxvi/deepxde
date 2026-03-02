@@ -1,0 +1,46 @@
+name: "Stale Management"
+
+on:
+  schedule:
+    - cron: '30 0 * * *' # Runs daily at 00:30 UTC
+  workflow_dispatch:      # Allows you to trigger it manually for testing
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # --- COMMON SETTINGS ---
+          days-before-stale: 90       # Total inactivity before the "Reminder"
+          days-before-close: 30        # After reminder, wait 30 days to close
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          
+          # --- ISSUES LOGIC ---
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs within
+            30 days. Thank you for your contributions.
+          close-issue-message: >
+            This issue has been auto-closed due to inactivity after the 
+            one-month warning.
+          
+          # --- PULL REQUESTS LOGIC ---
+          stale-pr-message: >
+            This PR is reaching stale status. Please ensure all requested changes 
+            are made. If no activity happens in 30 days, it will be closed to 
+            keep the backlog clean.
+          close-pr-message: >
+            Closing this PR as it was not updated within the one-week 
+            grace period.
+            
+          # --- SAFETY EXEMPTIONS ---
+          # Don't close things with these labels
+          exempt-issue-labels: 'bug,confirmed,pinned,security'
+          exempt-pr-labels: 'work-in-progress,pinned'
+        
