@@ -39,11 +39,9 @@ class MsFFN(NN):
 
         self.b = nn.ParameterList()
         for sigma in self.sigmas:
-            param = nn.Parameter(
-                torch.empty(layer_sizes[0], layer_sizes[1] // 2)
-            )
+            param = nn.Parameter(torch.empty(layer_sizes[0], layer_sizes[1] // 2))
             nn.init.normal_(param, mean=0.0, std=sigma)
-            param.requires_grad_(False)  #freeze parameters
+            param.requires_grad_(False)  # freeze parameters
             self.b.append(param)
 
         self.linears = nn.ModuleList()
@@ -64,8 +62,7 @@ class MsFFN(NN):
 
         # fourier feature layer
         yb = [
-            self._fourier_feature_forward(x, self.b[i])
-            for i in range(len(self.sigmas))
+            self._fourier_feature_forward(x, self.b[i]) for i in range(len(self.sigmas))
         ]
         y = [elem[0] for elem in yb]
         self.fourier_feature_weights = [elem[1] for elem in yb]
@@ -125,19 +122,15 @@ class STMsFFN(MsFFN):
             dropout_rate,
         )
         for sigma in sigmas_x:
-            param = nn.Parameter(
-                torch.empty(layer_sizes[0] - 1, layer_sizes[1] // 2)
-            )
+            param = nn.Parameter(torch.empty(layer_sizes[0] - 1, layer_sizes[1] // 2))
             nn.init.normal_(param, mean=0.0, std=sigma)
-            param.requires_grad_(False) # freeze parameters
+            param.requires_grad_(False)  # freeze parameters
             self.b.append(param)
 
         for sigma in sigmas_t:
-            param = nn.Parameter(
-                torch.empty(1, layer_sizes[1] // 2)
-            )
+            param = nn.Parameter(torch.empty(1, layer_sizes[1] // 2))
             nn.init.normal_(param, mean=0.0, std=sigma)
-            param.requires_grad_(False) # freeze parameters
+            param.requires_grad_(False)  # freeze parameters
             self.b.append(param)
 
         self.sigmas_x = sigmas_x
