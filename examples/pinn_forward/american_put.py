@@ -1,9 +1,5 @@
-import deepxde as dde
-import numpy as np
-import torch
-import matplotlib.pyplot as plt
-import math 
-"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, paddle
+
 Black-Scholes PDE for American Put Option:
 ∂V/∂t + 0.5 * σ^2 * S^2 * ∂^2V/∂S^2 + r * S * ∂V/∂S - r * V = 0, for S > 0, t < T
 With the early exercise constraint:
@@ -11,6 +7,12 @@ V(S, t) >= max(K - S, 0) for all S, t
 And the complementarity condition:
 (V(S, t) - max(K - S, 0)) * (∂V/∂t + 0.5 * σ^2 * S^2 * ∂^2V/∂S^2 + r * S * ∂V/∂S - r * V) = 0   
 """
+import deepxde as dde
+import numpy as np
+import torch
+import matplotlib.pyplot as plt
+import math 
+
 # --- 1. Financial Parameters ---
 r = 0.05
 sigma = 0.2
