@@ -9,7 +9,6 @@ And the complementarity condition:
 """
 import deepxde as dde
 import numpy as np
-import torch
 import matplotlib.pyplot as plt
 import math 
 
@@ -48,7 +47,7 @@ def pde(x, y):
     a = v - payoff
     b = -bs_op 
     # Add 1e-8 for numerical stability of the derivative of sqrt at 0
-    res_fb = torch.sqrt(a**2 + b**2 + 1e-8) - (a + b)
+    res_fb = dde.backend.pow(a**2 + b**2 + 1e-8, 0.5) - (a + b)
     
     return [res_pde, penalty, res_fb]
 
