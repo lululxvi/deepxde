@@ -40,7 +40,7 @@ def get(identifier):
 
     Args:
         identifier: Function or string (ELU, GELU, ReLU, SELU, Sigmoid, SiLU, sin,
-            Swish, tanh, Linear).
+            Swish, tanh, linear).
 
     Returns:
         Function corresponding to the input string or input function, Linear if identifier is None.
