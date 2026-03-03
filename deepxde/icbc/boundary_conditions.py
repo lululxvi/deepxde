@@ -319,6 +319,7 @@ class Interface2DBC:
         direction (str): The vector component to constrain. Options are ``"normal"`` 
             or ``"tangent"``.
     """
+    
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
         self.geom = geom
         self.func = npfunc_range_autocache(utils.return_tensor(func))
