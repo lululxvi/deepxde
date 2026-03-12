@@ -25,13 +25,6 @@ Implementation
 
 This description goes through the implementation of a solver for the above described inverse Klein-Gordon problem step-by-step.
 
-First, the DeepXDE and NumPy modules are imported:
-
-.. code-block:: python
-
-    import deepxde as dde
-    import numpy as np
-
 We define the true mass parameter :math:`m^2 = 4` and the corresponding frequency :math:`\omega`:
 
 .. code-block:: python
@@ -81,15 +74,16 @@ The boundary and initial conditions are specified. We use Dirichlet BCs on the f
         lambda _, on_initial: on_initial,
     )
 
-We create 50 sparse observation points in the interior to provide data for parameter recovery:
+We create 50 sparse observation points as random ``(x, t)`` pairs in the interior to provide data for parameter recovery. The ``component=0`` argument specifies that the first (and only) network output must match the observations:
 
 .. code-block:: python
 
     rng = np.random.default_rng(42)
     observe_x = np.column_stack(
-        [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]
+        [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]  # columns are (x, t)
     )
     observe_y = func(observe_x)
+    # component=0 means the first (and only) network output must match observations
     ptset = dde.icbc.PointSetBC(observe_x, observe_y, component=0)
 
 The PDE problem is assembled with 2000 domain points, 200 boundary points, and 200 initial condition points:
@@ -115,7 +109,7 @@ We use a fully connected network with 3 hidden layers of width 40:
     net = dde.nn.FNN([2] + [40] * 3 + [1], "tanh", "Glorot uniform")
     model = dde.Model(data, net)
 
-Phase 1 trains with Adam for 30,000 iterations. The ``VariableValue`` callback tracks the evolution of :math:`m^2`:
+Phase 1 trains with Adam for 30,000 iterations. The ``VariableValue`` callback logs the current value of :math:`m^2` every 1,000 iterations to ``variables.dat``, letting us track how the parameter converges over training:
 
 .. code-block:: python
 
@@ -125,6 +119,7 @@ Phase 1 trains with Adam for 30,000 iterations. The ``VariableValue`` callback t
         metrics=["l2 relative error"],
         external_trainable_variables=m_sq,
     )
+    # Logs m_sq every 1000 iterations so we can plot its convergence trajectory
     variable = dde.callbacks.VariableValue(m_sq, period=1000, filename="variables.dat")
     losshistory, train_state = model.train(iterations=30000, callbacks=[variable])
 

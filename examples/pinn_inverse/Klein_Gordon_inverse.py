@@ -47,12 +47,13 @@ ic_2 = dde.icbc.OperatorBC(
     lambda _, on_initial: on_initial,
 )
 
-# Sparse observation data at 50 random interior points
+# Sparse observation data at 50 random interior (x, t) pairs
 rng = np.random.default_rng(42)
 observe_x = np.column_stack(
-    [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]
+    [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]  # columns are (x, t)
 )
 observe_y = func(observe_x)
+# component=0 means the first (and only) network output must match observations
 ptset = dde.icbc.PointSetBC(observe_x, observe_y, component=0)
 
 data = dde.data.TimePDE(
@@ -77,6 +78,7 @@ model.compile(
     metrics=["l2 relative error"],
     external_trainable_variables=m_sq,
 )
+# VariableValue callback logs m_sq every 1000 iterations to track convergence
 variable = dde.callbacks.VariableValue(m_sq, period=1000, filename="variables.dat")
 losshistory, train_state = model.train(iterations=30000, callbacks=[variable])
 
