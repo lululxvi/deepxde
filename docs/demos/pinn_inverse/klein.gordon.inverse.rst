@@ -25,14 +25,7 @@ Implementation
 
 This description goes through the implementation of a solver for the above described inverse Klein-Gordon problem step-by-step.
 
-We define the true mass parameter :math:`m^2 = 4` and the corresponding frequency :math:`\omega`:
-
-.. code-block:: python
-
-    m_sq_true = 4.0
-    omega = np.sqrt(np.pi**2 + m_sq_true)
-
-The learnable parameter :math:`m^2` is initialized far from its true value:
+The learnable parameter :math:`m^2` is initialized far from its true value of 4 so that recovery is non-trivial:
 
 .. code-block:: python
 
@@ -74,16 +67,15 @@ The boundary and initial conditions are specified. We use Dirichlet BCs on the f
         lambda _, on_initial: on_initial,
     )
 
-We create 50 sparse observation points as random ``(x, t)`` pairs in the interior to provide data for parameter recovery. The ``component=0`` argument specifies that the first (and only) network output must match the observations:
+We create 50 sparse observation points as random ``(x, t)`` coordinate pairs in the interior. Each row of ``observe_x`` is ``[x_i, t_i]``. The ``component=0`` argument specifies that the first (and only) network output must match the observations — for multi-output networks this selects which output is constrained:
 
 .. code-block:: python
 
     rng = np.random.default_rng(42)
     observe_x = np.column_stack(
-        [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]  # columns are (x, t)
+        [rng.uniform(-1, 1, 50), rng.uniform(0, 1, 50)]
     )
     observe_y = func(observe_x)
-    # component=0 means the first (and only) network output must match observations
     ptset = dde.icbc.PointSetBC(observe_x, observe_y, component=0)
 
 The PDE problem is assembled with 2000 domain points, 200 boundary points, and 200 initial condition points:
