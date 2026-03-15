@@ -14,6 +14,7 @@ The LCP is given by:
     L(V) &= -\frac{\partial V}{\partial \tau} + \frac{1}{2}\sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S \frac{\partial V}{\partial S} - r V \le 0 \\
  
     V(S, \tau) &\ge \max(K - S, 0) \\
+
     (V(S, \tau) - \max(K - S, 0)) \cdot L(V) &= 0
 
 where:
