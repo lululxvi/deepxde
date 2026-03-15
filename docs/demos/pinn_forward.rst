@@ -35,7 +35,6 @@ Time-independent PDEs
    pinn_forward/helmholtz.2d.neumann.hole
    pinn_forward/helmholtz.2d.sound.hard.abc
    pinn_forward/Kovasznay.flow
-   pinn_forward/american.put
 
 Time-dependent PDEs
 -------------------
@@ -53,7 +52,9 @@ Time-dependent PDEs
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
    pinn_forward/klein.gordon
+   pinn_forward/american.put
 
+- `test`
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
 - `Wave propagation with spatio-temporal multi-scale Fourier feature architecture <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/wave_1d.py>`_
 - `Schrodinger equation <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Schrodinger.ipynb>`_
