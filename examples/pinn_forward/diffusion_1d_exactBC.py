@@ -1,4 +1,10 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle
+1D Diffusion Equation with a Time-Dependent Source Term.
+
+This example solves the heat equation:
+∂y/∂t - ∂²y/∂x² = f(x, t)
+where the source term f(x, t) is chosen such that the analytical solution is y = e^(-t) * sin(πx).
+"""
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
@@ -15,18 +21,17 @@ def pde(x, y):
     # Most backends
     dy_t = dde.grad.jacobian(y, x, i=0, j=1)
     dy_xx = dde.grad.hessian(y, x, i=0, j=0)
-    # Backend jax
-    # dy_t, _ = dde.grad.jacobian(y, x, i=0, j=1)
-    # dy_xx, _ = dde.grad.hessian(y, x, i=0, j=0)
-    # Cross-backend source term
-    f = dde.backend.exp(-x[:, 1:]) * (
+   
+    # Physics Note: The following term is the forced heat source f(x, t)
+    # required to satisfy the analytical solution y = e^(-t)sin(πx).
+    source_term_val = dde.backend.exp(-x[:, 1:]) * (
         dde.backend.sin(np.pi * x[:, 0:1]) - np.pi**2 * dde.backend.sin(np.pi * x[:, 0:1])
     )
     # Backend tensorflow.compat.v1 or tensorflow, pytorch, jax, paddle
     return (
         dy_t
         - dy_xx
-        + f
+        + source_term_val
     )
 
 
@@ -45,7 +50,7 @@ activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 net.apply_output_transform(
-    # This single line now works for TensorFlow, PyTorch, JAX, and Paddle
+    # This works for TensorFlow, PyTorch, JAX, and Paddle
     lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + dde.backend.sin(np.pi * x[:, 0:1])
 )
 
