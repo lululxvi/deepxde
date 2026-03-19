@@ -18,36 +18,18 @@ def pde(x, y):
     # Backend jax
     # dy_t, _ = dde.grad.jacobian(y, x, i=0, j=1)
     # dy_xx, _ = dde.grad.hessian(y, x, i=0, j=0)
-    # Backend tensorflow.compat.v1 or tensorflow
+    # Cross-backend source term
+    f = dde.backend.exp(-x[:, 1:]) * (
+        dde.backend.sin(np.pi * x[:, 0:1]) - np.pi**2 * dde.backend.sin(np.pi * x[:, 0:1])
+    )
+    # Backend tensorflow.compat.v1 or tensorflow, pytorch, jax, paddle
     return (
         dy_t
         - dy_xx
-        + tf.exp(-x[:, 1:])
-        * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
+        + f
     )
-    # Backend pytorch
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + torch.exp(-x[:, 1:])
-    #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
-    # )
-    # Backend jax
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + jnp.exp(-x[:, 1:])
-    #     * (jnp.sin(np.pi * x[..., 0:1]) - np.pi ** 2 * jnp.sin(np.pi * x[..., 0:1]))
-    # )
-    # Backend paddle
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + paddle.exp(-x[:, 1:])
-    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
-    # )
-
-
+    
+    
 def func(x):
     return np.sin(np.pi * x[:, 0:1]) * np.exp(-x[:, 1:])
 
