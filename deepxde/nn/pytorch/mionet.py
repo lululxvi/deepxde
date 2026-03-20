@@ -138,81 +138,8 @@ class MIONet(NN):
         return y
 
 
-class MIONetCartesianProd(NN):
+class MIONetCartesianProd(MIONet):
     """MIONet with two input functions for Cartesian product format."""
-
-    def __init__(
-        self,
-        layer_sizes_branch1,
-        layer_sizes_branch2,
-        layer_sizes_trunk,
-        activation,
-        kernel_initializer,
-        regularization=None,
-        trunk_last_activation=False,
-        merge_operation="mul",
-        layer_sizes_merger=None,
-        output_merge_operation="mul",
-        layer_sizes_output_merger=None,
-    ):
-        super().__init__()
-
-        if isinstance(activation, dict):
-            self.activation_branch1 = activations.get(activation["branch1"])
-            self.activation_branch2 = activations.get(activation["branch2"])
-            self.activation_trunk = activations.get(activation["trunk"])
-        else:
-            self.activation_branch1 = (
-                self.activation_branch2
-            ) = self.activation_trunk = activations.get(activation)
-        if callable(layer_sizes_branch1[1]):
-            # User-defined network
-            self.branch1 = layer_sizes_branch1[1]
-        else:
-            # Fully connected network
-            self.branch1 = FNN(
-                layer_sizes_branch1, self.activation_branch1, kernel_initializer
-            )
-        if callable(layer_sizes_branch2[1]):
-            # User-defined network
-            self.branch2 = layer_sizes_branch2[1]
-        else:
-            # Fully connected network
-            self.branch2 = FNN(
-                layer_sizes_branch2, self.activation_branch2, kernel_initializer
-            )
-        if layer_sizes_merger is not None:
-            self.activation_merger = activations.get(activation["merger"])
-            if callable(layer_sizes_merger[1]):
-                # User-defined network
-                self.merger = layer_sizes_merger[1]
-            else:
-                # Fully connected network
-                self.merger = FNN(
-                    layer_sizes_merger, self.activation_merger, kernel_initializer
-                )
-        else:
-            self.merger = None
-        if layer_sizes_output_merger is not None:
-            self.activation_output_merger = activations.get(activation["output merger"])
-            if callable(layer_sizes_output_merger[1]):
-                # User-defined network
-                self.output_merger = layer_sizes_output_merger[1]
-            else:
-                # Fully connected network
-                self.output_merger = FNN(
-                    layer_sizes_output_merger,
-                    self.activation_output_merger,
-                    kernel_initializer,
-                )
-        else:
-            self.output_merger = None
-        self.trunk = FNN(layer_sizes_trunk, self.activation_trunk, kernel_initializer)
-        self.b = torch.nn.parameter.Parameter(torch.tensor(0.0))
-        self.regularizer = regularization
-        self.trunk_last_activation = trunk_last_activation
-        self.merge_operation = merge_operation
-        self.output_merge_operation = output_merge_operation
 
     def forward(self, inputs):
         x_func1 = inputs[0]
