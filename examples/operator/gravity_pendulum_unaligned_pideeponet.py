@@ -3,13 +3,11 @@ import deepxde as dde
 import matplotlib.pyplot as plt
 import numpy as np
 
-sin = dde.backend.sin
 
-
-def pde(x, y, v):
+def pendulum_ode(x, y, v):
     # theta''(t) = -sin(theta(t)) + u(t)
     dy_tt = dde.grad.hessian(y, x, i=0, j=0)
-    return dy_tt + sin(y) - v
+    return dy_tt + dde.backend.sin(y) - v
 
 
 def boundary_ic(x, on_boundary):
@@ -19,7 +17,7 @@ def boundary_ic(x, on_boundary):
 geom = dde.geometry.TimeDomain(0, 1)
 ic1 = dde.icbc.DirichletBC(geom, lambda x: 0.0, boundary_ic)  # theta(0) = 0
 ic2 = dde.icbc.NeumannBC(geom, lambda x: 0.0, boundary_ic)  # theta'(0) = 0
-pde = dde.data.PDE(geom, pde, [ic1, ic2], num_domain=200, num_boundary=20)
+pde = dde.data.PDE(geom, pendulum_ode, [ic1, ic2], num_domain=200, num_boundary=20)
 func_space = dde.data.GRF(length_scale=0.2)
 eval_pts = np.linspace(0, 1, num=50)[:, None]
 data = dde.data.PDEOperator(pde, func_space, eval_pts, 500, num_test=100)
