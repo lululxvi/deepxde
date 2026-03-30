@@ -35,12 +35,18 @@ class BC(ABC):
         component: The output component satisfying this BC.
     """
 
-    def __init__(self, geom, on_boundary, component):
+    def __init__(self, geom, on_boundary, component, depends_on_trainable_variables):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
             [on_boundary(x[i], on[i]) for i in range(len(x))]
         )
         self.component = component
+
+        if not isinstance(depends_on_trainable_variables, bool):
+            raise ValueError(
+                "`depends_on_trainable_variables` must be boolean (True or False)."
+            )
+        self.depends_on_trainable_variables = depends_on_trainable_variables
 
         self.boundary_normal = npfunc_range_autocache(
             utils.return_tensor(self.geom.boundary_normal)
@@ -67,9 +73,9 @@ class BC(ABC):
 class DirichletBC(BC):
     """Dirichlet boundary conditions: y(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
@@ -84,9 +90,9 @@ class DirichletBC(BC):
 class NeumannBC(BC):
     """Neumann boundary conditions: dy/dn(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
@@ -96,8 +102,11 @@ class NeumannBC(BC):
 class RobinBC(BC):
     """Robin boundary conditions: dy/dn(x) = func(x, y)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        # `depends_on_trainable_variables` is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -110,7 +119,7 @@ class PeriodicBC(BC):
     """Periodic boundary conditions on component_x."""
 
     def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
-        super().__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component, False)
         self.component_x = component_x
         self.derivative_order = derivative_order
         if derivative_order > 1:
@@ -154,8 +163,11 @@ class OperatorBC(BC):
         which cannot be fixed in an easy way for all backends.
     """
 
-    def __init__(self, geom, func, on_boundary):
-        super().__init__(geom, on_boundary, 0)
+    def __init__(self, geom, func, on_boundary, depends_on_trainable_variables=None):
+        # `depends_on_trainable_variables` is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        super().__init__(geom, on_boundary, 0, depends_on_trainable_variables)
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -255,11 +267,21 @@ class PointSetOperatorBC:
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, func, batch_size=None, shuffle=True):
+    def __init__(self, points, values, func, batch_size=None, shuffle=True, depends_on_trainable_variables=None):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+
+        # This is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        if not isinstance(depends_on_trainable_variables, bool):
+            raise ValueError(
+                "`depends_on_trainable_variables` must be boolean (True or False)."
+            )
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
         self.func = func
         self.batch_size = batch_size
 
@@ -313,9 +335,16 @@ class Interface2DBC:
         direction (string): "normal" or "tangent".
     """
 
-    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal", depends_on_trainable_variables=None):
         self.geom = geom
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+
+        if not isinstance(depends_on_trainable_variables, bool):
+            raise ValueError(
+                "`depends_on_trainable_variables` must be boolean (True or False)."
+            )
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
         self.on_boundary1 = lambda x, on: np.array(
             [on_boundary1(x[i], on[i]) for i in range(len(x))]
         )
@@ -371,7 +400,7 @@ class Interface2DBC:
         return left_values + right_values - values
 
 
-def npfunc_range_autocache(func):
+def npfunc_range_autocache(func, disable_caching=False):
     """Call a NumPy function on a range of the input ndarray.
 
     If the backend is pytorch, the results are cached based on the id of X.
@@ -421,13 +450,13 @@ def npfunc_range_autocache(func):
             cache[key] = func(X[beg:end], aux_var[beg:end])
         return cache[key]
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]:
+    if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"] or disable_caching:
         if utils.get_num_args(func) == 1:
             return wrapper_nocache
-        if utils.get_num_args(func) == 2:
+        elif utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
-    if backend_name in ["pytorch", "paddle"]:
+    elif backend_name in ["pytorch", "paddle"]:
         if utils.get_num_args(func) == 1:
             return wrapper_cache
-        if utils.get_num_args(func) == 2:
+        elif utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary

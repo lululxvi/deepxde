@@ -12,9 +12,16 @@ from .. import utils
 class IC:
     """Initial conditions: y([x, t0]) = func([x, t0])."""
 
-    def __init__(self, geom, func, on_initial, component=0):
+    def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=None):
         self.geom = geom
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+
+        if not isinstance(depends_on_trainable_variables, bool):
+            raise ValueError(
+                "`depends_on_trainable_variables` must be boolean (True or False)."
+            )
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
         self.on_initial = lambda x, on: np.array(
             [on_initial(x[i], on[i]) for i in range(len(x))]
         )
