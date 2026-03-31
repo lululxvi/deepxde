@@ -10,7 +10,19 @@ from .. import utils
 
 
 class IC:
-    """Initial conditions: y([x, t0]) = func([x, t0])."""
+    """Initial conditions: y([x, t0]) = func([x, t0]).
+
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function takes arguments (`inputs`, `outputs`)
+            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+            `inputs` and `outputs` are the network input and output tensors,
+            respectively.
+        on_initial: A function: (x, Geometry.on_initial(x)) -> True/False.
+        component: The output component satisfying this IC.
+        depends_on_trainable_variables: Whether this IC depends on any trainable variable
+            and must have cache disabled, or not.
+    """
 
     def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=False):
         self.geom = geom
