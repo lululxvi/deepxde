@@ -20,8 +20,7 @@ class IC:
             respectively.
         on_initial: A function: (x, Geometry.on_initial(x)) -> True/False.
         component: The output component satisfying this IC.
-        depends_on_trainable_variables: Whether this IC depends on any trainable variable
-            and must have cache disabled, or not.
+        depends_on_trainable_variables: Whether this IC depends on any trainable variable or not.
     """
 
     def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=False):

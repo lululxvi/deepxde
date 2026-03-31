@@ -33,8 +33,7 @@ class BC(ABC):
         geom: A ``deepxde.geometry.Geometry`` instance.
         on_boundary: A function: (x, Geometry.on_boundary(x)) -> True/False.
         component: The output component satisfying this BC.
-        depends_on_trainable_variables: Whether this BC depends on any trainable variable
-            and must have cache disabled, or not.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
     def __init__(self, geom, on_boundary, component, depends_on_trainable_variables=False):
@@ -151,8 +150,7 @@ class OperatorBC(BC):
             `inputs` and `outputs` are the network input and output tensors,
             respectively; `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
-        depends_on_trainable_variables: Whether this BC depends on any trainable variable
-            and must have cache disabled, or not.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
 
     Warning:
         If you use `X` in `func`, then do not set ``num_test`` when you define
@@ -264,8 +262,7 @@ class PointSetOperatorBC:
             Note, If you want to use batch size here, you should also set callback
             'dde.callbacks.PDEPointResampler(bc_points=True)' in training.
         shuffle: Randomize the order on each pass through the data when batching.
-        depends_on_trainable_variables: Whether this BC depends on any trainable variable
-            and must have cache disabled, or not.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
     def __init__(self, points, values, func, batch_size=None, shuffle=True, depends_on_trainable_variables=False):
@@ -330,8 +327,7 @@ class Interface2DBC:
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
         direction (string): "normal" or "tangent".
-        depends_on_trainable_variables: Whether this BC depends on any trainable variable
-            and must have cache disabled, or not.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal", depends_on_trainable_variables=False):
