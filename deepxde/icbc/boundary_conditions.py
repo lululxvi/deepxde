@@ -41,11 +41,6 @@ class BC(ABC):
             [on_boundary(x[i], on[i]) for i in range(len(x))]
         )
         self.component = component
-
-        if not isinstance(depends_on_trainable_variables, bool):
-            raise ValueError(
-                "`depends_on_trainable_variables` must be boolean (True or False)."
-            )
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
         self.boundary_normal = npfunc_range_autocache(
@@ -73,7 +68,7 @@ class BC(ABC):
 class DirichletBC(BC):
     """Dirichlet boundary conditions: y(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=False):
         super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
         self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
@@ -90,7 +85,7 @@ class DirichletBC(BC):
 class NeumannBC(BC):
     """Neumann boundary conditions: dy/dn(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=False):
         super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
         self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
@@ -102,7 +97,7 @@ class NeumannBC(BC):
 class RobinBC(BC):
     """Robin boundary conditions: dy/dn(x) = func(x, y)."""
 
-    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=False):
         # `depends_on_trainable_variables` is here in order to be consistent
         # with other BC/IC functions with `func`
         # and in case in future caching is added here, too.
@@ -163,7 +158,7 @@ class OperatorBC(BC):
         which cannot be fixed in an easy way for all backends.
     """
 
-    def __init__(self, geom, func, on_boundary, depends_on_trainable_variables=None):
+    def __init__(self, geom, func, on_boundary, depends_on_trainable_variables=False):
         # `depends_on_trainable_variables` is here in order to be consistent
         # with other BC/IC functions with `func`
         # and in case in future caching is added here, too.
@@ -267,19 +262,15 @@ class PointSetOperatorBC:
         shuffle: Randomize the order on each pass through the data when batching.
     """
 
-    def __init__(self, points, values, func, batch_size=None, shuffle=True, depends_on_trainable_variables=None):
+    def __init__(self, points, values, func, batch_size=None, shuffle=True, depends_on_trainable_variables=False):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
 
-        # This is here in order to be consistent
+        # `depends_on_trainable_variables` is here in order to be consistent
         # with other BC/IC functions with `func`
         # and in case in future caching is added here, too.
-        if not isinstance(depends_on_trainable_variables, bool):
-            raise ValueError(
-                "`depends_on_trainable_variables` must be boolean (True or False)."
-            )
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
         self.func = func
@@ -335,13 +326,8 @@ class Interface2DBC:
         direction (string): "normal" or "tangent".
     """
 
-    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal", depends_on_trainable_variables=None):
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal", depends_on_trainable_variables=False):
         self.geom = geom
-
-        if not isinstance(depends_on_trainable_variables, bool):
-            raise ValueError(
-                "`depends_on_trainable_variables` must be boolean (True or False)."
-            )
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
         self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
