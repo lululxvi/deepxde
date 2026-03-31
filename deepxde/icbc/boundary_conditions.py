@@ -35,7 +35,7 @@ class BC(ABC):
         component: The output component satisfying this BC.
     """
 
-    def __init__(self, geom, on_boundary, component, depends_on_trainable_variables):
+    def __init__(self, geom, on_boundary, component, depends_on_trainable_variables=False):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
             [on_boundary(x[i], on[i]) for i in range(len(x))]
