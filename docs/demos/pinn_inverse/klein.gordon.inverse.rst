@@ -25,6 +25,13 @@ Implementation
 
 This description goes through the implementation of a solver for the above described inverse Klein-Gordon problem step-by-step.
 
+We define the true mass parameter :math:`m^2 = 4` and the corresponding frequency :math:`\omega`:
+
+.. code-block:: python
+
+    m_sq_true = 4.0
+    omega = np.sqrt(np.pi**2 + m_sq_true)
+
 The learnable parameter :math:`m^2` is initialized far from its true value of 4 so that recovery is non-trivial:
 
 .. code-block:: python
