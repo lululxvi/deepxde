@@ -14,7 +14,7 @@ __all__ = [
 
 import numbers
 from abc import ABC, abstractmethod
-from functools import wraps
+from functools import wraps, lru_cache
 
 import numpy as np
 
@@ -464,7 +464,12 @@ def npfunc_range_autocache(func, disable_caching=False):
             return wrapper_nocache_auxiliary
 
 
+@lru_cache(maxsize=1)
 def _warn_dependance_on_trainable_variables():
+    """Print the warning that must contain the same message in constructors of various BC and IC classes.
+    The warning will be shown only once, which is achieved by using `lru_cache(maxsize=1)`
+    for a function with no arguments.
+    """
     print(
         "Warning: The BC/IC instance initialization parameter `depends_on_trainable_variables` "
         "must be explicitly set to either True or False for all BC and IC objects, or else "
