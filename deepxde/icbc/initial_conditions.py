@@ -4,7 +4,7 @@ __all__ = ["IC"]
 
 import numpy as np
 
-from .boundary_conditions import npfunc_range_autocache
+from .boundary_conditions import npfunc_range_autocache, _warn_dependance_on_trainable_variables
 from .. import backend as bkd
 from .. import utils
 
@@ -23,8 +23,12 @@ class IC:
         depends_on_trainable_variables: Whether this IC depends on any trainable variable or not.
     """
 
-    def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=False):
+    def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=None):
         self.geom = geom
+
+        if depends_on_trainable_variables is None:
+            _warn_dependance_on_trainable_variables()
+            depends_on_trainable_variables = False
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
         self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
