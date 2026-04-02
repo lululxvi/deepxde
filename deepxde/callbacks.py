@@ -603,3 +603,86 @@ class PDEPointResampler(Callback):
             raise ValueError(
                 "`num_bcs` changed! Please update the loss function by `model.compile`."
             )
+
+
+class TimeTracker(Callback):
+    def __init__(self, display_every=100):
+        super().__init__()
+        self.display_every = display_every
+        self.t_start = None
+        self.epochs_since_last = 0
+        self.total_iterations = None
+
+    def _format_time(self, seconds):
+        """Format time in smart format based on magnitude.
+
+        - If hours > 0: "X:YY:ZZ"
+        - Otherwise: "YY:ZZ"
+        """
+        if seconds < 0:
+            return "N/A"
+
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{secs:02d}"
+        else:
+            return f"{minutes:02d}:{secs:02d}"
+
+    def on_train_begin(self):
+        self.t_start = time.time()
+        self.epochs_since_last = 0
+
+    def on_epoch_end(self):
+        self.epochs_since_last += 1
+        if self.epochs_since_last >= self.display_every:
+            self.epochs_since_last = 0
+            self._display_time_status()
+
+    def on_train_end(self):
+        if self.epochs_since_last > 0:
+            self._display_time_status()
+
+    def _display_time_status(self):
+        """Display elapsed time and estimated remaining time."""
+        if self.t_start is None:
+            return
+
+        elapsed = time.time() - self.t_start
+        current_step = self.model.train_state.iteration
+
+        # Estimate remaining time
+        if current_step > 0:
+            rate = elapsed / current_step
+
+            # Get total iterations if available from model
+            if self.total_iterations is not None:
+                remaining_steps = max(0, self.total_iterations - current_step)
+                remaining = rate * remaining_steps
+            else:
+                # Can't estimate without knowing total iterations
+                remaining = None
+        else:
+            rate = None
+            remaining = None
+
+        # Format output
+        elapsed_str = self._format_time(elapsed)
+        if rate is not None:
+            rate_str = f"{1 / rate:.2f}it/s" if (1 / rate > 0.05) else f"{rate:.2f}s/it"
+            rate_str = f", {rate_str}"
+        else:
+            rate_str = ""
+
+        if remaining is not None:
+            remaining_str = self._format_time(remaining)
+
+            print(
+                f"[{current_step}] {elapsed_str}<{remaining_str}{rate_str}"
+            )
+        else:
+            print(
+                f"[{current_step}] {elapsed_str}{rate_str}"
+            )
