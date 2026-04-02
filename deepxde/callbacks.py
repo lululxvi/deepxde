@@ -5,6 +5,7 @@ import numpy as np
 
 from . import config
 from . import gradients as grad
+from . import optimizers
 from . import utils
 from .backend import backend_name, jax, paddle, tf, torch
 
@@ -610,7 +611,8 @@ class TimeTracker(Callback):
         super().__init__()
         self.display_every = display_every
         self.t_start = None
-        self.epochs_since_last = 0
+        self.starting_epoch = 0
+        self.last_display_epoch = 0
         self.total_iterations = None
 
     def _format_time(self, seconds):
@@ -633,16 +635,29 @@ class TimeTracker(Callback):
 
     def on_train_begin(self):
         self.t_start = time.time()
-        self.epochs_since_last = 0
+        self.starting_epoch = self._get_iteration()
+        self.last_display_epoch = self._get_iteration()
+
+    def _get_iteration(self):
+        return getattr(
+            getattr(self.model, "train_state", 0),
+            "iteration",
+            0
+        )
+
+    def _get_epochs_since_last(self):
+        return self._get_iteration() - self.last_display_epoch
+
+    def _get_epochs_since_start(self):
+        return self._get_iteration() - self.starting_epoch
 
     def on_epoch_end(self):
-        self.epochs_since_last += 1
-        if self.epochs_since_last >= self.display_every:
-            self.epochs_since_last = 0
+        if self._get_epochs_since_last() >= self.display_every:
+            self.last_display_epoch = self._get_iteration()
             self._display_time_status()
 
     def on_train_end(self):
-        if self.epochs_since_last > 0:
+        if self._get_epochs_since_last() > 0:
             self._display_time_status()
 
     def _display_time_status(self):
@@ -651,15 +666,30 @@ class TimeTracker(Callback):
             return
 
         elapsed = time.time() - self.t_start
-        current_step = self.model.train_state.iteration
+        current_step = self._get_epochs_since_start()
 
         # Estimate remaining time
         if current_step > 0:
             rate = elapsed / current_step
 
             # Get total iterations if available from model
-            if self.total_iterations is not None:
-                remaining_steps = max(0, self.total_iterations - current_step)
+            total_iterations = None
+            if not optimizers.is_external_optimizer(self.model.opt_name):
+                total_iterations = self.total_iterations
+            else:
+                if self.model.opt_name in ["L-BFGS", "L-BFGS-B"]:
+                    total_iterations = optimizers.LBFGS_options["maxiter"]
+                elif self.model.opt_name in ["NNCG"]:
+                    total_iterations = optimizers.NNCG_options["cgmaxiter"]
+                else:
+                    print(
+                        f"Warning: The optimizer {self.model.opt_name} "
+                        "is not supported fully by the `TimeTracker` callback. "
+                        "Open an issue on the DeepXDE repository."
+                    )
+
+            if total_iterations is not None:
+                remaining_steps = max(0, total_iterations - current_step)
                 remaining = rate * remaining_steps
             else:
                 # Can't estimate without knowing total iterations
@@ -680,9 +710,9 @@ class TimeTracker(Callback):
             remaining_str = self._format_time(remaining)
 
             print(
-                f"[{current_step}] {elapsed_str}<{remaining_str}{rate_str}"
+                f"{self._get_iteration()} [{elapsed_str}<{remaining_str}{rate_str}]"
             )
         else:
             print(
-                f"[{current_step}] {elapsed_str}{rate_str}"
+                f"{self._get_iteration()} [{elapsed_str}{rate_str}]"
             )
