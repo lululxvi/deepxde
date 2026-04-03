@@ -27,7 +27,6 @@ def pde(x, y):
     source_term_val = dde.backend.exp(-x[:, 1:]) * (
         dde.backend.sin(np.pi * x[:, 0:1]) - np.pi**2 * dde.backend.sin(np.pi * x[:, 0:1])
     )
-    # Backend tensorflow.compat.v1 or tensorflow, pytorch, jax, paddle
     return (
         dy_t
         - dy_xx
@@ -50,7 +49,6 @@ activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 net.apply_output_transform(
-    # This works for TensorFlow, PyTorch, JAX, and Paddle
     lambda x, y: x[:, 1:2] * (1 - x[:, 0:1] ** 2) * y + dde.backend.sin(np.pi * x[:, 0:1])
 )
 

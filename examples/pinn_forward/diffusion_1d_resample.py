@@ -27,7 +27,6 @@ def pde(x, y):
     source_term_val = dde.backend.exp(-x[:, 1:]) * (
         dde.backend.sin(np.pi * x[:, 0:1]) - np.pi**2 * dde.backend.sin(np.pi * x[:, 0:1])
     )
-    # Backend tensorflow.compat.v1 or tensorflow, pytorch, jax, paddle
     return (
         dy_t
         - dy_xx
