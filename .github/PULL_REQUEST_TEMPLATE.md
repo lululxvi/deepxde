@@ -24,3 +24,8 @@ Fixes # (issue number) / Is an entirely new
 - [ ] My changes generate no new warnings
 - [ ] **My changes are strictly minimal and necessary for this specific PR**
 - [ ] **I have provided a justification for every modification in the Description**
+- [ ] **The PR addresses one specific task**
+
+## Final Commit:
+- [ ] I have credited all that have contributed in a significant way to this PR.
+
