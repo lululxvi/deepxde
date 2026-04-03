@@ -607,9 +607,15 @@ class PDEPointResampler(Callback):
 
 
 class TimeTracker(Callback):
-    def __init__(self, display_every=100):
+    """Track the elapsed time and show it together with the estimated remaining time.
+
+    Args:
+        period: How often to show the time estimations (default is 500 iterations).
+    """
+
+    def __init__(self, period=500):
         super().__init__()
-        self.display_every = display_every
+        self.period = period
         self.t_start = None
         self.starting_epoch = 0
         self.last_display_epoch = 0
@@ -652,7 +658,7 @@ class TimeTracker(Callback):
         return self._get_iteration() - self.starting_epoch
 
     def on_epoch_end(self):
-        if self._get_epochs_since_last() >= self.display_every:
+        if self._get_epochs_since_last() >= self.period:
             self.last_display_epoch = self._get_iteration()
             self._display_time_status()
 
