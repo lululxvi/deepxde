@@ -17,7 +17,7 @@ Fixes # (issue number) / Is an entirely new
 
 
 ## Checklist:
-- [ ] My code follows the style guidelines of this project (e.g., Black, Flake8)
+- [ ] My code follows the style guidelines of this project (Formatted with Black)
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
