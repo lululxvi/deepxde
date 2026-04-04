@@ -48,6 +48,9 @@ class BC(ABC):
             depends_on_trainable_variables = False
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
+        # If learnable geometry is introduced, the boundary normal caching must be disabled
+        # if the "geometry depends on trainable variables" flag of `self.geom` is True,
+        # similar to `self.func` here.
         self.boundary_normal = npfunc_range_autocache(
             utils.return_tensor(self.geom.boundary_normal)
         )
@@ -107,6 +110,8 @@ class RobinBC(BC):
         # with other BC/IC functions with `func`
         # and in case in future caching is added here, too.
         super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True.
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -169,6 +174,8 @@ class OperatorBC(BC):
         # with other BC/IC functions with `func`
         # and in case in future caching is added here, too.
         super().__init__(geom, on_boundary, 0, depends_on_trainable_variables)
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True.
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -283,6 +290,8 @@ class PointSetOperatorBC:
             depends_on_trainable_variables = False
         self.depends_on_trainable_variables = depends_on_trainable_variables
 
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True
         self.func = func
         self.batch_size = batch_size
 
@@ -354,6 +363,9 @@ class Interface2DBC:
         )
         self.direction = direction
 
+        # If learnable geometry is introduced, the boundary normal caching must be disabled
+        # if the "geometry depends on trainable variables" flag of `self.geom` is True,
+        # similar to `self.func` here.
         self.boundary_normal = npfunc_range_autocache(
             utils.return_tensor(self.geom.boundary_normal)
         )
