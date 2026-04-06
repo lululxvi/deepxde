@@ -60,16 +60,22 @@ We define the computational geometry. We use ``GeometryXTime`` to combine the as
     timedomain = dde.geometry.TimeDomain(0, T)
     geomtime = dde.geometry.GeometryXTime(geom, timedomain)
 
-The PDE residual is defined below. Note that the equation matches the time-to-maturity form:
+The PDE residual is defined below. Here ``x[:, 0]`` is the asset price
+:math:`S`, ``x[:, 1]`` is the time to maturity :math:`\tau`, and ``y``
+is the option price :math:`V(S, \tau)` output by the network.
 
 .. code-block:: python
 
     def pde(x, y):
+        # x[:, 0]: asset price S
+        # x[:, 1]: time to maturity tau
+        # y:       option price V(S, tau)
         S = x[:, 0:1]
-        dy_tau = dde.grad.jacobian(y, x, i=0, j=1)
-        dy_S = dde.grad.jacobian(y, x, i=0, j=0)
-        dy_SS = dde.grad.hessian(y, x, i=0, j=0)
-        return dy_tau - (0.5 * sigma**2 * S**2 * dy_SS + r * S * dy_S - r * y)
+        dV_tau = dde.grad.jacobian(y, x, i=0, j=1)
+        dV_S   = dde.grad.jacobian(y, x, i=0, j=0)
+        dV_SS  = dde.grad.hessian(y, x, i=0, j=0)
+        return dV_tau - (0.5 * sigma**2 * S**2 * dV_SS + r * S * dV_S - r * y)
+
 
 For the boundary conditions, we define the payoff function at maturity (:math:`\tau=0`) and the Dirichlet conditions at :math:`S=0` and :math:`S=S_{max}`:
 
