@@ -44,7 +44,6 @@ First, we import DeepXDE and define the problem parameters:
 
     import deepxde as dde
     import numpy as np
-    from scipy.stats import norm
 
     K = 50.0      # Strike price
     r = 0.05      # Risk-free rate
@@ -97,7 +96,12 @@ For the boundary conditions, we define the payoff function at maturity (:math:`\
     )
 
 **Sampling Strategy**:
-To improve domain coverage and training stability, we use the **Sobol sequence** for sampling points. We select sample sizes as powers of 2 to avoid Sobol sequence warnings (2048 domain points, 64 boundary points, 128 initial points):
+To improve domain coverage and training stability, we use the **Sobol sequence**
+for sampling points. Sobol sequences are low-discrepancy quasi-random sequences
+that provide more uniform coverage of the domain than pseudorandom sampling [2]_.
+According to the SciPy documentation, Sobol sequences lose their balance
+properties when the sample size is not a power of 2 [3]_. Therefore, we choose
+sample counts close to powers of two in this implementation:
 
 .. code-block:: python
 
@@ -105,7 +109,7 @@ To improve domain coverage and training stability, we use the **Sobol sequence**
         geomtime,
         pde,
         [ic, bc_lower, bc_upper],
-        num_domain=2047, # 2048 - 1 center point
+        num_domain=2047,
         num_boundary=63,
         num_initial=127,
         num_test=2047,
@@ -133,12 +137,28 @@ We employ a two-stage training process: first using the **Adam** optimizer for 2
 Validation
 ----------
 
-The model is validated against the analytical Black-Scholes formula. We expect an L2 relative error around ``1e-3`` and a mean PDE residual around ``0.05``.
+The model is validated against the analytical Black-Scholes formula. In our
+runs, we observed an L2 relative error around ``1e-3`` and a mean PDE residual
+around ``0.05``. These hyperparameters (network width, depth, learning rate,
+and iteration count) were selected empirically based on observed convergence
+and were not subject to a systematic hyperparameter search. Further tuning
+may improve accuracy.
 
 References
 ----------
 
-.. [1] Tanios, R. (2021). "Physics Informed Neural Networks in Computational Finance: High Dimensional Forward & Inverse Option Pricing". ETH Zurich Master's Thesis. https://doi.org/10.3929/ethz-b-000491555
+.. [1] Tanios, R. (2021). "Physics Informed Neural Networks in Computational Finance:
+   High Dimensional Forward & Inverse Option Pricing". ETH Zurich Master's Thesis.
+   https://doi.org/10.3929/ethz-b-000491555
+
+.. [2] Sobol', I. M. (1967). "On the distribution of points in a cube and the
+   approximate evaluation of integrals." USSR Computational Mathematics and
+   Mathematical Physics, 7(4), 86–112.
+   https://www.sciencedirect.com/science/article/abs/pii/0041555367901449
+
+.. [3] SciPy documentation: ``scipy.stats.qmc.Sobol``.
+   https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html
+
 
 Complete code
 -------------
