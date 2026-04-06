@@ -76,7 +76,6 @@ is the option price :math:`V(S, \tau)` output by the network.
         dV_SS  = dde.grad.hessian(y, x, i=0, j=0)
         return dV_tau - (0.5 * sigma**2 * S**2 * dV_SS + r * S * dV_S - r * y)
 
-
 For the boundary conditions, we define the payoff function at maturity (:math:`\tau=0`) and the Dirichlet conditions at :math:`S=0` and :math:`S=S_{max}`:
 
 .. code-block:: python
