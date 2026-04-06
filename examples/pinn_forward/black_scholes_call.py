@@ -5,10 +5,15 @@ Black-Scholes PDE for European call option pricing using PINN.
 This example solves the Black-Scholes PDE in time-to-maturity form:
     dV/dtau = 0.5*sigma^2*S^2*d^2V/dS^2 + r*S*dV/dS - r*V
 
+where:
+    S    : underlying asset price  (x[:, 0])
+    tau  : time to maturity        (x[:, 1])
+    V    : option price            (network output y)
+
 with boundary conditions:
-    V(S, 0) = max(S - K, 0)           [Initial condition at maturity]
-    V(0, tau) = 0                      [Lower boundary]
-    V(S_max, tau) = S_max - K*exp(-r*tau)  [Upper boundary]
+    V(S, 0)     = max(S - K, 0)              [Initial condition at maturity]
+    V(0, tau)   = 0                          [Lower boundary]
+    V(S_max, tau) = S_max - K*exp(-r*tau)   [Upper boundary]
 
 Reference:
     Tanios, R. (2021). "Physics Informed Neural Networks in Computational Finance:
@@ -30,12 +35,22 @@ S_max = 150.0 # Maximum stock price
 
 
 def pde(x, y):
-    """Black-Scholes PDE residual."""
+    """Black-Scholes PDE residual.
+
+    Args:
+        x: Input tensor.
+            x[:, 0]: asset price S
+            x[:, 1]: time to maturity tau
+        y: Network output representing the option price V(S, tau).
+
+    Returns:
+        PDE residual: dV/dtau - (0.5*sigma^2*S^2*d^2V/dS^2 + r*S*dV/dS - r*V)
+    """
     S = x[:, 0:1]
-    dy_tau = dde.grad.jacobian(y, x, i=0, j=1)
-    dy_S = dde.grad.jacobian(y, x, i=0, j=0)
-    dy_SS = dde.grad.hessian(y, x, i=0, j=0)
-    return dy_tau - (0.5 * sigma**2 * S**2 * dy_SS + r * S * dy_S - r * y)
+    dV_tau = dde.grad.jacobian(y, x, i=0, j=1)
+    dV_S   = dde.grad.jacobian(y, x, i=0, j=0)
+    dV_SS  = dde.grad.hessian(y, x, i=0, j=0)
+    return dV_tau - (0.5 * sigma**2 * S**2 * dV_SS + r * S * dV_S - r * y)
 
 
 def black_scholes_call(S, tau):
