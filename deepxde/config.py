@@ -161,6 +161,15 @@ def set_random_seed(seed):
     random_seed = seed
 
 
+def get_random_seed():
+    """Get the current random seed.
+
+    Returns:
+        int: The current random seed, or None if not set.
+    """
+    return random_seed
+
+
 def enable_xla_jit(mode=True):
     """Enables just-in-time compilation with XLA.
 
