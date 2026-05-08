@@ -112,26 +112,16 @@ def _compute_fans_stacked(shape):
 
 
 def initializer_dict_tf():
-    # Get the random seed from config (will be None if not set)
     seed = config.get_random_seed()
     
-    # Create initializers - GlorotUniform and others accept seed=None by default
-    glorot_uniform = tf.keras.initializers.GlorotUniform(seed=seed)
-    glorot_normal = tf.keras.initializers.GlorotNormal(seed=seed)
-    he_normal = tf.keras.initializers.HeNormal(seed=seed)
-    he_uniform = tf.keras.initializers.HeUniform(seed=seed)
-    lecun_normal = tf.keras.initializers.LecunNormal(seed=seed)
-    lecun_uniform = tf.keras.initializers.LecunUniform(seed=seed)
-    orthogonal = tf.keras.initializers.Orthogonal(seed=seed)
-    
     return {
-        "Glorot normal": glorot_normal,
-        "Glorot uniform": glorot_uniform,
-        "He normal": he_normal,
-        "He uniform": he_uniform,
-        "LeCun normal": lecun_normal,
-        "LeCun uniform": lecun_uniform,
-        "Orthogonal": orthogonal,
+        "Glorot normal": tf.keras.initializers.GlorotNormal(seed=seed),
+        "Glorot uniform": tf.keras.initializers.GlorotUniform(seed=seed),
+        "He normal": tf.keras.initializers.HeNormal(seed=seed),
+        "He uniform": tf.keras.initializers.HeUniform(seed=seed),
+        "LeCun normal": tf.keras.initializers.LecunNormal(seed=seed),
+        "LeCun uniform": tf.keras.initializers.LecunUniform(seed=seed),
+        "Orthogonal": tf.keras.initializers.Orthogonal(seed=seed),
         "zeros": tf.zeros_initializer(),
         # Initializers of stacked DeepONet
         "stacked He normal": VarianceScalingStacked(scale=2.0),
@@ -139,7 +129,6 @@ def initializer_dict_tf():
         "stacked LeCun normal": VarianceScalingStacked(),
         "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
-
 
 def initializer_dict_torch():
     return {
