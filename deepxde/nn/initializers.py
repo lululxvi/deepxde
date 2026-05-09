@@ -114,27 +114,20 @@ def _compute_fans_stacked(shape):
 def initializer_dict_tf():
     seed = config.get_random_seed()
     
-    # Lowercase functions work with both TF 1.x and 2.x
-    if seed is not None:
-        init = lambda f: f(seed=seed)
-    else:
-        init = lambda f: f()
-    
     return {
-        "Glorot normal": init(tf.keras.initializers.glorot_normal),
-        "Glorot uniform": init(tf.keras.initializers.glorot_uniform),
-        "He normal": init(tf.keras.initializers.he_normal),
-        "He uniform": init(tf.keras.initializers.he_uniform),
-        "LeCun normal": init(tf.keras.initializers.lecun_normal),
-        "LeCun uniform": init(tf.keras.initializers.lecun_uniform),
-        "Orthogonal": init(tf.keras.initializers.Orthogonal),
+        "Glorot normal": tf.keras.initializers.glorot_normal(seed=seed),
+        "Glorot uniform": tf.keras.initializers.glorot_uniform(seed=seed),
+        "He normal": tf.keras.initializers.he_normal(seed=seed),
+        "He uniform": tf.keras.initializers.he_uniform(seed=seed),
+        "LeCun normal": tf.keras.initializers.lecun_normal(seed=seed),
+        "LeCun uniform": tf.keras.initializers.lecun_uniform(seed=seed),
+        "Orthogonal": tf.keras.initializers.Orthogonal(seed=seed),
         "zeros": tf.zeros_initializer(),
         "stacked He normal": VarianceScalingStacked(scale=2.0),
         "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
         "stacked LeCun normal": VarianceScalingStacked(),
         "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
-
 def initializer_dict_torch():
     return {
         "Glorot normal": torch.nn.init.xavier_normal_,
