@@ -128,6 +128,8 @@ def initializer_dict_tf():
         "stacked LeCun normal": VarianceScalingStacked(),
         "stacked LeCun uniform": VarianceScalingStacked(distribution="uniform"),
     }
+
+
 def initializer_dict_torch():
     return {
         "Glorot normal": torch.nn.init.xavier_normal_,
@@ -160,14 +162,26 @@ def initializer_dict_paddle():
     }
 
 
-if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    INITIALIZER_DICT = initializer_dict_tf()
-elif backend_name == "pytorch":
-    INITIALIZER_DICT = initializer_dict_torch()
-elif backend_name == "jax":
-    INITIALIZER_DICT = initializer_dict_jax()
-elif backend_name == "paddle":
-    INITIALIZER_DICT = initializer_dict_paddle()
+# NEW: Function to get initializer dict dynamically
+def get_initializer_dict():
+    if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        return initializer_dict_tf()
+    elif backend_name == "pytorch":
+        return initializer_dict_torch()
+    elif backend_name == "jax":
+        return initializer_dict_jax()
+    elif backend_name == "paddle":
+        return initializer_dict_paddle()
+
+
+# Initialize once at module load
+INITIALIZER_DICT = get_initializer_dict()
+
+
+# NEW: Function to reset initializer dict (call when seed changes)
+def reset_initializer_dict():
+    global INITIALIZER_DICT
+    INITIALIZER_DICT = get_initializer_dict()
 
 
 def get(identifier):
