@@ -4,17 +4,34 @@ __all__ = ["IC"]
 
 import numpy as np
 
-from .boundary_conditions import npfunc_range_autocache
+from .boundary_conditions import npfunc_range_autocache, _warn_dependance_on_trainable_variables
 from .. import backend as bkd
 from .. import utils
 
 
 class IC:
-    """Initial conditions: y([x, t0]) = func([x, t0])."""
+    """Initial conditions: y([x, t0]) = func([x, t0]).
 
-    def __init__(self, geom, func, on_initial, component=0):
+    Args:
+        geom: A ``deepxde.geometry.Geometry`` instance.
+        func: A function takes arguments (`inputs`, `outputs`)
+            and outputs a tensor of size `N x 1`, where `N` is the length of `inputs`.
+            `inputs` and `outputs` are the network input and output tensors,
+            respectively.
+        on_initial: A function: (x, Geometry.on_initial(x)) -> True/False.
+        component: The output component satisfying this IC.
+        depends_on_trainable_variables: Whether this IC depends on any trainable variable or not.
+    """
+
+    def __init__(self, geom, func, on_initial, component=0, depends_on_trainable_variables=None):
         self.geom = geom
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+
+        if depends_on_trainable_variables is None:
+            _warn_dependance_on_trainable_variables()
+            depends_on_trainable_variables = False
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
         self.on_initial = lambda x, on: np.array(
             [on_initial(x[i], on[i]) for i in range(len(x))]
         )

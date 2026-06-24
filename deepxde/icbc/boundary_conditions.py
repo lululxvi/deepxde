@@ -14,7 +14,7 @@ __all__ = [
 
 import numbers
 from abc import ABC, abstractmethod
-from functools import wraps
+from functools import wraps, lru_cache
 
 import numpy as np
 
@@ -33,15 +33,24 @@ class BC(ABC):
         geom: A ``deepxde.geometry.Geometry`` instance.
         on_boundary: A function: (x, Geometry.on_boundary(x)) -> True/False.
         component: The output component satisfying this BC.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
-    def __init__(self, geom, on_boundary, component):
+    def __init__(self, geom, on_boundary, component, depends_on_trainable_variables=None):
         self.geom = geom
         self.on_boundary = lambda x, on: np.array(
             [on_boundary(x[i], on[i]) for i in range(len(x))]
         )
         self.component = component
 
+        if depends_on_trainable_variables is None:
+            _warn_dependance_on_trainable_variables()
+            depends_on_trainable_variables = False
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        # If learnable geometry is introduced, the boundary normal caching must be disabled
+        # if the "geometry depends on trainable variables" flag of `self.geom` is True,
+        # similar to `self.func` here.
         self.boundary_normal = npfunc_range_autocache(
             utils.return_tensor(self.geom.boundary_normal)
         )
@@ -67,9 +76,9 @@ class BC(ABC):
 class DirichletBC(BC):
     """Dirichlet boundary conditions: y(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
@@ -84,9 +93,9 @@ class DirichletBC(BC):
 class NeumannBC(BC):
     """Neumann boundary conditions: dy/dn(x) = func(x)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
@@ -96,8 +105,13 @@ class NeumannBC(BC):
 class RobinBC(BC):
     """Robin boundary conditions: dy/dn(x) = func(x, y)."""
 
-    def __init__(self, geom, func, on_boundary, component=0):
-        super().__init__(geom, on_boundary, component)
+    def __init__(self, geom, func, on_boundary, component=0, depends_on_trainable_variables=None):
+        # `depends_on_trainable_variables` is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        super().__init__(geom, on_boundary, component, depends_on_trainable_variables)
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True.
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -110,7 +124,7 @@ class PeriodicBC(BC):
     """Periodic boundary conditions on component_x."""
 
     def __init__(self, geom, component_x, on_boundary, derivative_order=0, component=0):
-        super().__init__(geom, on_boundary, component)
+        super().__init__(geom, on_boundary, component, False)
         self.component_x = component_x
         self.derivative_order = derivative_order
         if derivative_order > 1:
@@ -145,6 +159,7 @@ class OperatorBC(BC):
             `inputs` and `outputs` are the network input and output tensors,
             respectively; `X` are the NumPy array of the `inputs`.
         on_boundary: (x, Geometry.on_boundary(x)) -> True/False.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
 
     Warning:
         If you use `X` in `func`, then do not set ``num_test`` when you define
@@ -154,8 +169,13 @@ class OperatorBC(BC):
         which cannot be fixed in an easy way for all backends.
     """
 
-    def __init__(self, geom, func, on_boundary):
-        super().__init__(geom, on_boundary, 0)
+    def __init__(self, geom, func, on_boundary, depends_on_trainable_variables=None):
+        # `depends_on_trainable_variables` is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        super().__init__(geom, on_boundary, 0, depends_on_trainable_variables)
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True.
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
@@ -253,13 +273,25 @@ class PointSetOperatorBC:
             Note, If you want to use batch size here, you should also set callback
             'dde.callbacks.PDEPointResampler(bc_points=True)' in training.
         shuffle: Randomize the order on each pass through the data when batching.
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
-    def __init__(self, points, values, func, batch_size=None, shuffle=True):
+    def __init__(self, points, values, func, batch_size=None, shuffle=True, depends_on_trainable_variables=None):
         self.points = np.array(points, dtype=config.real(np))
         if not isinstance(values, numbers.Number) and values.shape[1] != 1:
             raise RuntimeError("PointSetOperatorBC should output 1D values")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
+
+        # `depends_on_trainable_variables` is here in order to be consistent
+        # with other BC/IC functions with `func`
+        # and in case in future caching is added here, too.
+        if depends_on_trainable_variables is None:
+            _warn_dependance_on_trainable_variables()
+            depends_on_trainable_variables = False
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        # If for some reason caching of `func` is added here in future,
+        # it must be disabled if `self.depends_on_trainable_variables` is True
         self.func = func
         self.batch_size = batch_size
 
@@ -311,11 +343,18 @@ class Interface2DBC:
         on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
         on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
         direction (string): "normal" or "tangent".
+        depends_on_trainable_variables: Whether this BC depends on any trainable variable or not.
     """
 
-    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
+    def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal", depends_on_trainable_variables=None):
         self.geom = geom
-        self.func = npfunc_range_autocache(utils.return_tensor(func))
+
+        if depends_on_trainable_variables is None:
+            _warn_dependance_on_trainable_variables()
+            depends_on_trainable_variables = False
+        self.depends_on_trainable_variables = depends_on_trainable_variables
+
+        self.func = npfunc_range_autocache(utils.return_tensor(func), self.depends_on_trainable_variables)
         self.on_boundary1 = lambda x, on: np.array(
             [on_boundary1(x[i], on[i]) for i in range(len(x))]
         )
@@ -324,6 +363,9 @@ class Interface2DBC:
         )
         self.direction = direction
 
+        # If learnable geometry is introduced, the boundary normal caching must be disabled
+        # if the "geometry depends on trainable variables" flag of `self.geom` is True,
+        # similar to `self.func` here.
         self.boundary_normal = npfunc_range_autocache(
             utils.return_tensor(self.geom.boundary_normal)
         )
@@ -371,10 +413,11 @@ class Interface2DBC:
         return left_values + right_values - values
 
 
-def npfunc_range_autocache(func):
+def npfunc_range_autocache(func, disable_caching=False):
     """Call a NumPy function on a range of the input ndarray.
 
     If the backend is pytorch, the results are cached based on the id of X.
+    For BC/IC objects that depend on trainable variables caching must be disabled.
     """
     # For some BCs, we need to call self.func(X[beg:end]) in BC.error(). For backend
     # tensorflow.compat.v1/tensorflow, self.func() is only called once in graph mode,
@@ -421,13 +464,27 @@ def npfunc_range_autocache(func):
             cache[key] = func(X[beg:end], aux_var[beg:end])
         return cache[key]
 
-    if backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]:
+    if (backend_name in ["tensorflow.compat.v1", "tensorflow", "jax"]) or disable_caching:
         if utils.get_num_args(func) == 1:
             return wrapper_nocache
-        if utils.get_num_args(func) == 2:
+        elif utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
-    if backend_name in ["pytorch", "paddle"]:
+    elif backend_name in ["pytorch", "paddle"]:
         if utils.get_num_args(func) == 1:
             return wrapper_cache
-        if utils.get_num_args(func) == 2:
+        elif utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
+
+
+@lru_cache(maxsize=1)
+def _warn_dependance_on_trainable_variables():
+    """Print the warning that must contain the same message in constructors of various BC and IC classes.
+    The warning will be shown only once, which is achieved by using `lru_cache(maxsize=1)`
+    for a function with no arguments.
+    """
+    print(
+        "Warning: The BC/IC instance initialization parameter `depends_on_trainable_variables` "
+        "must be explicitly set to either True or False for all BC and IC objects, or else "
+        "the gradients of the loss function with respect to the external trainable variables "
+        "in inverse problems may become wrong."
+    )
