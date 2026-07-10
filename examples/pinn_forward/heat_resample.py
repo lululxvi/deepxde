@@ -90,6 +90,9 @@ data = dde.data.TimePDE(
     num_domain=2540,
     num_boundary=80,
     num_initial=160,
+    # Random sampling is required for PDEPointResampler to produce new points.
+    # Quasirandom distributions are deterministic and regenerate the same set.
+    train_distribution="pseudo",
     num_test=2540,
 )
 net = dde.nn.FNN([2] + [20] * 3 + [1], "tanh", "Glorot normal")

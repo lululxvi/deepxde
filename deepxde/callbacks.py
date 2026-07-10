@@ -570,6 +570,11 @@ class MovieDumper(Callback):
 class PDEPointResampler(Callback):
     """Resample the training points for PDE and/or BC losses every given period.
 
+    Note:
+        Use together with random sampling, i.e., ``train_distribution="pseudo"``
+        in the data. Quasirandom distributions such as the default Hammersley are
+        deterministic, so resampling regenerates the same points.
+
     Args:
         period: How often to resample the training points (default is 100 iterations).
         pde_points: If True, resample the training points for PDE losses (default is
