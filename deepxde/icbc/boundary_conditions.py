@@ -371,6 +371,16 @@ class Interface2DBC:
         return left_values + right_values - values
 
 
+def _check_auxiliary_var(aux_var):
+    if aux_var is None:
+        raise ValueError(
+            "The function used for an IC/BC takes two arguments, so DeepXDE calls it "
+            "as func(X, aux_var), but this problem defines no auxiliary variables "
+            "(auxiliary_var_function in dde.data.PDE). If the function is not meant "
+            "to use auxiliary variables, define it with a single argument func(X)."
+        )
+
+
 def npfunc_range_autocache(func):
     """Call a NumPy function on a range of the input ndarray.
 
@@ -404,6 +414,7 @@ def npfunc_range_autocache(func):
 
     @wraps(func)
     def wrapper_nocache_auxiliary(X, beg, end, aux_var):
+        _check_auxiliary_var(aux_var)
         return func(X[beg:end], aux_var[beg:end])
 
     @wraps(func)
@@ -416,6 +427,7 @@ def npfunc_range_autocache(func):
     @wraps(func)
     def wrapper_cache_auxiliary(X, beg, end, aux_var):
         # Even if X is the same one, aux_var could be different
+        _check_auxiliary_var(aux_var)
         key = (id(X), beg, end)
         if key not in cache:
             cache[key] = func(X[beg:end], aux_var[beg:end])
