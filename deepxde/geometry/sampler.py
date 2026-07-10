@@ -20,7 +20,7 @@ def sample(n_samples, dimension, sampler="pseudo"):
         return pseudorandom(n_samples, dimension)
     if sampler in ["LHS", "Halton", "Hammersley", "Sobol"]:
         return quasirandom(n_samples, dimension, sampler)
-    raise ValueError("f{sampler} sampling is not available.")
+    raise ValueError(f"{sampler} sampling is not available.")
 
 
 def pseudorandom(n_samples, dimension):
