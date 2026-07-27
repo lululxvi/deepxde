@@ -112,16 +112,17 @@ def _compute_fans_stacked(shape):
 
 
 def initializer_dict_tf():
+    seed = config.get_random_seed()
+    
     return {
-        "Glorot normal": tf.keras.initializers.glorot_normal(),
-        "Glorot uniform": tf.keras.initializers.glorot_uniform(),
-        "He normal": tf.keras.initializers.he_normal(),
-        "He uniform": tf.keras.initializers.he_uniform(),
-        "LeCun normal": tf.keras.initializers.lecun_normal(),
-        "LeCun uniform": tf.keras.initializers.lecun_uniform(),
-        "Orthogonal": tf.keras.initializers.Orthogonal(),
+        "Glorot normal": tf.keras.initializers.glorot_normal(seed=seed),
+        "Glorot uniform": tf.keras.initializers.glorot_uniform(seed=seed),
+        "He normal": tf.keras.initializers.he_normal(seed=seed),
+        "He uniform": tf.keras.initializers.he_uniform(seed=seed),
+        "LeCun normal": tf.keras.initializers.lecun_normal(seed=seed),
+        "LeCun uniform": tf.keras.initializers.lecun_uniform(seed=seed),
+        "Orthogonal": tf.keras.initializers.Orthogonal(seed=seed),
         "zeros": tf.zeros_initializer(),
-        # Initializers of stacked DeepONet
         "stacked He normal": VarianceScalingStacked(scale=2.0),
         "stacked He uniform": VarianceScalingStacked(scale=2.0, distribution="uniform"),
         "stacked LeCun normal": VarianceScalingStacked(),
@@ -161,14 +162,26 @@ def initializer_dict_paddle():
     }
 
 
-if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
-    INITIALIZER_DICT = initializer_dict_tf()
-elif backend_name == "pytorch":
-    INITIALIZER_DICT = initializer_dict_torch()
-elif backend_name == "jax":
-    INITIALIZER_DICT = initializer_dict_jax()
-elif backend_name == "paddle":
-    INITIALIZER_DICT = initializer_dict_paddle()
+# NEW: Function to get initializer dict dynamically
+def get_initializer_dict():
+    if backend_name in ["tensorflow.compat.v1", "tensorflow"]:
+        return initializer_dict_tf()
+    elif backend_name == "pytorch":
+        return initializer_dict_torch()
+    elif backend_name == "jax":
+        return initializer_dict_jax()
+    elif backend_name == "paddle":
+        return initializer_dict_paddle()
+
+
+# Initialize once at module load
+INITIALIZER_DICT = get_initializer_dict()
+
+
+# NEW: Function to reset initializer dict (call when seed changes)
+def reset_initializer_dict():
+    global INITIALIZER_DICT
+    INITIALIZER_DICT = get_initializer_dict()
 
 
 def get(identifier):
