@@ -60,6 +60,7 @@ DeepXDE has implemented many algorithms as shown above and supports many feature
 - 4 **function spaces**: power series, Chebyshev polynomial, Gaussian random field (1D/2D).
 - **data-parallel training** on multiple GPUs.
 - different **optimizers**: Adam, L-BFGS, etc.
+- example **hyperparameter optimization** integrations (via optional extra packages) using [HyperNOs](https://pypi.org/project/hypernos/) and [Ray Tune](https://docs.ray.io/en/latest/tune/index.html) (install `hypernos` and `ray[tune]` separately).
 - conveniently **save** the model during training, and **load** a trained model.
 - **callbacks** to monitor the internal states and statistics of the model during training: early stopping, etc.
 - **uncertainty quantification** using dropout.
@@ -105,6 +106,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
 - [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_forward.html)
 - [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_inverse.html)
 - [Demos of operator learning](https://deepxde.readthedocs.io/en/latest/demos/operator.html)
+- [Demos of hyperparameter optimization](https://deepxde.readthedocs.io/en/latest/demos/operator/advection_2d_hpo.html)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
 - [API](https://deepxde.readthedocs.io/en/latest/modules/deepxde.html)
