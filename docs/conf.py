@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "sphinx_math_dollar",  # Enabled dollar sign math support
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -156,3 +157,10 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+mathjax3_config = {
+    "tex": {
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]], # Enable $...$  and \(...)\for inline math
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]] # Enable $$...$$ and \[...\] for display math
+    },
+}
