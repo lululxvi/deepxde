@@ -29,21 +29,21 @@ class CSGUnion(geometry.Geometry):
         return np.logical_or(self.geom1.inside(x), self.geom2.inside(x))
 
     def on_boundary(self, x):
+        # Prevent shared overlapping boundaries from being excluded
         return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
-            np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x)),
+            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x) | self.geom2.on_boundary(x)),
+            np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x) | self.geom1.on_boundary(x)),
         )
 
     def boundary_normal(self, x):
-        return np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x))[
-            :, np.newaxis
-        ] * self.geom1.boundary_normal(x) + np.logical_and(
-            self.geom2.on_boundary(x), ~self.geom1.inside(x)
-        )[
-            :, np.newaxis
-        ] * self.geom2.boundary_normal(
-            x
+        # Mutually exclusive overlap handling to prevent doubling normal vectors
+        mask1 = np.logical_and(
+            self.geom1.on_boundary(x), ~self.geom2.inside(x) | self.geom2.on_boundary(x)
         )
+        mask2 = np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x))
+        
+        return mask1[:, np.newaxis] * self.geom1.boundary_normal(x) + \
+               mask2[:, np.newaxis] * self.geom2.boundary_normal(x)
 
     def random_points(self, n, random="pseudo"):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
@@ -66,18 +66,18 @@ class CSGUnion(geometry.Geometry):
         i = 0
         while i < n:
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
+            # geom1 claims points on the shared overlapping boundary
             geom1_boundary_points = geom1_boundary_points[
-                ~self.geom2.inside(geom1_boundary_points)
+                ~self.geom2.inside(geom1_boundary_points) | self.geom2.on_boundary(geom1_boundary_points)
             ]
 
             geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
+            # geom2 discards points on overlap to prevent double-density
             geom2_boundary_points = geom2_boundary_points[
                 ~self.geom1.inside(geom2_boundary_points)
             ]
 
             tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
-            tmp = np.random.permutation(tmp)
-
             if len(tmp) > n - i:
                 tmp = tmp[: n - i]
             x[i : i + len(tmp)] = tmp
@@ -86,12 +86,15 @@ class CSGUnion(geometry.Geometry):
 
     def periodic_point(self, x, component):
         x = np.copy(x)
+        # geom1 handles the overlap mapping
         on_boundary_geom1 = np.logical_and(
-            self.geom1.on_boundary(x), ~self.geom2.inside(x)
+            self.geom1.on_boundary(x), ~self.geom2.inside(x) | self.geom2.on_boundary(x)
         )
         x[on_boundary_geom1] = self.geom1.periodic_point(x, component)[
             on_boundary_geom1
         ]
+        
+        # geom2 ignores overlap to prevent mapping the same point twice
         on_boundary_geom2 = np.logical_and(
             self.geom2.on_boundary(x), ~self.geom1.inside(x)
         )
@@ -120,8 +123,8 @@ class CSGDifference(geometry.Geometry):
 
     def on_boundary(self, x):
         return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
-            np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
+            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x) & ~self.geom2.on_boundary(x)),
+            np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x) & ~self.geom1.on_boundary(x)),
         )
 
     def boundary_normal(self, x):
@@ -152,19 +155,17 @@ class CSGDifference(geometry.Geometry):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
             geom1_boundary_points = geom1_boundary_points[
-                ~self.geom2.inside(geom1_boundary_points)
+                ~self.geom2.inside(geom1_boundary_points) & ~self.geom2.on_boundary(geom1_boundary_points)
             ]
 
             geom2_boundary_points = self.geom2.random_boundary_points(n, random=random)
             geom2_boundary_points = geom2_boundary_points[
-                self.geom1.inside(geom2_boundary_points)
+                self.geom1.inside(geom2_boundary_points) & ~self.geom1.on_boundary(geom2_boundary_points)
             ]
 
             tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
-            tmp = np.random.permutation(tmp)
 
             if len(tmp) > n - i:
                 tmp = tmp[: n - i]
@@ -241,7 +242,6 @@ class CSGIntersection(geometry.Geometry):
         x = np.empty(shape=(n, self.dim), dtype=config.real(np))
         i = 0
         while i < n:
-
             geom1_boundary_points = self.geom1.random_boundary_points(n, random=random)
             geom1_boundary_points = geom1_boundary_points[
                 self.geom2.inside(geom1_boundary_points)
@@ -253,7 +253,6 @@ class CSGIntersection(geometry.Geometry):
             ]
 
             tmp = np.concatenate((geom1_boundary_points, geom2_boundary_points))
-            tmp = np.random.permutation(tmp)
 
             if len(tmp) > n - i:
                 tmp = tmp[: n - i]
