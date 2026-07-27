@@ -60,7 +60,16 @@ def set_LBFGS_options(
     LBFGS_options["maxfun"] = maxfun if maxfun is not None else int(maxiter * 1.25)
     LBFGS_options["maxls"] = maxls
 
-
+    # Backend-dependent options
+    if backend_name in ["pytorch", "paddle"]:
+        # number of iterations per optimization call
+        LBFGS_options["iter_per_step"] = min(1000, LBFGS_options["maxiter"])
+        LBFGS_options["fun_per_step"] = (
+            LBFGS_options["maxfun"]
+            * LBFGS_options["iter_per_step"]
+            // LBFGS_options["maxiter"]
+        )
+    
 def set_NNCG_options(
     lr=1,
     rank=50,
@@ -149,14 +158,3 @@ set_LBFGS_options()
 set_NNCG_options()
 if hvd is not None:
     set_hvd_opt_options()
-
-
-# Backend-dependent options
-if backend_name in ["pytorch", "paddle"]:
-    # number of iterations per optimization call
-    LBFGS_options["iter_per_step"] = min(1000, LBFGS_options["maxiter"])
-    LBFGS_options["fun_per_step"] = (
-        LBFGS_options["maxfun"]
-        * LBFGS_options["iter_per_step"]
-        // LBFGS_options["maxiter"]
-    )
