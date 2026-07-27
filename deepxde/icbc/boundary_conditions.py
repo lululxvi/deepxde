@@ -287,30 +287,37 @@ class PointSetOperatorBC:
 
 
 class Interface2DBC:
-    """2D interface boundary condition.
+    """2D interface boundary condition for vector-valued outputs.
 
-    This BC applies to the case with the following conditions:
-    (1) the network output has two elements, i.e., output = [y1, y2],
-    (2) the 2D geometry is ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon``, which has two edges of the same length,
-    (3) uniform boundary points are used, i.e., in ``dde.data.PDE`` or ``dde.data.TimePDE``, ``train_distribution="uniform"``.
-    For a pair of points on the two edges, compute <output_1, d1> for the point on the first edge
-    and <output_2, d2> for the point on the second edge in the n/t direction ('n' for normal or 't' for tangent).
-    Here, <v1, v2> is the dot product between vectors v1 and v2;
-    and d1 and d2 are the n/t vectors of the first and second edges, respectively.
-    In the normal case, d1 and d2 are the outward normal vectors;
-    and in the tangent case, d1 and d2 are the outward normal vectors rotated 90 degrees clockwise.
-    The points on the two edges are paired as follows: the boundary points on one edge are sampled clockwise,
-    and the points on the other edge are sampled counterclockwise. Then, compare the sum with 'values',
-    i.e., the error is calculated as <output_1, d1> + <output_2, d2> - values,
-    where 'values' is the argument `func` evaluated on the first edge.
+    This boundary condition (BC) is designed for scenarios where specific jump conditions 
+    or continuities are required across two matching edges of a geometry.
+
+    * **Network Output:** The model must have exactly two output elements, i.e., :math:`\\mathbf{y} = [y_1, y_2]`.
+    * **Geometry:** Must be a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` with two edges of identical length.
+    * **Sampling:** Use uniform boundary points (``train_distribution="uniform"``) in ``dde.data.PDE`` or ``dde.data.TimePDE``.
+
+    For a pair of points :math:`x_1` and :math:`x_2` located on the two specified edges, the BC computes the 
+    dot product of the output and the direction vector :math:`\mathbf{d}`:
+    
+    .. math:: \langle \mathbf{y}_1, \mathbf{d}_1 \\rangle + \langle \mathbf{y}_2, \mathbf{d}_2 \\rangle = \\text{values}
+
+    Where:
+    
+    * :math:`\mathbf{d}_1, \mathbf{d}_2`: The unit vectors based on the ``direction`` argument.
+    * **Normal Case:** :math:`\mathbf{d}` represents the outward normal vectors.
+    * **Tangent Case:** :math:`\mathbf{d}` represents the outward normal vectors rotated 90° clockwise.
+    * **Point Pairing:** Points on the first edge are sampled clockwise; points on the second edge are sampled counter-clockwise to ensure they are correctly mapped spatially.
 
     Args:
-        geom: a ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
-        func: the target discontinuity between edges, evaluated on the first edge,
-            e.g., ``func=lambda x: 0`` means no discontinuity is wanted.
-        on_boundary1: First edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        on_boundary2: Second edge func. (x, Geometry.on_boundary(x)) -> True/False.
-        direction (string): "normal" or "tangent".
+        geom: A ``dde.geometry.Rectangle`` or ``dde.geometry.Polygon`` instance.
+        func (callable): The target discontinuity (jump) between edges, evaluated on the 
+            first edge. For example, ``lambda x: 0`` enforces continuity.
+        on_boundary1 (callable): Function identifying the first edge. 
+            Signature: ``(x, on_boundary) -> bool``.
+        on_boundary2 (callable): Function identifying the second edge. 
+            Signature: ``(x, on_boundary) -> bool``.
+        direction (str): The vector component to constrain. Options are ``"normal"`` 
+            or ``"tangent"``.
     """
 
     def __init__(self, geom, func, on_boundary1, on_boundary2, direction="normal"):
