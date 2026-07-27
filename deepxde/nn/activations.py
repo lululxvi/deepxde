@@ -43,7 +43,7 @@ def get(identifier):
             Swish, tanh, linear).
 
     Returns:
-        Function corresponding to the input string or input function, Linear if identifier is None.
+        Function corresponding to the input string or input function, linear if identifier is None.
     """
     if identifier is None:
         return linear
