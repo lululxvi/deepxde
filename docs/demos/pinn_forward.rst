@@ -52,6 +52,7 @@ Time-dependent PDEs
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
    pinn_forward/klein.gordon
+   pinn_forward/black_scholes
    pinn_forward/american.put
 
 - `Beltrami flow <https://github.com/lululxvi/deepxde/blob/master/examples/pinn_forward/Beltrami_flow.py>`_
