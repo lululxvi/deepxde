@@ -53,7 +53,12 @@ class BC(ABC):
         return self.filter(X)
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
-        dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
+        if backend_name == "jax":
+            dydx = grad.jacobian(
+                (outputs, self.func), inputs, i=self.component, j=None
+            )[0][beg:end]
+        else:
+            dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
         n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
@@ -282,7 +287,9 @@ class PointSetOperatorBC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         if self.batch_size is not None:
-            return self.func(inputs, outputs, X)[beg:end] - self.values[self.batch_indices]
+            return (
+                self.func(inputs, outputs, X)[beg:end] - self.values[self.batch_indices]
+            )
         return self.func(inputs, outputs, X)[beg:end] - self.values
 
 
