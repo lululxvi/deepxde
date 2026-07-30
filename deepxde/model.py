@@ -135,7 +135,9 @@ class Model:
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
-        self.loss_weights = loss_weights
+        self.loss_weights = tf.convert_to_tensor(
+            loss_weights, dtype=config.default_float()
+        )
         if external_trainable_variables is None:
             self.external_trainable_variables = []
         else:
@@ -220,7 +222,9 @@ class Model:
         def outputs(training, inputs):
             return self.net(inputs, training=training)
 
-        def outputs_losses(training, inputs, targets, auxiliary_vars, losses_fn):
+        def outputs_losses(
+            training, inputs, targets, auxiliary_vars, losses_fn, loss_weights
+        ):
             self.net.auxiliary_vars = auxiliary_vars
             # Don't call outputs() decorated by @tf.function above, otherwise the
             # gradient of outputs wrt inputs will be lost here.
@@ -236,29 +240,41 @@ class Model:
                 losses += [tf.math.reduce_sum(self.net.losses)]
             losses = tf.convert_to_tensor(losses)
             # Weighted losses
-            if self.loss_weights is not None:
-                losses *= self.loss_weights
+            if loss_weights is not None:
+                losses *= loss_weights
             return outputs_, losses
 
         @tf.function(jit_compile=config.xla_jit)
-        def outputs_losses_train(inputs, targets, auxiliary_vars):
+        def outputs_losses_train(inputs, targets, auxiliary_vars, loss_weights):
             return outputs_losses(
-                True, inputs, targets, auxiliary_vars, self.data.losses_train
+                True,
+                inputs,
+                targets,
+                auxiliary_vars,
+                self.data.losses_train,
+                loss_weights,
             )
 
         @tf.function(jit_compile=config.xla_jit)
-        def outputs_losses_test(inputs, targets, auxiliary_vars):
+        def outputs_losses_test(inputs, targets, auxiliary_vars, loss_weights):
             return outputs_losses(
-                False, inputs, targets, auxiliary_vars, self.data.losses_test
+                False,
+                inputs,
+                targets,
+                auxiliary_vars,
+                self.data.losses_test,
+                loss_weights,
             )
 
         opt = optimizers.get(self.opt_name, learning_rate=lr, decay=decay)
 
         @tf.function(jit_compile=config.xla_jit)
-        def train_step(inputs, targets, auxiliary_vars):
+        def train_step(inputs, targets, auxiliary_vars, loss_weights):
             # inputs and targets are np.ndarray and automatically converted to Tensor.
             with tf.GradientTape() as tape:
-                losses = outputs_losses_train(inputs, targets, auxiliary_vars)[1]
+                losses = outputs_losses_train(
+                    inputs, targets, auxiliary_vars, loss_weights
+                )[1]
                 total_loss = tf.math.reduce_sum(losses)
             trainable_variables = (
                 self.net.trainable_variables + self.external_trainable_variables
@@ -589,7 +605,7 @@ class Model:
             outs = self.outputs(self.net.params, training, inputs)
         return utils.to_numpy(outs)
 
-    def _outputs_losses(self, training, inputs, targets, auxiliary_vars):
+    def _outputs_losses(self, training, inputs, targets, auxiliary_vars, loss_weights):
         if training:
             outputs_losses = self.outputs_losses_train
         else:
@@ -598,7 +614,7 @@ class Model:
             feed_dict = self.net.feed_dict(training, inputs, targets, auxiliary_vars)
             return self.sess.run(outputs_losses, feed_dict=feed_dict)
         if backend_name == "tensorflow":
-            outs = outputs_losses(inputs, targets, auxiliary_vars)
+            outs = outputs_losses(inputs, targets, auxiliary_vars, loss_weights)
         elif backend_name == "pytorch":
             self.net.requires_grad_(requires_grad=False)
             outs = outputs_losses(inputs, targets, auxiliary_vars)
@@ -610,12 +626,12 @@ class Model:
             outs = outputs_losses(inputs, targets, auxiliary_vars)
         return utils.to_numpy(outs[0]), utils.to_numpy(outs[1])
 
-    def _train_step(self, inputs, targets, auxiliary_vars):
+    def _train_step(self, inputs, targets, auxiliary_vars, loss_weights):
         if backend_name == "tensorflow.compat.v1":
             feed_dict = self.net.feed_dict(True, inputs, targets, auxiliary_vars)
             self.sess.run(self.train_step, feed_dict=feed_dict)
         elif backend_name in ["tensorflow", "paddle"]:
-            self.train_step(inputs, targets, auxiliary_vars)
+            self.train_step(inputs, targets, auxiliary_vars, loss_weights)
         elif backend_name == "pytorch":
             self.train_step(inputs, targets, auxiliary_vars)
         elif backend_name == "jax":
@@ -734,6 +750,7 @@ class Model:
                 self.train_state.X_train,
                 self.train_state.y_train,
                 self.train_state.train_aux_vars,
+                self.loss_weights,
             )
 
             self.train_state.iteration += 1
@@ -893,12 +910,14 @@ class Model:
             self.train_state.X_train,
             self.train_state.y_train,
             self.train_state.train_aux_vars,
+            self.loss_weights,
         )
         self.train_state.y_pred_test, self.train_state.loss_test = self._outputs_losses(
             False,
             self.train_state.X_test,
             self.train_state.y_test,
             self.train_state.test_aux_vars,
+            self.loss_weights,
         )
 
         if isinstance(self.train_state.y_test, (list, tuple)):
