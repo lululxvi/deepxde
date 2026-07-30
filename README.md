@@ -147,3 +147,7 @@ DeepXDE is currently maintained by [Lu Lu](https://github.com/lululxvi) at [Yale
 ## License
 
 [LGPL-2.1 License](https://github.com/lululxvi/deepxde/blob/master/LICENSE)
+
+---
+
+*[Mukller](https://github.com/Mukller)*
