@@ -23,6 +23,9 @@ __all__ = [
     "TimePDE",
     "Triple",
     "TripleCartesianProd",
+    "Union",
+    "UnionMerge",
+    "UnionRoundRobin",
     "wasserstein2",
 ]
 
@@ -40,3 +43,4 @@ from .pde_operator import PDEOperator, PDEOperatorCartesianProd
 from .quadruple import Quadruple, QuadrupleCartesianProd
 from .sampler import BatchSampler
 from .triple import Triple, TripleCartesianProd
+from .union import Union, UnionMerge, UnionRoundRobin
