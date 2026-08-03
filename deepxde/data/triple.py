@@ -87,7 +87,7 @@ class TripleCartesianProd(Data):
         return (
             self.train_x[0][indices_branch],
             self.train_x[1][indices_trunk],
-        ), self.train_y[indices_branch, indices_trunk]
+        ), self.train_y[indices_branch[:, None], indices_trunk]
 
     def test(self):
         return self.test_x, self.test_y
