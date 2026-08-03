@@ -1,0 +1,133 @@
+import os
+
+import brainstate as bst
+import numpy as np
+import optax
+import brainunit as u
+
+import deepxde.experimental as deepxde
+
+
+def heat_eq_exact_solution(x, t):
+    """Returns the exact solution for a given x and t (for sinusoidal initial conditions).
+
+    Parameters
+    ----------
+    x : np.ndarray
+    t : np.ndarray
+    """
+    a_value = a.to_decimal(u.meter2 / u.second)
+    n_value = n.to_decimal(u.Hz)
+    L_value = L.to_decimal(u.meter)
+    return np.exp(-(n_value ** 2 * np.pi ** 2 * a_value * t) / (L_value ** 2)) * np.sin(n_value * np.pi * x / L_value)
+
+
+def gen_exact_solution():
+    """Generates exact solution for the heat equation for the given values of x and t."""
+    # Number of points in each dimension:
+    x_dim, t_dim = (256, 201)
+
+    # Bounds of 'x' and 't':
+    x_min, t_min = (0, 0.0)
+    x_max, t_max = (L.to_decimal(u.meter), 1.0)
+
+    # Create tensors:
+    t = np.linspace(t_min, t_max, num=t_dim).reshape(t_dim, 1)
+    x = np.linspace(x_min, x_max, num=x_dim).reshape(x_dim, 1)
+    usol = np.zeros((x_dim, t_dim)).reshape(x_dim, t_dim)
+
+    # Obtain the value of the exact solution for each generated point:
+    for i in range(x_dim):
+        for j in range(t_dim):
+            usol[i, j] = heat_eq_exact_solution(x[i], t[j])
+
+    # Save solution:
+    np.savez("heat_eq_data", x=x, t=t, usol=usol)
+
+def gen_testdata():
+    if os.path.exists("heat_eq_data.npz"):
+        return
+    """Import and preprocess the dataset with the exact solution."""
+    # Load the data:
+    data = np.load("heat_eq_data.npz")
+    # Obtain the values for t, x, and the excat solution:
+    t, x, exact = data["t"], data["x"], data["usol"].T
+    # Process the data and flatten it out (like labels and features):
+    xx, tt = np.meshgrid(x, t)
+    X = {'x': np.ravel(xx) * u.meter, 't': np.ravel(tt) * u.second}
+    y = exact.flatten()[:, None]
+    return X, y * uy
+
+
+# Problem parameters:
+a = 0.4 * u.meter2 / u.second # Thermal diffusivity
+L = 1 * u.meter  # Length of the bar
+n = 1 * u.Hz # Frequency of the sinusoidal initial conditions
+
+gen_exact_solution()
+
+# Computational geometry:
+geomtime = deepxde.geometry.GeometryXTime(
+    geometry=deepxde.geometry.Interval(0., 1.),
+    timedomain=deepxde.geometry.TimeDomain(0., 1.)
+).to_dict_point(x=u.meter, t=u.second)
+
+uy = u.kelvin / u.second
+# Initial and boundary conditions:
+bc = deepxde.icbc.DirichletBC(
+    lambda x : {'y': 0. * uy}
+)
+ic = deepxde.icbc.IC(
+    lambda x: {'y': u.math.sin(n * u.math.pi * x['x'][:] / L, unit_to_scale=u.becquerel) * uy},
+)
+
+
+@bst.compile.jit
+def pde(x, y):
+    """
+    Expresses the PDE residual of the heat equation.
+    """
+    jacobian = approximator.jacobian(x)
+    hessian = approximator.hessian(x)
+    dy_t = jacobian['y']['t']
+    dy_xx = hessian['y']['x']['x']
+    return dy_t - a * dy_xx
+
+approximator = deepxde.nn.Model(
+    deepxde.nn.DictToArray(x=u.meter, t=u.second),
+    deepxde.nn.FNN(
+        [2] + [20] * 3 + [1],
+        "tanh",
+        bst.init.KaimingUniform()
+    ),
+    deepxde.nn.ArrayToDict(y=uy)
+)
+
+# Define the PDE problem and configurations of the network:
+problem = deepxde.problem.TimePDE(
+    geomtime,
+    pde,
+    [bc, ic],
+    approximator,
+    num_domain=2540,
+    num_boundary=80,
+    num_initial=160,
+    num_test=2540,
+)
+
+trainer = deepxde.Trainer(problem)
+
+# Build and train the trainer:
+trainer.compile(bst.optim.Adam(1e-3))
+trainer.train(iterations=10000)
+trainer.compile(bst.optim.OptaxOptimizer(optax.lbfgs(1e-3, linesearch=None)))
+
+# Plot/print the results
+trainer.saveplot(issave=True, isplot=True)
+
+X, y_true = gen_testdata()
+y_pred = trainer.predict(X)
+f = pde(X, y_pred)
+print("Mean residual:", u.math.mean(u.math.absolute(f)))
+print("L2 relative error:", deepxde.metrics.l2_relative_error(y_true, y_pred['y']))
+# np.savetxt("test.dat", u.math.hstack((X, y_true, y_pred)))
