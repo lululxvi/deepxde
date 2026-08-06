@@ -17,6 +17,14 @@ deepxde.nn.pytorch.fnn module
    :undoc-members:
    :show-inheritance:
 
+deepxde.nn.pytorch.msffn module
+------------------------------
+
+.. automodule:: deepxde.nn.pytorch.msffn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 deepxde.nn.pytorch.mionet module
 --------------------------------
 

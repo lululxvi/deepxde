@@ -47,22 +47,24 @@ class Scheme:
 class FPDE(PDE):
     r"""Fractional PDE solver.
 
-    D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
-    (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
-    where C(alpha, D) = gamma((1-alpha)/2) * gamma((D+alpha)/2) / (2 pi^((D+1)/2)),
-    D_theta^alpha is the Riemann-Liouville directional fractional derivative,
-    and theta is the differentiation direction vector.
-    The solution u(x) is assumed to be identically zero in the boundary and exterior of the domain.
-    When D = 1, C(alpha, D) = 1 / (2 cos(alpha * pi / 2)).
+    The $D$-dimensional fractional Laplacian of order $\alpha/2$ ($1 < \alpha < 2$) 
+    is defined as
+    $$(-\Delta)^{\alpha/2} u(x) = C(\alpha, D) \int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta,$$
+    where
 
-    This solver does not consider C(alpha, D) in the fractional Laplacian,
-    and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
-    D_theta^alpha is approximated by Grunwald-Letnikov formula.
+    * $C(\alpha, D) = \frac{\Gamma((1-\alpha)/2) \Gamma((D+\alpha)/2)}{2 \pi^{(D+1)/2}}$
+    * $D_{\theta}^\alpha$ is the Riemann-Liouville directional fractional derivative.
+    * $\theta$ is the differentiation direction vector.
 
-    References:
-        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
-        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
-        <https://doi.org/10.1137/18M1229845>`_.
+    The solution $u(x)$ is assumed to be identically zero in the boundary and 
+    exterior of the domain. When $D = 1$, the constant simplifies to
+    $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}.$$
+
+    .. note::
+        This solver does not consider $C(\alpha, D)$ in the fractional Laplacian, 
+        and only discretizes $\int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$. 
+        The derivative $D_{\theta}^\alpha$ is approximated by the 
+        Grünwald–Letnikov formula.
     """
 
     def __init__(
@@ -208,22 +210,24 @@ class FPDE(PDE):
 class TimeFPDE(FPDE):
     r"""Time-dependent fractional PDE solver.
 
-    D-dimensional fractional Laplacian of order alpha/2 (1 < alpha < 2) is defined as:
-    (-Delta)^(alpha/2) u(x) = C(alpha, D) \int_{||theta||=1} D_theta^alpha u(x) d theta,
-    where C(alpha, D) = gamma((1-alpha)/2) * gamma((D+alpha)/2) / (2 pi^((D+1)/2)),
-    D_theta^alpha is the Riemann-Liouville directional fractional derivative,
-    and theta is the differentiation direction vector.
-    The solution u(x) is assumed to be identically zero in the boundary and exterior of the domain.
-    When D = 1, C(alpha, D) = 1 / (2 cos(alpha * pi / 2)).
+    The $D$-dimensional fractional Laplacian of order $\alpha/2$ ($1 < \alpha < 2$) 
+    is defined as
+    $$(-\Delta)^{\alpha/2} u(x) = C(\alpha, D) \int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta,$$
+    where
 
-    This solver does not consider C(alpha, D) in the fractional Laplacian,
-    and only discretizes \int_{||theta||=1} D_theta^alpha u(x) d theta.
-    D_theta^alpha is approximated by Grunwald-Letnikov formula.
+    * $C(\alpha, D) = \frac{\Gamma((1-\alpha)/2) \Gamma((D+\alpha)/2)}{2 \pi^{(D+1)/2}}$
+    * $D_{\theta}^\alpha$ is the Riemann-Liouville directional fractional derivative.
+    * $\theta$ is the differentiation direction vector.
+    * The solution $u(x)$ is assumed to be identically zero in the boundary and 
+    exterior of the domain.
 
-    References:
-        `G. Pang, L. Lu, & G. E. Karniadakis. fPINNs: Fractional physics-informed neural
-        networks. SIAM Journal on Scientific Computing, 41(4), A2603--A2626, 2019
-        <https://doi.org/10.1137/18M1229845>`_.
+    When $D = 1$, the constant simplifies to
+    $$C(\alpha, D) = \frac{1}{2 \cos(\alpha \pi / 2)}.$$
+
+    .. note::
+        This solver **does not consider** $C(\alpha, D)$ in the fractional 
+        Laplacian calculation. It only discretizes the integral $\int_{\|\theta\|=1} D_{\theta}^\alpha u(x) \, d\theta$, 
+        where $D_{\theta}^\alpha$ is approximated by the Grünwald-Letnikov formula.
     """
 
     def __init__(

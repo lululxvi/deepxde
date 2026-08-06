@@ -20,4 +20,5 @@ flax
 optax
 
 sphinx-copybutton
+sphinx-math-dollar
 sphinx-rtd-theme
