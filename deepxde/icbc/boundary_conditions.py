@@ -184,6 +184,32 @@ class PointSetBC:
 
     def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
+
+        if not isinstance(values, numbers.Number):
+            values_arr = np.asarray(values)
+            if values_arr.ndim != 2:
+                raise RuntimeError(
+                    "PointSetBC should receive values of shape (N, 1) for a "
+                    "single component, or (N, len(component)) if component "
+                    "is a list, but got an array of shape {}. A common cause "
+                    "is loading 1D data (e.g. via np.loadtxt), which needs to "
+                    "be reshaped first, e.g. values.reshape(-1, 1).".format(
+                        values_arr.shape
+                    )
+                )
+            if values_arr.shape[0] != len(self.points):
+                raise RuntimeError(
+                    "PointSetBC received {} points but {} values.".format(
+                        len(self.points), values_arr.shape[0]
+                    )
+                )
+            expected_cols = len(component) if isinstance(component, list) else 1
+            if values_arr.shape[1] != expected_cols:
+                raise RuntimeError(
+                    "PointSetBC received {} components but values of shape[1] "
+                    "= {}.".format(expected_cols, values_arr.shape[1])
+                )
+
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
         if isinstance(component, list) and backend_name != "pytorch":
