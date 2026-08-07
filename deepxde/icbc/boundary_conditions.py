@@ -257,8 +257,17 @@ class PointSetOperatorBC:
 
     def __init__(self, points, values, func, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
-        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
-            raise RuntimeError("PointSetOperatorBC should output 1D values")
+        if not isinstance(values, numbers.Number):
+            values_arr = np.asarray(values)
+            if values_arr.ndim != 2 or values_arr.shape[1] != 1:
+                raise RuntimeError(
+                    f"PointSetOperatorBC received values of shape {values_arr.shape}, "
+                    f"expected 2D array of shape (N, 1)."
+                )
+            if values_arr.shape[0] != len(self.points):
+                raise RuntimeError(
+                    f"PointSetOperatorBC received {len(self.points)} points but {values_arr.shape[0]} values."
+                )
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.func = func
         self.batch_size = batch_size
