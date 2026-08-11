@@ -25,6 +25,52 @@ from .. import gradients as grad
 from .. import utils
 from ..backend import backend_name
 
+def _check_target_values(values, n_points, n_components, cls_name):
+    """Validate fixed target values at construction time.
+
+    Scalars are allowed and broadcast intentionally. Arrays must match
+    ``(n_points, n_components)`` exactly, since a ``(N,)`` vs ``(N, 1)``
+    mismatch would otherwise broadcast to ``(N, N)`` in the loss.
+    """
+    if isinstance(values, numbers.Number):
+        return
+
+    shape = np.asarray(values).shape
+    if shape != (n_points, n_components):
+        raise ValueError(
+            f"{cls_name}: `values` must have shape "
+            f"{(n_points, n_components)} (n_points, n_components); got {shape}."
+        )
+
+
+def _check_func_output(values, cls_name):
+    """Validate the output of a user-supplied BC function at run time.
+
+    Allows 0-d scalars (e.g. ``lambda x: 0``), which broadcast harmlessly
+    against an ``(N, 1)`` slice. Rejects 1-D and wide 2-D outputs, which
+    broadcast silently to ``(N, N)``. Row count is already guaranteed by
+    the ``[beg:end]`` slicing and is not re-checked.
+
+    ``values`` may arrive as a backend tensor or as a raw Python/NumPy value.
+    The helper detects either representation and reports the same contract.
+    """
+    try:
+        nd = bkd.ndim(values)
+        shape = bkd.shape(values)
+    except (AttributeError, TypeError, ValueError):
+        arr = np.asarray(values)
+        nd = arr.ndim
+        shape = arr.shape
+
+    if nd == 0:
+        return
+    if nd != 2 or shape[1] != 1:
+        raise RuntimeError(
+            f"{cls_name}: func should return an array of shape N by 1 for each "
+            "component. Use the argument 'component' for different output "
+            "components."
+        )
+
 
 class BC(ABC):
     """Boundary condition base class.
@@ -73,11 +119,7 @@ class DirichletBC(BC):
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
-        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
-            raise RuntimeError(
-                "DirichletBC function should return an array of shape N by 1 for each "
-                "component. Use argument 'component' for different output components."
-            )
+        _check_func_output(values, "DirichletBC")
         return outputs[beg:end, self.component : self.component + 1] - values
 
 
@@ -90,6 +132,7 @@ class NeumannBC(BC):
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
+        _check_func_output(values, "NeumannBC")
         return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 
@@ -126,13 +169,12 @@ class PeriodicBC(BC):
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
-            yleft = outputs[beg:mid, self.component : self.component + 1]
-            yright = outputs[mid:end, self.component : self.component + 1]
-        else:
-            dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
-            yleft = dydx[beg:mid]
-            yright = dydx[mid:end]
-        return yleft - yright
+            return (
+                outputs[beg:mid, self.component : self.component + 1]
+                - outputs[mid:end, self.component : self.component + 1]
+            )
+        dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
+        return dydx[beg:mid] - dydx[mid:end]
 
 
 class OperatorBC(BC):
@@ -159,7 +201,10 @@ class OperatorBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return self.func(inputs, outputs, X)[beg:end]
+        values = self.func(inputs, outputs, X)[beg:end]
+        _check_func_output(values, "OperatorBC")
+        return values
+
 
 
 class PointSetBC:
@@ -184,13 +229,18 @@ class PointSetBC:
 
     def __init__(self, points, values, component=0, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
-        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.component = component
-        if isinstance(component, list) and backend_name != "pytorch":
-            # TODO: Add support for multiple components in other backends
-            raise RuntimeError(
-                "multiple components only implemented for pytorch backend"
-            )
+        if isinstance(component, list):
+            if backend_name != "pytorch":
+                # TODO: Add support for multiple components in other backends
+                raise RuntimeError(
+                    "multiple components only implemented for pytorch backend"
+                )
+            n_components = len(component)
+        else:
+            n_components = 1
+        _check_target_values(values, len(self.points), n_components, "PointSetBC")
+        self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.batch_size = batch_size
 
         if batch_size is not None:  # batch iterator and state
@@ -257,8 +307,7 @@ class PointSetOperatorBC:
 
     def __init__(self, points, values, func, batch_size=None, shuffle=True):
         self.points = np.array(points, dtype=config.real(np))
-        if not isinstance(values, numbers.Number) and values.shape[1] != 1:
-            raise RuntimeError("PointSetOperatorBC should output 1D values")
+        _check_target_values(values, len(self.points), 1, "PointSetOperatorBC")
         self.values = bkd.as_tensor(values, dtype=config.real(bkd.lib))
         self.func = func
         self.batch_size = batch_size
@@ -281,9 +330,12 @@ class PointSetOperatorBC:
         return self.points
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
+        values = self.func(inputs, outputs, X)[beg:end]
+        _check_func_output(values, "PointSetOperatorBC")
         if self.batch_size is not None:
-            return self.func(inputs, outputs, X)[beg:end] - self.values[self.batch_indices]
-        return self.func(inputs, outputs, X)[beg:end] - self.values
+            return values - self.values[self.batch_indices]
+        return values - self.values
+
 
 
 class Interface2DBC:
@@ -352,8 +404,7 @@ class Interface2DBC:
                 this is likely because the chosen edges do not have the same length."
             )
         values = self.func(X, beg, mid, aux_var)
-        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
-            raise RuntimeError("BC function should return an array of shape N by 1")
+        _check_func_output(values, "Interface2DBC")
         left_n = self.boundary_normal(X, beg, mid, None)
         right_n = self.boundary_normal(X, mid, end, None)
         if self.direction == "normal":

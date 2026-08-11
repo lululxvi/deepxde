@@ -4,7 +4,7 @@ __all__ = ["IC"]
 
 import numpy as np
 
-from .boundary_conditions import npfunc_range_autocache
+from .boundary_conditions import _check_func_output, npfunc_range_autocache
 from .. import backend as bkd
 from .. import utils
 
@@ -28,9 +28,5 @@ class IC:
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         values = self.func(X, beg, end, aux_var)
-        if bkd.ndim(values) == 2 and bkd.shape(values)[1] != 1:
-            raise RuntimeError(
-                "IC function should return an array of shape N by 1 for each component."
-                "Use argument 'component' for different output components."
-            )
+        _check_func_output(values, "IC")
         return outputs[beg:end, self.component : self.component + 1] - values
