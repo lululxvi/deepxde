@@ -21,17 +21,17 @@ from deepxde.icbc.boundary_conditions import _check_func_output, _check_target_v
 
 
 @pytest.mark.parametrize(
-    "values, expected_shape, n_components, should_raise",
+    "values, n_components, should_raise",
     [
-        (1.0, (10, 1), 1, False),
-        (np.ones((10, 1)), (10, 1), 1, False),
-        (np.ones(10), (10, 1), 1, True),
-        (np.ones((10, 2)), (10, 1), 1, True),
-        (np.ones((8, 1)), (10, 1), 1, True),
+        (1.0, 1, False),
+        (np.ones((10, 1)), 1, False),
+        (np.ones(10), 1, True),
+        (np.ones((10, 2)), 1, True),
+        (np.ones((8, 1)), 1, True),
     ],
 )
 def test_check_target_values_shape_contract(
-    values, expected_shape, n_components, should_raise
+    values, n_components, should_raise
 ):
     points = np.ones((10, 1))
     if should_raise:
