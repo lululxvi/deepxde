@@ -1,19 +1,56 @@
 import numpy as np
 
 from .data import Data
+from .mf import MfDataSet, MfFunc
 from .pde import PDE
 from .pde_operator import PDEOperator, PDEOperatorCartesianProd
 
 
 class Union(Data):
-    """Base class for combining multiple ``Data`` objects.
+    """Combines multiple Data objects for joint training.
+
+    Use this class to train a single model on several independent datasets.
+    The datasets remain separate: each contributes a portion of the training
+    batch and produces its own loss value.
 
     Args:
-        data_objects: A list of ``Data`` instances.
-        loss: A shared loss function, or a list of per-data loss functions.
+        data_objects: A list of Data instances. PDE-based data classes (PDE,
+            PDEOperator, PDEOperatorCartesianProd) are not supported.
+        loss: Loss function to use. Pass a single callable to use the same
+            loss for all datasets, or a list of callables corresponding to
+            data_objects in the same order. If not specified, the losses
+            provided to model.compile() are used.
+
+    Example::
+
+        data1 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
+        data2 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
+        data = dde.data.Union([data1, data2])
+        model = dde.Model(data, net)
+        model.compile("adam", lr=0.001)
+        model.train(iterations=5000)
+
+    Notes:
+        All data objects must have the same input and output shapes, as their
+        batches are concatenated along the sample axis before being passed to
+        the model.
+
+        Each training batch is split as evenly as possible across datasets.
+        If the batch size is not evenly divisible by the number of datasets,
+        earlier datasets in data_objects receive one extra sample.
+
+        Training returns one loss value per dataset, so the loss history
+        contains one value per dataset at each step.
     """
 
     def __init__(self, data_objects, loss=None):
+        _incompatible = (MfDataSet, MfFunc, PDE, PDEOperator, PDEOperatorCartesianProd)
+        for obj in data_objects:
+            if isinstance(obj, _incompatible):
+                raise TypeError(
+                    f"{type(obj).__name__} is incompatible with Union."
+                )
+
         self.data_objects = list(data_objects)
         self.loss = loss
 
@@ -22,6 +59,9 @@ class Union(Data):
         ):
             raise ValueError("loss list must match number of data objects")
 
+        self._train_slices = None
+        self._test_slices = None
+
     def _get_loss(self, i, default_loss):
         if self.loss is None:
             return default_loss
@@ -29,62 +69,13 @@ class Union(Data):
             return self.loss[i]
         return self.loss
 
-
-class UnionRoundRobin(Union):
-    """Combines multiple ``Data`` objects by cycling through them in round-robin order."""
-
-    def __init__(self, data_objects, loss=None):
-        super().__init__(data_objects, loss)
-        self._train_idx = 0
-        self._test_idx = 0
-
-    def train_next_batch(self, batch_size=None):
-        return self.data_objects[self._train_idx].train_next_batch(batch_size)
-
-    def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        i = self._train_idx
-        self._train_idx = (self._train_idx + 1) % len(self.data_objects)
-        return self.data_objects[i].losses_train(
-            targets, outputs, self._get_loss(i, loss_fn), inputs, model, aux=aux
-        )
-
-    def test(self):
-        return self.data_objects[self._test_idx].test()
-
-    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
-        i = self._test_idx
-        self._test_idx = (self._test_idx + 1) % len(self.data_objects)
-        return self.data_objects[i].losses_test(
-            targets, outputs, self._get_loss(i, loss_fn), inputs, model, aux=aux
-        )
-
-
-class UnionMerge(Union):
-    """Combines multiple ``Data`` objects into one merged forward pass per step.
-
-    Incompatible with PDE-based ``Data`` objects (``PDE``, ``PDEOperator``, etc.);
-    use ``UnionRoundRobin`` for those.
-    """
-
-    def __init__(self, data_objects, loss=None):
-        _incompatible = (PDE, PDEOperator, PDEOperatorCartesianProd)
-        for obj in data_objects:
-            if isinstance(obj, _incompatible):
-                raise TypeError(
-                    f"{type(obj).__name__} is incompatible with UnionMerge. "
-                    "Use UnionRoundRobin instead."
-                )
-
-        super().__init__(data_objects, loss)
-        self._train_slices = None
-        self._test_slices = None
-
     def train_next_batch(self, batch_size=None):
         batch_sizes = self._split_batch_size(batch_size)
         batches = [
             data.train_next_batch(bs)
             for data, bs in zip(self.data_objects, batch_sizes)
         ]
+        # slices are tied to this exact batch; losses_train() must be called before the next batch
         *merged, self._train_slices = self._merge_batches(batches)
         return tuple(merged)
 
@@ -99,34 +90,20 @@ class UnionMerge(Union):
                 "train_next_batch() must be called before losses_train()."
             )
         return self._losses(
-            targets,
-            outputs,
-            loss_fn,
-            inputs,
-            model,
-            aux,
-            self._train_slices,
-            train=True,
+            targets, outputs, loss_fn, inputs, model, aux, self._train_slices, train=True
         )
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if self._test_slices is None:
             raise RuntimeError("test() must be called before losses_test().")
         return self._losses(
-            targets,
-            outputs,
-            loss_fn,
-            inputs,
-            model,
-            aux,
-            self._test_slices,
-            train=False,
+            targets, outputs, loss_fn, inputs, model, aux, self._test_slices, train=False
         )
 
     def _losses(self, targets, outputs, loss_fn, inputs, model, aux, slices, train):
         losses = []
         for i, (data, sl) in enumerate(zip(self.data_objects, slices)):
-            x_i = self._slice_inputs(inputs, sl)
+            x_i = tuple(xi[sl] for xi in inputs) if isinstance(inputs, tuple) else inputs[sl]
             y_i = None if targets is None else targets[sl]
             out_i = outputs[sl]
             loss_i_fn = self._get_loss(i, loss_fn)
@@ -151,35 +128,24 @@ class UnionMerge(Union):
 
     @staticmethod
     def _merge_batches(batches):
+        # transpose batches: [(x1, y1), (x2, y2)] -> [(x1, x2), (y1, y2)]
         parts = list(zip(*batches))
         xs = parts[0]
-        sizes = [UnionMerge._batch_size(x) for x in xs]
+        sizes = [x[0].shape[0] if isinstance(x, tuple) else x.shape[0] for x in xs]
         slices, start = [], 0
         for n in sizes:
             slices.append(slice(start, start + n))
             start += n
-        merged = [UnionMerge._concat_inputs(xs)]
+        if isinstance(xs[0], tuple):
+            merged_x = tuple(
+                np.concatenate([x[i] for x in xs], axis=0) for i in range(len(xs[0]))
+            )
+        else:
+            merged_x = np.concatenate(xs, axis=0)
+        merged = [merged_x]
         for group in parts[1:]:
             val = (
                 None if all(g is None for g in group) else np.concatenate(group, axis=0)
             )
             merged.append(val)
         return (*merged, slices)
-
-    @staticmethod
-    def _batch_size(x):
-        return x[0].shape[0] if isinstance(x, tuple) else x.shape[0]
-
-    @staticmethod
-    def _concat_inputs(xs):
-        if isinstance(xs[0], tuple):
-            return tuple(
-                np.concatenate([x[i] for x in xs], axis=0) for i in range(len(xs[0]))
-            )
-        return np.concatenate(xs, axis=0)
-
-    @staticmethod
-    def _slice_inputs(x, sl):
-        if isinstance(x, tuple):
-            return tuple(xi[sl] for xi in x)
-        return x[sl]
