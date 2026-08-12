@@ -44,6 +44,14 @@ def _make_monitor(period=3, show_loss=True):
     )
 
 
+def _make_2d_monitor(period=3, y_reference=True, show_loss=True):
+    x_plot = np.random.rand(20, 2)
+    y_reference = (lambda x: x[:, 0:1] + x[:, 1:2]) if y_reference else None
+    return TrainingMonitor(
+        period=period, x_plot=x_plot, y_reference=y_reference, show_loss=show_loss
+    )
+
+
 def test_training_monitor_requires_x_plot():
     try:
         TrainingMonitor()
@@ -98,6 +106,63 @@ def test_training_monitor_triggers_at_period():
 
     assert calls == [period, 2 * period, 3 * period]
     # No exception should have disabled the callback along the way.
+    assert monitor.enabled is True
+
+
+def test_training_monitor_rejects_invalid_x_plot_dim():
+    x_plot = np.random.rand(10, 3)
+    try:
+        TrainingMonitor(x_plot=x_plot)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("`x_plot` with 3 columns should raise ValueError")
+
+
+def test_training_monitor_2d_triggers_and_draws():
+    # Space-time PDEs (e.g. diffusion_1d.py) evaluate the solution over
+    # (x, t) pairs, so `x_plot` has 2 columns instead of 1. This exercises
+    # the scatter/colorbar drawing path used in that case.
+    period = 3
+    monitor = _make_2d_monitor(period=period)
+    monitor._has_display = lambda matplotlib_module: True
+
+    model = _FakeModel()
+    monitor.set_model(model)
+    monitor.on_train_begin()
+    assert monitor.enabled is True
+    assert monitor.dim == 2
+    assert monitor.ax_ref is not None
+
+    calls = []
+    original_update_plot = monitor._update_plot
+
+    def spy():
+        calls.append(model.train_state.iteration)
+        original_update_plot()
+
+    monitor._update_plot = spy
+
+    num_epochs = 10
+    for _ in range(num_epochs):
+        model.train_state.iteration += 1
+        monitor.on_epoch_end()
+
+    assert calls == [period, 2 * period, 3 * period]
+    assert monitor.enabled is True
+
+
+def test_training_monitor_2d_without_reference():
+    monitor = _make_2d_monitor(period=1, y_reference=False)
+    monitor._has_display = lambda matplotlib_module: True
+
+    model = _FakeModel()
+    monitor.set_model(model)
+    monitor.on_train_begin()
+    assert monitor.ax_ref is None
+
+    model.train_state.iteration += 1
+    monitor.on_epoch_end()
     assert monitor.enabled is True
 
 
