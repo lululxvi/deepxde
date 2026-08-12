@@ -8,7 +8,8 @@ from . import config
 from . import gradients as grad
 from . import utils
 from .backend import backend_name, jax, paddle, tf, torch
-
+import matplotlib
+import matplotlib.pyplot as plt
 
 class Callback:
     """Callback base class.
@@ -644,12 +645,6 @@ class TrainingMonitor(Callback):
 
     def on_train_begin(self):
         self.epochs_since_last = 0
-        try:
-            import matplotlib
-            import matplotlib.pyplot as plt
-        except ImportError:
-            self.enabled = False
-            return
 
         if not self._has_display(matplotlib):
             self.enabled = False
@@ -714,6 +709,7 @@ class TrainingMonitor(Callback):
             self._redraw()
         except Exception as e:  # pylint: disable=broad-except
             # Never let a plotting error interrupt training.
+            # Eventual improvment, here we can manage multipl Exception types
             self.enabled = False
             print("TrainingMonitor: disabling live plot due to error: {}".format(e))
 
