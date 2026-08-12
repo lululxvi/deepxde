@@ -48,6 +48,7 @@ Time-dependent PDEs
    pinn_forward/diffusion.1d
    pinn_forward/diffusion.1d.exactBC
    pinn_forward/diffusion.1d.resample
+   pinn_forward/diffusion.1d.with.monitor
    pinn_forward/diffusion.reaction
    pinn_forward/burgers.rar
    pinn_forward/allen.cahn
