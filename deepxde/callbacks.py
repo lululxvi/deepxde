@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 
@@ -565,6 +566,148 @@ class MovieDumper(Callback):
                 utils.save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
+
+
+class TrainingMonitor(Callback):
+    """Live-plot the predicted solution and the loss history during training.
+
+    Every `period` epochs, this callback redraws two subplots: the current
+    network prediction along `x_plot` (optionally against a reference
+    solution), and the train/test loss history on a log scale. Unlike
+    ``MovieDumper``, which only writes an animation to disk in
+    ``on_train_end``, or ``dde.saveplot``, which produces a single static
+    plot after training finishes, this callback gives feedback while the
+    model is still training.
+
+    Args:
+        period (int): Interval (number of epochs) between plot updates.
+        component (int): Which component of the solution to plot.
+        x_plot: Points (array of shape (N, dim)) at which the solution is
+            evaluated and plotted.
+        y_reference: A function `y_reference(x_plot)` returning the
+            reference (e.g., exact) solution for comparison. If ``None``,
+            only the predicted solution is shown.
+        show_loss (bool): If True, also plot the training/testing loss
+            history in a second subplot.
+
+    Warning:
+        Live plotting requires an interactive Matplotlib backend. In
+        headless environments (e.g., CI, servers without a display) this
+        callback automatically disables live plotting instead of raising
+        an error, so training is never interrupted.
+    """
+
+    def __init__(
+        self,
+        period=100,
+        component=0,
+        x_plot=None,
+        y_reference=None,
+        show_loss=True,
+    ):
+        super().__init__()
+        if x_plot is None:
+            raise ValueError("`x_plot` must be provided.")
+        self.period = period
+        self.component = component
+        self.x_plot = np.asarray(x_plot, dtype=config.real(np))
+        self.y_reference = y_reference
+        self.show_loss = show_loss
+
+        self.epochs_since_last = 0
+        self.enabled = True
+        self.plt = None
+        self.fig = None
+        self.ax_sol = None
+        self.ax_loss = None
+
+    def on_train_begin(self):
+        self.epochs_since_last = 0
+        try:
+            import matplotlib
+            import matplotlib.pyplot as plt
+        except ImportError:
+            self.enabled = False
+            return
+
+        if not self._has_display(matplotlib):
+            self.enabled = False
+            print(
+                "TrainingMonitor: no interactive display detected; "
+                "live plotting is disabled for this run."
+            )
+            return
+
+        self.plt = plt
+        plt.ion()
+        if self.show_loss:
+            self.fig, (self.ax_sol, self.ax_loss) = plt.subplots(1, 2, figsize=(10, 4))
+        else:
+            self.fig, self.ax_sol = plt.subplots(figsize=(5, 4))
+            self.ax_loss = None
+        self._redraw()
+
+    @staticmethod
+    def _has_display(matplotlib_module):
+        """Best-effort check for an interactive display/backend."""
+        if matplotlib_module.get_backend().lower() == "agg":
+            return False
+        if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+            return False
+        return True
+
+    def on_epoch_end(self):
+        if not self.enabled:
+            return
+        self.epochs_since_last += 1
+        if self.epochs_since_last < self.period:
+            return
+        self.epochs_since_last = 0
+        self._update_plot()
+
+    def on_train_end(self):
+        if self.enabled and self.fig is not None:
+            self._update_plot()
+
+    def _update_plot(self):
+        try:
+            y_pred = self.model.predict(self.x_plot)[:, self.component]
+
+            x = np.ravel(self.x_plot)
+            self.ax_sol.cla()
+            self.ax_sol.plot(x, y_pred, "--r", label="Predicted")
+            if self.y_reference is not None:
+                y_ref = np.ravel(self.y_reference(self.x_plot))
+                self.ax_sol.plot(x, y_ref, "-k", label="Reference")
+            self.ax_sol.set_xlabel("x")
+            self.ax_sol.set_ylabel("y")
+            self.ax_sol.set_title(
+                "Epoch {}".format(self.model.train_state.iteration)
+            )
+            self.ax_sol.legend()
+
+            if self.show_loss:
+                loss_history = self.model.losshistory
+                loss_train = [np.sum(loss) for loss in loss_history.loss_train]
+                loss_test = [np.sum(loss) for loss in loss_history.loss_test]
+                self.ax_loss.cla()
+                self.ax_loss.semilogy(loss_history.steps, loss_train, label="Train loss")
+                self.ax_loss.semilogy(loss_history.steps, loss_test, label="Test loss")
+                self.ax_loss.set_xlabel("# Steps")
+                self.ax_loss.set_ylabel("Loss")
+                self.ax_loss.legend()
+
+            self._redraw()
+        except Exception as e:  # pylint: disable=broad-except
+            # Never let a plotting error interrupt training.
+            self.enabled = False
+            print("TrainingMonitor: disabling live plot due to error: {}".format(e))
+
+    def _redraw(self):
+        self.fig.tight_layout()
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
+        self.plt.pause(0.001)
 
 
 class PDEPointResampler(Callback):
