@@ -596,6 +596,8 @@ class PDEPointResampler(Callback):
             return
         self.epochs_since_last_resample = 0
         self.model.data.resample_train_points(self.pde_points, self.bc_points)
+        if self.bc_points:
+            self.model.train_state.set_data_test(*self.model.data.test())
 
         if not np.array_equal(self.num_bcs_initial, self.model.data.num_bcs):
             print("Initial value of self.num_bcs:", self.num_bcs_initial)
