@@ -4,6 +4,11 @@ from .data import Data
 from .mf import MfDataSet, MfFunc
 from .pde import PDE
 from .pde_operator import PDEOperator, PDEOperatorCartesianProd
+from .. import backend as bkd
+from ..backend import backend_name
+
+_PYTORCH_ONLY_DATA = (PDE, PDEOperator, PDEOperatorCartesianProd)
+_UNSUPPORTED_DATA = (MfDataSet, MfFunc)
 
 
 class Union(Data):
@@ -44,23 +49,24 @@ class Union(Data):
     """
 
     def __init__(self, data_objects, loss=None):
-        _incompatible = (MfDataSet, MfFunc, PDE, PDEOperator, PDEOperatorCartesianProd)
         for obj in data_objects:
-            if isinstance(obj, _incompatible):
+            if isinstance(obj, _UNSUPPORTED_DATA):
                 raise TypeError(
                     f"{type(obj).__name__} is incompatible with Union."
                 )
-
+            if backend_name != "pytorch" and isinstance(obj, _PYTORCH_ONLY_DATA):
+                raise TypeError(
+                    f"{type(obj).__name__} is only compatible with Union on the pytorch backend "
+                    f"(current backend: {backend_name})."
+                )
         self.data_objects = list(data_objects)
         self.loss = loss
-
-        if isinstance(self.loss, (list, tuple)) and len(self.loss) != len(
-            self.data_objects
-        ):
+        if isinstance(self.loss, (list, tuple)) and len(self.loss) != len(self.data_objects):
             raise ValueError("loss list must match number of data objects")
-
         self._train_slices = None
         self._test_slices = None
+        self._train_batches = None
+        self._test_batches = None
 
     def _get_loss(self, i, default_loss):
         if self.loss is None:
@@ -75,12 +81,13 @@ class Union(Data):
             data.train_next_batch(bs)
             for data, bs in zip(self.data_objects, batch_sizes)
         ]
-        # slices are tied to this exact batch; losses_train() must be called before the next batch
+        self._train_batches = batches
         *merged, self._train_slices = self._merge_batches(batches)
         return tuple(merged)
 
     def test(self):
         batches = [data.test() for data in self.data_objects]
+        self._test_batches = batches
         *merged, self._test_slices = self._merge_batches(batches)
         return tuple(merged)
 
@@ -89,28 +96,37 @@ class Union(Data):
             raise RuntimeError(
                 "train_next_batch() must be called before losses_train()."
             )
-        return self._losses(
-            targets, outputs, loss_fn, inputs, model, aux, self._train_slices, train=True
-        )
+        return self._losses(loss_fn, model, train=True, batches=self._train_batches, aux=aux)
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if self._test_slices is None:
             raise RuntimeError("test() must be called before losses_test().")
-        return self._losses(
-            targets, outputs, loss_fn, inputs, model, aux, self._test_slices, train=False
-        )
+        return self._losses(loss_fn, model, train=False, batches=self._test_batches, aux=aux)
 
-    def _losses(self, targets, outputs, loss_fn, inputs, model, aux, slices, train):
+    def _losses(self, loss_fn, model, train, batches, aux=None):
         losses = []
-        for i, (data, sl) in enumerate(zip(self.data_objects, slices)):
-            x_i = tuple(xi[sl] for xi in inputs) if isinstance(inputs, tuple) else inputs[sl]
-            y_i = None if targets is None else targets[sl]
-            out_i = outputs[sl]
-            loss_i_fn = self._get_loss(i, loss_fn)
-            if train:
-                loss_i = data.losses_train(y_i, out_i, loss_i_fn, x_i, model, aux=aux)
+        for i, data in enumerate(self.data_objects):
+            batch = batches[i]
+            batch_x = batch[0]
+            batch_y = batch[1] if len(batch) > 1 else None
+            batch_aux = batch[2] if len(batch) > 2 else None
+            if isinstance(batch_x, tuple):
+                x_i = tuple(
+                    bkd.as_tensor(xi).requires_grad_() if backend_name == "pytorch" else bkd.as_tensor(xi)
+                    for xi in batch_x
+                )
             else:
-                loss_i = data.losses_test(y_i, out_i, loss_i_fn, x_i, model, aux=aux)
+                x_i = bkd.as_tensor(batch_x).requires_grad_() if backend_name == "pytorch" else bkd.as_tensor(batch_x)
+            y_i = bkd.as_tensor(batch_y) if batch_y is not None else None
+            aux_i = bkd.as_tensor(batch_aux) if batch_aux is not None else None
+            if hasattr(model.net, "auxiliary_vars"):
+                model.net.auxiliary_vars = aux_i
+            out_i = model.net(x_i)
+            loss_fn_i = self._get_loss(i, loss_fn)
+            if train:
+                loss_i = data.losses_train(y_i, out_i, loss_fn_i, x_i, model, aux=aux)
+            else:
+                loss_i = data.losses_test(y_i, out_i, loss_fn_i, x_i, model, aux=aux)
             if not isinstance(loss_i, list):
                 loss_i = [loss_i]
             losses.extend(loss_i)
@@ -123,12 +139,23 @@ class Union(Data):
             return list(batch_size)
         if batch_size is None:
             return [None] * len(self.data_objects)
-        q, r = divmod(batch_size, len(self.data_objects))
-        return [q + int(i < r) for i in range(len(self.data_objects))]
+        n = len(self.data_objects)
+        if batch_size < n:
+            raise ValueError(
+                f"batch_size ({batch_size}) must be >= number of data objects ({n})"
+            )
+        q, r = divmod(batch_size, n)
+        return [q + int(i < r) for i in range(n)]
 
     @staticmethod
     def _merge_batches(batches):
         # transpose batches: [(x1, y1), (x2, y2)] -> [(x1, x2), (y1, y2)]
+        n_parts = len(batches[0])
+        if not all(len(b) == n_parts for b in batches):
+            raise ValueError(
+                "All data objects must return the same number of components from "
+                f"train_next_batch()/test(). Got lengths: {[len(b) for b in batches]}"
+            )
         parts = list(zip(*batches))
         xs = parts[0]
         sizes = [x[0].shape[0] if isinstance(x, tuple) else x.shape[0] for x in xs]
