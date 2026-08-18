@@ -159,6 +159,19 @@ def set_random_seed(seed):
         paddle.seed(seed)
     global random_seed
     random_seed = seed
+    
+ # Reload initializer dict to update to the new seed
+    from .nn.initializers import reset_initializer_dict
+    reset_initializer_dict()
+    
+
+def get_random_seed():
+    """Get the current random seed.
+
+    Returns:
+        int: The current random seed, or None if not set.
+    """
+    return random_seed
 
 
 def enable_xla_jit(mode=True):
