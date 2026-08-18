@@ -113,7 +113,6 @@ class BC(ABC):
             Tensor: The computed residual which the optimizer will
             attempt to minimize toward zero.
         """
-        pass
 
 
 class DirichletBC(BC):
