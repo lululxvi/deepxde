@@ -138,6 +138,8 @@ First off, thanks for taking the time to contribute!
 
 **Slack.** The DeepXDE Slack hosts a primary audience of moderate to experienced DeepXDE users and developers for general chat, online discussions, collaboration, etc. If you need a slack invite, please send me an email.
 
+For more details, please check out `CONTRIBUTING.md`.
+
 ## The Team
 
 DeepXDE was developed by [Lu Lu](https://github.com/lululxvi) under the supervision of Prof. [George Karniadakis](https://www.brown.edu/research/projects/crunch/george-karniadakis) at [Brown University](https://www.brown.edu) from the summer of 2018 to 2020. DeepXDE was originally self-hosted in Subversion at Brown University, under the name SciCoNet (Scientific Computing Neural Networks). On Feb 7, 2019, SciCoNet was moved from Subversion to GitHub, renamed to DeepXDE.
