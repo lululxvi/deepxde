@@ -135,6 +135,7 @@ def initializer_dict_torch():
         "Glorot uniform": torch.nn.init.xavier_uniform_,
         "He normal": torch.nn.init.kaiming_normal_,
         "He uniform": torch.nn.init.kaiming_uniform_,
+        "Orthogonal": torch.nn.init.orthogonal_,
         "zeros": torch.nn.init.zeros_,
     }
 
