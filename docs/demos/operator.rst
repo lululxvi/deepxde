@@ -19,6 +19,7 @@ PI-DeepONet
    :maxdepth: 1
 
    operator/poisson.1d.pideeponet
+   operator/gravity_pendulum_unaligned_pideeponet
 
 - `Antiderivative operator with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_aligned_pideeponet.py>`_
 - `Antiderivative operator with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/antiderivative_unaligned_pideeponet.py>`_
@@ -29,6 +30,7 @@ PI-DeepONet
 - `Diffusion reaction equation with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_aligned_pideeponet.py>`_
 - `Diffusion reaction equation with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/diff_rec_unaligned_pideeponet.py>`_
 - `Stokes flow with aligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/stokes_aligned_pideeponet.py>`_
+- `Gravity pendulum with unaligned points <https://github.com/lululxvi/deepxde/tree/master/examples/operator/gravity_pendulum_unaligned_pideeponet.py>`_
 
 .. toctree::
    :maxdepth: 1
