@@ -2,13 +2,13 @@ import numpy as np
 
 from .data import Data
 from .mf import MfDataSet, MfFunc
-from .pde import PDE
-from .pde_operator import PDEOperator, PDEOperatorCartesianProd
+from .pde_operator import PDEOperatorCartesianProd
+from .triple import TripleCartesianProd
+from .quadruple import Quadruple, QuadrupleCartesianProd
 from .. import backend as bkd
 from ..backend import backend_name
 
-_PYTORCH_ONLY_DATA = (PDE, PDEOperator, PDEOperatorCartesianProd)
-_UNSUPPORTED_DATA = (MfDataSet, MfFunc)
+_UNSUPPORTED_DATA = (MfDataSet, MfFunc, PDEOperatorCartesianProd, TripleCartesianProd, Quadruple, QuadrupleCartesianProd)
 
 
 class Union(Data):
@@ -19,8 +19,9 @@ class Union(Data):
     batch and produces its own loss value.
 
     Args:
-        data_objects: A list of Data instances. PDE-based data classes (PDE,
-            PDEOperator, PDEOperatorCartesianProd) are not supported.
+        data_objects: A list of Data instances. Some classes (MfDataSet,
+            MfFunc, PDEOperatorCartesianProd, TripleCartesianProd, Quadruple,
+            QuadrupleCartesianProd) are not supported.
         loss: Loss function to use. Pass a single callable to use the same
             loss for all datasets, or a list of callables corresponding to
             data_objects in the same order. If not specified, the losses
@@ -40,26 +41,29 @@ class Union(Data):
         batches are concatenated along the sample axis before being passed to
         the model.
 
-        Each training batch is split as evenly as possible across datasets.
-        If the batch size is not evenly divisible by the number of datasets,
-        earlier datasets in data_objects receive one extra sample.
+        The requested batch size is split as evenly as possible across datasets
+        and passed to their train_next_batch() methods. The actual batch size
+        returned by each dataset depends on its own batching semantics; some Data
+        classes may ignore this argument.
 
         Training returns one loss value per dataset, so the loss history
         contains one value per dataset at each step.
     """
 
     def __init__(self, data_objects, loss=None):
+        if backend_name != "pytorch":
+            raise RuntimeError(
+                f"Union is only supported on the pytorch backend "
+                f"(current backend: {backend_name})."
+            )
         for obj in data_objects:
             if isinstance(obj, _UNSUPPORTED_DATA):
                 raise TypeError(
                     f"{type(obj).__name__} is incompatible with Union."
                 )
-            if backend_name != "pytorch" and isinstance(obj, _PYTORCH_ONLY_DATA):
-                raise TypeError(
-                    f"{type(obj).__name__} is only compatible with Union on the pytorch backend "
-                    f"(current backend: {backend_name})."
-                )
         self.data_objects = list(data_objects)
+        if len(self.data_objects) < 2:
+            raise ValueError("Union requires at least 2 data objects.")
         self.loss = loss
         if isinstance(self.loss, (list, tuple)) and len(self.loss) != len(self.data_objects):
             raise ValueError("loss list must match number of data objects")
@@ -111,12 +115,9 @@ class Union(Data):
             batch_y = batch[1] if len(batch) > 1 else None
             batch_aux = batch[2] if len(batch) > 2 else None
             if isinstance(batch_x, tuple):
-                x_i = tuple(
-                    bkd.as_tensor(xi).requires_grad_() if backend_name == "pytorch" else bkd.as_tensor(xi)
-                    for xi in batch_x
-                )
+                x_i = tuple(bkd.as_tensor(xi).requires_grad_() for xi in batch_x)
             else:
-                x_i = bkd.as_tensor(batch_x).requires_grad_() if backend_name == "pytorch" else bkd.as_tensor(batch_x)
+                x_i = bkd.as_tensor(batch_x).requires_grad_()
             y_i = bkd.as_tensor(batch_y) if batch_y is not None else None
             aux_i = bkd.as_tensor(batch_aux) if batch_aux is not None else None
             if hasattr(model.net, "auxiliary_vars"):
