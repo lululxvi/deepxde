@@ -168,10 +168,7 @@ class NeumannBC(BC):
 
 
 class RobinBC(BC):
-    """Robin boundary condition: $\frac{\partial y}{\partial n}(x) = f(x, y)$.
-
-    A weighted combination of Dirichlet and Neumann conditions.
-    """
+    """Robin boundary condition: $\frac{\partial y}{\partial n}(x) = f(x, y)$."""
 
     def __init__(self, geom, func, on_boundary, component=0):
         super().__init__(geom, on_boundary, component)
