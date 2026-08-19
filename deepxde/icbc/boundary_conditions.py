@@ -144,10 +144,9 @@ class RobinBC(BC):
         self.func = func
 
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        return self.normal_derivative(X, inputs, outputs, beg, end) - self.func(
-            X[beg:end], outputs[beg:end]
-        )
-
+        values = self.func(X[beg:end], outputs[beg:end])
+        _check_func_output(values, "RobinBC")
+        return self.normal_derivative(X, inputs, outputs, beg, end) - values
 
 class PeriodicBC(BC):
     """Periodic boundary conditions on component_x."""
@@ -169,12 +168,13 @@ class PeriodicBC(BC):
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
         mid = beg + (end - beg) // 2
         if self.derivative_order == 0:
-            return (
-                outputs[beg:mid, self.component : self.component + 1]
-                - outputs[mid:end, self.component : self.component + 1]
-            )
-        dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
-        return dydx[beg:mid] - dydx[mid:end]
+            yleft = outputs[beg:mid, self.component : self.component + 1]
+            yright = outputs[mid:end, self.component : self.component + 1]
+        else:
+            dydx = grad.jacobian(outputs, inputs, i=self.component, j=self.component_x)
+            yleft = dydx[beg:mid]
+            yright = dydx[mid:end]
+        return yleft - yright
 
 
 class OperatorBC(BC):
