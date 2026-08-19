@@ -1,4 +1,10 @@
-"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle"""
+"""Backend supported: tensorflow.compat.v1, tensorflow, pytorch, jax, paddle
+1D Diffusion Equation with a Time-Dependent Source Term.
+
+This example solves the heat equation:
+∂y/∂t - ∂²y/∂x² = f(x, t)
+where the source term f(x, t) is chosen such that the analytical solution is y = e^(-t) * sin(πx).
+"""
 import deepxde as dde
 import numpy as np
 # Backend tensorflow.compat.v1 or tensorflow
@@ -15,37 +21,17 @@ def pde(x, y):
     # Most backends
     dy_t = dde.grad.jacobian(y, x, j=1)
     dy_xx = dde.grad.hessian(y, x, j=0)
-    # Backend jax
-    # dy_t, _ = dde.grad.jacobian(y, x, j=1)
-    # dy_xx, _ = dde.grad.hessian(y, x, j=0)
-    # Backend tensorflow.compat.v1 or tensorflow
+   
+    # Physics Note: The following term is the forced heat source f(x, t)
+    # required to satisfy the analytical solution y = e^(-t)sin(πx).
+    source_term_val = dde.backend.exp(-x[:, 1:]) * (
+        dde.backend.sin(np.pi * x[:, 0:1]) - np.pi**2 * dde.backend.sin(np.pi * x[:, 0:1])
+    )
     return (
         dy_t
         - dy_xx
-        + tf.exp(-x[:, 1:])
-        * (tf.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * tf.sin(np.pi * x[:, 0:1]))
-    )
-    # Backend pytorch
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + torch.exp(-x[:, 1:])
-    #     * (torch.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * torch.sin(np.pi * x[:, 0:1]))
-    # )
-    # Backend jax
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + jnp.exp(-x[:, 1:])
-    #     * (jnp.sin(np.pi * x[..., 0:1]) - np.pi ** 2 * jnp.sin(np.pi * x[..., 0:1]))
-    # )
-    # Backend paddle
-    # return (
-    #     dy_t
-    #     - dy_xx
-    #     + paddle.exp(-x[:, 1:])
-    #     * (paddle.sin(np.pi * x[:, 0:1]) - np.pi ** 2 * paddle.sin(np.pi * x[:, 0:1]))
-    # )
+        + source_term_val
+    ) 
 
 
 def func(x):
