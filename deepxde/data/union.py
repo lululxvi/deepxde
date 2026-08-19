@@ -2,52 +2,67 @@ import numpy as np
 
 from .data import Data
 from .mf import MfDataSet, MfFunc
-from .pde_operator import PDEOperatorCartesianProd
+from .pde import PDE
+from .pde_operator import PDEOperator, PDEOperatorCartesianProd
 from .triple import TripleCartesianProd
 from .quadruple import Quadruple, QuadrupleCartesianProd
 from .. import backend as bkd
 from ..backend import backend_name
 
-_UNSUPPORTED_DATA = (MfDataSet, MfFunc, PDEOperatorCartesianProd, TripleCartesianProd, Quadruple, QuadrupleCartesianProd)
+_UNSUPPORTED_DATA = (
+    MfDataSet,
+    MfFunc,
+    PDEOperatorCartesianProd,
+    TripleCartesianProd,
+    Quadruple,
+    QuadrupleCartesianProd,
+)
 
 
 class Union(Data):
-    """Combines multiple Data objects for joint training.
+    """Combines multiple ``Data`` objects for joint training.
 
-    Use this class to train a single model on several independent datasets.
-    The datasets remain separate: each contributes a portion of the training
-    batch and produces its own loss value.
+    Use this class to train a single model on multiple datasets.
+    The datasets remain separate for loss computation, while their batches are
+    concatenated along the sample axis before being passed to the model.
 
     Args:
-        data_objects: A list of Data instances. Some classes (MfDataSet,
-            MfFunc, PDEOperatorCartesianProd, TripleCartesianProd, Quadruple,
-            QuadrupleCartesianProd) are not supported.
-        loss: Loss function to use. Pass a single callable to use the same
-            loss for all datasets, or a list of callables corresponding to
-            data_objects in the same order. If not specified, the losses
-            provided to model.compile() are used.
+        data_objects: A list of ``Data`` instances. Some classes (``MfDataSet``,
+            ``MfFunc``, ``PDEOperatorCartesianProd``, ``TripleCartesianProd``,
+            ``Quadruple``, ``QuadrupleCartesianProd``) are not supported.
+        loss: Optional loss specification. A single loss is used for all
+            datasets. A list or tuple must contain one loss specification per
+            dataset, in the same order as ``data_objects``. If not specified, the
+            loss passed to ``model.compile()`` is used for each dataset.
 
-    Example::
+    Example:
 
-        data1 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
-        data2 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
-        data = dde.data.Union([data1, data2])
-        model = dde.Model(data, net)
-        model.compile("adam", lr=0.001)
-        model.train(iterations=5000)
+        .. code-block:: python
+
+            data1 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
+            data2 = dde.data.Triple(X_train=..., y_train=..., X_test=..., y_test=...)
+            data = dde.data.Union([data1, data2])
+            model = dde.Model(data, net)
+            model.compile("adam", lr=0.001)
+            model.train(iterations=5000)
 
     Notes:
-        All data objects must have the same input and output shapes, as their
-        batches are concatenated along the sample axis before being passed to
-        the model.
+        All data objects must return batches with the same number of components
+        and compatible input and output shapes.
 
         The requested batch size is split as evenly as possible across datasets
-        and passed to their train_next_batch() methods. The actual batch size
-        returned by each dataset depends on its own batching semantics; some Data
+        and passed to their ``train_next_batch()`` methods. The actual batch size
+        returned by each dataset depends on its own batching semantics; some ``Data``
         classes may ignore this argument.
 
-        Training returns one loss value per dataset, so the loss history
-        contains one value per dataset at each step.
+        Each dataset contributes the loss value or values returned by its
+        ``losses_train()`` or ``losses_test()`` method. A dataset may therefore contribute
+        more than one loss, for example ``PDE`` residual and boundary-condition losses.
+
+        Datasets other than ``PDE`` and ``PDEOperator`` reuse slices of the merged forward
+        pass performed by the outer training loop. ``PDE`` and ``PDEOperator`` objects
+        get an additional independent forward pass so that autograd-based
+        derivatives are computed with respect to their own inputs.
     """
 
     def __init__(self, data_objects, loss=None):
@@ -58,14 +73,14 @@ class Union(Data):
             )
         for obj in data_objects:
             if isinstance(obj, _UNSUPPORTED_DATA):
-                raise TypeError(
-                    f"{type(obj).__name__} is incompatible with Union."
-                )
+                raise TypeError(f"{type(obj).__name__} is incompatible with Union.")
         self.data_objects = list(data_objects)
         if len(self.data_objects) < 2:
             raise ValueError("Union requires at least 2 data objects.")
         self.loss = loss
-        if isinstance(self.loss, (list, tuple)) and len(self.loss) != len(self.data_objects):
+        if isinstance(self.loss, (list, tuple)) and len(self.loss) != len(
+            self.data_objects
+        ):
             raise ValueError("loss list must match number of data objects")
         self._train_slices = None
         self._test_slices = None
@@ -100,29 +115,64 @@ class Union(Data):
             raise RuntimeError(
                 "train_next_batch() must be called before losses_train()."
             )
-        return self._losses(loss_fn, model, train=True, batches=self._train_batches, aux=aux)
+        return self._losses(
+            targets,
+            outputs,
+            loss_fn,
+            inputs,
+            model,
+            train=True,
+            batches=self._train_batches,
+            slices=self._train_slices,
+            aux=aux,
+        )
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
         if self._test_slices is None:
             raise RuntimeError("test() must be called before losses_test().")
-        return self._losses(loss_fn, model, train=False, batches=self._test_batches, aux=aux)
+        return self._losses(
+            targets,
+            outputs,
+            loss_fn,
+            inputs,
+            model,
+            train=False,
+            batches=self._test_batches,
+            slices=self._test_slices,
+            aux=aux,
+        )
 
-    def _losses(self, loss_fn, model, train, batches, aux=None):
+    def _losses(
+        self, targets, outputs, loss_fn, inputs, model, train, batches, slices, aux=None
+    ):
         losses = []
         for i, data in enumerate(self.data_objects):
             batch = batches[i]
-            batch_x = batch[0]
-            batch_y = batch[1] if len(batch) > 1 else None
             batch_aux = batch[2] if len(batch) > 2 else None
-            if isinstance(batch_x, tuple):
-                x_i = tuple(bkd.as_tensor(xi).requires_grad_() for xi in batch_x)
-            else:
-                x_i = bkd.as_tensor(batch_x).requires_grad_()
-            y_i = bkd.as_tensor(batch_y) if batch_y is not None else None
             aux_i = bkd.as_tensor(batch_aux) if batch_aux is not None else None
             if hasattr(model.net, "auxiliary_vars"):
                 model.net.auxiliary_vars = aux_i
-            out_i = model.net(x_i)
+
+            # PDE/PDEOperator need a fresh forward pass for autograd
+            # Others reuse merged outputs
+            if isinstance(data, (PDE, PDEOperator)):
+                batch_x = batch[0]
+                batch_y = batch[1] if len(batch) > 1 else None
+                if isinstance(batch_x, tuple):
+                    x_i = tuple(bkd.as_tensor(xi).requires_grad_() for xi in batch_x)
+                else:
+                    x_i = bkd.as_tensor(batch_x).requires_grad_()
+                y_i = bkd.as_tensor(batch_y) if batch_y is not None else None
+                out_i = model.net(x_i)
+            else:
+                sl = slices[i]
+                out_i = outputs[sl]
+                y_i = targets[sl] if targets is not None else None
+                if isinstance(inputs, tuple):
+                    x_i = tuple(xi[sl] for xi in inputs)
+                else:
+                    x_i = inputs[sl] if inputs is not None else None
+
             loss_fn_i = self._get_loss(i, loss_fn)
             if train:
                 loss_i = data.losses_train(y_i, out_i, loss_fn_i, x_i, model, aux=aux)
@@ -150,7 +200,7 @@ class Union(Data):
 
     @staticmethod
     def _merge_batches(batches):
-        # transpose batches: [(x1, y1), (x2, y2)] -> [(x1, x2), (y1, y2)]
+        # Transpose batches: [(x1, y1), (x2, y2)] -> [(x1, x2), (y1, y2)]
         n_parts = len(batches[0])
         if not all(len(b) == n_parts for b in batches):
             raise ValueError(
