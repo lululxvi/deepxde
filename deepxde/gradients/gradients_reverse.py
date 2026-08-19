@@ -23,9 +23,7 @@ class JacobianReverse(Jacobian):
         elif backend_name == "jax":
             ndim_y = bkd.ndim(self.ys[0])
         if ndim_y == 3:
-            raise NotImplementedError(
-                "Reverse-mode autodiff doesn't support 3D output"
-            )
+            raise NotImplementedError("Reverse-mode autodiff doesn't support 3D output")
 
         # Compute J[i, :]
         if i not in self.J:
@@ -138,6 +136,8 @@ class Hessians:
             key = (id(ys[0]), id(xs), component)
         if key not in self.Hs:
             self.Hs[key] = Hessian(ys, xs, component=component)
+        if backend_name == "jax":
+            return self.Hs[key](i, j)[0]
         return self.Hs[key](i, j)
 
     def clear(self):
