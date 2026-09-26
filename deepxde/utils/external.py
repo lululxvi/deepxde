@@ -62,7 +62,10 @@ class PointSet:
             if default_value is None:
                 return nearest_value
             distance = np.asarray(distance, self.points.dtype)
-            return np.where(isclose(distance, 0), nearest_value, default_value)
+            point_mask = isclose(distance, 0)
+            if nearest_value.ndim > point_mask.ndim:
+                point_mask = np.expand_dims(point_mask, axis=-1)
+            return np.where(point_mask, nearest_value, default_value)
 
         return func
 
