@@ -175,15 +175,26 @@ class ModelCheckpoint(Callback):
 
 class EarlyStopping(Callback):
     """Stop training when a monitored quantity (training or testing loss) has stopped improving.
-    Only checked at validation step according to ``display_every`` in ``Model.train``.
+
+    For optimizers using the standard training loop, losses are evaluated after
+    every update, independently of ``display_every`` in ``Model.train``. Attaching
+    this callback adds train and test loss evaluations (and metric evaluations)
+    between display steps, including during warm-up. The initial evaluation before
+    training does not count toward patience.
+
+    For PyTorch and Paddle L-BFGS, checks occur at outer optimizer boundaries,
+    which may contain multiple internal iterations. TensorFlow's external
+    optimizers do not invoke this callback's epoch-end checks.
 
     Args:
         min_delta: Minimum change in the monitored quantity
             to qualify as an improvement, i.e. an absolute
-            change of less than min_delta, will count as no
+            change of less than or equal to min_delta will count as no
             improvement.
-        patience: Number of epochs with no improvement
-            after which training will be stopped.
+        patience: Number of consecutive checks with no improvement after which
+            training will be stopped. Each check observes a fresh loss; in the
+            standard training loop there is one check per iteration. Zero stops
+            at the first non-improving check.
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
             over the baseline.
