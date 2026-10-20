@@ -2,6 +2,7 @@ import numpy as np
 
 from . import geometry
 from .. import config
+from ..utils import isclose
 
 
 class CSGUnion(geometry.Geometry):
@@ -86,18 +87,13 @@ class CSGUnion(geometry.Geometry):
 
     def periodic_point(self, x, component):
         x = np.copy(x)
-        on_boundary_geom1 = np.logical_and(
-            self.geom1.on_boundary(x), ~self.geom2.inside(x)
-        )
-        x[on_boundary_geom1] = self.geom1.periodic_point(x, component)[
-            on_boundary_geom1
-        ]
-        on_boundary_geom2 = np.logical_and(
-            self.geom2.on_boundary(x), ~self.geom1.inside(x)
-        )
-        x[on_boundary_geom2] = self.geom2.periodic_point(x, component)[
-            on_boundary_geom2
-        ]
+        on_boundary = self.on_boundary(x)
+        on_lower = isclose(x[:, component], self.bbox[0][component])
+        on_upper = isclose(x[:, component], self.bbox[1][component])
+        mask_lower = np.logical_and(on_boundary, on_lower)
+        mask_upper = np.logical_and(on_boundary, on_upper)
+        x[mask_lower, component] = self.bbox[1][component]
+        x[mask_upper, component] = self.bbox[0][component]
         return x
 
 
@@ -263,16 +259,11 @@ class CSGIntersection(geometry.Geometry):
 
     def periodic_point(self, x, component):
         x = np.copy(x)
-        on_boundary_geom1 = np.logical_and(
-            self.geom1.on_boundary(x), self.geom2.inside(x)
-        )
-        x[on_boundary_geom1] = self.geom1.periodic_point(x, component)[
-            on_boundary_geom1
-        ]
-        on_boundary_geom2 = np.logical_and(
-            self.geom2.on_boundary(x), self.geom1.inside(x)
-        )
-        x[on_boundary_geom2] = self.geom2.periodic_point(x, component)[
-            on_boundary_geom2
-        ]
+        on_boundary = self.on_boundary(x)
+        on_lower = isclose(x[:, component], self.bbox[0][component])
+        on_upper = isclose(x[:, component], self.bbox[1][component])
+        mask_lower = np.logical_and(on_boundary, on_lower)
+        mask_upper = np.logical_and(on_boundary, on_upper)
+        x[mask_lower, component] = self.bbox[1][component]
+        x[mask_upper, component] = self.bbox[0][component]
         return x
