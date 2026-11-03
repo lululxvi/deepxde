@@ -14,7 +14,7 @@ from . import metrics as metrics_module
 from . import optimizers
 from . import utils
 from .backend import backend_name, tf, torch, jax, paddle
-from .callbacks import CallbackList
+from .callbacks import CallbackList, EarlyStopping
 from .utils import list_to_str
 
 
@@ -655,7 +655,9 @@ class Model:
                   then it is the batch size for the branch input; if you want to also use mini-batch for the trunk net input,
                   set `batch_size` as a tuple, where the fist number is the batch size for the branch net input
                   and the second number is the batch size for the trunk net input.
-            display_every (Integer): Print the loss and metrics every this steps.
+            display_every (Integer): Record and print the loss and metrics every this
+                many steps. With ``EarlyStopping``, losses and metrics are evaluated
+                every iteration independently of this interval.
             disregard_previous_best: If ``True``, disregard the previous saved best
                 model.
             callbacks: List of ``dde.callbacks.Callback`` instances. List of callbacks
@@ -723,6 +725,9 @@ class Model:
         return self.losshistory, self.train_state
 
     def _train_sgd(self, iterations, display_every, verbose=1):
+        evaluate_every_iteration = any(
+            isinstance(callback, EarlyStopping) for callback in self.callbacks.callbacks
+        )
         for i in range(iterations):
             self.callbacks.on_epoch_begin()
             self.callbacks.on_batch_begin()
@@ -738,13 +743,18 @@ class Model:
 
             self.train_state.iteration += 1
             self.train_state.step += 1
-            if self.train_state.step % display_every == 0 or i + 1 == iterations:
-                self._test(verbose=verbose)
+            record = self.train_state.step % display_every == 0 or i + 1 == iterations
+            if evaluate_every_iteration or record:
+                self._test(verbose=verbose, record=record)
 
             self.callbacks.on_batch_end()
             self.callbacks.on_epoch_end()
 
             if self.stop_training:
+                if evaluate_every_iteration and not record:
+                    # Record the already evaluated stopping step, without another
+                    # forward pass or evaluating data resampled by end callbacks.
+                    self._record_test(verbose)
                 break
 
     def _train_tensorflow_compat_v1_scipy(self, display_every, verbose=1):
@@ -883,7 +893,7 @@ class Model:
             if self.stop_training:
                 break
 
-    def _test(self, verbose=1):
+    def _test(self, verbose=1, record=True):
         # TODO Now only print the training loss in rank 0. The correct way is to print the average training loss of all ranks.
         (
             self.train_state.y_pred_train,
@@ -914,18 +924,21 @@ class Model:
             ]
 
         self.train_state.update_best()
+        if (
+            np.isnan(self.train_state.loss_train).any()
+            or np.isnan(self.train_state.loss_test).any()
+        ):
+            self.stop_training = True
+        if record:
+            self._record_test(verbose)
+
+    def _record_test(self, verbose=1):
         self.losshistory.append(
             self.train_state.step,
             self.train_state.loss_train,
             self.train_state.loss_test,
             self.train_state.metrics_test,
         )
-
-        if (
-            np.isnan(self.train_state.loss_train).any()
-            or np.isnan(self.train_state.loss_test).any()
-        ):
-            self.stop_training = True
         if verbose > 0 and config.rank == 0:
             display.training_display(self.train_state)
 
