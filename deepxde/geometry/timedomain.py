@@ -34,7 +34,7 @@ class GeometryXTime:
 
     def boundary_normal(self, x):
         _n = self.geometry.boundary_normal(x[:, :-1])
-        return np.hstack([_n, np.zeros((len(_n), 1))])
+        return np.hstack([_n, np.zeros((len(_n), 1), dtype=config.real(np))])
 
     def uniform_points(self, n, boundary=True):
         """Uniform points on the spatio-temporal domain.
@@ -67,7 +67,7 @@ class GeometryXTime:
             )[:, None]
         xt = []
         for ti in t:
-            xt.append(np.hstack((x, np.full([nx, 1], ti[0]))))
+            xt.append(np.hstack((x, np.full([nx, 1], ti[0], dtype=config.real(np)))))
         xt = np.vstack(xt)
         if n != len(xt):
             print(
@@ -132,7 +132,7 @@ class GeometryXTime:
         )
         xt = []
         for ti in t:
-            xt.append(np.hstack((x, np.full([nx, 1], ti))))
+            xt.append(np.hstack((x, np.full([nx, 1], ti, dtype=config.real(np)))))
         xt = np.vstack(xt)
         if n != len(xt):
             print(
