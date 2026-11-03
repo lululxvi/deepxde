@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 
@@ -7,7 +8,8 @@ from . import config
 from . import gradients as grad
 from . import utils
 from .backend import backend_name, jax, paddle, tf, torch
-
+import matplotlib
+import matplotlib.pyplot as plt
 
 class Callback:
     """Callback base class.
@@ -565,6 +567,213 @@ class MovieDumper(Callback):
                 utils.save_animation(
                     fname_movie, xdata, self.spectrum, logy=True, y_reference=np.abs(A)
                 )
+
+
+class TrainingMonitor(Callback):
+    """Live-plot the predicted solution and the loss history during training.
+
+    Every `period` epochs, this callback redraws the current network
+    prediction over `x_plot` (optionally against a reference solution), and
+    the train/test loss history on a log scale. Unlike ``MovieDumper``,
+    which only writes an animation to disk in ``on_train_end``, or
+    ``dde.saveplot``, which produces a single static plot after training
+    finishes, this callback gives feedback while the model is still
+    training.
+
+    Both ODEs (`x_plot` of shape (N, 1), e.g. `y = f(t)`) and 2D
+    space-time PDEs (`x_plot` of shape (N, 2), e.g. `y = f(x, t)` as in
+    ``diffusion_1d.py``) are supported. For the 2D case, the solution is
+    shown as a scatter plot colored by `y`, with a matching panel for
+    `y_reference` (if given) sharing the same color scale for an
+    at-a-glance comparison.
+
+    Args:
+        period (int): Interval (number of epochs) between plot updates.
+        component (int): Which component of the solution to plot.
+        x_plot: Points at which the solution is evaluated and plotted, of
+            shape (N, 1) for `y = f(t)`-like problems, or (N, 2) for
+            `y = f(x, t)`-like problems.
+        y_reference: A function `y_reference(x_plot)` returning the
+            reference (e.g., exact) solution for comparison. If ``None``,
+            only the predicted solution is shown.
+        show_loss (bool): If True, also plot the training/testing loss
+            history in an additional subplot.
+
+    Warning:
+        Live plotting requires an interactive Matplotlib backend. In
+        headless environments (e.g., CI, servers without a display) this
+        callback automatically disables live plotting instead of raising
+        an error, so training is never interrupted.
+    """
+
+    def __init__(
+        self,
+        period=100,
+        component=0,
+        x_plot=None,
+        y_reference=None,
+        show_loss=True,
+    ):
+        super().__init__()
+        if x_plot is None:
+            raise ValueError("`x_plot` must be provided.")
+        self.period = period
+        self.component = component
+        self.x_plot = np.asarray(x_plot, dtype=config.real(np))
+        if self.x_plot.ndim == 1:
+            self.x_plot = self.x_plot[:, None]
+        if self.x_plot.shape[1] not in (1, 2):
+            raise ValueError(
+                "TrainingMonitor only supports 1D (e.g. y = f(t)) or 2D "
+                "(e.g. y = f(x, t)) `x_plot`, got {} columns.".format(
+                    self.x_plot.shape[1]
+                )
+            )
+        self.dim = self.x_plot.shape[1]
+        self.y_reference = y_reference
+        self.show_loss = show_loss
+
+        self.epochs_since_last = 0
+        self.enabled = True
+        self.plt = None
+        self.fig = None
+        self.ax_sol = None
+        self.ax_ref = None
+        self.ax_loss = None
+        self.cbar_sol = None
+        self.cbar_ref = None
+
+    def on_train_begin(self):
+        self.epochs_since_last = 0
+
+        if not self._has_display(matplotlib):
+            self.enabled = False
+            print(
+                "TrainingMonitor: no interactive display detected; "
+                "live plotting is disabled for this run."
+            )
+            return
+
+        self.plt = plt
+        plt.ion()
+        self.ax_ref = None
+        self.cbar_sol = None
+        self.cbar_ref = None
+        n_sol_axes = 1 if (self.dim == 1 or self.y_reference is None) else 2
+        n_axes = n_sol_axes + (1 if self.show_loss else 0)
+        self.fig, axes = plt.subplots(1, n_axes, figsize=(5 * n_axes, 4))
+        axes = np.atleast_1d(axes)
+        i = 0
+        self.ax_sol = axes[i]
+        i += 1
+        if n_sol_axes == 2:
+            self.ax_ref = axes[i]
+            i += 1
+        self.ax_loss = axes[i] if self.show_loss else None
+        self._redraw()
+
+    @staticmethod
+    def _has_display(matplotlib_module):
+        """Best-effort check for an interactive display/backend."""
+        if matplotlib_module.get_backend().lower() == "agg":
+            return False
+        if sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+            return False
+        return True
+
+    def on_epoch_end(self):
+        if not self.enabled:
+            return
+        self.epochs_since_last += 1
+        if self.epochs_since_last < self.period:
+            return
+        self.epochs_since_last = 0
+        self._update_plot()
+
+    def on_train_end(self):
+        if self.enabled and self.fig is not None:
+            self._update_plot()
+
+    def _update_plot(self):
+        try:
+            y_pred = self.model.predict(self.x_plot)[:, self.component]
+
+            if self.dim == 1:
+                self._plot_1d(y_pred)
+            else:
+                self._plot_2d(y_pred)
+
+            if self.show_loss:
+                self._plot_loss()
+
+            self._redraw()
+        except Exception as e:  # pylint: disable=broad-except
+            # Never let a plotting error interrupt training.
+            # Eventual improvment, here we can manage multipl Exception types
+            self.enabled = False
+            print("TrainingMonitor: disabling live plot due to error: {}".format(e))
+
+    def _plot_1d(self, y_pred):
+        x = np.ravel(self.x_plot)
+        self.ax_sol.cla()
+        self.ax_sol.plot(x, y_pred, "--r", label="Predicted")
+        if self.y_reference is not None:
+            y_ref = np.ravel(self.y_reference(self.x_plot))
+            self.ax_sol.plot(x, y_ref, "-k", label="Reference")
+        self.ax_sol.set_xlabel("x")
+        self.ax_sol.set_ylabel("y")
+        self.ax_sol.set_title("Epoch {}".format(self.model.train_state.iteration))
+        self.ax_sol.legend()
+
+    def _plot_2d(self, y_pred):
+        x0, x1 = self.x_plot[:, 0], self.x_plot[:, 1]
+        y_ref = None
+        if self.y_reference is not None:
+            y_ref = np.ravel(self.y_reference(self.x_plot))
+            vmin = min(y_pred.min(), y_ref.min())
+            vmax = max(y_pred.max(), y_ref.max())
+        else:
+            vmin, vmax = y_pred.min(), y_pred.max()
+
+        if self.cbar_sol is not None:
+            self.cbar_sol.remove()
+        self.ax_sol.cla()
+        sc = self.ax_sol.scatter(x0, x1, c=y_pred, cmap="jet", vmin=vmin, vmax=vmax, s=10)
+        self.ax_sol.set_xlabel("x")
+        self.ax_sol.set_ylabel("t")
+        self.ax_sol.set_title(
+            "Predicted, epoch {}".format(self.model.train_state.iteration)
+        )
+        self.cbar_sol = self.fig.colorbar(sc, ax=self.ax_sol)
+
+        if self.ax_ref is not None:
+            if self.cbar_ref is not None:
+                self.cbar_ref.remove()
+            self.ax_ref.cla()
+            sc_ref = self.ax_ref.scatter(
+                x0, x1, c=y_ref, cmap="jet", vmin=vmin, vmax=vmax, s=10
+            )
+            self.ax_ref.set_xlabel("x")
+            self.ax_ref.set_ylabel("t")
+            self.ax_ref.set_title("Reference")
+            self.cbar_ref = self.fig.colorbar(sc_ref, ax=self.ax_ref)
+
+    def _plot_loss(self):
+        loss_history = self.model.losshistory
+        loss_train = [np.sum(loss) for loss in loss_history.loss_train]
+        loss_test = [np.sum(loss) for loss in loss_history.loss_test]
+        self.ax_loss.cla()
+        self.ax_loss.semilogy(loss_history.steps, loss_train, label="Train loss")
+        self.ax_loss.semilogy(loss_history.steps, loss_test, label="Test loss")
+        self.ax_loss.set_xlabel("# Steps")
+        self.ax_loss.set_ylabel("Loss")
+        self.ax_loss.legend()
+
+    def _redraw(self):
+        self.fig.tight_layout()
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
+        self.plt.pause(0.001)
 
 
 class PDEPointResampler(Callback):
