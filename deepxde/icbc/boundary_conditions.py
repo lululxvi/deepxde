@@ -456,7 +456,17 @@ def npfunc_range_autocache(func):
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
     if backend_name in ["pytorch", "paddle"]:
+        # Issue #2074: the (id(X), beg, end) cache key omits the current value of
+        # any trainable variable that ``func`` may close over (e.g. an inverse
+        # problem IC/BC of the form ``func(x) = f(x; theta)`` with ``theta`` a
+        # trainable ``dde.Variable``). Because X (and its id) is fixed across
+        # training iterations, ``wrapper_cache`` returns the value evaluated at
+        # the *first* theta, going stale after every optimizer step. This is the
+        # same reason the 2-argument path below already uses ``wrapper_nocache_*``
+        # (aux_var can change even when X is fixed); a fixed X does NOT imply a
+        # fixed func output. Use the no-cache wrapper here too so the reported
+        # IC/BC value and its autograd graph always track the current parameter.
         if utils.get_num_args(func) == 1:
-            return wrapper_cache
+            return wrapper_nocache
         if utils.get_num_args(func) == 2:
             return wrapper_nocache_auxiliary
