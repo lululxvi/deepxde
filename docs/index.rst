@@ -76,6 +76,7 @@ User guide
   demos/pinn_forward
   demos/pinn_inverse
   demos/operator
+  demos/hyperparameter
   user/parallel
   user/faq
 
