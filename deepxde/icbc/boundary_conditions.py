@@ -59,9 +59,24 @@ class BC(ABC):
 
     @abstractmethod
     def error(self, X, inputs, outputs, beg, end, aux_var=None):
-        """Returns the loss."""
-        # aux_var is used in PI-DeepONet, where aux_var is the input function evaluated
-        # at x.
+        """Returns the BC residual for the points in ``inputs[beg:end]``.
+
+        Args:
+            X: A NumPy array of shape ``(N, dim)`` containing the coordinates of all
+                collocation points in the current batch (BC points followed by PDE
+                points). ``X[beg:end]`` are the coordinates for this BC, used to
+                evaluate reference values and boundary normals.
+            inputs: The backend tensor of the same coordinates as ``X``, as fed into
+                the network. Required for gradient computation via autodiff (e.g.
+                normal derivatives). ``inputs[beg:end]`` must correspond to the same
+                points as ``X[beg:end]``.
+            outputs: The network output tensor of shape ``(N, n_components)``.
+                ``outputs[beg:end]`` are the predicted values at the BC points.
+            beg: Start index into ``X``, ``inputs``, and ``outputs`` for this BC.
+            end: End index (exclusive) for this BC.
+            aux_var: Auxiliary variables used in PI-DeepONet, where ``aux_var`` is
+                the input function evaluated at the collocation points.
+        """
 
 
 class DirichletBC(BC):
