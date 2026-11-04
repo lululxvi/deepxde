@@ -21,6 +21,13 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         os: [ubuntu-latest, macos-latest, windows-latest]
+        # actions/setup-python has no Python 3.9 build for Ubuntu 26.04 (ubuntu-latest).
+        exclude:
+          - python-version: "3.9"
+            os: ubuntu-latest
+        include:
+          - python-version: "3.9"
+            os: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
