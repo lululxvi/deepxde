@@ -675,6 +675,10 @@ class Model:
         self.batch_size = batch_size
         self.callbacks = CallbackList(callbacks=callbacks)
         self.callbacks.set_model(self)
+        for cb in self.callbacks.callbacks:
+            if type(cb).__name__ == "TimeTracker":
+                cb.total_iterations = iterations
+
         if disregard_previous_best:
             self.train_state.disregard_best()
 
