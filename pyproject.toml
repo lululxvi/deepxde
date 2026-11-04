@@ -50,7 +50,7 @@ Documentation = "https://deepxde.readthedocs.io"
 
 [tool.setuptools.packages.find]
 where = ["."]
-exclude = ["docker", "docs*", "examples*"]
+exclude = ["docker", "docs*", "examples*", "tests*"]
 
 [tool.setuptools_scm]
 write_to = "deepxde/_version.py"
