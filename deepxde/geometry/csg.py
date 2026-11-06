@@ -31,8 +31,14 @@ class CSGUnion(geometry.Geometry):
 
     def on_boundary(self, x):
         return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
-            np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x)),
+            np.logical_and(
+                self.geom1.on_boundary(x), 
+                np.logical_or(~self.geom2.inside(x), self.geom2.on_boundary(x))
+            ),
+            np.logical_and(
+                self.geom2.on_boundary(x), 
+                np.logical_or(~self.geom1.inside(x), self.geom1.on_boundary(x))
+            ),
         )
 
     def boundary_normal(self, x):
@@ -87,15 +93,25 @@ class CSGUnion(geometry.Geometry):
 
     def periodic_point(self, x, component):
         x = np.copy(x)
-        on_boundary = self.on_boundary(x)
-        on_lower = isclose(x[:, component], self.bbox[0][component])
-        on_upper = isclose(x[:, component], self.bbox[1][component])
-        mask_lower = np.logical_and(on_boundary, on_lower)
-        mask_upper = np.logical_and(on_boundary, on_upper)
-        x[mask_lower, component] = self.bbox[1][component]
-        x[mask_upper, component] = self.bbox[0][component]
+        x_original = np.copy(x) # Cache original to prevent mask corruption
+        
+        # geom1 handles the overlap mapping
+        on_boundary_geom1 = np.logical_and(
+            self.geom1.on_boundary(x_original), 
+            np.logical_or(~self.geom2.inside(x_original), self.geom2.on_boundary(x_original))
+        )
+        x[on_boundary_geom1] = self.geom1.periodic_point(x_original, component)[
+            on_boundary_geom1
+        ]
+        
+        # geom2 ignores overlap to prevent mapping the same point twice
+        on_boundary_geom2 = np.logical_and(
+            self.geom2.on_boundary(x_original), ~self.geom1.inside(x_original)
+        )
+        x[on_boundary_geom2] = self.geom2.periodic_point(x_original, component)[
+            on_boundary_geom2
+        ]
         return x
-
 
 class CSGDifference(geometry.Geometry):
     """Construct an object by CSG Difference."""
@@ -259,11 +275,21 @@ class CSGIntersection(geometry.Geometry):
 
     def periodic_point(self, x, component):
         x = np.copy(x)
-        on_boundary = self.on_boundary(x)
-        on_lower = isclose(x[:, component], self.bbox[0][component])
-        on_upper = isclose(x[:, component], self.bbox[1][component])
-        mask_lower = np.logical_and(on_boundary, on_lower)
-        mask_upper = np.logical_and(on_boundary, on_upper)
-        x[mask_lower, component] = self.bbox[1][component]
-        x[mask_upper, component] = self.bbox[0][component]
+        # Cache the original input to prevent in-place mutation
+        # from corrupting the masks for subsequent checks.
+        x_original = np.copy(x)
+        
+        on_boundary_geom1 = np.logical_and(
+            self.geom1.on_boundary(x_original), self.geom2.inside(x_original)
+        )
+        x[on_boundary_geom1] = self.geom1.periodic_point(x_original, component)[
+            on_boundary_geom1
+        ]
+        
+        on_boundary_geom2 = np.logical_and(
+            self.geom2.on_boundary(x_original), self.geom1.inside(x_original)
+        )
+        x[on_boundary_geom2] = self.geom2.periodic_point(x_original, component)[
+            on_boundary_geom2
+        ]
         return x
