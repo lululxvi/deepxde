@@ -1,3 +1,4 @@
+# Modified 2026-11-08: preserve pointwise StarShaped boundary classification.
 __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
 
 from typing import Union, Literal
@@ -491,7 +492,7 @@ class StarShaped(Geometry):
     def on_boundary(self, x):
         r, theta = polar(x - self.center)
         r_theta = self._r_theta(theta)
-        return isclose(np.linalg.norm(r_theta - r), 0)
+        return isclose(r_theta - r, 0)
 
     def boundary_normal(self, x):
         _, theta = polar(x - self.center)
