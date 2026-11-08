@@ -98,11 +98,12 @@ model = dde.Model(data, net)
 print("Stage 1: Training with Adam...")
 # Weights: [res_pde, penalty, res_fb, IC, LB, HB]
 # Heavily weight the initial/boundary conditions and the payoff penalty
-model.compile("adam", lr=0.001, loss_weights=[1, 10, 5, 100, 100, 100])
+loss_weights = [1, 10, 5, 100, 100, 100]
+model.compile("adam", lr=0.001, loss_weights=loss_weights)
 model.train(iterations=12000)
 
 print("Stage 2: Fine-tuning with L-BFGS and Adaptive Refinement...")
-model.compile("L-BFGS")
+model.compile("L-BFGS", loss_weights=loss_weights)
 checker = dde.callbacks.PDEPointResampler(period=1000)
 losshistory, train_state = model.train(callbacks=[checker])
 
