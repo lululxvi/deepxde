@@ -1,3 +1,4 @@
+# Modified 2026-11-08: Support NumPy trapezoidal integration API changes.
 __all__ = [
     "FunctionSpace",
     "PowerSeries",
@@ -316,6 +317,7 @@ def eig(kernel, num, Nx, eigenfunction=True):
     eigval, eigvec = np.real(eigval), np.real(eigvec)
     idx = np.flipud(np.argsort(eigval))[:num]
     eigval, eigvec = eigval[idx], eigvec[:, idx]
+    trapezoid = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
     for i in range(num):
-        eigvec[:, i] /= np.trapz(eigvec[:, i] ** 2, dx=h) ** 0.5
+        eigvec[:, i] /= trapezoid(eigvec[:, i] ** 2, dx=h) ** 0.5
     return eigval, eigvec
