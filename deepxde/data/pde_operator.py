@@ -70,29 +70,44 @@ class PDEOperator(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None, X_bc=None, aux_var=None):
         f = []
         if self.pde.pde is not None:
             f = self.pde.pde(inputs[1], outputs, model.net.auxiliary_vars)
             if not isinstance(f, (list, tuple)):
                 f = [f]
 
+        if X_bc is None:
+            X_bc = self.train_x[1]
+        if aux_var is None:
+            aux_var = self.train_aux_vars
         bcs_start = np.cumsum([0] + self.num_bcs)
         error_f = [fi[bcs_start[-1] :] for fi in f]
         losses = [loss_fn(bkd.zeros_like(error), error) for error in error_f]
         for i, bc in enumerate(self.pde.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
-            # The same BC points are used for training and testing.
             error = bc.error(
-                self.train_x[1],
+                X_bc,
                 inputs[1],
                 outputs,
                 beg,
                 end,
-                aux_var=self.train_aux_vars,
+                aux_var=aux_var,
             )
             losses.append(loss_fn(bkd.zeros_like(error), error))
         return losses
+
+    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return self.losses(
+            targets,
+            outputs,
+            loss_fn,
+            inputs,
+            model,
+            aux=aux,
+            X_bc=self.test_x[1],
+            aux_var=self.test_aux_vars,
+        )
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
@@ -171,7 +186,11 @@ class PDEOperator(Data):
         """Resample the training points for the operator."""
         self.pde.resample_train_points(pde_points, bc_points)
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
+        if bc_points:
+            self.test_x, self.test_y, self.test_aux_vars = None, None, None
         self.train_next_batch()
+        if bc_points:
+            self.test()
 
 
 class PDEOperatorCartesianProd(Data):
@@ -237,7 +256,7 @@ class PDEOperatorCartesianProd(Data):
         self.train_next_batch()
         self.test()
 
-    def _losses(self, outputs, loss_fn, inputs, model, num_func, aux=None):
+    def _losses(self, outputs, loss_fn, inputs, model, num_func, X_bc=None, aux=None):
         bcs_start = np.cumsum([0] + self.pde.num_bcs)
 
         losses = []
@@ -284,6 +303,8 @@ class PDEOperatorCartesianProd(Data):
                 losses.append(bkd.reduce_mean(bkd.stack(error_i, 0)))
 
         # BC loss
+        if X_bc is None:
+            X_bc = self.train_x[1]
         losses_bc = []
         for i in range(num_func):
             losses_i = []
@@ -292,9 +313,8 @@ class PDEOperatorCartesianProd(Data):
                 out = out[:, None]
             for j, bc in enumerate(self.pde.bcs):
                 beg, end = bcs_start[j], bcs_start[j + 1]
-                # The same BC points are used for training and testing.
                 error = bc.error(
-                    self.train_x[1],
+                    X_bc,
                     inputs[1],
                     out,
                     beg,
@@ -312,11 +332,19 @@ class PDEOperatorCartesianProd(Data):
 
     def losses_train(self, targets, outputs, loss_fn, inputs, model, aux=None):
         num_func = self.num_func if self.batch_size is None else self.batch_size
-        return self._losses(outputs, loss_fn, inputs, model, num_func, aux=aux)
+        return self._losses(
+            outputs, loss_fn, inputs, model, num_func, X_bc=self.train_x[1], aux=aux
+        )
 
     def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return self._losses(
-            outputs, loss_fn, inputs, model, len(self.test_x[0]), aux=aux
+            outputs,
+            loss_fn,
+            inputs,
+            model,
+            len(self.test_x[0]),
+            X_bc=self.test_x[1],
+            aux=aux,
         )
 
     def train_next_batch(self, batch_size=None):

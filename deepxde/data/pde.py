@@ -135,7 +135,7 @@ class PDE(Data):
         self.train_next_batch()
         self.test()
 
-    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
+    def losses(self, targets, outputs, loss_fn, inputs, model, aux=None, X_bc=None):
         if backend_name in ["tensorflow.compat.v1", "paddle"]:
             outputs_pde = outputs
         elif backend_name in ["tensorflow", "pytorch"]:
@@ -181,6 +181,8 @@ class PDE(Data):
                 )
             )
 
+        if X_bc is None:
+            X_bc = self.train_x
         bcs_start = np.cumsum([0] + self.num_bcs)
         bcs_start = list(map(int, bcs_start))
         error_f = [fi[bcs_start[-1] :] for fi in f]
@@ -189,10 +191,14 @@ class PDE(Data):
         ]
         for i, bc in enumerate(self.bcs):
             beg, end = bcs_start[i], bcs_start[i + 1]
-            # The same BC points are used for training and testing.
-            error = bc.error(self.train_x, inputs, outputs, beg, end)
+            error = bc.error(X_bc, inputs, outputs, beg, end)
             losses.append(loss_fn[len(error_f) + i](bkd.zeros_like(error), error))
         return losses
+
+    def losses_test(self, targets, outputs, loss_fn, inputs, model, aux=None):
+        return self.losses(
+            targets, outputs, loss_fn, inputs, model, aux=aux, X_bc=self.test_x
+        )
 
     @run_if_all_none("train_x", "train_y", "train_aux_vars")
     def train_next_batch(self, batch_size=None):
@@ -239,8 +245,11 @@ class PDE(Data):
             self.train_x_all = None
         if bc_points:
             self.train_x_bc = None
+            self.test_x, self.test_y, self.test_aux_vars = None, None, None
         self.train_x, self.train_y, self.train_aux_vars = None, None, None
         self.train_next_batch()
+        if bc_points:
+            self.test()
 
     def add_anchors(self, anchors):
         """Add new points for training PDE losses.
