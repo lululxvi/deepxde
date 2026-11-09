@@ -2,6 +2,7 @@ __all__ = ["get", "is_external_optimizer", "apply_updates"]
 
 import jax
 import optax
+from optax import schedules
 
 
 apply_updates = optax.apply_updates
@@ -37,12 +38,17 @@ def _get_learningrate(lr, decay):
     if decay is None:
         return lr
     if decay[0] == "linear":
-        return optax.linear_schedule(lr, decay[1], decay[2])
+        return schedules.linear_schedule(lr, *decay[1:])
     if decay[0] == "cosine":
-        return optax.cosine_decay_schedule(lr, decay[1], decay[2])
+        return schedules.cosine_decay_schedule(lr, *decay[1:])
     if decay[0] == "exponential":
-        return optax.exponential_decay(lr, decay[1], decay[2])
+        return schedules.exponential_decay(lr, *decay[1:])
+    if decay[0] == "warmup_cosine":
+        return schedules.warmup_cosine_decay_schedule(lr, *decay[1:])
+    if decay[0] == "warmup_exponential":
+        return schedules.warmup_exponential_decay_schedule(lr, *decay[1:])
 
     raise NotImplementedError(
-        f"{decay[0]} learning rate decay to be implemented for backend jax."
+        f"Unknown decay schedule '{decay[0]}' for JAX backend. "
+        f"Supported: 'linear', 'cosine', 'exponential', 'warmup_cosine', 'warmup_exponential'."
     )
