@@ -2,8 +2,6 @@ import numpy as np
 
 from . import geometry
 from .. import config
-from ..utils import isclose
-
 
 class CSGUnion(geometry.Geometry):
     """Construct an object by CSG Union."""
