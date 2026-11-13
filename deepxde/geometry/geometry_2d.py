@@ -1,4 +1,3 @@
-# Modified 2026-11-08: preserve pointwise StarShaped boundary classification.
 __all__ = ["Disk", "Ellipse", "Polygon", "Rectangle", "StarShaped", "Triangle"]
 
 from typing import Union, Literal
