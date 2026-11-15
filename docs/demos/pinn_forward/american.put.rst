@@ -181,15 +181,18 @@ Training Strategy:
 ~~~~~~~~~~~~~~~~~~
 We employ a two-stage training process. First, we use the Adam optimizer for 12,000 iterations, heavily weighting the boundary conditions and the intrinsic payoff penalty. Then, we use L-BFGS with a ``PDEPointResampler`` to adaptively refine the solution.
 
+There are six loss terms: the three residuals returned by ``pde`` (``res_pde``, ``penalty``, and ``res_fb``), followed by the initial and boundary conditions in the order ``[IC, LB, HB]``. We use weights ``[1, 10, 5, 100, 100, 100]`` in this order for both stages. Pass the weights to both ``compile`` calls: omitting ``loss_weights`` when recompiling for L-BFGS resets them to ``None``, giving all six terms equal weight instead of preserving the Adam weights.
+
 .. code-block:: python
 
     model = dde.Model(data, net)
 
     # Heavily weight the initial/boundary conditions and the payoff penalty
-    model.compile("adam", lr=0.001, loss_weights=[1, 10, 5, 100, 100, 100])
+    loss_weights = [1, 10, 5, 100, 100, 100]
+    model.compile("adam", lr=0.001, loss_weights=loss_weights)
     model.train(iterations=12000)
 
-    model.compile("L-BFGS")
+    model.compile("L-BFGS", loss_weights=loss_weights)
     checker = dde.callbacks.PDEPointResampler(period=1000)
     losshistory, train_state = model.train(callbacks=[checker])
 
