@@ -133,6 +133,19 @@ class Model:
         """
         if verbose > 0 and config.rank == 0:
             print("Compiling model...")
+        if (
+            loss_weights is None
+            and self.loss_weights is not None
+            and verbose > 0
+            and config.rank == 0
+        ):
+            print(
+                "Warning: `loss_weights` was set by a previous `compile()` call, but "
+                "this call does not pass it, so it will be reset to None and all "
+                "losses will be weighted equally. When switching optimizers, e.g. "
+                "Adam -> L-BFGS, pass `loss_weights=model.loss_weights` explicitly "
+                "to keep the weights; pass verbose=0 to silence this warning."
+            )
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
         self.loss_weights = loss_weights
