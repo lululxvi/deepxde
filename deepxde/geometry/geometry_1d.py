@@ -74,8 +74,8 @@ class Interval(Geometry):
             Each element in the tensor corresponds to the computed distance value for the respective point in `x`.
         """
 
-        if where not in [None, "left"]:
-            raise ValueError("where must be None or left")
+        if where not in [None, "left", "right"]:
+            raise ValueError("where must be one of None, left, right")
         if smoothness not in ["C0", "C0+", "Cinf"]:
             raise ValueError("smoothness must be one of C0, C0+, Cinf")
 
