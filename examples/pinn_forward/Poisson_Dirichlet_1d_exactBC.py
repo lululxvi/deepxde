@@ -49,8 +49,10 @@ def output_transform(x, y):
 net.apply_output_transform(output_transform)
 
 model = dde.Model(data, net)
+# Most backends
 model.compile("adam", lr=1e-4, decay=("inverse time", 1000, 0.3), metrics=["l2 relative error"])
-
+# Backend jax (does not support "inverse time" decay)
+# model.compile("adam", lr=1e-4, decay=("exponential", 1000, 0.9), metrics=["l2 relative error"])
 losshistory, train_state = model.train(iterations=30000)
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
