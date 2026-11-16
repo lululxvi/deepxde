@@ -919,7 +919,7 @@ class Polygon(Geometry):
         l1 = l0 + self.diagonals[i, i + 1]
         v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
         for l in u:
-            if l > l1:
+            while l > l1:
                 i += 1
                 l0, l1 = l1, l1 + self.diagonals[i, i + 1]
                 v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
