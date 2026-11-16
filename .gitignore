@@ -23,3 +23,7 @@ deepxde/_version.py
 
 # PyCharm
 .idea/
+
+venv/
+*.dat
+**/*/*.dat
