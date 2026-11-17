@@ -1,6 +1,7 @@
 import numpy as np
 
 from .data import Data
+from .sampler import BatchSampler
 from .. import config
 from .. import utils
 
@@ -46,11 +47,16 @@ class DataSet(Data):
                 self.train_x, self.test_x
             )
 
+        self.train_sampler = BatchSampler(len(self.train_y), shuffle=True)
+
     def losses(self, targets, outputs, loss_fn, inputs, model, aux=None):
         return loss_fn(targets, outputs)
 
     def train_next_batch(self, batch_size=None):
-        return self.train_x, self.train_y
+        if batch_size is None:
+            return self.train_x, self.train_y
+        indices = self.train_sampler.get_next(batch_size)
+        return self.train_x[indices], self.train_y[indices]
 
     def test(self):
         return self.test_x, self.test_y
