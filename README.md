@@ -105,6 +105,7 @@ $ git clone https://github.com/lululxvi/deepxde.git
 - [Demos of forward problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_forward.html)
 - [Demos of inverse problems](https://deepxde.readthedocs.io/en/latest/demos/pinn_inverse.html)
 - [Demos of operator learning](https://deepxde.readthedocs.io/en/latest/demos/operator.html)
+- [Demos of hyperparameter optimization](https://deepxde.readthedocs.io/en/latest/demos/hyperparameter.html)
 - [FAQ](https://deepxde.readthedocs.io/en/latest/user/faq.html)
 - [Research papers used DeepXDE](https://deepxde.readthedocs.io/en/latest/user/research.html)
 - [API](https://deepxde.readthedocs.io/en/latest/modules/deepxde.html)
