@@ -62,6 +62,10 @@ To obtain more information concerning data-parallel PINNs, we refer the readers 
   @article{escapil2023h,
     title={h-analysis and data-parallel physics-informed neural networks},
     author={Escapil-Inchausp{\'e}, Paul and Ruz, Gonzalo A},
-    journal={arXiv preprint arXiv:2302.08835},
-    year={2023}
+    journal={Scientific Reports},
+    volume={13},
+    number={1},
+    pages={17562},
+    year={2023},
+    doi={10.1038/s41598-023-44541-5}
   }
