@@ -175,15 +175,19 @@ class ModelCheckpoint(Callback):
 
 class EarlyStopping(Callback):
     """Stop training when a monitored quantity (training or testing loss) has stopped improving.
-    Only checked at validation step according to ``display_every`` in ``Model.train``.
+    Only checked when a fresh loss is available, according to ``display_every``
+    in ``Model.train`` (including the final training step). This callback does
+    not add loss evaluations. The initial evaluation before training does not
+    count as a check.
 
     Args:
         min_delta: Minimum change in the monitored quantity
             to qualify as an improvement, i.e. an absolute
-            change of less than min_delta, will count as no
+            change of less than or equal to min_delta will count as no
             improvement.
-        patience: Number of epochs with no improvement
-            after which training will be stopped.
+        patience: Number of consecutive loss evaluations with no improvement
+            after which training will be stopped. Zero stops at the first
+            non-improving check.
         baseline: Baseline value for the monitored quantity to reach.
             Training will stop if the model doesn't show improvement
             over the baseline.
@@ -218,6 +222,7 @@ class EarlyStopping(Callback):
         # Allow instances to be re-used
         self.wait = 0
         self.stopped_epoch = 0
+        self._last_checked_step = self.model.train_state.step
         if self.baseline is not None:
             self.best = self.baseline
         else:
@@ -226,6 +231,14 @@ class EarlyStopping(Callback):
     def on_epoch_end(self):
         if self.model.train_state.iteration < self.start_from_epoch:
             return
+        step = self.model.train_state.step
+        if (
+            step == self._last_checked_step
+            or not self.model.losshistory.steps
+            or self.model.losshistory.steps[-1] != step
+        ):
+            return
+        self._last_checked_step = step
         current = self.get_monitor_value()
         if self.monitor_op(current - self.min_delta, self.best):
             self.best = current
