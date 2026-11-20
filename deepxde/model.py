@@ -135,6 +135,16 @@ class Model:
             print("Compiling model...")
         self.opt_name = optimizer
         loss_fn = losses_module.get(loss)
+        if self.loss_weights is not None and loss_weights is None:
+            warnings.warn(
+        "Calling compile() without loss_weights resets the previously "
+        "configured loss_weights to None. If you want to preserve the "
+        "previous loss_weights when recompiling the model, pass them "
+        "explicitly, e.g., loss_weights=model.loss_weights.",
+        UserWarning,
+        stacklevel=3,
+        )
+
         self.loss_weights = loss_weights
         if external_trainable_variables is None:
             self.external_trainable_variables = []

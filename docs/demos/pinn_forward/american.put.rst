@@ -55,8 +55,8 @@ The boundary and initial conditions are:
 
 1. Initial Condition (at maturity :math:`\tau=0`):
 
-.. math:: 
-    
+.. math::
+
     V(S, 0) = \max(K - S, 0)
 
 2. Boundary Conditions:
@@ -103,27 +103,27 @@ We formulate this using soft penalties and the Fischer-Burmeister equation :math
     def pde(x, y):
         s = x[:, 0:1]
         v = y
-        
-        dv_dtau = dde.grad.jacobian(y, x, i=0, j=1) 
+
+        dv_dtau = dde.grad.jacobian(y, x, i=0, j=1)
         dv_ds = dde.grad.jacobian(y, x, i=0, j=0)
         dv_ds2 = dde.grad.hessian(y, x, i=0, j=0)
-        
+
         # Black-Scholes Operator
         bs_op = -dv_dtau + 0.5 * (sigma**2) * (s**2) * dv_ds2 + r * s * dv_ds - r * v
-        
+
         # Intrinsic Value (Payoff)
         payoff = dde.backend.relu(K - s)
-        
+
         # LCP Constraints
         res_pde = dde.backend.relu(bs_op)            # Soft penalty for L(V) > 0
         penalty = dde.backend.relu(payoff - v)       # Soft penalty for V < Payoff
-        
+
         # Fischer-Burmeister Complementarity
         a = v - payoff
-        b = -bs_op 
+        b = -bs_op
         # Add 1e-8 for numerical stability of the derivative of sqrt at 0
         res_fb = torch.sqrt(a**2 + b**2 + 1e-8) - (a + b)
-        
+
         return [res_pde, penalty, res_fb]
 
 For the boundary conditions, we define the payoff function at maturity (:math:`\tau=0`) and the Dirichlet conditions at :math:`S=0` and :math:`S=S_{max}`:
@@ -137,15 +137,15 @@ For the boundary conditions, we define the payoff function at maturity (:math:`\
     IC = dde.icbc.IC(geomtime, initial_condition, lambda _, on_initial: on_initial)
 
     LB = dde.icbc.DirichletBC(
-        geomtime, 
-        lambda x: K, 
-        lambda x, on_boundary: on_boundary and np.isclose(x[0], 0), 
+        geomtime,
+        lambda x: K,
+        lambda x, on_boundary: on_boundary and np.isclose(x[0], 0),
         component=0
     )
     HB = dde.icbc.DirichletBC(
-        geomtime, 
-        lambda x: 0, 
-        lambda x, on_boundary: on_boundary and np.isclose(x[0], S_max), 
+        geomtime,
+        lambda x: 0,
+        lambda x, on_boundary: on_boundary and np.isclose(x[0], S_max),
         component=0
     )
 
@@ -160,11 +160,11 @@ To perfectly capture the non-differentiable kink at the strike price, we densely
     anchors = np.hstack((S_anchors, tau_anchors))
 
     data = dde.data.TimePDE(
-        geomtime, 
-        pde, 
+        geomtime,
+        pde,
         [IC, LB, HB],
-        num_domain=6000, 
-        num_boundary=1500, 
+        num_domain=6000,
+        num_boundary=1500,
         num_initial=1500,
         anchors=anchors
     )
@@ -179,19 +179,19 @@ We use a fully connected neural network with 4 hidden layers and 128 neurons per
 
 Training Strategy:
 ~~~~~~~~~~~~~~~~~~
-We employ a two-stage training process. First, we use the Adam optimizer for 12,000 iterations, heavily weighting the boundary conditions and the intrinsic payoff penalty. Then, we use L-BFGS with a ``PDEPointResampler`` to adaptively refine the solution.
+model = dde.Model(data, net)
 
-.. code-block:: python
+# Heavily weight the initial/boundary conditions and the payoff penalty
 
-    model = dde.Model(data, net)
+loss_weights = [1, 10, 5, 100, 100, 100]
+model.compile("adam", lr=0.001, loss_weights=loss_weights)
+model.train(iterations=12000)
 
-    # Heavily weight the initial/boundary conditions and the payoff penalty
-    model.compile("adam", lr=0.001, loss_weights=[1, 10, 5, 100, 100, 100])
-    model.train(iterations=12000)
-
-    model.compile("L-BFGS")
-    checker = dde.callbacks.PDEPointResampler(period=1000)
-    losshistory, train_state = model.train(callbacks=[checker])
+# Pass loss_weights again when recompiling with L-BFGS.
+# Arguments from the previous compile() call are not preserved.
+model.compile("L-BFGS", loss_weights=loss_weights)
+checker = dde.callbacks.PDEPointResampler(period=1000)
+losshistory, train_state = model.train(callbacks=[checker])
 
 Validation
 ----------
