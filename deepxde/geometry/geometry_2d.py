@@ -48,7 +48,7 @@ class Disk(Hypersphere):
         return self.radius * (np.sqrt(r) * np.vstack((x, y))).T + self.center
 
     def uniform_boundary_points(self, n):
-        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False, dtype=config.real(np))
         X = np.vstack((np.cos(theta), np.sin(theta))).T
         return self.radius * X + self.center
 
@@ -214,30 +214,34 @@ class Rectangle(Hypercube):
         nx, ny = np.ceil(n / self.perimeter * (self.xmax - self.xmin)).astype(int)
         xbot = np.hstack(
             (
-                np.linspace(self.xmin[0], self.xmax[0], num=nx, endpoint=False)[
+                np.linspace(self.xmin[0], self.xmax[0], num=nx, endpoint=False,
+                    dtype=config.real(np))[
                     :, None
                 ],
-                np.full([nx, 1], self.xmin[1]),
+                np.full([nx, 1], self.xmin[1], dtype=config.real(np)),
             )
         )
         yrig = np.hstack(
             (
-                np.full([ny, 1], self.xmax[0]),
-                np.linspace(self.xmin[1], self.xmax[1], num=ny, endpoint=False)[
+                np.full([ny, 1], self.xmax[0], dtype=config.real(np)),
+                np.linspace(self.xmin[1], self.xmax[1], num=ny, endpoint=False,
+                    dtype=config.real(np))[
                     :, None
                 ],
             )
         )
         xtop = np.hstack(
             (
-                np.linspace(self.xmin[0], self.xmax[0], num=nx + 1)[1:, None],
-                np.full([nx, 1], self.xmax[1]),
+                np.linspace(self.xmin[0], self.xmax[0], num=nx + 1,
+                    dtype=config.real(np))[1:, None],
+                np.full([nx, 1], self.xmax[1], dtype=config.real(np)),
             )
         )
         ylef = np.hstack(
             (
-                np.full([ny, 1], self.xmin[0]),
-                np.linspace(self.xmin[1], self.xmax[1], num=ny + 1)[1:, None],
+                np.full([ny, 1], self.xmin[0], dtype=config.real(np)),
+                np.linspace(self.xmin[1], self.xmax[1], num=ny + 1,
+                    dtype=config.real(np))[1:, None],
             )
         )
         x = np.vstack((xbot, yrig, xtop, ylef))
@@ -268,7 +272,7 @@ class Rectangle(Hypercube):
                 x.append([self.xmax[0] - l + l2, self.xmax[1]])
             else:
                 x.append([self.xmin[0], self.xmax[1] - l + l3])
-        return np.vstack(x)
+        return np.vstack(x).astype(config.real(np))
 
     def _boundary_constraint_factor_inside(
         self,
@@ -465,7 +469,7 @@ class StarShaped(Geometry):
 
     def _r_theta(self, theta):
         """Define the parametrization r(theta) at angles theta."""
-        result = self.radius * np.ones(theta.shape)
+        result = self.radius * np.ones(theta.shape, dtype=config.real(np))
         for i, (coeff_cos, coeff_sin) in enumerate(
             zip(self.coeffs_cos, self.coeffs_sin), start=1
         ):
@@ -474,7 +478,7 @@ class StarShaped(Geometry):
 
     def _dr_theta(self, theta):
         """Evalutate the polar derivative r'(theta) at angles theta"""
-        result = np.zeros(theta.shape)
+        result = np.zeros(theta.shape, dtype=config.real(np))
         for i, (coeff_cos, coeff_sin) in enumerate(
             zip(self.coeffs_cos, self.coeffs_sin), start=1
         ):
@@ -517,7 +521,7 @@ class StarShaped(Geometry):
         return x[:n]
 
     def uniform_boundary_points(self, n):
-        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False)
+        theta = np.linspace(0, 2 * np.pi, num=n, endpoint=False, dtype=config.real(np))
         r_theta = self._r_theta(theta)
         X = np.vstack((r_theta * np.cos(theta), r_theta * np.sin(theta))).T
         return X + self.center
@@ -635,21 +639,24 @@ class Triangle(Geometry):
     def uniform_boundary_points(self, n):
         density = n / self.perimeter
         x12 = (
-            np.linspace(0, 1, num=int(np.ceil(density * self.l12)), endpoint=False)[
+            np.linspace(0, 1, num=int(np.ceil(density * self.l12)), endpoint=False,
+                dtype=config.real(np))[
                 :, None
             ]
             * self.v12
             + self.x1
         )
         x23 = (
-            np.linspace(0, 1, num=int(np.ceil(density * self.l23)), endpoint=False)[
+            np.linspace(0, 1, num=int(np.ceil(density * self.l23)), endpoint=False,
+                dtype=config.real(np))[
                 :, None
             ]
             * self.v23
             + self.x2
         )
         x31 = (
-            np.linspace(0, 1, num=int(np.ceil(density * self.l31)), endpoint=False)[
+            np.linspace(0, 1, num=int(np.ceil(density * self.l31)), endpoint=False,
+                dtype=config.real(np))[
                 :, None
             ]
             * self.v31
@@ -891,6 +898,7 @@ class Polygon(Geometry):
                     1,
                     num=int(np.ceil(density * self.diagonals[i, i + 1])),
                     endpoint=False,
+                    dtype=config.real(np),
                 )[:, None]
                 * (self.vertices[i + 1] - self.vertices[i])
                 + self.vertices[i]
@@ -924,7 +932,7 @@ class Polygon(Geometry):
                 l0, l1 = l1, l1 + self.diagonals[i, i + 1]
                 v = (self.vertices[i + 1] - self.vertices[i]) / self.diagonals[i, i + 1]
             x.append((l - l0) * v + self.vertices[i])
-        return np.vstack(x)
+        return np.vstack(x).astype(config.real(np))
 
 
 def polygon_signed_area(vertices):
