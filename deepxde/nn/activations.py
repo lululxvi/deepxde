@@ -40,10 +40,10 @@ def get(identifier):
 
     Args:
         identifier: Function or string (ELU, GELU, ReLU, SELU, Sigmoid, SiLU, sin,
-            Swish, tanh).
+            Swish, tanh, linear).
 
     Returns:
-        Function corresponding to the input string or input function.
+        Function corresponding to the input string or input function, linear if identifier is None.
     """
     if identifier is None:
         return linear
@@ -62,6 +62,7 @@ def get(identifier):
             "sin": bkd.sin,
             "swish": bkd.silu,
             "tanh": bkd.tanh,
+            "linear": linear,
         }[identifier.lower()]
     if callable(identifier):
         return identifier
