@@ -12,6 +12,7 @@ ODEs
    pinn_forward/ode.system
    pinn_forward/lotka.volterra
    pinn_forward/ode.2nd
+   pinn_forward/sturm.liouville
 
 Time-independent PDEs
 ---------------------
