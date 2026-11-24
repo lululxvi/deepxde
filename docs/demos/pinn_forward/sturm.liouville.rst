@@ -4,7 +4,7 @@ Sturm-Liouville eigenvalue problem
 Problem setup
 -------------
 
-We will find the three lowest eigenvalues :math:`E_0 < E_1 < E_2` and their eigenfunctions :math:`\psi_0, \psi_1, \psi_2` of the Sturm-Liouville problem
+We look for the three lowest eigenvalues :math:`E_0 < E_1 < E_2` and their eigenfunctions :math:`\psi_0, \psi_1, \psi_2` of the Sturm-Liouville problem
 
 .. math:: -\psi''(x) + V(x)\psi(x) = E\psi(x), \qquad V(x) = \frac{x^4}{4} + x,
 
@@ -12,11 +12,11 @@ for :math:`x \in [-4.5, 3.5]`, with boundary conditions
 
 .. math:: \psi(-4.5) = \psi(3.5) = 0.
 
-There is no known closed-form solution, but Chebyshev collocation gives the eigenvalues to 12 digits:
+There is no known closed-form solution. As reference values, the example computes the eigenvalues by Chebyshev collocation, accurate to about 11 digits:
 
-.. math:: E_0 = 0.354123262748, \quad E_1 = 2.336634228099, \quad E_2 = 4.644604790037.
+.. math:: E_0 = 0.3541232627, \quad E_1 = 2.3366342281, \quad E_2 = 4.6446047900.
 
-The lowest eigenvalue has a physical meaning. On the whole real line, :math:`E_0 = 0.354123244453` is the long-time rate at which the solutions of :math:`dx = x^2 dt + \sqrt{2} dW` escape to infinity, i.e., noise-driven escape past a saddle-node bifurcation. Restricting the problem to :math:`[-4.5, 3.5]` changes it by only :math:`2 \times 10^{-8}`.
+The interval is chosen so that the eigenfunctions are already very small at its ends. The potential has its minimum at :math:`x = -1` and grows like :math:`x^4/4`, so the eigenfunctions decay roughly like :math:`e^{-|x|^3/6}` away from the well. As a result, the three eigenvalues differ from those on the whole real line by less than :math:`2 \times 10^{-6}` (relative).
 
 Implementation
 --------------
@@ -30,17 +30,22 @@ First, the DeepXDE and NumPy (``np``) modules are imported:
     import deepxde as dde
     import numpy as np
 
-We use double precision. In single precision, L-BFGS stops early here, and the eigenvalues are less accurate: in a test, the relative error of :math:`E_0` grew from :math:`1.7 \times 10^{-5}` to :math:`8 \times 10^{-4}`.
+We use double precision. In single precision, L-BFGS stops much earlier here, and the results are less accurate: in a test with seed 0, the relative error of :math:`E_0` grew from :math:`1.9 \times 10^{-5}` to :math:`3.3 \times 10^{-4}`, and that of :math:`E_1` from :math:`8.8 \times 10^{-7}` to :math:`4.6 \times 10^{-5}`.
 
 .. code-block:: python
 
     dde.config.set_default_float("float64")
 
-The eigenvalues are unknown, so we make them trainable variables with initial guess 0. They are learned together with the network, in the same way as the unknown parameters in the inverse problem for the Lorenz system.
+The eigenvalues are unknown, so we make them trainable variables with initial guess 0, which is below the lowest eigenvalue. They are learned together with the network, in the same way as the unknown parameters in the inverse problem for the Lorenz system.
 
 .. code-block:: python
 
     K = 3
+    a, b = -4.5, 3.5
+
+    def V(x):
+        return x**4 / 4 + x
+
     E = [dde.Variable(0.0) for _ in range(K)]
 
 One network with :math:`K` outputs represents the :math:`K` eigenfunctions. For each output, the residual of the ODE uses its own eigenvalue:
@@ -49,8 +54,7 @@ One network with :math:`K` outputs represents the :math:`K` eigenfunctions. For 
 
     def pde(x, psi):
         residuals = [
-            -dde.grad.hessian(psi, x, component=k)
-            + (x**4 / 4 + x - E[k]) * psi[:, k : k + 1]
+            -dde.grad.hessian(psi, x, component=k) + (V(x) - E[k]) * psi[:, k : k + 1]
             for k in range(K)
         ]
 
@@ -58,25 +62,27 @@ These residuals are zero for the trivial solution :math:`\psi = 0`, and nothing 
 
 .. math:: \int_a^b \psi_j(x) \psi_k(x) \, dx = \delta_{jk}.
 
-The integrals are approximated by the mean over the points, and the :math:`K(K+1)/2` conditions are returned as one more residual, repeated at every point:
+The training points form a uniform grid inside :math:`(a, b)`, and :math:`\psi = 0` at both ends, so the trapezoidal rule for these integrals is :math:`h` times the sum over the points, where :math:`h = (b - a)/(n + 1)` for :math:`n` points. Since the eigenfunctions are tiny near both ends, this rule is very accurate here: for the exact eigenfunctions, the orthonormality conditions hold to about :math:`10^{-14}`. So this loss does not pull the network away from the exact solution. The :math:`K(K+1)/2` conditions are returned as one more residual, repeated at every point:
 
 .. code-block:: python
 
+        h = (b - a) / (len(x) + 1)
         orthonormality = [
-            (b - a) * dde.backend.reduce_mean(psi[:, j] * psi[:, k]) - float(j == k)
+            h * dde.backend.reduce_sum(psi[:, j] * psi[:, k]) - float(j == k)
             for j in range(K)
             for k in range(j, K)
         ]
         orthonormality = dde.backend.reshape(dde.backend.stack(orthonormality, 0), [1, -1])
         return residuals + [orthonormality + 0 * x]
 
-The computational geometry is an interval, and we use 400 training residual points and 1000 test points:
+The computational geometry is an interval. We use 400 training points on a uniform grid (``train_distribution="uniform"``), which the trapezoidal rule above relies on, and 1000 test points:
 
 .. code-block:: python
 
-    a, b = -4.5, 3.5
     geom = dde.geometry.Interval(a, b)
-    data = dde.data.PDE(geom, pde, [], num_domain=400, num_test=1000)
+    data = dde.data.PDE(
+        geom, pde, [], num_domain=400, num_test=1000, train_distribution="uniform"
+    )
 
 Next, we choose the network. Here, we use a fully connected neural network of depth 4 (i.e., 3 hidden layers), width 32, and :math:`K` outputs:
 
@@ -113,26 +119,26 @@ The outputs come in no particular order, so we sort them by eigenvalue:
     E_pred = np.array([dde.backend.to_numpy(e) for e in E])
     order = np.argsort(E_pred)
 
-Finally, we check the result in two ways. The eigenvalues are compared with the reference values. And by Sturm's oscillation theorem, the :math:`n`-th eigenfunction has exactly :math:`n` zeros inside the interval, so we count the sign changes of each learned eigenfunction, ignoring its tails, where it is below 0.1% of its maximum:
+Nothing in the training forces the three learned eigenpairs to be the three lowest; starting all eigenvalues at 0, below the spectrum, makes this likely but does not guarantee it. So we check the result in two ways. First, the eigenvalues are compared with the reference values, computed by Chebyshev collocation in ``reference_eigenvalues`` (see the complete code below). Second, by Sturm's oscillation theorem, the eigenfunction of the :math:`n`-th lowest eigenvalue has exactly :math:`n` zeros inside the interval, and no other eigenfunction has :math:`n` zeros. So if the learned eigenfunctions have 0, 1 and 2 zeros, they are the three lowest, independently of the reference values. We count the sign changes of each learned eigenfunction, ignoring its tails, where it is below 0.1% of its maximum:
 
 .. code-block:: python
 
-    E_ref = [0.354123262748, 2.336634228099, 4.644604790037]
+    E_ref = reference_eigenvalues()
     x = geom.uniform_points(1000)
     psi = model.predict(x)
     for n, k in enumerate(order):
         p = psi[np.abs(psi[:, k]) > 1e-3 * np.abs(psi[:, k]).max(), k]
         zeros = np.sum(np.sign(p[1:]) != np.sign(p[:-1]))
         error = abs(E_pred[k] - E_ref[n]) / E_ref[n]
-        print(f"E_{n} = {E_pred[k]:.8f}, relative error {error:.1e}, zeros: {zeros}")
+        print(
+            f"E_{n} = {E_pred[k]:.8f} (reference {E_ref[n]:.8f}), "
+            f"relative error {error:.1e}, zeros: {zeros}"
+        )
 
-With the PyTorch backend on a CPU and five random seeds (0 to 4, set by ``dde.config.set_random_seed``), every run found the three lowest eigenpairs, and every learned eigenfunction had the right number of zeros. The relative errors of :math:`E_0`, :math:`E_1` and :math:`E_2` were at most :math:`2.3 \times 10^{-5}`, :math:`1.0 \times 10^{-5}` and :math:`4.4 \times 10^{-6}`. Compared with a fine-grid finite-difference solution, the relative :math:`L^2` errors of the eigenfunctions were between :math:`4 \times 10^{-5}` and :math:`1.4 \times 10^{-4}`. A run takes about five minutes on a laptop CPU. The figure shows the eigenfunctions learned with seed 0:
+With the PyTorch backend on a CPU and five random seeds (0 to 4, set by ``dde.config.set_random_seed``), every run found the three lowest eigenpairs, and every learned eigenfunction had the right number of zeros. The relative errors of :math:`E_0`, :math:`E_1` and :math:`E_2` were at most :math:`4.3 \times 10^{-5}`, :math:`2.1 \times 10^{-5}` and :math:`6.6 \times 10^{-6}`. Compared with a fine-grid finite-difference solution, the relative :math:`L^2` errors of the eigenfunctions were between :math:`3.3 \times 10^{-5}` and :math:`1.3 \times 10^{-4}`. With 1000 training points instead of 400 (seeds 0 to 2), the errors were of the same size, so the number of points is not what limits the accuracy here. A run takes about 8 minutes on a laptop CPU. The figure shows the eigenfunctions learned with seed 0:
 
 .. image:: sturm_liouville.png
    :width: 500
-
-
-Note: on Apple silicon, the PyTorch backend runs on the MPS GPU, which does not support float64. Run on the CPU instead, for example with ``torch.set_default_device("cpu")`` after ``import deepxde``.
 
 Complete code
 -------------
