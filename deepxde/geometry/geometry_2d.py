@@ -112,8 +112,12 @@ class Ellipse(Geometry):
             self.theta_from_arc_length,
             self.total_arc,
         ) = self._theta_from_arc_length_constructor()
+        # The norm of each scaled rotation row gives the extent on that axis.
+        half_extent = np.hypot(
+            semimajor * self.rotation_mat[:, 0], semiminor * self.rotation_mat[:, 1]
+        ).astype(config.real(np))
         super().__init__(
-            2, (self.center - semimajor, self.center + semiminor), 2 * self.c
+            2, (self.center - half_extent, self.center + half_extent), 2 * semimajor
         )
 
     def on_boundary(self, x):
